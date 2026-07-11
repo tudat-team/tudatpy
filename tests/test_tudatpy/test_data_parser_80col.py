@@ -1,17 +1,19 @@
+import importlib
+
 import pytest
 import pandas as pd
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.mpc.parser_80col.parsers import (
-    parse_80cols_data,
-    parse_80cols_file,
-    identify_object,
-)
-from tudatpy.data.mpc.parser_80col.unpackers import (
-    unpack_permanent_minor_planet,
-    unpack_provisional_minor_planet,
-    unpack_provisional_comet_or_satellite,
-    unpack_permanent_natural_satellite,
-)
+from tudatpy.data_access.tracking.mpc import BatchMPC
+
+parsers = importlib.import_module("tudatpy.data_access.tracking.80_column.parsers")
+unpackers = importlib.import_module("tudatpy.data_access.tracking.80_column.unpackers")
+
+parse_80cols_data = parsers.parse_80cols_data
+parse_80cols_file = parsers.parse_80cols_file
+identify_object = parsers.identify_object
+unpack_permanent_minor_planet = unpackers.unpack_permanent_minor_planet
+unpack_provisional_minor_planet = unpackers.unpack_provisional_minor_planet
+unpack_provisional_comet_or_satellite = unpackers.unpack_provisional_comet_or_satellite
+unpack_permanent_natural_satellite = unpackers.unpack_permanent_natural_satellite
 
 # ==============================================================================
 # SECTION A: UNIT TESTS (Logic Only, Offline)

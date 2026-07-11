@@ -1,36 +1,37 @@
+import importlib
+
 import pandas as pd
 import pytest
-from tudatpy.data.mpc import BatchMPC
+from tudatpy.data_access.tracking.mpc import (
+    BatchMPC,
+    read_mpc_data,
+)
+from tudatpy.data_access.tracking.optical_utilities import (
+    create_augmented_optical_table,
+    read_astropy_optical_data,
+    read_pandas_optical_data,
+)
 import numpy as np
 from astropy.table import Table
+
+read_80_column_data = importlib.import_module(
+    "tudatpy.data_access.tracking.80_column"
+).read_80_column_data
 
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
-# BatchMPC.__init__ calls MPC.get_observatory_codes() over the network to
-# build its list of observatories/space telescopes. Every test constructs a
-# BatchMPC(), so this fixture is autouse: it stubs that call out with a small
-# fake observatory table (C51 has no Longitude, mimicking a space telescope)
-# so the whole suite runs offline and deterministically.
 @pytest.fixture(autouse=True)
-def mock_station_info(monkeypatch):
-    """Prevent every BatchMPC() from hitting the network in __init__."""
-    fake_obs_codes = pd.DataFrame(
-        {
-            "Code": ["500", "673", "089", "C51"],
-            "Longitude": [0.0, 1.23, 4.56, float("nan")],  # C51 = space telescope
-        }
+def fail_on_implicit_station_info(monkeypatch):
+    """BatchMPC construction and simple optical loading must not retrieve station data."""
+
+    def unexpected_get_observatory_codes():
+        raise AssertionError("Unexpected MPC observatory-code retrieval")
+
+    monkeypatch.setattr(
+        "astroquery.mpc.MPC.get_observatory_codes", unexpected_get_observatory_codes
     )
-
-    def fake_get_observatory_codes():
-        class _Wrap:
-            def to_pandas(self_inner):
-                return fake_obs_codes
-
-        return _Wrap()
-
-    monkeypatch.setattr("astroquery.mpc.MPC.get_observatory_codes", fake_get_observatory_codes)
     yield
 
 
@@ -134,20 +135,38 @@ class TestAngleConversion:
 
 
 # ---------------------------------------------------------------------------
-# _add_time_columns: converts the JD/UTC 'epoch' column into
-# epoch_seconds_UTC and epoch_seconds_TDB using tudatpy's own time-scale
-# converter. This is deliberately NOT mocked: the conversion is pure, local
-# and deterministic, so exercising the real tudatpy code gives a genuine
-# regression guard on that contract.
+# Augmented table: the shared intermediate representation for optical data.
+# Epochs remain UTC here; conversion to TDB is done later when creating an
+# ObservationCollection from TrackingData.
 # ---------------------------------------------------------------------------
-def test_tdb_is_ahead_of_utc_by_expected_offset(valid_obs_table):
-    batch = BatchMPC()
-    out = batch._add_time_columns(valid_obs_table)
-    diff = out["epoch_seconds_TDB"] - out["epoch_seconds_UTC"]
-    # TDB leads UTC by (TAI-UTC leap seconds) + 32.184s (TT-TAI); in the
-    # current era that's roughly 69s, so bound it loosely to avoid a brittle
-    # test if leap seconds change.
-    assert (diff > 60).all() and (diff < 70).all()
+def test_augmented_table_adds_utc_epochs_only(valid_obs_table):
+    out = create_augmented_optical_table(valid_obs_table)
+    assert "epoch_seconds_UTC" in out.columns
+    assert "epoch_seconds_TDB" not in out.columns
+
+
+def _check_tracking_data_pair(result, expected_sets):
+    tracking_data, supplementary_data = result
+    assert len(tracking_data) == expected_sets
+    assert supplementary_data == []
+    assert all(data.time_scale == "UTC" for data in tracking_data)
+    assert all(data.observable_type == "AngularPosition" for data in tracking_data)
+
+
+def test_read_pandas_optical_data_returns_tracking_data(valid_obs_table):
+    _check_tracking_data_pair(read_pandas_optical_data(valid_obs_table), expected_sets=2)
+
+
+def test_read_pandas_optical_data_marks_vfcc17_weighing_scheme(valid_obs_table):
+    tracking_data, supplementary_data = read_pandas_optical_data(valid_obs_table, add_weights=True)
+    assert supplementary_data == []
+    assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
+
+
+def test_read_astropy_optical_data_returns_tracking_data(valid_obs_table):
+    _check_tracking_data_pair(
+        read_astropy_optical_data(Table.from_pandas(valid_obs_table)), expected_sets=2
+    )
 
 
 # Fakes astroquery's MPC.get_observations(code) return value: the real call
@@ -167,6 +186,22 @@ def _fake_mpc_obs(df):
 # response contains. Each test below pins one specific branch of that logic.
 # ---------------------------------------------------------------------------
 class TestGetObservationsIdentifierResolution:
+    def test_read_mpc_data_returns_tracking_data(self, monkeypatch):
+        df = pd.DataFrame(
+            {
+                "number": ["433"],
+                "epoch": [2451545.0],
+                "RA": [1.0],
+                "DEC": [1.0],
+                "band": ["V"],
+                "observatory": ["500"],
+                "note2": [""],
+                "desig": [None],
+            }
+        )
+        monkeypatch.setattr("astroquery.mpc.MPC.get_observations", lambda code: _fake_mpc_obs(df))
+        _check_tracking_data_pair(read_mpc_data([433]), expected_sets=1)
+
     def test_numbered_asteroid_uses_number(self, monkeypatch):
         # Simple case: a numbered asteroid reports its number directly.
         df = pd.DataFrame(
@@ -269,16 +304,10 @@ def test_rejects_invalid_code_type():
 
 
 # ---------------------------------------------------------------------------
-# from_file: a thin wrapper around parse_80cols_file() + from_astropy(). We
-# stub the parser (its own correctness is tudatpy's parser test suite's job)
-# and just check the wiring: the parsed table flows through to the batch.
-#
-# Note: patch the name where it's *used* (tudatpy.data.mpc.mpc), not where
-# it's *defined* (tudatpy.data.mpc.parser_80col) - mpc.py imports the
-# function by name at module load time, so patching the original module
-# doesn't affect the copy already bound in mpc.py's namespace.
+# read_80_column_data: a thin wrapper around parse_80cols_file() and the
+# shared augmented-table-to-TrackingData path.
 # ---------------------------------------------------------------------------
-def test_from_file_delegates_to_parser_and_from_astropy(monkeypatch, tmp_path):
+def test_read_80_column_data_delegates_to_parser(monkeypatch, tmp_path):
     fake_table = Table(
         {
             "number": ["433"],
@@ -289,11 +318,12 @@ def test_from_file_delegates_to_parser_and_from_astropy(monkeypatch, tmp_path):
             "observatory": ["500"],
         }
     )
-    monkeypatch.setattr("tudatpy.data.mpc.mpc.parse_80cols_file", lambda filename: fake_table)
-    batch = BatchMPC()
-    batch.from_file(str(tmp_path / "fake.txt"), custom_name="Eros")
-    assert batch.size == 1
-    assert batch.MPC_objects == ["Eros"]
+    monkeypatch.setattr(
+        "tudatpy.data_access.tracking.mpc.parse_80cols_file", lambda filename: fake_table
+    )
+    _check_tracking_data_pair(
+        read_80_column_data(str(tmp_path / "fake.txt"), custom_name="Eros"), expected_sets=1
+    )
 
 
 # ---------------------------------------------------------------------------

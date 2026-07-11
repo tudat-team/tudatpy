@@ -3,14 +3,16 @@ import numpy as np
 from astroquery.mpc import MPC
 import astropy
 import copy
+import importlib
 from tudatpy.astro import time_representation
-from tudatpy.data.mpc.parser_80col import parse_80cols_file
-from tudatpy.data.mpc.parser_80col import unpackers
-from tudatpy.data import TrackingData
-from tudatpy.data.mpc import corrections
+from tudatpy.data_access.tracking import TrackingData
+from tudatpy.data_access.tracking import optical_utilities
 
-# do not remove this line, even if it looks like an unused import line
-from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
+_eighty_column = importlib.import_module("tudatpy.data_access.tracking.80_column")
+parse_80cols_file = _eighty_column.parse_80cols_file
+unpackers = importlib.import_module("tudatpy.data_access.tracking.80_column.unpackers")
+OBS_TYPES_TO_DROP = unpackers.OBS_TYPES_TO_DROP
+
 
 REQUIRED_OPTICAL_COLUMNS = ["number", "epoch", "RA", "DEC", "band", "observatory"]
 ANCILLARY_STRING_COLUMNS = ["band", "catalog", "note2", "custom_name", "mag", "discovery"]
@@ -107,7 +109,7 @@ def optical_table_to_tracking_data(
         weighing_scheme = "VFCC17"
 
     if add_star_catalog_corrections:
-        RA_corr, DEC_corr = corrections.get_biases_EFCC18(mpc_table=table)
+        RA_corr, DEC_corr = optical_utilities.get_biases_EFCC18(mpc_table=table)
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
     if add_ancillary_data:
@@ -593,7 +595,7 @@ class BatchMPC:
 
         This method serves as a high-level convenience function that orchestrates the
         parsing of a raw 80-column file and loading the data into the batch. It uses
-        the `tudatpy.data.mpc.parser_80col.parse_80cols_file` function internally.
+        the `tudatpy.data_access.tracking.80_column.parse_80cols_file` function internally.
 
         The parser returns an Astropy Table with RA/DEC values in radians, so this
         method subsequently calls `from_astropy` to ingest the data. The `in_degrees`
@@ -607,7 +609,9 @@ class BatchMPC:
 
         .. code-block:: python
 
-            from tudatpy.data.mpc.parser_80col import parse_80cols_file
+            parse_80cols_file = importlib.import_module(
+                "tudatpy.data_access.tracking.80_column"
+            ).parse_80cols_file
 
             # 1. Parse the file to an Astropy Table
             astropy_table = parse_80cols_file("my_obs.txt")

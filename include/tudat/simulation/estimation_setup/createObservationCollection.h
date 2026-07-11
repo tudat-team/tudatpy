@@ -32,6 +32,7 @@
 #include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/trackingDataWeighting.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
@@ -155,6 +156,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
 
     // Get observations from tracking data
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
+
+    setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
 
     // Apply corrections if requested (and if they exist)
     if( applyCorrections )

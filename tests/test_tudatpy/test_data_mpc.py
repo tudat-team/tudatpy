@@ -1,4 +1,4 @@
-from tudatpy.data.mpc import BatchMPC
+from tudatpy.data_access.tracking.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice

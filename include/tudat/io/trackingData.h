@@ -13,7 +13,12 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -40,9 +45,11 @@ public:
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd,
-                  const std::string timeScale = "TDB" ):
+                  const std::string timeScale = "TDB",
+                  const std::string weighingScheme = "" ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), numberOfObservations_( observations.size( ) ),
+        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), weighingScheme_( weighingScheme ),
+        numberOfObservations_( observations.size( ) ),
         singleObservationSize_( !observations.empty( ) ? static_cast< unsigned int >( observations[ 0 ].size( ) ) : 0 )
     {
         // Check inputs size consistency
@@ -113,6 +120,12 @@ public:
     std::string getTimeScale( )
     {
         return timeScale_;
+    }
+
+    //! Function that returns the requested weighing scheme
+    std::string getWeighingScheme( )
+    {
+        return weighingScheme_;
     }
 
     //! Function that returns observation values
@@ -444,6 +457,8 @@ private:
     const std::string referenceLinkEnd_;
 
     const std::string timeScale_;
+
+    const std::string weighingScheme_;
 
     unsigned int numberOfObservations_;
 

@@ -13,7 +13,7 @@ void add_astro_to_kernel( py::module_& m );
 void add_trajectory_design_to_kernel( py::module_& m );
 void add_constants_to_kernel( py::module_& m );
 void add_interface_to_kernel( py::module_& m );
-void add_data_to_kernel( py::module_& m );
+void add_data_access_to_kernel( py::module_& m );
 void add_dynamics_to_kernel( py::module_& m );
 void add_estimation_to_kernel( py::module_& m );
 void add_exceptions_to_kernel( py::module_& m );
@@ -35,8 +35,8 @@ PYBIND11_MODULE( kernel, m )
     auto interface = m.def_submodule( "interface" );
     add_interface_to_kernel( interface );
 
-    auto data = m.def_submodule( "data" );
-    add_data_to_kernel( data );
+    auto data_access = m.def_submodule( "data_access" );
+    add_data_access_to_kernel( data_access );
 
     auto dynamics = m.def_submodule( "dynamics" );
     add_dynamics_to_kernel( dynamics );

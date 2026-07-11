@@ -136,7 +136,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ );
 
     m.def( "add_psf_cameras_to_bodies",
-           py::overload_cast< const std::string&, const tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(
+           py::overload_cast< const std::string&, tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(
                    &tom::addPsfCamerasToBodies ),
            py::arg( "psf_file" ),
            py::arg( "bodies" ),
@@ -163,7 +163,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             []( const std::string& psfFile,
                 tss::SystemOfBodies& bodies,
                 const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                const tudat::input_output::psf::RawPsfFileContents psfFileContents = tudat::input_output::psf::readPsfFile( psfFile );
+                const tudat::input_output::psf::RawPsfFileContents psfFileContents = tudat::input_output::psf::readRawPsfFile( psfFile );
                 tom::addPsfCamerasToBodies( psfFileContents, bodies, conversionSettings );
                 return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFileContents, conversionSettings );
             },

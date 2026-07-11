@@ -207,3 +207,47 @@ def get_biases_EFCC18(
     DEC_correction = Quantity(DEC_correction, unit=u.arcsec).to(u.rad).value
 
     return RA_correction, DEC_correction
+
+
+def create_augmented_optical_table(*args, **kwargs):
+    from tudatpy.data_access.tracking.mpc import (
+        create_augmented_optical_table as _create_augmented_optical_table,
+    )
+
+    return _create_augmented_optical_table(*args, **kwargs)
+
+
+def optical_table_to_tracking_data(*args, **kwargs):
+    from tudatpy.data_access.tracking.mpc import (
+        optical_table_to_tracking_data as _optical_table_to_tracking_data,
+    )
+
+    return _optical_table_to_tracking_data(*args, **kwargs)
+
+
+def read_astropy_optical_data(*args, **kwargs):
+    from tudatpy.data_access.tracking.mpc import (
+        read_astropy_optical_data as _read_astropy_optical_data,
+    )
+
+    return _read_astropy_optical_data(*args, **kwargs)
+
+
+def read_pandas_optical_data(*args, **kwargs):
+    from tudatpy.data_access.tracking.mpc import (
+        read_pandas_optical_data as _read_pandas_optical_data,
+    )
+
+    return _read_pandas_optical_data(*args, **kwargs)
+
+
+__all__ = [
+    "BIAS_LOWRES_FILE",
+    "DEFAULT_CATALOG_FLAGS",
+    "create_augmented_optical_table",
+    "get_biases_EFCC18",
+    "load_bias_file",
+    "optical_table_to_tracking_data",
+    "read_astropy_optical_data",
+    "read_pandas_optical_data",
+]

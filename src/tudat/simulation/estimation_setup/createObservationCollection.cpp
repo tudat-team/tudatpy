@@ -69,7 +69,7 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
-    return ancillarySetting == "Doppler base frequency";
+    return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
 }
 
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,

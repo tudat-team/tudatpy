@@ -940,6 +940,7 @@ Read a mapping from DOMES id to station name.
                             const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
                             const std::vector< TIME_TYPE >,
                             const std::string,
+                            const std::string,
                             const std::string >( ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
@@ -947,6 +948,7 @@ Read a mapping from DOMES id to station name.
                   py::arg( "epochs" ),
                   py::arg( "reference_link_end" ),
                   py::arg( "time_scale" ) = "TDB",
+                  py::arg( "weighing_scheme" ) = "",
                   R"doc(Creates a TrackingData object.)doc" )
             .def_property_readonly( "observable_type", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType )
             .def_property_readonly( "link_ends", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEnds )
@@ -954,6 +956,7 @@ Read a mapping from DOMES id to station name.
             .def_property_readonly( "epochs", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationEpochs )
             .def_property_readonly( "reference_link_end", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd )
             .def_property_readonly( "time_scale", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeScale )
+            .def_property_readonly( "weighing_scheme", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeighingScheme )
             .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< std::string > >(
                           &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),

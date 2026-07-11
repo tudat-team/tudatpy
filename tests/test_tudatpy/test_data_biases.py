@@ -1,4 +1,8 @@
-from tudatpy.data.mpc import get_biases_EFCC18, load_bias_file, BIAS_LOWRES_FILE
+from tudatpy.data_access.tracking.optical_utilities import (
+    BIAS_LOWRES_FILE,
+    get_biases_EFCC18,
+    load_bias_file,
+)
 
 import numpy as np
 import pytest
