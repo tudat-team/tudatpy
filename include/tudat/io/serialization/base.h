@@ -371,45 +371,49 @@ T deserializeFromJsonString( const std::string& data )
     }
 
 //! Add saveToJson/loadFromJson for polymorphic base (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_JSON_IO_POLYMORPHIC( ... )                                          \
-    void saveToJson( const std::string& path ) const                                     \
-    {                                                                                    \
-        ::tudat::serialization::saveToJsonFile( *this, path );                           \
-    }                                                                                    \
-    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )        \
-    {                                                                                    \
-        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path ); \
+#define TUDAT_DEFINE_JSON_IO_POLYMORPHIC( ... )                                                                    \
+    void saveToJson( const std::string& path ) const                                                               \
+    {                                                                                                              \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                            \
+    }                                                                                                              \
+    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                  \
+    {                                                                                                              \
+        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                           \
     }
 
 //! Add saveToBinary/loadFromBinary for polymorphic base (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( ... )                                          \
-    void saveToBinary( const std::string& path ) const                                     \
-    {                                                                                      \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                           \
-    }                                                                                      \
-    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )        \
-    {                                                                                      \
-        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path ); \
+#define TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( ... )                                                                  \
+    void saveToBinary( const std::string& path ) const                                                             \
+    {                                                                                                              \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                          \
+    }                                                                                                              \
+    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                \
+    {                                                                                                              \
+        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                         \
     }
 
 //! Add saveToBinary/loadFromBinary AND saveToJson/loadFromJson for polymorphic base
 //! (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ... )                                            \
-    void saveToBinary( const std::string& path ) const                                     \
-    {                                                                                      \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                           \
-    }                                                                                      \
-    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )        \
-    {                                                                                      \
-        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path ); \
-    }                                                                                      \
-    void saveToJson( const std::string& path ) const                                       \
-    {                                                                                      \
-        ::tudat::serialization::saveToJsonFile( *this, path );                             \
-    }                                                                                      \
-    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )          \
-    {                                                                                      \
-        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );   \
+#define TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ... )                                                                    \
+    void saveToBinary( const std::string& path ) const                                                             \
+    {                                                                                                              \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                          \
+    }                                                                                                              \
+    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                \
+    {                                                                                                              \
+        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                         \
+    }                                                                                                              \
+    void saveToJson( const std::string& path ) const                                                               \
+    {                                                                                                              \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                            \
+    }                                                                                                              \
+    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                  \
+    {                                                                                                              \
+        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                           \
     }
 
 #endif  // TUDAT_SERIALIZATION_BASE_H
