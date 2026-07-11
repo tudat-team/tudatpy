@@ -23,6 +23,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/timeType.h"
@@ -200,14 +201,22 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     if( trackingData->getTimeScale( ) != "TDB" )
     {
         auto const& inputScale = basic_astrodynamics::timeScaleFromString( trackingData->getTimeScale( ) );
+        Eigen::Vector3d timeScaleConversionPosition = Eigen::Vector3d::Zero( );
+        const LinkEndId referenceLinkEndId = rawLinkEnds.at( referenceLinkEnd );
+        if( referenceLinkEndId.bodyName_ == "Earth" && bodies.doesBodyExist( referenceLinkEndId.bodyName_ ) )
+        {
+            const std::shared_ptr< simulation_setup::Body > earthBody = bodies.getBody( referenceLinkEndId.bodyName_ );
+            const std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStations =
+                    earthBody->getGroundStationMap( );
+            auto groundStationIterator = groundStations.find( referenceLinkEndName );
+            if( groundStationIterator != groundStations.end( ) && groundStationIterator->second != nullptr )
+            {
+                timeScaleConversionPosition = groundStationIterator->second->getNominalStationState( )->getNominalCartesianPosition( );
+            }
+        }
 
-        auto const& earthFixedPosition = bodies.getBody( "Earth" )
-                                                 ->getGroundStation( referenceLinkEndName )
-                                                 ->getNominalStationState( )
-                                                 ->getNominalCartesianPosition( );
-
-        epochsTdb = utilities::staticCastVector< TimeType, Time >( timeScaleConverter.getCurrentTimesFromSinglePosition< Time >(
-                inputScale, basic_astrodynamics::tdb_scale, epochsInput, earthFixedPosition ) );
+        epochsTdb = timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >(
+                inputScale, basic_astrodynamics::tdb_scale, epochsInput, timeScaleConversionPosition );
     }
     else
     {
