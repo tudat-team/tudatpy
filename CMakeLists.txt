@@ -505,6 +505,42 @@ file(
     "${INSTALL_DATA_DIR}/tudat"
 )
 
+# Capture git commit hash and build timestamp for serialization provenance.
+# Falls back gracefully when git is unavailable (e.g. tarball builds).
+execute_process(
+    COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY "${BASE_DIRECTORY}"
+    OUTPUT_VARIABLE TUDAT_BUILD_COMMIT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+if(NOT TUDAT_BUILD_COMMIT)
+    set(TUDAT_BUILD_COMMIT "unknown")
+endif()
+
+# Build date in YYYY-MM-DD format via git (or date command as fallback).
+execute_process(
+    COMMAND git log -1 --format=%cd --date=format:%Y-%m-%d
+    WORKING_DIRECTORY "${BASE_DIRECTORY}"
+    OUTPUT_VARIABLE TUDAT_BUILD_TIME
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+if(NOT TUDAT_BUILD_TIME)
+    execute_process(
+        COMMAND date +%Y-%m-%d
+        OUTPUT_VARIABLE TUDAT_BUILD_TIME
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
+message(
+    STATUS
+    "Tudat build: version=${TUDATPY_FULL_VERSION}"
+    " commit=${TUDAT_BUILD_COMMIT}"
+    " date=${TUDAT_BUILD_TIME}"
+)
+
 configure_file(
     "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
     "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY

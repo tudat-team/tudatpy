@@ -16,6 +16,9 @@
 #define TUDAT_VERSION_MINOR "@Tudat_VERSION_MINOR@"
 #define TUDAT_VERSION_PATCH "@Tudat_VERSION_PATCH@"
 
+#define TUDAT_BUILD_COMMIT "@TUDAT_BUILD_COMMIT@"
+#define TUDAT_BUILD_TIME "@TUDAT_BUILD_TIME@"
+
 // TODO: This need to be moved somewhere else eventually.
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
 

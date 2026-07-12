@@ -35,12 +35,17 @@
 #include <cereal/types/utility.hpp>
 #include <cereal/types/vector.hpp>
 
+#include <tudat/config.hpp>
+
 #include <Eigen/Core>
 
+#include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 // Provide Eigen matrix serialization for cereal
 namespace cereal
@@ -148,7 +153,127 @@ void deserializeFromBinaryString( const std::string& data, T& object )
     ia( object );
 }
 
-//! Helper function to serialize an object to a binary file
+namespace
+{
+
+//! Magic number for binary serialization files ("TED1").
+constexpr std::uint32_t kBinaryMagic = 0x54454431;
+
+//! Provenance string for the current build: "version@commit@date".
+inline std::string currentProvenance( )
+{
+    static const std::string s =
+            std::string( TUDAT_VERSION ) + "@" + std::string( TUDAT_BUILD_COMMIT ) + "@" + std::string( TUDAT_BUILD_TIME );
+    return s;
+}
+
+//! Write the binary version header to an output stream.
+void writeBinaryHeader( std::ostream& stream )
+{
+    const std::string p = currentProvenance( );
+    const std::uint32_t len = static_cast< std::uint32_t >( p.size( ) );
+    stream.write( reinterpret_cast< const char* >( &kBinaryMagic ), sizeof( kBinaryMagic ) );
+    stream.write( reinterpret_cast< const char* >( &len ), sizeof( len ) );
+    stream.write( p.data( ), len );
+}
+
+//! Read and return the provenance from a binary header, or return an
+//! empty string if no header is present (legacy file).  Rewinds on
+//! mismatch.
+std::string readBinaryProvenance( std::istream& stream )
+{
+    const auto startPos = stream.tellg( );
+    std::uint32_t magic = 0;
+    stream.read( reinterpret_cast< char* >( &magic ), sizeof( magic ) );
+    if( !stream || magic != kBinaryMagic )
+    {
+        stream.clear( );
+        stream.seekg( startPos );
+        return {};
+    }
+    std::uint32_t len = 0;
+    stream.read( reinterpret_cast< char* >( &len ), sizeof( len ) );
+    if( !stream )
+    {
+        throw std::runtime_error( "Corrupt binary header: could not read provenance length" );
+    }
+    std::string provenance( len, '\0' );
+    stream.read( provenance.data( ), len );
+    return provenance;
+}
+
+//! Extract the provenance from a raw JSON string by searching for
+//! "tudat_provenance".  Returns empty string if not found.
+std::string extractJsonProvenance( const std::string& raw )
+{
+    // Look for:  "tudat_provenance": "VALUE"
+    const std::string key = "\"tudat_provenance\": \"";
+    auto pos = raw.find( key );
+    if( pos == std::string::npos ) return {};
+    pos += key.size( );
+    auto end = raw.find( '\"', pos );
+    if( end == std::string::npos ) return {};
+    return raw.substr( pos, end - pos );
+}
+
+//! Check that the file has a provenance header, warn on mismatch, and
+//! return the parsed parts.
+ProvenanceParts checkProvenance( const std::string& fileProvenance )
+{
+    if( fileProvenance.empty( ) )
+    {
+        throw std::runtime_error(
+                "Could not deserialize this object.\n"
+                "This file is a legacy serialized file without a Tudat "
+                "provenance header.\n"
+                "Files created with the current version cannot be read "
+                "by this build." );
+    }
+
+    static bool warnedOnce = false;
+    if( !warnedOnce )
+    {
+        const std::string& current = currentProvenance( );
+        if( fileProvenance != current )
+        {
+            std::cerr << "[Tudat] Warning: loading serialized file "
+                         "created with:\n"
+                      << "    " << fileProvenance << "\n"
+                      << "  Current build is:\n"
+                      << "    " << current << "\n"
+                      << "  There is no guarantee of backward "
+                         "compatibility beyond 6 months.\n"
+                      << std::endl;
+        }
+        warnedOnce = true;
+    }
+
+    return splitProvenance( fileProvenance );
+}
+
+//! Parse a provenance string into its three components.
+struct ProvenanceParts {
+    std::string version;
+    std::string commit;
+    std::string date;
+};
+ProvenanceParts splitProvenance( const std::string& p )
+{
+    ProvenanceParts parts;
+    auto at1 = p.find( '@' );
+    if( at1 == std::string::npos ) return parts;
+    parts.version = p.substr( 0, at1 );
+    auto at2 = p.find( '@', at1 + 1 );
+    if( at2 == std::string::npos ) return parts;
+    parts.commit = p.substr( at1 + 1, at2 - at1 - 1 );
+    parts.date = p.substr( at2 + 1 );
+    return parts;
+}
+
+}  // namespace
+
+//! Helper function to serialize an object to a binary file.
+//! Prepends a header with provenance "version@commit@date".
 //! Appends ".tudat" extension automatically.
 template< typename T >
 void saveToBinaryFile( const T& object, const std::string& path )
@@ -159,12 +284,13 @@ void saveToBinaryFile( const T& object, const std::string& path )
     {
         throw std::runtime_error( "Unable to open file for binary save: " + filePath );
     }
-
+    writeBinaryHeader( outputStream );
     cereal::BinaryOutputArchive archive( outputStream );
     archive( object );
 }
 
-//! Helper function to deserialize an object from a binary file
+//! Helper function to deserialize an object from a binary file.
+//! Warns on provenance mismatch and wraps errors with file provenance.
 //! Appends ".tudat" extension automatically.
 template< typename T >
 T loadFromBinaryFile( const std::string& path )
@@ -176,13 +302,30 @@ T loadFromBinaryFile( const std::string& path )
         throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
-    cereal::BinaryInputArchive archive( inputStream );
-    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
-    archive( *objectPtr );
-    return std::move( *objectPtr );
+    const std::string fileProvenance = readBinaryProvenance( inputStream );
+    const auto parts = checkProvenance( fileProvenance );
+
+    try
+    {
+        cereal::BinaryInputArchive archive( inputStream );
+        std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+        archive( *objectPtr );
+        return std::move( *objectPtr );
+    }
+    catch( const std::exception& e )
+    {
+        std::string msg = "Could not deserialize this object.\n";
+        if( !parts.commit.empty( ) )
+        {
+            msg += "This file was created with commit " + parts.commit + ".\n";
+        }
+        msg += "Error: " + std::string( e.what( ) );
+        throw std::runtime_error( msg );
+    }
 }
 
-//! Helper function to deserialize from a binary file into an existing object
+//! Helper function to deserialize from a binary file into an existing
+//! object.  Warns on provenance mismatch.
 //! Appends ".tudat" extension automatically.
 template< typename T >
 void loadFromBinaryFile( const std::string& path, T& object )
@@ -194,15 +337,28 @@ void loadFromBinaryFile( const std::string& path, T& object )
         throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
-    cereal::BinaryInputArchive archive( inputStream );
-    archive( object );
+    const std::string fileProvenance = readBinaryProvenance( inputStream );
+    const auto parts = checkProvenance( fileProvenance );
+
+    try
+    {
+        cereal::BinaryInputArchive archive( inputStream );
+        archive( object );
+    }
+    catch( const std::exception& e )
+    {
+        std::string msg = "Could not deserialize this object.\n";
+        if( !parts.commit.empty( ) )
+        {
+            msg += "This file was created with commit " + parts.commit + ".\n";
+        }
+        msg += "Error: " + std::string( e.what( ) );
+        throw std::runtime_error( msg );
+    }
 }
 
-// =====================================================================
-//  JSON helpers
-// =====================================================================
-
-//! Helper function to serialize an object to a JSON file
+//! Helper function to serialize an object to a JSON file.
+//! Embeds provenance "version@commit@date" as archive metadata.
 //! Appends ".json" extension automatically.
 template< typename T >
 void saveToJsonFile( const T& object, const std::string& path )
@@ -215,10 +371,12 @@ void saveToJsonFile( const T& object, const std::string& path )
     }
 
     cereal::JSONOutputArchive archive( outputStream );
+    archive( cereal::make_nvp( "tudat_provenance", currentProvenance( ) ) );
     archive( cereal::make_nvp( "root", object ) );
 }
 
-//! Helper function to deserialize an object from a JSON file
+//! Helper function to deserialize an object from a JSON file.
+//! Warns on provenance mismatch and wraps errors with file provenance.
 //! Appends ".json" extension automatically.
 template< typename T >
 T loadFromJsonFile( const std::string& path )
@@ -230,13 +388,36 @@ T loadFromJsonFile( const std::string& path )
         throw std::runtime_error( "Unable to open file for JSON load: " + filePath );
     }
 
-    cereal::JSONInputArchive archive( inputStream );
-    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
-    archive( cereal::make_nvp( "root", *objectPtr ) );
-    return std::move( *objectPtr );
+    // Read entire file to extract provenance (cereal JSON is DOM-based,
+    // so we can't peek at the stream before handing it to the archive).
+    std::string raw( ( std::istreambuf_iterator< char >( inputStream ) ), std::istreambuf_iterator< char >( ) );
+    inputStream.close( );
+
+    const std::string fileProvenance = extractJsonProvenance( raw );
+    const auto parts = checkProvenance( fileProvenance );
+
+    try
+    {
+        std::istringstream iss( raw );
+        cereal::JSONInputArchive archive( iss );
+        std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
+        archive( cereal::make_nvp( "root", *objectPtr ) );
+        return std::move( *objectPtr );
+    }
+    catch( const std::exception& e )
+    {
+        std::string msg = "Could not deserialize this object.\n";
+        if( !parts.commit.empty( ) )
+        {
+            msg += "This file was created with commit " + parts.commit + ".\n";
+        }
+        msg += "Error: " + std::string( e.what( ) );
+        throw std::runtime_error( msg );
+    }
 }
 
-//! Helper function to deserialize from a JSON file into an existing object
+//! Helper function to deserialize from a JSON file into an existing object.
+//! Warns on provenance mismatch.
 //! Appends ".json" extension automatically.
 template< typename T >
 void loadFromJsonFile( const std::string& path, T& object )
@@ -248,8 +429,28 @@ void loadFromJsonFile( const std::string& path, T& object )
         throw std::runtime_error( "Unable to open file for JSON load: " + filePath );
     }
 
-    cereal::JSONInputArchive archive( inputStream );
-    archive( cereal::make_nvp( "root", object ) );
+    std::string raw( ( std::istreambuf_iterator< char >( inputStream ) ), std::istreambuf_iterator< char >( ) );
+    inputStream.close( );
+
+    const std::string fileProvenance = extractJsonProvenance( raw );
+    const auto parts = checkProvenance( fileProvenance );
+
+    try
+    {
+        std::istringstream iss( raw );
+        cereal::JSONInputArchive archive( iss );
+        archive( cereal::make_nvp( "root", object ) );
+    }
+    catch( const std::exception& e )
+    {
+        std::string msg = "Could not deserialize this object.\n";
+        if( !parts.commit.empty( ) )
+        {
+            msg += "This file was created with commit " + parts.commit + ".\n";
+        }
+        msg += "Error: " + std::string( e.what( ) );
+        throw std::runtime_error( msg );
+    }
 }
 
 //! Helper function to serialize a shared_ptr to a JSON file (for polymorphic types)
