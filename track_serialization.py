@@ -52,6 +52,7 @@ class ClassInfo:
     py_has_equals: bool = False
     py_has_pickle: bool = False
     py_has_save_to: bool = False
+    py_factory_names: list = field(default_factory=list)  # Python factory function names
     py_test_files: list = field(default_factory=list)
 
 
@@ -68,6 +69,122 @@ def strip_template(name: str) -> str:
 
 def is_settings_class(name: str) -> bool:
     return name.lower().endswith("settings") and name != "Settings"
+
+
+# ── C++ class name → Python factory function name mapping ─────────────────
+#
+# Many C++ serializable classes are instantiated in Python tests only through
+# factory functions whose names don't match the C++ class name.  This lookup
+# bridges the gap so the tracker can detect coverage of those classes.
+#
+# Key:
+#   C++ class name (exact) → list of Python factory / submodule names that
+#   create instances of that class and may appear in Python test code.
+
+CPP_TO_PYTHON_FACTORY: dict[str, list[str]] = {
+    # -- Acceleration settings (dynamics.propagation_setup.acceleration) --
+    "DirectTidalDissipationAccelerationSettings": ["direct_tidal_dissipation_acceleration"],
+    "EmpiricalAccelerationSettings": ["empirical"],
+    "MomentumWheelDesaturationAccelerationSettings": ["momentum_wheel_desaturation_acceleration"],
+    "MutualSphericalHarmonicAccelerationSettings": ["mutual_spherical_harmonic_gravity"],
+    "RadiationPressureAccelerationSettings": ["radiation_pressure"],
+    "RelativisticAccelerationCorrectionSettings": ["relativistic_correction"],
+    "RTGAccelerationSettings": ["rtg"],
+    "SphericalHarmonicAccelerationSettings": ["spherical_harmonic_gravity"],
+    "ThrustAccelerationSettings": [
+        "thrust_from_engines",
+        "thrust_from_engine",
+        "thrust_from_all_engines",
+    ],
+    "YarkovskyAccelerationSettings": ["yarkovsky"],
+    # -- Torque settings (dynamics.propagation_setup.torque) --
+    "SphericalHarmonicTorqueSettings": ["spherical_harmonic_gravitational"],
+    # -- Propagation termination (dynamics.propagation_setup.propagator) --
+    "PropagationTimeTerminationSettings": [
+        "time_termination",
+        "propagation_time_termination_settings",
+    ],
+    "PropagationCPUTimeTerminationSettings": [
+        "cpu_time_termination",
+        "propagation_cpu_time_termination_settings",
+    ],
+    "PropagationDependentVariableTerminationSettings": [
+        "dependent_variable_termination",
+        "propagation_dependent_variable_termination_settings",
+    ],
+    "PropagationHybridTerminationSettings": ["hybrid_termination"],
+    "NonSequentialPropagationTerminationSettings": [
+        "non_sequential_termination",
+        "non_sequential_propagation_termination_settings",
+    ],
+    # -- Dependent variable settings (dynamics.propagation_setup.dependent_variable) --
+    "SingleAccelerationDependentVariableSaveSettings": ["single_acceleration"],
+    "SingleTorqueDependentVariableSaveSettings": ["single_torque"],
+    "SphericalHarmonicAccelerationTermsDependentVariableSaveSettings": [
+        "spherical_harmonic_terms_acceleration"
+    ],
+    "BodyAerodynamicAngleVariableSaveSettings": [
+        "angle_of_attack",
+        "sideslip_angle",
+        "bank_angle",
+        "heading_angle",
+        "flight_path_angle",
+    ],
+    "ControlSurfaceCoefficientDependentVariableSettings": ["control_surface_deflection"],
+    "IntermediateAerodynamicRotationVariableSaveSettings": [
+        "intermediate_aerodynamic_rotation_matrix_variable"
+    ],
+    "LocalWindVelocityDependentVariableSaveSettings": ["local_wind_velocity"],
+    "CrossSectionDependentVariableSaveSettings": ["actual_cross_section"],
+    "IlluminatedPanelFractionDependentVariableSaveSettings": ["illuminated_panel_fraction"],
+    "MinimumConstellationDistanceDependentVariableSaveSettings": ["minimum_body_distance"],
+    "MinimumConstellationStationDistanceDependentVariableSaveSettings": [
+        "minimum_visible_station_body_distances"
+    ],
+    "AccelerationPartialWrtStateSaveSettings": [
+        "acceleration_partial_wrt_body_translational_state"
+    ],
+    "TotalAccelerationPartialWrtStateSaveSettings": [
+        "total_acceleration_partial_wrt_body_translational_state"
+    ],
+    "GravityFieldVariationSettings": ["single_gravity_field_variation_acceleration"],
+    "SingleVariationSphericalHarmonicAccelerationSaveSettings": [
+        "single_gravity_field_variation_acceleration"
+    ],
+    "SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings": [
+        "single_per_term_gravity_field_variation_acceleration"
+    ],
+    "TotalGravityFieldVariationSettings": ["total_gravity_field_variation_acceleration"],
+    # -- Gravity field variation (dynamics.environment_setup.gravity_field_variation) --
+    "BasicSolidBodyGravityFieldVariationSettings": [
+        "solid_body_tide",
+        "solid_body_tide_degree_variable_k",
+        "solid_body_tide_degree_order_variable_k",
+        "solid_body_tide_degree_variable_complex_k",
+        "solid_multi_body_tide_degree_order_variable_k",
+    ],
+    "ModeCoupledSolidBodyGravityFieldVariationSettings": ["mode_coupled_solid_body_tide"],
+    "PeriodicGravityFieldVariationsSettings": ["single_period_periodic", "periodic"],
+    "PolynomialGravityFieldVariationsSettings": ["single_power_polynomial", "polynomial"],
+    "TabulatedGravityFieldVariationSettings": ["tabulated"],
+    # -- Observation dependent variables (estimation.observations_setup.observations_dependent_variables) --
+    "StationAngleObservationDependentVariableSettings": [
+        "elevation_angle_dependent_variable",
+        "azimuth_angle_dependent_variable",
+    ],
+    "InterlinkObservationDependentVariableSettings": [
+        "integration_time_dependent_variable",
+        "link_end_epochs_dependent_variable",
+    ],
+    "AncillaryObservationDependentVariableSettings": ["retransmission_delays_dependent_variable"],
+    "LightTimeCorrectionComponentsDependentVariableSettings": [
+        "light_time_correction_components_dependent_variable"
+    ],
+    # -- Root finders (math.root_finders) --
+    "RootFinderSettings": ["bisection", "newton_raphson", "halley", "secant"],
+    # -- Ancillary simulation settings (estimation.observations_setup.ancillary_settings) --
+    "ObservationAncillarySimulationSettings": ["doppler_ancillary_settings"],
+}
 
 
 # ── Phase 1: Scan headers for class inventory ───────────────────────────────
@@ -427,6 +544,13 @@ def scan_python_tests(class_infos: dict[str, ClassInfo]) -> None:
             base = strip_template(cls_name)
             if re.search(rf"\b{re.escape(base)}\b", content):
                 info.py_test_files.append(rel)
+                continue
+            # Also search for Python factory function names that create this class
+            factories = CPP_TO_PYTHON_FACTORY.get(cls_name, [])
+            for factory in factories:
+                if re.search(rf"\b{re.escape(factory)}\b", content):
+                    info.py_test_files.append(rel)
+                    break
 
 
 # ── Excel / CSV output ────────────────────────────────────────────────────
@@ -690,6 +814,13 @@ def main():
 
     print("Scanning Python exposure files...")
     scan_python_exposure(class_infos)
+
+    # Populate Python factory names from the static mapping table.
+    # This allows the tracker to detect Python test coverage even when the
+    # test code uses factory function names that differ from C++ class names.
+    print("Populating Python factory name mappings...")
+    for cls_name, info in class_infos.items():
+        info.py_factory_names = CPP_TO_PYTHON_FACTORY.get(cls_name, [])
 
     print("Scanning Python test files...")
     scan_python_tests(class_infos)
