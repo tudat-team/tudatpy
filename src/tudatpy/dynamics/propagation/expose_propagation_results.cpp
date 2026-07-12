@@ -165,43 +165,9 @@ void expose_propagation_results_bindings( py::module& m )
 
 
       )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationTerminationDetailsFromHybridCondition )
-            .def(
-                    "save_binary",
-                    []( const tp::PropagationTerminationDetailsFromHybridCondition& object, const std::string& path ) {
-                        object.saveToBinary( path );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Save the propagation termination details to a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path stem for the output file.
-      )doc" )
-            .def_static(
-                    "load_binary",
-                    []( const std::string& path ) {
-                        return std::dynamic_pointer_cast< tp::PropagationTerminationDetailsFromHybridCondition >(
-                                tp::PropagationTerminationDetails::loadFromBinary( path ) );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Load propagation termination details from a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path stem of the input file.
-
-         Returns
-         -------
-         PropagationTerminationDetailsFromHybridCondition
-             The deserialized propagation termination details.
-      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationDetails,
-                                                      tp::PropagationTerminationDetailsFromHybridCondition );
+                    TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::PropagationTerminationDetailsFromHybridCondition )
+                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationDetails,
+                                                                    tp::PropagationTerminationDetailsFromHybridCondition );
 
     py::class_< tp::DependentVariablesInterface< TIME_TYPE >, std::shared_ptr< tp::DependentVariablesInterface< TIME_TYPE > > >(
             m, "DependentVariablesInterface", R"doc(No documentation found.)doc" );
