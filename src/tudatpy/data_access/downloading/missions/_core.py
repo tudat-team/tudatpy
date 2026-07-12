@@ -12,12 +12,12 @@ from ._patterns import SUPPORTED_PATTERNS, CASSINI_TITAN_FLYBY_DICT
 from ._download import _DownloadEngineMixin
 from ._parsing import _ParsingMixin
 from ._meta_kernel import _MetaKernelMixin
-from .missions.mex import MexMixin
-from .missions.juice import JuiceMixin
-from .missions.mro import MroMixin
-from .missions.cassini import CassiniMixin
-from .missions.grail import GrailMixin
-from .missions.ro import RoMixin
+from .mex import MexMixin
+from .juice import JuiceMixin
+from .mro import MroMixin
+from .cassini import CassiniMixin
+from .grail import GrailMixin
+from .ro import RoMixin
 
 
 class LoadPDS(

@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import os
 import re
 import time
-from .._download import _REQUEST_TIMEOUT
+from ._download import _REQUEST_TIMEOUT
 
 
 class RoMixin:

@@ -1,3 +1,3 @@
 """Data loading and access utilities."""
 
-from . import paths, tracking
+from . import downloading, paths, tracking
