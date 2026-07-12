@@ -501,13 +501,12 @@ public:
     //! Equality operator for two Time objects
     /*!
      * Equality operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
+     * \param timeToCompare Time to compare against this
      * \return True if two times are fully equal; false if not.
      */
-    friend bool operator==( const Time& timeToCompare1, const Time& timeToCompare2 )
+    bool operator==( const Time& timeToCompare ) const
     {
-        return timeToCompare1.equals( timeToCompare2 );
+        return equals( timeToCompare );
     }
 
     //! Inequality operator for two Time objects
@@ -519,7 +518,7 @@ public:
      */
     friend bool operator!=( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Equality comparison via equals method
