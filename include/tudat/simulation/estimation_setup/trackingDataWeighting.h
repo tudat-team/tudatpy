@@ -71,7 +71,7 @@ void setObservationWeightsFromTrackingDataScheme(
     const std::map< std::string, std::vector< std::string > > ancillaryStringVectorSettings =
             trackingData->getAncillarySettingsStringVector( );
 
-    for( const std::string& metadataKey : { "note2", "catalog" } )
+    for( const std::string metadataKey : { "note2", "catalog" } )
     {
         auto metadataIterator = ancillaryStringVectorSettings.find( metadataKey );
         if( metadataIterator == ancillaryStringVectorSettings.end( ) )

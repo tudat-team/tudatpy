@@ -4,6 +4,7 @@ from urllib.request import urlretrieve
 
 import numpy as np
 
+from tudatpy.data_access import paths as data_paths
 from tudatpy.data_access.tracking import (
     TrackingData,
     create_observation_collection,
@@ -38,16 +39,7 @@ from tudatpy.kernel.interface import spice
 
 
 def _test_data_path() -> Path:
-    repository_root = Path(__file__).resolve().parents[2]
-    for relative_path in (
-        "cmake-build-release/tests/data",
-        "cmake-build-debug/tests/data",
-        "tests/data",
-    ):
-        data_path = repository_root / relative_path
-        if data_path.exists():
-            return data_path
-    raise RuntimeError("Could not find Tudat test data directory.")
+    return Path(data_paths.get_test_data_path())
 
 
 def _download_file(url: str, directory: Path) -> Path:

@@ -4,6 +4,7 @@
 
 #include "expose_data_access.h"
 
+#include "paths/expose_paths.h"
 #include "tracking/expose_tracking.h"
 
 namespace tudatpy
@@ -14,6 +15,9 @@ namespace data_access
 
 void expose_data_access( py::module& m )
 {
+    auto paths = m.def_submodule( "paths" );
+    tudatpy::data_access::paths::expose_paths( paths );
+
     auto tracking = m.def_submodule( "tracking" );
     tudatpy::data_access::tracking::expose_tracking( tracking );
 }
