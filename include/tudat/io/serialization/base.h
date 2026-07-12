@@ -153,8 +153,10 @@ void deserializeFromBinaryString( const std::string& data, T& object )
     ia( object );
 }
 
-namespace
-{
+// =====================================================================
+//  Provenance helpers (not in anonymous namespace — template two-phase
+//  lookup requires them at namespace scope).
+// =====================================================================
 
 //! Magic number for binary serialization files ("TED1").
 constexpr std::uint32_t kBinaryMagic = 0x54454431;
@@ -168,7 +170,7 @@ inline std::string currentProvenance( )
 }
 
 //! Write the binary version header to an output stream.
-void writeBinaryHeader( std::ostream& stream )
+inline void writeBinaryHeader( std::ostream& stream )
 {
     const std::string p = currentProvenance( );
     const std::uint32_t len = static_cast< std::uint32_t >( p.size( ) );
@@ -180,7 +182,7 @@ void writeBinaryHeader( std::ostream& stream )
 //! Read and return the provenance from a binary header, or return an
 //! empty string if no header is present (legacy file).  Rewinds on
 //! mismatch.
-std::string readBinaryProvenance( std::istream& stream )
+inline std::string readBinaryProvenance( std::istream& stream )
 {
     const auto startPos = stream.tellg( );
     std::uint32_t magic = 0;
@@ -204,9 +206,8 @@ std::string readBinaryProvenance( std::istream& stream )
 
 //! Extract the provenance from a raw JSON string by searching for
 //! "tudat_provenance".  Returns empty string if not found.
-std::string extractJsonProvenance( const std::string& raw )
+inline std::string extractJsonProvenance( const std::string& raw )
 {
-    // Look for:  "tudat_provenance": "VALUE"
     const std::string key = "\"tudat_provenance\": \"";
     auto pos = raw.find( key );
     if( pos == std::string::npos ) return {};
@@ -216,9 +217,30 @@ std::string extractJsonProvenance( const std::string& raw )
     return raw.substr( pos, end - pos );
 }
 
+//! Parsed components of a provenance string.
+struct ProvenanceParts {
+    std::string version;
+    std::string commit;
+    std::string date;
+};
+
+//! Split a "version@commit@date" string into its three parts.
+inline ProvenanceParts splitProvenance( const std::string& p )
+{
+    ProvenanceParts parts;
+    auto at1 = p.find( '@' );
+    if( at1 == std::string::npos ) return parts;
+    parts.version = p.substr( 0, at1 );
+    auto at2 = p.find( '@', at1 + 1 );
+    if( at2 == std::string::npos ) return parts;
+    parts.commit = p.substr( at1 + 1, at2 - at1 - 1 );
+    parts.date = p.substr( at2 + 1 );
+    return parts;
+}
+
 //! Check that the file has a provenance header, warn on mismatch, and
 //! return the parsed parts.
-ProvenanceParts checkProvenance( const std::string& fileProvenance )
+inline ProvenanceParts checkProvenance( const std::string& fileProvenance )
 {
     if( fileProvenance.empty( ) )
     {
@@ -250,27 +272,6 @@ ProvenanceParts checkProvenance( const std::string& fileProvenance )
 
     return splitProvenance( fileProvenance );
 }
-
-//! Parse a provenance string into its three components.
-struct ProvenanceParts {
-    std::string version;
-    std::string commit;
-    std::string date;
-};
-ProvenanceParts splitProvenance( const std::string& p )
-{
-    ProvenanceParts parts;
-    auto at1 = p.find( '@' );
-    if( at1 == std::string::npos ) return parts;
-    parts.version = p.substr( 0, at1 );
-    auto at2 = p.find( '@', at1 + 1 );
-    if( at2 == std::string::npos ) return parts;
-    parts.commit = p.substr( at1 + 1, at2 - at1 - 1 );
-    parts.date = p.substr( at2 + 1 );
-    return parts;
-}
-
-}  // namespace
 
 //! Helper function to serialize an object to a binary file.
 //! Prepends a header with provenance "version@commit@date".
@@ -572,49 +573,83 @@ T deserializeFromJsonString( const std::string& data )
     }
 
 //! Add saveToJson/loadFromJson for polymorphic base (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_JSON_IO_POLYMORPHIC( ... )                                                                    \
-    void saveToJson( const std::string& path ) const                                                               \
-    {                                                                                                              \
-        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                            \
-    }                                                                                                              \
-    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                  \
-    {                                                                                                              \
-        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                           \
+//! Throws if deserialization produces a null pointer.
+#define TUDAT_DEFINE_JSON_IO_POLYMORPHIC( ... )                                                                              \
+    void saveToJson( const std::string& path ) const                                                                         \
+    {                                                                                                                        \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                                      \
+    }                                                                                                                        \
+    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                            \
+    {                                                                                                                        \
+        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                              \
+        if( !result )                                                                                                        \
+        {                                                                                                                    \
+            throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from JSON file '" + path +                     \
+                                      "'.\n"                                                                                 \
+                                      "The file was likely written through a base-class pointer of a different hierarchy.\n" \
+                                      "Use the base class's loadFromJson() instead." );                                      \
+        }                                                                                                                    \
+        return result;                                                                                                       \
     }
 
 //! Add saveToBinary/loadFromBinary for polymorphic base (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( ... )                                                                  \
-    void saveToBinary( const std::string& path ) const                                                             \
-    {                                                                                                              \
-        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                          \
-    }                                                                                                              \
-    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                \
-    {                                                                                                              \
-        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                         \
+//! Throws if deserialization produces a null pointer.
+#define TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( ... )                                                                            \
+    void saveToBinary( const std::string& path ) const                                                                       \
+    {                                                                                                                        \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                                    \
+    }                                                                                                                        \
+    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                          \
+    {                                                                                                                        \
+        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                            \
+        if( !result )                                                                                                        \
+        {                                                                                                                    \
+            throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from binary file '" + path +                   \
+                                      "'.\n"                                                                                 \
+                                      "The file was likely written through a base-class pointer of a different hierarchy.\n" \
+                                      "Use the base class's loadFromBinary() instead." );                                    \
+        }                                                                                                                    \
+        return result;                                                                                                       \
     }
 
 //! Add saveToBinary/loadFromBinary AND saveToJson/loadFromJson for polymorphic base
-//! (load returns shared_ptr<Base>).
-#define TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ... )                                                                    \
-    void saveToBinary( const std::string& path ) const                                                             \
-    {                                                                                                              \
-        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                          \
-    }                                                                                                              \
-    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                \
-    {                                                                                                              \
-        return ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                         \
-    }                                                                                                              \
-    void saveToJson( const std::string& path ) const                                                               \
-    {                                                                                                              \
-        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                            \
-    }                                                                                                              \
-    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                  \
-    {                                                                                                              \
-        return ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                           \
+//! (load returns shared_ptr<Base>).  Throws on null.
+#define TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ... )                                                                              \
+    void saveToBinary( const std::string& path ) const                                                                       \
+    {                                                                                                                        \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                                    \
+    }                                                                                                                        \
+    static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                          \
+    {                                                                                                                        \
+        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                            \
+        if( !result )                                                                                                        \
+        {                                                                                                                    \
+            throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from binary file '" + path +                   \
+                                      "'.\n"                                                                                 \
+                                      "The file was likely written through a base-class pointer of a different hierarchy.\n" \
+                                      "Use the base class's loadFromBinary() instead." );                                    \
+        }                                                                                                                    \
+        return result;                                                                                                       \
+    }                                                                                                                        \
+    void saveToJson( const std::string& path ) const                                                                         \
+    {                                                                                                                        \
+        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                                      \
+    }                                                                                                                        \
+    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                            \
+    {                                                                                                                        \
+        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                              \
+        if( !result )                                                                                                        \
+        {                                                                                                                    \
+            throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from JSON file '" + path +                     \
+                                      "'.\n"                                                                                 \
+                                      "The file was likely written through a base-class pointer of a different hierarchy.\n" \
+                                      "Use the base class's loadFromJson() instead." );                                      \
+        }                                                                                                                    \
+        return result;                                                                                                       \
     }
 
 #endif  // TUDAT_SERIALIZATION_BASE_H
