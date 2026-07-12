@@ -30,6 +30,13 @@
 #include <pagmo/rng.hpp>
 #include <Eigen/Core>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+#include "tudat/io/serialization/base.h"
+
 typedef Eigen::Matrix< double, 6, 1 > StateType;
 
 using namespace tudat::ephemerides;
@@ -74,25 +81,45 @@ struct FixedTimeHodographicShapingOptimisationProblem {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
 
-    template< typename Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( problemBounds_ ) );
-    }
-
-    template< typename Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::make_nvp( "problemBounds_", const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
-    }
-
     vector_double::size_type get_nobj( ) const
     {
         return 1u;
     }
 
+    TUDAT_DEFINE_BINARY_IO( FixedTimeHodographicShapingOptimisationProblem )
+
 protected:
 private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( initialState_ ) );
+        ar( CEREAL_NVP( finalState_ ) );
+        ar( CEREAL_NVP( timeOfFlight_ ) );
+        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
+        ar( CEREAL_NVP( numberOfRevolutions_ ) );
+        ar( CEREAL_NVP( radialVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( normalVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( axialVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( problemBounds_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( initialState_ ) );
+        ar( CEREAL_NVP( finalState_ ) );
+        ar( CEREAL_NVP( timeOfFlight_ ) );
+        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
+        ar( CEREAL_NVP( numberOfRevolutions_ ) );
+        ar( CEREAL_NVP( radialVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( normalVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( axialVelocityFunctionComponents_ ) );
+        ar( CEREAL_NVP( problemBounds_ ) );
+    }
+
     Eigen::Vector6d initialState_;
 
     Eigen::Vector6d finalState_;
@@ -103,13 +130,13 @@ private:
 
     int numberOfRevolutions_;
 
-    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
 
-    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
 
-    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
+    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
 
-    const std::vector< std::vector< double > > problemBounds_;
+    std::vector< std::vector< double > > problemBounds_;
 
 public:
     bool operator==( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
@@ -162,40 +189,53 @@ struct HodographicShapingOptimisationProblem {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
 
-    template< typename Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( problemBounds_ ) );
-    }
-
-    template< typename Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::make_nvp( "problemBounds_", const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
-    }
-
     vector_double::size_type get_nobj( ) const
     {
         return minimizeMaximumThrust_ ? 2u : 1u;
     }
 
+    TUDAT_DEFINE_BINARY_IO( HodographicShapingOptimisationProblem )
+
 protected:
 private:
-    const std::function< Eigen::Vector6d( const double ) > initialStateFunction_;
+    friend class cereal::access;
 
-    const std::function< Eigen::Vector6d( const double ) > finalStateFunction_;
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
+        ar( CEREAL_NVP( numberOfRevolutions_ ) );
+        ar( CEREAL_NVP( problemBounds_ ) );
+        ar( CEREAL_NVP( minimizeMaximumThrust_ ) );
+        ar( CEREAL_NVP( initialMass_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
+        ar( CEREAL_NVP( numberOfRevolutions_ ) );
+        ar( CEREAL_NVP( const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
+        ar( CEREAL_NVP( minimizeMaximumThrust_ ) );
+        ar( CEREAL_NVP( initialMass_ ) );
+    }
 
     double centralBodyGravitationalParameter_;
 
     int numberOfRevolutions_;
 
-    std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction_;
-
-    const std::vector< std::vector< double > > problemBounds_;
+    std::vector< std::vector< double > > problemBounds_;
 
     bool minimizeMaximumThrust_;
 
     double initialMass_;
+
+    // Non-serializable function members (ignored in save/load, default-constructed after deserialization)
+    std::function< Eigen::Vector6d( const double ) > initialStateFunction_;
+
+    std::function< Eigen::Vector6d( const double ) > finalStateFunction_;
+
+    std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction_;
 
 public:
     bool operator==( const HodographicShapingOptimisationProblem& rhs ) const
