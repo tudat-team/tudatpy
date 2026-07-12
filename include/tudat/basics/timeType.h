@@ -576,7 +576,7 @@ public:
      */
     friend bool operator!=( const Time& timeToCompare1, const double timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Inequality operator for a Time object with a double
@@ -589,7 +589,7 @@ public:
      */
     friend bool operator!=( const double timeToCompare1, const Time& timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Equality operator for a Time object with a long double
@@ -628,7 +628,7 @@ public:
      */
     friend bool operator!=( const Time& timeToCompare1, const long double timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Inequality operator for a Time object with a long double
@@ -641,7 +641,7 @@ public:
      */
     friend bool operator!=( const long double timeToCompare1, const Time& timeToCompare2 )
     {
-        return !operator==( timeToCompare1, timeToCompare2 );
+        return !( timeToCompare1 == timeToCompare2 );
     }
 
     //! Greater-than operator for two Time objects

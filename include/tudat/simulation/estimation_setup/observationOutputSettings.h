@@ -262,13 +262,13 @@ public:
         isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
     {}
 
-    std::string getIdentifier( )
+    std::string getIdentifier( ) override
     {
         return getBaseIdentifier( ) + getIntegrationHandlingString( integratedObservableHandling_ );
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
     {
         bool isCompatible = true;
         std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
@@ -358,7 +358,7 @@ public:
 
     ~InterlinkObservationDependentVariableSettings( ) {}
 
-    std::string getIdentifier( )
+    std::string getIdentifier( ) override
     {
         std::string identifier = getBaseIdentifier( );
         if( relativeBody_ != "" )
@@ -371,7 +371,7 @@ public:
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
     {
         bool isCompatible = true;
         std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
@@ -468,7 +468,7 @@ public:
 
     ~AncillaryObservationDependentVariableSettings( ) {}
 
-    std::string getIdentifier( )
+    std::string getIdentifier( ) override
     {
         std::string identifier = getBaseIdentifier( );
         if( observableType_ != undefined_observation_model )
@@ -479,7 +479,7 @@ public:
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
     {
         bool isCompatible = true;
         std::shared_ptr< AncillaryObservationDependentVariableSettings > ancillarySettings =
