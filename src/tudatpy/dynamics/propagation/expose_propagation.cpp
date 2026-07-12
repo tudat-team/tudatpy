@@ -12,13 +12,6 @@
 #endif
 #include "expose_propagation.h"
 
-#include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
-#include <tudat/astro/basic_astro.h>
-#include <tudat/astro/propagators.h>
-
-#include <tudat/io/serialization/base.h>
-
-#include "scalarTypes.h"
 #include "expose_propagation_bindings.h"
 
 namespace py = pybind11;
