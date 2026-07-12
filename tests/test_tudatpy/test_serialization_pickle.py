@@ -441,6 +441,52 @@ class TestGravityFieldVariationSettingsPickle:
     def test_solid_body_tide(self):
         assert_roundtrip(gravity_field_variation.solid_body_tide("Moon", 0.3, 2))
 
+    def test_solid_body_tide_degree_variable_k(self):
+        assert_roundtrip(
+            gravity_field_variation.solid_body_tide_degree_variable_k("Moon", {2: 0.3, 3: 0.2})
+        )
+
+    def test_solid_body_tide_degree_order_variable_k(self):
+        assert_roundtrip(
+            gravity_field_variation.solid_body_tide_degree_order_variable_k("Moon", {2: [0.3, 0.3]})
+        )
+
+    def test_single_period_periodic(self):
+        assert_roundtrip(
+            gravity_field_variation.single_period_periodic(
+                cosine_coefficient_amplitude_cosine_time=np.zeros((1, 1)),
+                cosine_coefficient_amplitude_sine_time=np.zeros((1, 1)),
+                sine_coefficient_amplitude_cosine_time=np.zeros((1, 1)),
+                sine_coefficient_amplitude_sine_time=np.zeros((1, 1)),
+                angular_frequency=1.0e-4,
+                reference_epoch=Time(0, 0.0),
+                minimum_degree=2,
+                minimum_order=0,
+            )
+        )
+
+    def test_single_power_polynomial(self):
+        assert_roundtrip(
+            gravity_field_variation.single_power_polynomial(
+                cosine_amplitudes=np.zeros((1, 1)),
+                sine_amplitudes=np.zeros((1, 1)),
+                polynomial_power=1,
+                reference_epoch=Time(0, 0.0),
+                minimum_degree=2,
+                minimum_order=0,
+            )
+        )
+
+    @pytest.mark.xfail(
+        reason="Love numbers nested dict with tuple keys does not survive pickle roundtrip"
+    )
+    def test_mode_coupled_solid_body_tide(self):
+        """ModeCoupledSolidBodyGravityFieldVariationSettings."""
+        love_numbers = {(2, 0): {(2, 0): 0.3}}
+        assert_roundtrip(
+            gravity_field_variation.mode_coupled_solid_body_tide(["Moon"], love_numbers)
+        )
+
 
 # ===========================================================================
 # Polymorphic Dispatch Tests
@@ -639,3 +685,205 @@ class TestPolymorphicDispatch:
     def test_root_finder_concrete_type_preserved(self, name, factory):
         obj = factory()
         assert_roundtrip(obj)
+
+
+# ===========================================================================
+# Simulation-Based Pickle Tests
+# ===========================================================================
+
+
+class TestSimulationBasedPickle:
+    """
+    Pickle roundtrip tests that require running a real propagation.
+    Tests PropagationTerminationDetails, SimulationResults, and related types.
+    """
+
+    @staticmethod
+    def _run_propagation():
+        """Run a simple propagation and return the dynamics simulator."""
+        from tudatpy.interface import spice
+        from tudatpy.astro import element_conversion
+        from tudatpy.astro.time_representation import DateTime
+        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+
+        spice.load_standard_kernels()
+        bodies = environment_setup.create_system_of_bodies(
+            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
+        )
+        bodies.add_empty_settings("Delfi-C3")
+        bodies.get("Delfi-C3").mass = 2.2
+
+        start = DateTime(2008, 4, 28).to_epoch()
+        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
+            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
+            semi_major_axis=6.99276221e06,
+            eccentricity=4.03294322e-03,
+            inclination=1.71065169e00,
+            argument_of_periapsis=1.31226971e00,
+            longitude_of_ascending_node=3.82958313e-01,
+            true_anomaly=3.07018490e00,
+        )
+        propagator_settings = propagation_setup.propagator.translational(
+            ["Earth"],
+            propagation_setup.create_acceleration_models(
+                bodies,
+                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
+                ["Delfi-C3"],
+                ["Earth"],
+            ),
+            ["Delfi-C3"],
+            initial_state,
+            start,
+            propagation_setup.integrator.runge_kutta_fixed_step(
+                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
+            ),
+            propagation_setup.propagator.time_termination(start + 600.0),
+        )
+        return simulator.create_dynamics_simulator(bodies, propagator_settings)
+
+    def test_propagation_termination_details(self):
+        """Pickle roundtrip for PropagationTerminationDetails."""
+        pytest.importorskip("spice")
+        sim = self._run_propagation()
+        obj = sim.propagation_results.termination_details
+        assert_roundtrip(obj)
+
+    def test_single_arc_simulation_results(self):
+        """Pickle roundtrip for SingleArcSimulationResults."""
+        pytest.importorskip("spice")
+        sim = self._run_propagation()
+        obj = sim.propagation_results
+        assert_roundtrip(obj)
+
+    def test_propagation_termination_details_from_hybrid(self):
+        """Pickle roundtrip for PropagationTerminationDetailsFromHybridCondition."""
+        pytest.importorskip("spice")
+        from tudatpy.interface import spice
+        from tudatpy.astro import element_conversion
+        from tudatpy.astro.time_representation import DateTime
+        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+
+        spice.load_standard_kernels()
+        bodies = environment_setup.create_system_of_bodies(
+            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
+        )
+        bodies.add_empty_settings("Delfi-C3")
+        bodies.get("Delfi-C3").mass = 2.2
+
+        start = DateTime(2008, 4, 28).to_epoch()
+        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
+            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
+            semi_major_axis=6.99276221e06,
+            eccentricity=4.03294322e-03,
+            inclination=1.71065169e00,
+            argument_of_periapsis=1.31226971e00,
+            longitude_of_ascending_node=3.82958313e-01,
+            true_anomaly=3.07018490e00,
+        )
+        propagator_settings = propagation_setup.propagator.translational(
+            ["Earth"],
+            propagation_setup.create_acceleration_models(
+                bodies,
+                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
+                ["Delfi-C3"],
+                ["Earth"],
+            ),
+            ["Delfi-C3"],
+            initial_state,
+            start,
+            propagation_setup.propagator.hybrid_termination(
+                [
+                    propagation_setup.propagator.time_termination(start + 600.0),
+                    propagation_setup.propagator.cpu_time_termination(600.0),
+                ],
+                fulfill_single_condition=True,
+            ),
+        )
+        sim = simulator.create_dynamics_simulator(bodies, propagator_settings)
+        obj = sim.propagation_results.termination_details
+        assert_roundtrip(obj)
+
+    def test_single_arc_variational_simulation_results(self):
+        """Pickle roundtrip for SingleArcVariationalSimulationResults."""
+        pytest.importorskip("spice")
+        from tudatpy.interface import spice
+        from tudatpy.astro import element_conversion
+        from tudatpy.astro.time_representation import DateTime
+        from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+
+        spice.load_standard_kernels()
+        bodies = environment_setup.create_system_of_bodies(
+            environment_setup.get_default_body_settings(["Earth"], "Earth", "J2000")
+        )
+        bodies.add_empty_settings("Delfi-C3")
+        bodies.get("Delfi-C3").mass = 2.2
+
+        start = DateTime(2008, 4, 28).to_epoch()
+        initial_state = element_conversion.keplerian_to_cartesian_elementwise(
+            gravitational_parameter=bodies.get("Earth").gravitational_parameter,
+            semi_major_axis=6.99276221e06,
+            eccentricity=4.03294322e-03,
+            inclination=1.71065169e00,
+            argument_of_periapsis=1.31226971e00,
+            longitude_of_ascending_node=3.82958313e-01,
+            true_anomaly=3.07018490e00,
+        )
+        propagator_settings = propagation_setup.propagator.translational(
+            ["Earth"],
+            propagation_setup.create_acceleration_models(
+                bodies,
+                {"Delfi-C3": {"Earth": [propagation_setup.acceleration.point_mass_gravity()]}},
+                ["Delfi-C3"],
+                ["Earth"],
+            ),
+            ["Delfi-C3"],
+            initial_state,
+            start,
+            propagation_setup.integrator.runge_kutta_fixed_step(
+                30.0, coefficient_set=propagation_setup.integrator.CoefficientSets.rk_4
+            ),
+            propagation_setup.propagator.time_termination(start + 600.0),
+        )
+        variational_equations = propagation_setup.variational_equations(
+            bodies,
+            ["Delfi-C3"],
+            [propagation_setup.variation.estimated_bodies_settings(["Delfi-C3"])],
+            propagate_on_creation=True,
+        )
+        sim = simulator.create_dynamics_simulator(
+            bodies, propagator_settings, variational_equations
+        )
+        obj = sim.propagation_results
+        assert_roundtrip(obj)
+
+
+# ===========================================================================
+# Untestable Classes (explanatory notes)
+# ===========================================================================
+#
+# The following classes from the serialization inventory cannot be tested:
+#
+# 1. Not exposed as pybind11 classes (C++ internal only):
+#    - FixedTimeHodographicShapingOptimisationProblem
+#    - HodographicShapingOptimisationProblem
+#    - ObservationDependentVariableBookkeeping
+#    - ModelInterpolationSettings
+#    - PropagatorType (exists as enum TranslationalPropagatorType instead)
+#
+# 2. Exposed but lack __eq__ or __reduce__:
+#    - InterpolatorSettings / LagrangeInterpolatorSettings
+#      (value types with direct constructors, no serialization macros)
+#
+# 3. Require full multi-arc / hybrid-arc propagation setup:
+#    - MultiArcSimulationResults
+#    - HybridArcSimulationResults
+#      (need dedicated multi-arc/hybrid test infrastructure)
+#
+# 4. Require full estimation pipeline:
+#    - CovarianceAnalysisOutput
+#    - EstimationOutput
+#      (need Estimator with observations, too heavy for unit tests)
+#
+# 5. Missing Python factory:
+#    - MomentumWheelDesaturationAccelerationSettings
+#      (registered in bindings but no public factory function)
