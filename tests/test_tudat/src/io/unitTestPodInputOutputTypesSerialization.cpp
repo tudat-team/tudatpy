@@ -21,6 +21,7 @@
 #include <cereal/archives/binary.hpp>
 
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/io/serialization/registrations_estimation.h"
 
 namespace tudat
 {

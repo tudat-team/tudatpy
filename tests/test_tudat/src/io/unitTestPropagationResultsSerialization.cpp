@@ -25,7 +25,7 @@
 
 #include <cereal/archives/binary.hpp>
 
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization.h"
 
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
