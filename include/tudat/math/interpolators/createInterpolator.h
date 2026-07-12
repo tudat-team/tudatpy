@@ -904,9 +904,4 @@ convertBetweenStaticDynamicEigenTypeInterpolators(
 
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::interpolators::InterpolatorSettings )
-CEREAL_REGISTER_TYPE( tudat::interpolators::LagrangeInterpolatorSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::interpolators::InterpolatorSettings, tudat::interpolators::LagrangeInterpolatorSettings )
-
 #endif  // TUDAT_CREATEINTERPOLATOR_H

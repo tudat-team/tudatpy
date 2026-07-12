@@ -1145,22 +1145,4 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
 }  // namespace simulation_setup
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::GravityFieldVariationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::ModeCoupledSolidBodyGravityFieldVariationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::TabulatedGravityFieldVariationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
-                                      tudat::simulation_setup::BasicSolidBodyGravityFieldVariationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
-                                      tudat::simulation_setup::ModeCoupledSolidBodyGravityFieldVariationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
-                                      tudat::simulation_setup::TabulatedGravityFieldVariationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
-                                      tudat::simulation_setup::PeriodicGravityFieldVariationsSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::GravityFieldVariationSettings,
-                                      tudat::simulation_setup::PolynomialGravityFieldVariationsSettings )
-
 #endif  // TUDAT_CREATEGRAVITYFIELDVARIATIONS_H

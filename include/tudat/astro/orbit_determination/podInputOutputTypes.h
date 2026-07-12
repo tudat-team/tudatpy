@@ -1420,14 +1420,4 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 
 }  // namespace tudat
 
-// Register all polymorphic types
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDD )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDD )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::CovarianceAnalysisOutputDT )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::EstimationOutputDT )
-
-// Register all polymorphic relations
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDD, tudat::simulation_setup::EstimationOutputDD )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::CovarianceAnalysisOutputDT, tudat::simulation_setup::EstimationOutputDT )
-
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

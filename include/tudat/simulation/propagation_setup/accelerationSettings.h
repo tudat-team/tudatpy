@@ -1407,37 +1407,4 @@ typedef std::map< std::string, std::vector< std::pair< std::string, std::shared_
 
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::AccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::RadiationPressureAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::EmpiricalAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::YarkovskyAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::ThrustAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::RTGAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::RadiationPressureAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::EmpiricalAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::YarkovskyAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::ThrustAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::CustomAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings, tudat::simulation_setup::RTGAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::DirectTidalDissipationAccelerationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
-                                      tudat::simulation_setup::MomentumWheelDesaturationAccelerationSettings )
-
 #endif  // TUDAT_ACCELERATIONSETTINGS_H

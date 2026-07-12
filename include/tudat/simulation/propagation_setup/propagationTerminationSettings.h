@@ -603,25 +603,4 @@ inline std::shared_ptr< PropagationTerminationSettings > nonSequentialPropagatio
 
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTimeTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCPUTimeTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationDependentVariableTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationCustomTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationHybridTerminationSettings )
-CEREAL_REGISTER_TYPE( tudat::propagators::NonSequentialPropagationTerminationSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationCPUTimeTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationDependentVariableTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationCustomTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::PropagationHybridTerminationSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationSettings,
-                                      tudat::propagators::NonSequentialPropagationTerminationSettings )
-
 #endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

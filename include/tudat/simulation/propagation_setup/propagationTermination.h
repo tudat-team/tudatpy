@@ -815,9 +815,4 @@ private:
 
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetails )
-CEREAL_REGISTER_TYPE( tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagationTerminationDetails,
-                                      tudat::propagators::PropagationTerminationDetailsFromHybridCondition )
-
 #endif  // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

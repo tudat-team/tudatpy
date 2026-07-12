@@ -301,11 +301,4 @@ typedef std::map< std::string, std::map< std::string, std::vector< std::shared_p
 
 }  // namespace tudat
 
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::TorqueSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicTorqueSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomTorqueSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::SphericalHarmonicTorqueSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::CustomTorqueSettings )
-
 #endif  // TUDAT_TORQUESETTINGS_H

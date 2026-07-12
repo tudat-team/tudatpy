@@ -826,20 +826,4 @@ inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeCorrecti
 
 }  // namespace tudat
 
-// Register derived classes for polymorphic serialization
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::ObservationDependentVariableSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
-CEREAL_REGISTER_TYPE( tudat::simulation_setup::LightTimeCorrectionComponentsDependentVariableSettings )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
-                                      tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
-                                      tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
-                                      tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::ObservationDependentVariableSettings,
-                                      tudat::simulation_setup::LightTimeCorrectionComponentsDependentVariableSettings )
-
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS
