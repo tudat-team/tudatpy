@@ -881,50 +881,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          Vector of consider parameter normalization terms :math:`\mathbf{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
-      )doc" )
-            .def(
-                    "save_binary",
-                    []( const tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
-                        tudat::serialization::saveToBinaryFile( object, path );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Save this covariance-analysis output object to a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path to the output binary file.
-
-         Returns
-         -------
-         None
-
-      )doc" )
-            .def_static(
-                    "load_binary",
-                    []( const std::string& path ) {
-                        return tudat::serialization::loadFromBinaryFile< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                                path );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Load a covariance-analysis output object from a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path to the input binary file.
-
-         Returns
-         -------
-         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput`
-             Loaded object.
-
-      )doc" ) TUDATPY_DEF_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
+      )doc" ) TUDATPY_DEF_BINARY_IO( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_EQ_NE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -991,48 +950,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
                            R"doc(No documentation found.)doc" )
-            .def(
-                    "save_binary",
-                    []( const tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >& object, const std::string& path ) {
-                        tudat::serialization::saveToBinaryFile( object, path );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Save this estimation output object to a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path to the output binary file.
-
-         Returns
-         -------
-         None
-
-      )doc" )
-            .def_static(
-                    "load_binary",
-                    []( const std::string& path ) {
-                        return tudat::serialization::loadFromBinaryFile< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( path );
-                    },
-                    py::arg( "path" ),
-                    R"doc(
-
-         Load an estimation output object from a binary file.
-
-         Parameters
-         ----------
-         path : str
-             Path to the input binary file.
-
-         Returns
-         -------
-         :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
-             Loaded object.
-
-      )doc" ) TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
+                    TUDATPY_DEF_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                                    TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 

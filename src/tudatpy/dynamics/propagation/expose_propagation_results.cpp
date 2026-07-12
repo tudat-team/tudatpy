@@ -29,7 +29,6 @@
 namespace py = pybind11;
 
 namespace tp = tudat::propagators;
-namespace tse = tudat::serialization;
 
 namespace tudatpy
 {
@@ -232,20 +231,9 @@ void expose_propagation_results_bindings( py::module& m )
          :type: DependentVariablesInterface
 
 
-)doc" )
-            .def(
-                    "save_binary",
-                    []( const std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >& object, const std::string& path ) {
-                        tse::saveToBinaryFile( object, path );
-                    },
-                    py::arg( "path" ) )
-            .def_static(
-                    "load_binary",
-                    []( const std::string& path ) -> std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > {
-                        return tse::loadFromBinaryFile< std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > >( path );
-                    },
-                    py::arg( "path" ) ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" ) TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_EQ_NE( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     py::class_< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,

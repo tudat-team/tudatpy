@@ -92,6 +92,9 @@ private:
         static_cast< void >( version );
         // Base class has no data members to serialize
     }
+
+public:
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( SimulationResults< StateScalarType, TimeType > )
 };
 
 template< typename StateScalarType, typename TimeType >
@@ -1437,36 +1440,5 @@ using SimulationResultsDT = SimulationResults< double, Time >;
 }  // namespace propagators
 
 }  // namespace tudat
-
-// Register all concrete SimulationResults types for polymorphic serialization
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResults )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcVariationalResults )
-CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDynamicsResults )
-CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcVariationalResults )
-CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDynamicsResults )
-CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcVariationalResults )
-
-// <double, Time> variants
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDynamicsResultsDT )
-CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcVariationalResultsDT )
-CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDynamicsResultsDT )
-CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcVariationalResultsDT )
-CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDynamicsResultsDT )
-CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcVariationalResultsDT )
-
-// Register polymorphic relationships (use typedefs to avoid macro comma issues)
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::SingleArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::SingleArcVariationalResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::MultiArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::MultiArcVariationalResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::HybridArcDynamicsResults )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDD, tudat::propagators::HybridArcVariationalResults )
-
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::SingleArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::SingleArcVariationalResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::MultiArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::MultiArcVariationalResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcDynamicsResultsDT )
-CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcVariationalResultsDT )
 
 #endif  // TUDAT_PROPAGATIONRESULTS_H
