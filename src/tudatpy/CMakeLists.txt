@@ -27,6 +27,7 @@ set(sources
         ${TUDATPY_SOURCE_DIR}/add_dynamics_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_estimation_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_exceptions_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_util_to_kernel.cpp
 )
 update_sources(math sources)
 update_sources(astro sources)
@@ -38,6 +39,7 @@ update_sources(numerical_simulation sources)
 update_sources(dynamics sources)
 update_sources(estimation sources)
 update_sources(exceptions sources)
+update_sources(util sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 

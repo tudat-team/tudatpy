@@ -10,7 +10,7 @@
 #if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
-#include "expose_coma_model.h"
+#include "expose_coma.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -24,10 +24,12 @@ namespace tudatpy
 {
 namespace data
 {
-namespace coma_model
+namespace environment
+{
+namespace coma
 {
 
-void expose_coma_model( py::module& m )
+void expose_coma( py::module& m )
 {
     // === Coma processing: datasets (minimal shells so Python can hold them) ===
     py::class_< tss::ComaPolyDataset >( m,
@@ -46,7 +48,7 @@ void expose_coma_model( py::module& m )
  when creating a coma atmosphere model.
 
  .. note:: This class cannot be directly instantiated by the user. Create instances using
-           :func:`~tudatpy.data.coma_model.coma_model_file_processor`
+           :func:`~tudatpy.data.environment.coma.coma_model_file_processor`
            and its ``create_poly_coefficient_dataset()`` method.
 
 
@@ -63,7 +65,7 @@ void expose_coma_model( py::module& m )
    ]
 
    # Create file processor
-   processor = data.coma_model.coma_model_file_processor(file_paths)
+   processor = data.environment.coma.coma_model_file_processor(file_paths)
 
    # Create polynomial dataset
    poly_dataset = processor.create_poly_coefficient_dataset()
@@ -96,7 +98,7 @@ void expose_coma_model( py::module& m )
  Legendre polynomials, and :math:`(r, \\theta, \\phi)` are spherical coordinates.
 
  .. note:: This class cannot be directly instantiated by the user. Create instances using
-           :func:`~tudatpy.data.coma_model.coma_model_file_processor`
+           :func:`~tudatpy.data.environment.coma.coma_model_file_processor`
            and its ``create_coma_stokes_dataset()`` method, or load from pre-existing CSV files.
 
 
@@ -107,7 +109,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create file processor from polynomial files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        ["coma_data/h2o_poly.txt"])
 
    # Transform to Stokes coefficients at specific radii and solar longitudes
@@ -127,7 +129,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create file processor from existing Stokes CSV files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        input_dir="coma_data/stokes_csv",
        prefix="stokes")
 
@@ -162,8 +164,8 @@ void expose_coma_model( py::module& m )
  Returns
  -------
  bool
-     True if the collection contains :class:`~tudatpy.data.coma_model.ComaPolyDataset` objects,
-     False if it contains :class:`~tudatpy.data.coma_model.ComaStokesDataset` objects.
+     True if the collection contains :class:`~tudatpy.data.environment.coma.ComaPolyDataset` objects,
+     False if it contains :class:`~tudatpy.data.environment.coma.ComaStokesDataset` objects.
 
 
  Examples
@@ -171,7 +173,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create wind dataset collection from polynomial files
-   processor = data.coma_model.coma_wind_file_processor(
+   processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths, y_file_paths, z_file_paths)
    wind_datasets = processor.create_poly_coefficient_datasets()
 
@@ -190,8 +192,8 @@ void expose_coma_model( py::module& m )
  Returns
  -------
  bool
-     True if the collection contains :class:`~tudatpy.data.coma_model.ComaStokesDataset` objects,
-     False if it contains :class:`~tudatpy.data.coma_model.ComaPolyDataset` objects.
+     True if the collection contains :class:`~tudatpy.data.environment.coma.ComaStokesDataset` objects,
+     False if it contains :class:`~tudatpy.data.environment.coma.ComaPolyDataset` objects.
 
 
  Examples
@@ -199,7 +201,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create wind dataset collection from polynomial files and convert to Stokes
-   processor = data.coma_model.coma_wind_file_processor(
+   processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths, y_file_paths, z_file_paths)
    wind_datasets = processor.create_coma_stokes_dataset(
        radii_m=[1000.0, 2000.0],
@@ -234,7 +236,7 @@ void expose_coma_model( py::module& m )
  simplifying the setup of complex coma atmosphere models.
 
  .. note:: This class cannot be directly instantiated. Create instances using the factory functions
-           :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+           :func:`~tudatpy.data.environment.coma.coma_model_file_processor`.
 
 
  Examples
@@ -245,7 +247,7 @@ void expose_coma_model( py::module& m )
 
    # Create processor from polynomial coefficient files
    poly_files = ["h2o_epoch1.txt", "h2o_epoch2.txt"]
-   processor = data.coma_model.coma_model_file_processor(poly_files)
+   processor = data.environment.coma.coma_model_file_processor(poly_files)
 
    # Create polynomial dataset directly
    poly_dataset = processor.create_poly_coefficient_dataset()
@@ -260,7 +262,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from existing Stokes CSV files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        input_dir="coma_stokes_data",
        prefix="stokes")
 
@@ -277,9 +279,9 @@ void expose_coma_model( py::module& m )
 
  Create polynomial coefficient dataset from the loaded files.
 
- Reads and processes polynomial coefficient files to create a :class:`~tudatpy.data.coma_model.ComaPolyDataset`.
+ Reads and processes polynomial coefficient files to create a :class:`~tudatpy.data.environment.coma.ComaPolyDataset`.
  This method is only available when the processor was constructed from polynomial coefficient files
- using the file path variant of :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+ using the file path variant of :func:`~tudatpy.data.environment.coma.coma_model_file_processor`.
 
  Returns
  -------
@@ -297,7 +299,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from polynomial files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        ["h2o_poly_epoch1.txt", "h2o_poly_epoch2.txt"])
 
    # Create polynomial dataset
@@ -317,7 +319,7 @@ void expose_coma_model( py::module& m )
  Create Stokes coefficient dataset from preloaded CSV files (parameterless version).
 
  This method is only available when the processor was constructed from Stokes coefficient CSV files
- using :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+ using :func:`~tudatpy.data.environment.coma.coma_model_file_processor`.
  It returns the preloaded Stokes dataset directly.
 
  Returns
@@ -336,7 +338,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from Stokes CSV files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        input_dir="stokes_data",
        prefix="stokes")
 
@@ -367,7 +369,7 @@ void expose_coma_model( py::module& m )
  Create Stokes coefficient dataset by transforming polynomial coefficients (parameterized version).
 
  This method is only available when the processor was constructed from polynomial coefficient files
- using :func:`~tudatpy.data.coma_model.coma_model_file_processor`. It transforms
+ using :func:`~tudatpy.data.environment.coma.coma_model_file_processor`. It transforms
  polynomial coefficients to Stokes coefficients by evaluating the spherical harmonic expansion at the
  specified grid of radii and solar longitudes.
 
@@ -406,7 +408,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from polynomial files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        ["h2o_poly.txt"])
 
    # Transform to Stokes at specific radii and solar longitudes
@@ -438,7 +440,7 @@ void expose_coma_model( py::module& m )
  Transforms polynomial coefficients to Stokes coefficients and saves them as CSV files in the specified
  output directory. This is useful for pre-computing Stokes coefficients to avoid repeated transformations
  during multiple simulation runs. The generated CSV files can later be loaded using a processor created
- with the directory-based variant of :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+ with the directory-based variant of :func:`~tudatpy.data.environment.coma.coma_model_file_processor`.
 
  This method is only available when the processor was constructed from polynomial coefficient files.
 
@@ -474,7 +476,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from polynomial files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        ["h2o_poly_epoch1.txt", "h2o_poly_epoch2.txt"])
 
    # Pre-compute and save Stokes coefficients to CSV files
@@ -486,7 +488,7 @@ void expose_coma_model( py::module& m )
        requested_max_order=10)
 
    # Later, load from the saved CSV files
-   processor_from_csv = data.coma_model.coma_model_file_processor(
+   processor_from_csv = data.environment.coma.coma_model_file_processor(
        input_dir="stokes_output",
        prefix="stokes")
    stokes_dataset = processor_from_csv.create_coma_stokes_dataset(
@@ -503,7 +505,7 @@ void expose_coma_model( py::module& m )
 
  Function for creating coma model file processor from polynomial coefficient files.
 
- Creates a :class:`~tudatpy.data.coma_model.ComaModelFileProcessor` that loads
+ Creates a :class:`~tudatpy.data.environment.coma.ComaModelFileProcessor` that loads
  and processes polynomial coefficient files. These files contain spherical harmonic coefficients in
  polynomial form that describe gas density distributions in a cometary coma.
 
@@ -545,7 +547,7 @@ void expose_coma_model( py::module& m )
    ]
 
    # Create file processor
-   processor = data.coma_model.coma_model_file_processor(poly_files)
+   processor = data.environment.coma.coma_model_file_processor(poly_files)
 
    # Create polynomial dataset
    poly_dataset = processor.create_poly_coefficient_dataset()
@@ -565,7 +567,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor
-   processor = data.coma_model.coma_model_file_processor(poly_files)
+   processor = data.environment.coma.coma_model_file_processor(poly_files)
 
    # Transform to Stokes coefficients at specific radii and solar longitudes
    stokes_dataset = processor.create_coma_stokes_dataset(
@@ -590,7 +592,7 @@ void expose_coma_model( py::module& m )
 
  Function for creating coma model file processor from Stokes coefficient CSV files.
 
- Creates a :class:`~tudatpy.data.coma_model.ComaModelFileProcessor` that loads
+ Creates a :class:`~tudatpy.data.environment.coma.ComaModelFileProcessor` that loads
  pre-computed Stokes (spherical harmonic) coefficients from CSV files. These files typically contain
  Stokes coefficients that were previously generated and saved using the ``create_coma_spherical_harmonic_coefficient_files()`` method
  of a processor created from polynomial files.
@@ -629,7 +631,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from existing Stokes CSV files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = data.environment.coma.coma_model_file_processor(
        input_dir="coma_data/stokes_precomputed",
        prefix="stokes")
 
@@ -651,7 +653,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Step 1: Create and save Stokes coefficients from polynomial files
-   poly_processor = data.coma_model.coma_model_file_processor(
+   poly_processor = data.environment.coma.coma_model_file_processor(
        ["h2o_poly.txt"])
    poly_processor.create_coma_spherical_harmonic_coefficient_files(
        output_dir="stokes_saved",
@@ -659,7 +661,7 @@ void expose_coma_model( py::module& m )
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
 
    # Step 2: Later, load from saved Stokes files
-   stokes_processor = data.coma_model.coma_model_file_processor(
+   stokes_processor = data.environment.coma.coma_model_file_processor(
        input_dir="stokes_saved",
        prefix="stokes")
    stokes_dataset = stokes_processor.create_coma_stokes_dataset(
@@ -691,7 +693,7 @@ void expose_coma_model( py::module& m )
  Create polynomial coefficient dataset collection for all three wind components.
 
  Reads and processes polynomial coefficient files for x, y, and z wind velocity components to create
- a :class:`~tudatpy.data.coma_model.ComaWindDatasetCollection`. This method is
+ a :class:`~tudatpy.data.environment.coma.ComaWindDatasetCollection`. This method is
  only available when the processor was constructed from polynomial coefficient files.
 
  Returns
@@ -715,7 +717,7 @@ void expose_coma_model( py::module& m )
    z_files = ["wind_z_epoch1.txt", "wind_z_epoch2.txt"]
 
    # Create wind file processor
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_files, y_files, z_files)
 
    # Create polynomial dataset collection
@@ -730,7 +732,7 @@ void expose_coma_model( py::module& m )
  Create Stokes coefficient dataset collection from preloaded CSV files (parameterless version).
 
  This method is only available when the processor was constructed from Stokes coefficient CSV files
- using :func:`~tudatpy.data.coma_model.coma_wind_file_processor`.
+ using :func:`~tudatpy.data.environment.coma.coma_wind_file_processor`.
  It returns the preloaded Stokes datasets for all three wind components (x, y, z) directly.
 
  Returns
@@ -749,7 +751,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create wind processor from Stokes CSV files
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_input_dir="wind_x_stokes",
        y_input_dir="wind_y_stokes",
        z_input_dir="wind_z_stokes",
@@ -777,7 +779,7 @@ void expose_coma_model( py::module& m )
  Create Stokes coefficient dataset collection by transforming polynomial coefficients (parameterized version).
 
  This method is only available when the processor was constructed from polynomial coefficient files
- using :func:`~tudatpy.data.coma_model.coma_wind_file_processor`. It transforms
+ using :func:`~tudatpy.data.environment.coma.coma_wind_file_processor`. It transforms
  polynomial coefficients to Stokes coefficients for all three components (x, y, z) by evaluating
  at the specified grid of radii and solar longitudes.
 
@@ -811,7 +813,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create wind processor from polynomial files
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths=["wind_x.txt"],
        y_file_paths=["wind_y.txt"],
        z_file_paths=["wind_z.txt"])
@@ -887,7 +889,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create wind processor from polynomial files
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths=["wind_x_epoch1.txt"],
        y_file_paths=["wind_y_epoch1.txt"],
        z_file_paths=["wind_z_epoch1.txt"])
@@ -903,7 +905,7 @@ void expose_coma_model( py::module& m )
        requested_max_order=10)
 
    # Later, load from the saved CSV files
-   wind_processor_from_csv = data.coma_model.coma_wind_file_processor(
+   wind_processor_from_csv = data.environment.coma.coma_wind_file_processor(
        x_input_dir="stokes_wind/x_component",
        y_input_dir="stokes_wind/y_component",
        z_input_dir="stokes_wind/z_component",
@@ -928,7 +930,7 @@ void expose_coma_model( py::module& m )
 
  Function for creating coma wind model file processor from polynomial coefficient files.
 
- Creates a :class:`~tudatpy.data.coma_model.ComaWindModelFileProcessor` that loads
+ Creates a :class:`~tudatpy.data.environment.coma.ComaWindModelFileProcessor` that loads
  and processes polynomial coefficient files for all three wind velocity components (x, y, z). These files
  contain spherical harmonic coefficients in polynomial form that describe wind velocity distributions
  in a cometary coma.
@@ -975,7 +977,7 @@ void expose_coma_model( py::module& m )
    z_files = ["wind_data/vz_epoch1.txt", "wind_data/vz_epoch2.txt"]
 
    # Create wind file processor
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths=x_files,
        y_file_paths=y_files,
        z_file_paths=z_files)
@@ -1003,7 +1005,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths=x_files,
        y_file_paths=y_files,
        z_file_paths=z_files)
@@ -1032,7 +1034,7 @@ void expose_coma_model( py::module& m )
 
  Function for creating coma wind model file processor from Stokes coefficient CSV files.
 
- Creates a :class:`~tudatpy.data.coma_model.ComaWindModelFileProcessor` that loads
+ Creates a :class:`~tudatpy.data.environment.coma.ComaWindModelFileProcessor` that loads
  pre-computed Stokes (spherical harmonic) coefficients from CSV files for all three wind velocity
  components (x, y, z). These files typically contain Stokes coefficients that were previously generated
  and saved using the ``create_coma_spherical_harmonic_coefficient_files()`` method of a processor created from polynomial files.
@@ -1079,7 +1081,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Create processor from existing Stokes CSV files
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = data.environment.coma.coma_wind_file_processor(
        x_input_dir="wind_stokes/x_component",
        y_input_dir="wind_stokes/y_component",
        z_input_dir="wind_stokes/z_component",
@@ -1103,7 +1105,7 @@ void expose_coma_model( py::module& m )
  .. code-block:: python
 
    # Step 1: Create and save Stokes coefficients from polynomial files
-   poly_processor = data.coma_model.coma_wind_file_processor(
+   poly_processor = data.environment.coma.coma_wind_file_processor(
        x_file_paths=["vx.txt"],
        y_file_paths=["vy.txt"],
        z_file_paths=["vz.txt"])
@@ -1115,7 +1117,7 @@ void expose_coma_model( py::module& m )
        sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
 
    # Step 2: Later, load from saved Stokes files
-   stokes_processor = data.coma_model.coma_wind_file_processor(
+   stokes_processor = data.environment.coma.coma_wind_file_processor(
        x_input_dir="wind_stokes/x",
        y_input_dir="wind_stokes/y",
        z_input_dir="wind_stokes/z",
@@ -1132,8 +1134,9 @@ void expose_coma_model( py::module& m )
 
       )doc" );
 
-}  // expose_coma_model
+}  // expose_coma
 
-}  // namespace coma_model
+}  // namespace coma
+}  // namespace environment
 }  // namespace data
 }  // namespace tudatpy

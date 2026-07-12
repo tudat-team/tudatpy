@@ -1229,7 +1229,7 @@ def jpl_horizons(
     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
     including asteroids, comets, planets, moons and select spacecraft.
 
-    This function is a wrapper for the tudatpy.data.horizons functionality.
+    This function is a wrapper for the tudatpy.data.tracking.horizons functionality.
     That api is not available on the api documentation yet.
     For now, visit the HorizonsQuery source code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/horizons.py

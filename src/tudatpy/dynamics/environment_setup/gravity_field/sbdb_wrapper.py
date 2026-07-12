@@ -1,4 +1,4 @@
-from tudatpy.data.sbdb import SBDBquery
+from tudatpy.data.environment.sbdb import SBDBquery
 from .. import gravity_field
 from typing import Union
 
@@ -9,7 +9,7 @@ def central_sbdb(MPCcode: Union[str, int]) -> gravity_field.GravityFieldSettings
     JPL SBDB hosts information about small bodies such as asteroids, including the gravitational parameter for some objects.
     Please note that the gravitational parameter is not available for all objects and that the accuracy of this value varies per object
 
-    This function is a wrapper for the tudatpy.data.sbdb functionality.
+    This function is a wrapper for the tudatpy.data.environment.sbdb functionality.
     That api is not available on the api documentation yet.
     For now, visit the HorizonsQuery source code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/sbdb.py
@@ -45,7 +45,7 @@ def central_sbdb_density(
     JPL SBDB hosts information about small bodies such as asteroids, including the diameter for some objects.
     Please note that the gravitational parameter is not available for all objects and that the accuracy of this value varies per object
 
-    This function is a wrapper for the tudatpy.data.sbdb functionality.
+    This function is a wrapper for the tudatpy.data.environment.sbdb functionality.
     That api is not available on the api documentation yet.
     For now, visit the HorizonsQuery source code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/sbdb.py

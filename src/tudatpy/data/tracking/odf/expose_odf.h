@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_COMA_MODEL_H
-#define TUDATPY_EXPOSE_COMA_MODEL_H
+#ifndef TUDATPY_EXPOSE_ODF_H
+#define TUDATPY_EXPOSE_ODF_H
 
 #include <pybind11/pybind11.h>
 
@@ -19,13 +19,16 @@ namespace tudatpy
 {
 namespace data
 {
-namespace coma_model
+namespace tracking
+{
+namespace odf
 {
 
-void expose_coma_model( py::module& m );
+void expose_odf( py::module& m );
 
-}  // namespace coma_model
+}  // namespace odf
+}  // namespace tracking
 }  // namespace data
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_COMA_MODEL_H
+#endif  // TUDATPY_EXPOSE_ODF_H

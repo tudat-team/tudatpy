@@ -8,11 +8,11 @@ import astropy
 import copy
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
-from tudatpy.data.mpc.parser_80col import parse_80cols_file
-from tudatpy.data.mpc.parser_80col import unpackers
+from tudatpy.data.tracking.mpc.parser_80col import parse_80cols_file
+from tudatpy.data.tracking.mpc.parser_80col import unpackers
 
 # do not remove this line, even if it looks liek an unused import line
-from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
+from tudatpy.data.tracking.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 
 class BatchMPC:
@@ -442,7 +442,7 @@ class BatchMPC:
 
         This method serves as a high-level convenience function that orchestrates the
         parsing of a raw 80-column file and loading the data into the batch. It uses
-        the `tudatpy.data.mpc.parser_80col.parse_80cols_file` function internally.
+        the `tudatpy.data.tracking.mpc.parser_80col.parse_80cols_file` function internally.
 
         The parser returns an Astropy Table with RA/DEC values in radians, so this
         method subsequently calls `from_astropy` to ingest the data. The `in_degrees`
@@ -456,7 +456,7 @@ class BatchMPC:
 
         .. code-block:: python
 
-            from tudatpy.data.mpc.parser_80col import parse_80cols_file
+            from tudatpy.data.tracking.mpc.parser_80col import parse_80cols_file
 
             # 1. Parse the file to an Astropy Table
             astropy_table = parse_80cols_file("my_obs.txt")

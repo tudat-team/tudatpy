@@ -17,6 +17,7 @@ void add_data_to_kernel( py::module_& m );
 void add_dynamics_to_kernel( py::module_& m );
 void add_estimation_to_kernel( py::module_& m );
 void add_exceptions_to_kernel( py::module_& m );
+void add_util_to_kernel( py::module_& m );
 
 PYBIND11_MODULE( kernel, m )
 {
@@ -46,4 +47,7 @@ PYBIND11_MODULE( kernel, m )
 
     auto exceptions = m.def_submodule( "exceptions" );
     add_exceptions_to_kernel( exceptions );
+
+    auto util = m.def_submodule( "util" );
+    add_util_to_kernel( util );
 }
