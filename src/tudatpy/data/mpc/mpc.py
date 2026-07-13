@@ -94,6 +94,52 @@ def create_augmented_optical_table(
     return augmented_table
 
 
+def _datetime_to_utc_seconds(epoch) -> float:
+    if hasattr(epoch, "to_epoch"):
+        return float(epoch.to_epoch())
+    if hasattr(epoch, "to_float"):
+        return float(epoch.to_float())
+    if hasattr(epoch, "year") and hasattr(epoch, "month") and hasattr(epoch, "day"):
+        return float(time_representation.DateTime.from_python_datetime(epoch).to_epoch())
+    return float(epoch)
+
+
+def filter_augmented_optical_table(
+    table: pd.DataFrame,
+    epoch_start=None,
+    epoch_end=None,
+    observatories: list[str | int] | None = None,
+    observatories_exclude: list[str | int] | None = None,
+) -> pd.DataFrame:
+    """Filter an augmented optical astrometry table.
+
+    Epoch filters are interpreted as UTC seconds since J2000, or as Python
+    datetimes that are converted to UTC seconds since J2000.
+    """
+
+    if "epoch_seconds_UTC" not in table.columns:
+        raise ValueError("Expected an augmented optical table with an epoch_seconds_UTC column.")
+
+    filtered = table.copy()
+    if epoch_start is not None:
+        filtered = filtered.loc[
+            filtered["epoch_seconds_UTC"] >= _datetime_to_utc_seconds(epoch_start)
+        ]
+    if epoch_end is not None:
+        filtered = filtered.loc[
+            filtered["epoch_seconds_UTC"] <= _datetime_to_utc_seconds(epoch_end)
+        ]
+
+    if observatories is not None:
+        included = {str(observatory).strip().zfill(3) for observatory in observatories}
+        filtered = filtered.loc[filtered["observatory"].isin(included)]
+    if observatories_exclude is not None:
+        excluded = {str(observatory).strip().zfill(3) for observatory in observatories_exclude}
+        filtered = filtered.loc[~filtered["observatory"].isin(excluded)]
+
+    return filtered.reset_index(drop=True)
+
+
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     add_weights: bool | None = False,
@@ -142,16 +188,8 @@ def optical_table_to_tracking_data(
             ]
             tracking_data_object.set_observation_corrections(corrections_list)
 
-        for column in ["note2", "catalog"]:
-            tracking_data_object.add_ancillary_settings(
-                column,
-                group[column].fillna("").astype(str).tolist(),
-            )
-
         if add_ancillary_data:
-            for column in [
-                column for column in ANCILLARY_STRING_COLUMNS if column not in ["note2", "catalog"]
-            ]:
+            for column in ANCILLARY_STRING_COLUMNS:
                 tracking_data_object.add_ancillary_settings(
                     column,
                     group[column].fillna("").astype(str).tolist(),

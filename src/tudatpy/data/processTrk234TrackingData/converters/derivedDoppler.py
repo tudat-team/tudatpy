@@ -1,4 +1,4 @@
-from tudatpy.data import TrackingData
+from tudatpy.data_access.tracking import TrackingData
 
 from trk234 import SFDU
 from . import RadioBase

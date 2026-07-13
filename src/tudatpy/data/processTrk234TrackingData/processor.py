@@ -1,7 +1,11 @@
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
-from tudatpy.data import TrackingData, TrackingSupplementaryData, RampedFrequencySupplementaryData
+from tudatpy.data_access.tracking import (
+    RampedFrequencySupplementaryData,
+    TrackingData,
+    TrackingSupplementaryData,
+)
 from tudatpy.astro import time_representation
 from tudatpy.dynamics.environment import SystemOfBodies
 from .converters.ramp import OpenRampHandling

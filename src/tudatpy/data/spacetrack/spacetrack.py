@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlparse
 from tudatpy.dynamics import environment
 from datetime import datetime, timedelta
 import math
-from tudatpy.data import get_resource_path
+from tudatpy.data_access.paths import get_resource_path
 from tudatpy.astro.element_conversion import mean_to_true_anomaly
 
 

@@ -5,7 +5,7 @@ Base converter class for processing SFDU data into structured data.
 from abc import ABC, abstractmethod
 from pandas import DataFrame
 from trk234 import SFDU
-from tudatpy.data import TrackingData
+from tudatpy.data_access.tracking import TrackingData
 
 
 class Converter(ABC):

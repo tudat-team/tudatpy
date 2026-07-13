@@ -1,6 +1,7 @@
 try:
     from tudatpy.kernel.data import *
 except ModuleNotFoundError:
+    from tudatpy.data_access.paths import *
     from tudatpy.data_access.tracking import (
         RampedFrequencySupplementaryData,
         TrackingData,

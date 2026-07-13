@@ -1,6 +1,7 @@
 from .mpc import (
     BatchMPC,
     create_augmented_optical_table,
+    filter_augmented_optical_table,
     optical_table_to_tracking_data,
     read_80_column_data,
     read_astropy_optical_data,

@@ -5,6 +5,7 @@ from tudatpy.data_access.tracking.optical_utilities import (
 )
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from numpy.testing import assert_allclose
@@ -66,7 +67,15 @@ def test_bias_table(pixel, catalog, expected):
 @pytest.mark.parametrize("RA,DEC,Time,Catalog,RA_cor,DEC_cor", bias_input)
 def test_bias_values(RA, DEC, Time, Catalog, RA_cor, DEC_cor):
     """Check if values match hand calculation"""
-    RA_cor_calc, DEC_cor_calc = get_biases_EFCC18(RA, DEC, Time, Catalog)
+    mpc_table = pd.DataFrame(
+        {
+            "RA": [RA],
+            "DEC": [DEC],
+            "epoch_seconds_UTC": [Time],
+            "catalog": [Catalog],
+        }
+    )
+    RA_cor_calc, DEC_cor_calc = get_biases_EFCC18(mpc_table)
 
     assert (RA_cor_calc[0] - RA_cor) == pytest.approx(0.00)
     assert (DEC_cor_calc[0] - DEC_cor) == pytest.approx(0.00)
