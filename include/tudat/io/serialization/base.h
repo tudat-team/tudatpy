@@ -102,7 +102,7 @@ namespace serialization
 template< typename T >
 std::string serializeToBinaryString( const T& object )
 {
-    std::ostringstream oss( std::ios::binary );
+    std::ostringstream oss;
     {
         cereal::BinaryOutputArchive oa( oss );
         oa( object );
@@ -114,7 +114,7 @@ std::string serializeToBinaryString( const T& object )
 template< typename T >
 T deserializeFromBinaryString( const std::string& data )
 {
-    std::istringstream iss( data, std::ios::binary );
+    std::istringstream iss( data );
     cereal::BinaryInputArchive ia( iss );
     std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
     ia( *objectPtr );
@@ -125,7 +125,7 @@ T deserializeFromBinaryString( const std::string& data )
 template< typename T >
 std::string serializeSharedPtrToBinaryString( const std::shared_ptr< T >& object )
 {
-    std::ostringstream oss( std::ios::binary );
+    std::ostringstream oss;
     {
         cereal::BinaryOutputArchive oa( oss );
         oa( object );
@@ -137,7 +137,7 @@ std::string serializeSharedPtrToBinaryString( const std::shared_ptr< T >& object
 template< typename T >
 std::shared_ptr< T > deserializeSharedPtrFromBinaryString( const std::string& data )
 {
-    std::istringstream iss( data, std::ios::binary );
+    std::istringstream iss( data );
     cereal::BinaryInputArchive ia( iss );
     std::shared_ptr< T > object;
     ia( object );
@@ -148,7 +148,7 @@ std::shared_ptr< T > deserializeSharedPtrFromBinaryString( const std::string& da
 template< typename T >
 void deserializeFromBinaryString( const std::string& data, T& object )
 {
-    std::istringstream iss( data, std::ios::binary );
+    std::istringstream iss( data );
     cereal::BinaryInputArchive ia( iss );
     ia( object );
 }
