@@ -270,9 +270,10 @@ public:
      */
     bool equals( const InterpolatorSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const LagrangeInterpolatorSettings& >( rhs );
-        return InterpolatorSettings::equals( rhs ) && interpolatorOrder_ == derivedRhs.interpolatorOrder_ &&
-                lagrangeBoundaryHandling_ == derivedRhs.lagrangeBoundaryHandling_;
+        const auto* derivedRhs = dynamic_cast< const LagrangeInterpolatorSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return InterpolatorSettings::equals( rhs ) && interpolatorOrder_ == derivedRhs->interpolatorOrder_ &&
+                lagrangeBoundaryHandling_ == derivedRhs->lagrangeBoundaryHandling_;
     }
 
 protected:

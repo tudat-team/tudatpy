@@ -138,7 +138,7 @@ protected:
         {
             return false;
         }
-        return targetModelType_ == rhs->targetModelType_;
+        return AccelerationSettings::equals( other ) && targetModelType_ == rhs->targetModelType_;
     }
 
 private:
@@ -234,7 +234,8 @@ protected:
         {
             return false;
         }
-        return maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ && removePointMass_ == rhs->removePointMass_;
+        return AccelerationSettings::equals( other ) && maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ &&
+                removePointMass_ == rhs->removePointMass_;
     }
 
 private:
@@ -333,7 +334,8 @@ protected:
         {
             return false;
         }
-        return maximumDegreeOfBodyExertingAcceleration_ == rhs->maximumDegreeOfBodyExertingAcceleration_ &&
+        return AccelerationSettings::equals( other ) &&
+                maximumDegreeOfBodyExertingAcceleration_ == rhs->maximumDegreeOfBodyExertingAcceleration_ &&
                 maximumOrderOfBodyExertingAcceleration_ == rhs->maximumOrderOfBodyExertingAcceleration_ &&
                 maximumDegreeOfBodyUndergoingAcceleration_ == rhs->maximumDegreeOfBodyUndergoingAcceleration_ &&
                 maximumOrderOfBodyUndergoingAcceleration_ == rhs->maximumOrderOfBodyUndergoingAcceleration_ &&
@@ -553,7 +555,7 @@ protected:
         {
             return false;
         }
-        return calculateSchwarzschildCorrection_ == rhs->calculateSchwarzschildCorrection_ &&
+        return AccelerationSettings::equals( other ) && calculateSchwarzschildCorrection_ == rhs->calculateSchwarzschildCorrection_ &&
                 calculateLenseThirringCorrection_ == rhs->calculateLenseThirringCorrection_ &&
                 calculateDeSitterCorrection_ == rhs->calculateDeSitterCorrection_ && primaryBody_ == rhs->primaryBody_ &&
                 centralBodyAngularMomentum_ == rhs->centralBodyAngularMomentum_;
@@ -650,8 +652,8 @@ protected:
         {
             return false;
         }
-        return constantAcceleration_ == rhs->constantAcceleration_ && sineAcceleration_ == rhs->sineAcceleration_ &&
-                cosineAcceleration_ == rhs->cosineAcceleration_;
+        return AccelerationSettings::equals( other ) && constantAcceleration_ == rhs->constantAcceleration_ &&
+                sineAcceleration_ == rhs->sineAcceleration_ && cosineAcceleration_ == rhs->cosineAcceleration_;
     }
 
 private:
@@ -716,7 +718,7 @@ protected:
         {
             return false;
         }
-        return yarkovskyParameter_ == rhs->yarkovskyParameter_;
+        return AccelerationSettings::equals( other ) && yarkovskyParameter_ == rhs->yarkovskyParameter_;
     }
 
 private:
@@ -885,7 +887,7 @@ protected:
         {
             return false;
         }
-        return engineIds_ == rhs->engineIds_ && useAllEngines_ == rhs->useAllEngines_;
+        return AccelerationSettings::equals( other ) && engineIds_ == rhs->engineIds_ && useAllEngines_ == rhs->useAllEngines_;
     }
 
 private:
@@ -1029,7 +1031,8 @@ protected:
         }
         // std::function does not support equality comparison.
         // Check that both are either null or both non-null.
-        return ( !accelerationFunction_ && !rhs->accelerationFunction_ ) || ( accelerationFunction_ && rhs->accelerationFunction_ );
+        return AccelerationSettings::equals( other ) &&
+                ( ( !accelerationFunction_ && !rhs->accelerationFunction_ ) || ( accelerationFunction_ && rhs->accelerationFunction_ ) );
     }
 
 private:
@@ -1101,7 +1104,8 @@ protected:
         {
             return false;
         }
-        return bodyFixedForceVectorAtReferenceEpoch_ == rhs->bodyFixedForceVectorAtReferenceEpoch_ &&
+        return AccelerationSettings::equals( other ) &&
+                bodyFixedForceVectorAtReferenceEpoch_ == rhs->bodyFixedForceVectorAtReferenceEpoch_ &&
                 decayScaleFactor_ == rhs->decayScaleFactor_ && referenceEpoch_ == rhs->referenceEpoch_;
     }
 
@@ -1237,6 +1241,7 @@ protected:
         {
             return false;
         }
+        if( !AccelerationSettings::equals( other ) ) return false;
 
         // IEEE 754: NaN != NaN, so we must treat (NaN, NaN) as equal to correctly
         // round-trip representation A (where these fields are intentionally NaN).
@@ -1358,7 +1363,7 @@ protected:
         {
             return false;
         }
-        return thrustMidTimes_ == rhs->thrustMidTimes_ && deltaVValues_ == rhs->deltaVValues_ &&
+        return AccelerationSettings::equals( other ) && thrustMidTimes_ == rhs->thrustMidTimes_ && deltaVValues_ == rhs->deltaVValues_ &&
                 totalManeuverTime_ == rhs->totalManeuverTime_ && maneuverRiseTime_ == rhs->maneuverRiseTime_;
     }
 

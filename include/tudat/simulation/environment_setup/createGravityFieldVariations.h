@@ -429,10 +429,11 @@ public:
      */
     bool equals( const GravityFieldVariationSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const BasicSolidBodyGravityFieldVariationSettings& >( rhs );
-        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs.deformingBodies_ &&
-                loveNumbers_ == derivedRhs.loveNumbers_ && meanForcingCosineTerms_ == derivedRhs.meanForcingCosineTerms_ &&
-                meanForcingSineTerms_ == derivedRhs.meanForcingSineTerms_;
+        const auto* derivedRhs = dynamic_cast< const BasicSolidBodyGravityFieldVariationSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs->deformingBodies_ &&
+                loveNumbers_ == derivedRhs->loveNumbers_ && meanForcingCosineTerms_ == derivedRhs->meanForcingCosineTerms_ &&
+                meanForcingSineTerms_ == derivedRhs->meanForcingSineTerms_;
     }
 
 protected:
@@ -525,9 +526,10 @@ public:
      */
     bool equals( const GravityFieldVariationSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const ModeCoupledSolidBodyGravityFieldVariationSettings& >( rhs );
-        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs.deformingBodies_ &&
-                loveNumbers_ == derivedRhs.loveNumbers_;
+        const auto* derivedRhs = dynamic_cast< const ModeCoupledSolidBodyGravityFieldVariationSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return GravityFieldVariationSettings::equals( rhs ) && deformingBodies_ == derivedRhs->deformingBodies_ &&
+                loveNumbers_ == derivedRhs->loveNumbers_;
     }
 
 protected:
@@ -635,10 +637,11 @@ public:
      */
     bool equals( const GravityFieldVariationSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const TabulatedGravityFieldVariationSettings& >( rhs );
-        return GravityFieldVariationSettings::equals( rhs ) && cosineCoefficientCorrections_ == derivedRhs.cosineCoefficientCorrections_ &&
-                sineCoefficientCorrections_ == derivedRhs.sineCoefficientCorrections_ && minimumDegree_ == derivedRhs.minimumDegree_ &&
-                minimumOrder_ == derivedRhs.minimumOrder_;
+        const auto* derivedRhs = dynamic_cast< const TabulatedGravityFieldVariationSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return GravityFieldVariationSettings::equals( rhs ) && cosineCoefficientCorrections_ == derivedRhs->cosineCoefficientCorrections_ &&
+                sineCoefficientCorrections_ == derivedRhs->sineCoefficientCorrections_ && minimumDegree_ == derivedRhs->minimumDegree_ &&
+                minimumOrder_ == derivedRhs->minimumOrder_;
     }
 
 protected:
@@ -748,13 +751,14 @@ public:
      */
     bool equals( const GravityFieldVariationSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const PeriodicGravityFieldVariationsSettings& >( rhs );
-        return GravityFieldVariationSettings::equals( rhs ) && cosineShAmplitudesCosineTime_ == derivedRhs.cosineShAmplitudesCosineTime_ &&
-                cosineShAmplitudesSineTime_ == derivedRhs.cosineShAmplitudesSineTime_ &&
-                sineShAmplitudesCosineTime_ == derivedRhs.sineShAmplitudesCosineTime_ &&
-                sineShAmplitudesSineTime_ == derivedRhs.sineShAmplitudesSineTime_ && frequencies_ == derivedRhs.frequencies_ &&
-                referenceEpoch_ == derivedRhs.referenceEpoch_ && minimumDegree_ == derivedRhs.minimumDegree_ &&
-                minimumOrder_ == derivedRhs.minimumOrder_;
+        const auto* derivedRhs = dynamic_cast< const PeriodicGravityFieldVariationsSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return GravityFieldVariationSettings::equals( rhs ) && cosineShAmplitudesCosineTime_ == derivedRhs->cosineShAmplitudesCosineTime_ &&
+                cosineShAmplitudesSineTime_ == derivedRhs->cosineShAmplitudesSineTime_ &&
+                sineShAmplitudesCosineTime_ == derivedRhs->sineShAmplitudesCosineTime_ &&
+                sineShAmplitudesSineTime_ == derivedRhs->sineShAmplitudesSineTime_ && frequencies_ == derivedRhs->frequencies_ &&
+                referenceEpoch_ == derivedRhs->referenceEpoch_ && minimumDegree_ == derivedRhs->minimumDegree_ &&
+                minimumOrder_ == derivedRhs->minimumOrder_;
     }
 
 protected:
@@ -856,10 +860,11 @@ public:
      */
     bool equals( const GravityFieldVariationSettings& rhs ) const override
     {
-        const auto& derivedRhs = static_cast< const PolynomialGravityFieldVariationsSettings& >( rhs );
-        return GravityFieldVariationSettings::equals( rhs ) && cosineAmplitudes_ == derivedRhs.cosineAmplitudes_ &&
-                sineAmplitudes_ == derivedRhs.sineAmplitudes_ && referenceEpoch_ == derivedRhs.referenceEpoch_ &&
-                minimumDegree_ == derivedRhs.minimumDegree_ && minimumOrder_ == derivedRhs.minimumOrder_;
+        const auto* derivedRhs = dynamic_cast< const PolynomialGravityFieldVariationsSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return GravityFieldVariationSettings::equals( rhs ) && cosineAmplitudes_ == derivedRhs->cosineAmplitudes_ &&
+                sineAmplitudes_ == derivedRhs->sineAmplitudes_ && referenceEpoch_ == derivedRhs->referenceEpoch_ &&
+                minimumDegree_ == derivedRhs->minimumDegree_ && minimumOrder_ == derivedRhs->minimumOrder_;
     }
 
 protected:
