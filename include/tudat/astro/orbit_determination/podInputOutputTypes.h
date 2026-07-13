@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -1408,7 +1408,7 @@ private:
 // extern template class EstimationInput< double, double >;
 // extern template struct EstimationOutput< double >;
 
-// Type aliases for BOOST_CLASS_EXPORT registration
+// Type aliases for CEREAL_REGISTER_TYPE registration
 using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;
 using EstimationOutputDD = EstimationOutput< double, double >;
 
