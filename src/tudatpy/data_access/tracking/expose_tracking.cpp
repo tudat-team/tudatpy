@@ -58,6 +58,11 @@ void expose_tracking( py::module& m )
             .def_property_readonly( "time_scale", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeScale )
             .def_property_readonly( "weighing_scheme", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeighingScheme )
             .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const std::string >(
+                          &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
+                  py::arg( "ancillary_settings_type" ),
+                  py::arg( "ancillary_settings_value" ) )
+            .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< std::string > >(
                           &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillary_settings_type" ),

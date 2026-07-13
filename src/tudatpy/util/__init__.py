@@ -1,3 +1,4 @@
+from tudatpy.kernel.util import *
 from ._dse_functions import (
     get_orthogonal_array,
     get_yates_array,
@@ -10,6 +11,8 @@ from ._support import (
     pareto_optimums,
     vector2matrix,
     transform_integer_to_roman_number,
+    save2txt,
+    save_time_history_to_file,
 )
 
 __all__ = [
@@ -22,4 +25,7 @@ __all__ = [
     "get_yates_array",
     "anova_analysis",
     "transform_integer_to_roman_number",
+    "save2txt",
+    "save_time_history_to_file",
+    "read_matrix_history_from_file",
 ]

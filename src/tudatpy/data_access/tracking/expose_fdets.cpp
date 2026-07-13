@@ -31,15 +31,65 @@ namespace fdets
 
 void expose_fdets( py::module& m )
 {
-    py::enum_< tio::FdetDateFormat >( m, "FdetDateFormat" )
-            .value( "datetime_string", tio::FdetDateFormat::datetime_string )
-            .value( "pair_of_numbers", tio::FdetDateFormat::pair_of_numbers )
+    py::enum_< tio::FdetDateFormat >( m, "FdetDateFormat", R"doc(Date format used in an Fdets file.)doc" )
+            .value( "datetime_string",
+                    tio::FdetDateFormat::datetime_string,
+                    R"doc(Date is provided in a single UTC datetime string column.)doc" )
+            .value( "pair_of_numbers",
+                    tio::FdetDateFormat::pair_of_numbers,
+                    R"doc(Date is provided as a pair of numeric columns. This format is not currently supported.)doc" )
             .export_values( );
 
     m.def( "read_fdets_file",
            py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),
            py::arg( "file_name" ),
-           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string );
+           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string,
+           R"doc(Load contents of Fdets file into object
+
+           This function loads the contents of an Fdets file. For the currently supported `datetime_string` date format, the following structure is assumed:
+
+           - UTC datetime string
+           - Signal to noise ratio [-]
+           - Normalized spectral max (Not sure what this is)
+           - Doppler measured frequency [Hz]
+           - Doppler noise [Hz]
+
+           If the file contains an additional leading scan-number column, this column is detected automatically.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           date_format : FdetDateFormat
+               Date format used in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
+
+    m.def( "read_fdets_file",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tio::readFdetsFile ),
+           py::arg( "file_name" ),
+           py::arg( "column_types" ),
+           R"doc(Load contents of Fdets file into object using explicit column identifiers.
+
+           .. deprecated::
+              Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           column_types : List[str]
+               Identifiers of the columns present in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
 
     m.def( "read_fdets_files",
            static_cast< std::pair< std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >,
@@ -57,7 +107,8 @@ void expose_fdets( py::module& m )
            py::arg( "spacecraft_name" ),
            py::arg( "transmitting_station_names" ),
            py::arg( "receiving_station_names" ),
-           py::arg( "earth_name" ) = "Earth" );
+           py::arg( "earth_name" ) = "Earth",
+           R"doc(Load FDETS files into tracking data and supplementary data objects.)doc" );
 }
 
 }  // namespace fdets

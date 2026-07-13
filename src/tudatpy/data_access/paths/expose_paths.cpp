@@ -7,6 +7,7 @@
 #include <pybind11/pybind11.h>
 
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/readHistoryFromFile.h"
 
 namespace py = pybind11;
 
@@ -62,6 +63,33 @@ void expose_paths( py::module& m )
            R"doc(Return the Tudat station-location resource directory.)doc" );
 
     m.def( "get_nequick2_path", &tudat::paths::getNeQuick2DataPath, R"doc(Return the Tudat NeQuick2 resource directory.)doc" );
+
+    m.def( "read_vector_history_from_file",
+           &tudat::input_output::readVectorHistoryFromFile< double, double >,
+           py::arg( "vector_size" ),
+           py::arg( "file_name" ),
+           R"doc(
+
+ Read a vector history from a file.
+
+
+ Parameters
+ ----------
+ vector_size : int
+     Size of the vector at each epoch.
+ file_name : str
+     Name of the file containing the vector history.
+ Returns
+ -------
+ Dict[float, numpy.ndarray]
+     Dictionary mapping epochs to the vector at the given epoch.
+
+
+
+
+
+
+     )doc" );
 }
 
 }  // namespace paths

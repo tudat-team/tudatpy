@@ -34,7 +34,27 @@ void expose_ifms( py::module& m )
            &tio::readIfmsFile,
            py::arg( "file_name" ),
            py::arg( "apply_tropospheric_correction" ) = true,
-           py::arg( "remove_invalid_lines" ) = true );
+           py::arg( "remove_invalid_lines" ) = true,
+           R"doc(Load contents of IFMS file into object
+
+           The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
+
+           Two of the columns of an IFMS file contain, respectively, the Doppler averaged frequency and a tropospheric correction for the station. When the `apply_tropospheric_correction` option is set to true, the content of the first column is modified by subtracting the values in the second.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           apply_tropospheric_correction : bool
+               Whether to modify the averaged Doppler frequency as described above (Default: True)
+           remove_invalid_lines : bool
+               Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
+
+           Returns
+           -------
+           ifms_contents : TrackingTxtFileContents
+               Dictionary with contents of the IFMS file as lists of strings
+           )doc" );
 
     m.def( "read_ifms_files",
            py::overload_cast< const std::vector< std::string >&,
@@ -54,7 +74,8 @@ void expose_ifms( py::module& m )
            py::arg( "remove_invalid_lines" ) = true,
            py::arg( "frequency_bands" ) = std::vector< double >( ),
            py::arg( "reception_reference_frequency_band" ) = std::numeric_limits< double >::quiet_NaN( ),
-           py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ) );
+           py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ),
+           R"doc(Load IFMS files into tracking data and supplementary data objects.)doc" );
 }
 
 }  // namespace ifms

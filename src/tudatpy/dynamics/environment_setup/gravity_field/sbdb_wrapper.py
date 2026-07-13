@@ -1,4 +1,4 @@
-from tudatpy.data.sbdb import SBDBquery
+from tudatpy.data_access.environment.sbdb import SBDBquery
 from .. import gravity_field
 from typing import Union
 

@@ -4,6 +4,7 @@
 
 #include "expose_data_access.h"
 
+#include "environment/expose_environment.h"
 #include "paths/expose_paths.h"
 #include "tracking/expose_tracking.h"
 
@@ -20,6 +21,9 @@ void expose_data_access( py::module& m )
 
     auto tracking = m.def_submodule( "tracking" );
     tudatpy::data_access::tracking::expose_tracking( tracking );
+
+    auto environment = m.def_submodule( "environment" );
+    tudatpy::data_access::environment::expose_environment( environment );
 }
 
 }  // namespace data_access
