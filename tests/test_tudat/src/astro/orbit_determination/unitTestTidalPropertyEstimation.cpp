@@ -629,13 +629,10 @@ BOOST_AUTO_TEST_CASE( test_MultiModelFullDegreeLoveNumberParameterSetup )
         BOOST_CHECK_EQUAL( loveNumberMoonSun->getParameterSize( ), 1 );
         BOOST_CHECK_EQUAL( loveNumberMoonSun->getGravityFieldVariationModels( ).size( ), 2 );
         BOOST_CHECK_EQUAL( loveNumberSunMoon->getGravityFieldVariationModels( ).size( ), 2 );
-        BOOST_CHECK_EQUAL( loveNumberMoonSun->getDeformingBodies( ).size( ), 2 );
-        BOOST_CHECK( std::find( loveNumberMoonSun->getDeformingBodies( ).begin( ),
-                                loveNumberMoonSun->getDeformingBodies( ).end( ),
-                                "Moon" ) != loveNumberMoonSun->getDeformingBodies( ).end( ) );
-        BOOST_CHECK( std::find( loveNumberMoonSun->getDeformingBodies( ).begin( ),
-                                loveNumberMoonSun->getDeformingBodies( ).end( ),
-                                "Sun" ) != loveNumberMoonSun->getDeformingBodies( ).end( ) );
+        const std::vector< std::string > selectedBodies = loveNumberMoonSun->getDeformingBodies( );
+        BOOST_CHECK_EQUAL( selectedBodies.size( ), 2 );
+        BOOST_CHECK( std::find( selectedBodies.begin( ), selectedBodies.end( ), "Moon" ) != selectedBodies.end( ) );
+        BOOST_CHECK( std::find( selectedBodies.begin( ), selectedBodies.end( ), "Sun" ) != selectedBodies.end( ) );
         BOOST_CHECK( loveNumberMoonSun->getGravityFieldVariationModels( ) == loveNumberSunMoon->getGravityFieldVariationModels( ) );
     }
 
@@ -853,6 +850,157 @@ BOOST_AUTO_TEST_CASE( test_MultiModelFullDegreeLoveNumberParameterSetup )
             BOOST_CHECK( std::string( error.what( ) ).find( "partially overlap" ) != std::string::npos );
         }
         BOOST_CHECK( partialOverlapCaught );
+    }
+
+    // Degree-aware selection: independent Moon degree-2 / degree-3 models remain selectable.
+    {
+        BodyListSettings degreeSeparatedBodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > > degreeSeparatedVariations;
+
+        std::map< int, std::vector< std::complex< double > > > moonDegreeTwoLoveNumbers;
+        moonDegreeTwoLoveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.301, -0.001 ) );
+        degreeSeparatedVariations.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >{ "Moon" }, moonDegreeTwoLoveNumbers ) );
+
+        std::map< int, std::vector< std::complex< double > > > moonDegreeThreeLoveNumbers;
+        moonDegreeThreeLoveNumbers[ 3 ] = std::vector< std::complex< double > >( 4, std::complex< double >( 0.093, 0.0 ) );
+        degreeSeparatedVariations.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >{ "Moon" }, moonDegreeThreeLoveNumbers ) );
+
+        std::map< int, std::vector< std::complex< double > > > sunDegreeTwoLoveNumbers;
+        sunDegreeTwoLoveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.295, -0.002 ) );
+        degreeSeparatedVariations.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >{ "Sun" }, sunDegreeTwoLoveNumbers ) );
+
+        degreeSeparatedBodySettings.at( "Earth" )->gravityFieldVariationSettings = degreeSeparatedVariations;
+        SystemOfBodies degreeSeparatedBodies = createSystemOfBodies( degreeSeparatedBodySettings );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > degreeTwoMoonParameters;
+        degreeTwoMoonParameters.push_back(
+                std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", false ) );
+        std::shared_ptr< EstimatableParameterSet< double > > degreeTwoMoonParameterSet =
+                createParametersToEstimate< double, double >( degreeTwoMoonParameters, degreeSeparatedBodies );
+        std::shared_ptr< FullDegreeTidalLoveNumber > degreeTwoMoonLoveNumber =
+                std::dynamic_pointer_cast< FullDegreeTidalLoveNumber >(
+                        degreeTwoMoonParameterSet->getVectorParameters( ).begin( )->second );
+        BOOST_REQUIRE( degreeTwoMoonLoveNumber != nullptr );
+        BOOST_CHECK_EQUAL( degreeTwoMoonLoveNumber->getGravityFieldVariationModels( ).size( ), 1 );
+        BOOST_CHECK_EQUAL( degreeTwoMoonLoveNumber->getDeformingBodies( ).size( ), 1 );
+        BOOST_CHECK_EQUAL( degreeTwoMoonLoveNumber->getDeformingBodies( ).at( 0 ), "Moon" );
+
+        std::vector< std::string > emptyDeformingBodies;
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > degreeTwoEmptyParameters;
+        degreeTwoEmptyParameters.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", 2, emptyDeformingBodies, false ) );
+        std::shared_ptr< EstimatableParameterSet< double > > degreeTwoEmptyParameterSet =
+                createParametersToEstimate< double, double >( degreeTwoEmptyParameters, degreeSeparatedBodies );
+        std::shared_ptr< FullDegreeTidalLoveNumber > degreeTwoEmptyLoveNumber =
+                std::dynamic_pointer_cast< FullDegreeTidalLoveNumber >(
+                        degreeTwoEmptyParameterSet->getVectorParameters( ).begin( )->second );
+        BOOST_REQUIRE( degreeTwoEmptyLoveNumber != nullptr );
+        BOOST_CHECK_EQUAL( degreeTwoEmptyLoveNumber->getGravityFieldVariationModels( ).size( ), 2 );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > degreeThreeMoonParameters;
+        degreeThreeMoonParameters.push_back(
+                std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Moon", false ) );
+        std::shared_ptr< EstimatableParameterSet< double > > degreeThreeMoonParameterSet =
+                createParametersToEstimate< double, double >( degreeThreeMoonParameters, degreeSeparatedBodies );
+        std::shared_ptr< FullDegreeTidalLoveNumber > degreeThreeMoonLoveNumber =
+                std::dynamic_pointer_cast< FullDegreeTidalLoveNumber >(
+                        degreeThreeMoonParameterSet->getVectorParameters( ).begin( )->second );
+        BOOST_REQUIRE( degreeThreeMoonLoveNumber != nullptr );
+        BOOST_CHECK_EQUAL( degreeThreeMoonLoveNumber->getGravityFieldVariationModels( ).size( ), 1 );
+    }
+
+    // Empty list must reject duplicate body coverage for the same requested degree.
+    {
+        BodyListSettings ambiguousBodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > > ambiguousVariations;
+        std::map< int, std::vector< std::complex< double > > > firstMoonLoveNumbers;
+        firstMoonLoveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.301, 0.0 ) );
+        ambiguousVariations.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >{ "Moon" }, firstMoonLoveNumbers ) );
+        std::map< int, std::vector< std::complex< double > > > secondMoonLoveNumbers;
+        secondMoonLoveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.295, 0.0 ) );
+        ambiguousVariations.push_back( std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                std::vector< std::string >{ "Moon" }, secondMoonLoveNumbers ) );
+        ambiguousBodySettings.at( "Earth" )->gravityFieldVariationSettings = ambiguousVariations;
+        SystemOfBodies ambiguousBodies = createSystemOfBodies( ambiguousBodySettings );
+
+        bool emptyListAmbiguityCaught = false;
+        try
+        {
+            std::vector< std::string > emptyDeformingBodies;
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+            parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+                    "Earth", 2, emptyDeformingBodies, false ) );
+            createParametersToEstimate< double, double >( parameterNames, ambiguousBodies );
+        }
+        catch( const std::runtime_error& error )
+        {
+            emptyListAmbiguityCaught = true;
+            BOOST_CHECK( std::string( error.what( ) ).find( "Moon" ) != std::string::npos );
+            BOOST_CHECK( std::string( error.what( ) ).find( "ambiguous" ) != std::string::npos );
+        }
+        BOOST_CHECK( emptyListAmbiguityCaught );
+
+        bool explicitListAmbiguityCaught = false;
+        try
+        {
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+            parameterNames.push_back(
+                    std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", false ) );
+            createParametersToEstimate< double, double >( parameterNames, ambiguousBodies );
+        }
+        catch( const std::runtime_error& error )
+        {
+            explicitListAmbiguityCaught = true;
+            BOOST_CHECK( std::string( error.what( ) ).find( "Moon" ) != std::string::npos );
+            BOOST_CHECK( std::string( error.what( ) ).find( "ambiguous" ) != std::string::npos );
+        }
+        BOOST_CHECK( explicitListAmbiguityCaught );
+    }
+
+    // Order-varying Love numbers also synchronize across multiple selected models.
+    {
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings = getSeparateMoonSunEarthTideSettings(
+                std::complex< double >( 0.301, -0.001 ), std::complex< double >( 0.295, -0.002 ) );
+        bodies = createSystemOfBodies( bodySettings );
+
+        std::vector< std::string > deformingBodiesMoonSun;
+        deformingBodiesMoonSun.push_back( "Moon" );
+        deformingBodiesMoonSun.push_back( "Sun" );
+        std::vector< int > estimatedOrders;
+        estimatedOrders.push_back( 1 );
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", 2, estimatedOrders, deformingBodiesMoonSun, false ) );
+        std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+                createParametersToEstimate< double, double >( parameterNames, bodies );
+        std::shared_ptr< SingleDegreeVariableTidalLoveNumber > loveNumberParameter =
+                std::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumber >(
+                        parameterSet->getVectorParameters( ).begin( )->second );
+        BOOST_REQUIRE( loveNumberParameter != nullptr );
+        BOOST_CHECK_EQUAL( loveNumberParameter->getGravityFieldVariationModels( ).size( ), 2 );
+        BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 1 );
+
+        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > tideModels = getBasicTideModels( );
+        BOOST_REQUIRE_EQUAL( tideModels.size( ), 2 );
+        const double moonOrderZeroBefore = tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 0 ).real( );
+        const double moonOrderTwoBefore = tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( );
+        const double sunOrderZeroBefore = tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 0 ).real( );
+        const double sunOrderTwoBefore = tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( );
+
+        Eigen::VectorXd resetValue = Eigen::VectorXd::Zero( 1 );
+        resetValue( 0 ) = 0.42;
+        loveNumberParameter->setParameterValue( resetValue );
+
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 1 ).real( ), 0.42, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 1 ).real( ), 0.42, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 0 ).real( ), moonOrderZeroBefore, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( ), moonOrderTwoBefore, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 0 ).real( ), sunOrderZeroBefore, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( ), sunOrderTwoBefore, 1.0E-14 );
     }
 }
 

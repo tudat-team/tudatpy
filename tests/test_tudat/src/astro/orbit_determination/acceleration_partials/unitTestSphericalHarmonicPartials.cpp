@@ -21,6 +21,11 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicPartialFunctions.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullTwoBodySphericalHarmonicGravityPartial.h"
+#include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
+#include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
+#include "tudat/astro/gravitation/centralGravityModel.h"
+#include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
@@ -1380,6 +1385,177 @@ BOOST_AUTO_TEST_CASE( testMultiModelLoveNumberAccelerationPartial )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
     BOOST_CHECK( analyticalPartial.norm( ) > 0.0 );
+}
+
+//! Focused regression: full-two-body Love-number partials must sum contributions from multiple tide models.
+BOOST_AUTO_TEST_CASE( testFullTwoBodyMultiModelLoveNumberAccelerationPartial )
+{
+    const double gravitationalParameter = 5.0E5;
+    const double equatorialRadiusOfBody1 = 1300.0;
+    const double equatorialRadiusOfBody2 = 1100.0;
+    const double evaluationTime = 1000.0;
+
+    Eigen::MatrixXd cosineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficientsOfBody1Base = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd cosineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficientsOfBody2Base = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficientsOfBody1Base( 0, 0 ) = 1.0;
+    cosineCoefficientsOfBody2Base( 0, 0 ) = 1.0;
+    cosineCoefficientsOfBody1Base( 2, 0 ) = 0.23;
+    cosineCoefficientsOfBody1Base( 2, 1 ) = -0.11;
+    sineCoefficientsOfBody1Base( 2, 1 ) = 0.14;
+    cosineCoefficientsOfBody1Base( 2, 2 ) = 0.09;
+    sineCoefficientsOfBody1Base( 2, 2 ) = -0.06;
+
+    std::shared_ptr< Body > body1 = std::make_shared< Body >( );
+    std::shared_ptr< Body > body2 = std::make_shared< Body >( );
+    std::shared_ptr< Body > body3 = std::make_shared< Body >( );
+
+    std::shared_ptr< SphericalHarmonicsGravityField > body1GravityField = std::make_shared< SphericalHarmonicsGravityField >(
+            gravitationalParameter, equatorialRadiusOfBody1, cosineCoefficientsOfBody1Base, sineCoefficientsOfBody1Base, "IAU_Body1" );
+    std::shared_ptr< SphericalHarmonicsGravityField > body2GravityField = std::make_shared< SphericalHarmonicsGravityField >(
+            gravitationalParameter, equatorialRadiusOfBody2, cosineCoefficientsOfBody2Base, sineCoefficientsOfBody2Base, "IAU_Body2" );
+    std::shared_ptr< GravityFieldModel > body3GravityField = std::make_shared< GravityFieldModel >( 0.35 * gravitationalParameter );
+
+    body1->setGravityFieldModel( body1GravityField );
+    body2->setGravityFieldModel( body2GravityField );
+    body3->setGravityFieldModel( body3GravityField );
+
+    body1->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+            Eigen::Quaterniond::Identity( ), 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body1" ) );
+    body2->setRotationalEphemeris( std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+            Eigen::Quaterniond::Identity( ), 0.0, evaluationTime, "ECLIPJ2000", "IAU_Body2" ) );
+
+    Eigen::Vector6d stateOfBody1 = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d stateOfBody2 = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d stateOfBody3 = Eigen::Vector6d::Zero( );
+    stateOfBody1.segment( 0, 3 ) = ( Eigen::Vector3d( ) << 5100.0, -2200.0, 3600.0 ).finished( );
+    stateOfBody3.segment( 0, 3 ) = ( Eigen::Vector3d( ) << -7800.0, 4100.0, -2600.0 ).finished( );
+    body1->setState( stateOfBody1 );
+    body2->setState( stateOfBody2 );
+    body3->setState( stateOfBody3 );
+    body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+    body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+
+    auto createSimpleRotationPartialMap = [ ]( const std::shared_ptr< Body >& body ) {
+        std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel =
+                std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body->getRotationalEphemeris( ) );
+        observation_partials::RotationMatrixPartialNamedList partials;
+        partials[ std::make_pair( constant_rotation_rate, "" ) ] =
+                std::make_shared< observation_partials::RotationMatrixPartialWrtConstantRotationRate >( rotationModel );
+        partials[ std::make_pair( rotation_pole_position, "" ) ] =
+                std::make_shared< observation_partials::RotationMatrixPartialWrtPoleOrientation >( rotationModel );
+        return partials;
+    };
+
+    std::map< int, std::vector< std::complex< double > > > body2LoveNumbers;
+    body2LoveNumbers[ 2 ].push_back( std::complex< double >( 0.21, 0.0 ) );
+    body2LoveNumbers[ 2 ].push_back( std::complex< double >( 0.14, 0.0 ) );
+    body2LoveNumbers[ 2 ].push_back( std::complex< double >( 0.08, 0.0 ) );
+    std::map< int, std::vector< std::complex< double > > > body3LoveNumbers;
+    body3LoveNumbers[ 2 ].push_back( std::complex< double >( 0.19, 0.0 ) );
+    body3LoveNumbers[ 2 ].push_back( std::complex< double >( 0.11, 0.0 ) );
+    body3LoveNumbers[ 2 ].push_back( std::complex< double >( 0.07, 0.0 ) );
+
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body2Tide =
+            std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+                    [ & ]( const double ) { return body1->getState( ); },
+                    [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
+                    std::vector< std::function< Eigen::Vector6d( const double ) > >{
+                            [ & ]( const double ) { return body2->getState( ); } },
+                    equatorialRadiusOfBody1,
+                    [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
+                    std::vector< std::function< double( ) > >{ [ & ]( ) { return body2GravityField->getGravitationalParameter( ); } },
+                    body2LoveNumbers,
+                    std::vector< std::string >{ "Body2" } );
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body3Tide =
+            std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+                    [ & ]( const double ) { return body1->getState( ); },
+                    [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
+                    std::vector< std::function< Eigen::Vector6d( const double ) > >{
+                            [ & ]( const double ) { return body3->getState( ); } },
+                    equatorialRadiusOfBody1,
+                    [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
+                    std::vector< std::function< double( ) > >{ [ & ]( ) { return body3GravityField->getGravitationalParameter( ); } },
+                    body3LoveNumbers,
+                    std::vector< std::string >{ "Body3" } );
+
+    std::vector< std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > > tideModels;
+    tideModels.push_back( body2Tide );
+    tideModels.push_back( body3Tide );
+    std::shared_ptr< FullDegreeTidalLoveNumber > multiModelLoveNumber =
+            std::make_shared< FullDegreeTidalLoveNumber >( tideModels, "Body1", 2, false );
+
+    std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > body2LoveNumberPartialInterface =
+            std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
+                    body2Tide,
+                    std::bind( &Body::getPosition, body1 ),
+                    std::vector< std::function< Eigen::Vector3d( ) > >{ std::bind( &Body::getPosition, body2 ) },
+                    std::bind( &Body::getCurrentRotationToLocalFrame, body1 ),
+                    "Body1" );
+    std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > body3LoveNumberPartialInterface =
+            std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
+                    body3Tide,
+                    std::bind( &Body::getPosition, body1 ),
+                    std::vector< std::function< Eigen::Vector3d( ) > >{ std::bind( &Body::getPosition, body3 ) },
+                    std::bind( &Body::getCurrentRotationToLocalFrame, body1 ),
+                    "Body1" );
+
+    std::shared_ptr< AccelerationSettings > accelerationSettings =
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 2, 2, 0, 0 );
+    std::shared_ptr< FullTwoBodySphericalHarmonicAcceleration > accelerationModel =
+            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAcceleration >(
+                    createAccelerationModel( body1, body2, accelerationSettings, "Body1", "Body2" ) );
+    BOOST_REQUIRE( accelerationModel != nullptr );
+
+    std::shared_ptr< FullTwoBodySphericalHarmonicsGravityPartial > loveNumberAccelerationPartial =
+            std::make_shared< FullTwoBodySphericalHarmonicsGravityPartial >(
+                    "Body1",
+                    "Body2",
+                    accelerationModel,
+                    createSimpleRotationPartialMap( body1 ),
+                    createSimpleRotationPartialMap( body2 ),
+                    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >{
+                            body2LoveNumberPartialInterface, body3LoveNumberPartialInterface } );
+
+    const std::function< void( ) > updateLoveNumberEnvironment = [ & ]( ) {
+        body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+        body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+        Eigen::MatrixXd cosineCoefficients = cosineCoefficientsOfBody1Base;
+        Eigen::MatrixXd sineCoefficients = sineCoefficientsOfBody1Base;
+        body2Tide->addSphericalHarmonicsCorrections( evaluationTime, sineCoefficients, cosineCoefficients );
+        body3Tide->addSphericalHarmonicsCorrections( evaluationTime, sineCoefficients, cosineCoefficients );
+        body1GravityField->setCosineCoefficients( cosineCoefficients );
+        body1GravityField->setSineCoefficients( sineCoefficients );
+    };
+    auto evaluateLoveNumberAcceleration = [ & ]( ) {
+        body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+        body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
+        accelerationModel->resetCurrentTime( );
+        loveNumberAccelerationPartial->resetCurrentTime( );
+        accelerationModel->updateMembers( evaluationTime );
+        loveNumberAccelerationPartial->update( evaluationTime );
+        return accelerationModel->getAcceleration( );
+    };
+
+    updateLoveNumberEnvironment( );
+    evaluateLoveNumberAcceleration( );
+    const Eigen::MatrixXd analyticalLoveNumberPartial = loveNumberAccelerationPartial->wrtParameter( multiModelLoveNumber );
+    const Eigen::MatrixXd numericalLoveNumberPartial = calculateAccelerationWrtParameterPartials(
+            multiModelLoveNumber,
+            accelerationModel,
+            Eigen::VectorXd::Constant( multiModelLoveNumber->getParameterSize( ), 1.0 ),
+            updateLoveNumberEnvironment,
+            evaluationTime,
+            [ & ]( const double currentTime ) {
+                body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+            } );
+    updateLoveNumberEnvironment( );
+    evaluateLoveNumberAcceleration( );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalLoveNumberPartial, numericalLoveNumberPartial, 1.0E-8 );
+    BOOST_CHECK( analyticalLoveNumberPartial.norm( ) > 0.0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -344,10 +344,11 @@ std::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTi
 //! Function to retrieve all compatible tidal gravity field variations covering the requested deforming bodies
 std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsSet::getDirectTidalGravityFieldVariations(
         const std::vector< std::string >& namesOfBodiesCausingDeformation,
+        const int requestedDegree,
         const BodyDeformationTypes tideType )
 {
     std::vector< std::shared_ptr< GravityFieldVariations > > selectedVariations;
-    std::vector< std::shared_ptr< SolidBodyTideGravityFieldVariations > > modelsOfRequestedType;
+    std::vector< std::shared_ptr< SolidBodyTideGravityFieldVariations > > modelsOfRequestedTypeAndDegree;
 
     for( unsigned int i = 0; i < variationType_.size( ); i++ )
     {
@@ -361,23 +362,62 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
                         "Error when selecting direct tidal gravity field variations, model of requested type could not be cast to "
                         "SolidBodyTideGravityFieldVariations" );
             }
-            modelsOfRequestedType.push_back( tidalVariation );
+
+            // Degree filtering happens before body-coverage / ambiguity checks so that independent per-degree models
+            // for the same deforming body remain selectable.
+            std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > basicTidalVariation =
+                    std::dynamic_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( tidalVariation );
+            if( basicTidalVariation == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when selecting direct tidal gravity field variations, expected BasicSolidBodyTideGravityFieldVariations "
+                        "when filtering by Love-number degree" );
+            }
+            if( basicTidalVariation->getLoveNumbers( ).count( requestedDegree ) > 0 )
+            {
+                modelsOfRequestedTypeAndDegree.push_back( tidalVariation );
+            }
         }
     }
 
-    if( modelsOfRequestedType.empty( ) )
+    if( modelsOfRequestedTypeAndDegree.empty( ) )
     {
         throw std::runtime_error(
-                "Error when selecting direct tidal gravity field variations, no models of the requested tidal type were found" );
+                "Error when selecting direct tidal gravity field variations, no models of the requested tidal type provide degree " +
+                std::to_string( requestedDegree ) );
     }
 
-    // Empty list: select every compatible model of the requested type.
+    auto throwIfBodyHasAmbiguousCoverage = [ & ]( const std::string& bodyName, const int coverageCount ) {
+        if( coverageCount > 1 )
+        {
+            throw std::runtime_error(
+                    "Error when selecting direct tidal gravity field variations, tide-raising body '" + bodyName +
+                    "' is covered by multiple degree-" + std::to_string( requestedDegree ) +
+                    " tidal models, making the Love-number parameter ambiguous" );
+        }
+    };
+
+    // Empty list: select every degree-compatible model, but still reject duplicate body coverage.
     if( namesOfBodiesCausingDeformation.empty( ) )
     {
-        for( unsigned int i = 0; i < modelsOfRequestedType.size( ); i++ )
+        std::map< std::string, int > bodyCoverageCount;
+        for( unsigned int i = 0; i < modelsOfRequestedTypeAndDegree.size( ); i++ )
         {
-            selectedVariations.push_back( modelsOfRequestedType.at( i ) );
+            const std::vector< std::string >& modelBodies = modelsOfRequestedTypeAndDegree.at( i )->getDeformingBodies( );
+            for( unsigned int j = 0; j < modelBodies.size( ); j++ )
+            {
+                bodyCoverageCount[ modelBodies.at( j ) ]++;
+            }
+            selectedVariations.push_back( modelsOfRequestedTypeAndDegree.at( i ) );
         }
+
+        for( std::map< std::string, int >::const_iterator coverageIterator = bodyCoverageCount.begin( );
+             coverageIterator != bodyCoverageCount.end( );
+             coverageIterator++ )
+        {
+            throwIfBodyHasAmbiguousCoverage( coverageIterator->first, coverageIterator->second );
+        }
+
         return selectedVariations;
     }
 
@@ -394,9 +434,9 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
         bodyCoverageCount[ bodyName ] = 0;
     }
 
-    for( unsigned int i = 0; i < modelsOfRequestedType.size( ); i++ )
+    for( unsigned int i = 0; i < modelsOfRequestedTypeAndDegree.size( ); i++ )
     {
-        const std::vector< std::string >& modelBodies = modelsOfRequestedType.at( i )->getDeformingBodies( );
+        const std::vector< std::string >& modelBodies = modelsOfRequestedTypeAndDegree.at( i )->getDeformingBodies( );
         bool modelIntersectsRequest = false;
         bool modelFullyContainedInRequest = true;
 
@@ -444,7 +484,7 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
 
             if( modelTouchesRequest )
             {
-                selectedVariations.push_back( modelsOfRequestedType.at( i ) );
+                selectedVariations.push_back( modelsOfRequestedTypeAndDegree.at( i ) );
             }
         }
     }
@@ -455,21 +495,17 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
         {
             throw std::runtime_error(
                     "Error when selecting direct tidal gravity field variations, requested tide-raising body '" + bodyName +
-                    "' is not represented by any compatible tidal model of the requested type" );
+                    "' is not represented by any degree-" + std::to_string( requestedDegree ) +
+                    " tidal model of the requested type" );
         }
-        if( bodyCoverageCount.at( bodyName ) > 1 )
-        {
-            throw std::runtime_error(
-                    "Error when selecting direct tidal gravity field variations, requested tide-raising body '" + bodyName +
-                    "' is covered by multiple compatible tidal models, making the Love-number parameter ambiguous" );
-        }
+        throwIfBodyHasAmbiguousCoverage( bodyName, bodyCoverageCount.at( bodyName ) );
     }
 
     if( selectedVariations.empty( ) )
     {
         throw std::runtime_error(
-                "Error when selecting direct tidal gravity field variations, no compatible tidal models cover the requested deforming "
-                "bodies" );
+                "Error when selecting direct tidal gravity field variations, no degree-" + std::to_string( requestedDegree ) +
+                " models matched the requested deforming-body list" );
     }
 
     return selectedVariations;
