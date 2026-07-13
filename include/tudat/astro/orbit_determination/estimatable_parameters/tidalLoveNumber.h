@@ -442,6 +442,19 @@ public:
         return gravityFieldVariationModel_->getDeformingBodies( );
     }
 
+    //! Function to retrieve the underlying mode-coupled tidal variation model
+    std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > getGravityFieldVariationModel( ) const
+    {
+        return gravityFieldVariationModel_;
+    }
+
+    //! Function to check whether a variation model belongs to this parameter (pointer identity)
+    bool dependsOnGravityFieldVariation(
+            const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
+    {
+        return gravityFieldVariationModel_ == gravityFieldVariationModel;
+    }
+
     std::vector< std::pair< int, int > > getParameterForcingDegreeAndOrderIndices( )
     {
         return parameterForcingDegreeAndOrderIndices_;
