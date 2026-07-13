@@ -1190,8 +1190,201 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-3 );
 }
+
+//! Mandatory analytical vs numerical partial check for a shared multi-model Love number (Issue #734, Test F).
+BOOST_AUTO_TEST_CASE( testMultiModelLoveNumberAccelerationPartial )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+
+    const double gravitationalParameter = 3.986004418e14;
+    const double planetaryRadius = 6378137.0;
+
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           -4.841651437908150e-4,
+                                           -2.066155090741760e-10,
+                                           2.439383573283130e-6,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           9.571612070934730e-7,
+                                           2.030462010478640e-6,
+                                           9.047878948095281e-7,
+                                           7.213217571215680e-7,
+                                           0.0,
+                                           0.0,
+                                           5.399658666389910e-7,
+                                           -5.361573893888670e-7,
+                                           3.505016239626490e-7,
+                                           9.908567666723210e-7,
+                                           -1.885196330230330e-7,
+                                           0.0,
+                                           6.867029137366810e-8,
+                                           -6.292119230425290e-8,
+                                           6.520780431761640e-7,
+                                           -4.518471523288430e-7,
+                                           -2.953287611756290e-7,
+                                           1.748117954960020e-7 )
+                                                 .finished( );
+
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         1.384413891379790e-9,
+                                         -1.400273703859340e-6,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         2.482004158568720e-7,
+                                         -6.190054751776180e-7,
+                                         1.414349261929410e-6,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         -4.735673465180860e-7,
+                                         6.624800262758290e-7,
+                                         -2.009567235674520e-7,
+                                         3.088038821491940e-7,
+                                         0.0,
+                                         0.0,
+                                         -9.436980733957690e-8,
+                                         -3.233531925405220e-7,
+                                         -2.149554083060460e-7,
+                                         4.980705501023510e-8,
+                                         -6.693799351801650e-7 )
+                                               .finished( );
+
+    std::shared_ptr< GravityFieldSettings > earthGravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
+
+    std::map< int, std::vector< std::complex< double > > > sharedLoveNumbers;
+    sharedLoveNumbers[ 2 ] = std::vector< std::complex< double > >( 3, std::complex< double >( 0.29525, -0.00087 ) );
+    sharedLoveNumbers[ 3 ] = std::vector< std::complex< double > >( 4, std::complex< double >( 0.093, 0.0 ) );
+
+    std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
+    std::vector< std::string > moonDeformingBodies;
+    moonDeformingBodies.push_back( "Moon" );
+    std::vector< std::string > sunDeformingBodies;
+    sunDeformingBodies.push_back( "Sun" );
+    gravityFieldVariationSettings.push_back(
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( moonDeformingBodies, sharedLoveNumbers ) );
+    gravityFieldVariationSettings.push_back(
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( sunDeformingBodies, sharedLoveNumbers ) );
+
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( vehicle, "Vehicle" );
+    SystemOfBodies moonAndSunBodies;
+    {
+        std::vector< std::string > moonAndSunNames;
+        moonAndSunNames.push_back( "Moon" );
+        moonAndSunNames.push_back( "Sun" );
+        moonAndSunBodies = createSystemOfBodies( getDefaultBodySettings( moonAndSunNames ) );
+    }
+    bodies.addBody( moonAndSunBodies.at( "Moon" ), "Moon" );
+    bodies.addBody( moonAndSunBodies.at( "Sun" ), "Sun" );
+
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 0.0 ),
+                    2.0 * mathematical_constants::PI / 86400.0,
+                    1.0E7,
+                    "ECLIPJ2000",
+                    "IAU_Earth" );
+    earth->setRotationalEphemeris( simpleRotationalEphemeris );
+
+    std::shared_ptr< tudat::gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    tudat::simulation_setup::createGravityFieldModel(
+                            earthGravityFieldSettings, "Earth", bodies, gravityFieldVariationSettings ) );
+    earth->setGravityFieldModel( earthGravityField );
+    bodies.at( "Earth" )->setGravityFieldVariationSet(
+            createGravityFieldModelVariationsSet( "Earth", bodies, gravityFieldVariationSettings ) );
+    bodies.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
+
+    double testTime = 1.0E6;
+    earth->setState( Eigen::Vector6d::Zero( ) );
+    earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+    bodies.at( "Moon" )->setState(
+            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "None", testTime ) );
+    bodies.at( "Sun" )->setState(
+            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Sun", "Earth", "ECLIPJ2000", "None", testTime ) );
+
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    vehicle->setState( orbital_element_conversions::convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements,
+                                                                                         gravitationalParameter ) );
+
+    std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
+            std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                    createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
+    gravitationalAcceleration->updateMembers( 0.0 );
+    gravitationalAcceleration->getAcceleration( );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::string > deformingBodiesMoonSun;
+    deformingBodiesMoonSun.push_back( "Moon" );
+    deformingBodiesMoonSun.push_back( "Sun" );
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+            "Earth", 2, deformingBodiesMoonSun, false ) );
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+            createParametersToEstimate( parameterNames, bodies );
+
+    std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial = std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
+            createAnalyticalAccelerationPartial( gravitationalAcceleration,
+                                                 std::make_pair( "Vehicle", vehicle ),
+                                                 std::make_pair( "Earth", earth ),
+                                                 bodies,
+                                                 parameterSet ) );
+    accelerationPartial->update( testTime );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > loveNumberParameter =
+            parameterSet->getVectorParameters( ).begin( )->second;
+    std::function< void( ) > sphericalHarmonicFieldUpdate =
+            std::bind( &tudat::gravitation::TimeDependentSphericalHarmonicsGravityField::update, earthGravityField, testTime );
+
+    Eigen::MatrixXd analyticalPartial = accelerationPartial->wrtParameter( loveNumberParameter );
+    Eigen::MatrixXd numericalPartial = calculateAccelerationWrtParameterPartials(
+            loveNumberParameter, gravitationalAcceleration, Eigen::VectorXd::Constant( 1, 1.0 ), sphericalHarmonicFieldUpdate );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
+    BOOST_CHECK( analyticalPartial.norm( ) > 0.0 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
 
 }  // namespace tudat
+

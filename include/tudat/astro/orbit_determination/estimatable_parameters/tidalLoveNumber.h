@@ -11,6 +11,10 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARAMETER_H
 #define TUDAT_TIDALLOVENUMBERPARAMETER_H
 
+#include <algorithm>
+#include <memory>
+#include <vector>
+
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 
@@ -33,14 +37,74 @@ static const std::vector< std::vector< int > > fullDegreeOrders = { { 0, 1, 2 },
                                                                     { 0, 1, 2, 3, 4, 5 },
                                                                     { 0, 1, 2, 3, 4, 5, 6 } };
 
-//!Pure virtual base class for estimating tidal Love number properties
+//! Pure virtual base class for estimating tidal Love number properties
 template< typename ParameterScalar >
 class TidalLoveNumber : public EstimatableParameter< ParameterScalar >
 {
 public:
-    //! Constructor
+    //! Constructor from a list of compatible tidal variation models
     /*!
-     * Constructor
+     * Constructor from a list of compatible tidal variation models
+     * \param gravityFieldVariationModels Tidal gravity field variation objects of which estimated parameter is a property
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param sumOrders True of the contributions of the various orders are to be summed (i.e. assumed to be constant for all
+     * orders at given degree), or if they are handled separately
+     * \param loveNumberType Type of Love number property that is to be estimated.
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
+     */
+    TidalLoveNumber(
+            const std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >& gravityFieldVariationModels,
+            const std::string& associatedBody,
+            const int degree,
+            const std::vector< int > orders,
+            const bool sumOrders,
+            const EstimatebleParametersEnum loveNumberType,
+            const bool useComplexComponents = 0 ):
+        EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ), degree_( degree ), orders_( orders ),
+        sumOrders_( sumOrders ), gravityFieldVariationModels_( gravityFieldVariationModels ),
+        useComplexComponents_( useComplexComponents )
+    {
+        if( gravityFieldVariationModels_.empty( ) )
+        {
+            throw std::runtime_error( "Error when creating tidal Love number parameter, no gravity field variation models provided." );
+        }
+
+        for( unsigned int i = 0; i < gravityFieldVariationModels_.size( ); i++ )
+        {
+            if( gravityFieldVariationModels_.at( i ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating tidal Love number parameter, found nullptr variation model." );
+            }
+
+            if( gravityFieldVariationModels_.at( i )->getLoveNumbers( ).count( degree_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when creating tidal Love number parameter of " + associatedBody +
+                                          ", requested degree " + std::to_string( degree_ ) +
+                                          " is unavailable in one of the selected basic solid-body tide models." );
+            }
+        }
+
+        // Keep the first model as a representative single-model reference for backward-compatible accessors.
+        gravityFieldVariationModel_ = gravityFieldVariationModels_.front( );
+
+        for( unsigned int i = 0; i < gravityFieldVariationModels_.size( ); i++ )
+        {
+            const std::vector< std::string >& modelBodies = gravityFieldVariationModels_.at( i )->getDeformingBodies( );
+            for( unsigned int j = 0; j < modelBodies.size( ); j++ )
+            {
+                if( std::find( deformingBodies_.begin( ), deformingBodies_.end( ), modelBodies.at( j ) ) == deformingBodies_.end( ) )
+                {
+                    deformingBodies_.push_back( modelBodies.at( j ) );
+                }
+            }
+        }
+    }
+
+    //! Constructor from a single tidal variation model
+    /*!
+     * Constructor from a single tidal variation model
      * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimated
@@ -57,8 +121,14 @@ public:
                      const bool sumOrders,
                      const EstimatebleParametersEnum loveNumberType,
                      const bool useComplexComponents = 0 ):
-        EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ), degree_( degree ), orders_( orders ),
-        sumOrders_( sumOrders ), gravityFieldVariationModel_( gravityFieldVariationModel ), useComplexComponents_( useComplexComponents )
+        TidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
+                                 gravityFieldVariationModel },
+                         associatedBody,
+                         degree,
+                         orders,
+                         sumOrders,
+                         loveNumberType,
+                         useComplexComponents )
     {}
 
     //! Destructor
@@ -97,11 +167,11 @@ public:
     //! Function to retrieve list of bodies causing tidal deformation
     /*!
      * Function to retrieve list of bodies causing tidal deformation
-     * \return :ist of bodies causing tidal deformation
+     * \return List of bodies causing tidal deformation
      */
     std::vector< std::string > getDeformingBodies( )
     {
-        return gravityFieldVariationModel_->getDeformingBodies( );
+        return deformingBodies_;
     }
 
     //! Function to retrieve list of orders at which Love numbers are to be estimated.
@@ -122,6 +192,35 @@ public:
     bool getSumOrders( )
     {
         return sumOrders_;
+    }
+
+    //! Function to retrieve the selected tidal variation models
+    /*!
+     * Function to retrieve the selected tidal variation models
+     * \return Selected tidal variation models owned by this parameter
+     */
+    std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > getGravityFieldVariationModels( ) const
+    {
+        return gravityFieldVariationModels_;
+    }
+
+    //! Function to check whether a variation model belongs to this parameter
+    /*!
+     * Uses pointer identity against the selected environment models.
+     * \param gravityFieldVariationModel Variation model to test
+     * \return True if the model is one of the models owned by this parameter
+     */
+    bool dependsOnGravityFieldVariation(
+            const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
+    {
+        for( unsigned int i = 0; i < gravityFieldVariationModels_.size( ); i++ )
+        {
+            if( gravityFieldVariationModels_.at( i ) == gravityFieldVariationModel )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     //! Function to retrieve parameter description.
@@ -170,8 +269,14 @@ protected:
      */
     bool sumOrders_;
 
-    //! Tidal gravity field variation object of which estimated paraemeter is a property
+    //! Selected tidal gravity field variation models of which estimated parameter is a property
+    std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariationModels_;
+
+    //! Representative single tidal gravity field variation model (first selected model)
     std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
+
+    //! Deterministic union of deforming bodies across selected models
+    std::vector< std::string > deformingBodies_;
 
     //! True if the complex Love number is estimated, false if only the real part is considered
     bool useComplexComponents_;
@@ -184,19 +289,20 @@ protected:
 class FullDegreeTidalLoveNumber : public TidalLoveNumber< Eigen::VectorXd >
 {
 public:
-    //! Constructor
+    //! Constructor from multiple compatible tidal variation models
     /*!
-     * Constructor
-     * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
+     * Constructor from multiple compatible tidal variation models
+     * \param gravityFieldVariationModels Tidal gravity field variation objects of which estimated parameter is a property
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimateds
      * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
-    FullDegreeTidalLoveNumber( const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
-                               const std::string& associatedBody,
-                               const int degree,
-                               const bool useComplexComponents = 0 ):
-        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModel,
+    FullDegreeTidalLoveNumber(
+            const std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >& gravityFieldVariationModels,
+            const std::string& associatedBody,
+            const int degree,
+            const bool useComplexComponents = 0 ):
+        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModels,
                                             associatedBody,
                                             degree,
                                             fullDegreeOrders.at( degree - 2 ),
@@ -213,6 +319,25 @@ public:
             parameterSize_ = 1;
         }
     }
+
+    //! Constructor from a single tidal variation model
+    /*!
+     * Constructor from a single tidal variation model
+     * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimateds
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
+     */
+    FullDegreeTidalLoveNumber( const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+                               const std::string& associatedBody,
+                               const int degree,
+                               const bool useComplexComponents = 0 ):
+        FullDegreeTidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
+                                           gravityFieldVariationModel },
+                                   associatedBody,
+                                   degree,
+                                   useComplexComponents )
+    {}
 
     //! Get value of Love number k_{n}
     /*!
@@ -366,22 +491,22 @@ private:
 class SingleDegreeVariableTidalLoveNumber : public TidalLoveNumber< Eigen::VectorXd >
 {
 public:
-    //! Constructor
+    //! Constructor from multiple compatible tidal variation models
     /*!
-     * Constructor
-     * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
+     * Constructor from multiple compatible tidal variation models
+     * \param gravityFieldVariationModels Tidal gravity field variation objects of which estimated parameter is a property
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimated
      * \param orders List of orders at which Love numbers are to be estimated.
      * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
     SingleDegreeVariableTidalLoveNumber(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >& gravityFieldVariationModels,
             const std::string& associatedBody,
             const int degree,
             const std::vector< int > orders,
             const bool useComplexComponents = 0 ):
-        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModel,
+        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModels,
                                             associatedBody,
                                             degree,
                                             orders,
@@ -398,6 +523,29 @@ public:
             parameterSize_ = orders_.size( );
         }
     }
+
+    //! Constructor from a single tidal variation model
+    /*!
+     * Constructor from a single tidal variation model
+     * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
+     */
+    SingleDegreeVariableTidalLoveNumber(
+            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::string& associatedBody,
+            const int degree,
+            const std::vector< int > orders,
+            const bool useComplexComponents = 0 ):
+        SingleDegreeVariableTidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
+                                                     gravityFieldVariationModel },
+                                             associatedBody,
+                                             degree,
+                                             orders,
+                                             useComplexComponents )
+    {}
 
     //! Get values of Love numbers k_{n,m}
     /*!

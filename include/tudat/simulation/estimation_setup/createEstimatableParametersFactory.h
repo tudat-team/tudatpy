@@ -2619,17 +2619,29 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations(
+                                        tidalLoveNumberSettings->deformingBodies_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             vectorParameterToEstimate =
-                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariations,
                                                                                    currentBodyName,
                                                                                    tidalLoveNumberSettings->degree_,
                                                                                    tidalLoveNumberSettings->useComplexValue_ );
@@ -2670,14 +2682,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations(
+                                        tidalLoveNumberSettings->deformingBodies_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             std::vector< int > orders = tidalLoveNumberSettings->orders_;
                             if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
@@ -2688,7 +2712,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                           << std::endl;
                             }
                             vectorParameterToEstimate =
-                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariations,
                                                                                              currentBodyName,
                                                                                              tidalLoveNumberSettings->degree_,
                                                                                              tidalLoveNumberSettings->orders_,

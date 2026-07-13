@@ -185,50 +185,42 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                 getMaximumUsedDegreeAndOrder(
                         maximumDegree, maximumOrder, coefficientsParameter->getDegree( ), maximumUsedDegree, maximumUsedOrder );
 
-                // Set parameter partial function if relevant terms are found
-                if( maximumUsedDegree > 0 )
+                // Set parameter partial function if this interface's exact variation model belongs to the parameter
+                if( maximumUsedDegree > 0 && coefficientsParameter->dependsOnGravityFieldVariation( gravityFieldVariations_ ) )
                 {
-                    std::vector< int > selectedDeformingBodies =
-                            getSelectedDeformingBodyIds( coefficientsParameter->getDeformingBodies( ) );
-
-                    // Check if deforming bodies correspond to bodies in model.
-                    if( selectedDeformingBodies.size( ) == coefficientsParameter->getDeformingBodies( ).size( ) &&
-                        deformingBodies_.size( ) == coefficientsParameter->getDeformingBodies( ).size( ) )
+                    // Add partial function if it is not yet set.
+                    if( parameterVectorPartialFunctions_.count(
+                                std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ) == 0 )
                     {
-                        // Add partial function if it is not yet set.
-                        if( parameterVectorPartialFunctions_.count(
-                                    std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ) == 0 )
+                        if( coefficientsParameter->useComplexComponents( ) )
                         {
-                            if( coefficientsParameter->useComplexComponents( ) )
-                            {
-                                // Calculate partials for complex love number
-                                parameterVectorPartialFunctions_[ std::make_pair(
-                                        parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                        std::bind( &TidalLoveNumberPartialInterface::
-                                                           calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber,
-                                                   this,
-                                                   coefficientsParameter->getDegree( ),
-                                                   selectedDeformingBodies,
-                                                   maximumUsedDegree,
-                                                   maximumUsedOrder );
-                            }
-                            else
-                            {
-                                // Calculate partial for real love number
-                                parameterVectorPartialFunctions_[ std::make_pair(
-                                        parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                        std::bind( &TidalLoveNumberPartialInterface::
-                                                           calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber,
-                                                   this,
-                                                   coefficientsParameter->getDegree( ),
-                                                   selectedDeformingBodies,
-                                                   maximumUsedDegree,
-                                                   maximumUsedOrder );
-                            }
+                            // Calculate partials for complex love number
+                            parameterVectorPartialFunctions_[ std::make_pair(
+                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                                    std::bind( &TidalLoveNumberPartialInterface::
+                                                       calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber,
+                                               this,
+                                               coefficientsParameter->getDegree( ),
+                                               allDeformingBodyIndices_,
+                                               maximumUsedDegree,
+                                               maximumUsedOrder );
                         }
-
-                        numberOfRows = coefficientsParameter->getParameterSize( );
+                        else
+                        {
+                            // Calculate partial for real love number
+                            parameterVectorPartialFunctions_[ std::make_pair(
+                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                                    std::bind( &TidalLoveNumberPartialInterface::
+                                                       calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber,
+                                               this,
+                                               coefficientsParameter->getDegree( ),
+                                               allDeformingBodyIndices_,
+                                               maximumUsedDegree,
+                                               maximumUsedOrder );
+                        }
                     }
+
+                    numberOfRows = coefficientsParameter->getParameterSize( );
                 }
 
                 break;
@@ -248,51 +240,44 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                 getMaximumUsedDegreeAndOrder(
                         maximumDegree, maximumOrder, coefficientsParameter->getDegree( ), maximumUsedDegree, maximumUsedOrder );
 
-                // Set parameter partial function if relevant terms are found
-                if( maximumUsedDegree > 0 )
+                // Set parameter partial function if this interface's exact variation model belongs to the parameter
+                if( maximumUsedDegree > 0 && coefficientsParameter->dependsOnGravityFieldVariation( gravityFieldVariations_ ) )
                 {
-                    // Check if deforming bodies correspond to bodies in model.
-                    std::vector< int > selectedDeformingBodies =
-                            getSelectedDeformingBodyIds( coefficientsParameter->getDeformingBodies( ) );
-                    if( selectedDeformingBodies.size( ) == coefficientsParameter->getDeformingBodies( ).size( ) &&
-                        coefficientsParameter->getDeformingBodies( ).size( ) == deformingBodies_.size( ) )
+                    // Add partial function if it is not yet set.
+                    if( parameterVectorPartialFunctions_.count(
+                                std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ) == 0 )
                     {
-                        // Add partial function if it is not yet set.
-                        if( parameterVectorPartialFunctions_.count(
-                                    std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ) == 0 )
+                        if( coefficientsParameter->useComplexComponents( ) )
                         {
-                            if( coefficientsParameter->useComplexComponents( ) )
-                            {
-                                // Calculate partials for complex love number
-                                parameterVectorPartialFunctions_[ std::make_pair(
-                                        parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                        std::bind( &TidalLoveNumberPartialInterface::
-                                                           calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers,
-                                                   this,
-                                                   coefficientsParameter->getDegree( ),
-                                                   coefficientsParameter->getOrders( ),
-                                                   selectedDeformingBodies,
-                                                   maximumUsedDegree,
-                                                   maximumUsedOrder );
-                            }
-                            else
-                            {
-                                // Calculate partial for real love number
-                                parameterVectorPartialFunctions_[ std::make_pair(
-                                        parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                        std::bind( &TidalLoveNumberPartialInterface::
-                                                           calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers,
-                                                   this,
-                                                   coefficientsParameter->getDegree( ),
-                                                   coefficientsParameter->getOrders( ),
-                                                   selectedDeformingBodies,
-                                                   maximumUsedDegree,
-                                                   maximumUsedOrder );
-                            }
+                            // Calculate partials for complex love number
+                            parameterVectorPartialFunctions_[ std::make_pair(
+                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                                    std::bind( &TidalLoveNumberPartialInterface::
+                                                       calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers,
+                                               this,
+                                               coefficientsParameter->getDegree( ),
+                                               coefficientsParameter->getOrders( ),
+                                               allDeformingBodyIndices_,
+                                               maximumUsedDegree,
+                                               maximumUsedOrder );
                         }
-
-                        numberOfRows = coefficientsParameter->getParameterSize( );
+                        else
+                        {
+                            // Calculate partial for real love number
+                            parameterVectorPartialFunctions_[ std::make_pair(
+                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                                    std::bind( &TidalLoveNumberPartialInterface::
+                                                       calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers,
+                                               this,
+                                               coefficientsParameter->getDegree( ),
+                                               coefficientsParameter->getOrders( ),
+                                               allDeformingBodyIndices_,
+                                               maximumUsedDegree,
+                                               maximumUsedOrder );
+                        }
                     }
+
+                    numberOfRows = coefficientsParameter->getParameterSize( );
                 }
 
                 break;
