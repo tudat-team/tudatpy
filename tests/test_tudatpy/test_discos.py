@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from tudatpy.data.discos import DiscosQuery
+from tudatpy.data_access.environment.discos import DiscosQuery
 
 # ------------------------------------------------
 # Mock Responses Taken from discos API web request
@@ -62,7 +62,7 @@ def discos_query():
     return DiscosQuery(token="fake_token_123")
 
 
-@patch("tudatpy.data.discos.discos.requests.get")
+@patch("tudatpy.data_access.environment.discos.discos.requests.get")
 def test_query_norad_success(mock_get, discos_query):
     """
     Tests Query by NORAD ID (Default).
@@ -87,7 +87,7 @@ def test_query_norad_success(mock_get, discos_query):
     assert result.get("name") == "International Space Station"
 
 
-@patch("tudatpy.data.discos.discos.requests.get")
+@patch("tudatpy.data_access.environment.discos.discos.requests.get")
 def test_query_discos_id_success(mock_get, discos_query):
     """
     Tests query by DISCOS ID using is_discos_id = True.
@@ -112,7 +112,7 @@ def test_query_discos_id_success(mock_get, discos_query):
     assert result.get("name") == "Delta II second stage (Delta 7925)"
 
 
-@patch("tudatpy.data.discos.discos.requests.get")
+@patch("tudatpy.data_access.environment.discos.discos.requests.get")
 def test_query_not_found(mock_get, discos_query):
     """
     Tests invalid satellite norad and discos id.
@@ -130,7 +130,7 @@ def test_query_not_found(mock_get, discos_query):
     assert result_discos is None
 
 
-@patch("tudatpy.data.discos.discos.requests.get")
+@patch("tudatpy.data_access.environment.discos.discos.requests.get")
 def test_api_error(mock_get, discos_query):
     """
     Scenario: API server error or Auth failure.

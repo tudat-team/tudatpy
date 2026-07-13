@@ -1,6 +1,6 @@
 from tudatpy.data_access.tracking.mpc import BatchMPC, filter_augmented_optical_table
-from tudatpy.data_access.tracking import create_observation_collection
-from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.data_access.environment.horizons import HorizonsQuery
+from tudatpy.estimation.observations import create_observation_collection
 from tudatpy.astro import time_representation
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station

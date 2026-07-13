@@ -1,12 +1,6 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import (
-    dsn_n_way_range_ancillary_settings,
-)
-from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
-from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
+from tudatpy.data_access.tracking import TrackingData
 
-from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
-
-from .radioBase import RadioBase
+from . import RadioBase
 from trk234 import SFDU
 from pandas import DataFrame
 import numpy as _np
@@ -48,14 +42,11 @@ class DerivedSraRangeConverter(RadioBase):
 
         return DataFrame(data)
 
-    def process(
-        self, range_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[SingleObservationSet]:
+    def process(self, range_df: DataFrame, spacecraftName: str | None = None) -> list[TrackingData]:
 
-        observation_set_list = []
+        tracking_data_list = []
         for link_end in range_df["link_ends"].unique():
-            link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
-            link_def = link_definition(link_ends_dict)
+            link_ends = self.build_link_ends(link_end, spacecraftName)
             df_le = range_df[range_df["link_ends"] == link_end]
             for band in df_le["band"].unique():
                 df_band = df_le[df_le["band"] == band]
@@ -63,33 +54,36 @@ class DerivedSraRangeConverter(RadioBase):
                     df_ttd = df_band[df_band["link_delays"] == ttd]
                     for lrc in df_ttd["lowest_ranging_component"].unique():
                         df_lrc = df_ttd[df_ttd["lowest_ranging_component"] == lrc]
-                        # NOTE - we force to build an observation set per observable in order to
-                        # store conversion factor calculated in the dsnNWayRangeObservationModel.h
+                        # NOTE - we force to build a tracking data object per observable in order
+                        # to store the conversion factor calculated in the dsnNWayRangeObservationModel.h
                         # A faster approach would be to use the dataframe apply method as done in
                         # the derivedDoppler converter.
                         for _, row in df_lrc.iterrows():
-                            ancillary_settings = dsn_n_way_range_ancillary_settings(
-                                [
-                                    self.frequencyBandsDict[band[0]],
-                                    self.frequencyBandsDict[band[1]],
-                                ],
-                                lrc,
-                                ttd,
-                            )
                             obs_values = [_np.array([row["obs"]], dtype=float).reshape((-1, 1))]
-                            station = link_end[2] if len(link_end) == 3 else link_end[1]
-                            epoch_seconds = [self.from_datetime_UTC_to_TDB(row["epoch"], station)]
-                            observation_set = create_single_observation_set(
-                                ObservableType.dsn_n_way_range_type,
-                                link_def.link_ends,
+                            epoch_seconds = [self.to_utc_epoch(row["epoch"])]
+
+                            tracking_data = TrackingData(
+                                "DsnNWayRange",
+                                link_ends,
                                 obs_values,
                                 epoch_seconds,
-                                receiver,
-                                ancillary_settings,
+                                "receiver",
+                                "UTC",
                             )
-                            observation_set_list.append(observation_set)
+                            tracking_data.add_ancillary_settings(
+                                "frequency bands",
+                                [
+                                    self.frequencyBandIds[band[0]],
+                                    self.frequencyBandIds[band[1]],
+                                ],
+                            )
+                            tracking_data.add_ancillary_settings(
+                                "DSN sequential range lowest ranging component", float(lrc)
+                            )
+                            tracking_data.add_ancillary_settings("link ends time delays", list(ttd))
+                            tracking_data_list.append(tracking_data)
 
-        return observation_set_list
+        return tracking_data_list
 
     def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """

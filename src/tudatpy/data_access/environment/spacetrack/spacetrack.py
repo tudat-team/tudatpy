@@ -4,7 +4,6 @@ import os
 import requests
 from collections import defaultdict
 from urllib.parse import urljoin, urlparse
-from tudatpy.dynamics import environment
 from datetime import datetime, timedelta
 import math
 from tudatpy.data_access.paths import get_resource_path
@@ -666,46 +665,6 @@ class OMMUtils:
         mo = float(omm["MEAN_ANOMALY"]) * math.pi / 180
 
         return a, e, i, omega, raan, mean_to_true_anomaly(e, mo)
-
-    @staticmethod
-    def tle_to_TleEphemeris_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
-        """
-        Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
-
-        Parameters
-        ----------
-        tle_line_1 : str
-            First line of the TLE.
-        tle_line_2 : str
-            Second line of the TLE.
-
-        Returns
-        -------
-        environment.Tle
-            Configured TleEphemeris object.
-        """
-        return environment.TleEphemeris(
-            "Earth", "J2000", environment.Tle(tle_line_1, tle_line_2), False
-        )
-
-    @staticmethod
-    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.TleEphemeris:
-        """
-        Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
-
-        Parameters
-        ----------
-        tle_line_1 : str
-            First line of the TLE.
-        tle_line_2 : str
-            Second line of the TLE.
-
-        Returns
-        -------
-        environment.Tle
-            Tle object.
-        """
-        return environment.Tle(tle_line_1, tle_line_2)
 
     @staticmethod
     def clean_file(filepath: str) -> None:

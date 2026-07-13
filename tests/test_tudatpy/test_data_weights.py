@@ -1,7 +1,7 @@
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
-from tudatpy.data_access.tracking import create_observation_collection
+from tudatpy.estimation.observations import create_observation_collection
 from tudatpy.data_access.tracking.mpc import BatchMPC, filter_augmented_optical_table
 from tudatpy.astro import time_representation
 from tudatpy.interface import spice

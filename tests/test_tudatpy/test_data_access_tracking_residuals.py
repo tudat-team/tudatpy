@@ -5,16 +5,16 @@ from urllib.request import urlretrieve
 import numpy as np
 
 from tudatpy.data_access import paths as data_paths
-from tudatpy.data_access.tracking import (
-    TrackingData,
-    create_observation_collection,
-    set_tracking_supplementary_data_in_bodies,
-)
+from tudatpy.data_access.tracking import TrackingData
 from tudatpy.data_access.tracking.fdets import FdetDateFormat, read_fdets_files
 from tudatpy.data_access.tracking.ifms import read_ifms_files
 from tudatpy.data_access.tracking.odf import read_odf_files
 from tudatpy.data_access.tracking.psf import read_psf_file
 from tudatpy.data_access.tracking.tnf import read_tnf_files
+from tudatpy.estimation.observations import (
+    create_observation_collection,
+    set_tracking_supplementary_data_in_bodies,
+)
 from tudatpy.kernel import constants
 from tudatpy.kernel.dynamics import environment, environment_setup
 from tudatpy.kernel.dynamics.environment_setup import (

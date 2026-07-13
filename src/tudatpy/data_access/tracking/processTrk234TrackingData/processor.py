@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
@@ -12,9 +10,6 @@ from tudatpy.data_access.tracking import (
 )
 from tudatpy.astro import time_representation
 from .converters.ramp import OpenRampHandling
-
-if TYPE_CHECKING:
-    from tudatpy.dynamics.environment import SystemOfBodies
 
 
 class Trk234TrackingDataProcessor:
@@ -34,11 +29,6 @@ class Trk234TrackingDataProcessor:
     .. code-block:: python
 
         from tudatpy.data_access.tracking.processTrk234TrackingData import Trk234TrackingDataProcessor
-        from tudatpy.estimation.observations import (
-            create_observation_collection,
-            set_tracking_supplementary_data_in_bodies,
-        )
-
         # Define TNF file paths
         tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
 
@@ -52,10 +42,7 @@ class Trk234TrackingDataProcessor:
         # Process files into tracking data and supplementary (ramp) data
         tracking_data, supplementary_data = tnf_processor.process()
 
-        # Convert the tracking data into an ObservationCollection, and set the frequency ramps in
-        # the bodies, assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
-        observations = create_observation_collection(tracking_data, bodies)
-        set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+        # Convert the tracking data into an ObservationCollection in the estimation module.
         tnf_processor.set_transponder_turnaround_ratio(bodies)
 
     """
@@ -188,7 +175,7 @@ class Trk234TrackingDataProcessor:
 
         return supplementary_data_list
 
-    def set_transponder_turnaround_ratio(self, bodies: SystemOfBodies) -> None:
+    def set_transponder_turnaround_ratio(self, bodies) -> None:
         """
         Set the default transponder turnaround ratio function for the spacecraft, if a spacecraft
         name was provided at initialization.
@@ -197,7 +184,7 @@ class Trk234TrackingDataProcessor:
 
         Parameters
         ----------
-        bodies : SystemOfBodies
+        bodies
             The simulation bodies container.
         """
         if self.spacecraft_name:

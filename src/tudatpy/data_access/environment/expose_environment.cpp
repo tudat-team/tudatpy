@@ -13,6 +13,8 @@
 #include "expose_environment.h"
 
 #include "coma/expose_coma.h"
+#include "expose_ilrs.h"
+#include "expose_space_weather.h"
 #include "missions/expose_missions.h"
 
 namespace py = pybind11;
@@ -31,6 +33,12 @@ void expose_environment( py::module& m )
 
     auto missions_submodule = m.def_submodule( "missions" );
     missions::expose_missions( missions_submodule );
+
+    auto ilrs_submodule = m.def_submodule( "ilrs" );
+    ilrs::expose_ilrs( ilrs_submodule );
+
+    auto space_weather_submodule = m.def_submodule( "space_weather" );
+    space_weather::expose_space_weather( space_weather_submodule );
 }
 
 }  // namespace environment

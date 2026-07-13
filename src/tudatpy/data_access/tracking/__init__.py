@@ -10,6 +10,7 @@ from . import (
     odf,
     optical_utilities,
     psf,
+    slr,
     tnf,
 )
 

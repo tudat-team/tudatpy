@@ -2,7 +2,7 @@ import os
 import json
 import pytest
 from unittest.mock import patch, MagicMock
-from tudatpy.data.spacetrack import SpaceTrackQuery, OMMUtils
+from tudatpy.data_access.environment.spacetrack import SpaceTrackQuery, OMMUtils
 from datetime import datetime, timedelta
 import numpy as np
 
@@ -25,7 +25,9 @@ def mock_login(request):
     if request.node.get_closest_marker("remote_data"):
         yield
     else:
-        with patch("tudatpy.data.spacetrack.SpaceTrackQuery._login", return_value=None):
+        with patch(
+            "tudatpy.data_access.environment.spacetrack.SpaceTrackQuery._login", return_value=None
+        ):
             yield
 
 

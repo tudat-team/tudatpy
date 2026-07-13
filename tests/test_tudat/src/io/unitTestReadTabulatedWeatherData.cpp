@@ -255,6 +255,34 @@ BOOST_AUTO_TEST_CASE( setDsnWeatherData )
     }
 }
 
+BOOST_AUTO_TEST_CASE( setDsnWeatherDataInGroundStationSettings )
+{
+    double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+
+    simulation_setup::setDsnWeatherDataInGroundStationSettings(
+            bodySettings.at( "Earth" )->groundStationSettings,
+            std::vector< std::string >{ tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt" },
+            interpolators::linearInterpolation( ),
+            std::map< int, std::vector< std::string > >{ { 10, { "DSS-13" } } } );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "DSS-13" );
+
+    double time = 536500800.0;
+    BOOST_CHECK_CLOSE_FRACTION( gs->getDewPointFunction( )( time ) - 273.15, 2.8, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( time ) - 273.15, 10.7, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( time ) * 1e-2, 897.1, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( time ) * 1e-2, 7.6, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( time ) * 100, 58, tolerance );
+}
+
 BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
 {
     double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
@@ -421,6 +449,47 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
             BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( setEstrackWeatherDataInGroundStationSettings )
+{
+    double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+
+    std::vector< std::string > estrackDataFiles =
+            std::vector< std::string >{ tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_00.TAB",
+                                        tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_01.TAB" };
+
+    simulation_setup::setEstrackWeatherDataInGroundStationSettings(
+            bodySettings.at( "Earth" )->groundStationSettings, estrackDataFiles, "NWNORCIA", interpolators::linearInterpolation( ) );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" );
+    std::shared_ptr< ground_stations::PiecewiseInterpolatedMeteoData > meteoDataObject =
+            std::dynamic_pointer_cast< ground_stations::PiecewiseInterpolatedMeteoData >( gs->getMeteoData( ) );
+    BOOST_REQUIRE( meteoDataObject != nullptr );
+    BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), 1 );
+
+    double testEpoch = basic_astrodynamics::DateTime::fromIsoString( "2013-12-28T17:43:20.000" ).epoch< double >( );
+
+    double testTemperature = 19.6 + 273.15;
+    double testHumidity = 0.549;
+    double testPressure = 97950.0;
+
+    BOOST_CHECK_CLOSE_FRACTION(
+            gs->getDewPointFunction( )( testEpoch ), ground_stations::computeDewPoint( testHumidity, testTemperature ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), testTemperature, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( testEpoch ), testPressure, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( testEpoch ),
+                                testHumidity * ground_stations::computeSaturationWaterVaporPressure( testTemperature ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
 }
 
 BOOST_AUTO_TEST_CASE( testReadIonexFile )

@@ -3,7 +3,7 @@ Base class for radiometric converters sharing helper functions.
 """
 
 from tudatpy.astro import time_representation
-from .converter import Converter
+from . import Converter
 from trk234 import bands, SFDU
 from datetime import datetime
 
@@ -17,26 +17,19 @@ class RadioBase(Converter):
         3: "3W",
     }
 
-    time_scale_converter = time_representation.default_time_scale_converter()
-
-    @property
-    def frequencyBandsDict(self):
-        from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands
-
-        return {
-            "S": FrequencyBands.s_band,
-            "X": FrequencyBands.x_band,
-            # "K": FrequencyBands.ku_band,
-            "Ka": FrequencyBands.ka_band,
-        }
-
-    @staticmethod
-    def _station_dict():
-        from tudatpy.dynamics.environment_setup.ground_station import (
-            get_approximate_dsn_ground_station_positions,
-        )
-
-        return get_approximate_dsn_ground_station_positions()
+    # Maps trk234 band letters to the frequency band string identifiers recognized by
+    # tudat::observation_models::getFrequencyBandFromString.
+    frequencyBandsDict = {
+        "S": "S-band",
+        "X": "X-band",
+        # "K": "Ku-band",
+        "Ka": "Ka-band",
+    }
+    frequencyBandIds = {
+        "S": 0.0,
+        "X": 1.0,
+        "Ka": 2.0,
+    }
 
     def get_link_ends(self, sfdu: SFDU) -> tuple[str, str, str]:
         """
@@ -109,11 +102,12 @@ class RadioBase(Converter):
         )
         return trkMode
 
-    def build_link_ends_dict(
+    def build_link_ends(
         self, link_end_tuple: tuple[str, str, str], spacecraftName: str | None = None
-    ) -> dict:
+    ) -> list[tuple[tuple[str, str], str]]:
         """
-        Construct a link ends dictionary for Doppler/Range observation creation.
+        Construct a ``PlainLinkDefinition`` (list of ``((body, reference_point), link_end_role)``
+        tuples) for Doppler/Range TrackingData creation.
 
         Parameters
         ----------
@@ -125,8 +119,8 @@ class RadioBase(Converter):
 
         Returns
         -------
-        dict
-            A dictionary with link ends constructed according to the following logic:
+        list[tuple[tuple[str, str], str]]
+            The link ends constructed according to the following logic:
             - If the uplink identifier (first element) is "nan", use the spacecraft as the transmitter
             and assign the downlink using Earth's reference point (from the third element).
             - Otherwise, assign the transmitter using Earth's reference point from the first element,
@@ -135,35 +129,29 @@ class RadioBase(Converter):
 
         if len(link_end_tuple) != 3:
             raise ValueError(
-                "Error when processing TNF file, building link ends dictionary: \n"
+                "Error when processing TNF file, building link ends: \n"
                 + f"the link end tuple should contain exactly 3 elements: {link_end_tuple} provided."
             )
 
-        from tudatpy.estimation.observable_models_setup import links
-
         # Set custom spacecraft name if provided
-        if spacecraftName is not None:
-            spacecraft = links.body_origin_link_end_id(spacecraftName)
-        else:
-            spacecraft = links.body_origin_link_end_id(link_end_tuple[1])
+        spacecraft_name = spacecraftName if spacecraftName is not None else link_end_tuple[1]
+        spacecraft_link_end = (spacecraft_name, "")
 
         if link_end_tuple[0] == "nan":
-            return {
-                links.transmitter: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
-            }
+            return [
+                (spacecraft_link_end, "transmitter"),
+                (("Earth", link_end_tuple[2]), "receiver"),
+            ]
         else:
-            return {
-                links.transmitter: links.body_reference_point_link_end_id(
-                    "Earth", link_end_tuple[0]
-                ),
-                links.reflector1: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
-            }
+            return [
+                (("Earth", link_end_tuple[0]), "transmitter"),
+                (spacecraft_link_end, "reflector_1"),
+                (("Earth", link_end_tuple[2]), "receiver"),
+            ]
 
-    def from_datetime_UTC_to_TDB(self, datetime_utc: datetime, station: str) -> float:
+    def to_utc_epoch(self, datetime_utc: datetime) -> float:
         """
-        Convert a datetime object in UTC into seconds since J2000 in TDB.
+        Convert a datetime object in UTC into seconds since J2000 in UTC.
 
         Parameters
         ----------
@@ -173,21 +161,6 @@ class RadioBase(Converter):
         Returns
         -------
         float
-            The time in seconds since J2000 in TDB.
+            The time in seconds since J2000 in UTC.
         """
-        station_dict = self._station_dict()
-        if station not in station_dict:
-            raise KeyError(
-                "Error when processing TNF file, converting time from UTC to TDB: \n"
-                + "the position of the ground station {} was not specified.".format(station)
-            )
-
-        epoch_utc = time_representation.DateTime.from_python_datetime(datetime_utc).to_epoch()
-        epoch_tdb = self.time_scale_converter.convert_time(
-            input_scale=time_representation.utc_scale,
-            output_scale=time_representation.tdb_scale,
-            input_value=epoch_utc,
-            earth_fixed_position=station_dict[station],
-        )
-
-        return epoch_tdb
+        return time_representation.DateTime.from_python_datetime(datetime_utc).to_epoch()

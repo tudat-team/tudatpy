@@ -11,6 +11,7 @@ from tudatpy.dynamics.environment_setup import (
 )
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
+from tudatpy.estimation.observations import create_observation_collection
 from tudatpy.data_access.tracking.processTrk234.processor import Trk234Processor
 from tudatpy.data_access.tracking.processTrk234 import converters as cnv
 from tudatpy.data_access.tracking.processTrk234 import OpenRampHandling
@@ -378,7 +379,8 @@ def test_reader():
         ["doppler"],
         spacecraft_name="-202",
     )
-    observationCollection = trkProcessor.process()
+    tracking_data, supplementary_data = trkProcessor.process()
+    observationCollection = create_observation_collection(tracking_data, bodies)
     # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalar type tudat::Time
 
     single_obs_sets = observationCollection.get_single_observation_sets()

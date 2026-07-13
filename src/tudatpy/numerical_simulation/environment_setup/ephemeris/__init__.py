@@ -1,6 +1,10 @@
 from tudatpy.kernel.dynamics.environment_setup.ephemeris import *
 from tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper import (
+    add_horizons_batch_ephemerides,
+    horizons_query_to_ephemeris_settings,
     jpl_horizons,
-    HorizonsBatch,
-    HorizonsQuery,
+)
+from tudatpy.dynamics.environment_setup.ephemeris.spacetrack_wrapper import (
+    tle_to_tle,
+    tle_to_tle_ephemeris,
 )

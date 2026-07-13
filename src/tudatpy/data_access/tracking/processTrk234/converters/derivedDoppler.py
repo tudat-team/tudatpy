@@ -1,12 +1,7 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import (
-    dsn_n_way_doppler_ancillary_settings,
-)
-from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
-from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import create_single_observation_set, SingleObservationSet
+from tudatpy.data_access.tracking import TrackingData
 
 from trk234 import SFDU
-from .radioBase import RadioBase
+from . import RadioBase
 from pandas import DataFrame
 
 
@@ -39,12 +34,11 @@ class DerivedDopplerConverter(RadioBase):
 
     def process(
         self, doppler_df: DataFrame, spacecraftName: str | None = None
-    ) -> list[SingleObservationSet]:
+    ) -> list[TrackingData]:
 
-        observation_set_list = []
+        tracking_data_list = []
         for link_end in doppler_df["link_ends"].unique():
-            link_ends_dict = self.build_link_ends_dict(link_end, spacecraftName)
-            link_def = link_definition(link_ends_dict)
+            link_ends = self.build_link_ends(link_end, spacecraftName)
             df_le = doppler_df[doppler_df["link_ends"] == link_end]
             for band in df_le["band"].unique():
                 df_band = df_le[df_le["band"] == band]
@@ -52,34 +46,36 @@ class DerivedDopplerConverter(RadioBase):
                     df_ttd = df_band[df_band["link_delays"] == ttd]
                     for ct in df_ttd["count_time"].unique():
                         df_ct = df_ttd[df_ttd["count_time"] == ct]
-                        ancillary_settings = dsn_n_way_doppler_ancillary_settings(
-                            [
-                                self.frequencyBandsDict[band[0]],
-                                self.frequencyBandsDict[band[1]],
-                            ],
-                            self.frequencyBandsDict[band[1]],
-                            0.0,
-                            ct,
-                            ttd,
-                        )
                         obs_values = df_ct["obs"].to_numpy(dtype=float).reshape((-1, 1))
-                        station = link_end[2] if len(link_end) == 3 else link_end[1]
-                        epoch_seconds = (
-                            df_ct["epoch"]
-                            .apply(lambda t: self.from_datetime_UTC_to_TDB(t, station))
-                            .tolist()
-                        )
-                        observation_set = create_single_observation_set(
-                            ObservableType.dsn_n_way_averaged_doppler_type,
-                            link_def.link_ends,
+                        epoch_seconds = df_ct["epoch"].apply(self.to_utc_epoch).tolist()
+
+                        tracking_data = TrackingData(
+                            "DsnNWayAveragedDoppler",
+                            link_ends,
                             obs_values,
                             epoch_seconds,
-                            receiver,
-                            ancillary_settings,
+                            "receiver",
+                            "UTC",
                         )
-                        observation_set_list.append(observation_set)
+                        tracking_data.add_ancillary_settings(
+                            "frequency bands",
+                            [
+                                self.frequencyBandIds[band[0]],
+                                self.frequencyBandIds[band[1]],
+                            ],
+                        )
+                        tracking_data.add_ancillary_settings(
+                            "DSN reference frequency band at reception",
+                            self.frequencyBandIds[band[1]],
+                        )
+                        tracking_data.add_ancillary_settings("DSN Doppler reference frequency", 0.0)
+                        tracking_data.add_ancillary_settings(
+                            "Doppler observable integration time", float(ct)
+                        )
+                        tracking_data.add_ancillary_settings("link ends time delays", list(ttd))
+                        tracking_data_list.append(tracking_data)
 
-        return observation_set_list
+        return tracking_data_list
 
     def get_link_delays(self, sfdu: SFDU) -> tuple[float, float, float]:
         """

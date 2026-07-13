@@ -13,15 +13,13 @@
 #include "expose_ifms.h"
 #include "expose_odf.h"
 #include "expose_psf.h"
+#include "expose_slr.h"
 #include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingSupplementaryData.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 
 namespace py = pybind11;
 namespace tdat = tudat::data;
-namespace tom = tudat::observation_models;
-namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
 {
@@ -125,17 +123,6 @@ void expose_tracking( py::module& m )
                   &tdat::TrackingSupplementaryData::setFrequencySupplementaryData,
                   py::arg( "frequency_supplementary_data" ) );
 
-    m.def( "create_observation_collection",
-           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "tracking_data" ),
-           py::arg( "bodies" ) );
-
-    m.def( "set_tracking_supplementary_data_in_bodies",
-           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
-                   &tom::setTrackingSupplementaryDataInBodies ),
-           py::arg( "bodies" ),
-           py::arg( "supplementary_data" ) );
-
     auto genericTextFile = m.def_submodule( "generic_text_file" );
     generic_text_file::expose_generic_text_file( genericTextFile );
 
@@ -150,6 +137,9 @@ void expose_tracking( py::module& m )
 
     auto psfModule = m.def_submodule( "psf" );
     psf::expose_psf( psfModule );
+
+    auto slrModule = m.def_submodule( "slr" );
+    slr::expose_slr( slrModule );
 }
 
 }  // namespace tracking
