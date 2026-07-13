@@ -119,7 +119,11 @@ public:
 
     //! Default constructor for deserialization only — not for general use
     SingleArcSimulationResults( ):
-        SimulationResults< StateScalarType, TimeType >( ), sequentialPropagation_( true ), rawSolutionConversionFunction_( nullptr ),
+        SimulationResults< StateScalarType, TimeType >( ), sequentialPropagation_( true ),
+        rawSolutionConversionFunction_( []( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& processedSolution,
+                                            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution ) {
+            processedSolution = rawSolution;
+        } ),
         propagationIsPerformed_( false ), solutionIsCleared_( false ), onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {}
