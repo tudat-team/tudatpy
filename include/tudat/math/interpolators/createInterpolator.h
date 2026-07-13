@@ -293,6 +293,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
         ar( CEREAL_NVP( interpolatorOrder_ ) );
         ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
     }
@@ -300,6 +301,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
         ar( CEREAL_NVP( interpolatorOrder_ ) );
         ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
     }

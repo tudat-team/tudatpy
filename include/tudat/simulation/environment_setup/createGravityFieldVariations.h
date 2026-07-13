@@ -457,6 +457,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( deformingBodies_ ) );
         ar( CEREAL_NVP( loveNumbers_ ) );
         ar( CEREAL_NVP( meanForcingCosineTerms_ ) );
@@ -466,6 +467,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( deformingBodies_ ) );
         ar( CEREAL_NVP( loveNumbers_ ) );
         ar( CEREAL_NVP( meanForcingCosineTerms_ ) );
@@ -544,6 +546,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( deformingBodies_ ) );
         ar( CEREAL_NVP( loveNumbers_ ) );
     }
@@ -551,6 +554,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( deformingBodies_ ) );
         ar( CEREAL_NVP( loveNumbers_ ) );
     }
@@ -661,6 +665,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineCoefficientCorrections_ ) );
         ar( CEREAL_NVP( sineCoefficientCorrections_ ) );
         ar( CEREAL_NVP( minimumDegree_ ) );
@@ -670,6 +675,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineCoefficientCorrections_ ) );
         ar( CEREAL_NVP( sineCoefficientCorrections_ ) );
         ar( CEREAL_NVP( minimumDegree_ ) );
@@ -779,6 +785,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineShAmplitudesCosineTime_ ) );
         ar( CEREAL_NVP( cosineShAmplitudesSineTime_ ) );
         ar( CEREAL_NVP( sineShAmplitudesCosineTime_ ) );
@@ -792,6 +799,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineShAmplitudesCosineTime_ ) );
         ar( CEREAL_NVP( cosineShAmplitudesSineTime_ ) );
         ar( CEREAL_NVP( sineShAmplitudesCosineTime_ ) );
@@ -876,6 +884,7 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineAmplitudes_ ) );
         ar( CEREAL_NVP( sineAmplitudes_ ) );
         ar( CEREAL_NVP( referenceEpoch_ ) );
@@ -886,6 +895,7 @@ private:
     template< class Archive >
     void load( Archive& ar )
     {
+        ar( cereal::base_class< GravityFieldVariationSettings >( this ) );
         ar( CEREAL_NVP( cosineAmplitudes_ ) );
         ar( CEREAL_NVP( sineAmplitudes_ ) );
         ar( CEREAL_NVP( referenceEpoch_ ) );
