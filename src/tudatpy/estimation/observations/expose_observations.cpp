@@ -1666,8 +1666,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets to which the variable should be added.
          

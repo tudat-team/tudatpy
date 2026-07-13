@@ -1,9 +1,11 @@
 # %%
+import numpy as np
 import pandas as pd
 import requests
 import os
 import pytest
 from tudatpy.interface import spice
+from tudatpy.data import TrackingData
 from tudatpy.dynamics.environment_setup import (
     get_default_body_settings,
     ground_station,
@@ -11,6 +13,7 @@ from tudatpy.dynamics.environment_setup import (
 )
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
+from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import create_observation_collection
 from tudatpy.data.processTrk234TrackingData.processor import Trk234TrackingDataProcessor
 from tudatpy.data.processTrk234TrackingData import converters as cnv
@@ -345,6 +348,135 @@ def test_handle_open_ramps_close_silently_leaves_closed_untouched():
     result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.close_silently)
     assert result["end_time"].iloc[0] == closed_end
     assert result["end_time"].iloc[1] == open_start + pd.Timedelta(seconds=1)
+
+
+# -----------------------------------------------------------------------------
+# Pipeline tests: TrackingData -> create_observation_collection
+#
+# These exercise the exact hand-off that regressed three times (observable-name
+# resolution and ancillary-settings routing) without needing to download a real
+# TNF file. TrackingData objects are built directly, mirroring the output of the
+# DerivedDoppler/DerivedSraRange converters, and pushed through
+# create_observation_collection. This is the coverage that was missing.
+# -----------------------------------------------------------------------------
+def _dsn_bodies():
+    """System of bodies with the DSN ground stations and a dummy spacecraft, as
+    required to resolve the link ends of a DSN TrackingData object. Mirrors the
+    setup used by ``test_reader``."""
+    spice.load_standard_kernels()
+    body_settings = get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.dsn_stations()
+    body_settings.add_empty_settings("-202")
+    return create_system_of_bodies(body_settings)
+
+
+# Link ends of a two-/three-way DSN observable, using the tudat link-end-type
+# strings (note the underscore in "reflector_1"). Station "DSS-65" and spacecraft
+# "-202" both exist in the bodies built by _dsn_bodies().
+_DSN_LINK_ENDS = [
+    (("Earth", "DSS-65"), "transmitter"),
+    (("-202", ""), "reflector_1"),
+    (("Earth", "DSS-65"), "receiver"),
+]
+
+
+def test_pipeline_doppler_synthetic():
+    """A DsnNWayAveragedDoppler TrackingData converts into a single observation set
+    with the expected observable type and ancillary settings. Regression for the
+    "DSN reference frequency band at reception" string-vs-string-vector routing bug."""
+    bodies = _dsn_bodies()
+
+    tracking_data = TrackingData(
+        "DsnNWayAveragedDoppler",
+        _DSN_LINK_ENDS,
+        np.array([[-8.4e9], [-8.4e9]]),
+        [617245672.68, 617245673.68],
+        "receiver",
+        "UTC",
+    )
+    tracking_data.add_ancillary_settings("frequency bands", ["X-band", "X-band"])
+    # Plain string (not a list): dispatches to the std::string overload and the
+    # reception_reference_frequency_band variable. This is the doppler bug that
+    # previously threw at create_observation_collection.
+    tracking_data.add_ancillary_settings(
+        "DSN reference frequency band at reception", "X-band"
+    )
+    tracking_data.add_ancillary_settings("Doppler observable integration time", 1.0)
+    tracking_data.add_ancillary_settings("link ends time delays", [0.0, 0.0, 0.0])
+
+    observation_collection = create_observation_collection([tracking_data], bodies)
+
+    obs_sets = observation_collection.get_single_observation_sets()
+    assert len(obs_sets) == 1, "Expected exactly one observation set."
+    obs_set = obs_sets[0]
+
+    assert obs_set.observable_type == ObservableType.dsn_n_way_averaged_doppler_type
+
+    dopplerCount = obs_set.ancillary_settings.get_float_settings(
+        ancillary_settings.doppler_integration_time
+    )
+    assert dopplerCount == 1.0, f"Expected doppler integration time 1.0, got {dopplerCount}"
+
+    link_def = obs_set.link_definition
+    assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
+    assert link_def.link_end_id(links.reflector1).body_name == "-202"
+    assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
+
+
+def test_pipeline_range_synthetic():
+    """A DsnNWayRange TrackingData converts into a single observation set with the
+    expected observable type and ancillary settings. Direct regression for the
+    "observable type 'DsnNWayRange' is not recognised" error.
+
+    NOTE: This uses a synthetic TrackingData rather than a real TNF file on purpose.
+    The tnfp.dat sample used by test_reader contains no SRA range records, and the
+    only readily available range fixture (an MRO TNF, e.g.
+    mromagr2012_002_1426xmmmv1.tnf) is ~56 MB. A future improvement would be to add
+    a real-file range integration test (with golden observation values) once a
+    small range-bearing TNF sample is available or downloads are acceptable."""
+    bodies = _dsn_bodies()
+
+    tracking_data = TrackingData(
+        "DsnNWayRange",
+        _DSN_LINK_ENDS,
+        np.array([[1000.0]]),
+        [617245672.68],
+        "receiver",
+        "UTC",
+    )
+    tracking_data.add_ancillary_settings("frequency bands", ["X-band", "X-band"])
+    tracking_data.add_ancillary_settings(
+        "DSN sequential range lowest ranging component", 7.0
+    )
+    tracking_data.add_ancillary_settings(
+        "link ends time delays", [4.9151e-08, 0.0, -1.837e-07]
+    )
+
+    observation_collection = create_observation_collection([tracking_data], bodies)
+
+    obs_sets = observation_collection.get_single_observation_sets()
+    assert len(obs_sets) == 1, "Expected exactly one observation set."
+    obs_set = obs_sets[0]
+
+    assert obs_set.observable_type == ObservableType.dsn_n_way_range_type
+
+    lrc = obs_set.ancillary_settings.get_float_settings(
+        ancillary_settings.sequential_range_lowest_ranging_component
+    )
+    assert lrc == 7.0, f"Expected lowest ranging component 7.0, got {lrc}"
+
+    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
+        ancillary_settings.link_ends_delays
+    )
+    expected_delays = [4.9151e-08, 0.0, -1.837e-07]
+    assert linkEndDelays == pytest.approx(
+        expected_delays
+    ), f"Expected link end delays {expected_delays}, got {linkEndDelays}"
+
+    link_def = obs_set.link_definition
+    assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
+    assert link_def.link_end_id(links.reflector1).body_name == "-202"
+    assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
 
 
 # -----------------------------------------------------------------------------

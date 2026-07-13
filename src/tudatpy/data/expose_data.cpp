@@ -955,6 +955,12 @@ Read a mapping from DOMES id to station name.
             .def_property_readonly( "reference_link_end", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd )
             .def_property_readonly( "time_scale", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeScale )
             .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const std::string >(
+                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
+                  py::arg( "ancillarySettingsType" ),
+                  py::arg( "ancillarySettingsValue" ),
+                  R"doc(Adds ancillary settings to the TrackingData object (string type), (optional).)doc" )
+            .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< std::string > >(
                           &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),

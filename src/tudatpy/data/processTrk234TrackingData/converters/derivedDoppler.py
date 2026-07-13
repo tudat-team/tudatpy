@@ -66,7 +66,7 @@ class DerivedDopplerConverter(RadioBase):
                         )
                         tracking_data.add_ancillary_settings(
                             "DSN reference frequency band at reception",
-                            [self.frequencyBandsDict[band[1]]],
+                            self.frequencyBandsDict[band[1]],
                         )
                         tracking_data.add_ancillary_settings(
                             "DSN Doppler reference frequency", 0.0
