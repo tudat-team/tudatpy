@@ -215,7 +215,7 @@ private:
     {
         ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
         ar( CEREAL_NVP( numberOfRevolutions_ ) );
-        ar( CEREAL_NVP( const_cast< std::vector< std::vector< double > >& >( problemBounds_ ) ) );
+        ar( CEREAL_NVP( problemBounds_ ) );
         ar( CEREAL_NVP( minimizeMaximumThrust_ ) );
         ar( CEREAL_NVP( initialMass_ ) );
     }

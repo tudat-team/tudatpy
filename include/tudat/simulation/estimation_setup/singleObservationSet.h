@@ -1249,7 +1249,7 @@ private:
         return singleDependentVariable;
     }
 
-    const ObservableType observableType_;
+    ObservableType observableType_;
 
     LinkDefinition linkEnds_;
 
@@ -1259,13 +1259,13 @@ private:
 
     std::vector< TimeType > observationTimes_;
 
-    const LinkEndType referenceLinkEnd_;
+    LinkEndType referenceLinkEnd_;
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     unsigned int numberOfObservations_;
 
@@ -1314,43 +1314,41 @@ private:
     friend class cereal::access;
 
     template< class Archive >
-    void load( Archive& ar )
+    void save( Archive& ar ) const
     {
-        // Use const_cast for const members (safe during deserialization into default-constructed object)
-        ar( const_cast< ObservableType& >( observableType_ ) );
-        ar( linkEnds_ );
-        ar( timeBounds_ );
-        ar( observations_ );
-        ar( observationTimes_ );
-        ar( const_cast< LinkEndType& >( referenceLinkEnd_ ) );
-        ar( observationsDependentVariables_ );
-        ar( dependentVariableBookkeeping_ );
-        ar( const_cast< std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& >( ancillarySettings_ ) );
-        ar( numberOfObservations_ );
-        ar( singleObservationSize_ );
-        ar( weights_ );
-        ar( residuals_ );
-        ar( filteredObservationSet_ );
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
     }
 
     template< class Archive >
-    void save( Archive& ar ) const
+    void load( Archive& ar )
     {
-        // Use const_cast for const members (safe during deserialization into default-constructed object)
-        ar( const_cast< ObservableType& >( observableType_ ) );
-        ar( linkEnds_ );
-        ar( timeBounds_ );
-        ar( observations_ );
-        ar( observationTimes_ );
-        ar( const_cast< LinkEndType& >( referenceLinkEnd_ ) );
-        ar( observationsDependentVariables_ );
-        ar( dependentVariableBookkeeping_ );
-        ar( const_cast< std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& >( ancillarySettings_ ) );
-        ar( numberOfObservations_ );
-        ar( singleObservationSize_ );
-        ar( weights_ );
-        ar( residuals_ );
-        ar( filteredObservationSet_ );
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( CEREAL_NVP( weights_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
     }
 };
 

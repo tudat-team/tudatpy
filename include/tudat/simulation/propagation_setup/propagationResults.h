@@ -768,11 +768,11 @@ public:
     TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( SingleArcVariationalSimulationResults< StateScalarType, TimeType > )
 
 protected:
-    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > singleArcDynamicsResults_;
 
-    const int stateTransitionMatrixSize_;
+    int stateTransitionMatrixSize_;
 
-    const int sensitivityMatrixSize_;
+    int sensitivityMatrixSize_;
 
     std::map< double, Eigen::MatrixXd > stateTransitionSolution_;
 
@@ -818,13 +818,9 @@ private:
     {
         static_cast< void >( version );
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        // const_cast needed because members are declared const for runtime safety,
-        // but deserialization must populate them
-        ar( cereal::make_nvp(
-                "singleArcDynamicsResults_",
-                const_cast< std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > >& >( singleArcDynamicsResults_ ) ) );
-        ar( cereal::make_nvp( "stateTransitionMatrixSize_", const_cast< int& >( stateTransitionMatrixSize_ ) ) );
-        ar( cereal::make_nvp( "sensitivityMatrixSize_", const_cast< int& >( sensitivityMatrixSize_ ) ) );
+        ar( CEREAL_NVP( singleArcDynamicsResults_ ) );
+        ar( CEREAL_NVP( stateTransitionMatrixSize_ ) );
+        ar( CEREAL_NVP( sensitivityMatrixSize_ ) );
         ar( CEREAL_NVP( stateTransitionSolution_ ) );
         ar( CEREAL_NVP( sensitivitySolution_ ) );
     }
@@ -1129,7 +1125,7 @@ public:
     TUDAT_DEFINE_BINARY_IO_POLYMORPHIC( MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > )
 
 private:
-    const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
+    std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults_;
 
     bool propagationIsPerformed_;
 
@@ -1203,9 +1199,7 @@ private:
     void load( Archive& ar )
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
-        ar( cereal::make_nvp(
-                "singleArcResults_",
-                const_cast< std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > >& >( singleArcResults_ ) ) );
+        ar( CEREAL_NVP( singleArcResults_ ) );
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
         ar( CEREAL_NVP( solutionIsCleared_ ) );
         ar( CEREAL_NVP( arcStartTimes_ ) );

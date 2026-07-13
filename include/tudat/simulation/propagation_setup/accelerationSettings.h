@@ -1079,9 +1079,9 @@ public:
         referenceEpoch_( referenceEpoch )
     {}
 
-    const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
-    const double decayScaleFactor_;
-    const double referenceEpoch_;
+    Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
+    double decayScaleFactor_;
+    double referenceEpoch_;
 
 protected:
     // Default constructor for serialization
@@ -1121,10 +1121,9 @@ private:
     void load( Archive& ar )
     {
         ar( cereal::base_class< AccelerationSettings >( this ) );
-        ar( cereal::make_nvp( "bodyFixedForceVectorAtReferenceEpoch_",
-                              const_cast< Eigen::Vector3d& >( bodyFixedForceVectorAtReferenceEpoch_ ) ) );
-        ar( cereal::make_nvp( "decayScaleFactor_", const_cast< double& >( decayScaleFactor_ ) ) );
-        ar( cereal::make_nvp( "referenceEpoch_", const_cast< double& >( referenceEpoch_ ) ) );
+        ar( CEREAL_NVP( bodyFixedForceVectorAtReferenceEpoch_ ) );
+        ar( CEREAL_NVP( decayScaleFactor_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
     }
 };
 
