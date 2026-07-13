@@ -1,31 +1,18 @@
 .. _data_access_downloading_missions:
 
-``downloading.missions``
-========================
-This module contains a set of functions to download:
+``missions``
+============
 
-- spice kernels
-- radio doppler data (IFMS, ODF)
-- ancillary files
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
 
-for the the following supported missions:
+   downloading_missions/cassini
+   downloading_missions/grail
+   downloading_missions/juice
+   downloading_missions/mex
+   downloading_missions/mro
+   downloading_missions/ro
 
-- Mars Reconnaissance Orbiter (MRO)
-- Mars Express (MEX)
-- JUpiter ICy-moons Explorer (JUICE)
-- Cassini
-- Grail (Grail-A and Grail-B)
-
-Classes
--------
-.. currentmodule:: tudatpy.data_access.downloading.missions
-
-.. autosummary::
-
-   LoadPDS
-
-
-.. autoclass:: tudatpy.data_access.downloading.missions.LoadPDS
+.. automodule:: tudatpy.data_access.downloading.missions
    :members:
-   :inherited-members:
-   :special-members: __init__

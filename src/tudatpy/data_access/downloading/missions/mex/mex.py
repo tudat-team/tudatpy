@@ -3,7 +3,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from ._download import _REQUEST_TIMEOUT
+from .._download import _REQUEST_TIMEOUT
 
 
 class MexMixin:

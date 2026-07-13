@@ -3,10 +3,13 @@
 ``data_access``
 ===============
 
-Utilities for loading, downloading, and organizing external data sources for Tudatpy.
-
 .. toctree::
    :maxdepth: 2
    :caption: Modules
 
-   data_access/downloading_missions
+   data_access/paths
+   data_access/downloading
+   data_access/tracking
+
+.. automodule:: tudatpy.data_access
+   :members:
