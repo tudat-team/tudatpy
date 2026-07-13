@@ -12,6 +12,8 @@
 #endif
 #include "expose_fdets.h"
 
+#include "scalarTypes.h"
+
 namespace py = pybind11;
 namespace tio = tudat::input_output;
 
@@ -87,7 +89,7 @@ void expose_fdets( py::module& m )
            )doc" );
 
     m.def( "read_fdets_files",
-           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< double, double > > >,
+           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >,
                                    std::vector< std::shared_ptr< tudat::data::TrackingSupplementaryData > > > ( * )(
                    const std::vector< std::string >&,
                    const std::vector< double >&,
@@ -95,7 +97,7 @@ void expose_fdets( py::module& m )
                    const std::string&,
                    const std::vector< std::string >&,
                    const std::vector< std::string >&,
-                   const std::string& ) >( &tio::readFdetsFiles< double, double > ),
+                   const std::string& ) >( &tio::readFdetsFiles< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "fdets_file_names" ),
            py::arg( "base_frequencies" ),
            py::arg( "date_format" ),

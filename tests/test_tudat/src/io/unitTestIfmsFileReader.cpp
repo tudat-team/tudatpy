@@ -24,6 +24,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 
 // Some simplifications for shorter lines
 using namespace tudat::input_output;
@@ -41,6 +42,7 @@ BOOST_AUTO_TEST_SUITE( test_ifms_file_reader );
 //! Test reading of mars express IFMS files.
 BOOST_AUTO_TEST_CASE( testIfmsFileReader )
 {
+    spice_interface::loadStandardSpiceKernels( );
     std::vector< std::string > ifmsFiles;
     ifmsFiles.push_back( paths::getTudatTestDataPath( ) + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630120_00.TAB.txt" );
     ifmsFiles.push_back( paths::getTudatTestDataPath( ) + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630203_00.TAB.txt" );
@@ -101,8 +103,7 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
             bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
             simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
-            std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection =
-                    observation_models::createObservationCollection< double, Time >( trackingData, bodies );
+            auto observationCollection = observation_models::createObservationCollection< double, Time >( trackingData, bodies );
             std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
             const Eigen::Vector3d earthFixedPosition =
                     bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );

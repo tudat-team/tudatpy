@@ -22,14 +22,12 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/interpolators/lookupScheme.h"
-#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {
@@ -97,7 +95,7 @@ public:
 
     // Observation times as seconds since EME1950 UTC
     std::vector< TimeType > unprocessedObservationTimes_;
-    // Observation times as seconds since J2000 TDB
+    // Observation times as seconds since J2000 UTC
     std::vector< TimeType > processedObservationTimes_;
 
     // Value of the observables
@@ -146,10 +144,6 @@ public:
             obsTimesDouble.push_back( double( processedObservationTimes_[ k ] ) );
         }
 
-        //        return std::make_pair ( *std::min_element( processedObservationTimes_.begin( ),
-        //        processedObservationTimes_.end( ) ),
-        //                                *std::max_element( processedObservationTimes_.begin( ),
-        //                                processedObservationTimes_.end( ) ) );
         return std::make_pair( *std::min_element( obsTimesDouble.begin( ), obsTimesDouble.end( ) ),
                                *std::max_element( obsTimesDouble.begin( ), obsTimesDouble.end( ) ) );
     }
@@ -316,13 +310,10 @@ public:
      */
     PreProcessedOdfFileContents( const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
                                  const std::string& spacecraftName,
-                                 bool verbose = true,
-                                 const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                         simulation_setup::getApproximateDsnGroundStationPositions( ) ):
+                                 bool verbose = true ):
         PreProcessedOdfFileContents( std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ rawOdfData },
                                      spacecraftName,
-                                     verbose,
-                                     earthFixedGroundStationPositions )
+                                     verbose )
     {}
 
     /*!
@@ -337,11 +328,8 @@ public:
      */
     PreProcessedOdfFileContents( std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
                                  const std::string& spacecraftName,
-                                 const bool verbose = true,
-                                 const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                         simulation_setup::getApproximateDsnGroundStationPositions( ) ):
-        rawOdfData_( rawOdfDataVector ), spacecraftName_( spacecraftName ),
-        approximateEarthFixedGroundStationPositions_( earthFixedGroundStationPositions ), verbose_( verbose )
+                                 const bool verbose = true ):
+        rawOdfData_( rawOdfDataVector ), spacecraftName_( spacecraftName ), verbose_( verbose )
     {
         // Sort ODF data files by date and check whether all the provided files apply to the same
         // spacecraft
@@ -407,8 +395,8 @@ public:
     std::pair< double, double > getStartAndEndTime( ) const
     {
         // Reset variables
-        double startTimeTdbSinceJ2000 = TUDAT_NAN;
-        double endTimeTdbSinceJ2000 = TUDAT_NAN;
+        double startTimeUtcSinceJ2000 = TUDAT_NAN;
+        double endTimeUtcSinceJ2000 = TUDAT_NAN;
 
         // Loop over data
         for( auto const& [ observableType, linkDataBlocks ] : processedDataBlocks_ )
@@ -424,19 +412,19 @@ public:
                     timeVector.push_back( double( timeTimeType ) );
                 }
 
-                if( timeVector.front( ) < startTimeTdbSinceJ2000 || std::isnan( startTimeTdbSinceJ2000 ) )
+                if( timeVector.front( ) < startTimeUtcSinceJ2000 || std::isnan( startTimeUtcSinceJ2000 ) )
                 {
-                    startTimeTdbSinceJ2000 = timeVector.front( );
+                    startTimeUtcSinceJ2000 = timeVector.front( );
                 }
 
-                if( timeVector.back( ) > endTimeTdbSinceJ2000 || std::isnan( endTimeTdbSinceJ2000 ) )
+                if( timeVector.back( ) > endTimeUtcSinceJ2000 || std::isnan( endTimeUtcSinceJ2000 ) )
                 {
-                    endTimeTdbSinceJ2000 = timeVector.back( );
+                    endTimeUtcSinceJ2000 = timeVector.back( );
                 }
             }
         }
 
-        return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
+        return std::make_pair( startTimeUtcSinceJ2000, endTimeUtcSinceJ2000 );
     }
 
     // Return ODF observable types IDs (as per TRK-2-18) that were not included in the processed
@@ -756,10 +744,10 @@ private:
                         std::cerr << "Warning: Observable type " << ( currentObservableType ) << " is not implemented." << std::endl;
                     }
                 }
-            }
 
-            addOdfRawDataBlockToProcessedData(
-                    rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+                addOdfRawDataBlockToProcessedData(
+                        rawDataBlock, processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
         }
     }
 
@@ -909,8 +897,8 @@ private:
             {
                 rampTables_[ stationName ]->addFrequencyRamp( rampStartTimesPerStationUtc.at( i ),
                                                               rampEndTimesPerStationUtc.at( i ),
-                                                              rampRatesPerStation[ stationName ].at( i ),
-                                                              startFrequenciesPerStation[ stationName ].at( i ) );
+                                                              startFrequenciesPerStation[ stationName ].at( i ),
+                                                              rampRatesPerStation[ stationName ].at( i ) );
             }
         }
     }
@@ -926,8 +914,8 @@ private:
         {
             for( auto const& [ linkEnd, singleLinkDataBlock ] : linkDataBlocks )
             {
-                singleLinkDataBlock->processedObservationTimes_ = computeObservationTimesTdbFromJ2000(
-                        singleLinkDataBlock->receivingStation_, singleLinkDataBlock->unprocessedObservationTimes_ );
+                singleLinkDataBlock->processedObservationTimes_ =
+                        computeObservationTimesUtcFromJ2000< Time >( singleLinkDataBlock->unprocessedObservationTimes_ );
             }
         }
     }
@@ -943,7 +931,7 @@ private:
     {
         std::vector< Time > observationTimesUtcFromJ2000;
 
-        Time EME1950ToJ2000Offset = Time( basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
+        auto EME1950ToJ2000Offset = Time( basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
                                                   1950, 1, 1, 0, 0, 0, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
                                           physical_constants::JULIAN_DAY );
 
@@ -955,46 +943,6 @@ private:
         return observationTimesUtcFromJ2000;
     }
 
-    /*!
-     * Converts UTC times from EME1950 to TDB times from J2000.
-     *
-     * @param groundStation Name of the fround station
-     * @param observationTimesUtcFromEME1950
-     * @return TDB times from J2000
-     */
-    std::vector< TimeType > computeObservationTimesTdbFromJ2000( const std::string groundStation,
-                                                                 const std::vector< TimeType >& observationTimesUtcFromEME1950 )
-    {
-        earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
-
-        std::vector< Time > observationTimesUtcFromJ2000 =
-                computeObservationTimesUtcFromJ2000< TimeType >( observationTimesUtcFromEME1950 );
-
-        if( approximateEarthFixedGroundStationPositions_.count( groundStation ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when processing ODF file, converting time from UTC to TDB: the position "
-                    "of "
-                    "the ground station " +
-                    groundStation + " was not specified." );
-        }
-
-        std::vector< Eigen::Vector3d > earthFixedPositions;
-        for( unsigned int i = 0; i < observationTimesUtcFromJ2000.size( ); ++i )
-        {
-            // TDB time wrt Earth center used to retrieve the ground station's position
-            earthFixedPositions.push_back( approximateEarthFixedGroundStationPositions_.at( groundStation ) );
-        }
-
-        std::vector< TimeType > observationTimesTdbFromJ2000 =
-                utilities::staticCastVector< TimeType, Time >( timeScaleConverter.getCurrentTimes< Time >( basic_astrodynamics::utc_scale,
-                                                                                                           basic_astrodynamics::tdb_scale,
-                                                                                                           observationTimesUtcFromJ2000,
-                                                                                                           earthFixedPositions ) );
-
-        return observationTimesTdbFromJ2000;
-    }
-
     // Vector of raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfData_;
 
@@ -1002,9 +950,6 @@ private:
     const std::string spacecraftName_;
 
     //    const std::string antennaName_;
-
-    // Map containing approximate position of ground stations
-    const std::map< std::string, Eigen::Vector3d > approximateEarthFixedGroundStationPositions_;
 
     // Processed data mapped by observable type and link ends
     std::map< std::string, std::map< data::PlainLinkDefinition, std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > > >
@@ -1037,29 +982,10 @@ private:
     friend class PreProcessedOdfFileContentsPrivateFunctionTest;
 };
 
-// TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way Doppler)
-// is implemented
-class PreProcessedOdfFileContentsPrivateFunctionTest
-{
-public:
-    static double computeObservationTimesTdbFromJ2000( std::shared_ptr< PreProcessedOdfFileContents< double > > PreProcessedOdfFileContents,
-                                                       const std::string groundStation,
-                                                       const double observationTimeUtcFromEME1950 )
-    {
-        return PreProcessedOdfFileContents->computeObservationTimesTdbFromJ2000( groundStation, { observationTimeUtcFromEME1950 } )
-                .front( );
-    }
-
-private:
-};
-
 template< typename TimeType = Time >
-inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData(
-        const std::vector< std::string >& odfFileNames,
-        const std::string& spacecraftName,
-        const bool verbose = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData( const std::vector< std::string >& odfFileNames,
+                                                                                  const std::string& spacecraftName,
+                                                                                  const bool verbose = true )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFile : odfFileNames )
@@ -1067,46 +993,34 @@ inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData
         rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents >( odfFile ) );
     }
 
-    return std::make_shared< PreProcessedOdfFileContents< TimeType > >(
-            rawOdfDataVector, spacecraftName, verbose, earthFixedGroundStationPositions );
+    return std::make_shared< PreProcessedOdfFileContents< TimeType > >( rawOdfDataVector, spacecraftName, verbose );
 }
 
 template< typename TimeType = Time >
-inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData(
-        const std::string& odfFileName,
-        const std::string& spacecraftName,
-        const bool verbose = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData( const std::string& odfFileName,
+                                                                                  const std::string& spacecraftName,
+                                                                                  const bool verbose = true )
 {
-    return processOdfData< TimeType >(
-            std::vector< std::string >{ odfFileName }, spacecraftName, verbose, earthFixedGroundStationPositions );
+    return processOdfData< TimeType >( std::vector< std::string >{ odfFileName }, spacecraftName, verbose );
 }
 
 template< typename TimeType = Time >
 inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData(
         const std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& odfFiles,
         const std::string& spacecraftName,
-        const bool verbose = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+        const bool verbose = true )
 {
-    return std::make_shared< PreProcessedOdfFileContents< TimeType > >(
-            odfFiles, spacecraftName, verbose, earthFixedGroundStationPositions );
+    return std::make_shared< PreProcessedOdfFileContents< TimeType > >( odfFiles, spacecraftName, verbose );
 }
 
 template< typename TimeType = Time >
 inline std::shared_ptr< PreProcessedOdfFileContents< TimeType > > processOdfData(
         const std::shared_ptr< input_output::OdfRawFileContents > odfFile,
         const std::string& spacecraftName,
-        const bool verbose = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+        const bool verbose = true )
 {
-    return processOdfData< TimeType >( std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ odfFile },
-                                       spacecraftName,
-                                       verbose,
-                                       earthFixedGroundStationPositions );
+    return processOdfData< TimeType >(
+            std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ odfFile }, spacecraftName, verbose );
 }
 
 /*!
@@ -1258,12 +1172,9 @@ template< typename ObservationScalarType = double, typename TimeType = Time >
 std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > extractTrackingDataFromRawOdf(
         const std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector,
         const std::string& spacecraftName,
-        const bool verboseOutput = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+        const bool verboseOutput = true )
 {
-    auto odfFileContents = std::make_shared< PreProcessedOdfFileContents< TimeType > >(
-            rawOdfDataVector, spacecraftName, verboseOutput, earthFixedGroundStationPositions );
+    auto odfFileContents = std::make_shared< PreProcessedOdfFileContents< TimeType > >( rawOdfDataVector, spacecraftName, verboseOutput );
 
     // Create and fill single observation sets
     std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataSets;
@@ -1284,7 +1195,7 @@ std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeTyp
             for( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
                 auto currentTrackingDataSet = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >(
-                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver" );
+                        currentObservableName, currentLinkEnds, observables.at( i ), observationTimes.at( i ), "receiver", "UTC" );
 
                 setOdfMetadataInTrackingData( currentTrackingDataSet, ancillaryData.at( i ) );
                 trackingDataSets.push_back( currentTrackingDataSet );
@@ -1299,12 +1210,9 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > extractTrackin
         const std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector,
         const std::string& spacecraftName,
         const std::string& earthName,
-        const bool verboseOutput = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+        const bool verboseOutput = true )
 {
-    auto odfFileContents = std::make_shared< PreProcessedOdfFileContents< TimeType > >(
-            rawOdfDataVector, spacecraftName, verboseOutput, earthFixedGroundStationPositions );
+    auto odfFileContents = std::make_shared< PreProcessedOdfFileContents< TimeType > >( rawOdfDataVector, spacecraftName, verboseOutput );
 
     auto const& rampTables = odfFileContents->getRampTables( );
 
@@ -1313,7 +1221,8 @@ std::vector< std::shared_ptr< data::TrackingSupplementaryData > > extractTrackin
     for( auto const& [ stationName, rampTable ] : rampTables )
     {
         auto currentSupplementarySet = std::make_shared< data::TrackingSupplementaryData >( earthName, stationName );
-        currentSupplementarySet->setFrequencySupplementaryData( rampTable );
+        currentSupplementarySet->setFrequencySupplementaryData(
+                std::vector< std::shared_ptr< data::FrequencySupplementaryData > >( { rampTable } ) );
         trackingSupplementaryDataSets.push_back( currentSupplementarySet );
     }
 
@@ -1326,15 +1235,13 @@ std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarTy
 convertRawOdfFile( std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
                    const std::string& spacecraftName,
                    const std::string& earthName,
-                   const bool verboseOutput = true,
-                   const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                           simulation_setup::getApproximateDsnGroundStationPositions( ) )
+                   const bool verboseOutput = true )
 {
-    auto const& trackingDataSets = extractTrackingDataFromRawOdf< ObservationScalarType, TimeType >(
-            rawOdfDataVector, spacecraftName, verboseOutput, earthFixedGroundStationPositions );
+    auto const& trackingDataSets =
+            extractTrackingDataFromRawOdf< ObservationScalarType, TimeType >( rawOdfDataVector, spacecraftName, verboseOutput );
 
     auto const& trackingSupplementaryDataSets = extractTrackingSupplementaryDataFromRawOdf< ObservationScalarType, TimeType >(
-            rawOdfDataVector, spacecraftName, earthName, verboseOutput, earthFixedGroundStationPositions );
+            rawOdfDataVector, spacecraftName, earthName, verboseOutput );
 
     return std::make_pair( trackingDataSets, trackingSupplementaryDataSets );
 }
@@ -1345,9 +1252,7 @@ std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarTy
 loadOdfFile( const std::vector< std::string >& odfFileNames,
              const std::string& spacecraftName,
              const std::string& earthName,
-             const bool verboseOutput = true,
-             const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                     simulation_setup::getApproximateDsnGroundStationPositions( ) )
+             const bool verboseOutput = true )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFileName : odfFileNames )
@@ -1355,8 +1260,7 @@ loadOdfFile( const std::vector< std::string >& odfFileNames,
         rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents >( odfFileName ) );
     }
 
-    return convertRawOdfFile< ObservationScalarType, TimeType >(
-            rawOdfDataVector, spacecraftName, earthName, verboseOutput, earthFixedGroundStationPositions );
+    return convertRawOdfFile< ObservationScalarType, TimeType >( rawOdfDataVector, spacecraftName, earthName, verboseOutput );
 }
 
 }  // namespace input_output

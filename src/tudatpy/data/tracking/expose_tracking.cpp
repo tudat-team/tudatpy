@@ -12,6 +12,7 @@
 #endif
 #include "expose_tracking.h"
 
+#include "scalarTypes.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/readTrackingTxtFile.h"
 
@@ -175,13 +176,14 @@ void expose_tracking( py::module& m )
            py::arg( "ignore_omitted_columns" ) = false,
            py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter );
 
-    py::class_< tudat::data::TrackingData<>, std::shared_ptr< tudat::data::TrackingData<> > >( m, "TrackingData", R"doc(
+    py::class_< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "TrackingData", R"doc(
  TrackingData Class container.
     )doc" )
             .def( py::init< const std::string,
                             const tudat::data::PlainLinkDefinition&,
-                            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
-                            const std::vector< double >,
+                            const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                            const std::vector< TIME_TYPE >,
                             const std::string,
                             const std::string >( ),
                   py::arg( "observable_type" ),
@@ -191,70 +193,78 @@ void expose_tracking( py::module& m )
                   py::arg( "reference_link_end" ),
                   py::arg( "time_scale" ) = "TDB",
                   R"doc(Creates a TrackingData object.)doc" )
-            .def_property_readonly( "observable_type", &tudat::data::TrackingData<>::getObservableType )
-            .def_property_readonly( "link_ends", &tudat::data::TrackingData<>::getLinkEnds )
-            .def_property_readonly( "observations", &tudat::data::TrackingData<>::getObservations )
-            .def_property_readonly( "epochs", &tudat::data::TrackingData<>::getObservationEpochs )
-            .def_property_readonly( "reference_link_end", &tudat::data::TrackingData<>::getReferenceLinkEnd )
-            .def_property_readonly( "time_scale", &tudat::data::TrackingData<>::getTimeScale )
+            .def_property_readonly( "observable_type", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType )
+            .def_property_readonly( "link_ends", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEnds )
+            .def_property_readonly( "observations", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations )
+            .def_property_readonly( "epochs", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationEpochs )
+            .def_property_readonly( "reference_link_end", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd )
+            .def_property_readonly( "time_scale", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeScale )
+            .def( "add_ancillary_settings",
+                  py::overload_cast< const std::string, const std::string >(
+                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
+                  py::arg( "ancillarySettingsType" ),
+                  py::arg( "ancillarySettingsValue" ),
+                  R"doc(Adds ancillary settings to the TrackingData object (string type), (optional).)doc" )
             .def( "add_ancillary_settings",
                   py::overload_cast< const std::string, const std::vector< std::string > >(
-                          &tudat::data::TrackingData<>::addAncillarySettings ),
+                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
                   R"doc(Adds ancillary settings to the TrackingData object (optional).)doc" )
             .def( "add_ancillary_settings",
-                  py::overload_cast< const std::string, const double >( &tudat::data::TrackingData<>::addAncillarySettings ),
+                  py::overload_cast< const std::string, const double >(
+                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
                   R"doc(Adds ancillary settings to the TrackingData object (double type), (optional).)doc" )
             .def( "add_ancillary_settings",
-                  py::overload_cast< const std::string, const std::vector< double > >( &tudat::data::TrackingData<>::addAncillarySettings ),
+                  py::overload_cast< const std::string, const std::vector< double > >(
+                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillarySettingsType" ),
                   py::arg( "ancillarySettingsValue" ),
                   R"doc(Adds ancillary settings to the TrackingData object (double vector type), (optional).)doc" )
             .def( "get_ancillary_settings_string_vector",
-                  &tudat::data::TrackingData<>::getAncillarySettingsStringVector,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsStringVector,
                   R"doc(Returns the ancillary settings in the TrackingData object as a vector of strings.)doc" )
             .def( "get_ancillary_settings_double",
-                  &tudat::data::TrackingData<>::getAncillarySettingsDouble,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDouble,
                   R"doc(Returns the ancillary settings in the TrackingData object as a double.)doc" )
             .def( "get_ancillary_settings_double_vector",
-                  &tudat::data::TrackingData<>::getAncillarySettingsDoubleVector,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
                   R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
             .def( "get_ancillary_settings_double_vector",
-                  &tudat::data::TrackingData<>::getAncillarySettingsDoubleVector,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
                   R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
             .def( "set_observation_weights",
-                  ( &tudat::data::TrackingData<>::setObservationWeights ),
+                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights ),
                   py::arg( "observationWeights" ),
                   R"doc(Adds (sets) observation weights to the TrackingData object (optional).
 						It also perfroms some necessary consistency checks  (size, pre-existence) on the weights.)doc" )
             .def( "reset_single_observation_weight",
-                  ( &tudat::data::TrackingData<>::setSingleObservationWeight ),
+                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationWeight ),
                   py::arg( "index" ),
                   py::arg( "observationWeight" ),
                   R"doc(Allows resetting of a single observation weight (specified by index i)  into the TrackingData object.
 						It also perfroms some necessary consistency checks.)doc" )
             .def( "get_observation_weights",
-                  &tudat::data::TrackingData<>::getObservationWeights,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights,
                   R"doc(Returns the list (of arrays) of observation weights stored in the TrackingData object.)doc" )
             .def( "get_concatenated_observation_weights",
-                  &tudat::data::TrackingData<>::getObservationWeightsVector,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightsVector,
                   R"doc(Returns the concatenated list of observation weights stored in the TrackingData object.)doc" )
             .def( "set_observation_corrections",
-                  &tudat::data::TrackingData<>::setObservationCorrections,
+                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
                   py::arg( "observationCorrections" ),
                   R"doc(Adds corrections to the TrackingData object (optional).
 					It also perfroms some necessary consistency checks.)doc" )
             .def( "reset_single_observation_correction",
-                  ( &tudat::data::TrackingData<>::setSingleObservationCorrection ),
+                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationCorrection ),
                   py::arg( "index" ),
                   py::arg( "observationCorrection" ),
                   R"doc(Allows resetting of a single observation correction (specified by index i)  into the TrackingData object.
 						It also perfroms some necessary consistency checks.)doc" )
             .def( "remove_single_observation_entry",
-                  ( &tudat::data::TrackingData<>::removeSingleObservationEntry ),
+                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry ),
                   py::arg( "index" ),
                   R"doc(Removes a single observation entry from the TrackingData object.)doc" );
 }

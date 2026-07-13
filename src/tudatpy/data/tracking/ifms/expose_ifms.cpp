@@ -12,6 +12,7 @@
 #endif
 #include "expose_ifms.h"
 
+#include "scalarTypes.h"
 #include "tudat/io/preProcessIfmsFile.h"
 
 namespace py = pybind11;
@@ -63,7 +64,7 @@ void expose_ifms( py::module& m )
                               bool,
                               const std::vector< double >&,
                               double,
-                              double >( &tio::readIfmsFiles< double, double > ),
+                              double >( &tio::readIfmsFiles< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "ifms_file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "ground_station_names" ),
