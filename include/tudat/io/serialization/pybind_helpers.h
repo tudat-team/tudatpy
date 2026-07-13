@@ -25,19 +25,24 @@ auto make_pickle( )
 template< typename Base >
 auto make_pickle_polymorphic_base( )
 {
-    return py::pickle( []( const std::shared_ptr< Base >& obj ) { return py::bytes( serializeSharedPtrToBinaryString< Base >( obj ) ); },
-                       []( py::bytes data ) {
-                           auto ptr = deserializeSharedPtrFromBinaryString< Base >( data.cast< std::string >( ) );
-                           if( !ptr )
-                           {
-                               throw std::runtime_error(
-                                       "Polymorphic pickle deserialization returned nullptr. "
-                                       "The data may be corrupted or the type not registered." );
-                           }
-                           // pybind11 inspects the dynamic type of the shared_ptr and dispatches
-                           // to the correct Python derived class automatically
-                           return ptr;
-                       } );
+    return py::pickle(
+            []( const Base& obj ) {
+                // Non-owning shared_ptr from const_cast (similar to TUDAT_DEFINE_FILE_IO_POLYMORPHIC macros)
+                auto ptr = std::shared_ptr< Base >( const_cast< Base* >( &obj ), []( Base* ) {} );
+                return py::bytes( serializeSharedPtrToBinaryString< Base >( ptr ) );
+            },
+            []( py::bytes data ) {
+                auto ptr = deserializeSharedPtrFromBinaryString< Base >( data.cast< std::string >( ) );
+                if( !ptr )
+                {
+                    throw std::runtime_error(
+                            "Polymorphic pickle deserialization returned nullptr. "
+                            "The data may be corrupted or the type not registered." );
+                }
+                // pybind11 inspects the dynamic type of the shared_ptr and dispatches
+                // to the correct Python derived class automatically
+                return ptr;
+            } );
 }
 
 //! Polymorphic pickle for a DERIVED class — deserializes through the base pointer,
@@ -46,9 +51,10 @@ template< typename Base, typename Derived >
 auto make_pickle_polymorphic_derived( )
 {
     return py::pickle(
-            []( const std::shared_ptr< Derived >& obj ) {
-                // upcast to Base so cereal sees the polymorphic pointer
-                return py::bytes( serializeSharedPtrToBinaryString< Base >( std::static_pointer_cast< Base >( obj ) ) );
+            []( const Derived& obj ) {
+                // Non-owning shared_ptr via const_cast, upcast to Base
+                auto ptr = std::shared_ptr< Derived >( const_cast< Derived* >( &obj ), []( Derived* ) {} );
+                return py::bytes( serializeSharedPtrToBinaryString< Base >( std::static_pointer_cast< Base >( ptr ) ) );
             },
             []( py::bytes data ) {
                 // cereal reconstructs the real derived type inside the shared_ptr<Base>
