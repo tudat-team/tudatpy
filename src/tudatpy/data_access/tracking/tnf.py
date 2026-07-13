@@ -1,6 +1,6 @@
 """TNF/TRK-2-34 tracking-file loading."""
 
-from tudatpy.data.processTrk234TrackingData import (
+from tudatpy.data_access.tracking.processTrk234TrackingData import (
     OpenRampHandling,
     Trk234TrackingDataProcessor,
 )

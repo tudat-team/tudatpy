@@ -72,13 +72,27 @@ void expose_tracking( py::module& m )
                           &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
                   py::arg( "ancillary_settings_type" ),
                   py::arg( "ancillary_settings_value" ) )
+            .def( "get_ancillary_settings_string_vector",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsStringVector )
+            .def( "get_ancillary_settings_double", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDouble )
+            .def( "get_ancillary_settings_double_vector",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector )
             .def( "set_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights,
                   py::arg( "observation_weights" ) )
+            .def( "reset_single_observation_weight",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationWeight,
+                  py::arg( "index" ),
+                  py::arg( "observation_weight" ) )
             .def( "get_observation_weights", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights )
+            .def( "get_concatenated_observation_weights", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightsVector )
             .def( "set_observation_corrections",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
                   py::arg( "observation_corrections" ) )
+            .def( "reset_single_observation_correction",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationCorrection,
+                  py::arg( "index" ),
+                  py::arg( "observation_correction" ) )
             .def( "get_observation_corrections", &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationCorrections )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,

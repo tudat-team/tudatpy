@@ -12,9 +12,11 @@ from tudatpy.dynamics.environment_setup import (
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.estimation.observations import create_observation_collection
-from tudatpy.data.processTrk234TrackingData.processor import Trk234TrackingDataProcessor
-from tudatpy.data.processTrk234TrackingData import converters as cnv
-from tudatpy.data.processTrk234TrackingData import OpenRampHandling
+from tudatpy.data_access.tracking.processTrk234TrackingData.processor import (
+    Trk234TrackingDataProcessor,
+)
+from tudatpy.data_access.tracking.processTrk234TrackingData import converters as cnv
+from tudatpy.data_access.tracking.processTrk234TrackingData import OpenRampHandling
 
 
 # -----------------------------------------------------------------------------

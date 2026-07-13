@@ -219,8 +219,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
     is_satellite_flag = is_sat_par
 
     if hasattr(unpackers, "OBS_TYPES_TO_DROP"):
-        parser_drop_flags = [flag for flag in unpackers.OBS_TYPES_TO_DROP if flag != "S"]
-        is_drop_flag = df["note2"].isin(parser_drop_flags)
+        is_drop_flag = df["note2"].isin(unpackers.OBS_TYPES_TO_DROP)
     else:
         is_drop_flag = pd.Series(False, index=df.index)
 
@@ -280,6 +279,15 @@ def parse_80cols_data(lines: list[str]) -> Table:
     obs_times_utc_iso_string = [t.isoformat(sep=" ") for t in obs_times_utc_datetime]
     dt_objects = [DateTime.from_iso_string(t_iso) for t_iso in obs_times_utc_iso_string]
     float_epochs_utc = [dt.to_epoch() for dt in dt_objects]
+    time_scale_converter = time_representation.default_time_scale_converter()
+    float_epochs_tdb = [
+        time_scale_converter.convert_time(
+            input_scale=time_representation.utc_scale,
+            output_scale=time_representation.tdb_scale,
+            input_value=float_epoch_utc,
+        )
+        for float_epoch_utc in float_epochs_utc
+    ]
 
     final_df = pd.DataFrame(
         {
@@ -288,6 +296,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
             "discovery": df_obs["discovery"].eq("*"),
             "epoch": [t.to_julian_day() for t in dt_objects],
             "epoch_seconds_UTC": float_epochs_utc,
+            "epoch_seconds_TDB": float_epochs_tdb,
             "RA": ra_rad,
             "DEC": dec_rad,
             "observatory": df_obs["observatory"],

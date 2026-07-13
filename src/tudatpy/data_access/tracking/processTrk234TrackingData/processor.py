@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
@@ -7,8 +11,10 @@ from tudatpy.data_access.tracking import (
     TrackingSupplementaryData,
 )
 from tudatpy.astro import time_representation
-from tudatpy.dynamics.environment import SystemOfBodies
 from .converters.ramp import OpenRampHandling
+
+if TYPE_CHECKING:
+    from tudatpy.dynamics.environment import SystemOfBodies
 
 
 class Trk234TrackingDataProcessor:
@@ -18,8 +24,8 @@ class Trk234TrackingDataProcessor:
     For a given set of requested observables types (e.g. ['doppler', 'range']),
     this processor iterates file-by-file, uses each converter's extract method to obtain per-file
     data, merges the outputs, and then calls each converter's process method to produce
-    :class:`~tudatpy.data.TrackingData` objects. Ramp data are always extracted and merged into
-    :class:`~tudatpy.data.TrackingSupplementaryData` objects (one per ground station), holding the
+    :class:`~tudatpy.data_access.tracking.TrackingData` objects. Ramp data are always extracted and merged into
+    :class:`~tudatpy.data_access.tracking.TrackingSupplementaryData` objects (one per ground station), holding the
     stations' frequency ramps.
 
     Examples
@@ -27,7 +33,7 @@ class Trk234TrackingDataProcessor:
 
     .. code-block:: python
 
-        from tudatpy.data import Trk234TrackingDataProcessor
+        from tudatpy.data_access.tracking.processTrk234TrackingData import Trk234TrackingDataProcessor
         from tudatpy.estimation.observations import (
             create_observation_collection,
             set_tracking_supplementary_data_in_bodies,

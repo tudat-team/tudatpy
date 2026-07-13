@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "scalarTypes.h"
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/readCrdFile.h"
 #include "tudat/io/readHistoryFromFile.h"
@@ -31,12 +30,9 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/readVariousPdsFiles.h"
-#include "tudat/io/preProcessFdetsFile.h"
-#include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/io/solarActivityData.h"
+
 #include "coma_model/expose_coma_model.h"
-#include "tudat/io/trackingData.h"
-#include "tudat/io/trackingSupplementaryData.h"
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -825,28 +821,6 @@ Read a mapping from DOMES id to station name.
            ifms_contents : TrackingTxtFileContents
                Dictionary with contents of the IFMS file as lists of strings
            )doc" );
-
-    m.def( "read_ifms_files",
-           py::overload_cast< const std::vector< std::string >&,
-                              const std::string&,
-                              const std::vector< std::string >&,
-                              const std::string&,
-                              bool,
-                              bool,
-                              const std::vector< double >&,
-                              double,
-                              double >( &tio::readIfmsFiles< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "ifms_file_names" ),
-           py::arg( "spacecraft_name" ),
-           py::arg( "ground_station_names" ),
-           py::arg( "earth_name" ) = "Earth",
-           py::arg( "apply_tropospheric_correction" ) = true,
-           py::arg( "remove_invalid_lines" ) = true,
-           py::arg( "frequency_bands" ) = std::vector< double >( ),
-           py::arg( "reception_reference_frequency_band" ) = std::numeric_limits< double >::quiet_NaN( ),
-           py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ),
-           R"doc(Load IFMS files into tracking data and supplementary data objects.)doc" );
-
     m.def( "set_estrack_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
                               const std::vector< std::string >&,
@@ -911,145 +885,6 @@ Read a mapping from DOMES id to station name.
            fdets_contents : TrackingTxtFileContents
                Dictionary with contents of the Fdets file as lists of strings
            )doc" );
-
-    m.def( "read_fdets_files",
-           static_cast< std::pair< std::vector< std::shared_ptr< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >,
-                                   std::vector< std::shared_ptr< tudat::data::TrackingSupplementaryData > > > ( * )(
-                   const std::vector< std::string >&,
-                   const std::vector< double >&,
-                   const tio::FdetDateFormat,
-                   const std::string&,
-                   const std::vector< std::string >&,
-                   const std::vector< std::string >&,
-                   const std::string& ) >( &tio::readFdetsFiles< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "fdets_file_names" ),
-           py::arg( "base_frequencies" ),
-           py::arg( "date_format" ),
-           py::arg( "spacecraft_name" ),
-           py::arg( "transmitting_station_names" ),
-           py::arg( "receiving_station_names" ),
-           py::arg( "earth_name" ) = "Earth",
-           R"doc(Load FDETS files into tracking data and supplementary data objects.)doc" );
-
-    py::class_< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "TrackingData", R"doc(
- TrackingData Class container.
-    )doc" )
-            .def( py::init< const std::string,
-                            const tudat::data::PlainLinkDefinition&,
-                            const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
-                            const std::vector< TIME_TYPE >,
-                            const std::string,
-                            const std::string,
-                            const std::string >( ),
-                  py::arg( "observable_type" ),
-                  py::arg( "link_ends" ),
-                  py::arg( "observations" ),
-                  py::arg( "epochs" ),
-                  py::arg( "reference_link_end" ),
-                  py::arg( "time_scale" ) = "TDB",
-                  py::arg( "weighing_scheme" ) = "",
-                  R"doc(Creates a TrackingData object.)doc" )
-            .def_property_readonly( "observable_type", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType )
-            .def_property_readonly( "link_ends", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEnds )
-            .def_property_readonly( "observations", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations )
-            .def_property_readonly( "epochs", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationEpochs )
-            .def_property_readonly( "reference_link_end", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd )
-            .def_property_readonly( "time_scale", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeScale )
-            .def_property_readonly( "weighing_scheme", &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeighingScheme )
-            .def( "add_ancillary_settings",
-                  py::overload_cast< const std::string, const std::vector< std::string > >(
-                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
-                  py::arg( "ancillarySettingsType" ),
-                  py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object (optional).)doc" )
-            .def( "add_ancillary_settings",
-                  py::overload_cast< const std::string, const double >(
-                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
-                  py::arg( "ancillarySettingsType" ),
-                  py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object (double type), (optional).)doc" )
-            .def( "add_ancillary_settings",
-                  py::overload_cast< const std::string, const std::vector< double > >(
-                          &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addAncillarySettings ),
-                  py::arg( "ancillarySettingsType" ),
-                  py::arg( "ancillarySettingsValue" ),
-                  R"doc(Adds ancillary settings to the TrackingData object (double vector type), (optional).)doc" )
-            .def( "get_ancillary_settings_string_vector",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsStringVector,
-                  R"doc(Returns the ancillary settings in the TrackingData object as a vector of strings.)doc" )
-            .def( "get_ancillary_settings_double",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDouble,
-                  R"doc(Returns the ancillary settings in the TrackingData object as a double.)doc" )
-            .def( "get_ancillary_settings_double_vector",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
-                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
-            .def( "get_ancillary_settings_double_vector",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
-                  R"doc(Returns the ancillary settings in the TrackingData object as a double vector.)doc" )
-            .def( "set_observation_weights",
-                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights ),
-                  py::arg( "observationWeights" ),
-                  R"doc(Adds (sets) observation weights to the TrackingData object (optional).
-						It also perfroms some necessary consistency checks  (size, pre-existence) on the weights.)doc" )
-            .def( "reset_single_observation_weight",
-                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationWeight ),
-                  py::arg( "index" ),
-                  py::arg( "observationWeight" ),
-                  R"doc(Allows resetting of a single observation weight (specified by index i)  into the TrackingData object.
-						It also perfroms some necessary consistency checks.)doc" )
-            .def( "get_observation_weights",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights,
-                  R"doc(Returns the list (of arrays) of observation weights stored in the TrackingData object.)doc" )
-            .def( "get_concatenated_observation_weights",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightsVector,
-                  R"doc(Returns the concatenated list of observation weights stored in the TrackingData object.)doc" )
-            .def( "set_observation_corrections",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
-                  py::arg( "observationCorrections" ),
-                  R"doc(Adds corrections to the TrackingData object (optional).
-					It also perfroms some necessary consistency checks.)doc" )
-            .def( "reset_single_observation_correction",
-                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setSingleObservationCorrection ),
-                  py::arg( "index" ),
-                  py::arg( "observationCorrection" ),
-                  R"doc(Allows resetting of a single observation correction (specified by index i)  into the TrackingData object.
-						It also perfroms some necessary consistency checks.)doc" )
-            .def( "get_observation_corrections",
-                  &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationCorrections,
-                  R"doc(Returns the list (of arrays) of observation corrections stored in the TrackingData object.)doc" )
-            .def( "remove_single_observation_entry",
-                  ( &tudat::data::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry ),
-                  py::arg( "index" ),
-                  R"doc(Removes a single observation entry from the TrackingData object.)doc" );
-
-    py::class_< tudat::data::FrequencySupplementaryData, std::shared_ptr< tudat::data::FrequencySupplementaryData > >(
-            m, "FrequencySupplementaryData", R"doc(Base class for frequency supplementary data containers.)doc" );
-
-    py::class_< tudat::data::RampedFrequencySupplementaryData,
-                std::shared_ptr< tudat::data::RampedFrequencySupplementaryData >,
-                tudat::data::FrequencySupplementaryData >( m, "RampedFrequencySupplementaryData", R"doc(
- Container for a set of ramped (piecewise-linear) frequency intervals.
-    )doc" )
-            .def( py::init<>( ) )
-            .def( "add_frequency_ramp",
-                  &tudat::data::RampedFrequencySupplementaryData::addFrequencyRamp,
-                  py::arg( "start_time" ),
-                  py::arg( "end_time" ),
-                  py::arg( "start_frequency" ),
-                  py::arg( "frequency_rate" ),
-                  R"doc(Adds a single frequency ramp interval to the container.)doc" );
-
-    py::class_< tudat::data::TrackingSupplementaryData, std::shared_ptr< tudat::data::TrackingSupplementaryData > >(
-            m, "TrackingSupplementaryData", R"doc(Tracking supplementary data container.)doc" )
-            .def( py::init<>( ) )
-            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "reference_point_name" ) )
-            .def_property_readonly( "body_name", &tudat::data::TrackingSupplementaryData::getBodyName )
-            .def_property_readonly( "reference_point_name", &tudat::data::TrackingSupplementaryData::getReferencePointName )
-            .def( "set_frequency_supplementary_data",
-                  &tudat::data::TrackingSupplementaryData::setFrequencySupplementaryData,
-                  py::arg( "frequency_supplementary_data" ),
-                  R"doc(Sets the list of frequency supplementary data entries (e.g. ``RampedFrequencySupplementaryData``).)doc" );
 };
 
 }  // namespace data
