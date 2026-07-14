@@ -97,7 +97,7 @@ def photocenter_corrections_from_observations(
     # Corrections to RA/DEC observations
     corrections = []
 
-    for epoch, ra, dec in observations.T:
+    for epoch, ra, dec in observations:
 
         # Retrieve body, Sun and observer positions in common frame
         body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
