@@ -16,7 +16,11 @@
 #include <map>
 #include <iostream>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -290,6 +294,43 @@ private:
                 printDependentVariableDuringPropagation_ == rhs.printDependentVariableDuringPropagation_ &&
                 printProcessedStateData_ == rhs.printProcessedStateData_ && printArcIndex_ == rhs.printArcIndex_;
     }
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( printNumberOfFunctionEvaluations_ ),
+            CEREAL_NVP( printDependentVariableData_ ),
+            CEREAL_NVP( resultsPrintFrequencyInSeconds_ ),
+            CEREAL_NVP( resultsPrintFrequencyInSteps_ ),
+            CEREAL_NVP( printTerminationReason_ ),
+            CEREAL_NVP( printPropagationTime_ ),
+            CEREAL_NVP( printPropagatedStateData_ ),
+            CEREAL_NVP( printInitialAndFinalConditions_ ),
+            CEREAL_NVP( printDependentVariableDuringPropagation_ ),
+            CEREAL_NVP( printProcessedStateData_ ),
+            CEREAL_NVP( printArcIndex_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( printNumberOfFunctionEvaluations_ ),
+            CEREAL_NVP( printDependentVariableData_ ),
+            CEREAL_NVP( resultsPrintFrequencyInSeconds_ ),
+            CEREAL_NVP( resultsPrintFrequencyInSteps_ ),
+            CEREAL_NVP( printTerminationReason_ ),
+            CEREAL_NVP( printPropagationTime_ ),
+            CEREAL_NVP( printPropagatedStateData_ ),
+            CEREAL_NVP( printInitialAndFinalConditions_ ),
+            CEREAL_NVP( printDependentVariableDuringPropagation_ ),
+            CEREAL_NVP( printProcessedStateData_ ),
+            CEREAL_NVP( printArcIndex_ ) );
+    }
+
+public:
+    TUDAT_DEFINE_FILE_IO( PropagationPrintSettings )
 };
 
 }  // namespace propagators

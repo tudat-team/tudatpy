@@ -19,7 +19,15 @@
 
 #include <Eigen/Core>
 
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
+#include "tudat/io/serialization/base.h"
 
 namespace tudat
 {
@@ -113,6 +121,9 @@ public:
         return !equals( rhs );
     }
 
+    //! Save processing settings to a file
+    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( PropagatorProcessingSettings )
+
 protected:
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
@@ -127,6 +138,29 @@ protected:
                 createStateProcessors_ == rhs.createStateProcessors_ &&
                 updateDependentVariableInterpolator_ == rhs.updateDependentVariableInterpolator_ &&
                 setIntegratedVariationalResult_ == rhs.setIntegratedVariationalResult_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( clearNumericalSolutions_ ),
+            CEREAL_NVP( setIntegratedResult_ ),
+            CEREAL_NVP( createStateProcessors_ ),
+            CEREAL_NVP( updateDependentVariableInterpolator_ ),
+            CEREAL_NVP( setIntegratedVariationalResult_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( clearNumericalSolutions_ ),
+            CEREAL_NVP( setIntegratedResult_ ),
+            CEREAL_NVP( createStateProcessors_ ),
+            CEREAL_NVP( updateDependentVariableInterpolator_ ),
+            CEREAL_NVP( setIntegratedVariationalResult_ ) );
     }
 };
 
@@ -281,7 +315,7 @@ private:
 
     double resultsSaveFrequencyInSeconds_;
 
-    const std::shared_ptr< PropagationPrintSettings > printSettings_;
+    std::shared_ptr< PropagationPrintSettings > printSettings_;
 
     void setAsMultiArc( const unsigned int arcIndex, const bool printArcIndex )
     {
@@ -335,6 +369,32 @@ private:
                 resultsSaveFrequencyInSeconds_ == rhs->resultsSaveFrequencyInSeconds_ && printSettingsAreEqual &&
                 isPartOfMultiArc_ == rhs->isPartOfMultiArc_ && arcIndex_ == rhs->arcIndex_ &&
                 saveWarningPrinted_ == rhs->saveWarningPrinted_;
+    }
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( resultsSaveFrequencyInSteps_ ),
+            CEREAL_NVP( resultsSaveFrequencyInSeconds_ ),
+            CEREAL_NVP( printSettings_ ),
+            CEREAL_NVP( isPartOfMultiArc_ ),
+            CEREAL_NVP( arcIndex_ ),
+            CEREAL_NVP( saveWarningPrinted_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( resultsSaveFrequencyInSteps_ ),
+            CEREAL_NVP( resultsSaveFrequencyInSeconds_ ),
+            CEREAL_NVP( printSettings_ ),
+            CEREAL_NVP( isPartOfMultiArc_ ),
+            CEREAL_NVP( arcIndex_ ),
+            CEREAL_NVP( saveWarningPrinted_ ) );
     }
 
     friend class MultiArcPropagatorProcessingSettings;
@@ -573,6 +633,34 @@ private:
     friend class MultiArcPropagatorSettings;
 
     friend class HybridArcPropagatorProcessingSettings;
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( consistentSingleArcPrintSettings_ ),
+            CEREAL_NVP( useIdenticalSettings_ ),
+            CEREAL_NVP( printFirstArcOnly_ ),
+            CEREAL_NVP( printCurrentArcIndex_ ),
+            CEREAL_NVP( singleArcSettings_ ),
+            CEREAL_NVP( areSingleArcSettingsSet_ ),
+            CEREAL_NVP( isPartOfHybridArc_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( consistentSingleArcPrintSettings_ ),
+            CEREAL_NVP( useIdenticalSettings_ ),
+            CEREAL_NVP( printFirstArcOnly_ ),
+            CEREAL_NVP( printCurrentArcIndex_ ),
+            CEREAL_NVP( singleArcSettings_ ),
+            CEREAL_NVP( areSingleArcSettingsSet_ ),
+            CEREAL_NVP( isPartOfHybridArc_ ) );
+    }
 };
 
 class HybridArcPropagatorProcessingSettings : public PropagatorProcessingSettings
@@ -755,6 +843,30 @@ private:
         return consistentPrintSettingsAreEqual && useIdenticalSettings_ == rhs->useIdenticalSettings_ &&
                 printStateTypeStart_ == rhs->printStateTypeStart_ && singleArcSettingsAreEqual && multiArcSettingsAreEqual &&
                 areArcSettingsSet_ == rhs->areArcSettingsSet_;
+    }
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( useIdenticalSettings_ ),
+            CEREAL_NVP( printStateTypeStart_ ),
+            CEREAL_NVP( singleArcSettings_ ),
+            CEREAL_NVP( multiArcSettings_ ),
+            CEREAL_NVP( areArcSettingsSet_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
+        ar( CEREAL_NVP( useIdenticalSettings_ ),
+            CEREAL_NVP( printStateTypeStart_ ),
+            CEREAL_NVP( singleArcSettings_ ),
+            CEREAL_NVP( multiArcSettings_ ),
+            CEREAL_NVP( areArcSettingsSet_ ) );
     }
 
     template< typename StateScalarType, typename TimeType >

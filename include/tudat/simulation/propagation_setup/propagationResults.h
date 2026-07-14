@@ -593,8 +593,8 @@ private:
         ar( CEREAL_NVP( processedStateIds_ ) );
         ar( CEREAL_NVP( propagatedStateIds_ ) );
         ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
-        // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
-        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        ar( CEREAL_NVP( outputSettings_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
@@ -617,8 +617,8 @@ private:
         ar( CEREAL_NVP( processedStateIds_ ) );
         ar( CEREAL_NVP( propagatedStateIds_ ) );
         ar( CEREAL_NVP( integratedStateAndBodyList_ ) );
-        // Skip: outputSettings_ (non-serializable processing settings) @TODO: serialize this
-        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
+        ar( CEREAL_NVP( outputSettings_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
@@ -626,6 +626,8 @@ private:
         ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
         ar( CEREAL_NVP( propagationTerminationReason_ ) );
         ar( CEREAL_NVP( isPropagationOngoing_ ) );
+        // Reconstruct runtime interpolator from loaded dependent variable history
+        updateDependentVariableInterface( );
     }
 };
 
