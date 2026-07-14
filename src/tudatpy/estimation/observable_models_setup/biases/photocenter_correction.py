@@ -2,7 +2,10 @@
 Functions to calculate photocenter corrections to observations
 """
 import numpy as np
-from tudatpy.estimation.observations import ObservationCollection
+from tudatpy.estimation.observations import ObservationCollection, create_new_observation_collection
+from tudatpy.estimation.observations.observations_processing import observation_parser
+from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
+from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
 from numpy.linalg import norm
 from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections, _unit
@@ -34,73 +37,80 @@ def _photocenter_offset(diameter : float,
 
 
 def photocenter_corrections_from_observations(
-        observations: np.ndarray | ObservationCollection,
+        observations: np.ndarray ,
         diameter: float,
+        bodies: SystemOfBodies,
         body_name: str,
-        observer_name : str,
-        bodies: SystemOfBodies
+        observer_body_name: str,
+        observer_reference_name: str = None
 ) -> np.ndarray:
     """
-    Calculate corrections to observations to account for the photocenter-barycenter offset. Should always be added
-    to observations.
+    Calculate corrections to observations to account for the photocenter-barycenter offset.
+
+    Calculate corrections to observations to account for the photocenter-barycenter offset. Currently, this function
+    requires that the bodies object contains an ephemeris for the observed body ('body_name') in order to retrieve its
+    inertial position as a function of time. The corrections that are output should be added to observations.
+
+    Note that light-time offsets are small and are  neglected accordingly.
 
     Parameters
     ----------
-    observations: np.ndarray | ObservationCollection
-        Observations as [time, RA, DEC] with time in seconds since J2000, RA, DEC as radians or an ObservationCollection
+    observations: np.ndarray
+        Observations as [time, RA, DEC] with time in seconds since J2000, RA, DEC as radians
     diameter : float
         Diameter of the body in meter
-    body_name : str
-        Name of the body being observed, in the SystemOfBodies object
-    observer_name : str
-        Name of the observing body in the SystemOfBodies object
     bodies : SystemOfBodies
         The SystemOfBodies object that contains ephemerides of observer, body and sun in same reference frame
-
-
+    body_name : str
+        Name of the body being observed, in the SystemOfBodies object
+    observer_body_name : str
+        Name of the observing (base) body in the SystemOfBodies object
+    observer_reference_name : str
+        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
+            of the observer_body_name body.
     Returns
     -------
     np.ndarray
         Corrections as [RA, DEC]
     """
-    # Convert observation collection to an array
-    if isinstance(observations, ObservationCollection):
-        epochs = observations.get_concatenated_observation_times()
-        observations = observations.get_concatenated_observations()
-        ra, dec = observations[::2], observations[1::2]
-        observations = np.column_stack((epochs, ra, dec))
-
-    # Check inputs
+    # Validate inputs
     body_dne = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
-                for name in (body_name, observer_name, 'Sun')]
+                for name in (body_name, observer_body_name, 'Sun')]
     if any(body_dne):
-        raise ValueError(f'Bodies {body_name}, {observer_name}, "Sun" not found in SystemOfBodies object, or their'
+        raise ValueError(f'Bodies {body_name}, {observer_body_name}, "Sun" not found in SystemOfBodies object, or their'
                          f'associated ephemerides do not exist')
 
-    body_eph = bodies.get(body_name).ephemeris
-    sun_eph = bodies.get('Sun').ephemeris
-    observer_eph = bodies.get(observer_name).ephemeris
+    if observations.shape[1] != 3:
+        raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
 
-    frame_origins_match = (body_eph.frame_origin == sun_eph.frame_origin) and \
-                          (observer_eph.frame_origin == sun_eph.frame_origin)
-    frame_orientations_match = (body_eph.frame_orientation == sun_eph.frame_orientation) and \
-                               (observer_eph.frame_orientation == sun_eph.frame_orientation)
-    if not frame_orientations_match or not frame_origins_match:
-        raise ValueError('Observer, body and sun ephemeris must be defined in the same reference frame')
+    if diameter <= 0:
+        raise ValueError('Asteroid diameter must be a positive number')
+
+    # Create ephemeris for the reference point if it is given
+    if observer_reference_name is not None:
+        observer_ephemeris = create_ground_station_ephemeris(
+            bodies.get(observer_body_name),
+            observer_reference_name,
+            bodies
+        ) # -> In global frame origin/orientation
 
     # Corrections to RA/DEC observations
     corrections = []
 
     for epoch, ra, dec in observations.T:
 
-        # Calculate the offset as a vector in radians
-        body_wrt_ssb = body_eph.cartesian_position(epoch)
-        sun_wrt_ssb = sun_eph.cartesian_position(epoch)
-        observer_wrt_ssb = observer_eph.cartesian_position(epoch)
+        # Retrieve body, Sun and observer positions in common frame
+        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        sun_pos = bodies.get('Sun').state_in_base_frame_from_ephemeris(epoch)[:3]
+
+        if observer_reference_name is not None: # Retrieve from reference point's ephemeris
+            observer_pos = observer_ephemeris.cartesian_position(epoch)
+        else: # Retrieve from observer body ephemeris
+            observer_pos = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
         offset_vector = _photocenter_offset(diameter,
-                                            (body_wrt_ssb - observer_wrt_ssb),
-                                            (body_wrt_ssb - sun_wrt_ssb))
+                                            (body_pos - observer_pos),
+                                            (body_pos - sun_pos))
 
         # Calculate corrections to the astrometry
         corrections.append(
@@ -110,4 +120,83 @@ def photocenter_corrections_from_observations(
     corrections = np.array(corrections)
 
     return corrections
+
+def apply_photocenter_correction_to_observation_collection(
+        observation_collection: ObservationCollection,
+        diameter: float,
+        bodies: SystemOfBodies,
+        body_name: str,
+        observer_body_name: str,
+        observer_reference_name: str = None,
+        in_place: bool = False
+) -> ObservationCollection:
+    """
+    Computes the photocenter-barycenter offset with 'photocenter_corrections_from_observations' and applies the
+    corrections to an ObservationCollection.
+
+    Currently, this function requires that the bodies object contains an ephemeris for the observed body ('body_name')
+    in order to retrieve its inertial position as a function of time. .
+
+    Parameters
+    ----------
+    observation_collection : ObservationCollection
+        Uncorrected observation collection
+    diameter : float
+        Diameter of the body in meter
+    bodies : SystemOfBodies
+        The SystemOfBodies object that contains ephemerides of observer, body and sun in same reference frame
+    body_name : str
+        Name of the body being observed, in the SystemOfBodies object
+    observer_body_name : str
+        Name of the observing (base) body in the SystemOfBodies object
+    observer_reference_name : str
+        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
+            of the observer_body_name body.
+    Returns
+    -------
+    None | ObservationCollection
+        Returns None, or the new ObservationCollection depending on the argument 'in_place'
+    """
+    # Parser to obtain angular observations for specified observer
+    parsers = []
+    parsers.append(observation_parser(ObservableType.angular_position_type))
+    parsers.append(observation_parser(body_name))
+    if observer_reference_name is not None:
+        parsers.append(observation_parser(observer_reference_name, is_reference_point=True))
+    else:
+        parsers.append(observation_parser(observer_body_name))
+    parser = observation_parser(parsers, combine_conditions=True)
+
+    observations = np.reshape(
+        observation_collection.get_concatenated_observations(parser),
+        (-1, 2)
+    )
+    if len(observations) == 0:
+        raise ValueError(f'ObservationCollection does not contain angular observations with specified link-ends.')
+
+    # Compute photocenter corrections
+    corrections = photocenter_corrections_from_observations(
+        observations = observations,
+        diameter = diameter,
+        bodies = bodies,
+        body_name = body_name,
+        observer_body_name = observer_body_name,
+        observer_reference_name = observer_reference_name,
+    )
+    corrected_observations = observations + corrections
+
+    # Wrap RA
+    corrected_observations[:,0] = (corrected_observations[:,0] + np.pi) % (2 * np.pi) - np.pi
+
+    if in_place: # Apply to original observation collection
+        observation_collection.set_observations(corrected_observations.flatten(), parser)
+        return None
+
+    else: # Create new observation collection
+        new_observation_collection = create_new_observation_collection(observation_collection)
+        new_observation_collection.set_observations(corrected_observations.flatten(), parser)
+
+        return new_observation_collection
+
+
 
