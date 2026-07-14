@@ -540,25 +540,27 @@ class GaiaAstrometry:
 
 
 class GaiaAsteroids:
-
-    def __init__(self) -> None:
-        """Create an empty GaiaAsteroids object, collecting states and covariance as
-        calculated by Gaia DPAC."""
-        self._table = pd.DataFrame()
+    """
+    Class that retrieves Gaia-derived asteroid orbits and covariance data, found in the sso_source tables on the Gaia archives
+    """
+    def __init__(self,
+                 asteroid_orbits_and_covariance: pd.DataFrame):
+        """Construct a GaiaAsteroids object"""
+        self._table = asteroid_orbits_and_covariance
 
     @property
     def table(self) -> pd.DataFrame:
-        """Copy of the orbits table."""
+        """Return a copy of the asteroid data table which contains orbit and covariance data."""
         return self._table.copy()
 
     def get_state_for_mpc(self,
                           mpc_number: int) -> tuple[float, np.ndarray]:
-        """Retrieve the state vector from the table for a single MPC number.
+        """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame
 
         Parameters
         ----------
         mpc_number : int
-            Asteroid to retrieve data for.
+            MPC number of asteroid to retrieve state for
 
         Returns
         -------
@@ -567,20 +569,25 @@ class GaiaAsteroids:
         np.ndarray
             State vector (heliocentric J2000).
         """
-        filtered = self.table.query('number_mp == @mpc_number').iloc[0]
-        return filtered.epoch_state_vector, filtered.h_state_vector
+        asteroid_data = self.table.query('number_mp == @mpc_number').iloc[0]
+        return asteroid_data.epoch_state_vector, asteroid_data.h_state_vector
 
-
-    def retrieve_data(self,
-                      mpc_numbers: int | list | tuple,) -> None:
-        """Retrieve orbital solutions from astroquery. Requires an internet connection.
+    @classmethod
+    def load_from_astroquery(cls,
+                             mpc_numbers: int | Iterable,) -> "GaiaAsteroids":
+        """Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection.
 
         Parameters
         ----------
-        mpc_numbers : int | list | tuple
-            MPC numbers to retrieve orbits for.
+        mpc_numbers : int | Iterable
+            MPC numbers of asteroids to retrieve data for
+
+        Returns
+        -------
+        GaiaAsteroids
+            Instance with observations loaded from astroquery.
         """
-        if not isinstance(mpc_numbers, (list, tuple)):
+        if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
         # Set up query to DB
@@ -597,20 +604,24 @@ class GaiaAsteroids:
             raise RuntimeError('Error while querying Gaia archives') from e
 
         table = table.to_pandas()
+        if table.empty:
+            raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
+
         table = table[table['epoch_state_vector'] != 0] # Filter entries with missing data
-        table = self._to_tudat_format(table)
-        table = self._add_orbital_elements(table)
-        table = self._add_convenience_columns(table)
+        table = cls._convert_units(table)
+        table = cls._add_orbital_elements(table)
+        table = cls._add_orbit_class(table)
 
-        self._table = table
+        return cls(table)
 
-    def retrieve_data_locally(self,
-                              archive_file_path: Path | str,
-                              mpc_numbers: int | list | tuple | None = None) -> None:
+    @classmethod
+    def load_from_local_archive(cls,
+                                archive_file_path: Path | str,
+                                mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
         """Retrieve orbit data locally from a .parquet file of the Gaia archive.
 
-        Mirrors retrieve_data, but mpc_numbers can be empty, in which case all data is
-        retrieved.
+        Mirrors load_from_astroquery, but mpc_numbers can be empty, in which case the data is retrieved for all asteroids
+        in the catalog.
 
         Parameters
         ----------
@@ -620,14 +631,15 @@ class GaiaAsteroids:
             MPC numbers to retrieve orbits for. If None, select all objects in the
             catalog, by default None.
         """
-        if isinstance(mpc_numbers, int): # Convert single mpc to list
+        if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
-        table = pd.read_parquet(archive_file_path)
+        filter = [('number_mp', 'in', mpc_numbers)] if mpc_numbers is not None else None
+        table = pd.read_parquet(archive_file_path,filters=filter)
+        if table.empty:
+            raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
 
         table = table[_ASTEROID_TABLE_COLUMNS]
-        if mpc_numbers is not None: # Filter out MPC numbers
-            table = table[table['number_mp'].isin(mpc_numbers)]
         table = table[table['epoch_state_vector'] != 0] # Filter empty datasets
 
         # Read literal lists and convert to arrays
@@ -642,10 +654,11 @@ class GaiaAsteroids:
             str_to_array
         )
 
-        table = self._to_tudat_format(table)
-        table = self._add_orbital_elements(table)
-        table = self._add_convenience_columns(table)
-        self._table = table
+        table = cls._convert_units(table)
+        table = cls._add_orbital_elements(table)
+        table = cls._add_orbit_class(table)
+
+        return cls(table)
 
     @staticmethod
     def generate_parquet(archive_dir: Path | str,
@@ -679,8 +692,8 @@ class GaiaAsteroids:
         # Save into parquet
         table.to_parquet(Path(dir_to_save) / 'gaia_source_archive.parquet')
 
-    def _to_tudat_format(self,
-                         table: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _convert_units(table: pd.DataFrame) -> pd.DataFrame:
         """Convert units and format to a tudat-compatible format and apply scaling
         corrections to state vectors."""
         # Convert epoch to seconds since J2000
@@ -727,7 +740,8 @@ class GaiaAsteroids:
 
         return table
 
-    def _add_orbital_elements(self, table: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _add_orbital_elements(table: pd.DataFrame) -> pd.DataFrame:
         """Calculate and add orbital elements (heliocentric ecliptic)"""
         to_ecliptic = lambda x: np.concatenate((j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:]))
 
@@ -739,21 +753,33 @@ class GaiaAsteroids:
 
         return table
 
-
-    def _add_convenience_columns(self, table: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _add_orbit_class(table: pd.DataFrame) -> pd.DataFrame:
         """Add some columns to make accessing elements more convenient."""
         # Important orbital elements
         orbital_elements = np.vstack(table.orbital_elements)
         a, e, i, _, _, _ = orbital_elements.T
-        table['a'] = a
-        table['e'] = e
-        table['i'] = i
-        table['q'] = a * (1 -e) # Perihelion distance
-        table['Q'] = a * (1 + e) # Aphelion distance
+        q = a * (1 - e) # Perihelion
+        Q = a * (1 + e) # Aphelion
 
-        # Uncertainty in semi major axis
-        cov_stacked = np.vstack(table['orbital_elements_var_covar_matrix'])
-        table['sigma_a'] = np.sqrt(cov_stacked[0:-1:6, 0])
+        # Orbit classification (none if none match)
+        au = ASTRONOMICAL_UNIT
+        conditions = [
+            Q < 0.983 * au,  # Atira
+            (a < au) & (Q > 0.983 * au),  # Aten
+            (a > au) & (q < 1.017 * au),  # Apollo
+            (q > 1.017 * au) & (q < 1.3 * au),  # Amor
+            (q > 1.3 * au) & (q < 1.666 * au) & (a < 3.2 * au),  # MCA
+            (a < 2 * au) & (q > 1.666 * au),  # IMB
+            (a > 2 * au) & (a < 3.2 * au) & (q > 1.666 * au),  # MB
+            (a > 3.2 * au) & (a < 4.6 * au),  # OMB
+            (a > 4.6 * au) & (a < 5.5 * au) & (e < 0.3),  # Trojan
+            (a > 5.5 * au) & (a < 30.1 * au),  # Centaur
+            a > 30.1 * au,  # TNO
+        ]
+        labels = ['Atira', 'Aten', 'Apollo', 'Amor', 'MCA',
+                  'IMB', 'MB', 'OMB', 'Trojan', 'Centaur', 'TNO']
+        table['orbit_class'] = np.select(conditions, labels, default='none')
 
         return table
 
