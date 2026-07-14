@@ -103,9 +103,9 @@ def relativistic_light_deflection_from_observations(
         if observer_reference_name is not None:
             observer_pos = observer_ephemeris.cartesian_position(epoch)
         else:
-            observer_pos = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)
+            observer_pos = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
-        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)
+        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
         # One iteration of light-time calculation for light from observed body to observer
         light_time_body_to_observer = np.linalg.norm(
@@ -113,7 +113,7 @@ def relativistic_light_deflection_from_observations(
         ) / SPEED_OF_LIGHT
 
         # Observed body position at time of emission of light:
-        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch - light_time_body_to_observer)
+        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch - light_time_body_to_observer)[:3]
 
         total_offset = np.zeros(3) # Total deflection accumulated from all bodies
 
@@ -121,7 +121,7 @@ def relativistic_light_deflection_from_observations(
         for perturber_name in perturbing_bodies_list:
 
             mu_perturber = bodies.get(perturber_name).gravitational_parameter
-            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch)
+            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
             # Compute one iteration of light-time from observer to perturbing body
             light_time_perturber_to_observer = np.linalg.norm(
@@ -129,7 +129,7 @@ def relativistic_light_deflection_from_observations(
             ) / SPEED_OF_LIGHT
 
             # Perturber position at reference time
-            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch - light_time_perturber_to_observer)
+            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch - light_time_perturber_to_observer)[:3]
 
             offset_from_perturber = _calculate_light_deflection(
                 observer_pos = observer_pos,
