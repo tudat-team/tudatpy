@@ -111,6 +111,9 @@ class SingleArcDependentVariablesInterface : public DependentVariablesInterface<
 public:
     using BaseType = ::tudat::propagators::DependentVariablesInterface< TimeType >;
 
+    //! Default constructor (for serialization only)
+    SingleArcDependentVariablesInterface( ) = default;
+
     //! Constructor
     /*!
      * Constructor
@@ -325,7 +328,7 @@ private:
     std::vector< PropagationDependentVariables > dependentVariablesTypes_;
 
     //! Size of dependent variable vector
-    int dependentVariablesSize_;
+    int dependentVariablesSize_ = 0;
 
     //! Map containing the dependent variables Ids and indices
     std::map< std::string, int > dependentVariablesIdsAndIndices_;
@@ -377,6 +380,15 @@ public:
      * Constructor
      * \param dependentVariablesInterpolators Vector of interpolators returning the dependent variables values as a function of time.
      * \param dependentVariablesSettings Vector of single dependent variables settings.
+     * \param arcStartTimes Times at which the multiple arcs start
+     * \param arcEndTimes Times at which the multiple arcs end
+     */
+    //! Default constructor (for serialization only)
+    MultiArcDependentVariablesInterface( ) = default;
+
+    /*!
+     * Constructor
+     * \param singleArcInterfaces Vector of single-arc dependent variable interfaces.
      * \param arcStartTimes Times at which the multiple arcs start
      * \param arcEndTimes Times at which the multiple arcs end
      */
