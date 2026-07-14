@@ -762,7 +762,6 @@ class GaiaAsteroids:
         q = a * (1 - e) # Perihelion
         Q = a * (1 + e) # Aphelion
 
-        # Orbit classification (none if none match)
         au = ASTRONOMICAL_UNIT
         conditions = [
             Q < 0.983 * au,  # Atira
@@ -779,7 +778,7 @@ class GaiaAsteroids:
         ]
         labels = ['Atira', 'Aten', 'Apollo', 'Amor', 'MCA',
                   'IMB', 'MB', 'OMB', 'Trojan', 'Centaur', 'TNO']
-        table['orbit_class'] = np.select(conditions, labels, default='none')
+        table['orbit_class'] = np.select(conditions, labels, default='unknown')
 
         return table
 
