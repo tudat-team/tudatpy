@@ -56,6 +56,13 @@ class GaiaAstrometry:
         """Copy of the observation table."""
         return self._table.copy()
 
+    def table_for_mpc(self, mpc_number: int)-> pd.DataFrame:
+        """Return a copy of the observations and metadata filtered for one asteroid by MPC number"""
+        if mpc_number not in self.mpc_numbers:
+            raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
+
+        return self.table.query('number_mp == @mpc_number')
+
     @property
     def epoch_start(self) -> float:
         """First epoch in the observation table (any object)."""
@@ -110,6 +117,51 @@ class GaiaAstrometry:
 
         return new
 
+    def get_observation_covariance_matrix(self,
+                                          mpc_number: int) -> np.ndarray:
+        """
+        From the observation set, build the observation covariance matrix for a certain asteroid in the observations.
+
+        Parameters
+        ----------
+        mpc_number : int
+            MPC Number of asteroid to obtain covariance for
+
+        Returns
+        -------
+        np.ndarray
+            Observation covariance matrix
+        """
+        table = self.table_for_mpc(mpc_number)
+
+        to_cov = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
+        observation_covariance_matrix = []
+
+        # Transit ID must be increasing with epoch to build a matrix consistent with the observations:
+        if not table['transit_id'].is_monotonic_increasing:
+            raise RuntimeError('Error while building observation covariance matrix: possible broken observation entries')
+
+        for transit_id, transit_obs in table.groupby('transit_id', sort=False):
+
+            transit_length = len(transit_obs)
+
+            # Sigma's and correlation for current transit:
+            uncertainty_random = transit_obs[['ra_error_random', 'dec_error_random', 'ra_dec_correlation_random']]
+            uncertainty_sys = transit_obs[['ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic']]
+
+            # Random and systematic components of covariance for current transit
+            covariance_random = block_diag(to_cov(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy().T)
+            covariance_sys_sub = to_cov(*uncertainty_sys.iloc[0]) # Systematic component is constant over transit
+            covariance_sys = np.tile(covariance_sys_sub, (transit_length, transit_length))
+
+            observation_covariance_matrix.append(covariance_random + covariance_sys)
+
+        # Combine individual transits into one block diagonal matrix, with blocks being the transits.
+        observation_covariance_matrix = block_diag(*observation_covariance_matrix)
+
+        return observation_covariance_matrix
+
+
     def to_tudat(self,
                  bodies: SystemOfBodies) -> observations.ObservationCollection:
         """Collect all Gaia observations into an ObservationCollection and apply the
@@ -150,7 +202,7 @@ class GaiaAstrometry:
        #     link_definition = links.link_definition(link_ends)
 
             # Get the data for current asteroid
-            temp = self.table.query('number_mp == @mpc_number')
+            temp = self.table_for_mpc(mpc_number)
             observation_angles = temp.loc[:, ['ra', 'dec']].to_numpy()
             observation_times = temp['epoch'].to_numpy()
 
@@ -162,52 +214,8 @@ class GaiaAstrometry:
                 links.receiver
             )
 
-            # Transit IDs for current asteroid
-            assert temp['transit_id'].is_monotonic_increasing # Ensure no faulty transit_ids
-            transit_ids_unique = pd.unique(temp['transit_id'])
-
-            # Build covariance matrix
-            measurement_covariance_matrix = [] # Matrix over full observation set
-            for id in transit_ids_unique:
-
-                transit = temp[temp['transit_id'] == id] # Observations in transit
-         #       assert 2 <= len(transit) <= 9, 'Transit length off'
-
-                # Error components
-                uncertainty_random = transit[
-                    ['ra_error_random',
-                     'dec_error_random',
-                     'ra_dec_correlation_random']
-                ]
-                sigma_ra_r, sigma_dec_r, corr_r = uncertainty_random.to_numpy().T
-
-                sigma_ra_s = np.mean(transit['ra_error_systematic']) # Take means since there are small diffs due to numerical instability (?)
-                sigma_dec_s = np.mean(transit['dec_error_systematic'])
-                corr_s = np.mean(transit['ra_dec_correlation_systematic'])
-
-                # Random component for observation AF1-9
-                covariance_random = [
-                    np.array([[sigma_ra_r[ii] ** 2, corr_r[ii]*sigma_ra_r[ii]*sigma_dec_r[ii]],
-                              [corr_r[ii] * sigma_ra_r[ii] * sigma_dec_r[ii], sigma_dec_r[ii]**2]])
-                    for ii in range(len(transit))
-                ]
-                covariance_random = block_diag(*covariance_random)
-          #      assert len(covariance_random) == 2 * len(transit)
-
-                # Systematic component over transit
-                covariance_systematic_sub = np.array(
-                    [[sigma_ra_s**2, corr_s * sigma_ra_s * sigma_dec_s],
-                     [corr_s * sigma_ra_s * sigma_dec_s, sigma_dec_s ** 2]]
-                )
-                covariance_systematic = np.tile(covariance_systematic_sub, (len(transit), len(transit)))
-
-             #   assert covariance_random.size == covariance_systematic.size, 'Size mismatch'
-                measurement_covariance_matrix.append(covariance_random + covariance_systematic)
-
-            # Form full weight matrix for all observations of asteroid
-            measurement_covariance_matrix = block_diag(*measurement_covariance_matrix)
+            measurement_covariance_matrix = self.get_observation_covariance_matrix(mpc_number)
             weight_matrix = np.linalg.inv(measurement_covariance_matrix)
-            self._measurement_covariance[mpc_number] = measurement_covariance_matrix
 
             observation_set.set_full_weight_matrix(weight_matrix)
 
