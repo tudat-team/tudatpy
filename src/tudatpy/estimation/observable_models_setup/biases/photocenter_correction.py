@@ -22,8 +22,8 @@ def _photocenter_offset(diameter : float,
     # Angle spanned by observer, body and Sun:
     solar_phase_angle = np.arccos(np.dot(body_wrt_observer_unit, body_wrt_sun_unit))
 
-    offset_dir = - (body_wrt_sun_unit - np.dot(body_wrt_sun_unit, body_wrt_observer_unit)
-                    * body_wrt_observer_unit)
+    offset_dir = - _unit((body_wrt_sun_unit - np.dot(body_wrt_sun_unit, body_wrt_observer_unit)
+                    * body_wrt_observer_unit))
     # Calculate fraction of radius according to Fuentes-Munoz (2024):
     cot = lambda x: np.cos(x) / np.sin(x)
     num = 2 * (np.sin(solar_phase_angle) + (np.pi - solar_phase_angle) * np.cos(solar_phase_angle))
@@ -167,16 +167,16 @@ def apply_photocenter_correction_to_observation_collection(
         parsers.append(observation_parser(observer_body_name))
     parser = observation_parser(parsers, combine_conditions=True)
 
-    observations = np.reshape(
-        observation_collection.get_concatenated_observations(parser),
-        (-1, 2)
-    )
+    observations, times = observation_collection.get_concatenated_observations_and_times(parser)
+    observations = np.reshape(observations, (-1,2))
+    observations_array = np.column_stack((np.array(times), observations))
+
     if len(observations) == 0:
         raise ValueError(f'ObservationCollection does not contain angular observations with specified link-ends.')
 
     # Compute photocenter corrections
     corrections = photocenter_corrections_from_observations(
-        observations = observations,
+        observations = observations_array,
         diameter = diameter,
         bodies = bodies,
         body_name = body_name,
