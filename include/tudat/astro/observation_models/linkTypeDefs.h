@@ -90,21 +90,21 @@ struct LinkEndId {
 
     TUDAT_DEFINE_FILE_IO( LinkEndId )
 
-    friend bool operator<( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    bool operator<( const LinkEndId& rhs ) const
     {
-        if( linkEnd1.bodyName_ < linkEnd2.bodyName_ )
+        if( bodyName_ < rhs.bodyName_ )
         {
             return true;
         }
-        else if( linkEnd1.bodyName_ > linkEnd2.bodyName_ )
+        else if( bodyName_ > rhs.bodyName_ )
         {
             return false;
         }
-        else if( linkEnd1.stationName_ < linkEnd2.stationName_ )
+        else if( stationName_ < rhs.stationName_ )
         {
             return true;
         }
-        else if( linkEnd1.stationName_ > linkEnd2.stationName_ )
+        else if( stationName_ > rhs.stationName_ )
         {
             return false;
         }

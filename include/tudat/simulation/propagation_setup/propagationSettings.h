@@ -79,15 +79,16 @@ private:
         ar( CEREAL_NVP( customStateSize_ ) );
     }
 
+public:
     //! Equality comparison for PropagatorType
-    friend bool operator==( const PropagatorType& a, const PropagatorType& b )
+    bool operator==( const PropagatorType& rhs ) const
     {
-        return a.equals( b );
+        return equals( rhs );
     }
 
-    friend bool operator!=( const PropagatorType& a, const PropagatorType& b )
+    bool operator!=( const PropagatorType& rhs ) const
     {
-        return !( a == b );
+        return !( *this == rhs );
     }
 
     //! Equality comparison via equals method
@@ -97,6 +98,8 @@ private:
                 rotationalPropagatorType_ == rhs.rotationalPropagatorType_ && otherPropagator_ == rhs.otherPropagator_ &&
                 customStateSize_ == rhs.customStateSize_;
     }
+
+private:
 };
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
