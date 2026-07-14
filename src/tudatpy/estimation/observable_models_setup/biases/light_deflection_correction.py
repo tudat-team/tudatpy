@@ -49,7 +49,7 @@ def relativistic_light_deflection_from_observations(
         body_name: str,
         observer_body_name: str,
         observer_reference_name: str = None,
-        perturbing_bodies_list: list[str] = ('Sun',),
+        perturbing_bodies_list: list[str] = ['Sun'],
 ):
     """
     Compute corrections to observations for the relativstic deflection of light around massive bodies.
@@ -197,16 +197,16 @@ def apply_light_deflection_correction_to_observation_collection(
         parsers.append(observation_parser(observer_body_name))
     parser = observation_parser(parsers, combine_conditions=True)
 
-    observations = np.reshape(
-        observation_collection.get_concatenated_observations(parser),
-        (-1, 2)
-    )
+    observations, times = observation_collection.get_concatenated_observations_and_times(parser)
+    observations = np.reshape(observations, (-1, 2))
+    observations_array = np.column_stack((np.array(times), observations))
+
     if len(observations) == 0:
         raise ValueError(f'ObservationCollection does not contain angular observations with specified link-ends.')
 
     # Compute corrections
     corrections = relativistic_light_deflection_from_observations(
-        observations = observations,
+        observations = observations_array,
         bodies=bodies,
         body_name= body_name,
         observer_body_name= observer_body_name,
