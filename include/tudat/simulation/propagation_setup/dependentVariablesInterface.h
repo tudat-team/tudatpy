@@ -533,7 +533,7 @@ private:
     // --- Cereal serialization support ---
     friend class cereal::access;
 
-    bool equals( const BaseType& rhs ) const override
+    bool equals( const DependentVariablesInterface< TimeType >& rhs ) const override
     {
         const auto* rhsDerived = dynamic_cast< const MultiArcDependentVariablesInterface* >( &rhs );
         if( !rhsDerived ) return false;
