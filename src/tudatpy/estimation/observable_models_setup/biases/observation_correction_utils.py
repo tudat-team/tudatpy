@@ -13,7 +13,6 @@ def _offset_vector_to_corrections(offset_vec: np.ndarray,
                                        dec: float):
     """
     Calculate corrections in right ascension and declination from a plane-of-sky offset vector.
-    Note: corrections here include any factor due to angle wrapping
 
     Args:
         offset_vec (np.ndarray): Offset vector such that true dir + offset = observed dir.
@@ -32,7 +31,7 @@ def _offset_vector_to_corrections(offset_vec: np.ndarray,
     ra_true = np.arctan2(true_dir[1], true_dir[0])
     dec_true = np.arctan2(true_dir[2], np.sqrt(true_dir[0] ** 2 + true_dir[1] ** 2))
 
-    ra_corr = ra_true - ra
+    ra_corr = ((ra_true - ra) + np.pi) % (2 * np.pi) - np.pi # Wraps to correct range
     dec_corr = dec_true - dec
 
     return ra_corr, dec_corr
