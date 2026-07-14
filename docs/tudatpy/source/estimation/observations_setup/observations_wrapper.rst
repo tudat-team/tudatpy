@@ -3,7 +3,7 @@
 ``observations_wrapper``
 ========================
 
-The functionality in this module is used to either load or simulate observations, typically for later use in an orbit estimation. The functionality here is for loading/simulating data using Tudat-native functionality. We also provide functionality to load data from various sources using external packages/libraries (see the :ref:`data` module, including for TNF files from the DSN, and for astrometric data from the MPC). More information on using real data for an estimation in Tudat is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/loading-real-data.html>`_
+The functionality in this module is used to either load or simulate observations, typically for later use in an orbit estimation. The functionality here is for loading/simulating data using Tudat-native functionality. We also provide functionality to load data from various sources using external packages/libraries (see the :ref:`data_input` module, including for TNF files from the DSN, and for astrometric data from the MPC). More information on using real data for an estimation in Tudat is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/loading-real-data.html>`_
 
 This module supports the loading of the following data types:
 

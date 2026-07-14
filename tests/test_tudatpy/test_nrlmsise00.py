@@ -5,13 +5,13 @@ import numpy as np
 
 # Load Tudatpy modules
 from tudatpy.dynamics import environment_setup
-from tudatpy.data_access.paths import (
+from tudatpy.data_input.resource_paths import (
     get_space_weather_path,
     get_atmosphere_tables_path,
 )
 from tudatpy.astro.time_representation import iso_string_to_epoch
 from tudatpy.astro.element_conversion import convert_geographic_to_geodetic_latitude
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 
 
 def test_nrlmsise00():

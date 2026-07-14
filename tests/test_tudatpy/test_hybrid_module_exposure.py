@@ -52,18 +52,16 @@ def test_tudatpy_kernel_module_exposure():
             kernel_module = import_module(submodule.__name__)
             exposed_module = import_module(submodule.__name__.replace("kernel.", ""))
 
-            # Assert both modules contain the same methods
-            assert all(
-                [
-                    method in module_methods(exposed_module)
-                    for method in module_methods(kernel_module)
-                ]
-            )
+            exposed_method_names = {name for name, _ in module_methods(exposed_module)}
+            kernel_method_names = {name for name, _ in module_methods(kernel_module)}
 
-            # Assert both modules contain the same variables
-            assert all(
-                [
-                    variable in module_variables(exposed_module)
-                    for variable in module_variables(kernel_module)
-                ]
-            )
+            # Assert the public module exposes the same method names. The compatibility
+            # modules may re-export callables through a new module path, so object
+            # identity is not part of the exposure contract.
+            assert kernel_method_names <= exposed_method_names
+
+            exposed_variable_names = {name for name, _ in module_variables(exposed_module)}
+            kernel_variable_names = {name for name, _ in module_variables(kernel_module)}
+
+            # Assert both modules contain the same variable names.
+            assert kernel_variable_names <= exposed_variable_names

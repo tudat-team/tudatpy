@@ -45,7 +45,7 @@ for their purposes, due to one of two reasons:
 * The body for which the state is required *is* in the ephemeris Spice kernel, but the time at which the state is needed lies outside of the bounds for which the Spice kernel has data
 * The body for which the state is required *is not* in the ephemeris Spice kernel
 
-In both cases, a user should load additional Spice kernels. This can be done using the :func:`~tudatpy.interface.spice.load_kernel`. Spice kernels for many bodies may be found in a number of places.
+In both cases, a user should load additional Spice kernels. This can be done using the :func:`~tudatpy.data_input.environment_data.spice.load_kernel`. Spice kernels for many bodies may be found in a number of places.
 The 'goto' place for Spice kernels for ephemerides is the NAIF website (developers of Spice), which you can find
 `here <https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/>`_.
 

@@ -2,9 +2,13 @@
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
 from tudatpy.estimation.observations import create_observation_collection
-from tudatpy.data_access.tracking.mpc import BatchMPC, filter_augmented_optical_table
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.optical_utilities import (
+    create_augmented_optical_table,
+    filter_augmented_optical_table,
+)
 from tudatpy.astro import time_representation
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 
 import numpy as np
 import datetime
@@ -39,7 +43,8 @@ def _utc_seconds_to_tdb(epoch_seconds_utc):
 
 def _batch_from_augmented_table(table) -> BatchMPC:
     batch = BatchMPC()
-    batch.from_pandas(table, in_degrees=False)
+    batch._table = create_augmented_optical_table(table, in_degrees=False)
+    batch._refresh_metadata()
     return batch
 
 
@@ -83,8 +88,7 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
     if use_single_observation:
         # gets the first item and remakes the batch from this 1 item dataframe
         single_observation_table = batch.table.iloc[0:1].copy()
-        batch = BatchMPC()
-        batch.from_pandas(single_observation_table, in_degrees=False)
+        batch = _batch_from_augmented_table(single_observation_table)
 
     tracking_data, supplementary_data = batch.to_tracking_dataset(
         add_star_catalog_corrections=True,

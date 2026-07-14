@@ -1,4 +1,4 @@
-from tudatpy.data_access import paths
+from tudatpy.data_input import resource_paths
 import pytest
 import os
 import sys
@@ -9,26 +9,26 @@ def test_no_null_bytes():
     - https://github.com/tudat-team/tudatpy-feedstock/issues/1
     - https://gitter.im/conda-forge/conda-forge.github.io/archives/2019/01/22
     """
-    assert "\x00" not in paths.get_resource_path()
-    assert "\x00" not in paths.get_ephemeris_path()
-    assert "\x00" not in paths.get_earth_orientation_path()
-    assert "\x00" not in paths.get_quadrature_path()
-    assert "\x00" not in paths.get_spice_kernel_path()
-    assert "\x00" not in paths.get_atmosphere_tables_path()
-    assert "\x00" not in paths.get_gravity_models_path()
-    assert "\x00" not in paths.get_space_weather_path()
+    assert "\x00" not in resource_paths.get_resource_path()
+    assert "\x00" not in resource_paths.get_ephemeris_path()
+    assert "\x00" not in resource_paths.get_earth_orientation_path()
+    assert "\x00" not in resource_paths.get_quadrature_path()
+    assert "\x00" not in resource_paths.get_spice_kernel_path()
+    assert "\x00" not in resource_paths.get_atmosphere_tables_path()
+    assert "\x00" not in resource_paths.get_gravity_models_path()
+    assert "\x00" not in resource_paths.get_space_weather_path()
 
 
 def test_paths_exist():
     """For linux which broke from osx's null byte fix."""
-    assert os.path.exists(paths.get_resource_path())
-    assert os.path.exists(paths.get_ephemeris_path())
-    assert os.path.exists(paths.get_earth_orientation_path())
-    assert os.path.exists(paths.get_quadrature_path())
-    assert os.path.exists(paths.get_spice_kernel_path())
-    assert os.path.exists(paths.get_atmosphere_tables_path())
-    assert os.path.exists(paths.get_gravity_models_path())
-    assert os.path.exists(paths.get_space_weather_path())
+    assert os.path.exists(resource_paths.get_resource_path())
+    assert os.path.exists(resource_paths.get_ephemeris_path())
+    assert os.path.exists(resource_paths.get_earth_orientation_path())
+    assert os.path.exists(resource_paths.get_quadrature_path())
+    assert os.path.exists(resource_paths.get_spice_kernel_path())
+    assert os.path.exists(resource_paths.get_atmosphere_tables_path())
+    assert os.path.exists(resource_paths.get_gravity_models_path())
+    assert os.path.exists(resource_paths.get_space_weather_path())
 
 
 def test_resource_paths_exist():

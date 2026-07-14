@@ -2,10 +2,10 @@ import importlib
 
 import pytest
 import pandas as pd
-from tudatpy.data_access.tracking.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
 
-parsers = importlib.import_module("tudatpy.data_access.tracking.80_column.parsers")
-unpackers = importlib.import_module("tudatpy.data_access.tracking.80_column.unpackers")
+parsers = importlib.import_module("tudatpy.data_input.tracking_data.80_column.parsers")
+unpackers = importlib.import_module("tudatpy.data_input.tracking_data.80_column.unpackers")
 
 parse_80cols_data = parsers.parse_80cols_data
 parse_80cols_file = parsers.parse_80cols_file

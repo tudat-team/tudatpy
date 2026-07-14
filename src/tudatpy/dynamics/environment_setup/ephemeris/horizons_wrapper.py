@@ -1,7 +1,7 @@
 import datetime
 from typing import Union
 
-from tudatpy.data_access.environment.horizons import HorizonsBatch, HorizonsQuery
+from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
 
 
 def horizons_query_to_ephemeris_settings(

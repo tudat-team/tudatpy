@@ -1,4 +1,4 @@
-from tudatpy.data_access.environment.horizons import HorizonsBatch, HorizonsQuery
+from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
 from tudatpy.dynamics.environment_setup.ephemeris import (
     add_horizons_batch_ephemerides,
     horizons_query_to_ephemeris_settings,
@@ -7,7 +7,7 @@ from tudatpy.dynamics.environment_setup.ephemeris import (
 from tudatpy.dynamics import environment_setup
 
 
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 from contextlib import nullcontext as does_not_raise
 
 import numpy as np
