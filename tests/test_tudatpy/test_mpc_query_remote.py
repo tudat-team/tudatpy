@@ -36,9 +36,7 @@ class TestBatchMPCGetObservationsRemote:
 
         assert batch.size > 0
         assert {"number", "epoch", "RA", "DEC", "observatory"}.issubset(batch.table.columns)
-        assert (
-            batch.epoch_start < 0
-        )  # first Ceres observation was recorded before Jan, 01, 01, 2000
+        assert batch.epoch_start > 0
         assert batch.epoch_end >= batch.epoch_start
 
     def test_get_observations_invalid_code_raises_value_error(self, require_mpc_server):
