@@ -83,7 +83,7 @@ class GaiaAstrometry:
 
 
     def copy_for_mpc(self,
-                     mpc_numbers: int | list | tuple) -> "GaiaAstrometry":
+                     mpc_numbers: int | Iterable) -> "GaiaAstrometry":
         """Return a copy of the query object for a selection of asteroids.
 
         Useful to create query objects for individual asteroids without calling
@@ -99,7 +99,7 @@ class GaiaAstrometry:
         GaiaAstrometry
             Copy containing only data for the given mpc_numbers.
         """
-        if isinstance(mpc_numbers, int):
+        if isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
         if any(m not in self.mpc_numbers for m in mpc_numbers):
@@ -107,7 +107,6 @@ class GaiaAstrometry:
 
         new = self.copy()
         new._table = new._table.query('number_mp in @mpc_numbers')
-        new._measurement_covariance = {}
 
         return new
 
