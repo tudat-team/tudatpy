@@ -10,7 +10,6 @@ from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import model_settings, links
 from tudatpy.constants import ASTRONOMICAL_UNIT,JULIAN_DAY
 from tudatpy.dynamics.environment_setup import ephemeris
-from datetime import datetime
 from scipy.linalg import block_diag
 from scipy.constants import arcsec
 from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import photocenter_corrections_from_observations
@@ -24,7 +23,7 @@ from collections.abc import Iterable
 # Constants
 _J2010 = 2455197.5  # Reference time J2010.0 in Julian days
 _TIME_SCALE_CORRECTION = 1 - 1.550519768e-8 # See e.g. Klioner (2003)
-_ASTROMETRY_TABLE_COLUMNS = ['epoch', 'ra', 'dec', 'number_mp', 'transit_id', 'position_angle_scan',
+_ASTROMETRY_TABLE_COLUMNS = ['epoch', 'ra', 'dec', 'number_mp', 'transit_id', 'position_angle_scan', 'denomination',
                    'ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic',
                    'ra_error_random', 'dec_error_random', 'ra_dec_correlation_random',
                    'x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia',
@@ -38,7 +37,7 @@ _ASTEROID_TABLE_COLUMNS = [
     'h_state_vector_var_covar_matrix'
 ]
 
-_STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency
+_STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
 _ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release
 _ASTEROID_CATALOG = 'gaiafpr.sso_source'
 
@@ -51,10 +50,12 @@ class GaiaAstrometry:
         self._table = observations_and_metadata
         self._corrected = False # Flag indicating if observation corrections have been applied
 
+
     @property
     def table(self) -> pd.DataFrame:
         """Copy of the observation table."""
         return self._table.copy()
+
 
     def table_for_mpc(self, mpc_number: int)-> pd.DataFrame:
         """Return a copy of the observations and metadata filtered for one asteroid by MPC number"""
@@ -63,20 +64,12 @@ class GaiaAstrometry:
 
         return self.table.query('number_mp == @mpc_number')
 
-    @property
-    def epoch_start(self) -> float:
-        """First epoch in the observation table (any object)."""
-        return self.table['epoch'].iloc[0] # Table is ordered by epoch
-
-    @property
-    def epoch_end(self) -> float:
-        """Last epoch in the observation table (any object)."""
-        return self.table['epoch'].iloc[-1] # Table is ordered by epoch
 
     @property
     def mpc_numbers(self) -> np.ndarray:
         """Array of asteroid MPC numbers that appear in the observation table."""
         return pd.unique(self._table['number_mp'])
+
 
     def copy(self) -> "GaiaAstrometry":
         """Get a copy of the GaiaAstrometry object.
@@ -87,6 +80,7 @@ class GaiaAstrometry:
             Deep copy of the current GaiaAstrometry object.
         """
         return copy.deepcopy(self)
+
 
     def copy_for_mpc(self,
                      mpc_numbers: int | list | tuple) -> "GaiaAstrometry":
@@ -150,7 +144,7 @@ class GaiaAstrometry:
             uncertainty_sys = transit_obs[['ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic']]
 
             # Random and systematic components of covariance for current transit
-            covariance_random = block_diag(to_cov(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy().T)
+            covariance_random = block_diag(*[to_cov(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy()])
             covariance_sys_sub = to_cov(*uncertainty_sys.iloc[0]) # Systematic component is constant over transit
             covariance_sys = np.tile(covariance_sys_sub, (transit_length, transit_length))
 
@@ -468,68 +462,50 @@ class GaiaAstrometry:
 
 
     def filter(self,
-               epoch_start: float | datetime | DateTime,
-               epoch_end: float | datetime | DateTime) -> None:
+               epoch_start: float | DateTime,
+               epoch_end: float | DateTime) -> None:
         """Filter observations (in-place) by epoch.
 
         Parameters
         ----------
-        epoch_start : float | datetime | DateTime
+        epoch_start : float | DateTime
             Lower bound for epoch.
-        epoch_end : float | datetime | DateTime
+        epoch_end : float | DateTime
             Upper bound for epoch.
         """
-        # Check if observations have been loaded
-        if len(self._table) == 0:
-            raise Exception('No observations loaded')
-
-        # Convert parameters to seconds since J2000
-        if isinstance(epoch_start, datetime) and isinstance(epoch_end, datetime):
-            epoch_start = DateTime.from_python_datetime(epoch_start)
-            epoch_end = DateTime.from_python_datetime(epoch_end)
-
-        if isinstance(epoch_start, DateTime) and isinstance(epoch_end, DateTime):
-            epoch_start = epoch_start.to_epoch()
-            epoch_end = epoch_end.to_epoch()
+        if isinstance(epoch_start, DateTime):
+            epoch_start = epoch_start.epoch()
+        if isinstance(epoch_end, DateTime):
+            epoch_end = epoch_end.epoch()
 
         # Find observations in time span
-        obs_in_timespan = self._table.query('@epoch_start <= epoch <= @epoch_end')
+        epoch_filters = (self._table.epoch >= epoch_start) & (self._table.epoch <= epoch_end)
+        filtered_table = self._table[epoch_filters]
 
-        if not obs_in_timespan.empty:
-            self._table = obs_in_timespan
+        if filtered_table.empty:
+            raise RuntimeError('No observations left after filtering by epochs')
 
-        else:
-            raise Exception('No observations left after filtering')
+        self._table = filtered_table
 
 
-    def summary(self) -> None:
+    def print_summary(self) -> None:
         """Print a summary of the loaded observations."""
-        if len(self._table) == 0:
-            print('Observations not loaded')
-
-        # Check mpc numbers in table (after filtering)
-        print('Summary:')
-        print(f'Observations for {len(self.mpc_numbers)} objects:')
-
-        first_epoch = DateTime.from_epoch(self.epoch_start)
-        final_epoch = DateTime.from_epoch(self.epoch_end)
-        print(f'First observation yy/mm/dd: {first_epoch.year}, {first_epoch.month}, {first_epoch.day}')
-        print(f'Final observation yy/mm/dd: {final_epoch.year}, {final_epoch.month}, {final_epoch.day}')
+        print('GAIA OBSERVATIONS SUMMARY: \n')
+        print(f'Observations loaded for {len(self.mpc_numbers)} object(s):')
+        print('MPC | DENOMINATION | NUMBER OF OBSERVATIONS | FIRST OBSERVATION TIME | LAST OBSERVATION TIME')
 
         for mpc_number in self.mpc_numbers:
 
-            print(f'\nMinor planet {mpc_number}:')
-            table_single_obj = self.table.query('number_mp == @mpc_number')
+            table = self.table_for_mpc(mpc_number)
+            denom = table['denomination'].iloc[0]
+            number_of_obs = len(table)
+            dt_first = DateTime.from_epoch(table['epoch'].min())
+            dt_final = DateTime.from_epoch(table['epoch'].max())
+            first_epoch = f'{dt_first.year}/{dt_first.month}/{dt_first.day}'
+            last_epoch = f'{dt_final.year}/{dt_final.month}/{dt_final.day}'
 
-            nr_of_observations = len(table_single_obj)
-            print(f'Number of observations: {nr_of_observations}')
-
-            epochs_as_list = table_single_obj['epoch'].to_list()
-            first_epoch = DateTime.from_epoch(epochs_as_list[0])
-            final_epoch = DateTime.from_epoch(epochs_as_list[-1])
-
-            print(f'First observation yy/mm/dd: {first_epoch.year}, {first_epoch.month}, {first_epoch.day}')
-            print(f'Final observation yy/mm/dd: {final_epoch.year}, {final_epoch.month}, {final_epoch.day}')
+            asteroid_data = f'{mpc_number}   {denom}   {number_of_obs}   {first_epoch}   {last_epoch}\n'
+            print(asteroid_data)
 
 
     def get_gaia_ephemeris(self,
