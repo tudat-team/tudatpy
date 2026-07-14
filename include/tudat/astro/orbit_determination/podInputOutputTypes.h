@@ -1332,17 +1332,6 @@ public:
         exceptionDuringInversion_( false ), numberOfParameters_( 0 )
     {}
 
-    // Used for serialization testing
-    bool operator==( const EstimationOutput& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const EstimationOutput& rhs ) const
-    {
-        return !equals( rhs );
-    }
-
     //! Save estimation output to a binary file
     TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
 
