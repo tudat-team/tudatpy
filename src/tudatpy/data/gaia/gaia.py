@@ -13,8 +13,8 @@ from tudatpy.dynamics.environment_setup import ephemeris
 from datetime import datetime
 from scipy.linalg import block_diag
 from scipy.constants import arcsec
-from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import photocenter_offset_spherical
-from tudatpy.estimation.observable_models_setup.biases.light_deflection_correction import relativistic_light_deflection
+from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import photocenter_corrections_from_observations
+from tudatpy.estimation.observable_models_setup.biases.light_deflection_correction import relativistic_light_deflection_from_observations
 import copy
 from pathlib import Path
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000, cartesian_to_keplerian
@@ -221,57 +221,68 @@ class GaiaAstrometry:
         return observation_collection
 
     def correct_observations(self,
-                             mpc_numbers: list[int],
                              bodies: SystemOfBodies,
-                             light_deflection: tuple | list = ('Sun',),
+                             diameter: float = None,
+                             light_deflection_bodies: tuple | list = ('Sun',),
                              correct_photocenter: bool = True) -> None:
         """Apply photocenter and/or light-deflection corrections to the observations.
 
-        Corrections are made in-place, modifying the object itself. Can only be called
-        once per object.
+        Corrections are made in-place, modifying the observations themselves. Applies the corrections to all asteroid
+        data currently loaded.
 
         Parameters
         ----------
-        mpc_numbers : list[int]
-            List of asteroids to apply corrections to.
         bodies : SystemOfBodies
             Bodies object. Must have the Gaia body and its ephemeris loaded, and a
             reference ephemeris loaded for the asteroids over the complete timespan of
             observations.
-        light_deflection : tuple | list, optional
+        diameter : float, optional
+            Diameter of the asteroid. Must be provided if photocenter correction is applied.
+        light_deflection_bodies : tuple | list, optional
             Body names causing relativistic light bending, by default ('Sun',).
         correct_photocenter : bool, optional
             Whether photocenter-barycenter corrections should be applied, by default True.
         """
+        # Input validation
         if self._corrected: # Check if this function has already been used for current object
-            raise RuntimeError('Observations: corrections already applied.')
+            raise RuntimeError('correct_observations was called, but corrections were already applied on this instance')
 
-        if not isinstance(mpc_numbers, (list,tuple)):
-            mpc_numbers = [mpc_numbers]
+        if correct_photocenter and diameter is None:
+            raise ValueError('Diameter must be specified when photocenter correction is applied.')
 
-        # Apply correction to specified asteroid bodies
-        for mpc_number in mpc_numbers:
-            # Check if correction is possible for this asteroid
-            if mpc_number not in self.mpc_numbers:
-                raise ValueError(f'Correction not possible for {mpc_number}, no observations loaded')
-            if not bodies.does_body_exist(str(mpc_number)) or bodies.get(str(mpc_number)).ephemeris is None:
-                raise ValueError(f'Correction not possible for {mpc_number}. Body needs to be in SystemOfBodies'
-                                     f'with loaded ephemeris')
+        # Apply corrections to all asteroid data currently loaded
+        for mpc_number in self.mpc_numbers:
 
             mask = self.table['number_mp'] == mpc_number
-            # Apply photocenter corrections to the table
+            observations_array = self.table.loc[mask, ['epoch', 'ra', 'dec']].to_numpy()
+
+            # Photocenter
             if correct_photocenter:
-                photocenter_corrections = photocenter_offset_spherical(mpc_number, self.table, bodies)
+                photocenter_corrections = photocenter_corrections_from_observations(
+                    observations=observations_array,
+                    diameter=diameter,
+                    bodies=bodies,
+                    body_name=str(mpc_number),
+                    observer_body_name='Gaia'
+                )
                 self._table.loc[mask, ['ra', 'dec']] += photocenter_corrections
 
             # Apply light-bending corrections
-            if light_deflection:
-                if not all(bodies.does_body_exist(body) for body in light_deflection):
-                    raise ValueError('Light deflection bodies missing from bodies object')
-                light_bending_offsets = relativistic_light_deflection(mpc_number, self.table,
-                                                                      bodies, light_deflection)
-                self._table.loc[mask, ['ra', 'dec']] += light_bending_offsets
+            if light_deflection_bodies:
 
+                light_bending_corrections = relativistic_light_deflection_from_observations(
+                    observations=observations_array,
+                    bodies=bodies,
+                    body_name=str(mpc_number),
+                    observer_body_name='Gaia',
+                    perturbing_bodies_list=light_deflection_bodies,
+                )
+                self._table.loc[mask, ['ra', 'dec']] += light_bending_corrections
+
+        # Wrap RA
+        self._table['ra'] = (self._table['ra'] + np.pi) % (2 * np.pi) - np.pi
+
+        # Set correction flag
         self._corrected = True
 
     def retrieve_data(self,
