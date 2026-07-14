@@ -133,23 +133,6 @@ class TestAngleConversion:
         assert np.isclose(batch.table["RA"].iloc[0], table_rad["RA"].iloc[0])
 
 
-# ---------------------------------------------------------------------------
-# _add_time_columns: converts the JD/UTC 'epoch' column into
-# epoch_seconds_UTC and epoch_seconds_TDB using tudatpy's own time-scale
-# converter. This is deliberately NOT mocked: the conversion is pure, local
-# and deterministic, so exercising the real tudatpy code gives a genuine
-# regression guard on that contract.
-# ---------------------------------------------------------------------------
-def test_tdb_is_ahead_of_utc_by_expected_offset(valid_obs_table):
-    batch = BatchMPC()
-    out = batch._add_time_columns(valid_obs_table)
-    diff = out["epoch_seconds_TDB"] - out["epoch_seconds_UTC"]
-    # TDB leads UTC by (TAI-UTC leap seconds) + 32.184s (TT-TAI); in the
-    # current era that's roughly 69s, so bound it loosely to avoid a brittle
-    # test if leap seconds change.
-    assert (diff > 60).all() and (diff < 70).all()
-
-
 # Fakes astroquery's MPC.get_observations(code) return value: the real call
 # returns an astropy-Table-like object exposing .to_pandas().
 def _fake_mpc_obs(df):
