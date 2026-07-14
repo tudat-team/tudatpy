@@ -68,17 +68,24 @@ Eigen::VectorXd computeSingleDegreeVariableLoveNumberValue(
 
 }  // namespace
 
+//! Relative tolerance for multi-model Love-number consistency checks.
+/*!
+ *  Matches Eigen::NumTraits< double >::dummy_precision( ) (1e-12). Material mismatches such as
+ *  0.301 vs 0.295 still trigger a warning; negligible floating-point noise does not.
+ */
+constexpr double loveNumberConsistencyTolerance = 1.0E-12;
+
 //! Get value of Love number k_{n}
 Eigen::VectorXd FullDegreeTidalLoveNumber::getParameterValue( )
 {
-    Eigen::VectorXd parameter = computeFullDegreeLoveNumberMean(
-            gravityFieldVariationModels_.front( ), degree_, parameterSize_, useComplexComponents_ );
+    Eigen::VectorXd parameter =
+            computeFullDegreeLoveNumberMean( gravityFieldVariationModels_.front( ), degree_, parameterSize_, useComplexComponents_ );
 
     for( unsigned int modelIndex = 1; modelIndex < gravityFieldVariationModels_.size( ); modelIndex++ )
     {
         Eigen::VectorXd currentParameter = computeFullDegreeLoveNumberMean(
                 gravityFieldVariationModels_.at( modelIndex ), degree_, parameterSize_, useComplexComponents_ );
-        if( parameter != currentParameter )
+        if( !parameter.isApprox( currentParameter, loveNumberConsistencyTolerance ) )
         {
             std::cerr << "Warning when retrieving full-degree tidal Love number parameter from multiple models. "
                          "List entries are incompatible. First entry is: "
@@ -99,8 +106,8 @@ void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValu
     if( parameterValue.size( ) != parameterSize_ )
     {
         throw std::runtime_error( "Error when resetting full-degree tidal Love number parameter, expected size " +
-                                  std::to_string( parameterSize_ ) + ", but received size " +
-                                  std::to_string( parameterValue.size( ) ) + "." );
+                                  std::to_string( parameterSize_ ) + ", but received size " + std::to_string( parameterValue.size( ) ) +
+                                  "." );
     }
 
     for( unsigned int modelIndex = 0; modelIndex < gravityFieldVariationModels_.size( ); modelIndex++ )
@@ -111,27 +118,23 @@ void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValu
         std::vector< std::complex< double > > fullLoveNumbers;
         fullLoveNumbers.resize( degree_ + 1 );
 
-        double complexPart = 0.0;
         if( useComplexComponents_ )
         {
-            complexPart = parameterValue[ 1 ];
+            const std::complex< double > complexLoveNumber( parameterValue[ 0 ], parameterValue[ 1 ] );
+            for( int i = 0; i <= degree_; i++ )
+            {
+                fullLoveNumbers[ i ] = complexLoveNumber;
+            }
         }
         else
         {
-            std::vector< std::complex< double > > currentLoveNumbers = gravityFieldVariationModel->getLoveNumbersOfDegree( degree_ );
-            double meanComplexNumber = 0.0;
+            // Real-only estimation: update every order's real part, but keep each order's existing
+            // imaginary component independently (do not average across orders).
+            const std::vector< std::complex< double > > currentLoveNumbers = gravityFieldVariationModel->getLoveNumbersOfDegree( degree_ );
             for( int i = 0; i <= degree_; i++ )
             {
-                meanComplexNumber += currentLoveNumbers[ i ].imag( );
+                fullLoveNumbers[ i ] = std::complex< double >( parameterValue[ 0 ], currentLoveNumbers[ i ].imag( ) );
             }
-            meanComplexNumber /= ( degree_ + 1.0 );
-            complexPart = meanComplexNumber;
-        }
-
-        std::complex< double > complexLoveNumber = std::complex< double >( parameterValue[ 0 ], complexPart );
-        for( int i = 0; i <= degree_; i++ )
-        {
-            fullLoveNumbers[ i ] = complexLoveNumber;
         }
 
         gravityFieldVariationModel->resetLoveNumbersOfDegree( fullLoveNumbers, degree_ );
@@ -148,7 +151,7 @@ Eigen::VectorXd SingleDegreeVariableTidalLoveNumber::getParameterValue( )
     {
         Eigen::VectorXd currentParameter = computeSingleDegreeVariableLoveNumberValue(
                 gravityFieldVariationModels_.at( modelIndex ), degree_, orders_, parameterSize_, useComplexComponents_ );
-        if( parameter != currentParameter )
+        if( !parameter.isApprox( currentParameter, loveNumberConsistencyTolerance ) )
         {
             std::cerr << "Warning when retrieving single-degree variable tidal Love number parameter from multiple models. "
                          "List entries are incompatible. First entry is: "
@@ -169,8 +172,8 @@ void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd par
     if( parameterValue.size( ) != parameterSize_ )
     {
         throw std::runtime_error( "Error when resetting single-degree variable tidal Love number parameter, expected size " +
-                                  std::to_string( parameterSize_ ) + ", but received size " +
-                                  std::to_string( parameterValue.size( ) ) + "." );
+                                  std::to_string( parameterSize_ ) + ", but received size " + std::to_string( parameterValue.size( ) ) +
+                                  "." );
     }
 
     for( unsigned int modelIndex = 0; modelIndex < gravityFieldVariationModels_.size( ); modelIndex++ )
@@ -188,8 +191,7 @@ void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd par
             }
             else
             {
-                fullLoveNumbers[ orders_[ i ] ] =
-                        std::complex< double >( parameterValue[ i ], fullLoveNumbers[ orders_[ i ] ].imag( ) );
+                fullLoveNumbers[ orders_[ i ] ] = std::complex< double >( parameterValue[ i ], fullLoveNumbers[ orders_[ i ] ].imag( ) );
             }
         }
 
