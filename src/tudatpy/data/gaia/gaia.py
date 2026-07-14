@@ -29,7 +29,6 @@ _ASTROMETRY_TABLE_COLUMNS = ['epoch', 'ra', 'dec', 'number_mp', 'transit_id', 'p
                    'x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia',
                    'x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
                    'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']
-_ASTROMETRY_CATALOG_NAMES = {'DR2': 'gaiadr2.sso_observation', 'DR3': 'gaiadr3.sso_observation', 'FPR': 'gaiafpr.sso_observation'}
 _ASTEROID_TABLE_COLUMNS = [
     'number_mp', # MPC number
     'epoch_state_vector', # Epoch in TCB
@@ -39,9 +38,9 @@ _ASTEROID_TABLE_COLUMNS = [
 ]
 
 _STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency
-_ASTEROID_CATALOG_NAMES = {'DR2': 'gaiadr2.sso_source',
-                 'DR3': 'gaiadr3.sso_source',
-                 'FPR': 'gaiafpr.sso_source'}
+_ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release
+_ASTEROID_CATALOG = 'gaiafpr.sso_source'
+
 
 class GaiaAstrometry:
     """Handles retrieval and processing of Gaia solar-system astrometry."""
@@ -222,8 +221,8 @@ class GaiaAstrometry:
 
     def correct_observations(self,
                              bodies: SystemOfBodies,
-                             diameter: float = None,
-                             light_deflection_bodies: tuple | list = ('Sun',),
+                             diameters: dict = None,
+                             light_deflection_bodies: list = ['Sun'],
                              correct_photocenter: bool = True) -> None:
         """Apply photocenter and/or light-deflection corrections to the observations.
 
@@ -236,10 +235,10 @@ class GaiaAstrometry:
             Bodies object. Must have the Gaia body and its ephemeris loaded, and a
             reference ephemeris loaded for the asteroids over the complete timespan of
             observations.
-        diameter : float, optional
-            Diameter of the asteroid. Must be provided if photocenter correction is applied.
-        light_deflection_bodies : tuple | list, optional
-            Body names causing relativistic light bending, by default ('Sun',).
+        diameters : dict, optional
+            Diameters of the asteroids as dict with keys the MPC numbers and values the diameters in meter.
+        light_deflection_bodies : list, optional
+            Names of perturber bodies involved in light bending, by default 'Sun'.
         correct_photocenter : bool, optional
             Whether photocenter-barycenter corrections should be applied, by default True.
         """
@@ -247,8 +246,8 @@ class GaiaAstrometry:
         if self._corrected: # Check if this function has already been used for current object
             raise RuntimeError('correct_observations was called, but corrections were already applied on this instance')
 
-        if correct_photocenter and diameter is None:
-            raise ValueError('Diameter must be specified when photocenter correction is applied.')
+        if correct_photocenter and diameters is None:
+            raise ValueError('Diameters must be specified when photocenter correction is applied.')
 
         # Apply corrections to all asteroid data currently loaded
         for mpc_number in self.mpc_numbers:
@@ -260,7 +259,7 @@ class GaiaAstrometry:
             if correct_photocenter:
                 photocenter_corrections = photocenter_corrections_from_observations(
                     observations=observations_array,
-                    diameter=diameter,
+                    diameter=diameters[mpc_number],
                     bodies=bodies,
                     body_name=str(mpc_number),
                     observer_body_name='Gaia'
@@ -287,7 +286,6 @@ class GaiaAstrometry:
 
     def retrieve_data(self,
                       mpc_numbers: tuple[int] | list[int],
-                      catalog: str = 'FPR',
                       username: str | None = None,
                       password: str | None = None) -> None:
 
@@ -300,8 +298,6 @@ class GaiaAstrometry:
         ----------
         mpc_numbers : tuple[int] | list[int]
             MPC numbers of the asteroids to retrieve data for.
-        catalog : str, optional
-            Gaia DR catalog to retrieve data from. Options: DR2, DR3, FPR, by default 'FPR'.
         username : str, optional
             Username for the Gaia archives, by default None.
         password : str, optional
@@ -310,13 +306,10 @@ class GaiaAstrometry:
         if not isinstance(mpc_numbers, (list,tuple)):
             mpc_numbers = [mpc_numbers]
 
-        if catalog not in _ASTROMETRY_CATALOG_NAMES.keys():
-            raise ValueError(f'Catalog not available. Catalog options are: {", ".join(_ASTROMETRY_CATALOG_NAMES.keys())}')
 
         # Define query to database
         query_mpc_numbers = ", ".join(str(mpc_number) for mpc_number in mpc_numbers)
         query_columns = ', '.join(_ASTROMETRY_TABLE_COLUMNS)
-        query_catalog = _ASTROMETRY_CATALOG_NAMES[catalog]
 
         login_provided = username is not None and password is not None
 
@@ -326,7 +319,7 @@ class GaiaAstrometry:
         try:
             query = f"""
             SELECT {query_columns}
-            FROM {query_catalog}
+            FROM {_ASTROMETRY_CATALOG}
             WHERE number_mp IN ({query_mpc_numbers}) 
             AND astrometric_outcome_ccd = 1
             AND astrometric_outcome_transit = 1
@@ -588,27 +581,21 @@ class GaiaAsteroids:
 
 
     def retrieve_data(self,
-                      mpc_numbers: int | list | tuple,
-                      catalog: str = 'FPR') -> None:
+                      mpc_numbers: int | list | tuple,) -> None:
         """Retrieve orbital solutions from astroquery. Requires an internet connection.
 
         Parameters
         ----------
         mpc_numbers : int | list | tuple
             MPC numbers to retrieve orbits for.
-        catalog : str, optional
-            Catalog to retrieve data from. Options: DR2, DR3, FPR, by default 'FPR'.
         """
         if not isinstance(mpc_numbers, (list, tuple)):
             mpc_numbers = [mpc_numbers]
-        if catalog not in _ASTEROID_CATALOG_NAMES.keys():
-            raise ValueError(f'Catalog name invalid. Options are: {list(_ASTROMETRY_CATALOG_NAMES.keys())}')
 
         # Set up query to DB
         query_columns = ', '.join(_ASTEROID_TABLE_COLUMNS)
         query_mpc_numbers = ', '.join([str(mpc) for mpc in mpc_numbers])
-        query_catalog = _ASTEROID_CATALOG_NAMES[catalog]
-        query = f"SELECT {query_columns} FROM {query_catalog} WHERE number_mp IN ({query_mpc_numbers})"
+        query = f"SELECT {query_columns} FROM {_ASTEROID_CATALOG} WHERE number_mp IN ({query_mpc_numbers})"
 
         # Retrieve from astroquery
         try:
