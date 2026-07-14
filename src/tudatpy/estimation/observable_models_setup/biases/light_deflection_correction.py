@@ -98,7 +98,7 @@ def relativistic_light_deflection_from_observations(
     corrections = []
 
     # Loop over observations
-    for epoch, ra, dec in observations.T:
+    for epoch, ra, dec in observations:
         # Position of observer at current epoch:
         if observer_reference_name is not None:
             observer_pos = observer_ephemeris.cartesian_position(epoch)
