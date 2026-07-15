@@ -1,4 +1,5 @@
 # %%
+import numpy as np
 import pandas as pd
 import requests
 import os
@@ -11,8 +12,9 @@ from tudatpy.dynamics.environment_setup import (
 )
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
+from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import create_observation_collection
-from tudatpy.data_input.tracking_data import tnf
+from tudatpy.data_input.tracking_data import TrackingData, tnf
 
 
 # -----------------------------------------------------------------------------
@@ -343,6 +345,101 @@ def test_handle_open_ramps_close_silently_leaves_closed_untouched():
     result = tnf._RampConverter().handle_open_ramps(ramp_df, tnf.OpenRampHandling.close_silently)
     assert result["end_time"].iloc[0] == closed_end
     assert result["end_time"].iloc[1] == open_start + pd.Timedelta(seconds=1)
+
+
+# -----------------------------------------------------------------------------
+# Pipeline tests: TrackingData -> create_observation_collection
+# -----------------------------------------------------------------------------
+def _dsn_bodies():
+    """System of bodies with DSN stations and a dummy spacecraft."""
+    spice.load_standard_kernels()
+    body_settings = get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.dsn_stations()
+    body_settings.add_empty_settings("-202")
+    return create_system_of_bodies(body_settings)
+
+
+_DSN_LINK_ENDS = [
+    (("Earth", "DSS-65"), "transmitter"),
+    (("-202", ""), "reflector_1"),
+    (("Earth", "DSS-65"), "receiver"),
+]
+
+
+def test_pipeline_doppler_synthetic():
+    bodies = _dsn_bodies()
+
+    tracking_data = TrackingData(
+        "DsnNWayAveragedDoppler",
+        _DSN_LINK_ENDS,
+        np.array([[-8.4e9], [-8.4e9]]),
+        [617245672.68, 617245673.68],
+        "receiver",
+        "UTC",
+    )
+    tracking_data.add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
+    tracking_data.add_double_ancillary_setting("DSN reference frequency band at reception", 1.0)
+    tracking_data.add_double_ancillary_setting("DSN Doppler reference frequency", 0.0)
+    tracking_data.add_double_ancillary_setting("Doppler observable integration time", 1.0)
+    tracking_data.add_double_vector_ancillary_setting("link ends time delays", [0.0, 0.0, 0.0])
+
+    observation_collection = create_observation_collection([tracking_data], bodies)
+    obs_sets = observation_collection.get_single_observation_sets()
+
+    assert len(obs_sets) == 1
+    obs_set = obs_sets[0]
+    assert obs_set.observable_type == ObservableType.dsn_n_way_averaged_doppler_type
+
+    doppler_count = obs_set.ancillary_settings.get_float_settings(
+        ancillary_settings.doppler_integration_time
+    )
+    assert doppler_count == 1.0
+
+    link_def = obs_set.link_definition
+    assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
+    assert link_def.link_end_id(links.reflector1).body_name == "-202"
+    assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
+
+
+def test_pipeline_range_synthetic():
+    bodies = _dsn_bodies()
+
+    tracking_data = TrackingData(
+        "DsnNWayRange",
+        _DSN_LINK_ENDS,
+        np.array([[1000.0]]),
+        [617245672.68],
+        "receiver",
+        "UTC",
+    )
+    tracking_data.add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
+    tracking_data.add_double_ancillary_setting("DSN sequential range lowest ranging component", 7.0)
+    tracking_data.add_double_vector_ancillary_setting(
+        "link ends time delays", [4.9151e-08, 0.0, -1.837e-07]
+    )
+
+    observation_collection = create_observation_collection([tracking_data], bodies)
+    obs_sets = observation_collection.get_single_observation_sets()
+
+    assert len(obs_sets) == 1
+    obs_set = obs_sets[0]
+    assert obs_set.observable_type == ObservableType.dsn_n_way_range_type
+
+    lrc = obs_set.ancillary_settings.get_float_settings(
+        ancillary_settings.sequential_range_lowest_ranging_component
+    )
+    assert lrc == 7.0
+
+    expected_delays = [4.9151e-08, 0.0, -1.837e-07]
+    link_end_delays = obs_set.ancillary_settings.get_float_list_settings(
+        ancillary_settings.link_ends_delays
+    )
+    assert link_end_delays == pytest.approx(expected_delays)
+
+    link_def = obs_set.link_definition
+    assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
+    assert link_def.link_end_id(links.reflector1).body_name == "-202"
+    assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
 
 
 # -----------------------------------------------------------------------------
