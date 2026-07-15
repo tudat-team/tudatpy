@@ -48,7 +48,7 @@ enum ObservableType {
     azimuth_elevation_angle = 19,
     pixel_coordinates = 20,
     position_angle = 21,
-    separation = 22,
+    separation_distance = 22,
     position_angle_and_separation = 23
 };
 

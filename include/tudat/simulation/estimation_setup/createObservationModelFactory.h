@@ -1726,17 +1726,18 @@ public:
                         observationBias );
                 break;
             }
-            case separation: {
+            case separation_distance: {
                 if( linkEnds.size( ) != 3 )
                 {
-                    throw std::runtime_error( "Error when making separation model, " + std::to_string( linkEnds.size( ) ) +
+                    throw std::runtime_error( "Error when making separation distance model, " + std::to_string( linkEnds.size( ) ) +
                                               " link ends found" );
                 }
-                if( linkEnds.count( receiver ) == 0 ) throw std::runtime_error( "Error when making separation model, no receiver found" );
+                if( linkEnds.count( receiver ) == 0 )
+                    throw std::runtime_error( "Error when making separation distance model, no receiver found" );
                 if( linkEnds.count( transmitter ) == 0 )
-                    throw std::runtime_error( "Error when making separation model, no transmitter found" );
+                    throw std::runtime_error( "Error when making separation distance model, no transmitter found" );
                 if( linkEnds.count( transmitter2 ) == 0 )
-                    throw std::runtime_error( "Error when making separation model, no transmitter2 found" );
+                    throw std::runtime_error( "Error when making separation distance model, no transmitter2 found" );
 
                 std::shared_ptr< ObservationBias< 1 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -1957,15 +1958,15 @@ public:
             case position_angle_and_separation: {
                 if( linkEnds.size( ) != 3 )
                 {
-                    throw std::runtime_error( "Error when making position angle and separation model, " +
+                    throw std::runtime_error( "Error when making position angle and separation distance model, " +
                                               std::to_string( linkEnds.size( ) ) + " link ends found" );
                 }
                 if( linkEnds.count( receiver ) == 0 )
-                    throw std::runtime_error( "Error when making position angle and separation model, no receiver found" );
+                    throw std::runtime_error( "Error when making position angle and separation distance model, no receiver found" );
                 if( linkEnds.count( transmitter ) == 0 )
-                    throw std::runtime_error( "Error when making position angle and separation model, no transmitter found" );
+                    throw std::runtime_error( "Error when making position angle and separation distance model, no transmitter found" );
                 if( linkEnds.count( transmitter2 ) == 0 )
-                    throw std::runtime_error( "Error when making position angle and separation model, no transmitter2 found" );
+                    throw std::runtime_error( "Error when making position angle and separation distance model, no transmitter2 found" );
 
                 std::shared_ptr< ObservationBias< 2 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -2553,7 +2554,7 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             currentLightTimeCorrections.push_back( paModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
             break;
         }
-        case observation_models::separation: {
+        case observation_models::separation_distance: {
             std::shared_ptr< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > > sepModel =
                     std::dynamic_pointer_cast< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );

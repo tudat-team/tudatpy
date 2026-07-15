@@ -74,9 +74,9 @@ private:
     std::shared_ptr< PositionAngleAndSeparationScaling > psScaling_;
 };
 
-//! Derived class for scaling three-dimensional position partial to angular separation observable partial (size 1).
+//! Derived class for scaling three-dimensional position partial to angular separation_distance observable partial (size 1).
 /*!
- *  Delegates to an internal PositionAngleAndSeparationScaling and extracts the second row (angular separation).
+ *  Delegates to an internal PositionAngleAndSeparationScaling and extracts the second row (angular separation_distance).
  */
 class SeparationScaling : public DirectPositionPartialScaling< 1 >
 {
@@ -99,7 +99,7 @@ public:
         else if( linkEndType == observation_models::receiver )
             return -( referenceScalingFactorFirstTransmitter_ + referenceScalingFactorSecondTransmitter_ );
         else
-            throw std::runtime_error( "Error when getting separation scaling factor, incorrect link end type." );
+            throw std::runtime_error( "Error when getting separation distance scaling factor, incorrect link end type." );
     }
 
     Eigen::Matrix< double, 1, 1 > getLightTimePartialScalingFactor( )
@@ -122,7 +122,7 @@ private:
     std::shared_ptr< PositionAngleAndSeparationScaling > psScaling_;
 };
 
-//! Derived class for scaling three-dimensional position partial to position angle and separation observable partial (size 2).
+//! Derived class for scaling three-dimensional position partial to position angle and separation_distance observable partial (size 2).
 class PositionAngleAndSeparationScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
@@ -144,7 +144,8 @@ public:
         else if( linkEndType == observation_models::receiver )
             return -( referenceScalingFactorFirstTransmitter_ + referenceScalingFactorSecondTransmitter_ );
         else
-            throw std::runtime_error( "Error when getting position angle and separation scaling factor, incorrect link end type." );
+            throw std::runtime_error(
+                    "Error when getting position angle and separation distance scaling factor, incorrect link end type." );
     }
 
     Eigen::Vector2d getLightTimePartialScalingFactor( )

@@ -1220,7 +1220,7 @@ public:
     {}
 };
 
-//! Class for defining settings for angular separation observation model.
+//! Class for defining settings for angular separation distance observation model.
 class SeparationObservationModelSettings : public ObservationModelSettings
 {
 public:
@@ -1230,7 +1230,7 @@ public:
                                         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                                         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                                 std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( separation, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria )
+        ObservationModelSettings( separation_distance, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria )
     {}
 };
 

@@ -219,11 +219,12 @@ public:
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
                 break;
             case observation_models::position_angle:
-            case observation_models::separation:
+            case observation_models::separation_distance:
                 if( isPartialForConcatenatedObservable )
                 {
                     throw std::runtime_error(
-                            "Error when requesting partial creation for position angle/separation; concatenated partial not supported" );
+                            "Error when requesting partial creation for position angle/separation distance; concatenated partial not "
+                            "supported" );
                 }
                 observationPartials =
                         createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >( observationModel,
@@ -793,14 +794,14 @@ public:
                         if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial ) == nullptr )
                         {
                             throw std::runtime_error(
-                                    "Error when creating position angle and separation partial; first "
+                                    "Error when creating position angle and separation distance partial; first "
                                     "input object type is incompatible" );
                         }
                         else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial )->getObservableType( ) !=
                                  angular_position )
                         {
                             throw std::runtime_error(
-                                    "Error when creating position angle and separation partial; first "
+                                    "Error when creating position angle and separation distance partial; first "
                                     "input observable type is incompatible" );
                         }
                     }
@@ -810,14 +811,14 @@ public:
                         if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
                         {
                             throw std::runtime_error(
-                                    "Error when creating position angle and separation partial; second "
+                                    "Error when creating position angle and separation distance partial; second "
                                     "input object type is incompatible" );
                         }
                         else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) !=
                                  angular_position )
                         {
                             throw std::runtime_error(
-                                    "Error when creating position angle and separation partial; second "
+                                    "Error when creating position angle and separation distance partial; second "
                                     "input observable type is incompatible" );
                         }
                     }

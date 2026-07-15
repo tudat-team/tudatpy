@@ -34,11 +34,11 @@ inline double getSeparationScalingFactor( const observation_models::LinkEndType 
     return 1.0;
 }
 
-//! Class for simulating angular separation observables, derived from the combined PS model.
+//! Class for simulating angular separation distance observables, derived from the combined PS model.
 /*!
- *  Class for simulating angular separation observables, using the PositionAngleAndSeparationObservationModel
+ *  Class for simulating angular separation distance observables, using the PositionAngleAndSeparationObservationModel
  *  internally and extracting the angular separation component (second element).
- *  The angular separation is the great-circle angle between the two transmitters as seen from the receiver.
+ *  The angular separation distance is the great-circle angle between the two transmitters as seen from the receiver.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -84,7 +84,7 @@ public:
                                         lightTimeCalculatorSecondTransmitter,
                                 const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >(
-                separation,
+                separation_distance,
                 linkEnds,
                 observationBiasCalculator,
                 createFullLinkLightTimeCalculators( lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter ) )
@@ -97,15 +97,15 @@ public:
     //! Destructor
     ~SeparationObservationModel( ) {}
 
-    //! Function to compute ideal angular separation observation at given time, between two transmitters.
+    //! Function to compute ideal angular separation distance observation at given time, between two transmitters.
     /*!
-     *  This function computes the ideal angular separation observation by delegating to the internal
+     *  This function computes the ideal angular separation distance observation by delegating to the internal
      *  PositionAngleAndSeparationObservationModel and extracting the second element (angular separation).
      *  \param time Time at which observation is to be simulated
      *  \param linkEndAssociatedWithTime Link end at which given time is valid
      *  \param linkEndTimes List of times at each link end during observation (returned by reference).
      *  \param linkEndStates List of states at each link end during observation (returned by reference).
-     *  \return Calculated angular separation observable value.
+     *  \return Calculated angular separation distance observable value.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,

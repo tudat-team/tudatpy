@@ -81,7 +81,7 @@ Examples
             .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
             .value( "differenced_frequency_of_arrival_type", tom::ObservableType::differenced_frequency_of_arrival )
             .value( "position_angle_type", tom::ObservableType::position_angle )
-            .value( "separation_type", tom::ObservableType::separation )
+            .value( "separation_type", tom::ObservableType::separation_distance )
             .value( "position_angle_and_separation_type", tom::ObservableType::position_angle_and_separation )
             .export_values( );
 
@@ -1763,7 +1763,7 @@ Returns
 
 )doc" );
 
-    m.def( "separation",
+    m.def( "separation_distance",
            &tom::separationSettings,
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
@@ -1771,10 +1771,10 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular separation observable.
+Function for creating settings for an angular separation_distance observable.
 
-Function for creating observation model settings of angular separation type observables.
-It computes the angular separation :math:`\rho` between two transmitters as seen from a receiver.
+Function for creating observation model settings of angular separation_distance type observables.
+It computes the angular separation_distance :math:`\rho` between two transmitters as seen from a receiver.
 
 The observable :math:`h` of size 1 is computed as follows (in the unbiased case):
 
@@ -1803,7 +1803,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation_distance observable.
 
 )doc" );
 
@@ -1815,10 +1815,10 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a position angle and separation observable.
+Function for creating settings for a position angle and separation_distance observable.
 
-Function for creating observation model settings of position angle and separation type observables.
-It computes both the position angle :math:`\theta` and angular separation :math:`\rho` between two transmitters as seen from a receiver.
+Function for creating observation model settings of position angle and separation_distance type observables.
+It computes both the position angle :math:`\theta` and angular separation_distance :math:`\rho` between two transmitters as seen from a receiver.
 
 The observable :math:`\mathbf{h}` of size 2 is computed as follows (in the unbiased case):
 
@@ -1827,7 +1827,7 @@ The observable :math:`\mathbf{h}` of size 2 is computed as follows (in the unbia
     \mathbf{h} = [\theta; \rho]
 
 where :math:`\theta` is the position angle (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle`)
-and :math:`\rho` is the angular separation (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation`).
+and :math:`\rho` is the angular separation_distance (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`).
 
 Parameters
 ----------
@@ -1847,7 +1847,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position angle and separation observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position angle and separation_distance observable.
 
 )doc" );
 

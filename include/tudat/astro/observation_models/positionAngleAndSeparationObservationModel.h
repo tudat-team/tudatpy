@@ -33,9 +33,9 @@ inline double getPositionAngleAndSeparationScalingFactor( const observation_mode
     return 1.0;
 }
 
-//! Class for simulating combined position angle and angular separation observables.
+//! Class for simulating combined position angle and angular separation_distance observables.
 /*!
- *  Class for simulating combined position angle and angular separation observables, using light-time
+ *  Class for simulating combined position angle and angular separation_distance observables, using light-time
  *  (with light-time corrections) to determine the states of the link ends (two transmitters and receiver).
  *  Returns a size-2 observable: [position_angle; angular_separation].
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
@@ -93,15 +93,15 @@ public:
     //! Destructor
     ~PositionAngleAndSeparationObservationModel( ) {}
 
-    //! Function to compute ideal position angle and separation observation at given time, between two transmitters.
+    //! Function to compute ideal position angle and separation_distance observation at given time, between two transmitters.
     /*!
-     *  This function compute ideal position angle and separation observation at a given time, between two transmitters.
+     *  This function compute ideal position angle and separation_distance observation at a given time, between two transmitters.
      *  \param time Time at which observation is to be simulated
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation (returned by reference).
      *  \param linkEndStates List of states at each link end during observation (returned by reference).
-     *  \return Calculated position angle and separation observable values as [PA; sep].
+     *  \return Calculated position angle and separation_distance observable values as [PA; sep].
      */
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
@@ -114,7 +114,8 @@ public:
         if( linkEndAssociatedWithTime != receiver )
         {
             throw std::runtime_error(
-                    "Error when calculating position angle and separation observation, link end associated with time is not receiver." );
+                    "Error when calculating position angle and separation distance observation, link end associated with time is not "
+                    "receiver." );
         }
 
         // Compute light-times and receiver/transmitters states.
@@ -166,9 +167,9 @@ public:
 
         double positionAngle = std::atan2( static_cast< double >( u2.dot( ePerp ) ), static_cast< double >( u2.dot( ePara ) ) );
 
-        // Compute angular separation using numerically stable atan2 formulation:
+        // Compute angular separation_distance using numerically stable atan2 formulation:
         // θ = atan2(||u1 × u2||, u1 · u2)
-        double separation = std::atan2( static_cast< double >( u1.cross( u2 ).norm( ) ), static_cast< double >( u1.dot( u2 ) ) );
+        double separation_distance = std::atan2( static_cast< double >( u1.cross( u2 ).norm( ) ), static_cast< double >( u1.dot( u2 ) ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );
@@ -182,8 +183,8 @@ public:
         linkEndTimes.push_back( secondLinkEndTimes.at( 0 ) );
         linkEndTimes.push_back( firstLinkEndTimes.at( 1 ) );
 
-        // Return observable as [position angle; separation]
-        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << positionAngle, separation ).finished( );
+        // Return observable as [position angle; separation_distance]
+        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << positionAngle, separation_distance ).finished( );
     }
 
     //! Function to get the object to calculate light time between first transmitter and receiver.

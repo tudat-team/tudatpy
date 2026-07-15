@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
         }
     }
 
-    // Test separation partials
+    // Test separation_distance partials
     {
         std::shared_ptr< ObservationModel< 1 > > sepModel = ObservationModelCreator< 1, double, double >::createObservationModel(
                 std::make_shared< SeparationObservationModelSettings >(
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
         }
     }
 
-    // Test combined position angle and separation partials
+    // Test combined position angle and separation_distance partials
     {
         std::shared_ptr< ObservationModel< 2 > > pasModel = ObservationModelCreator< 2, double, double >::createObservationModel(
                 std::make_shared< PositionAngleAndSeparationObservationModelSettings >(

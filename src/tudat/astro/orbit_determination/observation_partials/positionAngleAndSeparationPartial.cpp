@@ -38,7 +38,7 @@ void PositionAngleScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     currentLinkEndType_ = fixedLinkEnd;
 }
 
-SeparationScaling::SeparationScaling( ): DirectPositionPartialScaling< 1 >( observation_models::separation )
+SeparationScaling::SeparationScaling( ): DirectPositionPartialScaling< 1 >( observation_models::separation_distance )
 {
     psScaling_ = std::make_shared< PositionAngleAndSeparationScaling >( );
 }

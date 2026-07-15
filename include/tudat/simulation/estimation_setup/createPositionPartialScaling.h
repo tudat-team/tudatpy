@@ -240,7 +240,7 @@ public:
             case observation_models::position_angle:
                 positionPartialScaler = std::make_shared< PositionAngleScaling >( );
                 break;
-            case observation_models::separation:
+            case observation_models::separation_distance:
                 positionPartialScaler = std::make_shared< SeparationScaling >( );
                 break;
             default:
@@ -486,24 +486,26 @@ public:
                 if( std::dynamic_pointer_cast< AngularPositionScaling >( firstPositionPartialScaling ) == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when creating position angle and separation partial scaling object, first partial is of incompatible "
+                            "Error when creating position angle and separation distance partial scaling object, first partial is of "
+                            "incompatible "
                             "type" );
                 }
                 if( std::dynamic_pointer_cast< AngularPositionScaling >( secondPositionPartialScaling ) == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when creating position angle and separation partial scaling object, second partial is of incompatible "
+                            "Error when creating position angle and separation distance partial scaling object, second partial is of "
+                            "incompatible "
                             "type" );
                 }
-                std::function< void( const observation_models::LinkEndType ) > customCheckFunction = []( const observation_models::
-                                                                                                                 LinkEndType
-                                                                                                                         fixedLinkEnd ) {
-                    if( fixedLinkEnd != observation_models::receiver )
-                    {
-                        throw std::runtime_error(
-                                "Error when updating position angle and separation scaling object, fixed link end must be receiver." );
-                    }
-                };
+                std::function< void( const observation_models::LinkEndType ) > customCheckFunction =
+                        []( const observation_models::LinkEndType fixedLinkEnd ) {
+                            if( fixedLinkEnd != observation_models::receiver )
+                            {
+                                throw std::runtime_error(
+                                        "Error when updating position angle and separation distance scaling object, fixed link end must be "
+                                        "receiver." );
+                            }
+                        };
                 positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
                         firstPositionPartialScaling,
                         secondPositionPartialScaling,

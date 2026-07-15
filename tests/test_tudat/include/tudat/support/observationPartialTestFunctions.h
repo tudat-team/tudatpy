@@ -204,7 +204,7 @@ void testObservationPartials(
             runSimulation = false;
         }
 
-        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation ||
+        if( ( observableType == observation_models::position_angle || observableType == observation_models::separation_distance ||
               observableType == observation_models::position_angle_and_separation ) &&
             ( linkEndIterator->first != receiver ) )
         {
@@ -324,9 +324,9 @@ void testObservationPartials(
                     }
 
                     // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
-                    // For direct 3-link-end partials (position_angle, separation), the number of partial entries
+                    // For direct 3-link-end partials (position_angle, separation_distance), the number of partial entries
                     // differs from the expected times count, so skip the check.
-                    if( i < 2 && observableType != position_angle && observableType != separation &&
+                    if( i < 2 && observableType != position_angle && observableType != separation_distance &&
                         observableType != position_angle_and_separation )
                     {
                         BOOST_CHECK_EQUAL( analyticalObservationPartials.at( i ).size( ), expectedPartialTimes.at( i ).size( ) );
@@ -379,7 +379,7 @@ void testObservationPartials(
                     // Test position partial
                     if( ( ( observableType != angular_position ) || ( isNormalized == true ) ) &&
                         ( observableType != relative_angular_position ) && ( observableType != position_angle ) &&
-                        ( observableType != separation ) && ( observableType != position_angle_and_separation ) )
+                        ( observableType != separation_distance ) && ( observableType != position_angle_and_separation ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
