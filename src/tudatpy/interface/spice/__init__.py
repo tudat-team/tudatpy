@@ -1,9 +1,7 @@
-import sys
+from tudatpy._deprecation import deprecation_warning
 
-print(
-    "Warning: tudatpy.interface.spice is deprecated and will be removed in a future "
-    "release. Use tudatpy.data_input.environment_data.spice instead.",
-    file=sys.stderr,
+deprecation_warning(
+    old_name="tudatpy.interface.spice", new_name="tudatpy.data_input.environment_data.spice"
 )
 
 from tudatpy.data_input.environment_data.spice import *
