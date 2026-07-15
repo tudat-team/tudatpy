@@ -13,8 +13,8 @@
 #include "expose_environment_data.h"
 
 #include "coma/expose_coma.h"
-#include "expose_ilrs.h"
-#include "expose_space_weather.h"
+#include "ilrs/expose_ilrs.h"
+#include "space_weather/expose_space_weather.h"
 #include "interface/spice/expose_spice.h"
 #include "missions/expose_missions.h"
 

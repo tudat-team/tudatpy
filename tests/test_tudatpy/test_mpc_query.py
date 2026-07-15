@@ -16,9 +16,9 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
 )
 import numpy as np
 from astropy.table import Table
+from tudatpy.data_input.tracking_data import obs_80_cols
 
-eighty_column = importlib.import_module("tudatpy.data_input.tracking_data.80_column")
-read_80_column_data = eighty_column.read_80_column_data
+read_80_column_data = obs_80_cols.read_80_column_data
 
 
 # ---------------------------------------------------------------------------

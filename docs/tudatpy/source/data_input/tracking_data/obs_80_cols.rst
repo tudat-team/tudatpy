@@ -1,9 +1,9 @@
-.. _tracking_data_80_column:
+.. _tracking_data_obs_80_cols:
 
-``80_column``
-=============
+``obs_80_cols``
+===============
 
-.. automodule:: tudatpy.data_input.tracking_data.80_column
+.. automodule:: tudatpy.data_input.tracking_data.obs_80_cols
 
 This submodule contains functionality to load tracking data from MPC 80-column
 optical astrometry files. These files use the fixed-width astrometric
@@ -15,7 +15,7 @@ and converting it to objects that Tudat can process further; see also
 reserved for better understanding what data is being loaded, and in some cases
 manipulating it, before it is processed into Tudat-compatible objects.
 
-.. currentmodule:: tudatpy.data_input.tracking_data.80_column
+.. currentmodule:: tudatpy.data_input.tracking_data.obs_80_cols
 
 .. autofunction:: read_80_column_data
 
