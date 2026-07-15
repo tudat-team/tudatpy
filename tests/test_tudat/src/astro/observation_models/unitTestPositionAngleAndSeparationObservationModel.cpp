@@ -32,6 +32,7 @@ namespace unit_tests
 
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
+using namespace tudat::mathematical_constants;
 using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
@@ -113,6 +114,44 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesPA[ i ], linkEndStatesPAS[ i ], std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesSep[ i ], linkEndStatesPAS[ i ], std::numeric_limits< double >::epsilon( ) );
     }
+
+    // ===== Cross-consistency check with RA/DEC (relative angular position) model =====
+    // Compute RA/DEC from the relative angular position model's link end states,
+    // then convert to position angle and separation using spherical trig.
+    std::shared_ptr< ObservationModelSettings > relAngPosSettings =
+            std::make_shared< ObservationModelSettings >( relative_angular_position, linkEnds, lightTimeCorrectionSettings );
+    std::shared_ptr< ObservationModel< 2 > > relAngPosModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel( relAngPosSettings, bodies );
+
+    std::vector< double > linkEndTimesRelAngPos;
+    std::vector< Eigen::Vector6d > linkEndStatesRelAngPos;
+    relAngPosModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesRelAngPos, linkEndStatesRelAngPos );
+
+    // linkEndStatesRelAngPos: [0]=Mars (transmitter), [1]=Phobos (transmitter2), [2]=Earth (receiver)
+    auto computeRaDec = []( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState ) {
+        Eigen::Vector3d posDiff = ( transmitterState - receiverState ).segment( 0, 3 );
+        double ra =
+                2.0 * std::atan( posDiff( 1 ) / ( std::sqrt( posDiff( 0 ) * posDiff( 0 ) + posDiff( 1 ) * posDiff( 1 ) ) + posDiff( 0 ) ) );
+        double dec = mathematical_constants::PI / 2.0 - std::acos( posDiff( 2 ) / posDiff.norm( ) );
+        return std::make_pair( ra, dec );
+    };
+
+    auto [ raMars, decMars ] = computeRaDec( linkEndStatesRelAngPos[ 0 ], linkEndStatesRelAngPos[ 2 ] );
+    auto [ raPhobos, decPhobos ] = computeRaDec( linkEndStatesRelAngPos[ 1 ], linkEndStatesRelAngPos[ 2 ] );
+
+    // Convert RA/DEC to position angle and separation
+    double deltaRa = raPhobos - raMars;
+    double computedSeparation =
+            std::acos( std::sin( decMars ) * std::sin( decPhobos ) + std::cos( decMars ) * std::cos( decPhobos ) * std::cos( deltaRa ) );
+    double computedPositionAngle =
+            std::atan2( std::cos( decPhobos ) * std::sin( deltaRa ),
+                        std::sin( decPhobos ) * std::cos( decMars ) - std::cos( decPhobos ) * std::sin( decMars ) * std::cos( deltaRa ) );
+
+    // Compare against dedicated models
+    BOOST_CHECK_SMALL( computedPositionAngle - positionAngleObservation( 0 ), 1.0e-11 );
+    BOOST_CHECK_SMALL( computedSeparation - separationObservation( 0 ), 1.0e-11 );
+    BOOST_CHECK_SMALL( computedPositionAngle - positionAngleAndSeparationObservation( 0 ), 1.0e-11 );
+    BOOST_CHECK_SMALL( computedSeparation - positionAngleAndSeparationObservation( 1 ), 1.0e-11 );
 
     // Test error: wrong reference link end
     BOOST_CHECK_THROW( paModel->computeObservationsWithLinkEndData( receiverObservationTime, transmitter, linkEndTimesPA, linkEndStatesPA ),
