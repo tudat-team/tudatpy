@@ -94,16 +94,18 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
     std::vector< double > linkEndTimesPA, linkEndTimesSep, linkEndTimesPAS;
     std::vector< Eigen::Vector6d > linkEndStatesPA, linkEndStatesSep, linkEndStatesPAS;
 
-    Eigen::VectorXd paObs =
+    Eigen::VectorXd positionAngleObservation =
             paModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesPA, linkEndStatesPA );
-    Eigen::VectorXd sepObs =
+    Eigen::VectorXd separationObservation =
             sepModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesSep, linkEndStatesSep );
-    Eigen::VectorXd pasObs =
+    Eigen::VectorXd positionAngleAndSeparationObservation =
             pasModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesPAS, linkEndStatesPAS );
 
     // Verify combined model matches individual models
-    BOOST_CHECK_CLOSE_FRACTION( paObs( 0 ), pasObs( 0 ), std::numeric_limits< double >::epsilon( ) * 10.0 );
-    BOOST_CHECK_CLOSE_FRACTION( sepObs( 0 ), pasObs( 1 ), std::numeric_limits< double >::epsilon( ) * 10.0 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            positionAngleObservation( 0 ), positionAngleAndSeparationObservation( 0 ), std::numeric_limits< double >::epsilon( ) * 10.0 );
+    BOOST_CHECK_CLOSE_FRACTION(
+            separationObservation( 0 ), positionAngleAndSeparationObservation( 1 ), std::numeric_limits< double >::epsilon( ) * 10.0 );
 
     // Verify link end states match
     for( int i = 0; i < 3; i++ )

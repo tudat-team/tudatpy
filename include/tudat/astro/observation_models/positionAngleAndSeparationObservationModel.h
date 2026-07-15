@@ -151,25 +151,30 @@ public:
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
         // Compute unit vectors from receiver to each transmitter
-        Eigen::Matrix< ObservationScalarType, 3, 1 > u1 = relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
-        Eigen::Matrix< ObservationScalarType, 3, 1 > u2 = relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVectorToTransmitter1 =
+                relativeStateTransmitter1 / relativeStateTransmitter1.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > unitVectorToTransmitter2 =
+                relativeStateTransmitter2 / relativeStateTransmitter2.norm( );
 
         // Compute position angle directly from unit vectors
         // Position angle is measured from north through east in the tangent plane at u1.
-        // e_perp = z_hat × u1 / ||z_hat × u1||  (east direction in tangent plane)
-        // e_para = u1 × e_perp                   (north direction in tangent plane)
-        // θ = atan2(u2 · e_perp, u2 · e_para)
-        Eigen::Matrix< ObservationScalarType, 3, 1 > zHat;
-        zHat << 0.0, 0.0, 1.0;
-        Eigen::Matrix< ObservationScalarType, 3, 1 > ePerp = zHat.cross( u1 );
-        ePerp = ePerp / ePerp.norm( );
-        Eigen::Matrix< ObservationScalarType, 3, 1 > ePara = u1.cross( ePerp );
+        // eastDirection = northPoleDirection × u1 / ||northPoleDirection × u1||  (east direction in tangent plane)
+        // northDirection = u1 × eastDirection                   (north direction in tangent plane)
+        // θ = atan2(u2 · eastDirection, u2 · northDirection)
+        Eigen::Matrix< ObservationScalarType, 3, 1 > northPoleDirection;
+        northPoleDirection << 0.0, 0.0, 1.0;
+        Eigen::Matrix< ObservationScalarType, 3, 1 > eastDirection = northPoleDirection.cross( unitVectorToTransmitter1 );
+        eastDirection = eastDirection / eastDirection.norm( );
+        Eigen::Matrix< ObservationScalarType, 3, 1 > northDirection = unitVectorToTransmitter1.cross( eastDirection );
 
-        double positionAngle = std::atan2( static_cast< double >( u2.dot( ePerp ) ), static_cast< double >( u2.dot( ePara ) ) );
+        double positionAngle = std::atan2( static_cast< double >( unitVectorToTransmitter2.dot( eastDirection ) ),
+                                           static_cast< double >( unitVectorToTransmitter2.dot( northDirection ) ) );
 
         // Compute angular separation_distance using numerically stable atan2 formulation:
         // θ = atan2(||u1 × u2||, u1 · u2)
-        double separation_distance = std::atan2( static_cast< double >( u1.cross( u2 ).norm( ) ), static_cast< double >( u1.dot( u2 ) ) );
+        double separation_distance =
+                std::atan2( static_cast< double >( unitVectorToTransmitter1.cross( unitVectorToTransmitter2 ).norm( ) ),
+                            static_cast< double >( unitVectorToTransmitter1.dot( unitVectorToTransmitter2 ) ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );
