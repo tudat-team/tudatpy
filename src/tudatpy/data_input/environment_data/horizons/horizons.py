@@ -20,7 +20,7 @@ from tudatpy import constants
 
 class HorizonsQuery:
     """This class provides an interface to JPL's Horizon System.
-    JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
+    JPL Horizons provides access to ephemerides for many solar system objects,
     including asteroids, comets, planets, moons and select spacecraft.
     The class extends astroquery's to cater to the needs of Tudat users,
     while maintaining compatibility with all of astroquery's features.
@@ -31,14 +31,14 @@ class HorizonsQuery:
 
     - List of times are given in seconds since J2000 TDB.
     - Start can be given in datetime format or seconds since J2000 TDB.
-    - Timesteps like months and years are not permitted.
 
     And some additional features:
 
     - Extended query allows data retrieval limits to be broken by
       automatically splitting up a query into multiple subqueries and
       combining the data.
-    - Ephemeris settings can automatically be generated using Vectors API.
+    - Horizons vector queries can be converted to ephemeris settings with
+      :func:`~tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons_from_query`.
 
 
     """

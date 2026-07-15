@@ -3,9 +3,11 @@
 ``coma``
 ========
 
-This modules contains functionality to load files to be used for the definition of comet coma density and wind modelling, using the
-specific implementation of TODO-AI (Reichel et al. 2026, to be submitted, other details pending, add to bib). TODO-AI: add links to specific
-environment_setup functions where these are to be used.
+This module contains functionality for loading comet-coma density and wind data
+from files. The loaded data are used to define coma atmosphere and wind model
+settings through :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_poly_data`,
+:func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_stokes_data`,
+and :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_wind_model`.
 
 .. automodule:: tudatpy.data_input.environment_data.coma
 

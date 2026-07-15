@@ -1,7 +1,7 @@
 from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
 from tudatpy.dynamics.environment_setup.ephemeris import (
     add_horizons_batch_ephemerides,
-    horizons_query_to_ephemeris_settings,
+    jpl_horizons_from_query,
     jpl_horizons,
 )
 from tudatpy.dynamics import environment_setup
@@ -241,7 +241,7 @@ def test_JPL_methods(
         )
 
         query.cartesian(frame_orientation=frame_orientation)
-        horizons_query_to_ephemeris_settings(
+        jpl_horizons_from_query(
             query,
             frame_orientation=frame_orientation,
             frame_origin=frame_origin,

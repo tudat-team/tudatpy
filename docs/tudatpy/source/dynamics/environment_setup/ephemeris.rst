@@ -38,7 +38,7 @@ overview of aspects of some of the ephemeris models in order to aid in
 properly selecting an choosing a model.
 
 **Spice-based models** For many typical applications, natural body ephemerides
-will be calculated from `Spice kernels <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html#spice-in-tudat>`_.
+will be calculated from `Spice kernels <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/default-env-models.html>`_.
 In some cases, a user may find that the default Spice kernels are insufficient
 for their purposes, due to one of two reasons:
 
@@ -118,6 +118,8 @@ Functions
 
    tabulated_from_existing
 
+   horizons_wrapper.jpl_horizons_from_query
+
    horizons_wrapper.jpl_horizons
 
    multi_arc_ephemeris
@@ -147,6 +149,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.scaled_by_vector
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.scaled_by_vector_function
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons_from_query
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.tabulated
 
@@ -214,4 +218,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings
    :members:
-

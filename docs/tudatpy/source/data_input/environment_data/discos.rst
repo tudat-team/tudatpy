@@ -3,10 +3,13 @@
 ``discos``
 ==========
 
-This module contains an interface to ESA's Discos system, to retrieve properties of RSOs that can be used to set body
-physical properties in the TODO-AI environment_setup module (add some specific examples: constant Cd-drag, constant mass)
+This module contains an interface to ESA's DISCOS system for retrieving
+properties of resident space objects. The retrieved properties can be used to
+define body properties in :ref:`environment_setup`, for instance constant
+aerodynamic coefficients through :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant`
+or mass properties through :func:`~tudatpy.dynamics.environment_setup.rigid_body.custom_mass_dependent_rigid_body_properties`.
 
-To use this interface, you must have a valid username and password to ESA's Discos system (TODO-AI: add link)
+To use this interface, you must have access to ESA's `DISCOSweb <https://discosweb.esoc.esa.int/>`_ service.
 
 .. automodule:: tudatpy.data_input.environment_data.discos
 

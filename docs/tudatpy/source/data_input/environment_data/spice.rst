@@ -4,14 +4,25 @@
 ``spice``
 =========
 
-.. automodule:: tudatpy.data_input.environment_data.spice
-
 This submodule contains Tudat's direct SPICE interface. It provides utilities
 for loading and clearing SPICE kernels, converting SPICE time representations,
 retrieving ephemeris and frame data, and querying body properties from the
-loaded kernel pool. The old :mod:`tudatpy.interface.spice` module is kept only
-as a compatibility shim; new code should import these functions from
-:mod:`tudatpy.data_input.environment_data.spice`.
+loaded kernel pool.
+
+SPICE data are used directly by several environment setup functions, including
+:func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice`,
+:func:`~tudatpy.dynamics.environment_setup.ephemeris.interpolated_spice`,
+:func:`~tudatpy.dynamics.environment_setup.ephemeris.keplerian_from_spice`,
+:func:`~tudatpy.dynamics.environment_setup.rotation_model.spice`,
+:func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice`,
+:func:`~tudatpy.dynamics.environment_setup.gravity_field.central_spice`,
+:func:`~tudatpy.dynamics.environment_setup.shape.spherical_spice`, and
+:func:`~tudatpy.dynamics.environment_setup.shape.oblate_spherical_spice`.
+SPICE kernels are also used extensively in Tudat's default body settings, as
+described in the user guide section on
+`default environment models <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/default-env-models.html>`_.
+
+.. automodule:: tudatpy.data_input.environment_data.spice
 
 .. currentmodule:: tudatpy.data_input.environment_data.spice
 
@@ -80,13 +91,20 @@ Kernel Management
    load_kernel
    clear_kernels
    get_total_count_of_kernels_loaded
-   continue_after_errors
-   suppress_error_output
 
 .. autofunction:: load_standard_kernels
 .. autofunction:: load_standard_deprecated_kernels
 .. autofunction:: load_kernel
 .. autofunction:: clear_kernels
 .. autofunction:: get_total_count_of_kernels_loaded
+
+Error Management
+----------------
+
+.. autosummary::
+
+   continue_after_errors
+   suppress_error_output
+
 .. autofunction:: continue_after_errors
 .. autofunction:: suppress_error_output

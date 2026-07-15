@@ -4,13 +4,19 @@ from typing import Union
 from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
 
 
-def horizons_query_to_ephemeris_settings(
+def jpl_horizons_from_query(
     query: HorizonsQuery,
     frame_origin: str,
     frame_orientation: str = "ECLIPJ2000",
     aberations: str = "geometric",
 ):
-    """Create tabulated ephemeris settings from a Horizons query."""
+    """Create tabulated ephemeris settings from an existing Horizons query.
+
+    This function is equivalent to :func:`jpl_horizons`, but takes an existing
+    :class:`~tudatpy.data_input.environment_data.horizons.HorizonsQuery`
+    object instead of creating the query internally. Use it when the query needs
+    to be inspected or modified before converting it to ephemeris settings.
+    """
     if frame_orientation not in ["ECLIPJ2000", "J2000"]:
         raise ValueError("refplane parameter must be one of: " + '"ECLIPJ2000", "J2000"')
 
@@ -37,7 +43,7 @@ def add_horizons_batch_ephemerides(
     names = []
 
     for query in batch._query_objects.values():
-        eph = horizons_query_to_ephemeris_settings(
+        eph = jpl_horizons_from_query(
             query,
             frame_origin=frame_origin,
             frame_orientation=frame_orientation,
@@ -77,7 +83,7 @@ def jpl_horizons(
         extended_query=extended_query,
     )
 
-    return horizons_query_to_ephemeris_settings(
+    return jpl_horizons_from_query(
         query,
         frame_origin=frame_origin,
         frame_orientation=frame_orientation,

@@ -68,7 +68,10 @@ def download_ancillary(
 ) -> dict[str, DownloadResult]:
     """Download all ancillary atmospheric and ionospheric data for a date range.
 
-    Convenience wrapper around :func:`download_ionex` and :func:`download_vmf`
+    Convenience wrapper around
+    :func:`~tudatpy.data_input.data_retrieval.media_corrections.ionex.download_ionex`
+    and
+    :func:`~tudatpy.data_input.data_retrieval.media_corrections.vmf.download_vmf`
     that downloads all requested data products into organized sub-directories.
 
     Parameters
