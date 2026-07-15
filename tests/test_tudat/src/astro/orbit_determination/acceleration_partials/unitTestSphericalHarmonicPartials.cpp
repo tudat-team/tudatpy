@@ -1336,8 +1336,7 @@ BOOST_AUTO_TEST_CASE( testMultiModelLoveNumberAccelerationPartial )
     earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
     bodies.at( "Moon" )->setState(
             tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "None", testTime ) );
-    bodies.at( "Sun" )->setState(
-            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Sun", "Earth", "ECLIPJ2000", "None", testTime ) );
+    bodies.at( "Sun" )->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Sun", "Earth", "ECLIPJ2000", "None", testTime ) );
 
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
@@ -1361,8 +1360,8 @@ BOOST_AUTO_TEST_CASE( testMultiModelLoveNumberAccelerationPartial )
     std::vector< std::string > deformingBodiesMoonSun;
     deformingBodiesMoonSun.push_back( "Moon" );
     deformingBodiesMoonSun.push_back( "Sun" );
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
-            "Earth", 2, deformingBodiesMoonSun, false ) );
+    parameterNames.push_back(
+            std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, deformingBodiesMoonSun, false ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodies );
 
@@ -1437,7 +1436,7 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyMultiModelLoveNumberAccelerationPartial )
     body1->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
     body2->setCurrentRotationToLocalFrameFromEphemeris( evaluationTime );
 
-    auto createSimpleRotationPartialMap = [ ]( const std::shared_ptr< Body >& body ) {
+    auto createSimpleRotationPartialMap = []( const std::shared_ptr< Body >& body ) {
         std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel =
                 std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( body->getRotationalEphemeris( ) );
         observation_partials::RotationMatrixPartialNamedList partials;
@@ -1457,28 +1456,24 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyMultiModelLoveNumberAccelerationPartial )
     body3LoveNumbers[ 2 ].push_back( std::complex< double >( 0.11, 0.0 ) );
     body3LoveNumbers[ 2 ].push_back( std::complex< double >( 0.07, 0.0 ) );
 
-    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body2Tide =
-            std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-                    [ & ]( const double ) { return body1->getState( ); },
-                    [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
-                    std::vector< std::function< Eigen::Vector6d( const double ) > >{
-                            [ & ]( const double ) { return body2->getState( ); } },
-                    equatorialRadiusOfBody1,
-                    [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
-                    std::vector< std::function< double( ) > >{ [ & ]( ) { return body2GravityField->getGravitationalParameter( ); } },
-                    body2LoveNumbers,
-                    std::vector< std::string >{ "Body2" } );
-    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body3Tide =
-            std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-                    [ & ]( const double ) { return body1->getState( ); },
-                    [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
-                    std::vector< std::function< Eigen::Vector6d( const double ) > >{
-                            [ & ]( const double ) { return body3->getState( ); } },
-                    equatorialRadiusOfBody1,
-                    [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
-                    std::vector< std::function< double( ) > >{ [ & ]( ) { return body3GravityField->getGravitationalParameter( ); } },
-                    body3LoveNumbers,
-                    std::vector< std::string >{ "Body3" } );
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body2Tide = std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+            [ & ]( const double ) { return body1->getState( ); },
+            [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
+            std::vector< std::function< Eigen::Vector6d( const double ) > >{ [ & ]( const double ) { return body2->getState( ); } },
+            equatorialRadiusOfBody1,
+            [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
+            std::vector< std::function< double( ) > >{ [ & ]( ) { return body2GravityField->getGravitationalParameter( ); } },
+            body2LoveNumbers,
+            std::vector< std::string >{ "Body2" } );
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > body3Tide = std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+            [ & ]( const double ) { return body1->getState( ); },
+            [ & ]( const double ) { return body1->getCurrentRotationToLocalFrame( ); },
+            std::vector< std::function< Eigen::Vector6d( const double ) > >{ [ & ]( const double ) { return body3->getState( ); } },
+            equatorialRadiusOfBody1,
+            [ & ]( ) { return body1GravityField->getGravitationalParameter( ); },
+            std::vector< std::function< double( ) > >{ [ & ]( ) { return body3GravityField->getGravitationalParameter( ); } },
+            body3LoveNumbers,
+            std::vector< std::string >{ "Body3" } );
 
     std::vector< std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > > tideModels;
     tideModels.push_back( body2Tide );
@@ -1541,16 +1536,16 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyMultiModelLoveNumberAccelerationPartial )
     updateLoveNumberEnvironment( );
     evaluateLoveNumberAcceleration( );
     const Eigen::MatrixXd analyticalLoveNumberPartial = loveNumberAccelerationPartial->wrtParameter( multiModelLoveNumber );
-    const Eigen::MatrixXd numericalLoveNumberPartial = calculateAccelerationWrtParameterPartials(
-            multiModelLoveNumber,
-            accelerationModel,
-            Eigen::VectorXd::Constant( multiModelLoveNumber->getParameterSize( ), 1.0 ),
-            updateLoveNumberEnvironment,
-            evaluationTime,
-            [ & ]( const double currentTime ) {
-                body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-                body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
-            } );
+    const Eigen::MatrixXd numericalLoveNumberPartial =
+            calculateAccelerationWrtParameterPartials( multiModelLoveNumber,
+                                                       accelerationModel,
+                                                       Eigen::VectorXd::Constant( multiModelLoveNumber->getParameterSize( ), 1.0 ),
+                                                       updateLoveNumberEnvironment,
+                                                       evaluationTime,
+                                                       [ & ]( const double currentTime ) {
+                                                           body1->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                                           body2->setCurrentRotationToLocalFrameFromEphemeris( currentTime );
+                                                       } );
     updateLoveNumberEnvironment( );
     evaluateLoveNumberAcceleration( );
 
@@ -1709,8 +1704,8 @@ BOOST_AUTO_TEST_CASE( testDegreeSeparatedMoonLoveNumberAccelerationPartials )
         asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
         asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-        vehicle->setState( orbital_element_conversions::convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, gravitationalParameter ) );
+        vehicle->setState( orbital_element_conversions::convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements,
+                                                                                             gravitationalParameter ) );
 
         std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
                 std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
@@ -1721,10 +1716,8 @@ BOOST_AUTO_TEST_CASE( testDegreeSeparatedMoonLoveNumberAccelerationPartials )
         gravitationalAcceleration->getAcceleration( );
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back(
-                std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", false ) );
-        parameterNames.push_back(
-                std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Moon", false ) );
+        parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", false ) );
+        parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Moon", false ) );
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                 createParametersToEstimate( parameterNames, bodies );
 
@@ -1741,19 +1734,18 @@ BOOST_AUTO_TEST_CASE( testDegreeSeparatedMoonLoveNumberAccelerationPartials )
         std::function< void( ) > sphericalHarmonicFieldUpdate =
                 std::bind( &tudat::gravitation::TimeDependentSphericalHarmonicsGravityField::update, earthGravityField, testTime );
 
-        BOOST_REQUIRE_EQUAL( parameterSet->getVectorParameters( ).size( ), 2 );
-        for( auto parameterIterator = parameterSet->getVectorParameters( ).begin( );
-             parameterIterator != parameterSet->getVectorParameters( ).end( );
-             parameterIterator++ )
+        const auto vectorParameters = parameterSet->getVectorParameters( );
+        BOOST_REQUIRE_EQUAL( vectorParameters.size( ), 2 );
+        for( auto parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > loveNumberParameter =
                     parameterIterator->second;
             Eigen::MatrixXd analyticalPartial = accelerationPartial->wrtParameter( loveNumberParameter );
-            Eigen::MatrixXd numericalPartial = calculateAccelerationWrtParameterPartials(
-                    loveNumberParameter,
-                    gravitationalAcceleration,
-                    Eigen::VectorXd::Constant( loveNumberParameter->getParameterSize( ), 1.0 ),
-                    sphericalHarmonicFieldUpdate );
+            Eigen::MatrixXd numericalPartial =
+                    calculateAccelerationWrtParameterPartials( loveNumberParameter,
+                                                               gravitationalAcceleration,
+                                                               Eigen::VectorXd::Constant( loveNumberParameter->getParameterSize( ), 1.0 ),
+                                                               sphericalHarmonicFieldUpdate );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalPartial, numericalPartial, 1.0E-5 );
             BOOST_CHECK( analyticalPartial.norm( ) > 0.0 );
@@ -1771,4 +1763,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }  // namespace unit_tests
 
 }  // namespace tudat
-

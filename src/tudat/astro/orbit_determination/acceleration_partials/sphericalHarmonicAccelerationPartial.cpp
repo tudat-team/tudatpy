@@ -141,11 +141,10 @@ SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration
                     std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > currentInterface =
                             tidalLoveNumberPartialInterfaces_.at( i );
                     std::pair< int, int > currentDegreeAndOrder = currentTidalPartialOutput.second;
-                    coefficientPartialFunctions.push_back(
-                            [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
-                                return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
-                                        currentInterface->getCurrentDoubleParameterPartial( parameter, currentDegreeAndOrder ) );
-                            } );
+                    coefficientPartialFunctions.push_back( [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
+                        return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
+                                currentInterface->getCurrentDoubleParameterPartial( parameter, currentDegreeAndOrder ) );
+                    } );
                 }
             }
 
@@ -282,11 +281,10 @@ SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration
                         std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > currentInterface =
                                 tidalLoveNumberPartialInterfaces_.at( i );
                         std::pair< int, int > currentDegreeAndOrder = currentTidalPartialOutput.second;
-                        coefficientPartialFunctions.push_back(
-                                [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
-                                    return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
-                                            currentInterface->getCurrentVectorParameterPartial( parameter, currentDegreeAndOrder ) );
-                                } );
+                        coefficientPartialFunctions.push_back( [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
+                            return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
+                                    currentInterface->getCurrentVectorParameterPartial( parameter, currentDegreeAndOrder ) );
+                        } );
                     }
                 }
 

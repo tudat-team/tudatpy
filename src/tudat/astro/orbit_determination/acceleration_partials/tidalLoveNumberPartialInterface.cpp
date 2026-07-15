@@ -195,8 +195,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         if( coefficientsParameter->useComplexComponents( ) )
                         {
                             // Calculate partials for complex love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
-                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                            parameterVectorPartialFunctions_[ std::make_pair( parameter,
+                                                                              std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     std::bind( &TidalLoveNumberPartialInterface::
                                                        calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber,
                                                this,
@@ -208,8 +208,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         else
                         {
                             // Calculate partial for real love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
-                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                            parameterVectorPartialFunctions_[ std::make_pair( parameter,
+                                                                              std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     std::bind( &TidalLoveNumberPartialInterface::
                                                        calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber,
                                                this,
@@ -250,8 +250,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         if( coefficientsParameter->useComplexComponents( ) )
                         {
                             // Calculate partials for complex love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
-                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                            parameterVectorPartialFunctions_[ std::make_pair( parameter,
+                                                                              std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     std::bind( &TidalLoveNumberPartialInterface::
                                                        calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers,
                                                this,
@@ -264,8 +264,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         else
                         {
                             // Calculate partial for real love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
-                                    parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                            parameterVectorPartialFunctions_[ std::make_pair( parameter,
+                                                                              std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     std::bind( &TidalLoveNumberPartialInterface::
                                                        calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers,
                                                this,

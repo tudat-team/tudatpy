@@ -63,8 +63,7 @@ public:
             const EstimatebleParametersEnum loveNumberType,
             const bool useComplexComponents = 0 ):
         EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ), degree_( degree ), orders_( orders ),
-        sumOrders_( sumOrders ), gravityFieldVariationModels_( gravityFieldVariationModels ),
-        useComplexComponents_( useComplexComponents )
+        sumOrders_( sumOrders ), gravityFieldVariationModels_( gravityFieldVariationModels ), useComplexComponents_( useComplexComponents )
     {
         if( gravityFieldVariationModels_.empty( ) )
         {
@@ -80,8 +79,8 @@ public:
 
             if( gravityFieldVariationModels_.at( i )->getLoveNumbers( ).count( degree_ ) == 0 )
             {
-                throw std::runtime_error( "Error when creating tidal Love number parameter of " + associatedBody +
-                                          ", requested degree " + std::to_string( degree_ ) +
+                throw std::runtime_error( "Error when creating tidal Love number parameter of " + associatedBody + ", requested degree " +
+                                          std::to_string( degree_ ) +
                                           " is unavailable in one of the selected basic solid-body tide models." );
             }
         }
@@ -121,14 +120,14 @@ public:
                      const bool sumOrders,
                      const EstimatebleParametersEnum loveNumberType,
                      const bool useComplexComponents = 0 ):
-        TidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
-                                 gravityFieldVariationModel },
-                         associatedBody,
-                         degree,
-                         orders,
-                         sumOrders,
-                         loveNumberType,
-                         useComplexComponents )
+        TidalLoveNumber(
+                std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{ gravityFieldVariationModel },
+                associatedBody,
+                degree,
+                orders,
+                sumOrders,
+                loveNumberType,
+                useComplexComponents )
     {}
 
     //! Destructor
@@ -210,8 +209,7 @@ public:
      * \param gravityFieldVariationModel Variation model to test
      * \return True if the model is one of the models owned by this parameter
      */
-    bool dependsOnGravityFieldVariation(
-            const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
+    bool dependsOnGravityFieldVariation( const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
     {
         for( unsigned int i = 0; i < gravityFieldVariationModels_.size( ); i++ )
         {
@@ -332,11 +330,11 @@ public:
                                const std::string& associatedBody,
                                const int degree,
                                const bool useComplexComponents = 0 ):
-        FullDegreeTidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
-                                           gravityFieldVariationModel },
-                                   associatedBody,
-                                   degree,
-                                   useComplexComponents )
+        FullDegreeTidalLoveNumber(
+                std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{ gravityFieldVariationModel },
+                associatedBody,
+                degree,
+                useComplexComponents )
     {}
 
     //! Get value of Love number k_{n}
@@ -449,8 +447,7 @@ public:
     }
 
     //! Function to check whether a variation model belongs to this parameter (pointer identity)
-    bool dependsOnGravityFieldVariation(
-            const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
+    bool dependsOnGravityFieldVariation( const std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariationModel ) const
     {
         return gravityFieldVariationModel_ == gravityFieldVariationModel;
     }
@@ -552,12 +549,12 @@ public:
             const int degree,
             const std::vector< int > orders,
             const bool useComplexComponents = 0 ):
-        SingleDegreeVariableTidalLoveNumber( std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{
-                                                     gravityFieldVariationModel },
-                                             associatedBody,
-                                             degree,
-                                             orders,
-                                             useComplexComponents )
+        SingleDegreeVariableTidalLoveNumber(
+                std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >{ gravityFieldVariationModel },
+                associatedBody,
+                degree,
+                orders,
+                useComplexComponents )
     {}
 
     //! Get values of Love numbers k_{n,m}

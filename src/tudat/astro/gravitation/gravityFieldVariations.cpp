@@ -390,10 +390,9 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
     auto throwIfBodyHasAmbiguousCoverage = [ & ]( const std::string& bodyName, const int coverageCount ) {
         if( coverageCount > 1 )
         {
-            throw std::runtime_error(
-                    "Error when selecting direct tidal gravity field variations, tide-raising body '" + bodyName +
-                    "' is covered by multiple degree-" + std::to_string( requestedDegree ) +
-                    " tidal models, making the Love-number parameter ambiguous" );
+            throw std::runtime_error( "Error when selecting direct tidal gravity field variations, tide-raising body '" + bodyName +
+                                      "' is covered by multiple degree-" + std::to_string( requestedDegree ) +
+                                      " tidal models, making the Love-number parameter ambiguous" );
         }
     };
 
@@ -429,7 +428,7 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
     }
 
     std::map< std::string, int > bodyCoverageCount;
-    for( const std::string& bodyName: requestedBodies )
+    for( const std::string& bodyName : requestedBodies )
     {
         bodyCoverageCount[ bodyName ] = 0;
     }
@@ -489,23 +488,21 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
         }
     }
 
-    for( const std::string& bodyName: requestedBodies )
+    for( const std::string& bodyName : requestedBodies )
     {
         if( bodyCoverageCount.at( bodyName ) == 0 )
         {
-            throw std::runtime_error(
-                    "Error when selecting direct tidal gravity field variations, requested tide-raising body '" + bodyName +
-                    "' is not represented by any degree-" + std::to_string( requestedDegree ) +
-                    " tidal model of the requested type" );
+            throw std::runtime_error( "Error when selecting direct tidal gravity field variations, requested tide-raising body '" +
+                                      bodyName + "' is not represented by any degree-" + std::to_string( requestedDegree ) +
+                                      " tidal model of the requested type" );
         }
         throwIfBodyHasAmbiguousCoverage( bodyName, bodyCoverageCount.at( bodyName ) );
     }
 
     if( selectedVariations.empty( ) )
     {
-        throw std::runtime_error(
-                "Error when selecting direct tidal gravity field variations, no degree-" + std::to_string( requestedDegree ) +
-                " models matched the requested deforming-body list" );
+        throw std::runtime_error( "Error when selecting direct tidal gravity field variations, no degree-" +
+                                  std::to_string( requestedDegree ) + " models matched the requested deforming-body list" );
     }
 
     return selectedVariations;
