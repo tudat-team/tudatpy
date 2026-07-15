@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import hashlib
 import json
+from urllib.parse import urlparse
 
 import requests
 
@@ -90,11 +91,31 @@ def resolve_keys(keys: Optional[List[str]] = None, search: Optional[str] = None)
     return resolved
 
 
+def _tarball_cache_name(url: str) -> str:
+    parsed = urlparse(url)
+    name = Path(parsed.path).name
+    if name == "content":
+        parent = Path(parsed.path).parent
+        if parent.name.endswith((".tar.gz", ".tgz", ".tar")):
+            return parent.name
+    return name
+
+
+def _is_tarball_url(url: str) -> bool:
+    parsed = urlparse(url)
+    name = Path(parsed.path).name
+    if name.endswith((".tar.gz", ".tgz", ".tar")):
+        return True
+    if name == "content" and Path(parsed.path).parent.name.endswith((".tar.gz", ".tgz", ".tar")):
+        return True
+    return False
+
+
 def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
     regular: Dict[str, str] = {}
     tarball_groups: Dict[str, List[str]] = {}
     for path, url in files.items():
-        if url.endswith((".tar.gz", ".tgz", ".tar")):
+        if _is_tarball_url(url):
             tarball_groups.setdefault(url, []).append(path)
         else:
             regular[path] = url
@@ -148,7 +169,7 @@ def _download_tarball(url: str, cache_dir: Path,
                       force: bool = False, 
                       expected_hash: Optional[str] = None) -> Path:
     cache_dir.mkdir(parents=True, exist_ok=True)
-    tar_path = cache_dir / Path(url).name
+    tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
         return tar_path
     if tar_path.exists():
@@ -229,7 +250,7 @@ def install_files(
     for tarball_url, targets in tarball_groups.items():
         expected = None
         if hashes:
-            expected = hashes.get(tarball_url) or hashes.get(Path(tarball_url).name)
+            expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
         tar_path = _download_tarball(tarball_url, cache_dir, force=force, expected_hash=expected)
         installed += _extract_tarball_members(
             tar_path, targets, dest_path, force=force

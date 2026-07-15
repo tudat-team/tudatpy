@@ -1,7 +1,48 @@
 # Defines the structure and provenance of resource files.
 TUDAT_RESOURCES_VERSION = "2.4"
-TUDAT_RESOURCES_URL = f"https://raw.githubusercontent.com/tudat-team/tudat-resources/refs/tags/{TUDAT_RESOURCES_VERSION}/resource/"
-DATA_REGISTRY = {
+TUDAT_RESOURCES_URL = "https://zenodo.org/records/21277280"
+TUDAT_ZENODO_STATIC_RECORD = 21277280
+TUDAT_ZENODO_ROLLING_RECORD = 21261530
+TUDAT_ZENODO_STATIC_API_BASE = f"https://zenodo.org/api/records/{TUDAT_ZENODO_STATIC_RECORD}/files"
+TUDAT_ZENODO_ROLLING_API_BASE = f"https://zenodo.org/api/records/{TUDAT_ZENODO_ROLLING_RECORD}/files"
+
+TUDAT_ZENODO_STATIC_TARBALLS = {
+    "spice_kernels/inpop19a_TCB_m100_p100_asc": "inpop19a_TCB_m100_p100_asc.tar.gz",
+    "spice_kernels/inpop19a_TDB_m100_p100_asc": "inpop19a_TDB_m100_p100_asc.tar.gz",
+    "spice_kernels/inpop19a_TDB_m100_p100_spice": "inpop19a_TDB_m100_p100_spice.tar.gz",
+    "star_catalog_biases": "star_catalog_biases.tar.gz",
+    "atmosphere_tables": "atmosphere_tables.tar.gz",
+    "earth_deformation": "earth_deformation.tar.gz",
+    "ephemeris": "ephemeris.tar.gz",
+    "gravity_models": "gravity_models.tar.gz",
+    "quadrature": "quadrature.tar.gz",
+    "spice_kernels": "spice_kernels.tar.gz",
+    "station_locations": "station_locations.tar.gz",
+}
+
+TUDAT_ZENODO_ROLLING_PREFIXES = {
+    "earth_orientation",
+    "space_weather",
+}
+
+
+def _rewrite_zenodo_tarball_url(path: str, url: str) -> str:
+    if not url.startswith(TUDAT_RESOURCES_URL):
+        return url
+
+    for prefix, tarball in sorted(
+        TUDAT_ZENODO_STATIC_TARBALLS.items(), key=lambda item: -len(item[0])
+    ):
+        if path == prefix or path.startswith(prefix + "/"):
+            return f"{TUDAT_ZENODO_STATIC_API_BASE}/{tarball}/content"
+
+    for prefix in TUDAT_ZENODO_ROLLING_PREFIXES:
+        if path == prefix or path.startswith(prefix + "/"):
+            return f"{TUDAT_ZENODO_ROLLING_API_BASE}/resource-rolling.tar.gz/content"
+
+    return url
+
+_RAW_DATA_REGISTRY = {
     "atmosphere_tables/dtm_mars.dat": f"{TUDAT_RESOURCES_URL}/atmosphere_tables/dtm_mars.dat",
     "atmosphere_tables/MCDMeanAtmosphere.dat": f"{TUDAT_RESOURCES_URL}/atmosphere_tables/MCDMeanAtmosphere.dat",
     "atmosphere_tables/nrlmsise00_validation_data.pkl": f"{TUDAT_RESOURCES_URL}/atmosphere_tables/nrlmsise00_validation_data.pkl",
@@ -157,4 +198,9 @@ DATA_REGISTRY = {
     "station_locations/mpc.sit": f"{TUDAT_RESOURCES_URL}/station_locations/mpc.sit",
     "station_locations/mpc.vel": f"{TUDAT_RESOURCES_URL}/station_locations/mpc.vel",
     "station_locations/ns_codes.dat": f"{TUDAT_RESOURCES_URL}/station_locations/ns_codes.dat",
+}
+
+DATA_REGISTRY = {
+    key: _rewrite_zenodo_tarball_url(key, url)
+    for key, url in _RAW_DATA_REGISTRY.items()
 }
