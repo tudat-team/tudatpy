@@ -1195,6 +1195,7 @@ private:
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
         ar( CEREAL_NVP( solutionIsCleared_ ) );
         ar( CEREAL_NVP( arcStartTimes_ ) );
@@ -1206,22 +1207,11 @@ private:
     {
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( CEREAL_NVP( singleArcResults_ ) );
+        ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
         ar( CEREAL_NVP( solutionIsCleared_ ) );
         ar( CEREAL_NVP( arcStartTimes_ ) );
         ar( CEREAL_NVP( arcEndTimes_ ) );
-        // Skip: dependentVariableInterface_ (runtime interpolator, reconstructable)
-        // Reconstruct dependentVariableInterface_ from single-arc interfaces if possible
-        if( dependentVariableInterface_ == nullptr )
-        {
-            std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces;
-            for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
-            {
-                singleArcInterfaces.push_back( singleArcResults_.at( i )->getSingleArcDependentVariablesInterface( ) );
-            }
-            dependentVariableInterface_ = std::make_shared< MultiArcDependentVariablesInterface< TimeType > >(
-                    singleArcInterfaces, arcStartTimes_, arcEndTimes_ );
-        }
     }
 };
 
