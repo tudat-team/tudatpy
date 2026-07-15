@@ -1,4 +1,4 @@
-"""PSF tracking-file loading."""
+"""PSF tracking-data loading for JPL spacecraft optical observations."""
 
 from tudatpy.kernel.data_input.tracking_data.psf import (
     OpticalImageType,
@@ -6,18 +6,16 @@ from tudatpy.kernel.data_input.tracking_data.psf import (
     RawPsfFileImageContents,
     RawPsfMeasurement,
     RawPsfStarMeasurement,
-    read_psf_file,
-    read_psf_files,
+    read_psf_data,
     read_raw_psf_file_contents,
 )
 
 __all__ = [
+    "read_psf_data",
     "OpticalImageType",
     "RawPsfFileContents",
     "RawPsfFileImageContents",
     "RawPsfMeasurement",
     "RawPsfStarMeasurement",
-    "read_psf_file",
-    "read_psf_files",
     "read_raw_psf_file_contents",
 ]

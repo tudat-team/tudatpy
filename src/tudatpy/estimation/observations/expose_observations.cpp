@@ -614,12 +614,12 @@ numpy.ndarray
         Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
 
         This function converts each entry of `tracking_data` (as produced e.g. by
-        :func:`~tudatpy.data.read_ifms_files`, :func:`~tudatpy.data.read_fdets_files`, or a custom
+        :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`, :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom
         reader) into a `SingleObservationSet`, and collects the results into an `ObservationCollection`.
 
         Parameters
         ----------
-        tracking_data : list[:class:`~tudatpy.data.TrackingData`]
+        tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
             List of tracking data objects to convert.
         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
             System of bodies, used to resolve ground station positions for time scale conversions.
@@ -643,9 +643,9 @@ numpy.ndarray
         ----------
         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
             System of bodies in which the supplementary data is set.
-        supplementary_data : list[:class:`~tudatpy.data.TrackingSupplementaryData`]
+        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
             List of tracking supplementary data objects, as produced e.g. by
-            :func:`~tudatpy.data.read_ifms_files` or a custom reader.
+            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
         )doc" );
 
     // OBSERVATION COLLECTION

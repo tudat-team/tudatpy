@@ -23,7 +23,6 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/trackingData.h"
@@ -42,6 +41,26 @@ namespace input_output
  * @return Observable name
  */
 std::string getObservableNameForOdfId( const input_output::OdfDataType observable_type_id );
+
+inline bool odfObservableRequiresTransmittingStation( const std::string& observableName )
+{
+    if( observableName == "DsnNWayAveragedDoppler" || observableName == "DsnNWayRange" )
+    {
+        return true;
+    }
+
+    throw std::runtime_error( "Error when determining ODF link ends: observable " + observableName + " not recognized." );
+}
+
+inline bool odfObservableRequiresFirstReceivingStation( const std::string& observableName )
+{
+    if( observableName == "DsnNWayAveragedDoppler" || observableName == "DsnNWayRange" )
+    {
+        return false;
+    }
+
+    throw std::runtime_error( "Error when determining ODF link ends: observable " + observableName + " not recognized." );
+}
 
 /*! Get the frequency band name associated with a given ODF frequency band ID.
  *
@@ -606,7 +625,7 @@ private:
     {
         input_output::OdfDataType currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
 
-        if( requiresTransmittingStation( observation_models::getObservableType( currentObservableType ) ) )
+        if( odfObservableRequiresTransmittingStation( currentObservableType ) )
         {
             std::string transmittingStation =
                     getStationNameFromStationId( rawDataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
@@ -641,7 +660,7 @@ private:
                 return false;
             }
         }
-        if( requiresFirstReceivingStation( observation_models::getObservableType( currentObservableType ) ) )
+        if( odfObservableRequiresFirstReceivingStation( currentObservableType ) )
         {
             std::string receivingStation = getStationNameFromStationId( 0, rawDataBlock->getCommonDataBlock( )->receivingStationId_ );
 

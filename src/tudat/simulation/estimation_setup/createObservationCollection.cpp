@@ -432,13 +432,13 @@ void setFrequencySupplementaryDataInBodies(
             }
 
             if( i > 0 &&
-                it->second.at( i )->getFrequencySupplementaryDataType( ) != it->second.at( 0 )->getFrequencySupplementaryDataType( ) )
+                it->second.at( i )->getFrequencySupplementaryDataKind( ) != it->second.at( 0 )->getFrequencySupplementaryDataKind( ) )
             {
                 throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
                                           referencePointName + ": all frequency supplementary data entries must have the same type." );
             }
 
-            if( it->second.at( i )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
+            if( it->second.at( i )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
             {
                 std::shared_ptr< data::RampedFrequencySupplementaryData > rampedFrequencySupplementaryData =
                         std::dynamic_pointer_cast< data::RampedFrequencySupplementaryData >( it->second.at( i ) );
@@ -452,8 +452,7 @@ void setFrequencySupplementaryDataInBodies(
                         rampedFrequencySupplementaryData->getFrequencyRamps( );
                 frequencyRamps.insert( frequencyRamps.end( ), currentFrequencyRamps.begin( ), currentFrequencyRamps.end( ) );
             }
-            else if( it->second.at( i )->getFrequencySupplementaryDataType( ) ==
-                     data::FrequencySupplementaryDataType::piecewise_constant_frequency )
+            else if( it->second.at( i )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
             {
                 std::shared_ptr< data::PiecewiseConstantFrequencySupplementaryData > piecewiseConstantFrequencySupplementaryData =
                         std::dynamic_pointer_cast< data::PiecewiseConstantFrequencySupplementaryData >( it->second.at( i ) );
@@ -467,7 +466,7 @@ void setFrequencySupplementaryDataInBodies(
             }
         }
 
-        if( it->second.at( 0 )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
         {
             if( frequencyRamps.empty( ) )
             {
@@ -568,7 +567,7 @@ void setInstrumentSupplementaryDataInBodies(
                                           referencePointName + ": instrument data entry is null." );
             }
 
-            if( it->second.at( i )->getInstrumentSupplementaryDataType( ) == data::InstrumentSupplementaryDataType::camera_settings )
+            if( it->second.at( i )->getInstrumentSupplementaryDataKind( ) == "camera_settings" )
             {
                 std::shared_ptr< data::CameraInstrumentSupplementaryData > cameraSupplementaryData =
                         std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( it->second.at( i ) );

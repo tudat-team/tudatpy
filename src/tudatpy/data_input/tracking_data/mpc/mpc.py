@@ -21,9 +21,18 @@ def read_mpc_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str = "",
 ):
     """Retrieve MPC observations and return tracking-data containers.
+
+    This function is a convenience interface around :class:`BatchMPC`, which
+    uses the ``astroquery`` MPC interface to retrieve optical observations for
+    asteroids and comets from the Minor Planet Center. The retrieved
+    :attr:`BatchMPC.table` is standardized and passed to
+    :func:`~tudatpy.data_input.tracking_data.optical_utilities.optical_table_to_tracking_data`,
+    which creates Tudat optical tracking data through the common optical-data
+    conversion pipeline. During this conversion the data can be augmented with
+    default optical weights based on :cite:t:`veres2017`, star-catalog bias
+    corrections based on :cite:t:`eggl2020`, and ancillary metadata.
 
     Parameters
     ----------
@@ -32,17 +41,20 @@ def read_mpc_data(
     id_types : list[str | None] | None, default None
         Optional identifier type for each MPC object identifier.
     drop_misc_observations : bool, default True
-        Whether to discard unsupported or non-optical MPC observation records.
+        Whether to drop MPC records with Note 2 flags for replaced discovery
+        observations (``x``, ``X``), roving observers (``V``, ``v``, ``W``,
+        ``w``), radar observations (``R``, ``r``, ``Q``, ``q``), offset
+        observations of natural satellites (``O``), and satellite/space-based
+        records (``S``, ``s``, ``T``, ``t``). This filtering is based on the
+        MPC Note 2 flag, not on the observatory code.
     custom_name : str | None, default None
         Optional body name used in the generated tracking data.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme.
+        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
     add_star_catalog_corrections : bool, default False
-        Whether to attach star-catalog bias corrections.
+        Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Name of the weighing scheme assigned to the generated tracking data.
 
     Returns
     -------
@@ -61,13 +73,16 @@ def read_mpc_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
-        weighing_scheme,
     )
 
 
 class BatchMPC:
-    """This class provides an interface between observations
-    in the Minor Planet Centre database and Tudat.
+    """Interface between MPC optical observations and Tudat tracking data.
+
+    This class wraps the MPC interface of ``astroquery`` and provides
+    Tudat-specific processing for asteroid and comet observations, including
+    optional observation weights based on :cite:t:`veres2017` and
+    star-catalog bias corrections based on :cite:t:`eggl2020`.
 
     Notes
     ----------
@@ -134,100 +149,91 @@ class BatchMPC:
     # getters to make everything read-only
     @property
     def table(self) -> pd.DataFrame:
-        """Pandas dataframe with observation data.
+        """**read-only**
 
-        Returns
-        -------
-        pandas.DataFrame
-            Augmented optical astrometry table.
+        Pandas dataframe with observation data.
+
+        :type: pd.DataFrame
         """
         return self._table
 
     @property
     def observatories(self) -> list[str]:
-        """List of observatories in batch.
+        """**read-only**
 
-        Returns
-        -------
-        list[str]
-            Observatory identifiers present in the batch.
+        List of observatories in batch.
+
+        :type: list[str]
         """
         return self._observatories
 
     @property
     def space_telescopes(self) -> list[str]:
-        """List of satellite observatories in batch.
+        """**read-only**
 
-        Returns
-        -------
-        list[str]
-            Space-telescope observatory identifiers present in the batch.
+        List of satellite observatories in batch.
+
+        :type: list[str]
         """
         return self._space_telescopes
 
     @property
     def MPC_objects(self) -> list[str]:
-        """List of MPC objects.
+        """**read-only**
 
-        Returns
-        -------
-        list[str]
-            MPC object identifiers represented in the batch.
+        List of MPC objects.
+
+        :type: list[str]
         """
         return self._MPC_codes
 
     @property
     def size(self) -> int:
-        """Number of observations in batch.
+        """**read-only**
 
-        Returns
-        -------
-        int
-            Number of astrometric observations in the batch.
+        Number of observations in batch.
+
+        :type: int
         """
         return self._size
 
     @property
     def bands(self) -> list[str]:
-        """List of bands in batch.
+        """**read-only**
 
-        Returns
-        -------
-        list[str]
-            Optical band identifiers present in the batch.
+        List of bands in batch.
+
+        :type: list[str]
         """
         return self._bands
 
     @property
     def epoch_start(self) -> float:
-        """Epoch of oldest observation in batch.
+        """**read-only**
 
-        Returns
-        -------
-        float
-            Earliest observation epoch in the batch.
+        Epoch of oldest observation in batch.
+
+        :type: float
         """
         return self._epoch_start
 
     @property
     def epoch_end(self) -> float:
-        """Epoch of latest observation in batch.
+        """**read-only**
 
-        Returns
-        -------
-        float
-            Latest observation epoch in the batch.
+        Epoch of latest observation in batch.
+
+        :type: float
         """
         return self._epoch_end
 
     @property
     def bodies_created(self) -> dict:
-        """Dictionary with generated-body bookkeeping.
+        """**read-only**
 
-        Returns
-        -------
-        dict
-            Details of bodies created by higher-level conversion utilities.
+        Dictionary with generated-body bookkeeping.
+
+        :type: dict
         """
         return self._bodies_created
 
@@ -294,9 +300,12 @@ class BatchMPC:
         custom_name: str | None = None,
     ) -> None:
         """Retrieve all observations for a set of MPC listed objects.
+
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval.
-        Removes duplicate and irrelevant observation data by default (see `drop_misc_observations`).
+        Removes duplicate observations, and can filter selected MPC Note 2
+        observation types before the data are converted to the common augmented
+        optical table used by Tudat.
 
         Parameters
         ----------
@@ -307,9 +316,13 @@ class BatchMPC:
             If an element is None, the type is considered unknown. If the entire list is None,
             all types are considered unknown.
         drop_misc_observations : bool, default True
-            Drops observations made by method: radar and offset (natural satellites).
-            Drops observations made by roaming observers.
-            Drops duplicate listings to denote first observation.
+            Whether to drop MPC records with Note 2 flags for replaced
+            discovery observations (``x``, ``X``), roving observers (``V``,
+            ``v``, ``W``, ``w``), radar observations (``R``, ``r``, ``Q``,
+            ``q``), offset observations of natural satellites (``O``), and
+            satellite/space-based records (``S``, ``s``, ``T``, ``t``). This
+            filtering is based on the MPC Note 2 flag, not on the observatory
+            code.
 
         Raises
         ------
@@ -422,20 +435,17 @@ class BatchMPC:
         add_weights: bool | None = False,
         add_star_catalog_corrections: bool | None = False,
         add_ancillary_data: bool | None = False,
-        weighing_scheme: str = "",
     ):
         """Convert the current MPC batch to tracking-data containers.
 
         Parameters
         ----------
         add_weights : bool, default False
-            Whether to assign the default optical weighing scheme.
+            Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
         add_star_catalog_corrections : bool, default False
-            Whether to attach star-catalog bias corrections.
+            Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
         add_ancillary_data : bool, default False
             Whether to attach available optical ancillary metadata.
-        weighing_scheme : str, default ""
-            Name of the weighing scheme assigned to the generated tracking data.
 
         Returns
         -------
@@ -447,5 +457,4 @@ class BatchMPC:
             add_weights=add_weights,
             add_star_catalog_corrections=add_star_catalog_corrections,
             add_ancillary_data=add_ancillary_data,
-            weighing_scheme=weighing_scheme,
         )

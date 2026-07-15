@@ -1,3 +1,10 @@
+"""Utilities for converting optical astrometry tables to tracking data.
+
+The public readers in this module accept already-loaded pandas or astropy
+tables. They share the same optical-data conversion path used by the MPC and
+MPC 80-column readers.
+"""
+
 import pandas as pd
 import numpy as np
 import astropy
@@ -56,6 +63,10 @@ ANCILLARY_STRING_COLUMNS = ["band", "catalog", "note2", "custom_name", "mag", "d
 def standardize_optical_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Ensure IDs are strings and observatory codes are zero-padded.
 
+    This is a supporting utility for inspecting or preparing optical tables.
+    In the typical Tudat workflow, call :func:`read_optical_data` or a
+    source-specific optical reader instead.
+
     Parameters
     ----------
     df : pandas.DataFrame
@@ -81,6 +92,10 @@ def validate_optical_table(
     table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str
 ) -> None:
     """Validate the common optical astrometry table input.
+
+    This is a supporting utility used by the optical readers. In the typical
+    Tudat workflow, call :func:`read_optical_data` or a source-specific optical
+    reader instead.
 
     Parameters
     ----------
@@ -122,6 +137,10 @@ def create_augmented_optical_table(
     custom_name: str | None = None,
 ) -> pd.DataFrame:
     """Create the shared augmented optical table used by all optical sources.
+
+    This is a supporting utility for inspecting or preparing optical tables.
+    In the typical Tudat workflow, call :func:`read_optical_data` or a
+    source-specific optical reader instead.
 
     Parameters
     ----------
@@ -191,6 +210,10 @@ def filter_augmented_optical_table(
 ) -> pd.DataFrame:
     """Filter an augmented optical astrometry table.
 
+    This is a supporting utility for inspecting or manipulating already
+    augmented optical data. It is not part of the typical Tudat workflow for
+    loading and processing tracking data.
+
     Epoch filters are interpreted as UTC seconds since J2000, or as Python
     datetimes that are converted to UTC seconds since J2000.
 
@@ -241,22 +264,23 @@ def optical_table_to_tracking_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str = "",
 ):
     """Convert an augmented optical table to TrackingData and supplementary data lists.
+
+    This is a supporting conversion utility used by the optical readers. In the
+    typical Tudat workflow, call :func:`read_optical_data` or a source-specific
+    optical reader instead.
 
     Parameters
     ----------
     table : pandas.DataFrame
         Augmented optical astrometry table to convert.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme.
+        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
     add_star_catalog_corrections : bool, default False
-        Whether to attach star-catalog bias corrections.
+        Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Name of the weighing scheme assigned to the generated tracking data.
 
     Returns
     -------
@@ -264,8 +288,7 @@ def optical_table_to_tracking_data(
         Tracking data objects and supplementary data objects.
     """
     table = create_augmented_optical_table(table, in_degrees=False)
-    if add_weights and not weighing_scheme:
-        weighing_scheme = "VFCC17"
+    weighing_scheme = "VFCC17" if add_weights else ""
 
     if add_star_catalog_corrections:
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
@@ -315,6 +338,74 @@ def optical_table_to_tracking_data(
     return tracking_data_objects, list()
 
 
+def read_optical_data(
+    table: pd.DataFrame | astropy.table.QTable | astropy.table.Table,
+    in_degrees: bool = True,
+    frame: str = "J2000",
+    custom_name: str | None = None,
+    add_weights: bool | None = False,
+    add_star_catalog_corrections: bool | None = False,
+    add_ancillary_data: bool | None = False,
+):
+    """Read optical astrometry from a table into TrackingData objects.
+
+    The table must contain the standard optical astrometry columns used by the
+    Tudat optical-data pipeline. pandas and astropy tables are both accepted;
+    source-specific file parsing is handled by the dedicated MPC and 80-column
+    readers.
+    Depending on the input type, this function dispatches to
+    :func:`read_pandas_optical_data` or :func:`read_astropy_optical_data`.
+    Those functions create the augmented optical table with
+    :func:`create_augmented_optical_table` and convert it to Tudat optical
+    tracking data with :func:`optical_table_to_tracking_data`.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame | astropy.table.QTable | astropy.table.Table
+        Optical astrometry table to read.
+    in_degrees : bool, default True
+        Whether right ascension and declination are provided in degrees.
+    frame : str, default "J2000"
+        Reference frame of the input observations.
+    custom_name : str | None, default None
+        Optional target name assigned to all observations.
+    add_weights : bool, default False
+        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
+    add_star_catalog_corrections : bool, default False
+        Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
+    add_ancillary_data : bool, default False
+        Whether to attach available optical ancillary metadata.
+
+    Returns
+    -------
+    tuple[list[TrackingData], list[TrackingSupplementaryData]]
+        Tracking data objects and supplementary data objects.
+    """
+    if isinstance(table, pd.DataFrame):
+        return read_pandas_optical_data(
+            table,
+            in_degrees,
+            frame,
+            custom_name,
+            add_weights,
+            add_star_catalog_corrections,
+            add_ancillary_data,
+        )
+
+    if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+        return read_astropy_optical_data(
+            table,
+            in_degrees,
+            frame,
+            custom_name,
+            add_weights,
+            add_star_catalog_corrections,
+            add_ancillary_data,
+        )
+
+    raise TypeError("read_optical_data expects a pandas DataFrame or astropy Table/QTable.")
+
+
 def read_pandas_optical_data(
     table: pd.DataFrame,
     in_degrees: bool = True,
@@ -323,9 +414,11 @@ def read_pandas_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str = "",
 ):
     """Read optical astrometry from a pandas table into TrackingData objects.
+
+    This is a supporting table-specific reader. In the typical Tudat workflow
+    for already-loaded optical tables, call :func:`read_optical_data` instead.
 
     Parameters
     ----------
@@ -338,13 +431,11 @@ def read_pandas_optical_data(
     custom_name : str | None, default None
         Optional target name assigned to all observations.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme.
+        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
     add_star_catalog_corrections : bool, default False
-        Whether to attach star-catalog bias corrections.
+        Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Name of the weighing scheme assigned to the generated tracking data.
 
     Returns
     -------
@@ -357,7 +448,6 @@ def read_pandas_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
-        weighing_scheme,
     )
 
 
@@ -369,9 +459,11 @@ def read_astropy_optical_data(
     add_weights: bool | None = False,
     add_star_catalog_corrections: bool | None = False,
     add_ancillary_data: bool | None = False,
-    weighing_scheme: str = "",
 ):
     """Read optical astrometry from an astropy table into TrackingData objects.
+
+    This is a supporting table-specific reader. In the typical Tudat workflow
+    for already-loaded optical tables, call :func:`read_optical_data` instead.
 
     Parameters
     ----------
@@ -384,13 +476,11 @@ def read_astropy_optical_data(
     custom_name : str | None, default None
         Optional target name assigned to all observations.
     add_weights : bool, default False
-        Whether to assign the default optical weighing scheme.
+        Whether to assign the default optical weighing scheme of :cite:p:`veres2017`.
     add_star_catalog_corrections : bool, default False
-        Whether to attach star-catalog bias corrections.
+        Whether to attach star-catalog bias corrections following :cite:p:`eggl2020`.
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
-    weighing_scheme : str, default ""
-        Name of the weighing scheme assigned to the generated tracking data.
 
     Returns
     -------
@@ -403,7 +493,6 @@ def read_astropy_optical_data(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
-        weighing_scheme,
     )
 
 
@@ -412,21 +501,32 @@ def load_bias_file(
     Nside: int | None = None,
     catalog_flags: list = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[pd.DataFrame, int]:
-    """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
+    """Load a HEALPix star-catalog debias file.
+
+    This is a supporting utility for inspecting or applying optical
+    star-catalog bias corrections. It is not part of the typical Tudat workflow
+    for loading and processing tracking data.
+
+    The file is processed into a dataframe, and the NSIDE parameter is
+    retrieved automatically when possible.
+    The debias files are used for star-catalog bias corrections following
+    :cite:p:`eggl2020`.
 
     Parameters
     ----------
     filepath : str
         Filepath of debias file.
     Nside : int | None, optional
-        NSIDE value, to be left None in most cases as this is retrieved automatically by the function, by default None
+        NSIDE value. This can usually be left as None, in which case it is
+        retrieved automatically by the function.
     catalog_flags : list | None, optional
-        list of catalog flags, should be left default in most cases, by default None
+        List of catalog flags. This can usually be left at its default value.
 
     Returns
     -------
     tuple[pd.DataFrame, int]
-        Dataframe with biases in multiindex format ((Npix x Ncat) x Nvals), the numpix value
+        Dataframe with biases in multi-index format ((Npix x Ncat) x Nvals)
+        and the NSIDE value.
 
     Raises
     ------
@@ -490,10 +590,16 @@ def get_biases_EFCC18(
     Nside: int | None = None,
     catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Calculate and return star catalog bias values as described in:
-    "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
-    Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
-    This can then be selected using the bias_file paramater.
+    """Calculate and return star catalog bias values as described by
+    :cite:t:`eggl2020`.
+
+    This is a supporting utility for inspecting or applying optical
+    star-catalog bias corrections. It is not part of the typical Tudat workflow
+    for loading and processing tracking data.
+
+    Uses the regular bias set by default. A high-resolution version of the bias
+    map can be retrieved from the paper and selected using the ``bias_file``
+    parameter.
 
     Parameters
     ----------
@@ -501,16 +607,19 @@ def get_biases_EFCC18(
         Table retrieved by calling the mpc.BatchMPC.table property. Must contain
         'RA', 'DEC', 'epoch_seconds_UTC' and 'catalog' columns.
     bias_file : str | None, optional
-        Optional bias file location, used to load in alternative debias coefficients. By default coefficients are retrieved from Tudat resources, by default None
+        Optional bias file location, used to load alternative debias
+        coefficients. By default, coefficients are retrieved from Tudat
+        resources.
     Nside : int | None, optional
-        Optional Nside value, should be left None in most cases, by default None
+        Optional NSIDE value. This can usually be left as None.
     catalog_flags : list[str] | None, optional
-        List of catalog values to use, should be left None in most cases, by default None
+        List of catalog values to use. This can usually be left at its default
+        value.
 
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Right Ascencion Corrections, Declination corrections
+        Right ascension corrections and declination corrections.
     """
 
     if bias_file is None:
@@ -569,6 +678,7 @@ def get_biases_EFCC18(
 
 
 __all__ = [
+    "read_optical_data",
     "ANCILLARY_STRING_COLUMNS",
     "BIAS_LOWRES_FILE",
     "DEFAULT_CATALOG_FLAGS",

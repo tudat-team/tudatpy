@@ -27,6 +27,26 @@ namespace util
 
 void expose_util( py::module& m )
 {
+    m.def( "read_vector_history_from_file",
+           &tudat::input_output::readVectorHistoryFromFile< double, double >,
+           py::arg( "vector_size" ),
+           py::arg( "file_name" ),
+           R"doc(
+         Read a vector history from a file.
+
+         Parameters
+         ----------
+         vector_size : int
+             Size of the vector at each epoch.
+         file_name : str
+             Name of the file containing the vector history.
+
+         Returns
+         -------
+         dict[float, numpy.ndarray]
+             Dictionary mapping epochs to the vector at the given epoch.
+      )doc" );
+
     m.def( "read_matrix_history_from_file",
            &tudat::input_output::readMatrixHistoryFromFile< double, double >,
            py::arg( "matrix_rows" ),

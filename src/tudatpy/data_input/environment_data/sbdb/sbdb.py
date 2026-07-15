@@ -34,22 +34,33 @@ class SBDBquery:
 
     @property
     def name(self):
-        """Short name in the format: `MPC NAME DESIGNATION`"""
+        """**read-only**
+
+        Short name in the format: `MPC NAME DESIGNATION`
+        """
         return self.query["object"]["fullname"]
 
     @property
     def shortname(self):
-        """Short name in the format: `MPC NAME`"""
+        """**read-only**
+
+        Short name in the format: `MPC NAME`
+        """
         return self.query["object"]["shortname"]
 
     @property
     def spkid(self):
-        """Returns the JPL SPKID, the related codes_300_spkid method returns a modified ID for the Tudat standard kernel"""
+        """**read-only**
+
+        Returns the JPL SPKID, the related codes_300_spkid method returns a modified ID for the Tudat standard kernel
+        """
         return self.query["object"]["spkid"]
 
     @property
     def codes_300_spkid(self):
-        """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
+        """**read-only**
+
+        Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
 
         Some objects may return a name instead of a number.
         These are objects specifically specified by name in the codes_300ast_20100725.bsp kernel.
@@ -72,7 +83,10 @@ class SBDBquery:
 
     @property
     def gravitational_parameter(self):
-        """Returns the gravitational parameter for the small body if available"""
+        """**read-only**
+
+        Returns the gravitational parameter for the small body if available
+        """
         try:
             res = self.query["phys_par"]["GM"].to(u.meter**3 / u.second**2)
             return res.value
@@ -81,17 +95,26 @@ class SBDBquery:
 
     @property
     def object_info(self):
-        """Returns info about the object, including its designation and orbit class"""
+        """**read-only**
+
+        Returns info about the object, including its designation and orbit class
+        """
         return self.query["object"]
 
     @property
     def object_classification(self):
-        """Returns the orbit class of the object for example Amor Group for Eros"""
+        """**read-only**
+
+        Returns the orbit class of the object for example Amor Group for Eros
+        """
         return self.object_info["orbit_class"]["name"]
 
     @property
     def diameter(self):
-        """Returns diameter of the small body if available"""
+        """**read-only**
+
+        Returns diameter of the small body if available
+        """
         try:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value

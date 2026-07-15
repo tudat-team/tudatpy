@@ -6,11 +6,11 @@ import numpy as np
 
 from tudatpy.data_input import resource_paths as data_paths
 from tudatpy.data_input.tracking_data import TrackingData
-from tudatpy.data_input.tracking_data.fdets import FdetDateFormat, read_fdets_files
-from tudatpy.data_input.tracking_data.ifms import read_ifms_files
-from tudatpy.data_input.tracking_data.odf import read_odf_files
-from tudatpy.data_input.tracking_data.psf import read_psf_file
-from tudatpy.data_input.tracking_data.tnf import read_tnf_files
+from tudatpy.data_input.tracking_data.fdets import FdetDateFormat, read_fdets_data
+from tudatpy.data_input.tracking_data.ifms import read_ifms_data
+from tudatpy.data_input.tracking_data.odf import read_odf_data
+from tudatpy.data_input.tracking_data.psf import read_psf_data
+from tudatpy.data_input.tracking_data.tnf import read_tnf_data
 from tudatpy.estimation.observations import (
     create_observation_collection,
     set_tracking_supplementary_data_in_bodies,
@@ -489,7 +489,7 @@ def test_ifms_mex_residuals_are_millihertz_level():
     test_data_path = _test_data_path()
     bodies = _create_mex_bodies(test_data_path)
 
-    tracking_data, supplementary_data = read_ifms_files(
+    tracking_data, supplementary_data = read_ifms_data(
         [
             str(
                 test_data_path
@@ -547,7 +547,7 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     interval_start = 387314833.0
     interval_end = 387318433.0
     bodies = _create_grail_bodies(test_data_path, interval_start - 3600.0, interval_end + 3600.0)
-    tracking_data, supplementary_data = read_odf_files([str(odf_file)], "GRAIL-A", "Earth", False)
+    tracking_data, supplementary_data = read_odf_data([str(odf_file)], "GRAIL-A", "Earth", False)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     doppler_tracking_data = [
         data for data in tracking_data if data.observable_type == "DsnNWayAveragedDoppler"
@@ -617,7 +617,7 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     interval_start = 385256700.0
     interval_end = 385260300.0
     bodies = _create_mro_bodies(mro_kernel_path, interval_start - 3600.0, interval_end + 3600.0)
-    tracking_data, supplementary_data = read_tnf_files([str(tnf_file)], ["doppler"], "MRO")
+    tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     uncompressed_observations = create_observation_collection(tracking_data, bodies)
@@ -697,8 +697,8 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
         ("9180B+55", 2447690.01869003, np.array([-46394034.5, 90037807.3, 33576066.8])),
     ]
 
-    tracking_data, supplementary_data = read_psf_file(
-        str(psf_file), "VGR2", {"TRITON": "TRITON"}, False
+    tracking_data, supplementary_data = read_psf_data(
+        [str(psf_file)], "VGR2", {"TRITON": "TRITON"}, False
     )
     all_observations = create_observation_collection(
         tracking_data,
@@ -742,7 +742,7 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
     test_data_path = _test_data_path()
     bodies = _create_juice_bodies(test_data_path)
 
-    tracking_data, supplementary_data = read_fdets_files(
+    tracking_data, supplementary_data = read_fdets_data(
         [str(test_data_path / "Fdets.jui2024.08.20.Yg.r2i.txt")],
         [8422.49e6],
         FdetDateFormat.datetime_string,

@@ -317,7 +317,7 @@ def test_read_80_column_data_reads_file(tmp_path):
     )
 
     _check_tracking_data_pair(
-        read_80_column_data(str(observation_file), custom_name="Eros"), expected_sets=1
+        read_80_column_data([str(observation_file)], custom_name="Eros"), expected_sets=1
     )
 
 

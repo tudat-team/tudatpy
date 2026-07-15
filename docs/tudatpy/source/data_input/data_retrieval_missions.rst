@@ -1,4 +1,4 @@
-.. _data_input_data_retrieval_missions:
+.. _data_retrieval_missions:
 
 ``missions``
 ============
@@ -12,10 +12,13 @@
    data_retrieval_missions/juice
    data_retrieval_missions/mex
    data_retrieval_missions/mro
-   data_retrieval_missions/ro
+   data_retrieval_missions/rosetta
 
 .. automodule:: tudatpy.data_input.data_retrieval.missions
-   :members:
+
+This submodule contains mission-archive download and discovery utilities. The
+:class:`LoadPDS` class is the main mission-data retrieval interface; mission
+specific support is implemented in the per-mission submodules listed above.
 
 Classes
 -------
@@ -23,11 +26,7 @@ Classes
 
 .. autosummary::
 
-   DownloadAtmosphericData
    LoadPDS
 
-.. autoclass:: tudatpy.data_input.data_retrieval.missions.DownloadAtmosphericData
-   :members:
-
-.. autoclass:: tudatpy.data_input.data_retrieval.missions.LoadPDS
+.. autoclass:: LoadPDS
    :members:

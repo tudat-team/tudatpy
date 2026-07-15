@@ -224,7 +224,7 @@ def download_vmf(
     Examples
     --------
     >>> from datetime import datetime
-    >>> from tudatpy.data.data_retrieval.media_corrections.vmf import (
+    >>> from tudatpy.data_input.data_retrieval.media_corrections.vmf import (
     ...     download_vmf, VmfTechnique)
     >>>
     >>> # Download GNSS troposphere data (default)

@@ -8,7 +8,7 @@ import time
 from .._download import _REQUEST_TIMEOUT
 
 
-class RoMixin:
+class RosettaMixin:
     """Rosetta mission file-discovery mixin."""
 
     def get_ro_files(

@@ -229,7 +229,7 @@ def download_ionex(
     Examples
     --------
     >>> from datetime import datetime
-    >>> from tudatpy.data.data_retrieval.media_corrections.ionex import (
+    >>> from tudatpy.data_input.data_retrieval.media_corrections.ionex import (
     ...     download_ionex, IonexProduct)
     >>>
     >>> # Download with default settings (JPL preferred, 2h resolution)

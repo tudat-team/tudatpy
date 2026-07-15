@@ -14,14 +14,17 @@ from ._converters.ramp import OpenRampHandling
 
 class TnfTrackingDataProcessor:
     """
-    Processor for TNF files using pytrk234.
+    Processor for TNF files using ``pytrk234``.
 
     For a given set of requested observables types (e.g. ['doppler', 'range']),
-    this processor iterates file-by-file, uses each converter's extract method to obtain per-file
-    data, merges the outputs, and then calls each converter's process method to produce
-    :class:`~tudatpy.data_input.tracking_data.TrackingData` objects. Ramp data are always extracted and merged into
-    :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects (one per ground station), holding the
-    stations' frequency ramps.
+    this processor iterates file-by-file and uses ``pytrk234`` to decode the
+    TNF/TRK-2-34 records. Each converter then extracts its per-file data from
+    the decoded ``pytrk234`` records, the outputs are merged, and each
+    converter's process method produces
+    :class:`~tudatpy.data_input.tracking_data.TrackingData` objects. Ramp data
+    are always extracted and merged into
+    :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects
+    (one per ground station), holding the stations' frequency ramps.
 
     Parameters
     ----------
@@ -37,12 +40,12 @@ class TnfTrackingDataProcessor:
 
     .. code-block:: python
 
-        from tudatpy.data_input.tracking_data.tnf import read_tnf_files
+        from tudatpy.data_input.tracking_data.tnf import read_tnf_data
         # Define TNF file paths
         tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
 
         # Read both Doppler and range data
-        tracking_data, supplementary_data = read_tnf_files(
+        tracking_data, supplementary_data = read_tnf_data(
             tnf_files,
             ["doppler", "range"],
             spacecraft_name="MRO"
@@ -90,10 +93,13 @@ class TnfTrackingDataProcessor:
         open_ramp_handling: OpenRampHandling = OpenRampHandling.print_warning_once,
     ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
         """
-        Process all TNF files provided at initialization. For each file, decode the SFDU data,
-        and for each requested radiometric data type, extract data via the converter's extract method.
-        Ramp data is also extracted, to build the stations' frequency ramp supplementary data.
-        The per-file outputs are then merged and processed to produce the final outputs.
+        Process all TNF files provided at initialization.
+
+        For each file, ``pytrk234`` decodes the SFDU data. For each requested
+        radiometric data type, the corresponding Tudat converter then extracts
+        data from the decoded records. Ramp data are also extracted to build the
+        stations' frequency-ramp supplementary data. The per-file outputs are
+        merged and processed to produce the final outputs.
 
         Parameters
         ----------

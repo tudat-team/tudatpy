@@ -1,4 +1,4 @@
-"""SLR CRD file loading."""
+"""SLR CRD tracking-data loading."""
 
 from tudatpy.kernel.data_input.tracking_data.slr import (
     CrdFullRateRecord,
@@ -15,11 +15,11 @@ from tudatpy.kernel.data_input.tracking_data.slr import (
     get_station_wavelengths,
     group_crd_data_per_station,
     group_crd_data_per_target,
-    read_crd_file,
-    read_crd_files,
+    read_slr_data,
 )
 
 __all__ = [
+    "read_slr_data",
     "CrdFullRateRecord",
     "CrdMeteoRecord",
     "CrdNormalPointRecord",
@@ -34,6 +34,4 @@ __all__ = [
     "get_station_wavelengths",
     "group_crd_data_per_station",
     "group_crd_data_per_target",
-    "read_crd_file",
-    "read_crd_files",
 ]

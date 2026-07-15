@@ -27,5 +27,6 @@ __all__ = [
     "transform_integer_to_roman_number",
     "save2txt",
     "save_time_history_to_file",
+    "read_vector_history_from_file",
     "read_matrix_history_from_file",
 ]

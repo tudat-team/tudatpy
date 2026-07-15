@@ -44,53 +44,53 @@ void expose_grail( py::module& m )
            &tio::grailAntennaFileReader,
            py::arg( "file_name" ),
            R"doc(
-Read a GRAIL antenna file.
+         Read a GRAIL antenna file.
 
-Parameters
-----------
-file_name : str
-    Path to the GRAIL antenna file.
+         Parameters
+         ----------
+         file_name : str
+             Path to the GRAIL antenna file.
 
-Returns
--------
-dict
-    Parsed GRAIL antenna-file contents.
-)doc" );
+         Returns
+         -------
+         dict
+             Parsed GRAIL antenna-file contents.
+      )doc" );
     m.def( "grail_mass_level_0_file_reader",
            &tio::grailMassLevel0FileReader,
            py::arg( "file_name" ),
            R"doc(
-Read a GRAIL level-0 mass file.
+         Read a GRAIL level-0 mass file.
 
-Parameters
-----------
-file_name : str
-    Path to the GRAIL mass file.
+         Parameters
+         ----------
+         file_name : str
+             Path to the GRAIL mass file.
 
-Returns
--------
-dict
-    Parsed GRAIL mass-file contents.
-)doc" );
+         Returns
+         -------
+         dict
+             Parsed GRAIL mass-file contents.
+      )doc" );
     m.def( "grail_mass_level_1_file_reader",
            &tio::grailMassLevel1FileReader,
            py::arg( "file_name" ),
            py::arg( "data_level" ) = "1b",
            R"doc(
-Read a GRAIL level-1 mass file.
+         Read a GRAIL level-1 mass file.
 
-Parameters
-----------
-file_name : str
-    Path to the GRAIL mass file.
-data_level : str, default="1b"
-    Data level identifier used by the reader.
+         Parameters
+         ----------
+         file_name : str
+             Path to the GRAIL mass file.
+         data_level : str, default="1b"
+             Data level identifier used by the reader.
 
-Returns
--------
-dict
-    Parsed GRAIL mass-file contents.
-)doc" );
+         Returns
+         -------
+         dict
+             Parsed GRAIL mass-file contents.
+      )doc" );
 };
 
 }  // namespace grail

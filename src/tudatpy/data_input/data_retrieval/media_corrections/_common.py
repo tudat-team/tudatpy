@@ -71,12 +71,22 @@ class DownloadResult:
 
     @property
     def all_files(self) -> list[Path]:
-        """All available files (downloaded + existing), sorted by name."""
+        """**read-only**
+
+        All available files (downloaded + existing), sorted by name.
+
+        :type: list[Path]
+        """
         return sorted(set(self.downloaded + self.existing))
 
     @property
     def success(self) -> bool:
-        """True when at least one file is available and nothing failed."""
+        """**read-only**
+
+        True when at least one file is available and nothing failed.
+
+        :type: bool
+        """
         return len(self.all_files) > 0 and len(self.failed) == 0
 
 

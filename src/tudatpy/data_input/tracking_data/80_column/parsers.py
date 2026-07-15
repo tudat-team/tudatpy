@@ -75,16 +75,16 @@ def get_first_failure_reason(row: pd.Series) -> str:
 
 def parse_80cols_data(lines: list[str]) -> Table:
     """
-    Parses MPC observation data (ASCII 80-column format) from a file or a list of strings.
+    Parses MPC observation data in the ASCII 80-column format.
 
-    The function uses vectorized Pandas operations for efficiency.
+    The function uses vectorized Pandas operations for efficiency. The input
+    records follow the Minor Planet Center fixed-width optical-observation
+    format: https://minorplanetcenter.net/iau/info/OpticalObs.html.
 
     Parameters
     ----------
-    source : str or list[str]
-        The source of the data.
-        - If a `str`, it is treated as a filepath to be opened and read.
-        - If a `list[str]`, it is treated as the raw lines of data.
+    lines : list[str]
+        Raw 80-column observation lines.
 
     Returns
     -------
@@ -302,18 +302,24 @@ def parse_80cols_data(lines: list[str]) -> Table:
 
 
 def parse_80cols_file(filename: str | list[str]) -> Table:
-    """
-    Reads MPC observation data from a file (or list of files) and parses it.
+    """Parse MPC 80-column optical astrometry files into an astropy table.
+
+    This is a supporting parser used by :func:`read_80_column_data`. In the
+    typical Tudat workflow, call :func:`read_80_column_data` instead, so the
+    parsed observations are converted to Tudat tracking-data objects.
 
     Parameters
     ----------
-    filename : str or list[str]
-        A single file path or a list of file paths.
+    filename : str | list[str]
+        Path to one MPC 80-column file, or paths to multiple files. Each record
+        must follow the MPC fixed-width optical-observation format.
 
     Returns
     -------
     Table
-        Astropy Table with unpacked data.
+        Astropy table with standardized optical astrometry columns, including
+        object identifiers, observation epochs, right ascension, declination,
+        observatory code, magnitude, band, MPC note fields, and catalog field.
     """
     all_lines = []
 

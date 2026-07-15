@@ -124,7 +124,7 @@ Enumeration of predefined spherical harmonics models.
 
 Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
 `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_). The directory where these files are stored can be
-extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
+extracted using the :func:`~tudatpy.data_input.resource_paths.get_gravity_models_path` function.
 
         )doc" )
             .value( "egm96",

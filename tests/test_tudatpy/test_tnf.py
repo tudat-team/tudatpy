@@ -374,7 +374,7 @@ def test_reader():
     bodies = create_system_of_bodies(body_settings)
 
     # Create tracking data from the TNF file.
-    tracking_data, supplementary_data = tnf.read_tnf_files(
+    tracking_data, supplementary_data = tnf.read_tnf_data(
         [local_filename],
         ["doppler"],
         spacecraft_name="-202",

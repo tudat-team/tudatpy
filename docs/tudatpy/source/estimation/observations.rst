@@ -44,6 +44,10 @@ Functions
 
    create_new_observation_collection
 
+   create_observation_collection
+
+   set_tracking_supplementary_data_in_bodies
+
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
@@ -64,6 +68,10 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.split_observation_collection
 
 .. autofunction:: tudatpy.estimation.observations.create_new_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
 
 
 Classes

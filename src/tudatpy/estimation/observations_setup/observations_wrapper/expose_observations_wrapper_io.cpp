@@ -85,7 +85,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Returns
         -------
-        list[tudatpy.data.OdfDataType]
+        list[tudatpy.data_input.tracking_data.odf.OdfDataType]
             List of ignored ODF observable type IDs.
         )doc" )
             .def_property_readonly( "ignored_ground_stations",
@@ -103,7 +103,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Returns
         -------
-        list[tudatpy.data.OdfRawFileContents]
+        list[tudatpy.data_input.tracking_data.odf.RawOdfFileContents]
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
@@ -387,7 +387,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             FDETS file name.
         base_frequency : float
             Base frequency for Doppler observables.
-        date_format : tudatpy.data.FdetDateFormat
+        date_format : tudatpy.data_input.tracking_data.fdets.FdetDateFormat
             Date format used in the FDETS file.
         target_name : str
             Name of the target spacecraft.
@@ -484,7 +484,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Parameters
         ----------
-        raw_tracking_txtfile_contents : tudatpy.data.TrackingTxtFileContents
+        raw_tracking_txtfile_contents : tudatpy.data_input.tracking_data.generic_text_file.TrackingTxtFileContents
             The raw tracking file contents.
         spacecraft_name : str
             Name of the spacecraft.

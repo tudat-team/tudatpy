@@ -40,67 +40,18 @@ void expose_fdets( py::module& m )
                     R"doc(Date is provided as a pair of numeric columns. This format is not currently supported.)doc" )
             .export_values( );
 
-    m.def( "read_fdets_file",
-           py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),
-           py::arg( "file_name" ),
-           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string,
-           R"doc(Load contents of Fdets file into object
+    auto readFdetsData = static_cast< std::pair< std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >,
+                                                 std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > > > ( * )(
+            const std::vector< std::string >&,
+            const std::vector< double >&,
+            const tio::FdetDateFormat,
+            const std::string&,
+            const std::vector< std::string >&,
+            const std::vector< std::string >&,
+            const std::string& ) >( &tio::readFdetsFiles< STATE_SCALAR_TYPE, TIME_TYPE > );
 
-           This function loads the contents of an Fdets file. For the currently supported `datetime_string` date format, the following structure is assumed:
-
-           - UTC datetime string
-           - Signal to noise ratio [-]
-           - Normalized spectral max (Not sure what this is)
-           - Doppler measured frequency [Hz]
-           - Doppler noise [Hz]
-
-           If the file contains an additional leading scan-number column, this column is detected automatically.
-
-           Parameters
-           ----------
-           file_name : str
-               String representing the path to the file to be loaded
-           date_format : FdetDateFormat
-               Date format used in the Fdets file
-
-           Returns
-           -------
-           fdets_contents : TrackingTxtFileContents
-               Dictionary with contents of the Fdets file as lists of strings
-           )doc" );
-
-    m.def( "read_fdets_file",
-           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tio::readFdetsFile ),
-           py::arg( "file_name" ),
-           py::arg( "column_types" ),
-           R"doc(Load contents of Fdets file into object using explicit column identifiers.
-
-           .. deprecated::
-              Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
-
-           Parameters
-           ----------
-           file_name : str
-               String representing the path to the file to be loaded
-           column_types : List[str]
-               Identifiers of the columns present in the Fdets file
-
-           Returns
-           -------
-           fdets_contents : TrackingTxtFileContents
-               Dictionary with contents of the Fdets file as lists of strings
-           )doc" );
-
-    m.def( "read_fdets_files",
-           static_cast< std::pair< std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >,
-                                   std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > > > ( * )(
-                   const std::vector< std::string >&,
-                   const std::vector< double >&,
-                   const tio::FdetDateFormat,
-                   const std::string&,
-                   const std::vector< std::string >&,
-                   const std::vector< std::string >&,
-                   const std::string& ) >( &tio::readFdetsFiles< STATE_SCALAR_TYPE, TIME_TYPE > ),
+    m.def( "read_fdets_data",
+           readFdetsData,
            py::arg( "fdets_file_names" ),
            py::arg( "base_frequencies" ),
            py::arg( "date_format" ),
@@ -109,30 +60,39 @@ void expose_fdets( py::module& m )
            py::arg( "receiving_station_names" ),
            py::arg( "earth_name" ) = "Earth",
            R"doc(
-Load FDETS files into tracking data and supplementary data objects.
+         Load Fdets PRIDE Doppler data files into tracking data and supplementary data objects.
 
-Parameters
-----------
-fdets_file_names : list[str]
-    Paths to FDETS files.
-base_frequencies : list[float]
-    Base frequencies associated with the input files.
-date_format : FdetDateFormat
-    Date format used in the FDETS files.
-spacecraft_name : str
-    Name assigned to the spacecraft link end.
-transmitting_station_names : list[str]
-    Names assigned to transmitting stations.
-receiving_station_names : list[str]
-    Names assigned to receiving stations.
-earth_name : str, default="Earth"
-    Name assigned to the Earth body.
+         Each data record is expected to contain a time tag (typically  a UTC datetime string), signal-to-noise
+         ratio, normalized spectral maximum, Doppler measured frequency, and Doppler
+         noise. If the file contains an additional leading scan-number column, this
+         column is detected automatically.
+         The reader parses the Fdets text files, assigns the supplied base
+         frequencies and station names per file, and converts the resulting
+         records to Tudat ``TrackingData`` and ``TrackingSupplementaryData``
+         objects.
 
-Returns
--------
-tuple[list[TrackingData], list[TrackingSupplementaryData]]
-    Tracking data objects and supplementary data objects.
-)doc" );
+         Parameters
+         ----------
+         fdets_file_names : list[str]
+             Paths to Fdets files.
+         base_frequencies : list[float]
+             Base frequencies associated with the input files, per file. This base frequency is added to the frequency column in the file to obtain the observed sky frequencies.
+         date_format : FdetDateFormat
+             Date format used in the Fdets files (to be used for all files).
+         spacecraft_name : str
+             Name assigned to the spacecraft link end (to be used for all files).
+         transmitting_station_names : list[str]
+             Names assigned to transmitting stations, per file.
+         receiving_station_names : list[str]
+             Names assigned to receiving stations, per file.
+         earth_name : str, default="Earth"
+             Name assigned to the Earth body (to be used only when it is needed to place the ground stations on a body not named 'Earth').
+
+         Returns
+         -------
+         tuple[list[TrackingData], list[TrackingSupplementaryData]]
+             Tracking data objects and supplementary data objects.
+      )doc" );
 }
 
 }  // namespace fdets

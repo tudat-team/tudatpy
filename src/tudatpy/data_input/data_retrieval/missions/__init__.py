@@ -5,4 +5,4 @@ radio-science tracking files, and related ancillary data from supported mission
 archives.
 """
 
-from .mission_data_downloader import DownloadAtmosphericData, LoadPDS
+from .mission_data_downloader import LoadPDS

@@ -429,12 +429,17 @@ class HorizonsQuery:
 
     @property
     def name(self) -> Union[str, None]:
-        """Retrieve the name of the query's object.
+        """**read-only**
+
+        Retrieve the name of the query's object.
         The name is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Unnamed minor planets will use their designation instead.
         If a name can not be inferred, the raw name from Horizons will be returned.
-        Please consider raising an issue on the Tudat github in such cases."""
+        Please consider raising an issue on the Tudat github in such cases.
+
+        :type: Union[str, None]
+        """
         try:
             self._infer_name()
             return self._name
@@ -446,11 +451,16 @@ class HorizonsQuery:
 
     @property
     def MPC_number(self) -> Union[str, None]:
-        """Retrieve the MPC (Minor Planet Centre) number of the object.
+        """**read-only**
+
+        Retrieve the MPC (Minor Planet Centre) number of the object.
         The MPC number is inferred from data retrieved and will return none
         if data has not been retrieved yet.
         The MPC number is only relevant to minor planets such as asteroids, TNOs and
-        Near-Earth Asteroids."""
+        Near-Earth Asteroids.
+
+        :type: Union[str, None]
+        """
         try:
             self._infer_name()
             return self._MPC_number
@@ -459,14 +469,19 @@ class HorizonsQuery:
 
     @property
     def designation(self) -> Union[str, None]:
-        """Retrieve the relevant designation of the query's object.
+        """**read-only**
+
+        Retrieve the relevant designation of the query's object.
         The designation is inferred from the data retrieved and will return none
         if data has not been retrieved yet.
         Minor planets and Comets will return their provisional designation
         (1898 DQ for Eros, 1982 HG1 for Halley).
         A comets' formal designation can often be retrieved using the `name` property
         Spacecraft and Major Planets/ Moons will return their JPL number
-        (-28 for JUICE, 6 for Saturn Barycentre)."""
+        (-28 for JUICE, 6 for Saturn Barycentre).
+
+        :type: Union[str, None]
+        """
         try:
             self._infer_name()
             return self._designation
@@ -1109,6 +1124,11 @@ class HorizonsBatch:
 
     @property
     def names(self) -> Union[None, List[str]]:
-        """Retrieves a list of names of the query objects. Returns `None`
-        if `add_batch_ephemerides` has not been run yet."""
+        """**read-only**
+
+        Retrieves a list of names of the query objects. Returns `None`
+        if `add_batch_ephemerides` has not been run yet.
+
+        :type: Union[None, List[str]]
+        """
         return self._names

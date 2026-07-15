@@ -1,7 +1,7 @@
 """Tracking-data readers and containers.
 
 This module exposes Tudat tracking-data containers together with readers and
-helpers for radiometric, optical, SLR, TNF/TRK-2-34, ODF, IFMS, FDETS, PSF, and
+helpers for radiometric, optical, SLR, TNF/TRK-2-34, ODF, IFMS, Fdets, PSF, and
 generic tracking text-file inputs.
 """
 

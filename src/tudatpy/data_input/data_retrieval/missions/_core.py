@@ -17,7 +17,7 @@ from .juice import JuiceMixin
 from .mro import MroMixin
 from .cassini import CassiniMixin
 from .grail import GrailMixin
-from .ro import RoMixin
+from .rosetta import RosettaMixin
 
 
 class LoadPDS(
@@ -29,7 +29,7 @@ class LoadPDS(
     MroMixin,
     CassiniMixin,
     GrailMixin,
-    RoMixin,
+    RosettaMixin,
 ):
     """Mission data downloader for PDS and SPICE resources."""
 

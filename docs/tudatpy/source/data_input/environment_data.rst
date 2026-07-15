@@ -1,4 +1,4 @@
-.. _data_input_environment_data:
+.. _environment_data:
 
 ``environment_data``
 ====================
@@ -18,4 +18,3 @@
    environment_data/spice
 
 .. automodule:: tudatpy.data_input.environment_data
-   :members:

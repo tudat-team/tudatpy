@@ -4,14 +4,9 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from tudatpy.data_input.data_retrieval.media_corrections import (
-    DownloadResult,
-    IonexProduct,
-    IonexResolution,
-    VmfTechnique,
-    download_ionex,
-    download_vmf,
-)
+from ._common import DownloadResult
+from .ionex import IonexProduct, IonexResolution, download_ionex
+from .vmf import VmfTechnique, download_vmf
 
 
 class DownloadAtmosphericData:

@@ -1,4 +1,4 @@
-.. _data_input_resource_paths:
+.. _resource_paths:
 
 ``resource_paths``
 ==================
@@ -27,7 +27,6 @@ Functions
    get_space_weather_path
    get_station_location_path
    get_nequick2_path
-   read_vector_history_from_file
 
 .. autofunction:: tudatpy.data_input.resource_paths.get_resource_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_tudat_data_path
@@ -44,4 +43,3 @@ Functions
 .. autofunction:: tudatpy.data_input.resource_paths.get_space_weather_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_station_location_path
 .. autofunction:: tudatpy.data_input.resource_paths.get_nequick2_path
-.. autofunction:: tudatpy.data_input.resource_paths.read_vector_history_from_file

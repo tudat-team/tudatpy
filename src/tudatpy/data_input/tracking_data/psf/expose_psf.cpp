@@ -8,6 +8,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <optional>
+
 #include "scalarTypes.h"
 #include "tudat/io/readPsfFile.h"
 
@@ -49,13 +51,13 @@ void expose_psf( py::module& m )
             .def( "get_effective_pixel_line",
                   &tio::psf::RawPsfMeasurement::getEffectivePixelLine,
                   R"doc(
-Return the corrected or effective pixel-line coordinates.
+         Return the corrected or effective pixel-line coordinates.
 
-Returns
--------
-numpy.ndarray
-    Effective pixel-line coordinates.
-)doc" );
+         Returns
+         -------
+         numpy.ndarray
+             Effective pixel-line coordinates.
+      )doc" );
 
     py::class_< tio::psf::RawPsfStarMeasurement, std::shared_ptr< tio::psf::RawPsfStarMeasurement >, tio::psf::RawPsfMeasurement >(
             m, "RawPsfStarMeasurement", R"doc(Raw PSF star measurement record.)doc" )
@@ -89,104 +91,83 @@ numpy.ndarray
            &tio::psf::readRawPsfFile,
            py::arg( "psf_file" ),
            R"doc(
-Read a PSF file without converting it to tracking data.
+         Read a PSF file without converting it to tracking data.
 
-Parameters
-----------
-psf_file : str
-    Path to the PSF file.
+         This is a supporting reader for inspecting raw PSF contents. In the
+         typical Tudat workflow, call :func:`read_psf_data` instead, so the file
+         contents are converted to Tudat tracking-data objects.
 
-Returns
--------
-RawPsfFileContents
-    Raw parsed PSF file contents.
-)doc" );
-    m.def( "read_psf_files",
-           &tio::psf::readPsfFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "psf_file_names" ),
-           py::arg( "receiver_body_name" ) = "",
-           py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ),
-           py::arg( "use_raw_image_name_as_body_name_if_unmapped" ) = true,
-           py::arg( "use_corrected_pixel_line" ) = true,
-           py::arg( "use_mid_exposure_time" ) = true,
-           py::arg( "include_deleted_pictures" ) = false,
-           py::arg( "include_end_marker_records" ) = false,
-           py::arg( "filter_by_use_flag" ) = false,
-           py::arg( "required_use_flag" ) = 0,
-           R"doc(
-Read PSF files and convert them to tracking-data containers.
+         Parameters
+         ----------
+         psf_file : str
+             Path to the PSF file.
 
-Parameters
-----------
-psf_file_names : list[str]
-    Paths to PSF files.
-receiver_body_name : str, default=""
-    Optional receiving body name.
-image_name_to_body_name : dict[str, str], default={}
-    Mapping from PSF image names to Tudat body names.
-use_raw_image_name_as_body_name_if_unmapped : bool, default=True
-    Whether unmapped image names are used as body names.
-use_corrected_pixel_line : bool, default=True
-    Whether corrected pixel-line coordinates are used.
-use_mid_exposure_time : bool, default=True
-    Whether mid-exposure time is used as observation time.
-include_deleted_pictures : bool, default=False
-    Whether deleted-picture records are included.
-include_end_marker_records : bool, default=False
-    Whether end-marker records are included.
-filter_by_use_flag : bool, default=False
-    Whether measurements are filtered by use flag.
-required_use_flag : int, default=0
-    Required use flag when ``filter_by_use_flag`` is enabled.
+         Returns
+         -------
+         RawPsfFileContents
+             Raw parsed PSF file contents.
+      )doc" );
+    m.def(
+            "read_psf_data",
+            []( const std::vector< std::string >& psfFileNames,
+                const std::string& receiverBodyName,
+                const std::map< std::string, std::string >& imageNameToBodyName,
+                const bool useRawImageNameAsBodyNameIfUnmapped,
+                const std::optional< int >& requiredUseFlag ) {
+                return tio::psf::readPsfFiles< STATE_SCALAR_TYPE, TIME_TYPE >( psfFileNames,
+                                                                               receiverBodyName,
+                                                                               imageNameToBodyName,
+                                                                               useRawImageNameAsBodyNameIfUnmapped,
+                                                                               true,
+                                                                               true,
+                                                                               false,
+                                                                               false,
+                                                                               requiredUseFlag.has_value( ),
+                                                                               requiredUseFlag.value_or( 0 ) );
+            },
+            py::arg( "psf_file_names" ),
+            py::arg( "receiver_body_name" ) = "",
+            py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ),
+            py::arg( "use_raw_image_name_as_body_name_if_unmapped" ) = true,
+            py::arg( "required_use_flag" ) = py::none( ),
+            R"doc(
+         Read PSF files and convert them to tracking-data containers.
 
-Returns
--------
-tuple[list[TrackingData], list[TrackingSupplementaryData]]
-    Tracking data objects and supplementary data objects.
-)doc" );
-    m.def( "read_psf_file",
-           &tio::psf::readPsfFile< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "psf_file_name" ),
-           py::arg( "receiver_body_name" ) = "",
-           py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ),
-           py::arg( "use_raw_image_name_as_body_name_if_unmapped" ) = true,
-           py::arg( "use_corrected_pixel_line" ) = true,
-           py::arg( "use_mid_exposure_time" ) = true,
-           py::arg( "include_deleted_pictures" ) = false,
-           py::arg( "include_end_marker_records" ) = false,
-           py::arg( "filter_by_use_flag" ) = false,
-           py::arg( "required_use_flag" ) = 0,
-           R"doc(
-Read a PSF file and convert it to tracking-data containers.
+         This reader is intended for PSF files of the type distributed by the
+         JPL Solar System Dynamics group as spacecraft optical observations of
+         planetary satellites (https://ssd.jpl.nasa.gov/sats/obs_data.html).
+         These files contain optical image measurements, camera metadata, and
+         image orientation information. This reader converts the selected image
+         records to pixel-line tracking data and corresponding supplementary
+         data.
+         The raw PSF contents can also be inspected with
+         :func:`read_raw_psf_file_contents`; :func:`read_psf_data` applies the
+         image-name mapping and optional use-flag filter before creating Tudat
+         ``TrackingData`` and
+         ``TrackingSupplementaryData`` objects.
+         During conversion, deleted pictures and end-marker records are skipped,
+         corrected pixel-line coordinates are used, and observation epochs are
+         stored at mid-exposure.
 
-Parameters
-----------
-psf_file_name : str
-    Path to the PSF file.
-receiver_body_name : str, default=""
-    Optional receiving body name.
-image_name_to_body_name : dict[str, str], default={}
-    Mapping from PSF image names to Tudat body names.
-use_raw_image_name_as_body_name_if_unmapped : bool, default=True
-    Whether unmapped image names are used as body names.
-use_corrected_pixel_line : bool, default=True
-    Whether corrected pixel-line coordinates are used.
-use_mid_exposure_time : bool, default=True
-    Whether mid-exposure time is used as observation time.
-include_deleted_pictures : bool, default=False
-    Whether deleted-picture records are included.
-include_end_marker_records : bool, default=False
-    Whether end-marker records are included.
-filter_by_use_flag : bool, default=False
-    Whether measurements are filtered by use flag.
-required_use_flag : int, default=0
-    Required use flag when ``filter_by_use_flag`` is enabled.
+         Parameters
+         ----------
+         psf_file_names : list[str]
+             Paths to PSF files.
+         receiver_body_name : str, default=""
+             Optional receiving body name.
+         image_name_to_body_name : dict[str, str], default={}
+             Mapping from PSF image names to Tudat body names.
+         use_raw_image_name_as_body_name_if_unmapped : bool, default=True
+             Whether unmapped image names are used as body names.
+         required_use_flag : int | None, default=None
+             If not None, only measurements with this PSF ``USE`` flag are
+             converted.
 
-Returns
--------
-tuple[list[TrackingData], list[TrackingSupplementaryData]]
-    Tracking data objects and supplementary data objects.
-)doc" );
+         Returns
+         -------
+         tuple[list[TrackingData], list[TrackingSupplementaryData]]
+             Tracking data objects and supplementary data objects.
+      )doc" );
 }
 
 }  // namespace psf

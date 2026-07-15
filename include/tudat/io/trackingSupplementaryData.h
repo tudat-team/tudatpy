@@ -26,24 +26,22 @@ namespace tudat
 namespace data
 {
 
-enum class FrequencySupplementaryDataType { ramped_frequency, piecewise_constant_frequency };
-
 class FrequencySupplementaryData
 {
 public:
-    FrequencySupplementaryData( const FrequencySupplementaryDataType frequencySupplementaryDataType ):
-        frequencySupplementaryDataType_( frequencySupplementaryDataType )
+    FrequencySupplementaryData( const std::string& frequencySupplementaryDataKind ):
+        frequencySupplementaryDataKind_( frequencySupplementaryDataKind )
     {}
 
     virtual ~FrequencySupplementaryData( ) = default;
 
-    FrequencySupplementaryDataType getFrequencySupplementaryDataType( ) const
+    std::string getFrequencySupplementaryDataKind( ) const
     {
-        return frequencySupplementaryDataType_;
+        return frequencySupplementaryDataKind_;
     }
 
 private:
-    FrequencySupplementaryDataType frequencySupplementaryDataType_;
+    std::string frequencySupplementaryDataKind_;
 };
 
 class RampedFrequencySupplementaryData : public FrequencySupplementaryData
@@ -62,10 +60,10 @@ public:
         double frequencyRate_ = 0.0;
     };
 
-    RampedFrequencySupplementaryData( ): FrequencySupplementaryData( FrequencySupplementaryDataType::ramped_frequency ) {}
+    RampedFrequencySupplementaryData( ): FrequencySupplementaryData( "ramped_frequency" ) {}
 
     RampedFrequencySupplementaryData( const std::vector< FrequencyRamp >& frequencyRamps ):
-        FrequencySupplementaryData( FrequencySupplementaryDataType::ramped_frequency ), frequencyRamps_( frequencyRamps )
+        FrequencySupplementaryData( "ramped_frequency" ), frequencyRamps_( frequencyRamps )
     {}
 
     void addFrequencyRamp( const double startTime, const double endTime, const double startFrequency, const double frequencyRate )
@@ -85,12 +83,10 @@ private:
 class PiecewiseConstantFrequencySupplementaryData : public FrequencySupplementaryData
 {
 public:
-    PiecewiseConstantFrequencySupplementaryData( ):
-        FrequencySupplementaryData( FrequencySupplementaryDataType::piecewise_constant_frequency )
-    {}
+    PiecewiseConstantFrequencySupplementaryData( ): FrequencySupplementaryData( "piecewise_constant_frequency" ) {}
 
     PiecewiseConstantFrequencySupplementaryData( const std::map< double, double >& frequencyHistory ):
-        FrequencySupplementaryData( FrequencySupplementaryDataType::piecewise_constant_frequency ), frequencyHistory_( frequencyHistory )
+        FrequencySupplementaryData( "piecewise_constant_frequency" ), frequencyHistory_( frequencyHistory )
     {}
 
     void setFrequency( const double time, const double frequency )
@@ -107,30 +103,28 @@ private:
     std::map< double, double > frequencyHistory_;
 };
 
-enum class InstrumentSupplementaryDataType { camera_settings };
-
 class InstrumentSupplementaryData
 {
 public:
-    explicit InstrumentSupplementaryData( const InstrumentSupplementaryDataType instrumentSupplementaryDataType ):
-        instrumentSupplementaryDataType_( instrumentSupplementaryDataType )
+    explicit InstrumentSupplementaryData( const std::string& instrumentSupplementaryDataKind ):
+        instrumentSupplementaryDataKind_( instrumentSupplementaryDataKind )
     {}
 
     virtual ~InstrumentSupplementaryData( ) = default;
 
-    InstrumentSupplementaryDataType getInstrumentSupplementaryDataType( ) const
+    std::string getInstrumentSupplementaryDataKind( ) const
     {
-        return instrumentSupplementaryDataType_;
+        return instrumentSupplementaryDataKind_;
     }
 
 private:
-    InstrumentSupplementaryDataType instrumentSupplementaryDataType_;
+    std::string instrumentSupplementaryDataKind_;
 };
 
 class CameraInstrumentSupplementaryData : public InstrumentSupplementaryData
 {
 public:
-    CameraInstrumentSupplementaryData( ): InstrumentSupplementaryData( InstrumentSupplementaryDataType::camera_settings ) {}
+    CameraInstrumentSupplementaryData( ): InstrumentSupplementaryData( "camera_settings" ) {}
 
     CameraInstrumentSupplementaryData( const std::string& cameraId,
                                        const double focalLength,
@@ -141,7 +135,7 @@ public:
                                        const Eigen::Vector3d& mountingOffsets,
                                        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory =
                                                std::map< double, Eigen::Quaterniond >( ) ):
-        InstrumentSupplementaryData( InstrumentSupplementaryDataType::camera_settings ), cameraId_( cameraId ), focalLength_( focalLength ),
+        InstrumentSupplementaryData( "camera_settings" ), cameraId_( cameraId ), focalLength_( focalLength ),
         principalPoint_( principalPoint ), fieldOfViewBounds_( fieldOfViewBounds ), kMatrix_( kMatrix ),
         distortionCoefficients_( distortionCoefficients ), mountingOffsets_( mountingOffsets ),
         rotationFromInertialToCameraFrameHistory_( rotationFromInertialToCameraFrameHistory )

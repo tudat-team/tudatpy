@@ -18,8 +18,7 @@ class RadioBase(Converter):
         3: "3W",
     }
 
-    # Maps trk234 band letters to the frequency band string identifiers recognized by
-    # tudat::observation_models::getFrequencyBandFromString.
+    # Maps trk234 band letters to Tudat frequency-band string identifiers.
     frequencyBandsDict = {
         "S": "S-band",
         "X": "X-band",

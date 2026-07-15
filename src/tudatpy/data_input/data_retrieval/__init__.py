@@ -6,4 +6,3 @@ as inputs to Tudat analyses.
 """
 
 from . import media_corrections, missions
-from .missions import DownloadAtmosphericData, LoadPDS

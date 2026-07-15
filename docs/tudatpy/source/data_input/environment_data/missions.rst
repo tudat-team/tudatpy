@@ -1,4 +1,4 @@
-.. _data_input_environment_data_missions:
+.. _environment_data_missions:
 
 ``missions``
 ============
@@ -10,4 +10,11 @@
    missions/grail
 
 .. automodule:: tudatpy.data_input.environment_data.missions
-   :members:
+
+Modules
+-------
+.. currentmodule:: tudatpy.data_input.environment_data.missions
+
+.. autosummary::
+
+   grail

@@ -1,4 +1,4 @@
-"""ODF tracking-file loading."""
+"""ODF tracking-data loading."""
 
 from tudatpy.kernel.data_input.tracking_data.odf import (
     OdfCommonDataBlock,
@@ -8,12 +8,12 @@ from tudatpy.kernel.data_input.tracking_data.odf import (
     OdfDopplerDataBlock,
     OdfRampBlock,
     RawOdfFileContents,
-    read_odf_file,
-    read_odf_files,
+    read_odf_data,
     read_raw_odf_file_contents,
 )
 
 __all__ = [
+    "read_odf_data",
     "OdfCommonDataBlock",
     "OdfDataBlock",
     "OdfDataSpecificBlock",
@@ -21,7 +21,5 @@ __all__ = [
     "OdfDopplerDataBlock",
     "OdfRampBlock",
     "RawOdfFileContents",
-    "read_odf_file",
-    "read_odf_files",
     "read_raw_odf_file_contents",
 ]

@@ -24,7 +24,7 @@ References
 Example
 -------
 >>> from datetime import datetime
->>> from tudatpy.data.data_retrieval.media_corrections import (
+>>> from tudatpy.data_input.data_retrieval.media_corrections import (
 ...     download_ionex, download_vmf, VmfTechnique)
 >>>
 >>> ionex = download_ionex(datetime(2025, 3, 1), datetime(2025, 3, 7))
@@ -104,7 +104,7 @@ def download_ancillary(
     Examples
     --------
     >>> from datetime import datetime
-    >>> from tudatpy.data.data_retrieval.media_corrections import (
+    >>> from tudatpy.data_input.data_retrieval.media_corrections import (
     ...     download_ancillary, VmfTechnique)
     >>>
     >>> # Download everything (IONEX + VMF GNSS)

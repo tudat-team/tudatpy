@@ -7,6 +7,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "tudat/io/readTrackingTxtFile.h"
 
 namespace py = pybind11;
@@ -119,126 +123,182 @@ void expose_generic_text_file( py::module& m )
     py::class_< tio::TrackingTxtFileContents, std::shared_ptr< tio::TrackingTxtFileContents > >( m,
                                                                                                  "TrackingTxtFileContents",
                                                                                                  R"doc(
-Container for parsed generic tracking text-file contents.
+         Container for parsed generic tracking text-file contents.
 
-Parameters
-----------
-file_name : str
-    Path to the tracking text file.
-column_types : list[str]
-    Names of the data fields represented by each column.
-comment_symbol : str, default="#"
-    Character used to mark comment lines.
-value_separators : str, default=",:\t "
-    Characters interpreted as value separators.
-)doc" )
+         This class is a supporting interface for inspecting parsed file
+         contents. In the typical Tudat workflow for this submodule, call
+         :func:`read_generic_text_data` instead.
+
+         Parameters
+         ----------
+         file_name : str
+             Path to the tracking text file.
+         column_types : list[str]
+             Names of the data fields represented by each column.
+         comment_symbol : str, default="#"
+             Character used to mark comment lines.
+         value_separators : str, default=",:\t "
+             Characters interpreted as value separators.
+      )doc" )
             .def( py::init< const std::string, const std::vector< std::string >, const char, const std::string >( ),
                   py::arg( "file_name" ),
                   py::arg( "column_types" ),
                   py::arg( "comment_symbol" ) = '#',
                   py::arg( "value_separators" ) = ",:\t ",
                   R"doc(
-Read a generic tracking text file.
+         Read a generic tracking text file.
 
-Parameters
-----------
-file_name : str
-    Path to the tracking text file.
-column_types : list[str]
-    Names of the data fields represented by each column.
-comment_symbol : str, default="#"
-    Character used to mark comment lines.
-value_separators : str, default=",:\t "
-    Characters interpreted as value separators.
-)doc" )
+         This constructor is a supporting interface for inspecting one parsed
+         file. In the typical Tudat workflow for this submodule, call
+         :func:`read_generic_text_data` instead, so one or more files are loaded
+         through the common reader interface.
+
+         Parameters
+         ----------
+         file_name : str
+             Path to the tracking text file.
+         column_types : list[str]
+             Names of the data fields represented by each column.
+         comment_symbol : str, default="#"
+             Character used to mark comment lines.
+         value_separators : str, default=",:\t "
+             Characters interpreted as value separators.
+      )doc" )
             .def( "add_metadata_val",
                   py::overload_cast< tio::TrackingDataType, double >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "value" ),
                   R"doc(
-Add a scalar metadata value to the parsed file contents.
+         Add a scalar metadata value to the parsed file contents.
 
-Parameters
-----------
-tracking_data_type : TrackingDataType
-    Metadata field to set.
-value : float
-    Metadata value.
+         Parameters
+         ----------
+         tracking_data_type : TrackingDataType
+             Metadata field to set.
+         value : float
+             Metadata value.
 
-Returns
--------
-None
-)doc" )
+         Returns
+         -------
+         None
+      )doc" )
             .def( "get_available_datatypes",
                   &tio::TrackingTxtFileContents::getAllAvailableDataTypes,
                   R"doc(
-Return all data fields available in the parsed contents.
+         Return all data fields available in the parsed contents.
 
-Returns
--------
-list[TrackingDataType]
-    Data fields for which data or metadata is available.
-)doc" )
+         Returns
+         -------
+         list[TrackingDataType]
+             Data fields for which data or metadata is available.
+      )doc" )
             .def( "add_metadata_str",
                   py::overload_cast< tio::TrackingDataType, const std::string& >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "str_value" ),
                   R"doc(
-Add a string metadata value to the parsed file contents.
+         Add a string metadata value to the parsed file contents.
 
-Parameters
-----------
-tracking_data_type : TrackingDataType
-    Metadata field to set.
-str_value : str
-    Metadata value.
+         Parameters
+         ----------
+         tracking_data_type : TrackingDataType
+             Metadata field to set.
+         str_value : str
+             Metadata value.
 
-Returns
--------
-None
-)doc" )
+         Returns
+         -------
+         None
+      )doc" )
             .def_property_readonly( "column_field_types",
                                     &tio::TrackingTxtFileContents::getRawColumnTypes,
-                                    R"doc(list[TrackingDataType]: Data field assigned to each input column.)doc" )
+                                    R"doc(
+         **read-only**
+
+         Data field assigned to each input column.
+
+         :type: list[TrackingDataType]
+      )doc" )
             .def_property_readonly( "double_datamap",
                                     &tio::TrackingTxtFileContents::getDoubleDataMap,
-                                    R"doc(dict[TrackingDataType, list[float]]: Numeric parsed data by field.)doc" )
+                                    R"doc(
+         **read-only**
+
+         Numeric parsed data by field.
+
+         :type: dict[TrackingDataType, list[float]]
+      )doc" )
             .def_property_readonly( "raw_datamap",
                                     &tio::TrackingTxtFileContents::getRawDataMap,
-                                    R"doc(dict[TrackingDataType, list[str]]: Raw string parsed data by field.)doc" )
-            .def_property_readonly( "num_rows", &tio::TrackingTxtFileContents::getNumRows, R"doc(int: Number of parsed data rows.)doc" );
+                                    R"doc(
+         **read-only**
 
-    m.def( "read_tracking_txt_file",
-           &tio::createTrackingTxtFileContents,
-           py::arg( "file_name" ),
-           py::arg( "column_types" ),
-           py::arg( "comment_symbol" ) = '#',
-           py::arg( "value_separators" ) = ",:\t ",
-           py::arg( "ignore_omitted_columns" ) = false,
-           py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter,
-           R"doc(
-Read a generic tracking text file.
+         Raw string parsed data by field.
 
-Parameters
-----------
-file_name : str
-    Path to the tracking text file.
-column_types : list[str]
-    Names of the data fields represented by each column.
-comment_symbol : str, default="#"
-    Character used to mark comment lines.
-value_separators : str, default=",:\t "
-    Characters interpreted as value separators.
-ignore_omitted_columns : bool, default=False
-    Whether columns omitted from ``column_types`` are ignored.
-data_filter_method : TrackingTxtFileReadFilterType, default=no_tracking_txt_file_filter
-    Optional reader-specific filter mode.
+         :type: dict[TrackingDataType, list[str]]
+      )doc" )
+            .def_property_readonly( "num_rows", &tio::TrackingTxtFileContents::getNumRows, R"doc(
+         **read-only**
 
-Returns
--------
-TrackingTxtFileContents
-    Parsed tracking text-file contents.
-)doc" );
+         Number of parsed data rows.
+
+         :type: int
+      )doc" );
+
+    m.def(
+            "read_generic_text_data",
+            []( const std::vector< std::string >& fileNames,
+                const std::vector< std::string >& columnTypes,
+                const char commentSymbol,
+                const std::string& valueSeparators,
+                const bool ignoreOmittedColumns,
+                const tio::TrackingTxtFileReadFilterType dataFilterMethod ) {
+                std::vector< std::shared_ptr< tio::TrackingTxtFileContents > > parsedFiles;
+                parsedFiles.reserve( fileNames.size( ) );
+                for( const std::string& fileName : fileNames )
+                {
+                    parsedFiles.push_back( tio::createTrackingTxtFileContents(
+                            fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod ) );
+                }
+                return parsedFiles;
+            },
+            py::arg( "file_names" ),
+            py::arg( "column_types" ),
+            py::arg( "comment_symbol" ) = '#',
+            py::arg( "value_separators" ) = ",:\t ",
+            py::arg( "ignore_omitted_columns" ) = false,
+            py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter,
+            R"doc(
+         Read generic tracking text files.
+
+         Each file is interpreted as rows of tracking measurements with data types
+         defined by the ``column_types`` argument. The resulting
+         :class:`TrackingTxtFileContents` objects can be inspected before converting the
+         data to Tudat-compatible tracking-data objects.
+         The :class:`TrackingTxtFileContents` class stores the parsed numeric
+         and raw string columns, together with any metadata added before later
+         processing.
+
+         Parameters
+         ----------
+         file_names : list[str]
+             Paths to the tracking text files.
+         column_types : list[str]
+             Names of the data fields represented by each column.
+         comment_symbol : str, default="#"
+             Character used to mark comment lines.
+         value_separators : str, default=",:\t "
+             Characters interpreted as value separators.
+         ignore_omitted_columns : bool, default=False
+             Whether columns omitted from ``column_types`` are ignored.
+         data_filter_method : TrackingTxtFileReadFilterType, default=no_tracking_txt_file_filter
+             Optional reader-specific filter mode.
+
+         Returns
+         -------
+         list[TrackingTxtFileContents]
+             Parsed tracking text-file contents, one object per input file.
+      )doc" );
 }
 
 }  // namespace generic_text_file
