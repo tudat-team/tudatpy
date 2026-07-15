@@ -675,21 +675,3 @@ def get_biases_EFCC18(
     DEC_correction = Quantity(DEC_correction, unit=u.arcsec).to(u.rad).value
 
     return RA_correction, DEC_correction
-
-
-__all__ = [
-    "read_optical_data",
-    "ANCILLARY_STRING_COLUMNS",
-    "BIAS_LOWRES_FILE",
-    "DEFAULT_CATALOG_FLAGS",
-    "REQUIRED_OPTICAL_COLUMNS",
-    "create_augmented_optical_table",
-    "filter_augmented_optical_table",
-    "get_biases_EFCC18",
-    "load_bias_file",
-    "optical_table_to_tracking_data",
-    "read_astropy_optical_data",
-    "read_pandas_optical_data",
-    "standardize_optical_dataframe",
-    "validate_optical_table",
-]

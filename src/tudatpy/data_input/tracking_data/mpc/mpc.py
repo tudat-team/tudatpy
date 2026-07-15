@@ -9,8 +9,8 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
     optical_table_to_tracking_data,
     standardize_optical_dataframe,
 )
+from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
 
-unpackers = importlib.import_module("tudatpy.data_input.tracking_data.80_column.unpackers")
 OBS_TYPES_TO_DROP = unpackers.OBS_TYPES_TO_DROP
 
 
