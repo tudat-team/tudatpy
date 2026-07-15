@@ -5,6 +5,7 @@ import copy
 import importlib
 from tudatpy.data_input.tracking_data.optical_utilities import (
     create_augmented_optical_table,
+    filter_augmented_optical_table,
     optical_table_to_tracking_data,
     standardize_optical_dataframe,
 )
@@ -145,6 +146,166 @@ class BatchMPC:
             Copy of batch.
         """
         return copy.copy(self)
+
+    def filter(
+        self,
+        bands: list[str] | None = None,
+        catalogs: list[str] | None = None,
+        observation_types: list[str] | None = None,
+        observatories: list[str] | None = None,
+        observatories_exclude: list[str] | None = None,
+        epoch_start=None,
+        epoch_end=None,
+        in_place: bool = True,
+    ) -> "None | BatchMPC":
+        """Filter observations in the batch.
+
+        This method filters the augmented MPC optical table stored in
+        :attr:`table`. Epoch and observatory filtering is delegated to
+        :func:`~tudatpy.data_input.tracking_data.optical_utilities.filter_augmented_optical_table`.
+
+        Parameters
+        ----------
+        bands : list[str] | None, default None
+            Observation bands to keep.
+        catalogs : list[str] | None, default None
+            Star-catalog codes to keep.
+        observation_types : list[str] | None, default None
+            MPC Note 2 observation types to keep.
+        observatories : list[str] | None, default None
+            Observatory codes to keep.
+        observatories_exclude : list[str] | None, default None
+            Observatory codes to remove.
+        epoch_start : float | datetime.datetime | None, default None
+            Lower epoch bound. See
+            :func:`~tudatpy.data_input.tracking_data.optical_utilities.filter_augmented_optical_table`
+            for accepted epoch formats.
+        epoch_end : float | datetime.datetime | None, default None
+            Upper epoch bound. See
+            :func:`~tudatpy.data_input.tracking_data.optical_utilities.filter_augmented_optical_table`
+            for accepted epoch formats.
+        in_place : bool, default True
+            Whether to modify this batch. If ``False``, a filtered copy is
+            returned.
+
+        Returns
+        -------
+        None | BatchMPC
+            ``None`` if ``in_place`` is ``True``; otherwise a filtered copy.
+        """
+        for name, value in {
+            "bands": bands,
+            "catalogs": catalogs,
+            "observation_types": observation_types,
+            "observatories": observatories,
+            "observatories_exclude": observatories_exclude,
+        }.items():
+            if value is not None and not isinstance(value, list):
+                raise ValueError(f"{name} must be a list or None")
+
+        if observatories is not None and observatories_exclude is not None:
+            raise ValueError("Include or exclude observatories, not both at the same time.")
+
+        batch = self if in_place else self.copy()
+        table = batch._table
+
+        if bands is not None and "band" in table.columns:
+            table = table.loc[table["band"].isin(bands)]
+        if catalogs is not None and "catalog" in table.columns:
+            table = table.loc[table["catalog"].isin(catalogs)]
+        if observation_types is not None and "note2" in table.columns:
+            table = table.loc[table["note2"].isin(observation_types)]
+
+        table = filter_augmented_optical_table(
+            table,
+            epoch_start=epoch_start,
+            epoch_end=epoch_end,
+            observatories=observatories,
+            observatories_exclude=observatories_exclude,
+        )
+
+        batch._table = table
+        batch._refresh_metadata()
+
+        if in_place:
+            return None
+        return batch
+
+    def summary(self) -> None:
+        """Print a short summary of the current batch."""
+        print()
+        print("   Batch Summary:")
+        print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
+        print("  ", self.MPC_objects)
+        print(f"2. Batch includes {self.size} observations.")
+
+        if self._table.empty:
+            print("3. The batch contains no observations.")
+            print()
+            return
+
+        print(
+            "3. The observations range from "
+            + f"{self._table.epoch_seconds_UTC.min()} "
+            + f"to {self._table.epoch_seconds_UTC.max()}"
+        )
+        print(f"   In Julian Days: {self._table.epoch.min()} to {self._table.epoch.max()}")
+        print(
+            f"4. The batch contains observations from {len(self.observatories)} "
+            + f"observatories, including {len(self.space_telescopes)} space telescopes"
+        )
+        print()
+
+    def observatories_table(
+        self,
+        only_in_batch: bool = True,
+        only_space_telescopes: bool = False,
+        exclude_space_telescopes: bool = False,
+        include_positions: bool = False,
+    ) -> pd.DataFrame:
+        """Return a table with observatory counts for this batch.
+
+        Parameters
+        ----------
+        only_in_batch : bool, default True
+            Whether to return only observatories present in this batch. Since
+            the new MPC interface does not maintain a separate global MPC
+            observatory catalog, this argument is retained for compatibility
+            and has no effect when ``True``.
+        only_space_telescopes : bool, default False
+            Whether to return only observatories marked as space telescopes in
+            the batch metadata.
+        exclude_space_telescopes : bool, default False
+            Whether to remove observatories marked as space telescopes in the
+            batch metadata.
+        include_positions : bool, default False
+            Retained for compatibility. The current table does not include
+            observatory positions.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with columns ``Code``, ``Name`` and ``count``.
+        """
+        if self._table.empty:
+            return pd.DataFrame(columns=["Code", "Name", "count"])
+
+        table = (
+            self._table.groupby("observatory")
+            .size()
+            .rename("count")
+            .reset_index()
+            .rename(columns={"observatory": "Code"})
+            .assign(Name=lambda x: x["Code"])
+        )
+
+        if only_space_telescopes:
+            table = table.loc[table["Code"].isin(self.space_telescopes)]
+        if exclude_space_telescopes:
+            table = table.loc[~table["Code"].isin(self.space_telescopes)]
+
+        columns = ["Code", "Name", "count"]
+        return table.loc[:, columns].reset_index(drop=True)
 
     # getters to make everything read-only
     @property
