@@ -463,21 +463,27 @@ void expose_observations_io_bindings( py::module& m )
             A new observation collection with compressed Doppler data.
         )doc" );
 
-    m.def( "create_tracking_txtfile_observation_collection",
-           py::overload_cast< const std::shared_ptr< tudat::input_output::TrackingTxtFileContents >,
-                              const std::string,
-                              const std::vector< tom::ObservableType >,
-                              const std::map< std::string, Eigen::Vector3d >,
-                              const tom::ObservationAncillarySimulationSettings& >(
-                   &tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "raw_tracking_txtfile_contents" ),
-           py::arg( "spacecraft_name" ),
-           py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
-           py::arg_v( "earth_fixed_ground_station_positions",
-                      tss::getApproximateDsnGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-           py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
-           R"doc(
+    m.def(
+            "create_tracking_txtfile_observation_collection",
+            []( const std::shared_ptr< tudat::input_output::TrackingTxtFileContents > rawTrackingTxtFileContents,
+                const std::string spacecraftName,
+                const std::vector< tom::ObservableType > observableTypesToProcess,
+                const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions,
+                const py::object ancillarySettings ) {
+                const tom::ObservationAncillarySimulationSettings settings = ancillarySettings.is_none( )
+                        ? tom::ObservationAncillarySimulationSettings( )
+                        : ancillarySettings.cast< tom::ObservationAncillarySimulationSettings >( );
+                return tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        rawTrackingTxtFileContents, spacecraftName, observableTypesToProcess, earthFixedGroundStationPositions, settings );
+            },
+            py::arg( "raw_tracking_txtfile_contents" ),
+            py::arg( "spacecraft_name" ),
+            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
+            py::arg_v( "earth_fixed_ground_station_positions",
+                       tss::getApproximateDsnGroundStationPositions( ),
+                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
+            py::arg( "ancillary_settings" ) = py::none( ),
+            R"doc(
         Create an observation collection from raw tracking file data.
 
         Parameters

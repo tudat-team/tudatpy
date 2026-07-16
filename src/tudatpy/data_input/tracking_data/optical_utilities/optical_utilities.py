@@ -56,8 +56,16 @@ DEFAULT_CATALOG_FLAGS = [
     "Y",
 ]
 
-REQUIRED_OPTICAL_COLUMNS = ["number", "epoch", "RA", "DEC", "band", "observatory"]
-ANCILLARY_STRING_COLUMNS = ["band", "catalog", "note2", "custom_name", "mag", "discovery"]
+REQUIRED_OPTICAL_COLUMNS = ["number", "epoch", "RA", "DEC", "observatory"]
+ANCILLARY_STRING_COLUMNS = [
+    "band",
+    "phottype",
+    "catalog",
+    "note2",
+    "custom_name",
+    "mag",
+    "discovery",
+]
 
 
 def standardize_optical_dataframe(df: pd.DataFrame) -> pd.DataFrame:
@@ -158,14 +166,13 @@ def create_augmented_optical_table(
     pandas.DataFrame
         Augmented optical astrometry table.
     """
-    validate_optical_table(table, frame)
-
     if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
         augmented_table = table.to_pandas()
     else:
         augmented_table = table.copy()
 
     augmented_table = standardize_optical_dataframe(augmented_table)
+    validate_optical_table(augmented_table, frame)
 
     if custom_name is not None or "custom_name" not in augmented_table.columns:
         augmented_table["custom_name"] = [custom_name] * len(augmented_table)
@@ -179,7 +186,7 @@ def create_augmented_optical_table(
     if "mag" not in augmented_table.columns and "magnitude" in augmented_table.columns:
         augmented_table["mag"] = augmented_table["magnitude"]
 
-    for column in ["catalog", "note2", "mag", "discovery"]:
+    for column in ["band", "phottype", "catalog", "note2", "mag", "discovery"]:
         if column not in augmented_table.columns:
             augmented_table[column] = None
 

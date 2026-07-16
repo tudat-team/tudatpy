@@ -23,6 +23,7 @@ set(sources
         ${TUDATPY_SOURCE_DIR}/add_trajectory_design_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_constants_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_interface_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_data_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_data_input_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_util_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_dynamics_to_kernel.cpp

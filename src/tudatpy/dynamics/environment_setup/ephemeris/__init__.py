@@ -1,5 +1,7 @@
 from tudatpy.kernel.dynamics.environment_setup.ephemeris import *
 from .horizons_wrapper import (
+    HorizonsBatch,
+    HorizonsQuery,
     add_horizons_batch_ephemerides,
     jpl_horizons_from_query,
     jpl_horizons,

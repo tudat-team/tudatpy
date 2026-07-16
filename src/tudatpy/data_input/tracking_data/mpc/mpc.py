@@ -441,8 +441,12 @@ class BatchMPC:
             self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
-        self._epoch_start = self._table.epoch.min()
-        self._epoch_end = self._table.epoch.max()
+        if "epoch_seconds_UTC" in self._table.columns:
+            self._epoch_start = self._table.epoch_seconds_UTC.min()
+            self._epoch_end = self._table.epoch_seconds_UTC.max()
+        else:
+            self._epoch_start = self._table.epoch.min()
+            self._epoch_end = self._table.epoch.max()
 
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
         augmented_table = table.copy()

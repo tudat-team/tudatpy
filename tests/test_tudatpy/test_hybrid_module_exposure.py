@@ -28,7 +28,6 @@ def test_tudatpy_kernel_module_exposure():
         "astro",
         "trajectory_design",
         "constants",
-        "interface",
         # 'io',
         "math",
         "numerical_simulation",

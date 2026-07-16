@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols import parsers, unpackers
+from tudatpy.data_input.tracking_data.optical_utilities import create_augmented_optical_table
 
 parse_80cols_data = parsers.parse_80cols_data
 parse_80cols_file = parsers.parse_80cols_file
@@ -280,6 +281,26 @@ def test_identify_object_missing_ids():
         identify_object(row)
 
 
+def test_optical_table_accepts_phottype_without_band():
+    table = pd.DataFrame(
+        {
+            "number": ["3"],
+            "epoch": [2460860.448219],
+            "RA": [270.0],
+            "DEC": [-18.0],
+            "phottype": ["G"],
+            "observatory": ["598"],
+        }
+    )
+
+    augmented_table = create_augmented_optical_table(table)
+
+    assert "phottype" in augmented_table.columns
+    assert augmented_table["phottype"].tolist() == ["G"]
+    assert "band" in augmented_table.columns
+    assert augmented_table["band"].isna().all()
+
+
 # ==============================================================================
 # SECTION F: INTEGRATION TEST (BatchMPC Consistency, Online)
 # ==============================================================================
@@ -288,6 +309,7 @@ def test_identify_object_missing_ids():
 # This ensures that our unpacking logic matches Tudat/BatchMPC's expectations.
 
 
+@pytest.mark.remote_data
 def test_batch_mpc_vs_parser_consistency():
     """Checks consistency between Parser output and BatchMPC expectations."""
     batch = BatchMPC()
@@ -300,11 +322,9 @@ def test_batch_mpc_vs_parser_consistency():
     target_objects = ["3I", 134341, "2025 FA22", 433]
     target_types = ["comet_number", "asteroid_number", "asteroid_designation", "asteroid_number"]
 
-    try:
-        # Fetch expected names from MPC (The Source of Truth)
-        batch.get_observations(target_objects, id_types=target_types)
-    except Exception as e:
-        pytest.skip(f"Skipping online integration test: {e}")
+    # Fetch expected names from MPC (The Source of Truth). This includes 3I,
+    # whose MPC response currently exposes phottype without a band column.
+    batch.get_observations(target_objects, id_types=target_types)
 
     # Raw lines matching the query above
     lines_main = [
@@ -322,8 +342,10 @@ def test_batch_mpc_vs_parser_consistency():
     table_sat = parse_80cols_data(lines_sat)
 
     # Combine results (Order: 3I, 134341, 2025 FA22, 433)
-    parsed_ids = (
-        table_main["number"].astype(str).tolist() + table_sat["number"].astype(str).tolist()
+    parsed_ids = list(
+        dict.fromkeys(
+            table_main["number"].astype(str).tolist() + table_sat["number"].astype(str).tolist()
+        )
     )
 
     # Normalize BatchMPC objects to strings for comparison

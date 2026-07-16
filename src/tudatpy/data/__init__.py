@@ -1,19 +1,82 @@
-from tudatpy.kernel.data import *
-from ._support import save2txt, save_time_history_to_file
-from .mission_data_downloader import LoadPDS, DownloadAtmosphericData
-from .processTrk234 import Trk234Processor
-from .ancillary import (
-    IonexProduct,
-    IonexResolution,
-    VmfTechnique,
-    VmfProcessing,
-    DownloadResult,
-    AncillaryDownloadError,
-    AuthenticationError,
-    download_ionex,
-    download_vmf,
-    download_ancillary,
-)
+from ._compat import deprecated_dir, deprecated_getattr
 
-# This would generate a circular import (SBDB in environment_setup)
-# from . import horizons, mpc, sbdb, spacetrack, discos, mission_data_downloader
+_ALIASES = {
+    "get_resource_path": "tudatpy.data_input.resource_paths.get_resource_path",
+    "get_ephemeris_path": "tudatpy.data_input.resource_paths.get_ephemeris_path",
+    "get_earth_orientation_path": "tudatpy.data_input.resource_paths.get_earth_orientation_path",
+    "get_quadrature_path": "tudatpy.data_input.resource_paths.get_quadrature_path",
+    "get_spice_kernel_path": "tudatpy.data_input.resource_paths.get_spice_kernel_path",
+    "get_atmosphere_tables_path": "tudatpy.data_input.resource_paths.get_atmosphere_tables_path",
+    "get_gravity_models_path": "tudatpy.data_input.resource_paths.get_gravity_models_path",
+    "get_space_weather_path": "tudatpy.data_input.resource_paths.get_space_weather_path",
+    "save2txt": "tudatpy.util.save2txt",
+    "save_time_history_to_file": "tudatpy.util.save_time_history_to_file",
+    "read_vector_history_from_file": "tudatpy.util.read_vector_history_from_file",
+    "read_matrix_history_from_file": "tudatpy.util.read_matrix_history_from_file",
+    "CrdPassConfigurationData": "tudatpy.data_input.tracking_data.slr.CrdPassConfigurationData",
+    "CrdNormalPointRecord": "tudatpy.data_input.tracking_data.slr.CrdNormalPointRecord",
+    "CrdFullRateRecord": "tudatpy.data_input.tracking_data.slr.CrdFullRateRecord",
+    "CrdMeteoRecord": "tudatpy.data_input.tracking_data.slr.CrdMeteoRecord",
+    "CrdPassData": "tudatpy.data_input.tracking_data.slr.CrdPassData",
+    "CrdPass": "tudatpy.data_input.tracking_data.slr.CrdPass",
+    "convert_crd_two_way_time_of_flight_to_slr_range": "tudatpy.data_input.tracking_data.slr.convert_crd_two_way_time_of_flight_to_slr_range",
+    "read_crd_files": "tudatpy.data_input.tracking_data.slr.read_slr_data",
+    "group_crd_data_per_target": "tudatpy.data_input.tracking_data.slr.group_crd_data_per_target",
+    "group_crd_data_per_station": "tudatpy.data_input.tracking_data.slr.group_crd_data_per_station",
+    "extract_normal_point_measurements": "tudatpy.data_input.tracking_data.slr.extract_normal_point_measurements",
+    "extract_normal_point_measurements_from_passes": "tudatpy.data_input.tracking_data.slr.extract_normal_point_measurements_from_passes",
+    "extract_full_rate_measurements": "tudatpy.data_input.tracking_data.slr.extract_full_rate_measurements",
+    "extract_full_rate_measurements_from_passes": "tudatpy.data_input.tracking_data.slr.extract_full_rate_measurements_from_passes",
+    "get_station_wavelengths": "tudatpy.data_input.tracking_data.slr.get_station_wavelengths",
+    "SinexStationState": "tudatpy.data_input.environment_data.ilrs.SinexStationState",
+    "SinexStationEccentricity": "tudatpy.data_input.environment_data.ilrs.SinexStationEccentricity",
+    "IlrsStationRegistryEntry": "tudatpy.data_input.environment_data.ilrs.IlrsStationRegistryEntry",
+    "convert_sinex_datetime_to_seconds_since_epoch": "tudatpy.data_input.environment_data.ilrs.convert_sinex_datetime_to_seconds_since_epoch",
+    "read_sinex_station_data": "tudatpy.data_input.environment_data.ilrs.read_sinex_station_data",
+    "read_sinex_station_eccentricities": "tudatpy.data_input.environment_data.ilrs.read_sinex_station_eccentricities",
+    "read_ilrs_station_registry_from_sinex_site_id": "tudatpy.data_input.environment_data.ilrs.read_ilrs_station_registry_from_sinex_site_id",
+    "read_domes_id_numbers": "tudatpy.data_input.environment_data.ilrs.read_domes_id_numbers",
+    "read_monument_numbers": "tudatpy.data_input.environment_data.ilrs.read_monument_numbers",
+    "read_ground_station_names": "tudatpy.data_input.environment_data.ilrs.read_ground_station_names",
+    "TrackingDataType": "tudatpy.data_input.tracking_data.generic_text_file.TrackingDataType",
+    "TrackingTxtFileReadFilterType": "tudatpy.data_input.tracking_data.generic_text_file.TrackingTxtFileReadFilterType",
+    "TrackingTxtFileContents": "tudatpy.data_input.tracking_data.generic_text_file.TrackingTxtFileContents",
+    "FdetDateFormat": "tudatpy.data_input.tracking_data.fdets.FdetDateFormat",
+    "SolarActivityData": "tudatpy.data_input.environment_data.space_weather.SolarActivityData",
+    "SolarActivityContainer": "tudatpy.data_input.environment_data.space_weather.SolarActivityContainer",
+    "read_solar_activity_data": "tudatpy.data_input.environment_data.space_weather.read_solar_activity_data",
+    "OdfDataType": "tudatpy.data_input.tracking_data.odf.OdfDataType",
+    "OdfCommonDataBlock": "tudatpy.data_input.tracking_data.odf.OdfCommonDataBlock",
+    "OdfDataSpecificBlock": "tudatpy.data_input.tracking_data.odf.OdfDataSpecificBlock",
+    "OdfDopplerDataBlock": "tudatpy.data_input.tracking_data.odf.OdfDopplerDataBlock",
+    "OdfDataBlock": "tudatpy.data_input.tracking_data.odf.OdfDataBlock",
+    "OdfRampBlock": "tudatpy.data_input.tracking_data.odf.OdfRampBlock",
+    "OdfRawFileContents": "tudatpy.data_input.tracking_data.odf.RawOdfFileContents",
+    "read_odf_file": "tudatpy.data_input.tracking_data.odf.read_raw_odf_file_contents",
+    "grail_antenna_file_reader": "tudatpy.data_input.environment_data.missions.grail.grail_antenna_file_reader",
+    "grail_mass_level_0_file_reader": "tudatpy.data_input.environment_data.missions.grail.grail_mass_level_0_file_reader",
+    "grail_mass_level_1_file_reader": "tudatpy.data_input.environment_data.missions.grail.grail_mass_level_1_file_reader",
+    "LoadPDS": "tudatpy.data_input.data_retrieval.missions.LoadPDS",
+    "DownloadAtmosphericData": "tudatpy.data_input.data_retrieval.media_corrections.DownloadAtmosphericData",
+    "Trk234Processor": "tudatpy.data_input.tracking_data.tnf.TnfTrackingDataProcessor",
+    "IonexProduct": "tudatpy.data_input.data_retrieval.media_corrections.IonexProduct",
+    "IonexResolution": "tudatpy.data_input.data_retrieval.media_corrections.IonexResolution",
+    "VmfTechnique": "tudatpy.data_input.data_retrieval.media_corrections.VmfTechnique",
+    "VmfProcessing": "tudatpy.data_input.data_retrieval.media_corrections.VmfProcessing",
+    "DownloadResult": "tudatpy.data_input.data_retrieval.media_corrections.DownloadResult",
+    "AncillaryDownloadError": "tudatpy.data_input.data_retrieval.media_corrections.AncillaryDownloadError",
+    "AuthenticationError": "tudatpy.data_input.data_retrieval.media_corrections.AuthenticationError",
+    "download_ionex": "tudatpy.data_input.data_retrieval.media_corrections.download_ionex",
+    "download_vmf": "tudatpy.data_input.data_retrieval.media_corrections.download_vmf",
+    "download_ancillary": "tudatpy.data_input.data_retrieval.media_corrections.download_ancillary",
+}
+
+__all__ = sorted(_ALIASES)
+
+
+def __getattr__(name):
+    return deprecated_getattr(__name__, _ALIASES, name)
+
+
+def __dir__():
+    return deprecated_dir(globals(), _ALIASES)

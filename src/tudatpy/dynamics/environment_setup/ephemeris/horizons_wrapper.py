@@ -1,7 +1,73 @@
 import datetime
+import warnings
 from typing import Union
 
-from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
+from tudatpy.data_input.environment_data.horizons import (
+    HorizonsBatch as _HorizonsBatch,
+    HorizonsQuery as _HorizonsQuery,
+)
+
+
+class HorizonsQuery(_HorizonsQuery):
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "`tudatpy.dynamics.environment_setup.ephemeris.HorizonsQuery` is deprecated. "
+            "Use `tudatpy.data_input.environment_data.horizons.HorizonsQuery` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
+
+    def create_ephemeris_tabulated(
+        self,
+        frame_origin: str,
+        frame_orientation: str = "ECLIPJ2000",
+        aberations: str = "geometric",
+    ):
+        warnings.warn(
+            "`HorizonsQuery.create_ephemeris_tabulated` is deprecated. "
+            "Use `tudatpy.dynamics.environment_setup.ephemeris.jpl_horizons_from_query` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return jpl_horizons_from_query(
+            self,
+            frame_origin=frame_origin,
+            frame_orientation=frame_orientation,
+            aberations=aberations,
+        )
+
+
+class HorizonsBatch(_HorizonsBatch):
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "`tudatpy.dynamics.environment_setup.ephemeris.HorizonsBatch` is deprecated. "
+            "Use `tudatpy.data_input.environment_data.horizons.HorizonsBatch` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
+
+    def add_batch_ephemerides(
+        self,
+        body_settings,
+        frame_origin: str,
+        frame_orientation: str = "ECLIPJ2000",
+        aberations: str = "geometric",
+    ) -> None:
+        warnings.warn(
+            "`HorizonsBatch.add_batch_ephemerides` is deprecated. "
+            "Use `tudatpy.dynamics.environment_setup.ephemeris.add_horizons_batch_ephemerides` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return add_horizons_batch_ephemerides(
+            self,
+            body_settings=body_settings,
+            frame_origin=frame_origin,
+            frame_orientation=frame_orientation,
+            aberations=aberations,
+        )
 
 
 def jpl_horizons_from_query(
@@ -72,7 +138,7 @@ def jpl_horizons(
     aberations: str = "geometric",
 ):
     """Factory function for ephemeris model settings from JPL Horizons vectors."""
-    query = HorizonsQuery(
+    query = _HorizonsQuery(
         query_id=horizons_query,
         location=horizons_location,
         query_type=query_type,
