@@ -101,7 +101,7 @@ void PositionAngleAndSeparationScaling::update( const std::vector< Eigen::Vector
     skewNorthPoleDirection << 0.0, -northPoleDirection( 2 ), northPoleDirection( 1 ), northPoleDirection( 2 ), 0.0,
             -northPoleDirection( 0 ), -northPoleDirection( 1 ), northPoleDirection( 0 ), 0.0;
     Eigen::Matrix3d projectionEastDirection = Eigen::Matrix3d::Identity( ) - eastDirection * eastDirection.transpose( );
-    Eigen::Matrix3d dEastDirection_dUnitVector1 = -projectionEastDirection * skewNorthPoleDirection / normEastDirection;
+    Eigen::Matrix3d dEastDirection_dUnitVector1 = projectionEastDirection * skewNorthPoleDirection / normEastDirection;
 
     Eigen::Matrix3d skewUnitVector1;
     skewUnitVector1 << 0.0, -unitVectorToTransmitter1( 2 ), unitVectorToTransmitter1( 1 ), unitVectorToTransmitter1( 2 ), 0.0,
@@ -109,7 +109,7 @@ void PositionAngleAndSeparationScaling::update( const std::vector< Eigen::Vector
     Eigen::Matrix3d skewEastDirection;
     skewEastDirection << 0.0, -eastDirection( 2 ), eastDirection( 1 ), eastDirection( 2 ), 0.0, -eastDirection( 0 ), -eastDirection( 1 ),
             eastDirection( 0 ), 0.0;
-    Eigen::Matrix3d dNorthDirection_dUnitVector1 = skewEastDirection + skewUnitVector1 * dEastDirection_dUnitVector1;
+    Eigen::Matrix3d dNorthDirection_dUnitVector1 = -skewEastDirection + skewUnitVector1 * dEastDirection_dUnitVector1;
 
     // ∂θ/∂u1 = (northComponent·∂eastComponent/∂u1 - eastComponent·∂northComponent/∂u1) / denominator  where ∂eastComponent/∂u1 and
     // ∂northComponent/∂u1 are vectors

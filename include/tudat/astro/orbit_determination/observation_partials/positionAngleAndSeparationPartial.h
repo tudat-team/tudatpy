@@ -138,11 +138,11 @@ public:
     Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         if( linkEndType == observation_models::transmitter )
-            return referenceScalingFactorFirstTransmitter_;
+            return -referenceScalingFactorFirstTransmitter_;
         else if( linkEndType == observation_models::transmitter2 )
-            return referenceScalingFactorSecondTransmitter_;
+            return -referenceScalingFactorSecondTransmitter_;
         else if( linkEndType == observation_models::receiver )
-            return -( referenceScalingFactorFirstTransmitter_ + referenceScalingFactorSecondTransmitter_ );
+            return referenceScalingFactorFirstTransmitter_ + referenceScalingFactorSecondTransmitter_;
         else
             throw std::runtime_error(
                     "Error when getting position angle and separation distance scaling factor, incorrect link end type." );
