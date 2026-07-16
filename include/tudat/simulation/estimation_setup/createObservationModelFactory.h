@@ -1698,7 +1698,7 @@ public:
                 if( linkEnds.count( transmitter ) == 0 )
                     throw std::runtime_error( "Error when making position angle model, no transmitter found" );
                 if( linkEnds.count( transmitter2 ) == 0 )
-                    throw std::runtime_error( "Error when making position angle model, no transmitter2 found" );
+                    throw std::runtime_error( "Error when making position angle model, no second transmitter found" );
 
                 std::shared_ptr< ObservationBias< 1 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -1737,7 +1737,7 @@ public:
                 if( linkEnds.count( transmitter ) == 0 )
                     throw std::runtime_error( "Error when making separation distance model, no transmitter found" );
                 if( linkEnds.count( transmitter2 ) == 0 )
-                    throw std::runtime_error( "Error when making separation distance model, no transmitter2 found" );
+                    throw std::runtime_error( "Error when making separation distance model, no second transmitter found" );
 
                 std::shared_ptr< ObservationBias< 1 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
@@ -1923,7 +1923,7 @@ public:
                 if( linkEnds.count( transmitter2 ) == 0 )
                 {
                     throw std::runtime_error(
-                            "Error when making angular position model, no transmitter2 "
+                            "Error when making angular position model, no second transmitter "
                             "found" );
                 }
 
@@ -1966,7 +1966,8 @@ public:
                 if( linkEnds.count( transmitter ) == 0 )
                     throw std::runtime_error( "Error when making position angle and separation distance model, no transmitter found" );
                 if( linkEnds.count( transmitter2 ) == 0 )
-                    throw std::runtime_error( "Error when making position angle and separation distance model, no transmitter2 found" );
+                    throw std::runtime_error(
+                            "Error when making position angle and separation distance model, no second transmitter found" );
 
                 std::shared_ptr< ObservationBias< 2 > > observationBias;
                 if( observationSettings->biasSettings_ != nullptr )
