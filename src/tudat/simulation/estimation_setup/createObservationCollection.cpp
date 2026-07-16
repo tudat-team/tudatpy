@@ -546,6 +546,98 @@ void setFrequencySupplementaryDataInBodies(
                 }
             }
         }
+        else if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
+        {
+            std::map< double, double > frequencyHistory;
+            for( const std::map< double, double >& currentFrequencyHistory : piecewiseConstantFrequencyHistories )
+            {
+                frequencyHistory.insert( currentFrequencyHistory.begin( ), currentFrequencyHistory.end( ) );
+            }
+
+            if( frequencyHistory.empty( ) )
+            {
+                throw std::runtime_error( "Error when setting piecewise-constant frequency supplementary data in body " + bodyName +
+                                          ", reference point " + referencePointName + ": no frequency entries were found." );
+            }
+
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator;
+            if( frequencyHistory.size( ) == 1 )
+            {
+                frequencyInterpolator =
+                        std::make_shared< ground_stations::ConstantFrequencyInterpolator >( frequencyHistory.begin( )->second );
+            }
+            else
+            {
+                std::vector< Time > startTimes;
+                std::vector< Time > endTimes;
+                std::vector< double > rampRates;
+                std::vector< double > startFrequencies;
+                std::vector< std::pair< double, double > > orderedFrequencyHistory( frequencyHistory.begin( ), frequencyHistory.end( ) );
+
+                for( unsigned int i = 0; i < orderedFrequencyHistory.size( ); ++i )
+                {
+                    const double startTime = orderedFrequencyHistory.at( i ).first;
+                    double endTime = startTime + 1.0;
+                    if( i + 1 < orderedFrequencyHistory.size( ) )
+                    {
+                        endTime = orderedFrequencyHistory.at( i + 1 ).first;
+                    }
+                    else if( i > 0 )
+                    {
+                        const double previousStep = startTime - orderedFrequencyHistory.at( i - 1 ).first;
+                        endTime = startTime + ( previousStep > 1.0 ? previousStep : 1.0 );
+                    }
+
+                    startTimes.push_back( Time( startTime ) );
+                    endTimes.push_back( Time( endTime ) );
+                    rampRates.push_back( 0.0 );
+                    startFrequencies.push_back( orderedFrequencyHistory.at( i ).second );
+                }
+
+                frequencyInterpolator = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                        startTimes, endTimes, rampRates, startFrequencies );
+            }
+
+            if( referencePointName != "" )
+            {
+                if( bodies.at( bodyName )->getGroundStationMap( ).count( referencePointName ) == 0 )
+                {
+                    throw std::runtime_error( "Error when setting piecewise-constant frequency supplementary data in body " + bodyName +
+                                              ", ground station " + referencePointName + " was not found." );
+                }
+
+                std::shared_ptr< ground_stations::GroundStation > groundStation =
+                        bodies.at( bodyName )->getGroundStation( referencePointName );
+                if( !groundStation->hasFrequencyCalculator( ) )
+                {
+                    groundStation->setTransmittingFrequencyCalculator( frequencyInterpolator );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when setting piecewise-constant frequency supplementary data in body " + bodyName +
+                                              ", ground station " + referencePointName + " already has a frequency calculator." );
+                }
+            }
+            else
+            {
+                if( bodies.at( bodyName )->getVehicleSystems( ) == nullptr )
+                {
+                    bodies.at( bodyName )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+                }
+
+                std::shared_ptr< ground_stations::StationFrequencyInterpolator > existingFrequencyCalculator =
+                        bodies.at( bodyName )->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+                if( existingFrequencyCalculator == nullptr )
+                {
+                    bodies.at( bodyName )->getVehicleSystems( )->setTransmittedFrequencyCalculator( frequencyInterpolator );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when setting piecewise-constant frequency supplementary data in body " + bodyName +
+                                              ", vehicle systems already contain a frequency calculator." );
+                }
+            }
+        }
     }
 }
 

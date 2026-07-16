@@ -659,6 +659,10 @@ void expose_tracking_data( py::module& m )
          for the corresponding environment setup interface.
       )doc" )
             .def( py::init<>( ) )
+            .def( py::init< const std::map< double, Eigen::Vector6d >&, const std::string&, const bool >( ),
+                  py::arg( "state_history" ),
+                  py::arg( "frame_origin" ) = "Earth",
+                  py::arg( "is_velocity_defined" ) = true )
             .def_property_readonly( "state_history",
                                     &tdat::TranslationalStateSupplementaryData::getStateHistory,
                                     R"doc(

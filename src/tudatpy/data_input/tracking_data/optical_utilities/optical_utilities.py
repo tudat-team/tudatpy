@@ -14,7 +14,11 @@ import astropy.units as u
 import os
 import re
 from tudatpy.astro import time_representation
-from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.tracking_data import (
+    TrackingData,
+    TrackingSupplementaryData,
+    TranslationalStateSupplementaryData,
+)
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -57,6 +61,11 @@ DEFAULT_CATALOG_FLAGS = [
 ]
 
 REQUIRED_OPTICAL_COLUMNS = ["number", "epoch", "RA", "DEC", "observatory"]
+SPACECRAFT_POSITION_COLUMNS = [
+    "spacecraft_position_x",
+    "spacecraft_position_y",
+    "spacecraft_position_z",
+]
 ANCILLARY_STRING_COLUMNS = [
     "band",
     "phottype",
@@ -198,7 +207,62 @@ def create_augmented_optical_table(
     return augmented_table
 
 
+def _spacecraft_observation_mask(table: pd.DataFrame) -> pd.Series:
+    """Identify optical rows that include a complete spacecraft position."""
+    if not set(SPACECRAFT_POSITION_COLUMNS).issubset(table.columns):
+        return pd.Series(False, index=table.index)
+    return table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=1)
+
+
+def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
+    """Create receiver state supplementary data for space-based observations."""
+    spacecraft_mask = _spacecraft_observation_mask(table)
+    if not spacecraft_mask.any():
+        return []
+
+    spacecraft_table = table.loc[spacecraft_mask].copy()
+    supplementary_data = []
+    for observatory, group in spacecraft_table.groupby("observatory", sort=False):
+        # Multiple astrometric observations can share the same spacecraft epoch.
+        # Use the mean position at that epoch to define a single state sample.
+        state_table = (
+            group.groupby("epoch_seconds_UTC", as_index=True)[SPACECRAFT_POSITION_COLUMNS]
+            .mean()
+            .sort_index()
+        )
+        epochs = state_table.index.to_numpy(dtype=float)
+        positions = state_table.to_numpy(dtype=float)
+        if len(epochs) > 1:
+            # MPC80 spacecraft parallax rows provide positions only. Tudat's
+            # translational supplementary data stores full states, so estimate
+            # velocities from the tabulated positions when possible.
+            velocities = np.gradient(
+                positions,
+                epochs,
+                axis=0,
+                edge_order=2 if len(epochs) > 2 else 1,
+            )
+        else:
+            velocities = np.zeros_like(positions)
+
+        state_history = {
+            float(epoch): np.hstack((position, velocity))
+            for epoch, position, velocity in zip(epochs, positions, velocities)
+        }
+        translational_data = TranslationalStateSupplementaryData(
+            state_history,
+            "Earth",
+            True,
+        )
+        receiver_data = TrackingSupplementaryData(str(observatory), "")
+        receiver_data.translational_state_supplementary_data = translational_data
+        supplementary_data.append(receiver_data)
+
+    return supplementary_data
+
+
 def _datetime_to_utc_seconds(epoch) -> float:
+    """Convert supported epoch-like inputs to UTC seconds since J2000."""
     if hasattr(epoch, "to_epoch"):
         return float(epoch.to_epoch())
     if hasattr(epoch, "to_float"):
@@ -306,13 +370,25 @@ def optical_table_to_tracking_data(
         for column in ANCILLARY_STRING_COLUMNS:
             table[column] = table[column].fillna("").astype(str)
 
+    spacecraft_mask = _spacecraft_observation_mask(table)
+    table = table.assign(_is_spacecraft_observation=spacecraft_mask.to_numpy(dtype=bool))
+    supplementary_data = _build_spacecraft_supplementary_data(table)
+
     tracking_data_objects = []
-    for (target, observatory), group in table.groupby(["number", "observatory"]):
+    for (target, observatory, is_spacecraft), group in table.groupby(
+        ["number", "observatory", "_is_spacecraft_observation"]
+    ):
         observable_type, reference_link_end_type = "AngularPosition", "receiver"
 
+        # Ground astrometry uses an Earth ground-station receiver. Space-based
+        # astrometry uses the observatory code as the receiver body and attaches
+        # its translational state through TrackingSupplementaryData.
+        receiver_link_end = (
+            (str(observatory), "") if bool(is_spacecraft) else ("Earth", str(observatory))
+        )
         link_ends = [
             ((str(target), ""), "transmitter"),
-            (("Earth", str(observatory)), reference_link_end_type),
+            (receiver_link_end, reference_link_end_type),
         ]
         observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
 
@@ -342,7 +418,7 @@ def optical_table_to_tracking_data(
 
         tracking_data_objects.append(tracking_data_object)
 
-    return tracking_data_objects, list()
+    return tracking_data_objects, supplementary_data
 
 
 def read_optical_data(

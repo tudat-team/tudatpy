@@ -316,9 +316,16 @@ def test_read_80_column_data_reads_file(tmp_path):
         "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
     )
 
-    _check_tracking_data_pair(
-        read_80_column_data([str(observation_file)], custom_name="Eros"), expected_sets=1
+    tracking_data, supplementary_data = read_80_column_data(
+        [str(observation_file)], custom_name="Eros"
     )
+
+    assert len(tracking_data) == 1
+    assert tracking_data[0].time_scale == "UTC"
+    assert tracking_data[0].observable_type == "AngularPosition"
+    assert len(supplementary_data) == 1
+    assert supplementary_data[0].body_name == "500"
+    assert supplementary_data[0].reference_point_name == ""
 
 
 # ---------------------------------------------------------------------------

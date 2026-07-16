@@ -202,6 +202,14 @@ private:
 class TranslationalStateSupplementaryData
 {
 public:
+    TranslationalStateSupplementaryData( ) = default;
+
+    TranslationalStateSupplementaryData( const std::map< double, Eigen::Vector6d >& stateHistory,
+                                         const std::string& frameOrigin,
+                                         const bool isVelocityDefined ):
+        stateHistory_( stateHistory ), frameOrigin_( frameOrigin ), isVelocityDefined_( isVelocityDefined )
+    {}
+
     const std::map< double, Eigen::Vector6d >& getStateHistory( ) const
     {
         return stateHistory_;

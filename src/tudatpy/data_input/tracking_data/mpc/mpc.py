@@ -2,14 +2,29 @@ import pandas as pd
 import numpy as np
 from astroquery.mpc import MPC
 import copy
-import importlib
+from astropy.table import Table
 from tudatpy.data_input.tracking_data.optical_utilities import (
     create_augmented_optical_table,
     filter_augmented_optical_table,
     optical_table_to_tracking_data,
     standardize_optical_dataframe,
 )
+from tudatpy.data_input.tracking_data.optical_utilities.optical_utilities import (
+    _datetime_to_utc_seconds,
+)
 from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
+from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
+from tudatpy.data_input.tracking_data.radar_utilities import (
+    DOPPLER_OBSERVABLE,
+    RANGE_OBSERVABLE,
+    empty_radar_table,
+    filter_radar_data,
+    radar_data_from_table,
+    radar_data_to_tracking_data,
+    radar_station_id_list,
+    radar_station_observation_counts,
+    radar_target_body_list,
+)
 
 OBS_TYPES_TO_DROP = unpackers.OBS_TYPES_TO_DROP
 
@@ -27,13 +42,12 @@ def read_mpc_data(
 
     This function is a convenience interface around :class:`BatchMPC`, which
     uses the ``astroquery`` MPC interface to retrieve optical observations for
-    asteroids and comets from the Minor Planet Center. The retrieved
-    :attr:`BatchMPC.table` is standardized and passed to
-    :func:`~tudatpy.data_input.tracking_data.optical_utilities.optical_table_to_tracking_data`,
-    which creates Tudat optical tracking data through the common optical-data
-    conversion pipeline. During this conversion the data can be augmented with
-    default optical weights based on :cite:t:`veres2017`, star-catalog bias
-    corrections based on :cite:t:`eggl2020`, and ancillary metadata.
+    asteroids and comets from the Minor Planet Center. The retrieved data are
+    stored in a :class:`BatchMPC` instance and converted
+    through :meth:`BatchMPC.to_tracking_dataset`. Optical observations can be
+    augmented with default optical weights based on :cite:t:`veres2017`,
+    star-catalog bias corrections based on :cite:t:`eggl2020`, and ancillary
+    metadata.
 
     Parameters
     ----------
@@ -69,8 +83,7 @@ def read_mpc_data(
         drop_misc_observations=drop_misc_observations,
         custom_name=custom_name,
     )
-    return optical_table_to_tracking_data(
-        batch.table,
+    return batch.to_tracking_dataset(
         add_weights,
         add_star_catalog_corrections,
         add_ancillary_data,
@@ -111,6 +124,7 @@ class BatchMPC:
     def __init__(self) -> None:
         """Create an empty MPC batch."""
         self._table: pd.DataFrame = pd.DataFrame()
+        self._radar_table: pd.DataFrame = empty_radar_table()
         self._observatories: list[str] = []
         self._space_telescopes: list[str] = []
         self._bands: list[str] = []
@@ -126,9 +140,11 @@ class BatchMPC:
         self._custom_weights_set = False
 
     def __copy__(self):
+        """Create a shallow-copy protocol implementation for BatchMPC."""
         new = BatchMPC()
 
         new._table = copy.deepcopy(self._table)
+        new._radar_table = copy.deepcopy(self._radar_table)
         new._refresh_metadata()
 
         return new
@@ -161,8 +177,10 @@ class BatchMPC:
         """Filter observations in the batch.
 
         This method filters the augmented MPC optical table stored in
-        :attr:`table`. Epoch and observatory filtering is delegated to
-        :func:`~tudatpy.data_input.tracking_data.optical_utilities.filter_augmented_optical_table`.
+        :attr:`table` and the canonical radar table stored in
+        :attr:`radar_table`. Epoch filters are interpreted as UTC seconds since
+        J2000, or as datetime-like objects that can be converted to UTC seconds
+        since J2000.
 
         Parameters
         ----------
@@ -171,7 +189,9 @@ class BatchMPC:
         catalogs : list[str] | None, default None
             Star-catalog codes to keep.
         observation_types : list[str] | None, default None
-            MPC Note 2 observation types to keep.
+            MPC Note 2 observation types to keep. Radar filters may use MPC
+            radar flags (``"R"``, ``"V"``) or the canonical radar observable
+            type strings.
         observatories : list[str] | None, default None
             Observatory codes to keep.
         observatories_exclude : list[str] | None, default None
@@ -216,15 +236,31 @@ class BatchMPC:
         if observation_types is not None and "note2" in table.columns:
             table = table.loc[table["note2"].isin(observation_types)]
 
-        table = filter_augmented_optical_table(
-            table,
-            epoch_start=epoch_start,
-            epoch_end=epoch_end,
-            observatories=observatories,
-            observatories_exclude=observatories_exclude,
-        )
+        if not table.empty:
+            table = filter_augmented_optical_table(
+                table,
+                epoch_start=epoch_start,
+                epoch_end=epoch_end,
+                observatories=observatories,
+                observatories_exclude=observatories_exclude,
+            )
+
+        if bands is not None or catalogs is not None:
+            radar_table = empty_radar_table()
+        else:
+            radar_table = filter_radar_data(
+                batch._radar_table,
+                epoch_start=(
+                    None if epoch_start is None else _datetime_to_utc_seconds(epoch_start)
+                ),
+                epoch_end=None if epoch_end is None else _datetime_to_utc_seconds(epoch_end),
+                observable_type=self._radar_observable_types_from_mpc_filter(observation_types),
+                station_ids=observatories,
+                exclude_station_ids=observatories_exclude,
+            )
 
         batch._table = table
+        batch._radar_table = radar_table
         batch._refresh_metadata()
 
         if in_place:
@@ -239,17 +275,14 @@ class BatchMPC:
         print("  ", self.MPC_objects)
         print(f"2. Batch includes {self.size} observations.")
 
-        if self._table.empty:
+        if self._table.empty and self._radar_table.empty:
             print("3. The batch contains no observations.")
             print()
             return
 
-        print(
-            "3. The observations range from "
-            + f"{self._table.epoch_seconds_UTC.min()} "
-            + f"to {self._table.epoch_seconds_UTC.max()}"
-        )
-        print(f"   In Julian Days: {self._table.epoch.min()} to {self._table.epoch.max()}")
+        print(f"3. The observations range from {self.epoch_start} to {self.epoch_end}")
+        if not self._table.empty:
+            print(f"   In Julian Days: {self._table.epoch.min()} to {self._table.epoch.max()}")
         print(
             f"4. The batch contains observations from {len(self.observatories)} "
             + f"observatories, including {len(self.space_telescopes)} space telescopes"
@@ -287,15 +320,28 @@ class BatchMPC:
         pandas.DataFrame
             Dataframe with columns ``Code``, ``Name`` and ``count``.
         """
-        if self._table.empty:
+        if self._table.empty and self._radar_table.empty:
             return pd.DataFrame(columns=["Code", "Name", "count"])
 
+        frames = []
+        if not self._table.empty:
+            frames.append(
+                self._table.groupby("observatory")
+                .size()
+                .rename("count")
+                .reset_index()
+                .rename(columns={"observatory": "Code"})
+            )
+        if not self._radar_table.empty:
+            frames.append(
+                radar_station_observation_counts(self._radar_table).rename(
+                    columns={"observatory": "Code"}
+                )
+            )
         table = (
-            self._table.groupby("observatory")
-            .size()
-            .rename("count")
-            .reset_index()
-            .rename(columns={"observatory": "Code"})
+            pd.concat(frames, ignore_index=True)
+            .groupby("Code", as_index=False)["count"]
+            .sum()
             .assign(Name=lambda x: x["Code"])
         )
 
@@ -317,6 +363,16 @@ class BatchMPC:
         :type: pd.DataFrame
         """
         return self._table
+
+    @property
+    def radar_table(self) -> pd.DataFrame:
+        """**read-only**
+
+        Pandas dataframe with canonical radar tracking data.
+
+        :type: pd.DataFrame
+        """
+        return self._radar_table.copy()
 
     @property
     def observatories(self) -> list[str]:
@@ -399,16 +455,22 @@ class BatchMPC:
         return self._bodies_created
 
     def __len__(self):
+        """Return the total number of optical and radar observations."""
         return self._size
 
     def __add__(self, other):
+        """Return a new batch containing observations from both operands."""
         temp = BatchMPC()
 
-        temp._table = (
-            pd.concat([self._table, other._table])
-            .sort_values("epoch")  # this is expressed in Julian Days
-            .drop_duplicates()
-        )
+        temp._table = pd.concat([self._table, other._table], ignore_index=True, sort=False)
+        if "epoch" in temp._table.columns:
+            temp._table = temp._table.sort_values("epoch")  # this is expressed in Julian Days
+        temp._table = temp._table.drop_duplicates()
+        temp._radar_table = pd.concat(
+            [self._radar_table, other._radar_table],
+            ignore_index=True,
+            sort=False,
+        ).drop_duplicates()
 
         temp._refresh_metadata()
 
@@ -417,9 +479,10 @@ class BatchMPC:
     # helper functions
     def _refresh_metadata(self) -> None:
         """Internal. Update batch metadata."""
-        self._table.drop_duplicates()
+        self._table = self._table.drop_duplicates()
+        self._radar_table = self._radar_table.drop_duplicates()
 
-        if self._table.empty:
+        if self._table.empty and self._radar_table.empty:
             self._observatories = []
             self._space_telescopes = []
             self._bands = []
@@ -429,30 +492,109 @@ class BatchMPC:
             self._epoch_end = 0.0
             return
 
-        self._observatories = list(self._table.observatory.unique())
+        optical_observatories = (
+            self._table["observatory"].dropna().astype(str).tolist()
+            if "observatory" in self._table
+            else []
+        )
+        radar_observatories = radar_station_id_list(self._radar_table)
+        self._observatories = list(dict.fromkeys(optical_observatories + radar_observatories))
         self._space_telescopes = []
         if "band" in self._table.columns:
             self._bands = list(self._table.band.unique())
 
         # if user gives custom name, set that as body name, else MPC code
         if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
-            self._MPC_codes = list(self._table["custom_name"].unique())
+            optical_targets = self._table["custom_name"].dropna().astype(str).tolist()
         else:
-            self._MPC_codes = list(self._table.number.unique())
-        self._size = len(self._table)
+            optical_targets = (
+                self._table["number"].dropna().astype(str).tolist()
+                if "number" in self._table
+                else []
+            )
+        radar_targets = radar_target_body_list(self._radar_table)
+        self._MPC_codes = list(dict.fromkeys(optical_targets + radar_targets))
+        self._size = len(self._table) + len(self._radar_table)
 
-        if "epoch_seconds_UTC" in self._table.columns:
-            self._epoch_start = self._table.epoch_seconds_UTC.min()
-            self._epoch_end = self._table.epoch_seconds_UTC.max()
-        else:
-            self._epoch_start = self._table.epoch.min()
-            self._epoch_end = self._table.epoch.max()
+        epoch_sources = []
+        if "epoch_seconds_UTC" in self._table.columns and not self._table.empty:
+            epoch_sources.extend(
+                [
+                    self._table.epoch_seconds_UTC.min(),
+                    self._table.epoch_seconds_UTC.max(),
+                ]
+            )
+        elif "epoch" in self._table.columns and not self._table.empty:
+            epoch_sources.extend([self._table.epoch.min(), self._table.epoch.max()])
+        if not self._radar_table.empty:
+            epoch_sources.extend(
+                [
+                    self._radar_table.epoch_seconds_UTC.min(),
+                    self._radar_table.epoch_seconds_UTC.max(),
+                ]
+            )
+        self._epoch_start = min(epoch_sources) if epoch_sources else 0.0
+        self._epoch_end = max(epoch_sources) if epoch_sources else 0.0
 
     def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
+        """Return a copy of an optical table with a ``custom_name`` column."""
         augmented_table = table.copy()
         if custom_name is not None or "custom_name" not in augmented_table.columns:
             augmented_table["custom_name"] = [custom_name] * len(augmented_table)
         return augmented_table
+
+    @staticmethod
+    def _radar_observable_types_from_mpc_filter(observation_types: list[str] | None):
+        """Map MPC Note 2 radar flags to canonical radar observable names."""
+        if observation_types is None:
+            return None
+        type_map = {
+            "R": RANGE_OBSERVABLE,
+            "r": RANGE_OBSERVABLE,
+            RANGE_OBSERVABLE: RANGE_OBSERVABLE,
+            "V": DOPPLER_OBSERVABLE,
+            "v": DOPPLER_OBSERVABLE,
+            DOPPLER_OBSERVABLE: DOPPLER_OBSERVABLE,
+        }
+        return [type_map.get(str(value), str(value)) for value in observation_types]
+
+    def _add_parsed_mpc80_table(self, parsed_table: Table, custom_name: str | None = None) -> None:
+        """Internal. Add a parsed MPC80 table, including radar metadata if present."""
+        if len(parsed_table) > 0:
+            # Optical and space-astrometry rows are converted to the shared
+            # augmented optical representation. Radar rows are held separately
+            # as canonical radar DataFrames.
+            optical_table = create_augmented_optical_table(
+                parsed_table,
+                in_degrees=False,
+                frame="J2000",
+                custom_name=custom_name,
+            )
+            self._table = pd.concat([self._table, optical_table], ignore_index=True, sort=False)
+
+        radar_table = radar_data_from_table(parsed_table)
+        if custom_name is not None and not radar_table.empty:
+            radar_table["target_body"] = str(custom_name)
+        if not radar_table.empty:
+            if self._radar_table.empty:
+                self._radar_table = radar_table.copy()
+            else:
+                self._radar_table = pd.concat(
+                    [self._radar_table, radar_table],
+                    ignore_index=True,
+                    sort=False,
+                )
+
+    @staticmethod
+    def _fetch_mpc80_records(code: str | int, id_type: str | None = None) -> list[str]:
+        """Retrieve raw MPC 80-column records through astroquery."""
+        query_kwargs = {"get_mpcformat": True}
+        if id_type is not None:
+            query_kwargs["id_type"] = id_type
+        raw_observations = MPC.get_observations(code, **query_kwargs)
+        if "obs" not in raw_observations.colnames:
+            raise RuntimeError("MPC get_mpcformat query did not return an 'obs' column.")
+        return [str(row) for row in raw_observations["obs"]]
 
     ###########################################################################################
     # MPC Astroquery Data Retrieval: get_observations
@@ -511,6 +653,11 @@ class BatchMPC:
         for code, id_type in zip(MPCcodes, id_types):
             if not (isinstance(code, int) or isinstance(code, str)):
                 raise ValueError("All codes in the MPCcodes parameter must be integers or strings")
+
+            if not drop_misc_observations:
+                parsed_table = parse_80cols_data(self._fetch_mpc80_records(code, id_type))
+                self._add_parsed_mpc80_table(parsed_table, custom_name=custom_name)
+                continue
 
             # 3. Conditionally call the function based on whether id_type exists
             if id_type is not None:
@@ -617,9 +764,19 @@ class BatchMPC:
         tuple[list[TrackingData], list[TrackingSupplementaryData]]
             Tracking data objects and supplementary data objects.
         """
-        return optical_table_to_tracking_data(
-            self._table,
-            add_weights=add_weights,
-            add_star_catalog_corrections=add_star_catalog_corrections,
-            add_ancillary_data=add_ancillary_data,
+        if self._table.empty:
+            optical_tracking_data, optical_supplementary_data = [], []
+        else:
+            optical_tracking_data, optical_supplementary_data = optical_table_to_tracking_data(
+                self._table,
+                add_weights=add_weights,
+                add_star_catalog_corrections=add_star_catalog_corrections,
+                add_ancillary_data=add_ancillary_data,
+            )
+        radar_tracking_data, radar_supplementary_data = radar_data_to_tracking_data(
+            self._radar_table
+        )
+        return (
+            optical_tracking_data + radar_tracking_data,
+            optical_supplementary_data + radar_supplementary_data,
         )
