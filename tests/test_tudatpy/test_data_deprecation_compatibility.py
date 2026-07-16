@@ -33,16 +33,6 @@ COMPATIBILITY_MODULES = (
 )
 
 
-INTENTIONALLY_UNMAPPED_DATA_NAMES = (
-    "read_tracking_txt_file",
-    "read_ifms_file",
-    "read_fdets_file",
-    "read_crd_file",
-    "set_dsn_weather_data_in_ground_stations",
-    "set_estrack_weather_data_in_ground_stations",
-)
-
-
 def _resolve_dotted_name(dotted_name):
     module_name, object_name = dotted_name.rsplit(".", 1)
     return getattr(importlib.import_module(module_name), object_name)
@@ -108,10 +98,76 @@ def test_from_import_deprecated_data_alias_warns(module_name, old_name, new_name
     assert imported_object is expected_object
 
 
-@pytest.mark.parametrize("old_name", INTENTIONALLY_UNMAPPED_DATA_NAMES)
-def test_non_one_to_one_data_names_are_not_reintroduced(old_name):
-    with pytest.raises(AttributeError):
-        getattr(importlib.import_module("tudatpy.data"), old_name)
+def test_deprecated_crd_single_file_reader_warns_and_delegates(monkeypatch):
+    import tudatpy.data as data
+    import tudatpy.data_input.tracking_data.slr as slr
+
+    def read_slr_data(file_names):
+        return ("parsed slr", file_names)
+
+    monkeypatch.setattr(slr, "read_slr_data", read_slr_data)
+
+    with pytest.warns(DeprecationWarning, match="read_slr_data"):
+        parsed_data = data.read_crd_file("example.crd")
+
+    assert parsed_data == ("parsed slr", ["example.crd"])
+
+
+def test_deprecated_tracking_txt_single_file_reader_warns_and_delegates(monkeypatch):
+    import tudatpy.data as data
+    import tudatpy.data_input.tracking_data.generic_text_file as generic_text_file
+
+    calls = []
+
+    def read_generic_text_data(*args):
+        calls.append(args)
+        return ["parsed tracking text"]
+
+    monkeypatch.setattr(generic_text_file, "read_generic_text_data", read_generic_text_data)
+
+    with pytest.warns(DeprecationWarning, match="read_generic_text_data"):
+        parsed_data = data.read_tracking_txt_file(
+            "tracking.txt",
+            ["year", "month"],
+            data_filter_method="filter",
+        )
+
+    assert parsed_data == "parsed tracking text"
+    assert calls == [
+        (
+            ["tracking.txt"],
+            ["year", "month"],
+            "#",
+            ",:\t ",
+            False,
+            "filter",
+        )
+    ]
+
+
+@pytest.mark.parametrize(
+    ("old_name", "replacement"),
+    (
+        ("read_ifms_file", "read_ifms_data"),
+        ("read_fdets_file", "read_fdets_data"),
+        (
+            "set_dsn_weather_data_in_ground_stations",
+            "set_dsn_weather_data_in_ground_station_settings",
+        ),
+        (
+            "set_estrack_weather_data_in_ground_stations",
+            "set_estrack_weather_data_in_ground_station_settings",
+        ),
+    ),
+)
+def test_non_one_to_one_deprecated_data_functions_warn_and_stop(old_name, replacement):
+    import tudatpy.data as data
+
+    old_function = getattr(data, old_name)
+
+    with pytest.warns(DeprecationWarning, match=replacement):
+        with pytest.raises(NotImplementedError):
+            old_function()
 
 
 def test_data_mpc_weight_helper_is_not_reintroduced():
