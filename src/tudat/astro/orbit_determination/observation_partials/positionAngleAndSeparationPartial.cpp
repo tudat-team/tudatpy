@@ -152,10 +152,13 @@ void PositionAngleAndSeparationScaling::update( const std::vector< Eigen::Vector
     referenceScalingFactorSecondTransmitter_.row( 0 ) = dPositionAngle_dRelativePosition2;
     referenceScalingFactorSecondTransmitter_.row( 1 ) = dSeparation_dRelativePosition2;
 
-    // Light-time correction scaling
+    // Light-time correction scaling: contributions from both legs
     Eigen::Vector3d normalizedRelativePosition1 = relativePositionVector1.normalized( );
+    Eigen::Vector3d normalizedRelativePosition2 = relativePositionVector2.normalized( );
     referenceLightTimeCorrectionScaling_ = referenceScalingFactorFirstTransmitter_ * linkEndStates[ 0 ].segment( 3, 3 ) /
-            ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativePosition1 ) );
+                    ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativePosition1 ) ) +
+            referenceScalingFactorSecondTransmitter_ * linkEndStates[ 1 ].segment( 3, 3 ) /
+                    ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativePosition2 ) );
 
     currentLinkEndType_ = fixedLinkEnd;
 }
