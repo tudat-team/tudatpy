@@ -1,12 +1,17 @@
-"""MPC 80-column optical astrometry loading.
+"""MPC 80-column tracking-data loading.
 
-The MPC 80-column format is a fixed-width optical-observation format for minor
-planets, comets, and natural satellites:
-https://minorplanetcenter.net/iau/info/OpticalObs.html.
+The MPC 80-column format is a fixed-width observation format for minor planets,
+comets, and natural satellites. TudatPy supports optical astrometry,
+space-based astrometry, and radar records from this format.
 """
 
 from .parsers import parse_80cols_file
 from tudatpy.data_input.tracking_data.optical_utilities import read_astropy_optical_data
+from tudatpy.data_input.tracking_data.radar_utilities import (
+    radar_data_from_table,
+    radar_data_to_tracking_data,
+    set_radar_target_body,
+)
 
 
 def read_80_column_data(
@@ -19,15 +24,17 @@ def read_80_column_data(
 ):
     """Read MPC 80-column files into TrackingData objects.
 
-    The input files are parsed as MPC fixed-width optical astrometry records.
+    The input files are parsed as MPC fixed-width observation records.
     The :func:`parse_80cols_file` function reads the fixed-width records into
-    an astropy table with standardized optical astrometry columns. This table
-    is then passed to
+    an astropy table with standardized optical astrometry columns and radar
+    metadata. Optical and space-astrometry rows are passed to
     :func:`~tudatpy.data_input.tracking_data.optical_utilities.read_astropy_optical_data`,
     which creates the augmented optical table with
     :func:`~tudatpy.data_input.tracking_data.optical_utilities.create_augmented_optical_table`
     and converts the observations to Tudat optical tracking data through the
-    common optical-data conversion pipeline.
+    common optical-data conversion pipeline. Radar metadata are converted
+    through
+    :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
 
     Parameters
     ----------
@@ -53,12 +60,21 @@ def read_80_column_data(
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         Tracking data objects and supplementary data objects.
     """
-    return read_astropy_optical_data(
-        parse_80cols_file(file_names),
+    parsed_table = parse_80cols_file(file_names)
+    optical_tracking_data, supplementary_data = read_astropy_optical_data(
+        parsed_table,
         in_degrees=False,
         frame=frame,
         custom_name=custom_name,
         add_weights=add_weights,
         add_star_catalog_corrections=add_star_catalog_corrections,
         add_ancillary_data=add_ancillary_data,
+    )
+    radar_data = radar_data_from_table(parsed_table)
+    if custom_name is not None:
+        radar_data = set_radar_target_body(radar_data, custom_name)
+    radar_tracking_data, radar_supplementary_data = radar_data_to_tracking_data(radar_data)
+    return (
+        optical_tracking_data + radar_tracking_data,
+        supplementary_data + radar_supplementary_data,
     )
