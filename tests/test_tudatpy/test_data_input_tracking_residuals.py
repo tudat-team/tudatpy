@@ -12,7 +12,9 @@ from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
 from tudatpy.data_input.tracking_data.tnf import read_tnf_data
 from tudatpy.estimation.observations import (
-    create_observation_collection,
+    create_observation_collection_from_tracking_data,
+    create_compressed_doppler_collection,
+    simulate_observations,
     set_tracking_supplementary_data_in_bodies,
 )
 from tudatpy.kernel import constants
@@ -33,7 +35,6 @@ from tudatpy.kernel.estimation.observable_models_setup import (
 from tudatpy.kernel.estimation.observations_setup import (
     ancillary_settings,
     observations_simulation_settings,
-    observations_wrapper,
 )
 from tudatpy.kernel.interface import spice
 
@@ -358,9 +359,7 @@ def _simulate_dsn_n_way_averaged_doppler(observation_collection, bodies):
             observation_collection, bodies
         )
     )
-    return observations_wrapper.simulate_observations(
-        observation_simulation_settings, observation_simulators, bodies
-    )
+    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
 def _simulate_dsn_n_way_averaged_doppler_with_corrections(
@@ -386,9 +385,7 @@ def _simulate_dsn_n_way_averaged_doppler_with_corrections(
             observation_collection, bodies
         )
     )
-    return observations_wrapper.simulate_observations(
-        observation_simulation_settings, observation_simulators, bodies
-    )
+    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
 def _simulate_doppler_measured_frequency(observation_collection, bodies):
@@ -415,9 +412,7 @@ def _simulate_doppler_measured_frequency(observation_collection, bodies):
             observation_collection, bodies
         )
     )
-    return observations_wrapper.simulate_observations(
-        observation_simulation_settings, observation_simulators, bodies
-    )
+    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
 def _estimate_voyager_velocity_from_jacobson_references(references, reference_index: int):
@@ -480,9 +475,7 @@ def _simulate_pixel_coordinates(observation_collection, bodies):
             observation_collection, bodies
         )
     )
-    return observations_wrapper.simulate_observations(
-        observation_simulation_settings, observation_simulators, bodies
-    )
+    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
 def test_ifms_mex_residuals_are_millihertz_level():
@@ -507,8 +500,10 @@ def test_ifms_mex_residuals_are_millihertz_level():
         0.0,
     )
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
-    uncompressed_observations = create_observation_collection(tracking_data, bodies)
-    observed_observations = observations_wrapper.create_compressed_doppler_collection(
+    uncompressed_observations = create_observation_collection_from_tracking_data(
+        tracking_data, bodies
+    )
+    observed_observations = create_compressed_doppler_collection(
         uncompressed_observations,
         60,
         earth_fixed_ground_station_positions=ground_station.get_radio_telescope_positions(),
@@ -556,10 +551,10 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
         doppler_tracking_data, interval_start, interval_end
     )
 
-    uncompressed_observations = create_observation_collection(doppler_tracking_data, bodies)
-    observed_observations = observations_wrapper.create_compressed_doppler_collection(
-        uncompressed_observations, 60, 10
+    uncompressed_observations = create_observation_collection_from_tracking_data(
+        doppler_tracking_data, bodies
     )
+    observed_observations = create_compressed_doppler_collection(uncompressed_observations, 60, 10)
     observed_observations.set_reference_points(
         bodies,
         _read_grail_antenna_switch_history(
@@ -620,10 +615,10 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
-    uncompressed_observations = create_observation_collection(tracking_data, bodies)
-    observed_observations = observations_wrapper.create_compressed_doppler_collection(
-        uncompressed_observations, 60, 10
+    uncompressed_observations = create_observation_collection_from_tracking_data(
+        tracking_data, bodies
     )
+    observed_observations = create_compressed_doppler_collection(uncompressed_observations, 60, 10)
     observed_observations.set_transponder_delay("MRO", 1.4149e-6)
 
     mro_center_of_mass_position = np.array([0.0, -1.11, 0.0])
@@ -700,7 +695,7 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
     tracking_data, supplementary_data = read_psf_data(
         [str(psf_file)], "VGR2", {"TRITON": "TRITON"}, False
     )
-    all_observations = create_observation_collection(
+    all_observations = create_observation_collection_from_tracking_data(
         tracking_data,
         _create_voyager_triton_psf_bodies(test_data_path, np.zeros(6), supplementary_data),
     )
@@ -726,7 +721,9 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
             tracking_data[0].reference_link_end,
             tracking_data[0].time_scale,
         )
-        observed_observations = create_observation_collection([single_tracking_data], bodies)
+        observed_observations = create_observation_collection_from_tracking_data(
+            [single_tracking_data], bodies
+        )
         computed_observations = _simulate_pixel_coordinates(observed_observations, bodies)
         residuals.append(
             np.asarray(computed_observations.concatenated_observations)
@@ -757,7 +754,7 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
     # The FDETS reader currently stores the measured frequency and base frequency.
     # The observation model also needs the link frequency bands.
     tracking_data[0].add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
-    observed_observations = create_observation_collection(tracking_data, bodies)
+    observed_observations = create_observation_collection_from_tracking_data(tracking_data, bodies)
     computed_observations = _simulate_doppler_measured_frequency(observed_observations, bodies)
     residuals = np.asarray(computed_observations.concatenated_observations) - np.asarray(
         observed_observations.concatenated_observations

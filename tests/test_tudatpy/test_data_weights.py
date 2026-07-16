@@ -1,7 +1,7 @@
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
-from tudatpy.estimation.observations import create_observation_collection
+from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.optical_utilities import (
     create_augmented_optical_table,
@@ -96,7 +96,7 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
     )
     assert supplementary_data == []
     assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
-    observation_collection = create_observation_collection(tracking_data, bodies)
+    observation_collection = create_observation_collection_from_tracking_data(tracking_data, bodies)
 
     # tudat's observationcollection sorts by observatory then time
     temp_table = batch._table.sort_values(["observatory", "epoch_seconds_UTC"], ascending=True)

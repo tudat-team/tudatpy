@@ -11,7 +11,7 @@ objects, optionally with
 containing auxiliary information such as station frequency ramps or camera
 settings. The tracking data can then be converted to an
 :class:`~tudatpy.estimation.observations.ObservationCollection` with
-:func:`~tudatpy.estimation.observations.create_observation_collection`.
+:func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment
 objects is applied with
 :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.

@@ -747,7 +747,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
         const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
 {
-    return createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
+    return createTrackingTxtFilesObxservationCollection< ObservationScalarType, TimeType >(
             { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings );
 }
 

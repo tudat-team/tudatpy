@@ -10,7 +10,7 @@
 #if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
-#include "expose_observations_wrapper_bindings.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -30,29 +30,12 @@ namespace tudatpy
 {
 namespace estimation
 {
-namespace observations_setup
-{
-namespace observations_wrapper
+namespace observations
 {
 
-void expose_observations_wrapper_simulation_bindings( py::module& m )
+void expose_observations_simulation_bindings( py::module& m )
 {
-    m.def( "create_pseudo_observations_and_models",
-           py::overload_cast< const tss::SystemOfBodies&,
-                              const std::vector< std::string >&,
-                              const std::vector< std::string >&,
-                              const TIME_TYPE,
-                              const TIME_TYPE,
-                              const TIME_TYPE >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
-           py::arg( "bodies" ),
-           py::arg( "observed_bodies" ),
-           py::arg( "central_bodies" ),
-           py::arg( "initial_time" ),
-           py::arg( "final_time" ),
-           py::arg( "time_step" ),
-           R"doc(No documentation found.)doc" );
-
-    m.def( "create_pseudo_observations_and_models_from_observation_times",
+    m.def( "simulate_pseudo_observations",
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::vector< std::string >&,
                               const std::vector< std::string >&,
@@ -63,11 +46,11 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            py::arg( "observation_times" ),
            R"doc(No documentation found.)doc" );
 
-    m.def( "set_existing_observations",
+    m.def( "create_observation_collection_from_arrays",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings_per_observatble" ) =
+           py::arg( "ancillary_settings_per_observable" ) =
                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
 
     m.def( "simulate_observations",
@@ -106,7 +89,7 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
 
      )doc" );
 
-    m.def( "single_type_observation_collection",
+    m.def( "create_single_type_observation_collection_from_arrays",
            py::overload_cast< const tom::ObservableType,
                               const tom::LinkDefinition&,
                               const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
@@ -123,7 +106,6 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            R"doc(No documentation found.)doc" );
 }
 
-}  // namespace observations_wrapper
-}  // namespace observations_setup
+}  // namespace observations
 }  // namespace estimation
 }  // namespace tudatpy

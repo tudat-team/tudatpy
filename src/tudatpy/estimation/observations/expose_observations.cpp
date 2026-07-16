@@ -24,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
+#include "expose_observations_bindings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -605,7 +606,7 @@ numpy.ndarray
             A `SingleObservationSet` object.
         )doc" );
 
-    m.def( "create_observation_collection",
+    m.def( "create_observation_collection_from_tracking_data",
            &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "tracking_data" ),
            py::arg( "bodies" ),
@@ -629,6 +630,9 @@ numpy.ndarray
         tudatpy.estimation.observations.ObservationCollection
             An `ObservationCollection` containing one observation set per input `TrackingData` object.
         )doc" );
+
+    tudatpy::estimation::observations::expose_observations_io_bindings( m );
+    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
 
     m.def( "set_tracking_supplementary_data_in_bodies",
            py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
@@ -658,7 +662,7 @@ numpy.ndarray
          Class collecting all observations and associated data for use in an estimation.
 
          Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
-         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. More information is provided
+         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations.simulate_observations` function. More information is provided
          on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`__
 
 

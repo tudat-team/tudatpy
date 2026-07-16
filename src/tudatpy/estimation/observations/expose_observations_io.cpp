@@ -10,7 +10,7 @@
 #if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
-#include "expose_observations_wrapper_bindings.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -32,12 +32,10 @@ namespace tudatpy
 {
 namespace estimation
 {
-namespace observations_setup
-{
-namespace observations_wrapper
+namespace observations
 {
 
-void expose_observations_wrapper_io_bindings( py::module& m )
+void expose_observations_io_bindings( py::module& m )
 {
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
@@ -142,7 +140,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         )doc" );
 
@@ -171,7 +169,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Returns
         -------
-        tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         )doc" );
 
@@ -190,7 +188,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Parameters
         ----------
-        processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        processed_odf_file : tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF file contents.
         bodies : tudatpy.dynamics.environment.SystemOfBodies
             System of bodies.
@@ -213,7 +211,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         Parameters
         ----------
-        processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
+        processed_odf_file : tudatpy.estimation.observations.ProcessedOdfFileContents
             Processed ODF data.
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
@@ -502,7 +500,6 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" );
 }
 
-}  // namespace observations_wrapper
-}  // namespace observations_setup
+}  // namespace observations
 }  // namespace estimation
 }  // namespace tudatpy

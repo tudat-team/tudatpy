@@ -4,7 +4,7 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
     filter_augmented_optical_table,
 )
 from tudatpy.data_input.environment_data.horizons import HorizonsQuery
-from tudatpy.estimation.observations import create_observation_collection
+from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
 from tudatpy.astro import time_representation
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
@@ -109,7 +109,7 @@ def _create_observation_collection_from_batch(batch: BatchMPC, bodies):
         add_star_catalog_corrections=False
     )
     assert supplementary_data == []
-    return create_observation_collection(tracking_data, bodies)
+    return create_observation_collection_from_tracking_data(tracking_data, bodies)
 
 
 def _assert_tracking_dataset_matches_batch(batch: BatchMPC) -> None:
@@ -206,7 +206,7 @@ def test_to_tracking_dataset_handles_alphanumeric_observatory_codes(mpc_code):
     _assert_tracking_dataset_matches_batch(query)
 
 
-def test_tracking_dataset_can_create_observation_collection():
+def test_tracking_dataset_can_create_observation_collection_from_tracking_data():
     """Check the integration boundary from UTC TrackingData to ObservationCollection."""
     query = BatchMPC()
     query.get_observations([222])

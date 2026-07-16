@@ -13,7 +13,7 @@ from tudatpy.dynamics.environment_setup import (
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import create_observation_collection
+from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
 from tudatpy.data_input.tracking_data import TrackingData, tnf
 
 
@@ -348,7 +348,7 @@ def test_handle_open_ramps_close_silently_leaves_closed_untouched():
 
 
 # -----------------------------------------------------------------------------
-# Pipeline tests: TrackingData -> create_observation_collection
+# Pipeline tests: TrackingData -> create_observation_collection_from_tracking_data
 # -----------------------------------------------------------------------------
 def _dsn_bodies():
     """System of bodies with DSN stations and a dummy spacecraft."""
@@ -383,7 +383,9 @@ def test_pipeline_doppler_synthetic():
     tracking_data.add_double_ancillary_setting("Doppler observable integration time", 1.0)
     tracking_data.add_double_vector_ancillary_setting("link ends time delays", [0.0, 0.0, 0.0])
 
-    observation_collection = create_observation_collection([tracking_data], bodies)
+    observation_collection = create_observation_collection_from_tracking_data(
+        [tracking_data], bodies
+    )
     obs_sets = observation_collection.get_single_observation_sets()
 
     assert len(obs_sets) == 1
@@ -418,7 +420,9 @@ def test_pipeline_range_synthetic():
         "link ends time delays", [4.9151e-08, 0.0, -1.837e-07]
     )
 
-    observation_collection = create_observation_collection([tracking_data], bodies)
+    observation_collection = create_observation_collection_from_tracking_data(
+        [tracking_data], bodies
+    )
     obs_sets = observation_collection.get_single_observation_sets()
 
     assert len(obs_sets) == 1
@@ -479,7 +483,7 @@ def test_reader():
     assert tracking_data, "No tracking data found."
 
     # Convert the tracking data into an ObservationCollection.
-    observationCollection = create_observation_collection(tracking_data, bodies)
+    observationCollection = create_observation_collection_from_tracking_data(tracking_data, bodies)
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
