@@ -25,11 +25,6 @@ class RadioBase(Converter):
         # "K": "Ku-band",
         "Ka": "Ka-band",
     }
-    frequencyBandIds = {
-        "S": 0.0,
-        "X": 1.0,
-        "Ka": 2.0,
-    }
 
     def get_link_ends(self, sfdu: SFDU) -> tuple[str, str, str]:
         """

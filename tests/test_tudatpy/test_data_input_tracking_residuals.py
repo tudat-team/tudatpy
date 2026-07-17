@@ -753,7 +753,7 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
 
     # The FDETS reader currently stores the measured frequency and base frequency.
     # The observation model also needs the link frequency bands.
-    tracking_data[0].add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
+    tracking_data[0].add_string_vector_ancillary_setting("frequency bands", ["X-band", "X-band"])
     observed_observations = create_observation_collection_from_tracking_data(tracking_data, bodies)
     computed_observations = _simulate_doppler_measured_frequency(observed_observations, bodies)
     residuals = np.asarray(computed_observations.concatenated_observations) - np.asarray(

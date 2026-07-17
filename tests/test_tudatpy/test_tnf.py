@@ -377,8 +377,10 @@ def test_pipeline_doppler_synthetic():
         "receiver",
         "UTC",
     )
-    tracking_data.add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
-    tracking_data.add_double_ancillary_setting("DSN reference frequency band at reception", 1.0)
+    tracking_data.add_string_vector_ancillary_setting("frequency bands", ["X-band", "X-band"])
+    tracking_data.add_string_ancillary_setting(
+        "DSN reference frequency band at reception", "X-band"
+    )
     tracking_data.add_double_ancillary_setting("DSN Doppler reference frequency", 0.0)
     tracking_data.add_double_ancillary_setting("Doppler observable integration time", 1.0)
     tracking_data.add_double_vector_ancillary_setting("link ends time delays", [0.0, 0.0, 0.0])
@@ -414,7 +416,7 @@ def test_pipeline_range_synthetic():
         "receiver",
         "UTC",
     )
-    tracking_data.add_double_vector_ancillary_setting("frequency bands", [1.0, 1.0])
+    tracking_data.add_string_vector_ancillary_setting("frequency bands", ["X-band", "X-band"])
     tracking_data.add_double_ancillary_setting("DSN sequential range lowest ranging component", 7.0)
     tracking_data.add_double_vector_ancillary_setting(
         "link ends time delays", [4.9151e-08, 0.0, -1.837e-07]

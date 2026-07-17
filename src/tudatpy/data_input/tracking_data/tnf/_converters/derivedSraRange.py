@@ -98,11 +98,11 @@ class DerivedSraRangeConverter(RadioBase):
                                 "receiver",
                                 "UTC",
                             )
-                            tracking_data.add_double_vector_ancillary_setting(
+                            tracking_data.add_string_vector_ancillary_setting(
                                 "frequency bands",
                                 [
-                                    self.frequencyBandIds[band[0]],
-                                    self.frequencyBandIds[band[1]],
+                                    self.frequencyBandsDict[band[0]],
+                                    self.frequencyBandsDict[band[1]],
                                 ],
                             )
                             tracking_data.add_double_ancillary_setting(
