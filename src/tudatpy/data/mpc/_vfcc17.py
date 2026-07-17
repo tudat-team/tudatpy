@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import warnings
 
-import numpy as np
-import pandas as pd
-from astropy.units import Quantity
-import astropy.units as u
-from astroquery.mpc import MPC
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy as np
+    import pandas as pd
 
 _MIGRATION_GUIDE_URL = (
     "https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html"
@@ -27,6 +29,12 @@ def get_weights_VFCC17(
     data-input workflow that returns the same direct weight array or
     intermediate table.
     """
+    import numpy as np
+    import pandas as pd
+    from astropy.units import Quantity
+    import astropy.units as u
+    from astroquery.mpc import MPC
+
     warnings.warn(
         (
             "tudatpy.data.mpc.get_weights_VFCC17 is deprecated. "

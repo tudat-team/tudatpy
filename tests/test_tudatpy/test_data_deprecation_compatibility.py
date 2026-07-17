@@ -1,6 +1,7 @@
 import importlib
 import inspect
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -112,14 +113,13 @@ def _access_deprecated_data_alias_for_warning_location():
     return expected_lineno, deprecated_object
 
 
-def _call_deprecated_non_one_to_one_function_for_warning_location(monkeypatch):
+def _call_deprecated_non_one_to_one_function_for_warning_location():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
-    monkeypatch.setattr(kernel_data, "read_ifms_file", lambda *args, **kwargs: "parsed ifms")
-
-    expected_lineno = inspect.currentframe().f_lineno + 1
-    data.read_ifms_file("ifms.tab")
+    with patch.object(kernel_data, "read_ifms_file", lambda *args, **kwargs: "parsed ifms"):
+        expected_lineno = inspect.currentframe().f_lineno + 1
+        data.read_ifms_file("ifms.tab")
     return expected_lineno
 
 
@@ -202,9 +202,9 @@ def test_deprecated_data_alias_warning_points_to_user_code():
     assert record[0].lineno == expected_lineno
 
 
-def test_deprecated_non_one_to_one_warning_points_to_user_code(monkeypatch):
+def test_deprecated_non_one_to_one_warning_points_to_user_code():
     with pytest.warns(DeprecationWarning, match="read_ifms_data") as record:
-        expected_lineno = _call_deprecated_non_one_to_one_function_for_warning_location(monkeypatch)
+        expected_lineno = _call_deprecated_non_one_to_one_function_for_warning_location()
 
     assert Path(record[0].filename).resolve() == Path(__file__).resolve()
     assert record[0].lineno == expected_lineno
@@ -226,22 +226,21 @@ def test_deprecated_observations_wrapper_alias_warns():
     assert imported_object is observations.create_observation_collection_from_tracking_data
 
 
-def test_deprecated_crd_single_file_reader_warns_and_delegates(monkeypatch):
+def test_deprecated_crd_single_file_reader_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
     def read_crd_file(file_name):
         return ("parsed slr", file_name)
 
-    monkeypatch.setattr(kernel_data, "read_crd_file", read_crd_file)
-
-    with pytest.warns(DeprecationWarning, match="read_slr_data"):
-        parsed_data = data.read_crd_file("example.crd")
+    with patch.object(kernel_data, "read_crd_file", read_crd_file):
+        with pytest.warns(DeprecationWarning, match="read_slr_data"):
+            parsed_data = data.read_crd_file("example.crd")
 
     assert parsed_data == ("parsed slr", "example.crd")
 
 
-def test_deprecated_tracking_txt_single_file_reader_warns_and_delegates(monkeypatch):
+def test_deprecated_tracking_txt_single_file_reader_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
@@ -251,14 +250,13 @@ def test_deprecated_tracking_txt_single_file_reader_warns_and_delegates(monkeypa
         calls.append(args)
         return "parsed tracking text"
 
-    monkeypatch.setattr(kernel_data, "read_tracking_txt_file", read_tracking_txt_file)
-
-    with pytest.warns(DeprecationWarning, match="read_generic_text_data"):
-        parsed_data = data.read_tracking_txt_file(
-            "tracking.txt",
-            ["year", "month"],
-            data_filter_method="filter",
-        )
+    with patch.object(kernel_data, "read_tracking_txt_file", read_tracking_txt_file):
+        with pytest.warns(DeprecationWarning, match="read_generic_text_data"):
+            parsed_data = data.read_tracking_txt_file(
+                "tracking.txt",
+                ["year", "month"],
+                data_filter_method="filter",
+            )
 
     assert parsed_data == "parsed tracking text"
     assert calls == [
@@ -273,7 +271,7 @@ def test_deprecated_tracking_txt_single_file_reader_warns_and_delegates(monkeypa
     ]
 
 
-def test_deprecated_ifms_raw_reader_warns_and_delegates(monkeypatch):
+def test_deprecated_ifms_raw_reader_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
@@ -283,16 +281,15 @@ def test_deprecated_ifms_raw_reader_warns_and_delegates(monkeypatch):
         calls.append(args)
         return "parsed ifms"
 
-    monkeypatch.setattr(kernel_data, "read_ifms_file", read_ifms_file)
-
-    with pytest.warns(DeprecationWarning, match="read_ifms_data"):
-        parsed_data = data.read_ifms_file("ifms.tab", False, True)
+    with patch.object(kernel_data, "read_ifms_file", read_ifms_file):
+        with pytest.warns(DeprecationWarning, match="read_ifms_data"):
+            parsed_data = data.read_ifms_file("ifms.tab", False, True)
 
     assert parsed_data == "parsed ifms"
     assert calls == [("ifms.tab", False, True)]
 
 
-def test_deprecated_fdets_raw_reader_warns_and_delegates(monkeypatch):
+def test_deprecated_fdets_raw_reader_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
@@ -302,16 +299,15 @@ def test_deprecated_fdets_raw_reader_warns_and_delegates(monkeypatch):
         calls.append(args)
         return "parsed fdets"
 
-    monkeypatch.setattr(kernel_data, "read_fdets_file", read_fdets_file)
-
-    with pytest.warns(DeprecationWarning, match="read_fdets_data"):
-        parsed_data = data.read_fdets_file("fdets.txt", ["utc_datetime_string"])
+    with patch.object(kernel_data, "read_fdets_file", read_fdets_file):
+        with pytest.warns(DeprecationWarning, match="read_fdets_data"):
+            parsed_data = data.read_fdets_file("fdets.txt", ["utc_datetime_string"])
 
     assert parsed_data == "parsed fdets"
     assert calls == [("fdets.txt", ["utc_datetime_string"])]
 
 
-def test_deprecated_dsn_weather_setter_warns_and_delegates(monkeypatch):
+def test_deprecated_dsn_weather_setter_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
@@ -321,16 +317,17 @@ def test_deprecated_dsn_weather_setter_warns_and_delegates(monkeypatch):
         calls.append((args, kwargs))
         return "dsn weather set"
 
-    monkeypatch.setattr(
+    with patch.object(
         kernel_data,
         "set_dsn_weather_data_in_ground_stations",
         set_dsn_weather_data_in_ground_stations,
-    )
-
-    with pytest.warns(DeprecationWarning, match="set_dsn_weather_data_in_ground_station_settings"):
-        result = data.set_dsn_weather_data_in_ground_stations(
-            "bodies", ["weather.tab"], body_with_ground_stations_name="Mars"
-        )
+    ):
+        with pytest.warns(
+            DeprecationWarning, match="set_dsn_weather_data_in_ground_station_settings"
+        ):
+            result = data.set_dsn_weather_data_in_ground_stations(
+                "bodies", ["weather.tab"], body_with_ground_stations_name="Mars"
+            )
 
     assert result == "dsn weather set"
     assert calls == [
@@ -341,7 +338,7 @@ def test_deprecated_dsn_weather_setter_warns_and_delegates(monkeypatch):
     ]
 
 
-def test_deprecated_estrack_weather_setter_warns_and_delegates(monkeypatch):
+def test_deprecated_estrack_weather_setter_warns_and_delegates():
     import tudatpy.data as data
     import tudatpy.kernel.data as kernel_data
 
@@ -351,18 +348,17 @@ def test_deprecated_estrack_weather_setter_warns_and_delegates(monkeypatch):
         calls.append((args, kwargs))
         return "estrack weather set"
 
-    monkeypatch.setattr(
+    with patch.object(
         kernel_data,
         "set_estrack_weather_data_in_ground_stations",
         set_estrack_weather_data_in_ground_stations,
-    )
-
-    with pytest.warns(
-        DeprecationWarning, match="set_estrack_weather_data_in_ground_station_settings"
     ):
-        result = data.set_estrack_weather_data_in_ground_stations(
-            "bodies", ["weather.tab"], "NWNORCIA", body_with_ground_stations_name="Mars"
-        )
+        with pytest.warns(
+            DeprecationWarning, match="set_estrack_weather_data_in_ground_station_settings"
+        ):
+            result = data.set_estrack_weather_data_in_ground_stations(
+                "bodies", ["weather.tab"], "NWNORCIA", body_with_ground_stations_name="Mars"
+            )
 
     assert result == "estrack weather set"
     assert calls == [
@@ -374,24 +370,24 @@ def test_deprecated_estrack_weather_setter_warns_and_delegates(monkeypatch):
 
 
 @pytest.mark.parametrize("module_name", ("tudatpy.data.mpc", "tudatpy.data.mpc.mpc"))
-def test_deprecated_mpc_vfcc17_weight_helper_warns_and_works(monkeypatch, module_name):
+def test_deprecated_mpc_vfcc17_weight_helper_warns_and_works(module_name):
     module = importlib.import_module(module_name)
-    vfcc17 = importlib.import_module("tudatpy.data.mpc._vfcc17")
 
     class ObservatoryCodes:
         def to_pandas(self):
             return pd.DataFrame({"Code": ["704"], "Longitude": [0.0]})
 
-    monkeypatch.setattr(vfcc17.MPC, "get_observatory_codes", lambda: ObservatoryCodes())
+    from astroquery.mpc import MPC
 
-    with pytest.warns(DeprecationWarning, match="no one-to-one equivalent"):
-        weights = module.get_weights_VFCC17(
-            MPC_codes=["433"],
-            epoch=[2459000.0],
-            observation_type=["C"],
-            observatory=["704"],
-            star_catalog=["U"],
-        )
+    with patch.object(MPC, "get_observatory_codes", lambda: ObservatoryCodes()):
+        with pytest.warns(DeprecationWarning, match="no one-to-one equivalent"):
+            weights = module.get_weights_VFCC17(
+                MPC_codes=["433"],
+                epoch=[2459000.0],
+                observation_type=["C"],
+                observatory=["704"],
+                star_catalog=["U"],
+            )
 
     expected_weight = 1.0 / np.square(np.deg2rad(1.0 / 3600.0))
     assert weights.shape == (1,)
