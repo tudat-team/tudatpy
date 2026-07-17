@@ -102,11 +102,11 @@ def read_crd_file(file_name):
     _warn_non_one_to_one(
         "read_crd_file",
         "tudatpy.data_input.tracking_data.slr.read_slr_data",
-        "The new function takes a list of CRD file names.",
+        "The old single-file signature remains supported during the deprecation period.",
     )
-    from tudatpy.data_input.tracking_data.slr import read_slr_data
+    from tudatpy.kernel import data as kernel_data
 
-    return read_slr_data([file_name])
+    return kernel_data.read_crd_file(file_name)
 
 
 def read_tracking_txt_file(
@@ -120,81 +120,133 @@ def read_tracking_txt_file(
     _warn_non_one_to_one(
         "read_tracking_txt_file",
         "tudatpy.data_input.tracking_data.generic_text_file.read_generic_text_data",
-        "The new function takes a list of file names and returns a list of parsed files.",
+        "The old single-file signature remains supported during the deprecation period.",
     )
-    from tudatpy.data_input.tracking_data.generic_text_file import (
-        TrackingTxtFileReadFilterType,
-        read_generic_text_data,
-    )
+    from tudatpy.data_input.tracking_data.generic_text_file import TrackingTxtFileReadFilterType
+    from tudatpy.kernel import data as kernel_data
 
     if data_filter_method is None:
         data_filter_method = TrackingTxtFileReadFilterType.no_tracking_txt_file_filter
 
-    return read_generic_text_data(
-        [file_name],
+    return kernel_data.read_tracking_txt_file(
+        file_name,
         column_types,
         comment_symbol,
         value_separators,
         ignore_omitted_columns,
         data_filter_method,
-    )[0]
+    )
 
 
-def read_ifms_file(*args, **kwargs):
+def read_ifms_file(file_name, apply_tropospheric_correction=True, remove_invalid_lines=True):
     _warn_non_one_to_one(
         "read_ifms_file",
         "tudatpy.data_input.tracking_data.ifms.read_ifms_data",
         (
-            "The new function has a different signature, requires spacecraft and "
-            "ground-station metadata, and returns tracking data and supplementary "
-            "data instead of raw file contents."
+            "The old raw-file reader signature and return value remain supported "
+            "during the deprecation period."
         ),
     )
-    raise NotImplementedError(
-        "tudatpy.data.read_ifms_file cannot be mapped one-to-one to the new IFMS "
-        "reader. Use tudatpy.data_input.tracking_data.ifms.read_ifms_data."
+    from tudatpy.kernel import data as kernel_data
+
+    return kernel_data.read_ifms_file(
+        file_name, apply_tropospheric_correction, remove_invalid_lines
     )
 
 
-def read_fdets_file(*args, **kwargs):
+def read_fdets_file(
+    file_name,
+    column_types=(
+        "utc_datetime_string",
+        "signal_to_noise_ratio",
+        "normalised_spectral_max",
+        "doppler_measured_frequency_hz",
+        "doppler_noise_hz",
+    ),
+):
     _warn_non_one_to_one(
         "read_fdets_file",
         "tudatpy.data_input.tracking_data.fdets.read_fdets_data",
         (
-            "The new function has a different signature, requires base frequencies "
-            "and station metadata, and returns tracking data and supplementary data "
-            "instead of raw file contents."
+            "The old raw-file reader signature and return value remain supported "
+            "during the deprecation period."
         ),
     )
-    raise NotImplementedError(
-        "tudatpy.data.read_fdets_file cannot be mapped one-to-one to the new FDETS "
-        "reader. Use tudatpy.data_input.tracking_data.fdets.read_fdets_data."
-    )
+    from tudatpy.kernel import data as kernel_data
+
+    return kernel_data.read_fdets_file(file_name, list(column_types))
 
 
-def set_dsn_weather_data_in_ground_stations(*args, **kwargs):
+def set_dsn_weather_data_in_ground_stations(
+    bodies,
+    weather_file_names,
+    interpolator_settings=None,
+    ground_stations_per_complex=None,
+    body_with_ground_stations_name="Earth",
+):
     _warn_non_one_to_one(
         "set_dsn_weather_data_in_ground_stations",
         "tudatpy.dynamics.environment_setup.ground_station.set_dsn_weather_data_in_ground_station_settings",
-        "Weather data files now have to be assigned in ground-station settings before the system of bodies is created.",
+        "The old SystemOfBodies-based signature remains supported during the deprecation period.",
     )
-    raise NotImplementedError(
-        "DSN weather data must now be configured through ground-station settings. "
-        "Use tudatpy.dynamics.environment_setup.ground_station."
-        "set_dsn_weather_data_in_ground_station_settings."
+    from tudatpy.kernel import data as kernel_data
+
+    if interpolator_settings is None:
+        if ground_stations_per_complex is None:
+            return kernel_data.set_dsn_weather_data_in_ground_stations(
+                bodies,
+                weather_file_names,
+                body_with_ground_stations_name=body_with_ground_stations_name,
+            )
+        return kernel_data.set_dsn_weather_data_in_ground_stations(
+            bodies,
+            weather_file_names,
+            ground_stations_per_complex=ground_stations_per_complex,
+            body_with_ground_stations_name=body_with_ground_stations_name,
+        )
+    if ground_stations_per_complex is None:
+        return kernel_data.set_dsn_weather_data_in_ground_stations(
+            bodies,
+            weather_file_names,
+            interpolator_settings,
+            body_with_ground_stations_name=body_with_ground_stations_name,
+        )
+    return kernel_data.set_dsn_weather_data_in_ground_stations(
+        bodies,
+        weather_file_names,
+        interpolator_settings,
+        ground_stations_per_complex,
+        body_with_ground_stations_name,
     )
 
 
-def set_estrack_weather_data_in_ground_stations(*args, **kwargs):
+def set_estrack_weather_data_in_ground_stations(
+    bodies,
+    weather_file_names,
+    ground_station_name,
+    interpolator_settings=None,
+    body_with_ground_stations_name="Earth",
+):
     _warn_non_one_to_one(
         "set_estrack_weather_data_in_ground_stations",
         "tudatpy.dynamics.environment_setup.ground_station.set_estrack_weather_data_in_ground_station_settings",
-        "Weather data files now have to be assigned in ground-station settings before the system of bodies is created.",
+        "The old SystemOfBodies-based signature remains supported during the deprecation period.",
     )
-    raise NotImplementedError(
-        "ESTRACK weather data must now be configured through ground-station settings. "
-        "Use tudatpy.dynamics.environment_setup.ground_station."
-        "set_estrack_weather_data_in_ground_station_settings."
+    from tudatpy.kernel import data as kernel_data
+
+    if interpolator_settings is None:
+        return kernel_data.set_estrack_weather_data_in_ground_stations(
+            bodies,
+            weather_file_names,
+            ground_station_name,
+            body_with_ground_stations_name=body_with_ground_stations_name,
+        )
+    return kernel_data.set_estrack_weather_data_in_ground_stations(
+        bodies,
+        weather_file_names,
+        ground_station_name,
+        interpolator_settings,
+        body_with_ground_stations_name,
     )
 
 

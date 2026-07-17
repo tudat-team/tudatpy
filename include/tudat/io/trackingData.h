@@ -209,7 +209,7 @@ public:
                 Eigen::Matrix< TimeType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
         for( unsigned int i = 0; i < epochs_.size( ); i++ )
         {
-            epochsVector.segment( i * singleObservationSize_, singleObservationSize_ ) = epochs_.at( i );
+            epochsVector.segment( i * singleObservationSize_, singleObservationSize_ ).setConstant( epochs_.at( i ) );
         }
         return epochsVector;
     }
