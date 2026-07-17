@@ -253,6 +253,8 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
             state_history,
             "Earth",
             True,
+            "UTC",
+            "J2000",
         )
         receiver_data = TrackingSupplementaryData(str(observatory), "")
         receiver_data.translational_state_supplementary_data = translational_data

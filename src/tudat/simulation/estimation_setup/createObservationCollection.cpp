@@ -1,6 +1,9 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
 
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+
 #include <cmath>
 
 namespace tudat
@@ -241,6 +244,54 @@ std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVelocity(
     return stateHistory;
 }
 
+std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
+        const data::TranslationalStateSupplementaryData& translationalStateSupplementaryData,
+        const std::map< double, Eigen::Vector6d >& stateHistory,
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter )
+{
+    basic_astrodynamics::TimeScales inputTimeScale;
+    try
+    {
+        inputTimeScale = basic_astrodynamics::timeScaleFromString( translationalStateSupplementaryData.getTimeScale( ) );
+    }
+    catch( const std::exception& caughtException )
+    {
+        throw std::runtime_error(
+                "Error when processing translational state tracking supplementary data: state-history epochs currently support only "
+                "TDB and UTC time scales, but received " +
+                translationalStateSupplementaryData.getTimeScale( ) + ". Original error: " + std::string( caughtException.what( ) ) );
+    }
+
+    if( inputTimeScale == basic_astrodynamics::tdb_scale )
+    {
+        return stateHistory;
+    }
+    if( inputTimeScale != basic_astrodynamics::utc_scale )
+    {
+        throw std::runtime_error(
+                "Error when processing translational state tracking supplementary data: state-history epochs currently support "
+                "only TDB and UTC time scales, but received " +
+                translationalStateSupplementaryData.getTimeScale( ) + "." );
+    }
+
+    if( timeScaleConverter == nullptr )
+    {
+        timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    // Ephemerides use TDB as their independent variable. Tracking data may carry
+    // receiver-side spacecraft positions tagged in UTC, so convert the epoch keys
+    // only when applying the supplementary data to the environment.
+    std::map< double, Eigen::Vector6d > tdbStateHistory;
+    for( const auto& stateEntry : stateHistory )
+    {
+        const double tdbTime = timeScaleConverter->getCurrentTime(
+                inputTimeScale, basic_astrodynamics::tdb_scale, stateEntry.first, Eigen::Vector3d::Zero( ) );
+        tdbStateHistory[ tdbTime ] = stateEntry.second;
+    }
+    return tdbStateHistory;
+}
+
 void setTranslationalStateSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
@@ -259,12 +310,15 @@ void setTranslationalStateSupplementaryDataInBodies(
         std::map< double, Eigen::Vector6d > stateHistory;
         std::vector< std::pair< double, std::pair< Eigen::Vector6d, Eigen::Vector6d > > > inconsistentDuplicateStateHistoryEntries;
         std::string frameOrigin;
+        std::string frameOrientation;
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
         {
             if( i == 0 )
             {
                 frameOrigin = it->second.at( i ).getFrameOrigin( );
+                frameOrientation = it->second.at( i ).getFrameOrientation( );
             }
             else if( it->second.at( i ).getFrameOrigin( ) != frameOrigin )
             {
@@ -273,8 +327,16 @@ void setTranslationalStateSupplementaryDataInBodies(
                         "supplementary data for body " +
                         bodyName + ". Found " + it->second.at( i ).getFrameOrigin( ) + " but expected " + frameOrigin + "." );
             }
+            else if( it->second.at( i ).getFrameOrientation( ) != frameOrientation )
+            {
+                throw std::runtime_error(
+                        "Error, inconsistent frame orientations found when setting translational state from tracking "
+                        "supplementary data for body " +
+                        bodyName + ". Found " + it->second.at( i ).getFrameOrientation( ) + " but expected " + frameOrientation + "." );
+            }
 
-            std::map< double, Eigen::Vector6d > currentStateHistory = getTranslationalStateHistoryWithVelocity( it->second.at( i ) );
+            std::map< double, Eigen::Vector6d > currentStateHistory = convertTranslationalStateHistoryToTdb(
+                    it->second.at( i ), getTranslationalStateHistoryWithVelocity( it->second.at( i ) ), timeScaleConverter );
             for( auto stateIterator = currentStateHistory.begin( ); stateIterator != currentStateHistory.end( ); ++stateIterator )
             {
                 if( stateHistory.count( stateIterator->first ) == 0 )
@@ -298,6 +360,12 @@ void setTranslationalStateSupplementaryDataInBodies(
                                           ", existing ephemeris frame origin is " + ephemeris->getReferenceFrameOrigin( ) +
                                           " but supplementary data frame origin is " + frameOrigin + "." );
             }
+            if( ephemeris->getReferenceFrameOrientation( ) != frameOrientation )
+            {
+                throw std::runtime_error( "Error when setting tracking supplementary data in body " + bodyName +
+                                          ", existing ephemeris frame orientation is " + ephemeris->getReferenceFrameOrientation( ) +
+                                          " but supplementary data frame orientation is " + frameOrientation + "." );
+            }
 
             if( !ephemerides::isTabulatedEphemeris( ephemeris ) )
             {
@@ -314,8 +382,17 @@ void setTranslationalStateSupplementaryDataInBodies(
             bodies.at( bodyName )
                     ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< double, Time > >(
                             interpolators::createOneDimensionalInterpolator( timeStateHistory, interpolators::linearInterpolation( ) ),
-                            frameOrigin ) );
+                            frameOrigin,
+                            frameOrientation ) );
         }
+    }
+
+    if( !translationalStateSupplementaryData.empty( ) )
+    {
+        // The ephemeris object stores the state with respect to its own frame
+        // origin. Rebuild the SystemOfBodies frame links so later observation
+        // models obtain states with respect to the global frame origin.
+        bodies.processBodyFrameDefinitions< double, double >( );
     }
 }
 

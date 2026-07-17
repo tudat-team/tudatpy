@@ -659,10 +659,16 @@ void expose_tracking_data( py::module& m )
          for the corresponding environment setup interface.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const std::map< double, Eigen::Vector6d >&, const std::string&, const bool >( ),
+            .def( py::init< const std::map< double, Eigen::Vector6d >&,
+                            const std::string&,
+                            const bool,
+                            const std::string&,
+                            const std::string& >( ),
                   py::arg( "state_history" ),
                   py::arg( "frame_origin" ) = "Earth",
-                  py::arg( "is_velocity_defined" ) = true )
+                  py::arg( "is_velocity_defined" ) = true,
+                  py::arg( "time_scale" ) = "TDB",
+                  py::arg( "frame_orientation" ) = "J2000" )
             .def_property_readonly( "state_history",
                                     &tdat::TranslationalStateSupplementaryData::getStateHistory,
                                     R"doc(
@@ -681,6 +687,15 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &tdat::TranslationalStateSupplementaryData::getFrameOrientation,
+                                    R"doc(
+         **read-only**
+
+         Orientation of the translational-state frame.
+
+         :type: str
+      )doc" )
             .def_property_readonly( "is_velocity_defined",
                                     &tdat::TranslationalStateSupplementaryData::isVelocityDefined,
                                     R"doc(
@@ -689,6 +704,15 @@ void expose_tracking_data( py::module& m )
          Boolean that defines whether velocity entries are defined, if not they are computed through finite differences when this object is processed to update the environment.
 
          :type: bool
+      )doc" )
+            .def_property_readonly( "time_scale",
+                                    &tdat::TranslationalStateSupplementaryData::getTimeScale,
+                                    R"doc(
+         **read-only**
+
+         Time scale of the tabulated state-history epochs.
+
+         :type: str
       )doc" );
 
     py::class_< tdat::RotationalStateSupplementaryData >( m, "RotationalStateSupplementaryData", R"doc(

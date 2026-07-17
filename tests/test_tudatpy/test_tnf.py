@@ -449,6 +449,7 @@ def test_pipeline_range_synthetic():
 # -----------------------------------------------------------------------------
 # End-to-end reader test
 # -----------------------------------------------------------------------------
+@pytest.mark.remote_data
 def test_reader():
     # Use the current directory as temporary path.
     tmp_dir = os.getcwd()
@@ -456,7 +457,10 @@ def test_reader():
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
+    try:
+        response = requests.get(url_tnf, timeout=60.0)
+    except requests.RequestException as error:
+        pytest.skip(f"Remote TNF test data unavailable: {error}")
     assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
     with open(local_filename, "wb") as f:
         f.write(response.content)
