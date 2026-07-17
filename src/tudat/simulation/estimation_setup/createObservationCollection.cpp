@@ -83,10 +83,11 @@ std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingF
     }
 
     std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
-    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter;
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            earth_orientation::createDefaultTimeConverter( );
     for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
     {
-        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter.getCurrentTime< double >(
+        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter->getCurrentTime< double >(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
                 rotationEntry.second;
     }

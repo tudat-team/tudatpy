@@ -10,7 +10,7 @@ def deprecated_getattr(module_name, aliases, name):
     warnings.warn(
         f"{module_name}.{name} is deprecated. Use {target_module_name}.{target_name} instead.",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,
     )
     return getattr(importlib.import_module(target_module_name), target_name)
 
@@ -19,7 +19,7 @@ def warn_custom_deprecation(module_name, name, message):
     warnings.warn(
         f"{module_name}.{name} is deprecated. {message}",
         DeprecationWarning,
-        stacklevel=3,
+        stacklevel=4,
     )
 
 

@@ -1,4 +1,5 @@
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data import TrackingData
 from tudatpy.data_input.tracking_data.optical_utilities import (
     create_augmented_optical_table,
     filter_augmented_optical_table,
@@ -233,6 +234,44 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
 
     assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
     assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
+
+
+def test_tracking_data_observation_corrections_are_optional_during_collection_creation():
+    """Check that stored TrackingData corrections are ignored by default and applied on request."""
+    observations = [np.array([1.0, 2.0]), np.array([3.0, 4.0])]
+    corrections = [np.array([0.1, -0.2]), np.array([-0.3, 0.4])]
+    tracking_data = TrackingData(
+        "AngularPosition",
+        [(("Target", ""), "transmitter"), (("Earth", "Station"), "receiver")],
+        observations,
+        [0.0, 10.0],
+        "receiver",
+        "TDB",
+    )
+    tracking_data.set_observation_corrections(corrections)
+    bodies = _create_earth_bodies()
+
+    uncorrected_collection = create_observation_collection_from_tracking_data(
+        [tracking_data],
+        bodies,
+    )
+    corrected_collection = create_observation_collection_from_tracking_data(
+        [tracking_data],
+        bodies,
+        apply_corrections=True,
+    )
+
+    uncorrected = np.array(uncorrected_collection.concatenated_observations).reshape(
+        2, -1, order="F"
+    )
+    corrected = np.array(corrected_collection.concatenated_observations).reshape(2, -1, order="F")
+    expected_uncorrected = np.column_stack(observations)
+    expected_corrected = np.column_stack(
+        [observation + correction for observation, correction in zip(observations, corrections)]
+    )
+
+    assert np.max(np.abs(uncorrected - expected_uncorrected)) == pytest.approx(0.0)
+    assert np.max(np.abs(corrected - expected_corrected)) == pytest.approx(0.0)
 
 
 def test_compare_mpc_horizons_eph():

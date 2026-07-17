@@ -610,6 +610,7 @@ numpy.ndarray
            &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "tracking_data" ),
            py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
            R"doc(
 
         Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
@@ -624,6 +625,9 @@ numpy.ndarray
             List of tracking data objects to convert.
         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
             System of bodies, used to resolve ground station positions for time scale conversions.
+        apply_corrections : bool, optional
+            Whether corrections stored in the tracking data should be applied to
+            the observation values during conversion. Default is False.
 
         Returns
         -------

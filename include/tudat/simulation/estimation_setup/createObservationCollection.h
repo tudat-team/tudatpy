@@ -198,11 +198,11 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
 
     auto epochsInput = trackingData->getObservationEpochs( );
     auto epochsTdb = std::vector< TimeType >( epochsInput.size( ) );
-    auto timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
     std::string referenceLinkEndName = trackingData->getReferencePointName( );
 
     if( trackingData->getTimeScale( ) != "TDB" )
     {
+        auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
         auto const& inputScale = basic_astrodynamics::timeScaleFromString( trackingData->getTimeScale( ) );
         Eigen::Vector3d timeScaleConversionPosition = Eigen::Vector3d::Zero( );
         const LinkEndId referenceLinkEndId = rawLinkEnds.at( referenceLinkEnd );
@@ -218,7 +218,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
             }
         }
 
-        epochsTdb = timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >(
+        epochsTdb = timeScaleConverter->getCurrentTimesFromSinglePosition< TimeType >(
                 inputScale, basic_astrodynamics::tdb_scale, epochsInput, timeScaleConversionPosition );
     }
     else
@@ -273,14 +273,15 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
         const std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataList,
-        SystemOfBodies& bodies )
+        SystemOfBodies& bodies,
+        const bool applyCorrections = false )
 {
     // Create list of single observation sets
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets;
     for( auto trackingData : trackingDataList )
     {
         // Convert single tracking data object to a single observation set
-        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies ) );
+        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections ) );
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }

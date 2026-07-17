@@ -98,6 +98,22 @@ def test_from_import_deprecated_data_alias_warns(module_name, old_name, new_name
     assert imported_object is expected_object
 
 
+def test_deprecated_observations_wrapper_alias_warns():
+    module = importlib.import_module("tudatpy.estimation.observations_setup.observations_wrapper")
+    observations = importlib.import_module("tudatpy.estimation.observations")
+
+    with pytest.warns(
+        DeprecationWarning,
+        match=(
+            "tudatpy.estimation.observations_setup.observations_wrapper."
+            "create_observation_collection_from_tracking_data is deprecated"
+        ),
+    ):
+        imported_object = getattr(module, "create_observation_collection_from_tracking_data")
+
+    assert imported_object is observations.create_observation_collection_from_tracking_data
+
+
 def test_deprecated_crd_single_file_reader_warns_and_delegates(monkeypatch):
     import tudatpy.data as data
     import tudatpy.data_input.tracking_data.slr as slr
