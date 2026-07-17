@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import requests
-import os
 import pytest
 from tudatpy.data_input.environment_data import spice
 from tudatpy.dynamics.environment_setup import (
@@ -457,7 +456,10 @@ def test_reader(tmp_path):
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
+    try:
+        response = requests.get(url_tnf, timeout=60.0)
+    except requests.RequestException as error:
+        pytest.skip(f"Remote TNF test data unavailable: {error}")
     assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
     with open(local_filename, "wb") as f:
         f.write(response.content)

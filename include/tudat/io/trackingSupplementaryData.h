@@ -227,10 +227,20 @@ class TranslationalStateSupplementaryData
 public:
     TranslationalStateSupplementaryData( ) = default;
 
+    //! Constructor for supplementary body-state histories loaded with tracking data.
+    /*!
+     * The epoch keys in the state history are tagged with a time scale. The default
+     * is TDB to preserve the existing ephemeris convention for callers that do not
+     * explicitly provide a time scale. The default frame orientation is J2000,
+     * matching the tracking-data readers that currently create this object.
+     */
     TranslationalStateSupplementaryData( const std::map< double, Eigen::Vector6d >& stateHistory,
                                          const std::string& frameOrigin,
-                                         const bool isVelocityDefined ):
-        stateHistory_( stateHistory ), frameOrigin_( frameOrigin ), isVelocityDefined_( isVelocityDefined )
+                                         const bool isVelocityDefined,
+                                         const std::string& timeScale = "TDB",
+                                         const std::string& frameOrientation = "J2000" ):
+        stateHistory_( stateHistory ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ),
+        isVelocityDefined_( isVelocityDefined ), timeScale_( timeScale )
     {}
 
     const std::map< double, Eigen::Vector6d >& getStateHistory( ) const
@@ -243,9 +253,20 @@ public:
         return frameOrigin_;
     }
 
+    const std::string& getFrameOrientation( ) const
+    {
+        return frameOrientation_;
+    }
+
     bool isVelocityDefined( ) const
     {
         return isVelocityDefined_;
+    }
+
+    //! Time scale used by the state-history epoch keys.
+    const std::string& getTimeScale( ) const
+    {
+        return timeScale_;
     }
 
 private:
@@ -253,7 +274,11 @@ private:
 
     std::string frameOrigin_;
 
+    std::string frameOrientation_ = "J2000";
+
     bool isVelocityDefined_ = false;
+
+    std::string timeScale_ = "TDB";
 };
 
 class RotationalStateSupplementaryData
