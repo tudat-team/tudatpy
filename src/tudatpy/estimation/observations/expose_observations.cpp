@@ -11,6 +11,7 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observations.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -23,6 +24,7 @@
 #include <sstream>
 
 #include "scalarTypes.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
@@ -802,6 +804,9 @@ void expose_observations( py::module& m )
 
     auto observations_geometry = m.def_submodule( "observations_geometry" );
     observations_geometry::expose_observations_geometry( observations_geometry );
+
+    expose_observations_io_bindings( m );
+    expose_observations_simulation_bindings( m );
 
     // OBSERVATION DATASET
 

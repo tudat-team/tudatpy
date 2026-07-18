@@ -79,6 +79,8 @@ set(estimation_HEADERS
         processPsfFile.h
         processTrackingTxtFile.h
         simulateObservationsLegacy.h
+        trackingDataWeighting.h
+        createObservationCollection.h
         compressDopplerObservationCollection.h
         )
 

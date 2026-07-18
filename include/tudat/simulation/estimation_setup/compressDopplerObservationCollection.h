@@ -52,7 +52,8 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
             originalDopplerData->getObservationsForSet( setId );
     std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesForSet( setId );
 
-    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            earth_orientation::createDefaultTimeConverter( );
     std::string stationName = linkDefinition.linkEnds_.at( observation_models::LinkEndType::receiver ).getReferencePointName( );
     auto stationPositionIterator = approximateGroundStationPositions.find( stationName );
     if( stationPositionIterator == approximateGroundStationPositions.end( ) )
@@ -62,10 +63,10 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     Eigen::Vector3d stationPosition = stationPositionIterator->second;
 
     std::vector< TimeType > originalObservationTimesUtc =
-            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
-                                                                              basic_astrodynamics::TimeScales::utc_scale,
-                                                                              originalObservationTimesTdb,
-                                                                              stationPosition );
+            timeScaleConverter->getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
+                                                                               basic_astrodynamics::TimeScales::utc_scale,
+                                                                               originalObservationTimesTdb,
+                                                                               stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
@@ -114,10 +115,10 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         compressedEarthFixedPositions.push_back( stationPosition );
     }
     std::vector< TimeType > compressedObservationTimesTdb =
-            timeScaleConverter.getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
-                                                            basic_astrodynamics::TimeScales::tdb_scale,
-                                                            compressedObservationTimesUtc,
-                                                            compressedEarthFixedPositions );
+            timeScaleConverter->getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
+                                                             basic_astrodynamics::TimeScales::tdb_scale,
+                                                             compressedObservationTimesUtc,
+                                                             compressedEarthFixedPositions );
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings =
             std::make_shared< observation_models::ObservationAncillarySimulationSettings >( *originalAncillarySettings );

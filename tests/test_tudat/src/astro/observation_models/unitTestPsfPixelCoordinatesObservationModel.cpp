@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_SUITE( test_psf_pixel_coordinates_observation_model )
 BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( );
-    const input_output::psf::RawPsfFileContents psfFile = input_output::psf::readPsfFile( testDataPath + "/psf/psf_vgr2_neptune.txt" );
+    const input_output::psf::RawPsfFileContents psfFile = input_output::psf::readRawPsfFile( testDataPath + "/psf/psf_vgr2_neptune.txt" );
 
     spice_interface::loadStandardSpiceKernels( std::vector< std::string >( ) );
     spice_interface::loadSpiceKernelInTudat( testDataPath + "/spice/vgr2_nep097.bsp" );

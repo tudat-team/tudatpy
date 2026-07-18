@@ -34,6 +34,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 
 namespace tudat
@@ -424,15 +425,35 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createP
         const std::string& psfFile,
         const PsfFileObservationConversionSettings& conversionSettings )
 {
-    return createPsfFileObservationDataset< ObservationScalarType, TimeType >( input_output::psf::readPsfFile( psfFile ),
+    return createPsfFileObservationDataset< ObservationScalarType, TimeType >( input_output::psf::readRawPsfFile( psfFile ),
                                                                                conversionSettings );
+}
+
+//! Backwards-compatible collection facade for PSF observations.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createPsfFileObservationCollection(
+        const input_output::psf::RawPsfFileContents& psfFileContents,
+        const PsfFileObservationConversionSettings& conversionSettings )
+{
+    return createObservationCollection< ObservationScalarType, TimeType >(
+            createPsfFileObservationDataset< ObservationScalarType, TimeType >( psfFileContents, conversionSettings ) );
+}
+
+//! Backwards-compatible collection facade for a PSF file.
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createPsfFileObservationCollection(
+        const std::string& psfFile,
+        const PsfFileObservationConversionSettings& conversionSettings )
+{
+    return createObservationCollection< ObservationScalarType, TimeType >(
+            createPsfFileObservationDataset< ObservationScalarType, TimeType >( psfFile, conversionSettings ) );
 }
 
 inline void addPsfCamerasToBodies( const std::string& psfFile,
                                    const simulation_setup::SystemOfBodies& bodies,
                                    const PsfFileObservationConversionSettings& conversionSettings )
 {
-    addPsfCamerasToBodies( input_output::psf::readPsfFile( psfFile ), bodies, conversionSettings );
+    addPsfCamerasToBodies( input_output::psf::readRawPsfFile( psfFile ), bodies, conversionSettings );
 }
 
 }  // namespace observation_models
