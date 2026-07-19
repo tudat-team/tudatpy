@@ -329,8 +329,10 @@ def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
 
 def test_legacy_weight_setters_match_dataset(sample_dataset):
     legacy_collection = _legacy_collection(sample_dataset)
-    range_parser = observations_processing.observation_parser(observations.one_way_range)
-    angular_parser = observations_processing.observation_parser(observations.angular_position)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        range_parser = observations_processing.observation_parser(observations.one_way_range)
+        angular_parser = observations_processing.observation_parser(observations.angular_position)
 
     def assert_weights_match(expected_weights):
         with warnings.catch_warnings():
@@ -345,11 +347,13 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
             _to_dense_matrix(flattened.sparse_weight_matrix),
             np.diag(expected_weights),
         )
-        if hasattr(legacy_collection, "get_full_weights_matrix"):
-            np.testing.assert_allclose(
-                np.asarray(legacy_collection.get_full_weights_matrix()),
-                np.diag(expected_weights),
-            )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            if hasattr(legacy_collection, "get_full_weights_matrix"):
+                np.testing.assert_allclose(
+                    np.asarray(legacy_collection.get_full_weights_matrix()),
+                    np.diag(expected_weights),
+                )
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

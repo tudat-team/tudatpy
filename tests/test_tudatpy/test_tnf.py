@@ -456,10 +456,14 @@ def test_reader():
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
-    assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
-    with open(local_filename, "wb") as f:
-        f.write(response.content)
+    if not os.path.exists(local_filename) or os.path.getsize(local_filename) == 0:
+        try:
+            response = requests.get(url_tnf, timeout=30)
+            response.raise_for_status()
+        except requests.RequestException as error:
+            pytest.skip(f"Required remote TNF test data is unavailable: {error}")
+        with open(local_filename, "wb") as f:
+            f.write(response.content)
 
     # Create system of bodies.
 

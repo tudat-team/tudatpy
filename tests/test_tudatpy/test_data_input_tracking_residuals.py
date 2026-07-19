@@ -1,8 +1,10 @@
 from pathlib import Path
 from bisect import bisect_left, bisect_right
+from urllib.error import URLError
 from urllib.request import urlretrieve
 
 import numpy as np
+import pytest
 
 from tudatpy.data_input import resource_paths as data_paths
 from tudatpy.data_input.tracking_data import TrackingData
@@ -47,7 +49,10 @@ def _download_file(url: str, directory: Path) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     file_path = directory / url.rsplit("/", 1)[1]
     if not file_path.exists() or file_path.stat().st_size == 0:
-        urlretrieve(url, file_path)
+        try:
+            urlretrieve(url, file_path)
+        except URLError as error:
+            pytest.skip(f"Required remote test data is unavailable: {error}")
     return file_path
 
 
