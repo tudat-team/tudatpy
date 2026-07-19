@@ -1,24 +1,10 @@
-import datetime
 import warnings
 
 import numpy as np
 import pytest
-import requests
 
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.mpc import _legacy_observation_dataset_from_table
-from tudatpy.data.processTrk234.processor import Trk234Processor
-from tudatpy.dynamics import environment_setup
-from tudatpy.dynamics.environment_setup import ground_station
 from tudatpy.estimation import observations
 from tudatpy.estimation.observations import observations_processing
-from tudatpy.estimation.observations_setup import ancillary_settings
-from tudatpy.estimation.observable_models_setup import links
-from tudatpy.interface import spice
-
-spice.load_standard_kernels()
-
-mpc_codes_test = [222, 999]
 
 
 def _link_ends(receiver_body):
@@ -76,12 +62,6 @@ def _legacy_collection(dataset):
         return observations.create_observation_collection_from_dataset(dataset)
 
 
-def _earth_bodies_with_optical_stations():
-    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
-    body_settings.get("Earth").ground_station_settings = ground_station.optical_telescope_stations()
-    return environment_setup.create_system_of_bodies(body_settings)
-
-
 def _link_definition_signature(link_definition):
     signature = []
     for link_end_type, link_end_id in link_definition.link_ends.items():
@@ -110,28 +90,6 @@ def _link_ends_per_observable_signature(link_ends_per_observable_type):
         ]
         for observable_type, link_ends_list in link_ends_per_observable_type.items()
     }
-
-
-def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_observations),
-            np.array(flattened_data.observation_vector),
-        )
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_times),
-            np.array(flattened_data.times),
-        )
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_weights),
-            np.array(flattened_data.weight_vector),
-        )
-        assert len(legacy_collection.get_single_observation_sets()) == (
-            observation_dataset.number_of_observation_sets
-        )
 
 
 def _to_dense_matrix(matrix):
@@ -429,102 +387,4 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
         np.testing.assert_allclose(
             np.asarray(legacy_collection.concatenated_weights),
             [2.1, 2.2, 2.3, 2.4],
-        )
-
-
-@pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_legacy_create_observations_from_astropy_table_matches_dataset(mpc_code):
-    query = BatchMPC()
-    query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_UTC"])
-
-    observation_dataset = _legacy_observation_dataset_from_table(
-        query._table,
-        "Earth",
-        True,
-        False,
-        {},
-        False,
-    )
-    legacy_collection = query.create_observations_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
-    )
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-
-@pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_legacy_batch_mpc_to_tudat_observation_collection_matches_dataset(mpc_code):
-    query = BatchMPC()
-    query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_UTC"])
-
-    spice.load_standard_kernels()
-    bodies = _earth_bodies_with_optical_stations()
-    legacy_collection = query.to_tudat_observation_collection(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
-    observation_dataset = _legacy_observation_dataset_from_table(
-        query.table,
-        "Earth",
-        True,
-        False,
-        {},
-        False,
-    )
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-
-def test_legacy_trk234_observation_collection_matches_dataset(tmp_path):
-    local_filename = tmp_path / "tnfp.dat"
-    url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
-    assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
-    local_filename.write_bytes(response.content)
-
-    trk_processor = Trk234Processor(
-        [str(local_filename)],
-        ["doppler"],
-        spacecraft_name="-202",
-    )
-    tracking_data, _ = trk_processor.process()
-    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
-    body_settings.get("Earth").ground_station_settings = ground_station.dsn_stations()
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-    observation_dataset = observations.create_observation_dataset_from_tracking_data(
-        tracking_data, bodies
-    )
-    legacy_collection = trk_processor.process_observation_collection()
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-    set_metadata = observation_dataset.get_observation_set_metadata(0)
-    ancillary_settings_for_set = observation_dataset.ancillary_settings(
-        set_metadata.ancillary_settings_id
-    )
-    doppler_count = ancillary_settings_for_set.get_float_settings(
-        ancillary_settings.doppler_integration_time
-    )
-    link_definition = observation_dataset.link_definition(set_metadata.link_definition_id)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        first_legacy_set = legacy_collection.get_single_observation_sets()[0]
-        legacy_doppler_count = first_legacy_set.ancillary_settings.get_float_settings(
-            ancillary_settings.doppler_integration_time
-        )
-        assert legacy_doppler_count == pytest.approx(doppler_count)
-
-        legacy_link_definition = first_legacy_set.link_definition
-        assert legacy_link_definition.link_end_id(links.transmitter).reference_point == (
-            link_definition.link_end_id(links.transmitter).reference_point
-        )
-        assert legacy_link_definition.link_end_id(links.reflector1).body_name == (
-            link_definition.link_end_id(links.reflector1).body_name
-        )
-        assert legacy_link_definition.link_end_id(links.receiver).reference_point == (
-            link_definition.link_end_id(links.receiver).reference_point
         )

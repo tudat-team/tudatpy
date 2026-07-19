@@ -12,10 +12,13 @@ from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
 from tudatpy.data_input.tracking_data.tnf import read_tnf_data
 from tudatpy.estimation.observations import (
-    create_observation_collection_from_tracking_data,
-    create_compressed_doppler_collection,
-    simulate_observations,
+    ObservationDataset,
+    create_observation_dataset_from_tracking_data,
+    create_compressed_doppler_dataset,
+    observation_query,
+    observation_simulation_settings_from_dataset,
     set_tracking_supplementary_data_in_bodies,
+    simulate_observation_dataset,
 )
 from tudatpy.kernel import constants
 from tudatpy.kernel.dynamics import environment, environment_setup
@@ -32,10 +35,7 @@ from tudatpy.kernel.estimation.observable_models_setup import (
     links,
     model_settings,
 )
-from tudatpy.kernel.estimation.observations_setup import (
-    ancillary_settings,
-    observations_simulation_settings,
-)
+from tudatpy.kernel.estimation.observations_setup import observations_simulation_settings
 from tudatpy.kernel.interface import spice
 
 
@@ -324,95 +324,144 @@ def _keep_observations_in_time_window(tracking_data, start_time: float, end_time
     return filtered_tracking_data
 
 
-def _set_doppler_integration_time(observation_collection, integration_time: float):
-    for observation_sets_per_link in observation_collection.sorted_observation_sets.values():
-        for observation_sets in observation_sets_per_link.values():
-            for observation_set in observation_sets:
-                observation_set.ancillary_settings.set_float_settings(
-                    ancillary_settings.doppler_integration_time,
-                    integration_time,
-                )
+def _dataset_observable_link_definitions(observation_dataset):
+    seen_definitions = set()
+    for set_id in range(observation_dataset.number_of_observation_sets):
+        metadata = observation_dataset.get_observation_set_metadata(set_id)
+        definition_key = (metadata.observable_type, metadata.link_definition_id)
+        if definition_key in seen_definitions:
+            continue
+        seen_definitions.add(definition_key)
+        yield metadata.observable_type, observation_dataset.link_definition(
+            metadata.link_definition_id
+        )
 
 
-def _simulate_dsn_n_way_averaged_doppler(observation_collection, bodies):
+def _observation_vector(observation_dataset):
+    return np.asarray(observation_dataset.ordered_flattened_observation_data().observation_vector)
+
+
+def _set_dataset_reference_points_from_switch_history(
+    observation_dataset,
+    bodies,
+    antenna_switch_history,
+    spacecraft_name,
+    link_end_type,
+):
+    switch_times = sorted(antenna_switch_history)
+    if len(switch_times) < 2:
+        raise RuntimeError("Antenna switch history must bound at least one time interval.")
+
+    reference_point_names = {}
+    combined_dataset = ObservationDataset()
+    for interval_index, (start_time, end_time) in enumerate(
+        zip(switch_times[:-1], switch_times[1:])
+    ):
+        position = np.asarray(antenna_switch_history[start_time])
+        position_key = tuple(position)
+        if position_key not in reference_point_names:
+            reference_point_name = f"Antenna{len(reference_point_names) + 1}"
+            bodies.get_body(spacecraft_name).system_models.set_reference_point(
+                reference_point_name, position
+            )
+            reference_point_names[position_key] = reference_point_name
+
+        interval_condition = observation_query.time <= end_time
+        if interval_index == 0:
+            interval_condition &= observation_query.time >= start_time
+        else:
+            interval_condition &= observation_query.time > start_time
+
+        interval_dataset = observation_dataset.create_new_and_keep(interval_condition)
+        if interval_dataset.number_of_observations == 0:
+            continue
+        interval_dataset.set_link_end_reference_point(
+            spacecraft_name,
+            reference_point_names[position_key],
+            link_end_type,
+        )
+        for set_id in range(interval_dataset.number_of_observation_sets):
+            combined_dataset.add_observation_set_from_dataset(interval_dataset, set_id)
+
+    return combined_dataset
+
+
+def _simulate_dsn_n_way_averaged_doppler(observation_dataset, bodies):
     light_time_settings = [
         light_time_corrections.first_order_relativistic_light_time_correction(["Sun"])
     ]
     observation_model_settings = []
-    for raw_link_ends_list in observation_collection.link_ends_per_observable_type.values():
-        for raw_link_ends in raw_link_ends_list:
-            observation_model_settings.append(
-                model_settings.dsn_n_way_doppler_averaged(
-                    links.link_definition(raw_link_ends),
-                    light_time_settings,
-                    biases.absolute_bias(np.zeros(1)),
-                    light_time_corrections.light_time_convergence_settings(True),
-                    False,
-                )
+    for _, link_definition in _dataset_observable_link_definitions(observation_dataset):
+        observation_model_settings.append(
+            model_settings.dsn_n_way_doppler_averaged(
+                link_definition,
+                light_time_settings,
+                biases.absolute_bias(np.zeros(1)),
+                light_time_corrections.light_time_convergence_settings(True),
+                False,
             )
+        )
 
     observation_simulators = observations_simulation_settings.create_observation_simulators(
         observation_model_settings, bodies
     )
-    observation_simulation_settings = (
-        observations_simulation_settings.observation_settings_from_collection(
-            observation_collection, bodies
-        )
+    observation_simulation_settings = observation_simulation_settings_from_dataset(
+        observation_dataset, bodies
     )
-    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
+    return simulate_observation_dataset(
+        observation_simulation_settings, observation_simulators, bodies
+    )
 
 
 def _simulate_dsn_n_way_averaged_doppler_with_corrections(
-    observation_collection, bodies, light_time_settings
+    observation_dataset, bodies, light_time_settings
 ):
     observation_model_settings = []
-    for raw_link_ends_list in observation_collection.link_ends_per_observable_type.values():
-        for raw_link_ends in raw_link_ends_list:
-            observation_model_settings.append(
-                model_settings.dsn_n_way_doppler_averaged(
-                    links.link_definition(raw_link_ends),
-                    light_time_settings,
-                    biases.absolute_bias(np.zeros(1)),
-                    light_time_corrections.light_time_convergence_settings(True),
-                )
+    for _, link_definition in _dataset_observable_link_definitions(observation_dataset):
+        observation_model_settings.append(
+            model_settings.dsn_n_way_doppler_averaged(
+                link_definition,
+                light_time_settings,
+                biases.absolute_bias(np.zeros(1)),
+                light_time_corrections.light_time_convergence_settings(True),
             )
+        )
 
     observation_simulators = observations_simulation_settings.create_observation_simulators(
         observation_model_settings, bodies
     )
-    observation_simulation_settings = (
-        observations_simulation_settings.observation_settings_from_collection(
-            observation_collection, bodies
-        )
+    observation_simulation_settings = observation_simulation_settings_from_dataset(
+        observation_dataset, bodies
     )
-    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
+    return simulate_observation_dataset(
+        observation_simulation_settings, observation_simulators, bodies
+    )
 
 
-def _simulate_doppler_measured_frequency(observation_collection, bodies):
+def _simulate_doppler_measured_frequency(observation_dataset, bodies):
     light_time_settings = [
         light_time_corrections.first_order_relativistic_light_time_correction(
             ["Sun", "Moon", "Earth"]
         )
     ]
     observation_model_settings = []
-    for raw_link_ends_list in observation_collection.link_ends_per_observable_type.values():
-        for raw_link_ends in raw_link_ends_list:
-            observation_model_settings.append(
-                model_settings.doppler_measured_frequency(
-                    links.link_definition(raw_link_ends),
-                    light_time_settings,
-                )
+    for _, link_definition in _dataset_observable_link_definitions(observation_dataset):
+        observation_model_settings.append(
+            model_settings.doppler_measured_frequency(
+                link_definition,
+                light_time_settings,
             )
+        )
 
     observation_simulators = observations_simulation_settings.create_observation_simulators(
         observation_model_settings, bodies
     )
-    observation_simulation_settings = (
-        observations_simulation_settings.observation_settings_from_collection(
-            observation_collection, bodies
-        )
+    observation_simulation_settings = observation_simulation_settings_from_dataset(
+        observation_dataset, bodies
     )
-    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
+    return simulate_observation_dataset(
+        observation_simulation_settings, observation_simulators, bodies
+    )
 
 
 def _estimate_voyager_velocity_from_jacobson_references(references, reference_index: int):
@@ -453,29 +502,28 @@ def _create_jacobson_voyager_state(references, reference_index: int):
     return voyager_state
 
 
-def _simulate_pixel_coordinates(observation_collection, bodies):
+def _simulate_pixel_coordinates(observation_dataset, bodies):
     observation_model_settings = []
-    for raw_link_ends_list in observation_collection.link_ends_per_observable_type.values():
-        for raw_link_ends in raw_link_ends_list:
-            observation_model_settings.append(
-                model_settings.pixel_coordinates(
-                    links.link_definition(raw_link_ends),
-                    [],
-                    None,
-                    light_time_corrections.light_time_convergence_settings(True),
-                    True,
-                )
+    for _, link_definition in _dataset_observable_link_definitions(observation_dataset):
+        observation_model_settings.append(
+            model_settings.pixel_coordinates(
+                link_definition,
+                [],
+                None,
+                light_time_corrections.light_time_convergence_settings(True),
+                True,
             )
+        )
 
     observation_simulators = observations_simulation_settings.create_observation_simulators(
         observation_model_settings, bodies
     )
-    observation_simulation_settings = (
-        observations_simulation_settings.observation_settings_from_collection(
-            observation_collection, bodies
-        )
+    observation_simulation_settings = observation_simulation_settings_from_dataset(
+        observation_dataset, bodies
     )
-    return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
+    return simulate_observation_dataset(
+        observation_simulation_settings, observation_simulators, bodies
+    )
 
 
 def test_ifms_mex_residuals_are_millihertz_level():
@@ -500,18 +548,16 @@ def test_ifms_mex_residuals_are_millihertz_level():
         0.0,
     )
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
-    uncompressed_observations = create_observation_collection_from_tracking_data(
-        tracking_data, bodies
-    )
-    observed_observations = create_compressed_doppler_collection(
+    uncompressed_observations = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+    observed_observations = create_compressed_doppler_dataset(
         uncompressed_observations,
         60,
         earth_fixed_ground_station_positions=ground_station.get_radio_telescope_positions(),
     )
 
     computed_observations = _simulate_dsn_n_way_averaged_doppler(observed_observations, bodies)
-    residuals = np.asarray(observed_observations.concatenated_observations) - np.asarray(
-        computed_observations.concatenated_observations
+    residuals = _observation_vector(observed_observations) - _observation_vector(
+        computed_observations
     )
 
     assert residuals.size == 321
@@ -551,11 +597,12 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
         doppler_tracking_data, interval_start, interval_end
     )
 
-    uncompressed_observations = create_observation_collection_from_tracking_data(
+    uncompressed_observations = create_observation_dataset_from_tracking_data(
         doppler_tracking_data, bodies
     )
-    observed_observations = create_compressed_doppler_collection(uncompressed_observations, 60, 10)
-    observed_observations.set_reference_points(
+    observed_observations = create_compressed_doppler_dataset(uncompressed_observations, 60, 10)
+    observed_observations = _set_dataset_reference_points_from_switch_history(
+        observed_observations,
         bodies,
         _read_grail_antenna_switch_history(
             antenna_files, interval_start - 3600.0, interval_end + 3600.0
@@ -575,8 +622,8 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     computed_observations = _simulate_dsn_n_way_averaged_doppler_with_corrections(
         observed_observations, bodies, light_time_settings
     )
-    residuals = np.asarray(observed_observations.concatenated_observations) - np.asarray(
-        computed_observations.concatenated_observations
+    residuals = _observation_vector(observed_observations) - _observation_vector(
+        computed_observations
     )
 
     assert residuals.size == 49
@@ -615,15 +662,14 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
-    uncompressed_observations = create_observation_collection_from_tracking_data(
-        tracking_data, bodies
-    )
-    observed_observations = create_compressed_doppler_collection(uncompressed_observations, 60, 10)
-    observed_observations.set_transponder_delay("MRO", 1.4149e-6)
+    uncompressed_observations = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+    observed_observations = create_compressed_doppler_dataset(uncompressed_observations, 60, 10)
+    bodies.get_body("MRO").system_models.transponder_delay = 1.4149e-6
 
     mro_center_of_mass_position = np.array([0.0, -1.11, 0.0])
     antenna_position_history = {}
-    for observation_times in observed_observations.get_observation_times_objects():
+    for set_id in range(observed_observations.number_of_observation_sets):
+        observation_times = observed_observations.observation_times_for_set(set_id)
         current_time = observation_times[0].to_float() - 3600.0
         while current_time <= observation_times[-1].to_float() + 3600.0:
             antenna_state = np.zeros(6)
@@ -646,11 +692,13 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
         "MRO_SPACECRAFT",
     )
     antenna_ephemeris = ephemeris.create_ephemeris(antenna_ephemeris_settings, "Antenna")
-    observed_observations.set_reference_point(
-        bodies,
-        antenna_ephemeris,
+    bodies.get_body("MRO").system_models.set_reference_point(
         "Antenna",
+        antenna_ephemeris,
+    )
+    observed_observations.set_link_end_reference_point(
         "MRO",
+        "Antenna",
         links.reflector1,
     )
 
@@ -668,8 +716,8 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     computed_observations = _simulate_dsn_n_way_averaged_doppler_with_corrections(
         observed_observations, bodies, light_time_settings
     )
-    residuals = np.asarray(computed_observations.concatenated_observations) - np.asarray(
-        observed_observations.concatenated_observations
+    residuals = _observation_vector(computed_observations) - _observation_vector(
+        observed_observations
     )
 
     assert residuals.size == 59
@@ -695,11 +743,13 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
     tracking_data, supplementary_data = read_psf_data(
         [str(psf_file)], "VGR2", {"TRITON": "TRITON"}, False
     )
-    all_observations = create_observation_collection_from_tracking_data(
+    all_observations = create_observation_dataset_from_tracking_data(
         tracking_data,
         _create_voyager_triton_psf_bodies(test_data_path, np.zeros(6), supplementary_data),
     )
-    all_observation_times = np.asarray(all_observations.concatenated_times, dtype=float)
+    all_observation_times = np.asarray(
+        all_observations.ordered_flattened_observation_data().times, dtype=float
+    )
 
     residuals = []
     for reference_index, reference in enumerate(references):
@@ -721,13 +771,12 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
             tracking_data[0].reference_link_end,
             tracking_data[0].time_scale,
         )
-        observed_observations = create_observation_collection_from_tracking_data(
+        observed_observations = create_observation_dataset_from_tracking_data(
             [single_tracking_data], bodies
         )
         computed_observations = _simulate_pixel_coordinates(observed_observations, bodies)
         residuals.append(
-            np.asarray(computed_observations.concatenated_observations)
-            - np.asarray(observed_observations.concatenated_observations)
+            _observation_vector(computed_observations) - _observation_vector(observed_observations)
         )
 
     residuals = np.vstack(residuals)
@@ -754,10 +803,10 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
     # The FDETS reader currently stores the measured frequency and base frequency.
     # The observation model also needs the link frequency bands.
     tracking_data[0].add_string_vector_ancillary_setting("frequency bands", ["X-band", "X-band"])
-    observed_observations = create_observation_collection_from_tracking_data(tracking_data, bodies)
+    observed_observations = create_observation_dataset_from_tracking_data(tracking_data, bodies)
     computed_observations = _simulate_doppler_measured_frequency(observed_observations, bodies)
-    residuals = np.asarray(computed_observations.concatenated_observations) - np.asarray(
-        observed_observations.concatenated_observations
+    residuals = _observation_vector(computed_observations) - _observation_vector(
+        observed_observations
     )
     residual_scatter = residuals - np.mean(residuals)
 

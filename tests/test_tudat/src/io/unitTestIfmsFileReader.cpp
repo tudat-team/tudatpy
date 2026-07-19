@@ -23,8 +23,7 @@
 #include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 
 // Some simplifications for shorter lines
 using namespace tudat::input_output;
@@ -103,13 +102,13 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( { "Earth" } );
             bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
             simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
-            auto observationCollection = observation_models::createObservationCollection< double, Time >( trackingData, bodies );
-            std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+            auto observationDataset = observation_models::createObservationDatasetFromTrackingData< double, Time >( trackingData, bodies );
+            std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedFlattenedObservationData( ).getTimes( );
             const Eigen::Vector3d earthFixedPosition =
                     bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
             Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
                     utc_scale, tdb_scale, utcTimeTest, earthFixedPosition );
-            BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
+            BOOST_CHECK_SMALL( static_cast< double >( observationDatasetEpochs.at( 9 - linesToBeSkipped.at( i ) ) - tdbTimeTest ),
                                1.0E-12 );
         }
         else
