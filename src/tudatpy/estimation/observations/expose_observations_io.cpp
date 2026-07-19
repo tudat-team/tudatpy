@@ -10,7 +10,7 @@
 #if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
-#include "expose_observations_wrapper_bindings.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -20,7 +20,11 @@
 
 #include "scalarTypes.h"
 
-#include "tudat/simulation/estimation_setup/processObservationFilesLegacy.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processPsfFile.h"
+#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
@@ -36,8 +40,8 @@ const char* legacyObservationIoDeprecationGuide =
 void warnLegacyObservationIoInterface( const std::string& interfaceName, const std::string& replacementApi )
 {
     const std::string message = interfaceName + " is deprecated and kept only for backwards compatibility. Use " + replacementApi +
-            " instead. API reference: https://py.api.tudat.space/en/latest/estimation/observations_setup/observations_wrapper.html#"
-            "tudatpy.estimation.observations_setup.observations_wrapper." +
+            " instead. API reference: https://py.api.tudat.space/en/latest/estimation/observations.html#"
+            "tudatpy.estimation.observations." +
             replacementApi + ". Migration guide: " + legacyObservationIoDeprecationGuide;
     if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
     {
@@ -51,12 +55,10 @@ namespace tudatpy
 {
 namespace estimation
 {
-namespace observations_setup
-{
-namespace observations_wrapper
+namespace observations
 {
 
-void expose_observations_wrapper_io_bindings( py::module& m )
+void expose_observations_io_bindings( py::module& m )
 {
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
@@ -153,13 +155,28 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             .def_readwrite( "body_fixed_camera_position", &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_ )
             .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ );
 
-    m.def( "add_psf_cameras_to_bodies",
-           py::overload_cast< const std::string&, const tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(
-                   &tom::addPsfCamerasToBodies ),
-           py::arg( "psf_file" ),
-           py::arg( "bodies" ),
-           py::arg( "conversion_settings" ),
-           R"doc(
+    m.def(
+            "add_psf_cameras_to_bodies",
+            []( const std::string& psfFile,
+                tss::SystemOfBodies& bodies,
+                const tom::PsfFileObservationConversionSettings& conversionSettings ) {
+                const auto trackingData = tudat::input_output::psf::readPsfFile< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        psfFile,
+                        conversionSettings.receiverBodyName_,
+                        conversionSettings.imageNameToBodyName_,
+                        conversionSettings.useRawImageNameAsBodyNameIfUnmapped_,
+                        conversionSettings.useCorrectedPixelLine_,
+                        conversionSettings.useMidExposureTime_,
+                        conversionSettings.includeDeletedPictures_,
+                        conversionSettings.includeEndMarkerRecords_,
+                        conversionSettings.filterByUseFlag_,
+                        conversionSettings.requiredUseFlag_ );
+                tom::setTrackingSupplementaryDataInBodies( bodies, trackingData.second );
+            },
+            py::arg( "psf_file" ),
+            py::arg( "bodies" ),
+            py::arg( "conversion_settings" ),
+            R"doc(
         Add PSF-calibrated camera models to the receiver body in a system of bodies.
 
         One camera is added for each $CAM block in the PSF file. If enabled in the conversion settings, the camera model uses the picture-specific RA/DEC/TWIST values as a direct inertial-to-camera pointing source.
@@ -168,7 +185,8 @@ void expose_observations_wrapper_io_bindings( py::module& m )
     m.def(
             "create_psf_file_observation_collection",
             []( const std::string& psfFile, const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                warnLegacyObservationIoInterface( "create_psf_file_observation_collection", "create_psf_file_observation_dataset" );
+                warnLegacyObservationIoInterface( "create_psf_file_observation_collection",
+                                                  "create_observation_dataset_from_tracking_data" );
                 return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFile, conversionSettings );
             },
             py::arg( "psf_file" ),
@@ -180,24 +198,24 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" );
 
     m.def(
-            "create_psf_file_observation_dataset",
-            []( const std::string& psfFile, const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFile, conversionSettings )
-                        ->getObservationDataset( );
-            },
-            py::arg( "psf_file" ),
-            py::arg( "conversion_settings" ),
-            R"doc(Create a PSF pixel-coordinate :class:`~tudatpy.estimation.observations.ObservationDataset`.)doc" );
-
-    m.def(
             "observations_from_psf_file",
             []( const std::string& psfFile,
                 tss::SystemOfBodies& bodies,
                 const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                warnLegacyObservationIoInterface( "observations_from_psf_file", "observation_dataset_from_psf_file" );
-                const tudat::input_output::psf::RawPsfFileContents psfFileContents = tudat::input_output::psf::readPsfFile( psfFile );
-                tom::addPsfCamerasToBodies( psfFileContents, bodies, conversionSettings );
-                return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFileContents, conversionSettings );
+                warnLegacyObservationIoInterface( "observations_from_psf_file", "create_observation_dataset_from_tracking_data" );
+                const auto trackingData = tudat::input_output::psf::readPsfFile< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        psfFile,
+                        conversionSettings.receiverBodyName_,
+                        conversionSettings.imageNameToBodyName_,
+                        conversionSettings.useRawImageNameAsBodyNameIfUnmapped_,
+                        conversionSettings.useCorrectedPixelLine_,
+                        conversionSettings.useMidExposureTime_,
+                        conversionSettings.includeDeletedPictures_,
+                        conversionSettings.includeEndMarkerRecords_,
+                        conversionSettings.filterByUseFlag_,
+                        conversionSettings.requiredUseFlag_ );
+                tom::setTrackingSupplementaryDataInBodies( bodies, trackingData.second );
+                return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( trackingData.first, bodies );
             },
             py::arg( "psf_file" ),
             py::arg( "bodies" ),
@@ -207,21 +225,6 @@ void expose_observations_wrapper_io_bindings( py::module& m )
 
         This convenience function reads the PSF file once, adds its camera calibration and picture-pointing models to the receiver body, and returns the converted pixel-coordinate observations.
         )doc" );
-
-    m.def(
-            "observation_dataset_from_psf_file",
-            []( const std::string& psfFile,
-                tss::SystemOfBodies& bodies,
-                const tom::PsfFileObservationConversionSettings& conversionSettings ) {
-                const tudat::input_output::psf::RawPsfFileContents psfFileContents = tudat::input_output::psf::readPsfFile( psfFile );
-                tom::addPsfCamerasToBodies( psfFileContents, bodies, conversionSettings );
-                return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFileContents, conversionSettings )
-                        ->getObservationDataset( );
-            },
-            py::arg( "psf_file" ),
-            py::arg( "bodies" ),
-            py::arg( "conversion_settings" ),
-            R"doc(Add PSF cameras to bodies and return a pixel-coordinate :class:`~tudatpy.estimation.observations.ObservationDataset`.)doc" );
 
     m.def( "process_odf_data_multiple_files",
            py::overload_cast< const std::vector< std::string >&,
@@ -314,7 +317,8 @@ void expose_observations_wrapper_io_bindings( py::module& m )
                 const std::vector< tom::ObservableType >& observableTypesToProcess,
                 const std::pair< TIME_TYPE, TIME_TYPE >& startAndEndTimesToProcess,
                 const bool allowDuplicateObservationsWithinSingleSet ) {
-                warnLegacyObservationIoInterface( "create_odf_observed_observation_collection", "create_odf_observed_observation_dataset" );
+                warnLegacyObservationIoInterface( "create_odf_observed_observation_collection",
+                                                  "create_observation_dataset_from_tracking_data" );
                 return tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
                         processedOdfFile, observableTypesToProcess, startAndEndTimesToProcess, allowDuplicateObservationsWithinSingleSet );
             },
@@ -345,46 +349,6 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" );
 
     m.def(
-            "create_odf_observed_observation_dataset",
-            []( const std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > >& processedOdfFile,
-                const std::vector< tom::ObservableType >& observableTypesToProcess,
-                const std::pair< TIME_TYPE, TIME_TYPE >& startAndEndTimesToProcess,
-                const bool allowDuplicateObservationsWithinSingleSet ) {
-                return tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
-                               processedOdfFile,
-                               observableTypesToProcess,
-                               startAndEndTimesToProcess,
-                               allowDuplicateObservationsWithinSingleSet )
-                        ->getObservationDataset( );
-            },
-            py::arg( "processed_odf_file" ),
-            py::arg( "observable_types_to_process" ),
-            py::arg( "start_and_end_times_to_process" ),
-            py::arg( "allow_duplicate_observations_within_single_set" ) = true,
-            R"doc(
-Creates an observation dataset containing the provided ODF data.
-
-Only the specified observable types are loaded from the processed ODF data into
-the observation dataset.
-
-Parameters
-----------
-processed_odf_file : tudatpy.estimation.observations_setup.observations_wrapper.ProcessedOdfFileContents
-    Processed ODF data.
-observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
-    Observable types to process.
-start_and_end_times_to_process : tuple[float, float]
-    Start and end times of the data to process.
-allow_duplicate_observations_within_single_set : bool, default = True
-    Whether duplicate observations are allowed within a single observation set.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the selected ODF observations.
-)doc" );
-
-    m.def(
             "observations_from_odf_files",
             []( tss::SystemOfBodies& bodies,
                 const std::vector< std::string >& odfFileNames,
@@ -392,7 +356,7 @@ tudatpy.estimation.observations.ObservationDataset
                 const bool verboseOutput,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool allowDuplicateObservationsWithinSingleSet ) {
-                warnLegacyObservationIoInterface( "observations_from_odf_files", "observation_dataset_from_odf_files" );
+                warnLegacyObservationIoInterface( "observations_from_odf_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >(
                         bodies,
                         odfFileNames,
@@ -436,58 +400,6 @@ tudatpy.estimation.observations.ObservationDataset
         )doc" );
 
     m.def(
-            "observation_dataset_from_odf_files",
-            []( tss::SystemOfBodies& bodies,
-                const std::vector< std::string >& odfFileNames,
-                const std::string& targetName,
-                const bool verboseOutput,
-                const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
-                const bool allowDuplicateObservationsWithinSingleSet ) {
-                return tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >(
-                               bodies,
-                               odfFileNames,
-                               targetName,
-                               verboseOutput,
-                               earthFixedStationPositions,
-                               allowDuplicateObservationsWithinSingleSet )
-                        ->getObservationDataset( );
-            },
-            py::arg( "bodies" ),
-            py::arg( "odf_file_names" ),
-            py::arg( "target_name" ),
-            py::arg( "verbose_output" ) = true,
-            py::arg_v( "earth_fixed_station_positions",
-                       tss::getApproximateDsnGroundStationPositions( ),
-                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-            py::arg( "allow_duplicate_observations_within_single_set" ) = true,
-            R"doc(
-Create an observation dataset from ODF files.
-
-This function processes ODF files, sets the required information in the bodies,
-and creates an observation dataset.
-
-Parameters
-----------
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    System of bodies.
-odf_file_names : list[str]
-    List of ODF file names.
-target_name : str
-    Name of the target spacecraft.
-verbose_output : bool, default = True
-    Whether to print verbose output during processing.
-earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-    Approximate ground-station positions in the Earth-fixed frame.
-allow_duplicate_observations_within_single_set : bool, default = True
-    Whether duplicate observations are allowed within a single observation set.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the ODF observations.
-)doc" );
-
-    m.def(
             "observations_from_ifms_files",
             []( const std::vector< std::string >& ifmsFileNames,
                 tss::SystemOfBodies& bodies,
@@ -498,7 +410,7 @@ tudatpy.estimation.observations.ObservationDataset
                 const bool applyTroposphereCorrection,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool removeInvalidLines ) {
-                warnLegacyObservationIoInterface( "observations_from_ifms_files", "observation_dataset_from_ifms_files" );
+                warnLegacyObservationIoInterface( "observations_from_ifms_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >( ifmsFileNames,
                                                                                                               bodies,
                                                                                                               targetName,
@@ -552,49 +464,6 @@ tudatpy.estimation.observations.ObservationDataset
             Observation collection.
         )doc" );
 
-    m.def( "observation_dataset_from_ifms_files",
-           &tom::createIfmsObservedObservationDatasetFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "ifms_file_names" ),
-           py::arg( "bodies" ),
-           py::arg( "target_name" ),
-           py::arg( "ground_station_name" ),
-           py::arg( "reception_band" ),
-           py::arg( "transmission_band" ),
-           py::arg( "apply_troposphere_correction" ) = true,
-           py::arg_v( "earth_fixed_station_positions",
-                      tss::getCombinedApproximateGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           py::arg( "remove_invalid_lines" ) = true,
-           R"doc(
-Create an observation dataset from IFMS files for a single station.
-
-Parameters
-----------
-ifms_file_names : list[str]
-    List of IFMS file names.
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    System of bodies.
-target_name : str
-    Name of the target spacecraft.
-ground_station_name : str
-    Name of the ground station.
-reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Reception frequency band.
-transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Transmission frequency band.
-apply_troposphere_correction : bool, default = True
-    Whether to apply troposphere correction.
-earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-    Approximate ground-station positions in the Earth-fixed frame.
-remove_invalid_lines : bool, default = True
-    Whether to skip lines with undefined transmit frequency, observed frequency, or troposphere correction.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the IFMS observations.
-)doc" );
-
     m.def(
             "observations_from_multi_station_ifms_files",
             []( const std::vector< std::string >& ifmsFileNames,
@@ -607,7 +476,7 @@ tudatpy.estimation.observations.ObservationDataset
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions,
                 const bool removeInvalidLines ) {
                 warnLegacyObservationIoInterface( "observations_from_multi_station_ifms_files",
-                                                  "observation_dataset_from_multi_station_ifms_files" );
+                                                  "create_observation_dataset_from_tracking_data" );
                 return tom::createMultiStationIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >(
                         ifmsFileNames,
                         bodies,
@@ -662,49 +531,6 @@ tudatpy.estimation.observations.ObservationDataset
             Observation collection.
         )doc" );
 
-    m.def( "observation_dataset_from_multi_station_ifms_files",
-           &tom::createMultiStationIfmsObservedObservationDatasetFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "ifms_file_names" ),
-           py::arg( "bodies" ),
-           py::arg( "target_name" ),
-           py::arg( "ground_station_names" ),
-           py::arg( "reception_band" ),
-           py::arg( "transmission_band" ),
-           py::arg( "apply_troposphere_correction" ) = true,
-           py::arg_v( "earth_fixed_station_positions",
-                      tss::getCombinedApproximateGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           py::arg( "remove_invalid_lines" ) = true,
-           R"doc(
-Create an observation dataset from IFMS files for multiple stations.
-
-Parameters
-----------
-ifms_file_names : list[str]
-    List of IFMS file names.
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    System of bodies.
-target_name : str
-    Name of the target spacecraft.
-ground_station_names : list[str]
-    Ground-station name for each IFMS file.
-reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Reception frequency band.
-transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Transmission frequency band.
-apply_troposphere_correction : bool, default = True
-    Whether to apply troposphere correction.
-earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-    Approximate ground-station positions in the Earth-fixed frame.
-remove_invalid_lines : bool, default = True
-    Whether to skip lines with undefined transmit frequency, observed frequency, or troposphere correction.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the multi-station IFMS observations.
-)doc" );
-
     m.def(
             "observations_from_fdets_files",
             []( const std::string& fdetsFileName,
@@ -716,7 +542,7 @@ tudatpy.estimation.observations.ObservationDataset
                 const tom::FrequencyBands& receptionBand,
                 const tom::FrequencyBands& transmissionBand,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions ) {
-                warnLegacyObservationIoInterface( "observations_from_fdets_files", "observation_dataset_from_fdets_files" );
+                warnLegacyObservationIoInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >( fdetsFileName,
                                                                                                               baseFrequency,
                                                                                                               dateFormat,
@@ -766,58 +592,6 @@ tudatpy.estimation.observations.ObservationDataset
 
         )doc" );
 
-    m.def( "observation_dataset_from_fdets_files",
-           py::overload_cast< const std::string&,
-                              const double&,
-                              tudat::input_output::FdetDateFormat,
-                              const std::string&,
-                              const std::string&,
-                              const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
-                              const std::map< std::string, Eigen::Vector3d >& >(
-                   &tom::createFdetsObservedObservationDatasetFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "fdets_file_name" ),
-           py::arg( "base_frequency" ),
-           py::arg( "date_format" ),
-           py::arg( "target_name" ),
-           py::arg( "transmitting_station_name" ),
-           py::arg( "receiving_station_name" ),
-           py::arg( "reception_band" ),
-           py::arg( "transmission_band" ),
-           py::arg_v( "earth_fixed_station_positions",
-                      tss::getCombinedApproximateGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(
-Create an observation dataset from an FDETS file.
-
-Parameters
-----------
-fdets_file_name : str
-    FDETS file name.
-base_frequency : float
-    Base frequency for Doppler observables.
-date_format : tudatpy.data.FdetDateFormat
-    Date format used in the FDETS file.
-target_name : str
-    Name of the target spacecraft.
-transmitting_station_name : str
-    Name of the transmitting station.
-receiving_station_name : str
-    Name of the receiving station.
-reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Reception frequency band.
-transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Transmission frequency band.
-earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-    Approximate ground-station positions in the Earth-fixed frame.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the FDETS observations.
-)doc" );
-
     m.def(
             "observations_from_fdets_files",
             []( const std::string& fdetsFileName,
@@ -829,7 +603,7 @@ tudatpy.estimation.observations.ObservationDataset
                 const tom::FrequencyBands& receptionBand,
                 const tom::FrequencyBands& transmissionBand,
                 const std::map< std::string, Eigen::Vector3d >& earthFixedStationPositions ) {
-                warnLegacyObservationIoInterface( "observations_from_fdets_files", "observation_dataset_from_fdets_files" );
+                warnLegacyObservationIoInterface( "observations_from_fdets_files", "create_observation_dataset_from_tracking_data" );
                 return tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >( fdetsFileName,
                                                                                                               baseFrequency,
                                                                                                               columnTypes,
@@ -858,58 +632,6 @@ tudatpy.estimation.observations.ObservationDataset
             Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
 
         )doc" );
-
-    m.def( "observation_dataset_from_fdets_files",
-           py::overload_cast< const std::string&,
-                              const double&,
-                              const std::vector< std::string >&,
-                              const std::string&,
-                              const std::string&,
-                              const std::string&,
-                              const tom::FrequencyBands&,
-                              const tom::FrequencyBands&,
-                              const std::map< std::string, Eigen::Vector3d >& >(
-                   &tom::createFdetsObservedObservationDatasetFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "fdets_file_name" ),
-           py::arg( "base_frequency" ),
-           py::arg( "column_types" ),
-           py::arg( "target_name" ),
-           py::arg( "transmitting_station_name" ),
-           py::arg( "receiving_station_name" ),
-           py::arg( "reception_band" ),
-           py::arg( "transmission_band" ),
-           py::arg_v( "earth_fixed_station_positions",
-                      tss::getCombinedApproximateGroundStationPositions( ),
-                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(
-Create an observation dataset from an FDETS file using explicit column identifiers.
-
-Parameters
-----------
-fdets_file_name : str
-    FDETS file name.
-base_frequency : float
-    Base frequency for Doppler observables.
-column_types : list[str]
-    Column identifiers used to parse the FDETS file.
-target_name : str
-    Name of the target spacecraft.
-transmitting_station_name : str
-    Name of the transmitting station.
-receiving_station_name : str
-    Name of the receiving station.
-reception_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Reception frequency band.
-transmission_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
-    Transmission frequency band.
-earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
-    Approximate ground-station positions in the Earth-fixed frame.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing the FDETS observations.
-)doc" );
 
     m.def(
             "create_compressed_doppler_collection",
@@ -965,7 +687,18 @@ tudatpy.estimation.observations.ObservationDataset
            py::arg_v( "earth_fixed_ground_station_positions",
                       tss::getCombinedApproximateGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
-           R"doc(Create a compressed Doppler :class:`~tudatpy.estimation.observations.ObservationDataset`.)doc" );
+           R"doc(
+Create a compressed Doppler observation dataset.
+
+The input observations are split into arcs using ``max_arc_gap``. Each arc is
+then compressed by averaging groups of ``compression_ratio`` observations;
+arcs shorter than ``minimum_number_of_observations`` are omitted.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    A new dataset containing the compressed Doppler observations.
+)doc" );
 
     m.def(
             "create_tracking_txtfile_observation_collection",
@@ -973,14 +706,13 @@ tudatpy.estimation.observations.ObservationDataset
                 const std::string spacecraftName,
                 const std::vector< tom::ObservableType > observableTypesToProcess,
                 const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions,
-                const tom::ObservationAncillarySimulationSettings& ancillarySettings ) {
+                const std::shared_ptr< tom::ObservationAncillarySimulationSettings >& ancillarySettings ) {
                 warnLegacyObservationIoInterface( "create_tracking_txtfile_observation_collection",
-                                                  "create_tracking_txtfile_observation_dataset" );
-                return tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( rawTrackingTxtFileContents,
-                                                                                                        spacecraftName,
-                                                                                                        observableTypesToProcess,
-                                                                                                        earthFixedGroundStationPositions,
-                                                                                                        ancillarySettings );
+                                                  "create_observation_dataset_from_tracking_data" );
+                const tom::ObservationAncillarySimulationSettings settings =
+                        ancillarySettings == nullptr ? tom::ObservationAncillarySimulationSettings( ) : *ancillarySettings;
+                return tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        rawTrackingTxtFileContents, spacecraftName, observableTypesToProcess, earthFixedGroundStationPositions, settings );
             },
             py::arg( "raw_tracking_txtfile_contents" ),
             py::arg( "spacecraft_name" ),
@@ -988,7 +720,7 @@ tudatpy.estimation.observations.ObservationDataset
             py::arg_v( "earth_fixed_ground_station_positions",
                        tss::getApproximateDsnGroundStationPositions( ),
                        "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-            py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
+            py::arg( "ancillary_settings" ) = nullptr,
             R"doc(
         Create an observation collection from raw tracking file data.
 
@@ -1010,31 +742,8 @@ tudatpy.estimation.observations.ObservationDataset
         tudatpy.estimation.observations.ObservationCollection
             Observation collection.
         )doc" );
-
-    m.def(
-            "create_tracking_txtfile_observation_dataset",
-            []( const std::shared_ptr< tudat::input_output::TrackingTxtFileContents > rawTrackingTxtFileContents,
-                const std::string& spacecraftName,
-                const std::vector< tom::ObservableType >& observableTypesToProcess,
-                const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions,
-                const tom::ObservationAncillarySimulationSettings& ancillarySettings ) {
-                auto processedTrackingTxtFileContents =
-                        std::make_shared< tom::ProcessedTrackingTxtFileContents< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                                rawTrackingTxtFileContents, spacecraftName, earthFixedGroundStationPositions );
-                return tom::createTrackingTxtFileObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >(
-                        processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings );
-            },
-            py::arg( "raw_tracking_txtfile_contents" ),
-            py::arg( "spacecraft_name" ),
-            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
-            py::arg_v( "earth_fixed_ground_station_positions",
-                       tss::getApproximateDsnGroundStationPositions( ),
-                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-            py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
-            R"doc(Create an :class:`~tudatpy.estimation.observations.ObservationDataset` from raw tracking file data.)doc" );
 }
 
-}  // namespace observations_wrapper
-}  // namespace observations_setup
+}  // namespace observations
 }  // namespace estimation
 }  // namespace tudatpy

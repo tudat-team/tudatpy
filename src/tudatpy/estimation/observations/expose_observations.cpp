@@ -11,6 +11,7 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observations.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -24,6 +25,8 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
@@ -32,6 +35,7 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace te = tudat::ephemerides;
+namespace tdat = tudat::data;
 
 namespace
 {
@@ -802,6 +806,53 @@ void expose_observations( py::module& m )
 
     auto observations_geometry = m.def_submodule( "observations_geometry" );
     observations_geometry::expose_observations_geometry( observations_geometry );
+
+    m.def( "create_observation_dataset_from_tracking_data",
+           &tom::createObservationDatasetFromTrackingData< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+Create an observation dataset from source-loaded tracking data.
+
+Each input tracking-data object becomes one logical set in the returned dataset.
+Ground-station positions in ``bodies`` are used when converting observation epochs
+to TDB. Corrections stored with the source data are applied only when requested.
+
+Parameters
+----------
+tracking_data : list[tudatpy.data_input.tracking_data.TrackingData]
+    Tracking-data objects to convert.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    Bodies used to resolve ground-station positions during time conversion.
+apply_corrections : bool, optional
+    Apply corrections stored in the tracking data. Defaults to ``False``.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one logical observation set per input object.
+)doc" );
+
+    m.def(
+            "create_observation_collection_from_tracking_data",
+            []( const std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >& trackingData,
+                tss::SystemOfBodies& bodies,
+                const bool applyCorrections ) {
+                warnLegacyObservationInterface( "create_observation_collection_from_tracking_data",
+                                                "create_observation_dataset_from_tracking_data" );
+                return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( trackingData, bodies, applyCorrections );
+            },
+            py::arg( "tracking_data" ),
+            py::arg( "bodies" ),
+            py::arg( "apply_corrections" ) = false );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(Apply source-loaded tracking supplementary data to a system of bodies.)doc" );
 
     // OBSERVATION DATASET
 
@@ -1621,6 +1672,19 @@ dataset-centric representation.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinition,
                       py::arg( "link_definition_id" ),
                       observationDatasetDoc( "link_definition" ) )
+                .def( "set_link_end_reference_point",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::setLinkEndReferencePoint,
+                      py::arg( "body_name" ),
+                      py::arg( "reference_point_name" ),
+                      py::arg( "link_end_type" ),
+                      py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
+                      R"doc(
+Replace a link-end reference point in matching observation sets.
+
+The condition selects observation rows. Every set containing at least one
+matching row is updated. This method changes dataset link metadata only; create
+the corresponding reference point in the system of bodies separately.
+)doc" )
                 .def_property_readonly( "number_of_link_definitions",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfLinkDefinitions,
                                         R"doc(Number of unique link definitions registered in the dataset.)doc" )
@@ -1628,6 +1692,10 @@ dataset-centric representation.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettings,
                       py::arg( "ancillary_settings_id" ),
                       observationDatasetDoc( "ancillary_settings" ) )
+                .def( "ancillary_settings_for_set",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsForSet,
+                      py::arg( "set_id" ),
+                      R"doc(Return the ancillary settings associated with one observation set.)doc" )
                 .def( "dependent_variable_bookkeeping",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableBookkeeping,
                       py::arg( "dependent_variable_layout_id" ),
@@ -3827,6 +3895,9 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             A new observation collection containing the selected subset of observation sets.
         )doc" );
     }
+
+    expose_observations_io_bindings( m );
+    expose_observations_simulation_bindings( m );
 }
 
 }  // namespace observations

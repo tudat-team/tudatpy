@@ -6,8 +6,10 @@ import pytest
 import requests
 
 from tudatpy.data.mpc import BatchMPC
+from tudatpy.data.mpc import _legacy_observation_dataset_from_table
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.dynamics import environment_setup
+from tudatpy.dynamics.environment_setup import ground_station
 from tudatpy.estimation import observations
 from tudatpy.estimation.observations import observations_processing
 from tudatpy.estimation.observations_setup import ancillary_settings
@@ -72,6 +74,12 @@ def _legacy_collection(dataset):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return observations.create_observation_collection_from_dataset(dataset)
+
+
+def _earth_bodies_with_optical_stations():
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.optical_telescope_stations()
+    return environment_setup.create_system_of_bodies(body_settings)
 
 
 def _link_definition_signature(link_definition):
@@ -429,10 +437,15 @@ def test_legacy_create_observations_from_astropy_table_matches_dataset(mpc_code)
     query = BatchMPC()
     query.get_observations([mpc_code])
     query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_UTC"])
 
-    observation_dataset = query.create_observation_dataset_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
+    observation_dataset = _legacy_observation_dataset_from_table(
+        query._table,
+        "Earth",
+        True,
+        False,
+        {},
+        False,
     )
     legacy_collection = query.create_observations_from_astropy_table(
         query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
@@ -446,17 +459,20 @@ def test_legacy_batch_mpc_to_tudat_observation_collection_matches_dataset(mpc_co
     query = BatchMPC()
     query.get_observations([mpc_code])
     query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
+    query._table = query._table.sort_values(["observatory", "epoch_seconds_UTC"])
 
     spice.load_standard_kernels()
-    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-
-    observation_dataset = query.to_tudat(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
+    bodies = _earth_bodies_with_optical_stations()
     legacy_collection = query.to_tudat_observation_collection(
         bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
+    )
+    observation_dataset = _legacy_observation_dataset_from_table(
+        query.table,
+        "Earth",
+        True,
+        False,
+        {},
+        False,
     )
 
     _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
@@ -474,7 +490,13 @@ def test_legacy_trk234_observation_collection_matches_dataset(tmp_path):
         ["doppler"],
         spacecraft_name="-202",
     )
-    observation_dataset = trk_processor.process()
+    tracking_data, _ = trk_processor.process()
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.dsn_stations()
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    observation_dataset = observations.create_observation_dataset_from_tracking_data(
+        tracking_data, bodies
+    )
     legacy_collection = trk_processor.process_observation_collection()
 
     _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)

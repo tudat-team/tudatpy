@@ -27,6 +27,14 @@ Minimal example
 Functions
 ---------
 
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_tracking_data
+.. autofunction:: tudatpy.estimation.observations.create_observation_dataset_from_arrays
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_dataset_from_arrays
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models
+.. autofunction:: tudatpy.estimation.observations.create_pseudo_observation_dataset_and_models_from_observation_times
+.. autofunction:: tudatpy.estimation.observations.simulate_observation_dataset
+.. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_dataset
+.. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables_for_dataset
 .. autofunction:: tudatpy.estimation.observations.observation_simulation_settings_from_dataset
 
@@ -107,6 +115,8 @@ Inspecting datasets
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.number_of_observations
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.total_scalar_size
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.get_observation_set_metadata
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_link_end_reference_point
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.ancillary_settings_for_set
 
 Creating views and reduced datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

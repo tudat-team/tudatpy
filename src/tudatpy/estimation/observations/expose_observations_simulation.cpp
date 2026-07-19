@@ -10,7 +10,7 @@
 #if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
-#include "expose_observations_wrapper_bindings.h"
+#include "expose_observations_bindings.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -35,8 +35,8 @@ const char* legacyObservationWrapperDeprecationGuide =
 void warnLegacyObservationWrapperInterface( const std::string& interfaceName, const std::string& replacementApi )
 {
     const std::string message = interfaceName + " is deprecated and kept only for backwards compatibility. Use " + replacementApi +
-            " instead. API reference: https://py.api.tudat.space/en/latest/estimation/observations_setup/observations_wrapper.html#"
-            "tudatpy.estimation.observations_setup.observations_wrapper." +
+            " instead. API reference: https://py.api.tudat.space/en/latest/estimation/observations.html#"
+            "tudatpy.estimation.observations." +
             replacementApi + ". Migration guide: " + legacyObservationWrapperDeprecationGuide;
     if( PyErr_WarnEx( PyExc_DeprecationWarning, message.c_str( ), 1 ) < 0 )
     {
@@ -50,13 +50,27 @@ namespace tudatpy
 {
 namespace estimation
 {
-namespace observations_setup
-{
-namespace observations_wrapper
+namespace observations
 {
 
-void expose_observations_wrapper_simulation_bindings( py::module& m )
+void expose_observations_simulation_bindings( py::module& m )
 {
+    m.def(
+            "simulate_pseudo_observations",
+            []( const tss::SystemOfBodies& bodies,
+                const std::vector< std::string >& observedBodies,
+                const std::vector< std::string >& centralBodies,
+                const std::vector< TIME_TYPE >& observationTimes ) {
+                warnLegacyObservationWrapperInterface( "simulate_pseudo_observations",
+                                                       "create_pseudo_observation_dataset_and_models_from_observation_times" );
+                return tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >(
+                        bodies, observedBodies, centralBodies, observationTimes );
+            },
+            py::arg( "bodies" ),
+            py::arg( "observed_bodies" ),
+            py::arg( "central_bodies" ),
+            py::arg( "observation_times" ) );
+
     m.def(
             "create_pseudo_observations_and_models",
             []( const tss::SystemOfBodies& bodies,
@@ -184,6 +198,33 @@ Returns
 tudatpy.estimation.observations.ObservationDataset
     Dataset containing the provided observations.
 )doc" );
+
+    m.def( "create_observation_dataset_from_arrays",
+           &tss::setExistingObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancillary_settings_per_observable" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(Create an observation dataset from existing observation arrays.)doc" );
+
+    m.def(
+            "create_observation_collection_from_arrays",
+            []( const std::map< tom::ObservableType,
+                                std::pair< tom::LinkEnds,
+                                           std::pair< std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
+                                                      std::vector< TIME_TYPE > > > >& observations,
+                const tom::LinkEndType referenceLinkEnd,
+                const std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >&
+                        ancillarySettingsPerObservable ) {
+                warnLegacyObservationWrapperInterface( "create_observation_collection_from_arrays",
+                                                       "create_observation_dataset_from_arrays" );
+                return tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        observations, referenceLinkEnd, ancillarySettingsPerObservable );
+            },
+            py::arg( "observations" ),
+            py::arg( "reference_link_end" ),
+            py::arg( "ancillary_settings_per_observable" ) =
+                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
 
     m.def(
             "simulate_observations",
@@ -324,9 +365,55 @@ Returns
 tudatpy.estimation.observations.ObservationDataset
     Dataset containing one observation set.
 )doc" );
+
+    m.def(
+            "create_single_type_observation_dataset_from_arrays",
+            []( const tom::ObservableType observableType,
+                const tom::LinkDefinition& linkEnds,
+                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observationsList,
+                const std::vector< TIME_TYPE > timesList,
+                const tom::LinkEndType referenceLinkEnd,
+                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                auto dataset = std::make_shared< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >( );
+                dataset->addObservationSet( observableType,
+                                            linkEnds,
+                                            observationsList,
+                                            timesList,
+                                            referenceLinkEnd,
+                                            std::vector< Eigen::VectorXd >( ),
+                                            nullptr,
+                                            ancillarySettings );
+                return dataset;
+            },
+            py::arg( "observable_type" ),
+            py::arg( "link_ends" ),
+            py::arg( "observations_list" ),
+            py::arg( "times_list" ),
+            py::arg( "reference_link_end" ),
+            py::arg( "ancillary_settings" ) = nullptr,
+            R"doc(Create a single-set observation dataset from existing arrays.)doc" );
+
+    m.def(
+            "create_single_type_observation_collection_from_arrays",
+            []( const tom::ObservableType observableType,
+                const tom::LinkDefinition& linkEnds,
+                const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& observationsList,
+                const std::vector< TIME_TYPE > timesList,
+                const tom::LinkEndType referenceLinkEnd,
+                const std::shared_ptr< tom::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                warnLegacyObservationWrapperInterface( "create_single_type_observation_collection_from_arrays",
+                                                       "create_single_type_observation_dataset_from_arrays" );
+                return tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >(
+                        observableType, linkEnds, observationsList, timesList, referenceLinkEnd, ancillarySettings );
+            },
+            py::arg( "observable_type" ),
+            py::arg( "link_ends" ),
+            py::arg( "observations_list" ),
+            py::arg( "times_list" ),
+            py::arg( "reference_link_end" ),
+            py::arg( "ancillary_settings" ) = nullptr );
 }
 
-}  // namespace observations_wrapper
-}  // namespace observations_setup
+}  // namespace observations
 }  // namespace estimation
 }  // namespace tudatpy

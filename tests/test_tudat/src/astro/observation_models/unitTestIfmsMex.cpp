@@ -25,7 +25,7 @@
 #include "tudat/io/preProcessIfmsFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -124,11 +124,11 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedUncompressedObservationCollection =
-                createObservationCollection< long double, Time >( trackingDataAndSupplementaryData.first, bodies );
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedUncompressedObservationDataset =
+                createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-                createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+                createCompressedDopplerDataset( observedUncompressedObservationDataset, 60.0 );
 
         /****************************************************************************************
          ************************** CREATE OBSERVATION MODEL SETTINGS
@@ -138,22 +138,17 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
         std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
         lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
-        std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-                observedObservationCollection->getLinkEndsPerObservableType( );
-
-        for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
+        for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
         {
-            for( unsigned int i = 0; i < it->second.size( ); ++i )
+            const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
+            if( metadata.observableType_ == observation_models::dsn_n_way_averaged_doppler )
             {
-                if( it->first == observation_models::dsn_n_way_averaged_doppler )
-                {
-                    observationModelSettingsList.push_back( observation_models::dsnNWayAveragedDopplerObservationSettings(
-                            it->second.at( i ),
-                            lightTimeCorrectionSettings,
-                            constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
-                            std::make_shared< LightTimeConvergenceCriteria >( true ),
-                            false ) );
-                }
+                observationModelSettingsList.push_back( observation_models::dsnNWayAveragedDopplerObservationSettings(
+                        observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ),
+                        lightTimeCorrectionSettings,
+                        constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
+                        std::make_shared< LightTimeConvergenceCriteria >( true ),
+                        false ) );
             }
         }
 
@@ -166,12 +161,13 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
          *****************************************************************************************/
 
         std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-                simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+                getObservationSimulationSettingsFromObservationDataset( observedObservationDataset, bodies );
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > computedObservationDataset =
+                simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
+                observedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
+                computedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( );
         double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
         double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 

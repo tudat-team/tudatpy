@@ -484,25 +484,26 @@ public:
 
     void setWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights )
     {
-        // Check size consistency
-        if( weights.size( ) != static_cast< int >( singleObservationSize_ * observations_.size( ) ) )
+        const unsigned int numberOfObservations = dataset_->getNumberOfObservationsForSet( setId_ );
+        const unsigned int singleObservationSize = dataset_->getObservationSetMetadata( setId_ ).observableSize_;
+        if( weights.size( ) != numberOfObservations )
         {
             throw std::runtime_error(
                     "Error when settings weights in single observation set, numbers of weights and observations are inconsistent." );
         }
 
-        // Set each weight entry
-        for( unsigned int k = 0; k < weights_.size( ); k++ )
+        Eigen::VectorXd weightsVector( numberOfObservations * singleObservationSize );
+        for( unsigned int k = 0; k < weights.size( ); k++ )
         {
-            // Check size consistent for each weight entry
-            if( weights[ k ].size( ) != singleObservationSize_ )
+            if( weights[ k ].size( ) != singleObservationSize )
             {
                 throw std::runtime_error(
                         "Error when settings weights in single observation set, size of single weight entry is inconsistent with single "
                         "observation size." );
             }
-            weights_.at( k ) = weights[ k ];
+            weightsVector.segment( k * singleObservationSize, singleObservationSize ) = weights[ k ];
         }
+        dataset_->setWeightVectorForSet( setId_, weightsVector );
     }
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )

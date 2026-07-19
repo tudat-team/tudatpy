@@ -28,8 +28,8 @@
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 namespace tudat
 {
@@ -1238,11 +1238,11 @@ void separateSingleLinkOdfData( observation_models::ObservableType currentObserv
  * @return Observation collection.
  */
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createOdfObservedObservationDataset(
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents,
         std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
         std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
-        const bool allowDuplicateObservationsWithinObservationSet = true )
+        const bool allowDuplicateObservationsWithinSingleObservationSet = true )
 {
     // Set observables to process
     if( observableTypesToProcess.empty( ) )
@@ -1250,8 +1250,11 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         observableTypesToProcess = processedOdfFileContents->getProcessedObservableTypes( );
     }
 
-    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset =
-            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+    // Create and fill single observation sets
+    std::map< observation_models::ObservableType,
+              std::map< observation_models::LinkEnds,
+                        std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > >
+            sortedObservationSets;
 
     for( auto const& [ currentObservableType, linkDataBlocks ] : processedOdfFileContents->getProcessedDataBlocks( ) )
     {
@@ -1311,57 +1314,27 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                 }
             }
 
-            // Create the observation sets and save them
+            // Create the single observation sets and save them
             for( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
-                observationDataset->addObservationSet(
-                        currentObservableType,
-                        currentLinkEnds,
-                        truncatedObservables.at( i ),
-                        truncatedObservationTimes.at( i ),
-                        observation_models::receiver,
-                        std::vector< Eigen::VectorXd >( ),
-                        nullptr,
-                        std::make_shared< observation_models::ObservationAncillarySimulationSettings >( ancillarySettings.at( i ) ),
-                        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),                 // weights
-                        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),  // residuals
-                        true,
-                        !allowDuplicateObservationsWithinObservationSet );
+                sortedObservationSets[ currentObservableType ][ currentLinkEnds ].push_back(
+                        std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
+                                currentObservableType,
+                                currentLinkEnds,
+                                truncatedObservables.at( i ),
+                                truncatedObservationTimes.at( i ),
+                                observation_models::receiver,
+                                std::vector< Eigen::VectorXd >( ),
+                                nullptr,
+                                std::make_shared< observation_models::ObservationAncillarySimulationSettings >( ancillarySettings.at( i ) ),
+                                std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),                 // weights
+                                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),  // residuals
+                                !allowDuplicateObservationsWithinSingleObservationSet ) );
             }
         }
     }
 
-    return observationDataset;
-}
-
-/*!
- * Function modifies the observable types used in the provided observation simulation settings.
- * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler)
- * with an idealized observable (e.g. n-way differenced range), since the latter might allows an
- * easier physical interpretation of the problem. This setup only works if the real and idealized
- * observables require the same ancillary settings (or if the ancillary settings required by the
- * latter are a subset of the ones required by the former). If that is not the case, the user should
- * manually modify the observation simulation settigns as needed.
- *
- * @param observationSimulationSettings Observation simulation settings for which the observable types should be modified.
- * @param replacementObservableTypes Map having as keys the observable types to replace and as values the replacement observable types.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-void changeObservableTypesOfObservationSimulationSettings(
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-        const std::map< ObservableType, ObservableType >& replacementObservableTypes = {
-                { dsn_n_way_averaged_doppler, n_way_differenced_range },
-                { dsn_one_way_averaged_doppler, one_way_differenced_range } } )
-{
-    for( unsigned int i = 0; i < observationSimulationSettings.size( ); ++i )
-    {
-        ObservableType currentObservableType = observationSimulationSettings.at( i )->getObservableType( );
-
-        if( replacementObservableTypes.count( currentObservableType ) )
-        {
-            observationSimulationSettings.at( i )->setObservableType( replacementObservableTypes.at( currentObservableType ) );
-        }
-    }
+    return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservationSets );
 }
 
 /*!
@@ -1412,14 +1385,14 @@ void setOdfInformationInBodies( const std::shared_ptr< ProcessedOdfFileContents<
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createOdfObservedObservationDatasetFromFile(
-        simulation_setup::SystemOfBodies& bodies,
-        const std::vector< std::string >& odfFileNames,
-        const std::string& targetName,
-        const bool verboseOutput = true,
-        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getApproximateDsnGroundStationPositions( ),
-        const bool allowDuplicateObservationsWithinObservationSet = true )
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies& bodies,
+                                                const std::vector< std::string >& odfFileNames,
+                                                const std::string& targetName,
+                                                const bool verboseOutput = true,
+                                                const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                                                        simulation_setup::getApproximateDsnGroundStationPositions( ),
+                                                const bool allowDuplicateObservationsWithinSingleObservationSet = true )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFileName : odfFileNames )
@@ -1432,11 +1405,12 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
                     rawOdfDataVector, targetName, verboseOutput, earthFixedGroundStationPositions );
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
-    return observation_models::createOdfObservedObservationDataset< ObservationScalarType, TimeType >(
+    // Create observed observation collection
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
             processedOdfFileContents,
             std::vector< observation_models::ObservableType >( ),
             std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ),
-            allowDuplicateObservationsWithinObservationSet );
+            allowDuplicateObservationsWithinSingleObservationSet );
 }
 
 }  // namespace observation_models

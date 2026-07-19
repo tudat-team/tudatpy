@@ -16,8 +16,10 @@
 #include <vector>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/io/readOdfFile.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 using namespace tudat::input_output;
@@ -135,21 +137,19 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     // Define ODF data paths
     std::string odFile = tudat::paths::getTudatTestDataPath( ) + "/odf07155.odf";
 
-    // Laod raw ODF data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents = std::make_shared< input_output::OdfRawFileContents >( odFile );
-
-    // Process ODF file data
     std::string spacecraftName = "MESSENGER";
-    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfContents, spacecraftName, true );
+    const auto trackingDataAndSupplementaryData = loadOdfFile< long double, Time >( { odFile }, spacecraftName, "Earth" );
 
-    std::vector< observation_models::ObservableType > obsType = processedOdfFileContents->getProcessedObservableTypes( );
+    spice_interface::loadStandardSpiceKernels( );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Sun" }, "SSB", "J2000" );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+    observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 
     // Create data structure that handles Observed Data in Tudat
     std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
-            observation_models::createOdfObservedObservationDataset< long double, Time >( processedOdfFileContents,
-                                                                                          { dsn_n_way_averaged_doppler, n_way_range } );
+            observation_models::createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first,
+                                                                                               bodies );
 
     bool checkedDss14DopplerSet = false;
 
@@ -243,13 +243,6 @@ BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
                     ->getAncillaryDoubleData( doppler_integration_time ),
             30.0,
             1.0E-14 );
-
-    std::shared_ptr< ObservationCollection< double, double > > originalObservationCollection =
-            createObservationCollection< double, double >( originalObservationDataset );
-    std::shared_ptr< ObservationCollection< double, double > > compressedObservationCollection =
-            createCompressedDopplerCollection( originalObservationCollection, 3, 1 );
-    checkScalarObservations( compressedObservationCollection->getObservationDataset( ), { 10.0, 70.0, 100.0 } );
-    checkUtcOffsets( compressedObservationCollection->getObservationDataset( ), { 10.0, 70.0, 100.0 } );
 
     std::shared_ptr< ObservationDataset< double, double > > gapFreeCompressedObservationDataset =
             createCompressedDopplerDataset( createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 40.0, 50.0 }, 10.0 ), 3, 1 );
