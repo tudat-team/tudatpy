@@ -1,12 +1,21 @@
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.tracking_data.optical_utilities import (
+    create_augmented_optical_table,
+    filter_augmented_optical_table,
+)
+from tudatpy.data_input.environment_data.horizons import HorizonsQuery
+from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.astro import time_representation
 from tudatpy.dynamics import environment_setup
-from tudatpy.interface import spice
+from tudatpy.dynamics.environment_setup import ground_station
+from tudatpy.data_input.environment_data import spice
 import numpy as np
 import datetime
 import pytest
 
 spice.load_standard_kernels()
+_TIME_SCALE_CONVERTER = time_representation.default_time_scale_converter()
 
 # coverage = 88%
 # TESTS DO NOT CHECK/VALIDATE:
@@ -66,12 +75,71 @@ weights_test_combinations = [
 ]
 
 
-def _flattened_radec_and_times(observation_dataset):
-    """Return flattened angular-position data in the same shape used by the MPC source table."""
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
-    obs_radec = np.array(flattened_data.observation_vector).reshape(2, -1, order="F")
-    obs_times = np.array(flattened_data.times).reshape(2, -1, order="F")
-    return obs_radec, obs_times
+def _utc_seconds_to_tdb(epoch_seconds_utc):
+    return np.array(
+        [
+            _TIME_SCALE_CONVERTER.convert_time(
+                input_scale=time_representation.utc_scale,
+                output_scale=time_representation.tdb_scale,
+                input_value=float(epoch),
+            )
+            for epoch in epoch_seconds_utc
+        ]
+    )
+
+
+def _batch_from_augmented_table(table) -> BatchMPC:
+    batch = BatchMPC()
+    batch._table = create_augmented_optical_table(table, in_degrees=False)
+    batch._refresh_metadata()
+    return batch
+
+
+def _sorted_table(batch: BatchMPC):
+    return batch.table.sort_values(["observatory", "epoch_seconds_UTC"]).reset_index(drop=True)
+
+
+def _create_earth_bodies():
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.optical_telescope_stations()
+    return environment_setup.create_system_of_bodies(body_settings)
+
+
+def _create_observation_collection_from_batch(batch: BatchMPC, bodies):
+    tracking_data, supplementary_data = batch.to_tracking_dataset(
+        add_star_catalog_corrections=False
+    )
+    assert supplementary_data == []
+    return create_observation_collection_from_tracking_data(tracking_data, bodies)
+
+
+def _assert_tracking_dataset_matches_batch(batch: BatchMPC) -> None:
+    table = _sorted_table(batch)
+    batch._table = table
+    tracking_data, supplementary_data = batch.to_tracking_dataset(
+        add_star_catalog_corrections=False
+    )
+
+    groups = list(table.groupby(["number", "observatory"], sort=True))
+    assert supplementary_data == []
+    assert len(tracking_data) == len(groups)
+
+    for data_object, ((target, observatory), group) in zip(tracking_data, groups):
+        assert data_object.observable_type == "AngularPosition"
+        assert data_object.reference_link_end == "receiver"
+        assert data_object.time_scale == "UTC"
+        assert data_object.link_ends == [
+            ((str(target), ""), "transmitter"),
+            (("Earth", str(observatory)), "receiver"),
+        ]
+
+        expected_observations = group.loc[:, ["RA", "DEC"]].to_numpy()
+        expected_epochs = group["epoch_seconds_UTC"].to_numpy()
+        actual_observations = np.array(data_object.observations)
+        actual_epochs = np.array([epoch.to_float() for epoch in data_object.epochs])
+
+        assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
+        assert np.max(np.abs(actual_epochs - expected_epochs)) == pytest.approx(0.0)
 
 
 # @pytest.mark.parametrize("inp,expected", get_observations_input)
@@ -92,30 +160,11 @@ def _flattened_radec_and_times(observation_dataset):
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_create_observation_dataset_from_astropy_table(mpc_code):
-    """Check if observatory table matches the primary ObservationDataset output."""
+def test_to_tracking_dataset_preserves_full_mpc_table(mpc_code):
+    """Check if the MPC table is preserved when converted to TrackingData."""
     query = BatchMPC()
     query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-    # table values are sorted for easier comparison
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
-
-    RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
-    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
-    times = np.array([times, times])  # concat times are doubled due to RA + DEC
-
-    # we created a table by using get_observations.
-    # This yields observations in radians, so we have to set
-    # in_degrees = False
-    observation_dataset = query.create_observation_dataset_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
-    )
-
-    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
-
-    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
-    np.testing.assert_allclose(dataset_times, times)
-    np.testing.assert_allclose(dataset_RADEC, RADEC)
+    _assert_tracking_dataset_matches_batch(query)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -135,76 +184,94 @@ def test_mpc_custom_name_metadata(mpc_code):
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_BatchMPC_to_tudat(mpc_code):
-    """Check if observatory table matches the ObservationDataset returned by to_tudat."""
+def test_to_tracking_dataset_preserves_filtered_observatories(mpc_code):
+    """Check if dataframe-filtered MPC observations survive TrackingData conversion."""
     query = BatchMPC()
     query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-
-    # table values are sorted for easier comparison
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
-
-    RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
-    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
-    times = np.array([times, times])  # concat times are doubled due to RA + DEC
-
-    # to_tudat needs a system of bodies with earth in it as input
-    bodies_to_create = [
-        "Earth",
-    ]
-    global_frame_origin = "SSB"
-    global_frame_orientation = "J2000"
-    body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, global_frame_origin, global_frame_orientation
+    query = _batch_from_augmented_table(
+        filter_augmented_optical_table(query.table, observatories=["T05", "T08"])
     )
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-
-    observation_dataset = query.to_tudat(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
-
-    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
-
-    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
-    np.testing.assert_allclose(dataset_times, times)
-    np.testing.assert_allclose(dataset_RADEC, RADEC)
+    assert set(query.table["observatory"].unique()) <= {"T05", "T08"}
+    _assert_tracking_dataset_matches_batch(query)
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_BatchMPC_to_tudat_with_satelite(mpc_code):
-    """Check if space-telescope observations match the ObservationDataset returned by to_tudat."""
+def test_to_tracking_dataset_handles_alphanumeric_observatory_codes(mpc_code):
+    """Check if alphanumeric MPC observatory codes survive TrackingData conversion."""
     query = BatchMPC()
     query.get_observations([mpc_code])
-    query.filter(observatories=["C51"])
-
-    # table values are sorted for easier comparison
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
-
-    RADEC = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
-    times = query.table.loc[:, ["epoch_seconds_TDB"]].to_numpy().T[0]
-    times = np.array([times, times])  # concat times are doubled due to RA + DEC
-
-    # to_tudat needs a system of bodies with earth in it as input
-    bodies_to_create = [
-        "Earth",
-    ]
-    global_frame_origin = "SSB"
-    global_frame_orientation = "J2000"
-    body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, global_frame_origin, global_frame_orientation
+    query = _batch_from_augmented_table(
+        filter_augmented_optical_table(query.table, observatories=["F51"])
     )
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-    bodies.create_empty_body("Wise")
+    assert set(query.table["observatory"].unique()) == {"F51"}
+    _assert_tracking_dataset_matches_batch(query)
 
-    observation_dataset = query.to_tudat(
-        bodies=bodies, included_satellites={"C51": "Wise"}, apply_star_catalog_debias=False
+
+def test_tracking_dataset_can_create_observation_collection_from_tracking_data():
+    """Check the integration boundary from UTC TrackingData to ObservationCollection."""
+    query = BatchMPC()
+    query.get_observations([222])
+    query = _batch_from_augmented_table(
+        filter_augmented_optical_table(query.table, observatories=["T05"])
+    )
+    query._table = _sorted_table(query)
+
+    observation_collection = _create_observation_collection_from_batch(
+        query, _create_earth_bodies()
     )
 
-    dataset_RADEC, dataset_times = _flattened_radec_and_times(observation_dataset)
+    expected_observations = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
+    expected_times = np.array(
+        [
+            _utc_seconds_to_tdb(query.table["epoch_seconds_UTC"]),
+            _utc_seconds_to_tdb(query.table["epoch_seconds_UTC"]),
+        ]
+    )
+    actual_observations = np.array(observation_collection.concatenated_observations).reshape(
+        2, -1, order="F"
+    )
+    actual_times = np.array(observation_collection.concatenated_times).reshape(2, -1, order="F")
 
-    # Full-array comparisons catch ordering regressions that max/sum checks can hide.
-    np.testing.assert_allclose(dataset_times, times)
-    np.testing.assert_allclose(dataset_RADEC, RADEC)
+    assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
+    assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
+
+
+def test_tracking_data_observation_corrections_are_optional_during_collection_creation():
+    """Check that stored TrackingData corrections are ignored by default and applied on request."""
+    observations = [np.array([1.0, 2.0]), np.array([3.0, 4.0])]
+    corrections = [np.array([0.1, -0.2]), np.array([-0.3, 0.4])]
+    tracking_data = TrackingData(
+        "AngularPosition",
+        [(("Target", ""), "transmitter"), (("Earth", "Station"), "receiver")],
+        observations,
+        [0.0, 10.0],
+        "receiver",
+        "TDB",
+    )
+    tracking_data.set_observation_corrections(corrections)
+    bodies = _create_earth_bodies()
+
+    uncorrected_collection = create_observation_collection_from_tracking_data(
+        [tracking_data],
+        bodies,
+    )
+    corrected_collection = create_observation_collection_from_tracking_data(
+        [tracking_data],
+        bodies,
+        apply_corrections=True,
+    )
+
+    uncorrected = np.array(uncorrected_collection.concatenated_observations).reshape(
+        2, -1, order="F"
+    )
+    corrected = np.array(corrected_collection.concatenated_observations).reshape(2, -1, order="F")
+    expected_uncorrected = np.column_stack(observations)
+    expected_corrected = np.column_stack(
+        [observation + correction for observation, correction in zip(observations, corrections)]
+    )
+
+    assert np.max(np.abs(uncorrected - expected_uncorrected)) == pytest.approx(0.0)
+    assert np.max(np.abs(corrected - expected_corrected)) == pytest.approx(0.0)
 
 
 def test_compare_mpc_horizons_eph():
@@ -212,11 +279,13 @@ def test_compare_mpc_horizons_eph():
     batch = BatchMPC()
     batch.get_observations([433])
 
-    # batch.filter takes python datetimes in UTC!
-    batch.filter(
-        epoch_start=datetime.datetime(2017, 1, 1),
-        epoch_end=datetime.datetime(2022, 1, 1),
-        observatories=["T08"],
+    batch = _batch_from_augmented_table(
+        filter_augmented_optical_table(
+            batch.table,
+            epoch_start=datetime.datetime(2017, 1, 1),
+            epoch_end=datetime.datetime(2022, 1, 1),
+            observatories=["T08"],
+        )
     )
 
     # Horizons Query wants batch_times (or start_epoch, end_epoch) in UTC!!!
@@ -225,19 +294,15 @@ def test_compare_mpc_horizons_eph():
         query_id="433;", location="T08@399", epoch_list=batch_times, extended_query=True
     )
 
-    # interpolated_observations returns times in TDB!!!
     radec_horizons = eros.interpolated_observations(degrees=False)
 
-    # the retrieved batch.table has time columns: epoch [julian days in UTC], epoch_seconds_UTC [UTC datetime], epoch_seconds_TDB [TDB seconds]
-    radec_mpc = batch.table.loc[:, ["epoch_seconds_TDB", "RA", "DEC"]].reset_index(drop=True)
+    radec_mpc = batch.table.loc[:, ["RA", "DEC"]].reset_index(drop=True)
 
-    diff = (radec_horizons - radec_mpc).to_numpy()
+    diff = radec_horizons[:, 1:3] - radec_mpc.to_numpy()
     diff = np.abs(diff).max(axis=0)
-    time_diff = diff[0]
-    RA_diff = diff[1]
-    DEC_diff = diff[2]
+    RA_diff = diff[0]
+    DEC_diff = diff[1]
 
-    assert time_diff < 1e-3
     assert RA_diff < 1e-5
     assert DEC_diff < 1e-5
 
@@ -275,12 +340,12 @@ def test_compare_mpc_horizons_eph():
 #     # copy
 #     batch3copy = batch3.copy()
 #
-#     # from_pandas + from_astropy
+#     # local optical table construction
 #     batch4 = BatchMPC()
 #     batch5 = BatchMPC()
 #
-#     batch4.from_astropy(astroquery_MPC.get_observations(mpc_code))
-#     batch5.from_pandas(batch_base._table)  # type: ignore
+#     batch4 = _batch_from_augmented_table(astroquery_MPC.get_observations(mpc_code).to_pandas())
+#     batch5 = _batch_from_augmented_table(batch_base._table)  # type: ignore
 #
 #     # plotting
 #     batch_base.plot_observations_temporal()

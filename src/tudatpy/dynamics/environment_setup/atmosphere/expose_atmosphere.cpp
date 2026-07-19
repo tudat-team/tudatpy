@@ -86,7 +86,7 @@ The values in this class may be recomputed every time step to reflect changing a
                          Parameters
                          ----------
                          solar_activity_data : Dict[float, SolarActivityData]
-                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
+                             Solar activity data for a range of epochs as produced by tudatpy.data_input.environment_data.space_weather.read_solar_activity_data.
                          )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
@@ -448,8 +448,10 @@ The values in this class may be recomputed every time step to reflect changing a
 
  .. code-block:: python
 
+   from tudatpy.data_input.environment_data import coma
+
    # Create file processor from polynomial coefficient files
-   wind_processor = data.coma_model.coma_wind_file_processor(
+   wind_processor = coma.coma_wind_file_processor(
        x_file_paths, y_file_paths, z_file_paths)
 
    # Create dataset collection with Stokes coefficients
@@ -611,7 +613,7 @@ The NRLMSISE-00 model implementation uses the code from `tudat-team/nrlmsise-00-
 
 Parameters
 ----------
-space_weather_file : str, default = :func:`~tudatpy.data.get_space_weather_path` + 'sw19571001.txt'
+space_weather_file : str, default = :func:`~tudatpy.data_input.resource_paths.get_space_weather_path` + 'sw19571001.txt'
     File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from `celestrak <https://celestrak.org/SpaceData/sw19571001.txt>`_ (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given on the `celestrak website <https://celestrak.org/SpaceData/SpaceWx-format.php>`_
 use_storm_conditions : bool, default = false
     Boolean to define whether to use sub-daily Ap values when querying the NRLMSISE model, which is relevant under geomagnetic storm conditions (see `NRLMSISE code <https://github.com/tudat-team/nrlmsise-00-cmake/blob/master/nrlmsise-00.h>`_, setting this variable to true sets ``switches[9]`` to -1, with resulting details of Ap values defined in ``ap_array``).
@@ -997,7 +999,7 @@ using the NRLMSISE-00 global reference model:
  ----------
  poly_data : ComaPolyDataset
      Polynomial coefficient dataset containing spherical harmonic coefficients for gas density
-     distribution. Create using :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+     distribution. Create using :func:`~tudatpy.data_input.environment_data.coma.coma_model_file_processor`.
 
  molecular_weight : float
      Molecular weight (molar mass) of the gas species [kg/mol]. For water vapor (H2O), use 0.018015 kg/mol.
@@ -1029,6 +1031,8 @@ using the NRLMSISE-00 global reference model:
 
  .. code-block:: python
 
+   from tudatpy.data_input.environment_data import coma
+
    # Define paths to polynomial coefficient files
    poly_file_paths = [
        "coma_data/poly_coeffs_epoch1.txt",
@@ -1036,7 +1040,7 @@ using the NRLMSISE-00 global reference model:
    ]
 
    # Create file processor from polynomial files
-   processor = data.coma_model.coma_model_file_processor(poly_file_paths)
+   processor = coma.coma_model_file_processor(poly_file_paths)
 
    # Create polynomial dataset
    poly_dataset = processor.create_poly_coefficient_dataset()
@@ -1089,7 +1093,7 @@ using the NRLMSISE-00 global reference model:
  ----------
  stokes_data : ComaStokesDataset
      Precomputed Stokes coefficient dataset containing spherical harmonic coefficients evaluated at
-     specific radii and solar longitudes. Create using :func:`~tudatpy.data.coma_model.coma_model_file_processor`
+     specific radii and solar longitudes. Create using :func:`~tudatpy.data_input.environment_data.coma.coma_model_file_processor`
      or load from pre-existing Stokes coefficient CSV files.
 
  molecular_weight : float
@@ -1122,9 +1126,11 @@ using the NRLMSISE-00 global reference model:
 
  .. code-block:: python
 
+   from tudatpy.data_input.environment_data import coma
+
    # Create file processor from polynomial coefficient files
    poly_file_paths = ["coma_data/poly_coeffs_epoch1.txt"]
-   processor = data.coma_model.coma_model_file_processor(poly_file_paths)
+   processor = coma.coma_model_file_processor(poly_file_paths)
 
    # Create Stokes dataset by evaluating at specific radii and solar longitudes
    stokes_dataset = processor.create_coma_stokes_dataset(
@@ -1151,7 +1157,7 @@ using the NRLMSISE-00 global reference model:
  .. code-block:: python
 
    # Create file processor from existing Stokes CSV files
-   processor = data.coma_model.coma_model_file_processor(
+   processor = coma.coma_model_file_processor(
        input_dir="coma_data/stokes_files",
        prefix="stokes")
 
