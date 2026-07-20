@@ -36,7 +36,7 @@ from tudatpy.kernel.estimation.observations_setup import (
     ancillary_settings,
     observations_simulation_settings,
 )
-from tudatpy.kernel.interface import spice
+from tudatpy.data_input.environment_data import spice
 
 
 def _test_data_path() -> Path:

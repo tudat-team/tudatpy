@@ -451,10 +451,9 @@ def test_pipeline_range_synthetic():
 # -----------------------------------------------------------------------------
 # End-to-end reader test
 # -----------------------------------------------------------------------------
-def test_reader():
-    # Use the current directory as temporary path.
-    tmp_dir = os.getcwd()
-    local_filename = os.path.join(tmp_dir, "tnfp_tracking_data.dat")
+@pytest.mark.remote_data
+def test_reader(tmp_path):
+    local_filename = str(tmp_path / "tnfp_tracking_data.dat")
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
@@ -530,8 +529,6 @@ def test_reader():
     assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
-
-    os.remove(local_filename)
 
 
 if __name__ == "__main__":
