@@ -363,17 +363,18 @@ class _MetaKernelMixin:
         input_mission = input_mission.lower()
         kernels_from_meta_kernel = self.extract_kernels_from_meta_kernel(input_mission)
 
-        clock_files_list = []
-        for kernel_type, kernel_files in kernels_from_meta_kernel.items():
-            for kernel_file in kernel_files:
-                if kernel_type == "sclk":
-                    if len(kernel_files) > 1:
-                        print(f"Warning: Clock Kernel Ambiguity Found: {kernel_files}.")
-                        for clock_file in kernel_files:
-                            clock_files_list.append(clock_file.split("/")[-1])
+        clock_files = kernels_from_meta_kernel.get("sclk", [])
 
-                    else:
-                        clock_file = kernel_file
-                        clock_files_list.append(clock_file.split("/")[-1])
+        # The shared GRAIL meta-kernel contains the clock kernels for both
+        # spacecraft.  Select the kernel belonging to the requested spacecraft
+        # instead of treating the expected pair as an ambiguity.
+        grail_clock_prefixes = {"grail-a": "gra_", "grail-b": "grb_"}
+        if input_mission in grail_clock_prefixes:
+            clock_prefix = grail_clock_prefixes[input_mission]
+            clock_files = [
+                clock_file
+                for clock_file in clock_files
+                if clock_file.rsplit("/", 1)[-1].lower().startswith(clock_prefix)
+            ]
 
-        return clock_files_list
+        return [clock_file.rsplit("/", 1)[-1] for clock_file in clock_files]
