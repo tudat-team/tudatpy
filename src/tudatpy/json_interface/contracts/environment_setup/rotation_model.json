@@ -1,0 +1,138 @@
+{
+  "simple": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "initial_orientation": "float[3][3]",
+      "initial_time": "float",
+      "rotation_rate": "float"
+    }
+  },
+  "simple_from_spice": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "target_frame_spice": "string",
+      "initial_time": "float"
+    }
+  },
+  "synchronous": {
+    "properties": {
+      "central_body_name": "string",
+      "base_frame": "string",
+      "target_frame": "string"
+    }
+  },
+  "spice": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "spice_frame_name": "string"
+    },
+    "optional": {
+      "spice_frame_name": ""
+    }
+  },
+  "gcrs_to_itrs": {
+    "properties": {
+      "precession_nutation_theory": "IAUConventions",
+      "base_frame": "string",
+      "cio_interpolation_settings": "any",
+      "tdb_to_tt_interpolation_settings": "any",
+      "short_term_eop_interpolation_settings": "any"
+    },
+    "optional": {
+      "precession_nutation_theory": "iau_2006",
+      "base_frame": "GCRS",
+      "cio_interpolation_settings": null,
+      "tdb_to_tt_interpolation_settings": null,
+      "short_term_eop_interpolation_settings": null
+    }
+  },
+  "constant_rotation_model": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "initial_orientation": "float[3][3]"
+    }
+  },
+  "aerodynamic_angle_based": {
+    "properties": {
+      "central_body": "string",
+      "base_frame": "string",
+      "target_frame": "string"
+    }
+  },
+  "zero_pitch_moment_aerodynamic_angle_based": {
+    "properties": {
+      "central_body": "string",
+      "base_frame": "string",
+      "target_frame": "string"
+    }
+  },
+  "orbital_state_direction_based": {
+    "properties": {
+      "central_body": "string",
+      "is_colinear_with_velocity": "bool",
+      "direction_is_opposite_to_vector": "bool",
+      "base_frame": "string",
+      "target_frame": "string"
+    },
+    "optional": {
+      "target_frame": ""
+    }
+  },
+  "mars_high_accuracy": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string"
+    },
+    "optional": {
+      "base_frame": "J2000",
+      "target_frame": "Mars_Fixed"
+    }
+  },
+  "mars_high_accuracy_custom_angles": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "angle_n": "float",
+      "angle_j": "float",
+      "angle_psi_at_epoch": "float",
+      "angle_psi_rate_at_epoch": "float"
+    }
+  },
+  "mars_high_accuracy_full_custom": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "angle_n": "float",
+      "angle_j": "float",
+      "angle_psi_at_epoch": "float",
+      "angle_psi_rate_at_epoch": "float",
+      "nutation_correction_settings": "float[2]{}",
+      "mean_motion_time_dependent_phase_nutation_corrections": "float[2]{}[]",
+      "rotation_rate_corrections": "float[2]{}",
+      "x_polar_motion_coefficients": "float[2]{}",
+      "y_polar_motion_coefficients": "float[2]{}"
+    }
+  },
+  "iau_rotation_model": {
+    "properties": {
+      "base_frame": "string",
+      "target_frame": "string",
+      "nominal_meridian": "float",
+      "nominal_pole": "float[2]",
+      "rotation_rate": "float",
+      "pole_precession": "float[2]",
+      "merdian_periodic_terms": "float[2]{}",
+      "pole_periodic_terms": "any{}",
+      "reference_epoch_j2000": "float",
+      "angle_base_frame": "string"
+    },
+    "optional": {
+      "reference_epoch_j2000": 0.0,
+      "angle_base_frame": ""
+    }
+  }
+}

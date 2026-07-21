@@ -1,0 +1,120 @@
+{
+  "solid_body_tide": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number": "float",
+      "degree": "int"
+    }
+  },
+  "solid_body_tide_complex_k": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number": "complex",
+      "degree": "int"
+    }
+  },
+  "solid_body_tide_degree_variable_k": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number_per_degree": "float{}"
+    }
+  },
+  "solid_body_tide_degree_variable_complex_k": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number_per_degree": "complex{}"
+    }
+  },
+  "solid_body_tide_degree_order_variable_k": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number_per_degree_and_order": "float[]{}"
+    }
+  },
+  "solid_body_tide_degree_order_variable_complex_k": {
+    "properties": {
+      "tide_raising_body": "string",
+      "love_number_per_degree_and_order": "complex[]{}"
+    }
+  },
+  "solid_multi_body_tide_degree_order_variable_k": {
+    "properties": {
+      "tide_raising_bodies": "string[]",
+      "love_number_per_degree_and_order": "float[]{}"
+    }
+  },
+  "mode_coupled_solid_body_tide": {
+    "properties": {
+      "deforming_bodies": "string[]",
+      "love_numbers": "float{}{}"
+    }
+  },
+  "periodic": {
+    "properties": {
+      "cosine_coefficient_amplitudes_cosine_time": "float[][][]",
+      "cosine_coefficient_amplitudes_sine_time": "float[][][]",
+      "sine_coefficient_amplitudes_cosine_time": "float[][][]",
+      "sine_coefficient_amplitudes_sine_time": "float[][][]",
+      "angular_frequencies": "float[]",
+      "reference_epoch": "float",
+      "minimum_degree": "int",
+      "minimum_order": "int"
+    },
+    "optional": {
+      "minimum_degree": 2,
+      "minimum_order": 0
+    }
+  },
+  "single_period_periodic": {
+    "properties": {
+      "cosine_coefficient_amplitude_cosine_time": "float[][]",
+      "cosine_coefficient_amplitude_sine_time": "float[][]",
+      "sine_coefficient_amplitude_cosine_time": "float[][]",
+      "sine_coefficient_amplitude_sine_time": "float[][]",
+      "angular_frequency": "float",
+      "reference_epoch": "float",
+      "minimum_degree": "int",
+      "minimum_order": "int"
+    },
+    "optional": {
+      "minimum_degree": 2,
+      "minimum_order": 0
+    }
+  },
+  "polynomial": {
+    "properties": {
+      "cosine_amplitudes_per_power": "float[][]{}",
+      "sine_amplitudes_per_power": "float[][]{}",
+      "reference_epoch": "float",
+      "minimum_degree": "int",
+      "minimum_order": "int"
+    },
+    "optional": {
+      "minimum_degree": 2,
+      "minimum_order": 0
+    }
+  },
+  "single_power_polynomial": {
+    "properties": {
+      "cosine_amplitudes": "float[][]",
+      "sine_amplitudes": "float[][]",
+      "polynomial_power": "int",
+      "reference_epoch": "float",
+      "minimum_degree": "int",
+      "minimum_order": "int"
+    },
+    "optional": {
+      "minimum_degree": 2,
+      "minimum_order": 0
+    }
+  },
+  "tabulated": {
+    "properties": {
+      "cosine_variations_table": "float[][]{}",
+      "sine_variations_table": "float[][]{}",
+      "minimum_degree": "int",
+      "minimum_order": "int",
+      "interpolation_settings": "any"
+    }
+  }
+}

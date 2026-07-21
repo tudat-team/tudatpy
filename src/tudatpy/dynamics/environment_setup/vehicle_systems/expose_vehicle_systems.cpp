@@ -370,8 +370,8 @@ Panel surface area
            py::arg( "box_diffuse_reflectivity" ),
            py::arg( "solar_array_specular_reflectivity" ),
            py::arg( "solar_array_diffuse_reflectivity" ),
-           py::arg( "box_instantaneous_reradiation " ) = true,
-           py::arg( "solar_array_instantaneous_reradiation " ) = true,
+           py::arg( "box_instantaneous_reradiation" ) = true,
+           py::arg( "solar_array_instantaneous_reradiation" ) = true,
            R"doc(
 
  Function for creating a simple box-wing spacecraft exterior shape with reflection law settings.

@@ -1,0 +1,13 @@
+{
+  "central_sbdb": {
+    "properties": {
+      "MPCcode": "string|int"
+    }
+  },
+  "central_sbdb_density": {
+    "properties": {
+      "MPCcode": "string|int",
+      "density": "float"
+    }
+  }
+}

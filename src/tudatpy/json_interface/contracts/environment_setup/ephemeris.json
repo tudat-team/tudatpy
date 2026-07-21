@@ -1,0 +1,149 @@
+{
+  "direct_spice": {
+    "properties": {
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "body_name_to_use": "string"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000",
+      "body_name_to_use": ""
+    }
+  },
+  "interpolated_spice": {
+    "properties": {
+      "initial_time": "float",
+      "final_time": "float",
+      "time_step": "float",
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "interpolator_settings": "any",
+      "body_name_to_use": "string"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000",
+      "interpolator_settings": null,
+      "body_name_to_use": ""
+    }
+  },
+  "approximate_jpl_model": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "constant": {
+    "properties": {
+      "constant_state": "float[6]",
+      "frame_origin": "string",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000"
+    }
+  },
+  "keplerian": {
+    "properties": {
+      "initial_keplerian_state": "float[6]",
+      "initial_state_epoch": "float",
+      "central_body_gravitational_parameter": "float",
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "root_finder_absolute_tolerance": "float",
+      "root_finder_maximum_iterations": "float"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000",
+      "root_finder_absolute_tolerance": 4.440892098500626e-14,
+      "root_finder_maximum_iterations": 1000.0
+    }
+  },
+  "keplerian_from_spice": {
+    "properties": {
+      "body": "string",
+      "initial_state_epoch": "float",
+      "central_body_gravitational_parameter": "float",
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "root_finder_absolute_tolerance": "float",
+      "root_finder_maximum_iterations": "float"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000",
+      "root_finder_absolute_tolerance": 4.440892098500626e-14,
+      "root_finder_maximum_iterations": 1000.0
+    }
+  },
+  "sgp4": {
+    "properties": {
+      "tle_line_1": "string",
+      "tle_line_2": "string",
+      "frame_origin": "string",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "frame_origin": "Earth",
+      "frame_orientation": "J2000"
+    }
+  },
+  "scaled_by_constant": {
+    "properties": {
+      "unscaled_ephemeris_settings": "environment_setup.ephemeris",
+      "scaling_constant": "float",
+      "is_scaling_absolute": "bool"
+    },
+    "optional": {
+      "is_scaling_absolute": false
+    }
+  },
+  "scaled_by_vector": {
+    "properties": {
+      "unscaled_ephemeris_settings": "environment_setup.ephemeris",
+      "scaling_vector": "float[6]",
+      "is_scaling_absolute": "bool"
+    },
+    "optional": {
+      "is_scaling_absolute": false
+    }
+  },
+  "tabulated": {
+    "properties": {
+      "body_state_history": "float[6]{}",
+      "frame_origin": "string",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000"
+    }
+  },
+  "tabulated_from_existing": {
+    "properties": {
+      "ephemeris_settings": "environment_setup.ephemeris",
+      "start_time": "float",
+      "end_time": "float",
+      "time_step": "float",
+      "interpolator_settings": "any"
+    },
+    "optional": {
+      "interpolator_settings": null
+    }
+  },
+  "multi_arc_ephemeris": {
+    "properties": {
+      "single_arc_ephemeris_settings": "environment_setup.ephemeris{}",
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "default_ephemeris_settings": "environment_setup.ephemeris"
+    },
+    "optional": {
+      "frame_origin": "SSB",
+      "frame_orientation": "ECLIPJ2000",
+      "default_ephemeris_settings": null
+    }
+  }
+}

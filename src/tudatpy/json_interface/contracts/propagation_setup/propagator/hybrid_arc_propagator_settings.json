@@ -1,0 +1,12 @@
+{
+  "hybrid_arc": {
+    "properties": {
+      "single_arc_settings": "propagation_setup.propagator.single_arc_propagator_settings",
+      "multi_arc_settings": "propagation_setup.propagator.multi_arc_propagator_settings",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "processing_settings": null
+    }
+  }
+}

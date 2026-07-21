@@ -1,0 +1,14 @@
+{
+  "ppn_parameter_set": {
+    "properties": {
+      "parameter_gamma": "float",
+      "parameter_beta": "float",
+      "parameter_epsilon": "float"
+    },
+    "optional": {
+      "parameter_gamma": 1.0,
+      "parameter_beta": 1.0,
+      "parameter_epsilon": 0.0
+    }
+  }
+}

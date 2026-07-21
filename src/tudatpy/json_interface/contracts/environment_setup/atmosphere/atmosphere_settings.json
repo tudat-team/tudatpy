@@ -1,0 +1,112 @@
+{
+  "exponential_predefined": {
+    "properties": {
+      "body_name": "string"
+    }
+  },
+  "exponential": {
+    "properties": {
+      "scale_height": "float",
+      "surface_density": "float",
+      "constant_temperature": "float",
+      "specific_gas_constant": "float",
+      "ratio_specific_heats": "float"
+    },
+    "optional": {
+      "constant_temperature": 288.15,
+      "specific_gas_constant": 287.0,
+      "ratio_specific_heats": 1.4
+    }
+  },
+  "nrlmsise00": {
+    "properties": {
+      "space_weather_file": "string",
+      "use_storm_conditions": "bool",
+      "use_anomalous_oxygen": "bool"
+    },
+    "optional": {
+      "space_weather_file": null,
+      "use_storm_conditions": false,
+      "use_anomalous_oxygen": true
+    }
+  },
+  "mcd": {
+    "properties": {
+      "mcd_data_path": "string",
+      "dust_scenario": "int",
+      "perturbation_key": "int",
+      "perturbation_seed": "float",
+      "gravity_wave_length": "float",
+      "high_resolution_mode": "int"
+    },
+    "optional": {
+      "mcd_data_path": "",
+      "dust_scenario": 1,
+      "perturbation_key": 0,
+      "perturbation_seed": 0.0,
+      "gravity_wave_length": 0.0,
+      "high_resolution_mode": 0
+    }
+  },
+  "tabulated": {
+    "properties": {
+      "atmosphere_data_file": "string",
+      "dependent_variable_names": "AtmosphereDependentVariables[]",
+      "specific_gas_constant": "float",
+      "ratio_of_specific_heats": "float"
+    },
+    "optional": {
+      "dependent_variable_names": [
+        "tabulated_density",
+        "tabulated_pressure",
+        "tabulated_temperature"
+      ],
+      "specific_gas_constant": 287.0,
+      "ratio_of_specific_heats": 1.4
+    }
+  },
+  "us76": {
+    "properties": {}
+  },
+  "mars_dtm": {
+    "properties": {}
+  },
+  "scaled_by_constant": {
+    "properties": {
+      "unscaled_atmosphere_settings": "environment_setup.atmosphere.atmosphere_settings",
+      "density_scaling": "float",
+      "is_scaling_absolute": "bool"
+    },
+    "optional": {
+      "is_scaling_absolute": false
+    }
+  },
+  "coma_model_from_poly_data": {
+    "properties": {
+      "poly_data": "any",
+      "molecular_weight": "float",
+      "max_degree": "int",
+      "max_order": "int",
+      "is_log2": "bool"
+    },
+    "optional": {
+      "max_degree": -1,
+      "max_order": -1,
+      "is_log2": true
+    }
+  },
+  "coma_model_from_stokes_data": {
+    "properties": {
+      "stokes_data": "any",
+      "molecular_weight": "float",
+      "max_degree": "int",
+      "max_order": "int",
+      "is_log2": "bool"
+    },
+    "optional": {
+      "max_degree": -1,
+      "max_order": -1,
+      "is_log2": true
+    }
+  }
+}

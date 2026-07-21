@@ -1,0 +1,36 @@
+{
+  "empty_wind_model": {
+    "properties": {
+      "include_corotation": "bool"
+    },
+    "optional": {
+      "include_corotation": true
+    }
+  },
+  "constant_wind_model": {
+    "properties": {
+      "wind_velocity": "float[3]",
+      "associated_reference_frame": "AerodynamicsReferenceFrames",
+      "include_corotation": "bool"
+    },
+    "optional": {
+      "associated_reference_frame": "vertical_frame",
+      "include_corotation": true
+    }
+  },
+  "coma_wind_model": {
+    "properties": {
+      "dataset_collection": "any",
+      "requested_max_degree": "int",
+      "requested_max_order": "int",
+      "associated_reference_frame": "AerodynamicsReferenceFrames",
+      "include_corotation": "bool"
+    },
+    "optional": {
+      "requested_max_degree": -1,
+      "requested_max_order": -1,
+      "associated_reference_frame": "vertical_frame",
+      "include_corotation": true
+    }
+  }
+}

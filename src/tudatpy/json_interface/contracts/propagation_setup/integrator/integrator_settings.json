@@ -1,0 +1,120 @@
+{
+  "runge_kutta_fixed_step": {
+    "properties": {
+      "time_step": "float",
+      "coefficient_set": "CoefficientSets",
+      "order_to_use": "OrderToIntegrate",
+      "assess_termination_on_minor_steps": "bool"
+    },
+    "optional": {
+      "order_to_use": "lower",
+      "assess_termination_on_minor_steps": false
+    }
+  },
+  "runge_kutta_variable_step": {
+    "properties": {
+      "initial_time_step": "float",
+      "coefficient_set": "CoefficientSets",
+      "step_size_control_settings": "propagation_setup.integrator.step_size_control_settings",
+      "step_size_validation_settings": "propagation_setup.integrator.step_size_validation_settings",
+      "assess_termination_on_minor_steps": "bool"
+    },
+    "optional": {
+      "assess_termination_on_minor_steps": false
+    }
+  },
+  "bulirsch_stoer_fixed_step": {
+    "properties": {
+      "time_step": "float",
+      "extrapolation_sequence": "ExtrapolationMethodStepSequences",
+      "maximum_number_of_steps": "int",
+      "assess_termination_on_minor_steps": "bool"
+    },
+    "optional": {
+      "assess_termination_on_minor_steps": false
+    }
+  },
+  "bulirsch_stoer_variable_step": {
+    "properties": {
+      "initial_time_step": "float",
+      "extrapolation_sequence": "ExtrapolationMethodStepSequences",
+      "maximum_number_of_steps": "int",
+      "step_size_control_settings": "propagation_setup.integrator.step_size_control_settings",
+      "step_size_validation_settings": "propagation_setup.integrator.step_size_validation_settings",
+      "assess_termination_on_minor_steps": "bool"
+    },
+    "optional": {
+      "assess_termination_on_minor_steps": false
+    }
+  },
+  "adams_bashforth_moulton": {
+    "properties": {
+      "initial_time_step": "float",
+      "minimum_step_size": "float",
+      "maximum_step_size": "float",
+      "relative_error_tolerance": "float",
+      "absolute_error_tolerance": "float",
+      "minimum_order": "int",
+      "maximum_order": "int",
+      "assess_termination_on_minor_steps": "bool",
+      "bandwidth": "float"
+    },
+    "optional": {
+      "relative_error_tolerance": 1e-12,
+      "absolute_error_tolerance": 1e-12,
+      "minimum_order": 6,
+      "maximum_order": 11,
+      "assess_termination_on_minor_steps": false,
+      "bandwidth": 200.0
+    }
+  },
+  "adams_bashforth_moulton_fixed_order": {
+    "properties": {
+      "initial_time_step": "float",
+      "minimum_step_size": "float",
+      "maximum_step_size": "float",
+      "relative_error_tolerance": "float",
+      "absolute_error_tolerance": "float",
+      "order": "int",
+      "assess_termination_on_minor_steps": "bool",
+      "bandwidth": "float"
+    },
+    "optional": {
+      "relative_error_tolerance": 1e-12,
+      "absolute_error_tolerance": 1e-12,
+      "order": 6,
+      "assess_termination_on_minor_steps": false,
+      "bandwidth": 200.0
+    }
+  },
+  "adams_bashforth_moulton_fixed_step": {
+    "properties": {
+      "time_step": "float",
+      "relative_error_tolerance": "float",
+      "absolute_error_tolerance": "float",
+      "minimum_order": "int",
+      "maximum_order": "int",
+      "assess_termination_on_minor_steps": "bool",
+      "bandwidth": "float"
+    },
+    "optional": {
+      "relative_error_tolerance": 1e-12,
+      "absolute_error_tolerance": 1e-12,
+      "minimum_order": 6,
+      "maximum_order": 11,
+      "assess_termination_on_minor_steps": false,
+      "bandwidth": 200.0
+    }
+  },
+  "adams_bashforth_moulton_fixed_step_fixed_order": {
+    "properties": {
+      "time_step": "float",
+      "order": "int",
+      "assess_termination_on_minor_steps": "bool"
+    },
+    "optional": {
+      "order": 6,
+      "assess_termination_on_minor_steps": false
+    }
+  }
+}

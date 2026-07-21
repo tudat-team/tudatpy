@@ -1,0 +1,34 @@
+{
+  "constant_surface_property_distribution": {
+    "properties": {
+      "constant_value": "float"
+    }
+  },
+  "spherical_harmonic_surface_property_distribution": {
+    "properties": {
+      "cosine_coefficients": "float[][]",
+      "sine_coefficients": "float[][]"
+    }
+  },
+  "predefined_spherical_harmonic_surface_property_distribution": {
+    "properties": {
+      "predefined_model": "SphericalHarmonicsSurfacePropertyDistributionModel"
+    }
+  },
+  "knocke_type_surface_property_distribution": {
+    "properties": {
+      "constant_contribution": "float",
+      "constant_degree_one_contribution": "float",
+      "cosine_periodic_degree_one_contribution": "float",
+      "sine_periodic_degree_one_contribution": "float",
+      "constant_degree_two_contribution": "float",
+      "reference_epoch": "float",
+      "period": "float"
+    }
+  },
+  "predefined_knocke_type_surface_property_distribution": {
+    "properties": {
+      "predefined_model": "KnockeTypeSurfacePropertyDistributionModel"
+    }
+  }
+}

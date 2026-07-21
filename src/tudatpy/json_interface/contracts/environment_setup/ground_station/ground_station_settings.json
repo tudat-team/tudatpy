@@ -1,0 +1,19 @@
+{
+  "basic_station": {
+    "properties": {
+      "station_name": "string",
+      "station_nominal_position": "float[3]",
+      "station_position_element_type": "PositionElementTypes",
+      "station_motion_settings": "environment_setup.ground_station.station_motion_settings[]"
+    },
+    "optional": {
+      "station_position_element_type": "cartesian_position_type",
+      "station_motion_settings": []
+    }
+  },
+  "dsn_station": {
+    "properties": {
+      "station_name": "string"
+    }
+  }
+}

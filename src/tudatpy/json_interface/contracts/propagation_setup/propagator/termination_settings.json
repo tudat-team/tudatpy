@@ -1,0 +1,41 @@
+{
+  "time_termination": {
+    "properties": {
+      "termination_time": "float",
+      "terminate_exactly_on_final_condition": "bool"
+    },
+    "optional": {
+      "terminate_exactly_on_final_condition": false
+    }
+  },
+  "cpu_time_termination": {
+    "properties": {
+      "cpu_termination_time": "float"
+    }
+  },
+  "dependent_variable_termination": {
+    "properties": {
+      "dependent_variable_settings": "propagation_setup.dependent_variable",
+      "limit_value": "float",
+      "use_as_lower_limit": "bool",
+      "terminate_exactly_on_final_condition": "bool",
+      "termination_root_finder_settings": "any"
+    },
+    "optional": {
+      "terminate_exactly_on_final_condition": false,
+      "termination_root_finder_settings": null
+    }
+  },
+  "hybrid_termination": {
+    "properties": {
+      "termination_settings": "propagation_setup.propagator.termination_settings[]",
+      "fulfill_single_condition": "bool"
+    }
+  },
+  "non_sequential_termination": {
+    "properties": {
+      "forward_termination_settings": "propagation_setup.propagator.termination_settings",
+      "backward_termination_settings": "propagation_setup.propagator.termination_settings"
+    }
+  }
+}

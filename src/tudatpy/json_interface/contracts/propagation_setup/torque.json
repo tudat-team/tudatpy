@@ -1,0 +1,33 @@
+{
+  "aerodynamic": {
+    "properties": {}
+  },
+  "spherical_harmonic_gravitational": {
+    "properties": {
+      "maximum_degree": "int",
+      "maximum_order": "int"
+    }
+  },
+  "full_two_body_spherical_harmonic_gravitational": {
+    "properties": {
+      "maximum_degree_body_undergoing_torque": "int",
+      "maximum_order_body_undergoing_torque": "int",
+      "maximum_degree_body_exerting_torque": "int",
+      "maximum_order_body_exerting_torque": "int"
+    }
+  },
+  "full_two_body_spherical_harmonic_gravitational_from_coefficient_combinations": {
+    "properties": {
+      "coefficient_combinations": "int[4][]"
+    }
+  },
+  "fourth_degree_full_two_body_gravitational": {
+    "properties": {}
+  },
+  "second_degree_gravitational": {
+    "properties": {}
+  },
+  "radiation_pressure_torque": {
+    "properties": {}
+  }
+}

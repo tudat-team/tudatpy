@@ -1,0 +1,17 @@
+{
+  "isotropic_radiation_source": {
+    "properties": {
+      "luminosity_model": "environment_setup.radiation_pressure.luminosity_model_settings"
+    }
+  },
+  "panelled_extended_radiation_source": {
+    "properties": {
+      "panel_radiosity_settings": "environment_setup.radiation_pressure.panel_radiosity_model_settings[]",
+      "number_of_panels_per_ring": "int[]",
+      "original_source_occulting_bodies": "string[]{}"
+    },
+    "optional": {
+      "original_source_occulting_bodies": {}
+    }
+  }
+}

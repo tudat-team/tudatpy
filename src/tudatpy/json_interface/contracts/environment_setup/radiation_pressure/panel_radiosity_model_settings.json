@@ -1,0 +1,39 @@
+{
+  "constant_radiosity": {
+    "properties": {
+      "radiosity": "float"
+    }
+  },
+  "constant_albedo_surface_radiosity": {
+    "properties": {
+      "constant_albedo": "float",
+      "original_source_name": "string"
+    }
+  },
+  "variable_albedo_surface_radiosity": {
+    "properties": {
+      "albedo_distribution_settings": "environment_setup.radiation_pressure.surface_property_distribution_settings",
+      "original_source_name": "string"
+    }
+  },
+  "thermal_emission_angle_based_radiosity": {
+    "properties": {
+      "minimum_temperature": "float",
+      "maximum_temperature": "float",
+      "constant_emissivity": "float",
+      "original_source_name": "string"
+    }
+  },
+  "thermal_emission_blackbody_constant_emissivity": {
+    "properties": {
+      "constant_emissivity": "float",
+      "original_source_name": "string"
+    }
+  },
+  "thermal_emission_blackbody_variable_emissivity": {
+    "properties": {
+      "emissivity_distribution_model": "environment_setup.radiation_pressure.surface_property_distribution_settings",
+      "original_source_name": "string"
+    }
+  }
+}

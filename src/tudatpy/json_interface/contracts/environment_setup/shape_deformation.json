@@ -1,0 +1,34 @@
+{
+  "basic_solid_body_tidal": {
+    "properties": {
+      "tide_raising_bodies": "string[]",
+      "displacement_love_numbers": "float[2]{}",
+      "reference_radius": "float"
+    },
+    "optional": {
+      "reference_radius": null
+    }
+  },
+  "degree_two_basic_solid_body_tidal": {
+    "properties": {
+      "tide_raising_bodies": "string[]",
+      "love_number": "float",
+      "shida_number": "float",
+      "reference_radius": "float"
+    },
+    "optional": {
+      "reference_radius": null
+    }
+  },
+  "iers_2010_solid_body_tidal": {
+    "properties": {}
+  },
+  "ocean_tidal": {
+    "properties": {
+      "blq_files": "string[]"
+    }
+  },
+  "pole_tidal": {
+    "properties": {}
+  }
+}

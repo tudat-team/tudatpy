@@ -1,0 +1,26 @@
+{
+  "schwarzschild_metric_settings": {
+    "properties": {
+      "body": "string",
+      "include_second_post_newtonian_order": "bool"
+    },
+    "optional": {
+      "include_second_post_newtonian_order": false
+    }
+  },
+  "solar_system_metric_settings": {
+    "properties": {
+      "first_order_bodies": "string[]",
+      "second_order_bodies": "string[]",
+      "spherical_harmonic_expansions": "int[2]{}",
+      "angular_momentum_bodies": "string[]",
+      "use_body_accelerations": "bool"
+    },
+    "optional": {
+      "second_order_bodies": [],
+      "spherical_harmonic_expansions": {},
+      "angular_momentum_bodies": [],
+      "use_body_accelerations": true
+    }
+  }
+}

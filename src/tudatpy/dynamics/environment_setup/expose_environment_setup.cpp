@@ -17,6 +17,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <optional>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createRelativisticTimeConverter.h>
 #include <tudat/simulation/environment_setup/body.h>
@@ -81,6 +82,104 @@ void setRelativisticTimeConverters(
                 settings )
 {
     tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
+}
+
+std::shared_ptr< tss::BodySettings > bodySettings(
+        const std::string& bodyName,
+        const bool useDefaultSettings,
+        const std::string& baseFrameOrigin,
+        const std::string& baseFrameOrientation,
+        const std::optional< std::shared_ptr< tss::AtmosphereSettings > >& atmosphereSettings,
+        const std::optional< std::shared_ptr< tss::EphemerisSettings > >& ephemerisSettings,
+        const std::optional< std::shared_ptr< tss::GravityFieldSettings > >& gravityFieldSettings,
+        const std::optional< std::shared_ptr< tss::RotationModelSettings > >& rotationModelSettings,
+        const std::optional< std::shared_ptr< tss::BodyShapeSettings > >& shapeSettings,
+        const std::optional< std::shared_ptr< tss::AerodynamicCoefficientSettings > >& aerodynamicCoefficientSettings,
+        const std::optional< std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > > >& gravityFieldVariationSettings,
+        const std::optional< std::vector< std::shared_ptr< tss::BodyDeformationSettings > > >& shapeDeformationSettings,
+        const std::optional< std::vector< std::shared_ptr< tss::GroundStationSettings > > >& groundStationSettings,
+        const std::optional< std::shared_ptr< tss::RigidBodyPropertiesSettings > >& rigidBodySettings,
+        const std::optional< std::shared_ptr< tss::RadiationPressureTargetModelSettings > >& radiationPressureTargetSettings,
+        const std::optional< std::shared_ptr< tss::RadiationSourceModelSettings > >& radiationSourceSettings,
+        const std::optional< std::shared_ptr< tss::FullPanelledBodySettings > >& vehicleShapeSettings )
+{
+    std::shared_ptr< tss::BodySettings > settings;
+    if( useDefaultSettings )
+    {
+        settings = tss::getDefaultBodySettings( { bodyName }, baseFrameOrigin, baseFrameOrientation ).get( bodyName );
+    }
+    else
+    {
+        settings = std::make_shared< tss::BodySettings >( );
+    }
+
+    if( atmosphereSettings )
+    {
+        settings->atmosphereSettings = *atmosphereSettings;
+    }
+    if( ephemerisSettings )
+    {
+        settings->ephemerisSettings = *ephemerisSettings;
+    }
+    if( gravityFieldSettings )
+    {
+        settings->gravityFieldSettings = *gravityFieldSettings;
+    }
+    if( rotationModelSettings )
+    {
+        settings->rotationModelSettings = *rotationModelSettings;
+    }
+    if( shapeSettings )
+    {
+        settings->shapeModelSettings = *shapeSettings;
+    }
+    if( aerodynamicCoefficientSettings )
+    {
+        settings->aerodynamicCoefficientSettings = *aerodynamicCoefficientSettings;
+    }
+    if( gravityFieldVariationSettings )
+    {
+        settings->gravityFieldVariationSettings = *gravityFieldVariationSettings;
+    }
+    if( shapeDeformationSettings )
+    {
+        settings->bodyDeformationSettings = *shapeDeformationSettings;
+    }
+    if( groundStationSettings )
+    {
+        settings->groundStationSettings = *groundStationSettings;
+    }
+    if( rigidBodySettings )
+    {
+        settings->rigidBodyPropertiesSettings = *rigidBodySettings;
+    }
+    if( radiationPressureTargetSettings )
+    {
+        settings->radiationPressureTargetModelSettings = *radiationPressureTargetSettings;
+    }
+    if( radiationSourceSettings )
+    {
+        settings->radiationSourceModelSettings = *radiationSourceSettings;
+    }
+    if( vehicleShapeSettings )
+    {
+        settings->bodyExteriorPanelSettings_ = *vehicleShapeSettings;
+    }
+    return settings;
+}
+
+std::shared_ptr< tss::BodyListSettings > bodyListSettings(
+        const std::map< std::string, std::shared_ptr< tss::BodySettings > >& bodySettings,
+        const std::string& globalFrameOrigin,
+        const std::string& globalFrameOrientation,
+        const std::optional< std::shared_ptr< tss::SpaceTimePropertiesSettings > >& spaceTimeSettings )
+{
+    auto settings = std::make_shared< tss::BodyListSettings >( bodySettings, globalFrameOrigin, globalFrameOrientation );
+    if( spaceTimeSettings )
+    {
+        settings->setSpaceTimeSettings( *spaceTimeSettings );
+    }
+    return settings;
 }
 
 void expose_environment_setup( py::module& m )
@@ -407,6 +506,80 @@ void expose_environment_setup( py::module& m )
 
          :type: str
       )doc" );
+
+    m.def( "body_settings",
+           &bodySettings,
+           py::arg( "body_name" ),
+           py::arg( "use_default_settings" ),
+           py::arg( "base_frame_origin" ) = "SSB",
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "atmosphere_settings" ) = std::nullopt,
+           py::arg( "ephemeris_settings" ) = std::nullopt,
+           py::arg( "gravity_field_settings" ) = std::nullopt,
+           py::arg( "rotation_model_settings" ) = std::nullopt,
+           py::arg( "shape_settings" ) = std::nullopt,
+           py::arg( "aerodynamic_coefficient_settings" ) = std::nullopt,
+           py::arg( "gravity_field_variation_settings" ) = std::nullopt,
+           py::arg( "shape_deformation_settings" ) = std::nullopt,
+           py::arg( "ground_station_settings" ) = std::nullopt,
+           py::arg( "rigid_body_settings" ) = std::nullopt,
+           py::arg( "radiation_pressure_target_settings" ) = std::nullopt,
+           py::arg( "radiation_source_settings" ) = std::nullopt,
+           py::arg( "vehicle_shape_settings" ) = std::nullopt,
+           R"doc(
+
+Create settings for one body from Tudat defaults or an empty definition.
+
+Any supplied model setting replaces the corresponding default. Body mass and inertia
+properties are defined through ``rigid_body_settings``.
+
+Parameters
+----------
+body_name : str
+    Name used to retrieve Tudat defaults.
+use_default_settings : bool
+    Whether to start from Tudat's default settings.
+base_frame_origin : str, default="SSB"
+    Origin used when retrieving default settings.
+base_frame_orientation : str, default="ECLIPJ2000"
+    Orientation used when retrieving default settings.
+rigid_body_settings : RigidBodyPropertiesSettings, optional
+    Settings for mass, center of mass, and inertia properties.
+
+Returns
+-------
+BodySettings
+    Settings for the requested body.
+
+     )doc" );
+
+    m.def( "body_list_settings",
+           &bodyListSettings,
+           py::arg( "body_settings" ),
+           py::arg( "global_frame_origin" ),
+           py::arg( "global_frame_orientation" ),
+           py::arg( "space_time_settings" ) = std::nullopt,
+           R"doc(
+
+Create body-list settings from body settings keyed by body name.
+
+Parameters
+----------
+body_settings : dict[str, BodySettings]
+    Body settings keyed by the name under which each body will be created.
+global_frame_origin : str
+    Origin of the global frame.
+global_frame_orientation : str
+    Orientation of the global frame.
+space_time_settings : SpaceTimePropertiesSettings, optional
+    Settings for the global space-time properties.
+
+Returns
+-------
+BodyListSettings
+    Settings from which a system of bodies can be created.
+
+     )doc" );
 
     m.def( "get_default_body_settings",
            py::overload_cast< const std::vector< std::string >&, const std::string, const std::string >( &tss::getDefaultBodySettings ),

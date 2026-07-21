@@ -1,0 +1,29 @@
+{
+  "full_panelled_body_settings": {
+    "properties": {
+      "panel_settings": "environment_setup.vehicle_systems.body_panel_settings[]",
+      "part_rotation_model_settings": "environment_setup.rotation_model{}"
+    },
+    "optional": {
+      "part_rotation_model_settings": {}
+    }
+  },
+  "box_wing_panelled_body_settings": {
+    "properties": {
+      "length": "float",
+      "width": "float",
+      "height": "float",
+      "solar_array_area": "float",
+      "box_specular_reflectivity": "float",
+      "box_diffuse_reflectivity": "float",
+      "solar_array_specular_reflectivity": "float",
+      "solar_array_diffuse_reflectivity": "float",
+      "box_instantaneous_reradiation": "bool",
+      "solar_array_instantaneous_reradiation": "bool"
+    },
+    "optional": {
+      "box_instantaneous_reradiation": true,
+      "solar_array_instantaneous_reradiation": true
+    }
+  }
+}

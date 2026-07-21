@@ -1,0 +1,16 @@
+{
+  "step_size_validation": {
+    "properties": {
+      "minimum_step": "float",
+      "maximum_step": "float",
+      "minimum_step_size_handling": "MinimumIntegrationTimeStepHandling",
+      "accept_infinity_step": "bool",
+      "accept_nan_step": "bool"
+    },
+    "optional": {
+      "minimum_step_size_handling": "throw_exception_below_minimum",
+      "accept_infinity_step": false,
+      "accept_nan_step": false
+    }
+  }
+}

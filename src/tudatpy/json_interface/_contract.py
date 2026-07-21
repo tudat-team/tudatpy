@@ -10,7 +10,7 @@ from importlib import import_module
 from inspect import Parameter, signature
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 
 class JSONSettingsValidationError(ValueError):
@@ -25,27 +25,52 @@ class ContractEntry:
     optional: dict[str, Any]
 
 
-_TYPE_PATTERN = re.compile(r"^(?P<base>[A-Za-z_][A-Za-z0-9_]*)(?P<dimensions>(?:\[(?:\d+)?\])*)$")
-_DIMENSION_PATTERN = re.compile(r"\[(\d*)\]")
-_SCALAR_TYPES = {"bool", "float", "int", "string"}
+_TYPE_PATTERN = re.compile(
+    r"^(?P<base>[A-Za-z_][A-Za-z0-9_.]*)(?P<containers>(?:(?:\[(?:\d+)?\])|\{\})*)$"
+)
+_CONTAINER_PATTERN = re.compile(r"\[(\d*)\]|(\{\})")
+_BUILTIN_TYPES = {"any", "bool", "complex", "float", "int", "null", "object", "string"}
+CONTRACT_ROOT = Path(__file__).parent / "contracts"
 
 
 def _reject_non_finite(value: str) -> None:
     raise JSONSettingsValidationError(f"Non-finite JSON number {value!r} is not permitted")
 
 
-def read_json_object(path: str | Path, document_name: str) -> dict[str, Any]:
-    """Read a JSON file and require an object at its root."""
-
-    path = Path(path)
+def _read_json_value(path: Path) -> Any:
     try:
         with path.open("r", encoding="utf-8") as stream:
-            value = json.load(stream, parse_constant=_reject_non_finite)
+            return json.load(stream, parse_constant=_reject_non_finite)
+    except OSError as error:
+        raise JSONSettingsValidationError(f"Cannot read JSON file {path}: {error}") from error
     except json.JSONDecodeError as error:
         raise JSONSettingsValidationError(
             f"Invalid JSON in {path}: line {error.lineno}, column {error.colno}: " f"{error.msg}"
         ) from error
 
+
+def _resolve_references(value: Any, source: Path, active: frozenset[Path]) -> Any:
+    if isinstance(value, list):
+        return [_resolve_references(item, source, active) for item in value]
+    if not isinstance(value, dict):
+        return value
+    if "$ref" in value:
+        if set(value) != {"$ref"} or not isinstance(value["$ref"], str):
+            raise JSONSettingsValidationError(
+                f"A JSON reference in {source} must contain only a string $ref"
+            )
+        referenced = (source.parent / value["$ref"]).resolve()
+        if referenced in active:
+            raise JSONSettingsValidationError(f"Circular JSON reference to {referenced}")
+        return _resolve_references(_read_json_value(referenced), referenced, active | {referenced})
+    return {key: _resolve_references(item, source, active) for key, item in value.items()}
+
+
+def read_json_object(path: str | Path, document_name: str) -> dict[str, Any]:
+    """Read a JSON object and resolve relative file references."""
+
+    path = Path(path).resolve()
+    value = _resolve_references(_read_json_value(path), path, frozenset({path}))
     return expect_object(value, document_name)
 
 
@@ -57,7 +82,7 @@ def expect_object(value: Any, path: str) -> dict[str, Any]:
     return value
 
 
-def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None]]:
+def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None | str]]:
     if not isinstance(type_name, str):
         raise JSONSettingsValidationError(f"{path} must contain a type name as a string")
 
@@ -67,26 +92,30 @@ def _parse_type(type_name: Any, path: str) -> tuple[str, list[int | None]]:
             f"{path} contains unsupported type expression {type_name!r}"
         )
 
-    dimensions = [
-        int(size) if size else None
-        for size in _DIMENSION_PATTERN.findall(match.group("dimensions"))
+    containers = [
+        "dict" if dictionary else (int(size) if size else None)
+        for size, dictionary in _CONTAINER_PATTERN.findall(match.group("containers"))
     ]
-    return match.group("base"), dimensions
+    return match.group("base"), containers
 
 
 def _find_named_type(type_name: str, type_modules: tuple[ModuleType, ...]) -> Any:
     matches: list[Any] = []
-    for type_module in type_modules:
+    pending = list(type_modules)
+    visited: set[int] = set()
+    while pending:
+        type_module = pending.pop()
+        if id(type_module) in visited:
+            continue
+        visited.add(id(type_module))
         candidate = getattr(type_module, type_name, None)
         if candidate is not None:
             matches.append(candidate)
 
         for attribute_name in dir(type_module):
             attribute = getattr(type_module, attribute_name)
-            if isinstance(attribute, ModuleType):
-                candidate = getattr(attribute, type_name, None)
-                if candidate is not None:
-                    matches.append(candidate)
+            if isinstance(attribute, ModuleType) and attribute.__name__.startswith("tudatpy"):
+                pending.append(attribute)
 
     unique_matches = {id(match): match for match in matches}
     if not unique_matches:
@@ -105,7 +134,17 @@ def _convert_scalar(
     type_name: str,
     path: str,
     type_modules: tuple[ModuleType, ...],
+    contract_root: Path,
+    factory_context: Mapping[str, Mapping[str, Any]] | None,
 ) -> Any:
+    if value is None:
+        if type_name in {"any", "object", "null"}:
+            return None
+        raise JSONSettingsValidationError(f"{path} must not be null")
+    if type_name in {"any", "object"}:
+        return value
+    if type_name == "null":
+        raise JSONSettingsValidationError(f"{path} must be null")
     if type_name == "int":
         if type(value) is not int:
             raise JSONSettingsValidationError(f"{path} must be an int, got {type(value).__name__}")
@@ -131,6 +170,32 @@ def _convert_scalar(
             )
         return value
 
+    if type_name == "complex":
+        if (
+            not isinstance(value, list)
+            or len(value) != 2
+            or any(isinstance(item, bool) or not isinstance(item, (int, float)) for item in value)
+        ):
+            raise JSONSettingsValidationError(f"{path} must be a [real, imaginary] number pair")
+        converted = complex(value[0], value[1])
+        if not math.isfinite(converted.real) or not math.isfinite(converted.imag):
+            raise JSONSettingsValidationError(f"{path} must be finite")
+        return converted
+
+    if "." in type_name:
+        contract_path = contract_root.joinpath(*type_name.split(".")).with_suffix(".json")
+        factory_module = import_module(module_name_from_contract(contract_path))
+        contract = load_contract(contract_path, factory_module, type_modules)
+        return create_settings_object(
+            value,
+            contract,
+            factory_module,
+            type_modules,
+            path,
+            contract_root,
+            factory_context,
+        )
+
     if not isinstance(value, str):
         raise JSONSettingsValidationError(f"{path} must name a {type_name} member as a string")
     enum_type = _find_named_type(type_name, type_modules)
@@ -147,23 +212,60 @@ def _convert_value(
     type_expression: Any,
     path: str,
     type_modules: tuple[ModuleType, ...],
+    contract_root: Path = CONTRACT_ROOT,
+    factory_context: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> Any:
+    if isinstance(type_expression, str) and "|" in type_expression:
+        errors = []
+        for alternative in type_expression.split("|"):
+            try:
+                return _convert_value(
+                    value,
+                    alternative,
+                    path,
+                    type_modules,
+                    contract_root,
+                    factory_context,
+                )
+            except JSONSettingsValidationError as error:
+                errors.append(str(error))
+        raise JSONSettingsValidationError(
+            f"{path} does not match {type_expression!r}: {'; '.join(errors)}"
+        )
+
     type_name, dimensions = _parse_type(type_expression, path)
 
     def convert(
         current_value: Any,
-        remaining_dimensions: list[int | None],
+        remaining_dimensions: list[int | None | str],
         current_path: str,
     ) -> Any:
         if not remaining_dimensions:
-            return _convert_scalar(current_value, type_name, current_path, type_modules)
+            return _convert_scalar(
+                current_value,
+                type_name,
+                current_path,
+                type_modules,
+                contract_root,
+                factory_context,
+            )
+
+        expected_size = remaining_dimensions[-1]
+        if expected_size == "dict":
+            if not isinstance(current_value, dict):
+                raise JSONSettingsValidationError(
+                    f"{current_path} must be an object, got {type(current_value).__name__}"
+                )
+            return {
+                key: convert(item, remaining_dimensions[:-1], f"{current_path}.{key}")
+                for key, item in current_value.items()
+            }
 
         if not isinstance(current_value, list):
             raise JSONSettingsValidationError(
                 f"{current_path} must be an array, " f"got {type(current_value).__name__}"
             )
 
-        expected_size = remaining_dimensions[-1]
         if expected_size is not None and len(current_value) != expected_size:
             raise JSONSettingsValidationError(
                 f"{current_path} must contain {expected_size} elements, "
@@ -209,18 +311,24 @@ def load_contract(
         typed_properties: dict[str, str] = {}
         for property_name, type_expression in properties.items():
             property_path = f"{entry_path}.properties.{property_name}"
-            base_type, _ = _parse_type(type_expression, property_path)
-            if base_type not in _SCALAR_TYPES:
-                _find_named_type(base_type, type_modules)
+            if not isinstance(type_expression, str):
+                raise JSONSettingsValidationError(f"{property_path} must be a string")
+            alternatives = type_expression.split("|")
+            for alternative in alternatives:
+                base_type, _ = _parse_type(alternative, property_path)
+                if base_type not in _BUILTIN_TYPES and "." not in base_type:
+                    _find_named_type(base_type, type_modules)
             typed_properties[property_name] = type_expression
 
         for property_name, default_value in optional.items():
-            _convert_value(
-                default_value,
-                typed_properties[property_name],
-                f"{entry_path}.optional.{property_name}",
-                type_modules,
-            )
+            # JSON null represents defaults that are None or not finite in Python.
+            if default_value is not None:
+                _convert_value(
+                    default_value,
+                    typed_properties[property_name],
+                    f"{entry_path}.optional.{property_name}",
+                    type_modules,
+                )
 
         factory = getattr(factory_module, factory_name, None)
         if factory is None or not callable(factory):
@@ -238,8 +346,13 @@ def _first_signature(factory: Any, factory_name: str) -> tuple[set[str], set[str
         parameters = signature(factory).parameters.values()
     except (TypeError, ValueError):
         documentation = getattr(factory, "__doc__", "") or ""
+        prefix = (
+            rf"(?:^|\n)\s*1\.\s*{re.escape(factory_name)}"
+            if "Overloaded function." in documentation
+            else rf"(?:^|\n)\s*{re.escape(factory_name)}"
+        )
         match = re.search(
-            rf"(?:^|\n)\s*{re.escape(factory_name)}\((.*?)\)\s*->",
+            rf"{prefix}\((.*?)\)\s*->",
             documentation,
             re.DOTALL,
         )
@@ -306,14 +419,20 @@ def _first_signature(factory: Any, factory_name: str) -> tuple[set[str], set[str
 
 def validate_contract_against_module(
     contract_path: str | Path,
-    factory_module_name: str,
+    factory_module_name: str | None = None,
     type_module_names: Sequence[str] = (),
 ) -> int:
     """Validate an arbitrary contract against an importable Tudatpy module."""
 
+    factory_module_name = factory_module_name or module_name_from_contract(contract_path)
     factory_module = import_module(factory_module_name)
+    default_type_modules = (
+        ("tudatpy.dynamics",)
+        if factory_module_name.startswith("tudatpy.dynamics.")
+        else (factory_module_name,)
+    )
     type_modules = tuple(
-        import_module(name) for name in (type_module_names or (factory_module_name,))
+        import_module(name) for name in (type_module_names or default_type_modules)
     )
     contract = load_contract(contract_path, factory_module, type_modules)
 
@@ -322,20 +441,34 @@ def validate_contract_against_module(
             getattr(factory_module, factory_name), factory_name
         )
         contracted = set(entry.properties)
-        if contracted != exposed:
+        required = exposed - exposed_optional
+        if not required <= contracted or not contracted <= exposed:
             raise JSONSettingsValidationError(
                 f"Factory {factory_name!r} properties differ: contract-only "
                 f"{sorted(contracted - exposed)}, module-only "
-                f"{sorted(exposed - contracted)}"
+                f"{sorted(required - contracted)}"
             )
-        if set(entry.optional) != exposed_optional:
+        contracted_optional = contracted & exposed_optional
+        if set(entry.optional) != contracted_optional:
             raise JSONSettingsValidationError(
                 f"Factory {factory_name!r} optional properties differ: "
-                f"contract-only {sorted(set(entry.optional) - exposed_optional)}, "
-                f"module-only {sorted(exposed_optional - set(entry.optional))}"
+                f"contract-only {sorted(set(entry.optional) - contracted_optional)}, "
+                f"module-only {sorted(contracted_optional - set(entry.optional))}"
             )
 
     return len(contract)
+
+
+def validate_all_contracts(contract_root: str | Path = CONTRACT_ROOT) -> int:
+    """Validate every discovered contract against its corresponding module."""
+
+    total = 0
+    for contract_path in sorted(Path(contract_root).rglob("*.json")):
+        total += validate_contract_against_module(
+            contract_path,
+            type_module_names=("tudatpy.dynamics",),
+        )
+    return total
 
 
 def create_settings_object(
@@ -344,6 +477,8 @@ def create_settings_object(
     factory_module: ModuleType,
     type_modules: tuple[ModuleType, ...],
     path: str,
+    contract_root: Path = CONTRACT_ROOT,
+    factory_context: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> Any:
     """Validate a one-key settings definition and invoke its Tudat factory."""
 
@@ -380,14 +515,124 @@ def create_settings_object(
             entry.properties[name],
             f"{path}.{factory_name}.{name}",
             type_modules,
+            contract_root,
+            factory_context,
         )
         for name, value in arguments.items()
     }
 
     factory = getattr(factory_module, factory_name)
+    qualified_name = f"{factory_module.__name__}.{factory_name}"
+    context_arguments = (factory_context or {}).get(
+        qualified_name, (factory_context or {}).get(factory_name, {})
+    )
+    overlap = converted_arguments.keys() & context_arguments.keys()
+    if overlap:
+        raise JSONSettingsValidationError(
+            f"Context duplicates JSON properties for {qualified_name}: {sorted(overlap)}"
+        )
     try:
-        return factory(**converted_arguments)
+        return factory(**converted_arguments, **context_arguments)
     except (TypeError, ValueError) as error:
         raise JSONSettingsValidationError(
             f"Tudat rejected {path}.{factory_name}: {error}"
         ) from error
+
+
+def module_name_from_contract(contract_path: str | Path) -> str:
+    """Derive a Tudatpy module name from a contract's location."""
+
+    relative = Path(contract_path).resolve().relative_to(CONTRACT_ROOT.resolve())
+    parts = relative.with_suffix("").parts
+    prefix = (
+        "tudatpy.dynamics" if parts[0] in {"environment_setup", "propagation_setup"} else "tudatpy"
+    )
+    for length in range(len(parts), 0, -1):
+        candidate = prefix + "." + ".".join(parts[:length])
+        try:
+            import_module(candidate)
+        except ModuleNotFoundError as error:
+            if error.name != candidate:
+                raise
+        else:
+            return candidate
+    raise JSONSettingsValidationError(f"No Tudatpy module corresponds to {contract_path}")
+
+
+def _convert_settings_tree(
+    value: Any,
+    contract: dict[str, ContractEntry],
+    factory_module: ModuleType,
+    type_modules: tuple[ModuleType, ...],
+    path: str,
+    factory_expected: bool = False,
+    factory_context: Mapping[str, Mapping[str, Any]] | None = None,
+) -> Any:
+    if isinstance(value, list):
+        return [
+            _convert_settings_tree(
+                item,
+                contract,
+                factory_module,
+                type_modules,
+                f"{path}[{index}]",
+                True,
+                factory_context,
+            )
+            for index, item in enumerate(value)
+        ]
+    if not isinstance(value, dict):
+        return value
+    if factory_expected:
+        return create_settings_object(
+            value,
+            contract,
+            factory_module,
+            type_modules,
+            path,
+            factory_context=factory_context,
+        )
+    if len(value) == 1 and next(iter(value)) in contract:
+        return create_settings_object(
+            value,
+            contract,
+            factory_module,
+            type_modules,
+            path,
+            factory_context=factory_context,
+        )
+    return {
+        key: _convert_settings_tree(
+            item,
+            contract,
+            factory_module,
+            type_modules,
+            f"{path}.{key}",
+            factory_context=factory_context,
+        )
+        for key, item in value.items()
+    }
+
+
+def load_settings(
+    settings_path: str | Path,
+    contract_path: str | Path,
+    module_name: str | None = None,
+    factory_context: Mapping[str, Mapping[str, Any]] | None = None,
+) -> Any:
+    """Load settings recursively using an arbitrary contract."""
+
+    from tudatpy import dynamics
+
+    factory_module = import_module(module_name or module_name_from_contract(contract_path))
+    type_modules = (dynamics,)
+    contract = load_contract(contract_path, factory_module, type_modules)
+    document = read_json_object(settings_path, "settings")
+    return _convert_settings_tree(
+        document,
+        contract,
+        factory_module,
+        type_modules,
+        "settings",
+        factory_context=factory_context,
+    )

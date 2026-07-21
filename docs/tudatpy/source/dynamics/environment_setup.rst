@@ -43,6 +43,10 @@ Functions
 
 .. autosummary::
 
+   body_settings
+
+   body_list_settings
+
    get_default_body_settings
 
    get_default_body_settings_time_limited
@@ -93,6 +97,11 @@ Functions
    create_aerodynamic_coefficient_interface
 
    get_default_single_alternate_body_settings_time_limited
+
+.. autofunction:: tudatpy.dynamics.environment_setup.body_settings
+
+.. autofunction:: tudatpy.dynamics.environment_setup.body_list_settings
+
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings
 
 .. autofunction:: tudatpy.dynamics.environment_setup.get_default_body_settings_time_limited
@@ -171,4 +180,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.DirectRelativisticTimeConverterSettings
    :members:
-

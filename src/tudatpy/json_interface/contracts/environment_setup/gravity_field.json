@@ -1,0 +1,106 @@
+{
+  "central": {
+    "properties": {
+      "gravitational_parameter": "float"
+    }
+  },
+  "central_spice": {
+    "properties": {
+      "body_name_to_use": "string"
+    },
+    "optional": {
+      "body_name_to_use": ""
+    }
+  },
+  "spherical_harmonic": {
+    "properties": {
+      "gravitational_parameter": "float",
+      "reference_radius": "float",
+      "normalized_cosine_coefficients": "float[][]",
+      "normalized_sine_coefficients": "float[][]",
+      "associated_reference_frame": "string"
+    }
+  },
+  "sh_triaxial_ellipsoid_from_density": {
+    "properties": {
+      "axis_a": "float",
+      "axis_b": "float",
+      "axis_c": "float",
+      "density": "float",
+      "maximum_degree": "int",
+      "maximum_order": "int",
+      "associated_reference_frame": "string",
+      "gravitational_constant": "float"
+    },
+    "optional": {
+      "gravitational_constant": 6.67259e-11
+    }
+  },
+  "sh_triaxial_ellipsoid_from_gravitational_parameter": {
+    "properties": {
+      "axis_a": "float",
+      "axis_b": "float",
+      "axis_c": "float",
+      "maximum_degree": "int",
+      "maximum_order": "int",
+      "associated_reference_frame": "string",
+      "gravitational_parameter": "float"
+    }
+  },
+  "from_file_spherical_harmonic": {
+    "properties": {
+      "file": "string",
+      "maximum_degree": "int",
+      "maximum_order": "int",
+      "associated_reference_frame": "string",
+      "gravitational_parameter_index": "int",
+      "reference_radius_index": "int"
+    },
+    "optional": {
+      "associated_reference_frame": "",
+      "gravitational_parameter_index": 0,
+      "reference_radius_index": 1
+    }
+  },
+  "predefined_spherical_harmonic": {
+    "properties": {
+      "predefined_model": "PredefinedSphericalHarmonicsModel",
+      "maximum_degree": "int"
+    },
+    "optional": {
+      "maximum_degree": -1
+    }
+  },
+  "polyhedron_from_mu": {
+    "properties": {
+      "gravitational_parameter": "float",
+      "vertices_coordinates": "float[][]",
+      "vertices_defining_each_facet": "int[][]",
+      "associated_reference_frame": "string",
+      "gravitational_constant": "float"
+    },
+    "optional": {
+      "gravitational_constant": 6.67259e-11
+    }
+  },
+  "polyhedron_from_density": {
+    "properties": {
+      "density": "float",
+      "vertices_coordinates": "float[][]",
+      "vertices_defining_each_facet": "int[][]",
+      "associated_reference_frame": "string",
+      "gravitational_constant": "float"
+    },
+    "optional": {
+      "gravitational_constant": 6.67259e-11
+    }
+  },
+  "ring_model": {
+    "properties": {
+      "gravitational_parameter": "float",
+      "ring_radius": "float",
+      "associated_reference_frame": "string",
+      "elliptic_integral_s_from_d_and_b": "bool"
+    }
+  }
+}

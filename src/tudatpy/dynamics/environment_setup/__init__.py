@@ -1,6 +1,8 @@
 from tudatpy.kernel.dynamics.environment_setup import (
     BodySettings,
     BodyListSettings,
+    body_settings,
+    body_list_settings,
     DirectRelativisticTimeConverterSettings,
     get_default_body_settings,
     get_default_body_settings_time_limited,

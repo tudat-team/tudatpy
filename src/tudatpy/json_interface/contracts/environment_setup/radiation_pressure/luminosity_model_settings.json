@@ -1,0 +1,13 @@
+{
+  "constant_luminosity": {
+    "properties": {
+      "luminosity": "float"
+    }
+  },
+  "irradiance_based_constant_luminosity": {
+    "properties": {
+      "constant_irradiance": "float",
+      "reference_distance": "float"
+    }
+  }
+}

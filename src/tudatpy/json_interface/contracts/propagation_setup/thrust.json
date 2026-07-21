@@ -1,0 +1,8 @@
+{
+  "constant_thrust_magnitude": {
+    "properties": {
+      "thrust_magnitude": "float",
+      "specific_impulse": "float"
+    }
+  }
+}

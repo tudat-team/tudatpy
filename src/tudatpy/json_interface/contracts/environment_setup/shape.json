@@ -1,0 +1,38 @@
+{
+  "spherical": {
+    "properties": {
+      "radius": "float"
+    }
+  },
+  "spherical_spice": {
+    "properties": {}
+  },
+  "oblate_spherical": {
+    "properties": {
+      "equatorial_radius": "float",
+      "flattening": "float"
+    }
+  },
+  "oblate_spherical_spice": {
+    "properties": {}
+  },
+  "polyhedron": {
+    "properties": {
+      "vertices_coordinates": "float[][]",
+      "vertices_defining_each_facet": "int[][]",
+      "compute_altitude_with_sign": "bool",
+      "just_compute_distance_to_vertices": "bool"
+    },
+    "optional": {
+      "compute_altitude_with_sign": true,
+      "just_compute_distance_to_vertices": false
+    }
+  },
+  "hybrid": {
+    "properties": {
+      "low_resolution_body_shape_settings": "environment_setup.shape",
+      "high_resolution_body_shape_settings": "environment_setup.shape",
+      "switchover_altitude": "float"
+    }
+  }
+}

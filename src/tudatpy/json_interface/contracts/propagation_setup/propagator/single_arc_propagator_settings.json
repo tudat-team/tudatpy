@@ -1,0 +1,136 @@
+{
+  "translational": {
+    "properties": {
+      "central_bodies": "string[]",
+      "acceleration_models": "any[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "propagator": "TranslationalPropagatorType",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "propagator": "cowell",
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "translational_from_acceleration_settings": {
+    "properties": {
+      "central_bodies": "string[]",
+      "acceleration_settings": "propagation_setup.acceleration[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "propagator": "TranslationalPropagatorType",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "propagator": "cowell",
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "rotational": {
+    "properties": {
+      "torque_models": "any[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "propagator": "RotationalPropagatorType",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "propagator": "quaternions",
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "mass": {
+    "properties": {
+      "bodies_with_mass_to_propagate": "string[]",
+      "mass_rate_models": "any[]{}",
+      "initial_body_masses": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "multitype": {
+    "properties": {
+      "propagator_settings_list": "propagation_setup.propagator.single_arc_propagator_settings[]",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "initial_time": "float",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "any"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null
+    }
+  },
+  "first_order_bodycentric_relativistic_time_settings": {
+    "properties": {
+      "body": "string",
+      "perturbing_bodies": "string[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "spherical_harmonic_expansions": "int[2]{}",
+      "dependent_variables_to_save": "propagation_setup.dependent_variable[]"
+    },
+    "optional": {
+      "spherical_harmonic_expansions": {},
+      "dependent_variables_to_save": []
+    }
+  },
+  "bodycentered_to_topocentric_time_settings": {
+    "properties": {
+      "reference_point_id": "string[2]",
+      "use_acceleration_term": "bool",
+      "maximum_spherical_harmonic_degree": "int",
+      "use_time_dependent_body_fixed_position": "bool",
+      "topocentric_external_bodies": "string[]",
+      "initial_state": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "dependent_variables_to_save": "propagation_setup.dependent_variable[]"
+    },
+    "optional": {
+      "dependent_variables_to_save": []
+    }
+  },
+  "direct_relativistic_time_settings": {
+    "properties": {
+      "reference_point_id": "string[2]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "distance_scaling_factor": "float",
+      "dependent_variables_to_save": "propagation_setup.dependent_variable[]",
+      "output_settings": "any"
+    },
+    "optional": {
+      "distance_scaling_factor": 1.0,
+      "dependent_variables_to_save": [],
+      "output_settings": null
+    }
+  }
+}

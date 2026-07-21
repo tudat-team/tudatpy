@@ -1,0 +1,20 @@
+{
+  "material_properties": {
+    "properties": {
+      "specular_reflectivity": "float",
+      "diffuse_reflectivity": "float",
+      "energy_accomodation_coefficient": "float",
+      "normal_accomodation_coefficient": "float",
+      "tangential_accomodation_coefficient": "float",
+      "normal_velocity_at_wall_ratio": "float"
+    },
+    "optional": {
+      "specular_reflectivity": -1,
+      "diffuse_reflectivity": -1,
+      "energy_accomodation_coefficient": -1,
+      "normal_accomodation_coefficient": -1,
+      "tangential_accomodation_coefficient": -1,
+      "normal_velocity_at_wall_ratio": -1
+    }
+  }
+}

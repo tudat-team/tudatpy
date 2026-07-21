@@ -1,0 +1,14 @@
+{
+  "body_panel_settings": {
+    "properties": {
+      "panel_geometry": "environment_setup.vehicle_systems.panel_geometry_settings",
+      "panel_reflection_law": "environment_setup.radiation_pressure.body_panel_reflection_law_settings",
+      "panel_type_id": "string",
+      "panel_material_properties": "environment_setup.vehicle_systems.material_properties"
+    },
+    "optional": {
+      "panel_type_id": "",
+      "panel_material_properties": null
+    }
+  }
+}

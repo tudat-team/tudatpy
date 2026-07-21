@@ -1,0 +1,22 @@
+{
+  "cannonball_radiation_target": {
+    "properties": {
+      "reference_area": "float",
+      "radiation_pressure_coefficient": "float",
+      "per_source_occulting_bodies": "string[]{}"
+    },
+    "optional": {
+      "per_source_occulting_bodies": {}
+    }
+  },
+  "panelled_radiation_target": {
+    "properties": {
+      "source_to_target_occulting_bodies": "string[]{}",
+      "maximum_number_of_pixels_per_source": "int{}"
+    },
+    "optional": {
+      "source_to_target_occulting_bodies": {},
+      "maximum_number_of_pixels_per_source": {}
+    }
+  }
+}

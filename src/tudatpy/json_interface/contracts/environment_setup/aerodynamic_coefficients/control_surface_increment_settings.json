@@ -1,0 +1,9 @@
+{
+  "tabulated_from_files_control_surface": {
+    "properties": {
+      "force_coefficient_files": "string{}",
+      "moment_coefficient_files": "string{}",
+      "independent_variable_names": "AerodynamicCoefficientsIndependentVariables[]"
+    }
+  }
+}

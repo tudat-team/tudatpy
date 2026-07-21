@@ -1,0 +1,27 @@
+{
+  "jpl_horizons": {
+    "properties": {
+      "horizons_query": "string",
+      "horizons_location": "string",
+      "frame_origin": "string",
+      "frame_orientation": "string",
+      "query_type": "string",
+      "epoch_start": "string|float|null",
+      "epoch_end": "string|float|null",
+      "epoch_step": "string|null",
+      "epoch_list": "any[]|null",
+      "extended_query": "bool",
+      "aberations": "string"
+    },
+    "optional": {
+      "frame_orientation": "ECLIPJ2000",
+      "query_type": "default",
+      "epoch_start": null,
+      "epoch_end": null,
+      "epoch_step": null,
+      "epoch_list": null,
+      "extended_query": false,
+      "aberations": "geometric"
+    }
+  }
+}

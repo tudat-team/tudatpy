@@ -1,0 +1,13 @@
+{
+  "body_list_settings": {
+    "properties": {
+      "body_settings": "environment_setup.body_settings{}",
+      "global_frame_origin": "string",
+      "global_frame_orientation": "string",
+      "space_time_settings": "environment_setup.space_time.space_time_properties_settings"
+    },
+    "optional": {
+      "space_time_settings": null
+    }
+  }
+}

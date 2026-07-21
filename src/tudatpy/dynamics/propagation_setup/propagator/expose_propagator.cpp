@@ -45,6 +45,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
 {
@@ -112,6 +113,38 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
                                                                                                 integrator_settings,
                                                                                                 termination_settings,
                                                                                                 dependent_variables_to_save );
+}
+
+std::shared_ptr< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
+translationalStatePropagatorSettingsFromAccelerationSettings(
+        const std::vector< std::string >& centralBodies,
+        const tss::SelectedAccelerationMap& accelerationSettings,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& initialStates,
+        const TIME_TYPE& initialTime,
+        const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integratorSettings,
+        const std::shared_ptr< tp::PropagationTerminationSettings >& terminationSettings,
+        const tp::TranslationalPropagatorType propagator,
+        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >& outputVariables,
+        const std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >& processingSettings,
+        const std::shared_ptr< tss::SystemOfBodies >& bodies )
+{
+    if( bodies == nullptr )
+    {
+        throw std::invalid_argument( "bodies must be provided to create acceleration models" );
+    }
+    const tba::AccelerationMap accelerationModels =
+            tss::createAccelerationModelsMap( *bodies, accelerationSettings, bodiesToIntegrate, centralBodies );
+    return tp::translationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >( centralBodies,
+                                                                                     accelerationModels,
+                                                                                     bodiesToIntegrate,
+                                                                                     initialStates,
+                                                                                     initialTime,
+                                                                                     integratorSettings,
+                                                                                     terminationSettings,
+                                                                                     propagator,
+                                                                                     outputVariables,
+                                                                                     processingSettings );
 }
 
 void expose_propagator_setup( py::module& m )
@@ -1130,6 +1163,44 @@ TranslationalStatePropagatorSettings
 
 
 
+
+     )doc" );
+
+    m.def( "translational_from_acceleration_settings",
+           &translationalStatePropagatorSettingsFromAccelerationSettings,
+           py::arg( "central_bodies" ),
+           py::arg( "acceleration_settings" ),
+           py::arg( "bodies_to_integrate" ),
+           py::arg( "initial_states" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "propagator" ) = tp::cowell,
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
+           py::arg( "bodies" ) = nullptr,
+           R"doc(
+
+Create translational propagator settings directly from acceleration settings.
+
+This factory creates the acceleration models with ``bodies`` and then creates the
+same propagator settings as :func:`translational`.
+
+Parameters
+----------
+central_bodies : list[str]
+    Central body corresponding to each integrated body.
+acceleration_settings : dict[str, dict[str, list[AccelerationSettings]]]
+    Acceleration settings from which the models are created.
+bodies_to_integrate : list[str]
+    Bodies whose translational states are propagated.
+bodies : SystemOfBodies
+    Runtime environment used to create the acceleration models.
+
+Returns
+-------
+TranslationalStatePropagatorSettings
+    Settings ready for use by ``create_dynamics_simulator``.
 
      )doc" );
 

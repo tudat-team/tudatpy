@@ -1,0 +1,13 @@
+{
+  "constant_rigid_body_properties": {
+    "properties": {
+      "mass": "float",
+      "center_of_mass": "float[3]",
+      "inertia_tensor": "float[3][3]"
+    },
+    "optional": {
+      "center_of_mass": null,
+      "inertia_tensor": null
+    }
+  }
+}

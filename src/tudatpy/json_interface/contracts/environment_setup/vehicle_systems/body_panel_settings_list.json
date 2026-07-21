@@ -1,0 +1,21 @@
+{
+  "body_panel_settings_list_from_dae": {
+    "properties": {
+      "file_path": "string",
+      "frame_origin": "float[3]",
+      "material_properties": "any{}",
+      "reradiation_settings": "bool{}",
+      "input_unit": "string",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "input_unit": "m",
+      "frame_orientation": ""
+    }
+  },
+  "merge_body_panel_setting_lists": {
+    "properties": {
+      "list_of_lists_of_body_panel_settings": "environment_setup.vehicle_systems.body_panel_settings[][]"
+    }
+  }
+}

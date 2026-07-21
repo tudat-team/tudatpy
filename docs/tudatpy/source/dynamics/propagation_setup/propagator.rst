@@ -44,6 +44,8 @@ Functions
 
    translational
 
+   translational_from_acceleration_settings
+
    rotational
 
    mass
@@ -81,6 +83,8 @@ Functions
 
    custom_termination_with_state_input
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.translational
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.translational_from_acceleration_settings
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational
 

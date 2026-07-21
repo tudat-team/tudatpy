@@ -1,0 +1,36 @@
+{
+  "body_settings": {
+    "properties": {
+      "body_name": "string",
+      "use_default_settings": "bool",
+      "atmosphere_settings": "environment_setup.atmosphere.atmosphere_settings",
+      "ephemeris_settings": "environment_setup.ephemeris",
+      "gravity_field_settings": "environment_setup.gravity_field",
+      "rotation_model_settings": "environment_setup.rotation_model",
+      "shape_settings": "environment_setup.shape",
+      "aerodynamic_coefficient_settings": "environment_setup.aerodynamic_coefficients.aerodynamic_coefficient_settings",
+      "gravity_field_variation_settings": "environment_setup.gravity_field_variation[]",
+      "shape_deformation_settings": "environment_setup.shape_deformation[]",
+      "ground_station_settings": "environment_setup.ground_station.ground_station_settings[]|environment_setup.ground_station.ground_station_settings_list",
+      "rigid_body_settings": "environment_setup.rigid_body",
+      "radiation_pressure_target_settings": "environment_setup.radiation_pressure.radiation_pressure_target_model_settings",
+      "radiation_source_settings": "environment_setup.radiation_pressure.radiation_source_model_settings",
+      "vehicle_shape_settings": "environment_setup.vehicle_systems.full_panelled_body_settings"
+    },
+    "optional": {
+      "atmosphere_settings": null,
+      "ephemeris_settings": null,
+      "gravity_field_settings": null,
+      "rotation_model_settings": null,
+      "shape_settings": null,
+      "aerodynamic_coefficient_settings": null,
+      "gravity_field_variation_settings": null,
+      "shape_deformation_settings": null,
+      "ground_station_settings": null,
+      "rigid_body_settings": null,
+      "radiation_pressure_target_settings": null,
+      "radiation_source_settings": null,
+      "vehicle_shape_settings": null
+    }
+  }
+}

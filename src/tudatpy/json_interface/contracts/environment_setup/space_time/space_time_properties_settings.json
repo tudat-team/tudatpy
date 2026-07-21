@@ -1,0 +1,14 @@
+{
+  "space_time_properties_settings": {
+    "properties": {
+      "metric_settings": "environment_setup.space_time.metric_settings",
+      "ppn_parameter_set": "environment_setup.space_time.ppn_parameter_set",
+      "equivalence_principle_lpi_violation_parameter": "float"
+    },
+    "optional": {
+      "metric_settings": null,
+      "ppn_parameter_set": null,
+      "equivalence_principle_lpi_violation_parameter": 0.0
+    }
+  }
+}

@@ -2,23 +2,6 @@
   "point_mass_gravity": {
     "properties": {}
   },
-  "einstein_infeld_hofmann": {
-    "properties": {}
-  },
-  "aerodynamic": {
-    "properties": {}
-  },
-  "radiation_pressure": {
-    "properties": {
-      "target_type": "RadiationPressureTargetModelType"
-    },
-    "optional": {
-      "target_type": "undefined_target"
-    }
-  },
-  "cannonball_radiation_pressure": {
-    "properties": {}
-  },
   "spherical_harmonic_gravity": {
     "properties": {
       "maximum_degree": "int",
@@ -58,10 +41,24 @@
       "coefficient_combinations": "int[4][]"
     }
   },
+  "aerodynamic": {
+    "properties": {}
+  },
+  "radiation_pressure": {
+    "properties": {
+      "target_type": "RadiationPressureTargetModelType"
+    },
+    "optional": {
+      "target_type": "undefined_target"
+    }
+  },
   "polyhedron_gravity": {
     "properties": {}
   },
   "ring_gravity": {
+    "properties": {}
+  },
+  "einstein_infeld_hofmann": {
     "properties": {}
   },
   "relativistic_correction": {
@@ -80,9 +77,6 @@
       "lense_thirring_angular_momentum": [0, 0, 0]
     }
   },
-  "relativistic_from_metric": {
-    "properties": {}
-  },
   "empirical": {
     "properties": {
       "constant_acceleration": "float[3]",
@@ -93,18 +87,6 @@
       "constant_acceleration": [0, 0, 0],
       "sine_acceleration": [0, 0, 0],
       "cosine_acceleration": [0, 0, 0]
-    }
-  },
-  "rtg": {
-    "properties": {
-      "reference_thrust_vector": "float[3]",
-      "decay_scale_factor": "float",
-      "reference_epoch": "float"
-    }
-  },
-  "yarkovsky": {
-    "properties": {
-      "yarkovsky_parameter": "float"
     }
   },
   "direct_tidal_dissipation_acceleration": {
@@ -141,5 +123,17 @@
   },
   "thrust_from_all_engines": {
     "properties": {}
+  },
+  "yarkovsky": {
+    "properties": {
+      "yarkovsky_parameter": "float"
+    }
+  },
+  "rtg": {
+    "properties": {
+      "reference_thrust_vector": "float[3]",
+      "decay_scale_factor": "float",
+      "reference_epoch": "float"
+    }
   }
 }

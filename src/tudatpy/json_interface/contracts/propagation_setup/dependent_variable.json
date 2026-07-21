@@ -1,0 +1,570 @@
+{
+  "mach_number": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "altitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "airspeed": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "body_fixed_airspeed_velocity": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "body_fixed_groundspeed_velocity": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "local_wind_velocity": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string",
+      "target_frame": "AerodynamicsReferenceFrames"
+    },
+    "optional": {
+      "target_frame": "corotating_frame"
+    }
+  },
+  "density": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "number_density": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "temperature": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "dynamic_pressure": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "local_aerodynamic_g_load": {
+    "properties": {
+      "body": "string",
+      "body_with_atmosphere": "string"
+    }
+  },
+  "relative_position": {
+    "properties": {
+      "body": "string",
+      "relative_body": "string"
+    }
+  },
+  "relative_distance": {
+    "properties": {
+      "body": "string",
+      "relative_body": "string"
+    }
+  },
+  "relative_velocity": {
+    "properties": {
+      "body": "string",
+      "relative_body": "string"
+    }
+  },
+  "relative_speed": {
+    "properties": {
+      "body": "string",
+      "relative_body": "string"
+    }
+  },
+  "keplerian_state": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "modified_equinoctial_state": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "single_acceleration": {
+    "properties": {
+      "acceleration_type": "AvailableAcceleration",
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string"
+    }
+  },
+  "single_acceleration_norm": {
+    "properties": {
+      "acceleration_type": "AvailableAcceleration",
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string"
+    }
+  },
+  "total_acceleration_norm": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "total_acceleration": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "acceleration_partial_wrt_body_translational_state": {
+    "properties": {
+      "acceleration_type": "AvailableAcceleration",
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "body_wrt_state": "string"
+    }
+  },
+  "total_acceleration_partial_wrt_body_translational_state": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_wrt_state": "string"
+    }
+  },
+  "acceleration_derivative_partial_wrt_parameter": {
+    "properties": {
+      "acceleration_type": "AvailableAcceleration",
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "parameter_settings": "any"
+    }
+  },
+  "total_acceleration_derivative_partial_wrt_parameter": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "parameter_settings": "any"
+    }
+  },
+  "single_torque_norm": {
+    "properties": {
+      "torque_type": "AvailableTorque",
+      "body_undergoing_torque": "string",
+      "body_exerting_torque": "string"
+    }
+  },
+  "single_torque": {
+    "properties": {
+      "torque_type": "AvailableTorque",
+      "body_undergoing_torque": "string",
+      "body_exerting_torque": "string"
+    }
+  },
+  "total_torque_norm": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "total_torque": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "spherical_harmonic_terms_acceleration": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "component_indices": "int[2][]"
+    }
+  },
+  "spherical_harmonic_terms_acceleration_norm": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "component_indices": "int[2][]"
+    }
+  },
+  "aerodynamic_force_coefficients": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "aerodynamic_moment_coefficients": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "latitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "geodetic_latitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "longitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "solar_longitude": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "heading_angle": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "flight_path_angle": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "angle_of_attack": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "sideslip_angle": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "bank_angle": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "radiation_pressure": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  },
+  "total_gravity_field_variation_acceleration": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string"
+    }
+  },
+  "single_gravity_field_variation_acceleration": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "deformation_type": "BodyDeformationTypes",
+      "identifier": "string"
+    },
+    "optional": {
+      "identifier": ""
+    }
+  },
+  "single_per_term_gravity_field_variation_acceleration": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string",
+      "component_indices": "int[2][]",
+      "deformation_type": "BodyDeformationTypes",
+      "identifier": "string"
+    },
+    "optional": {
+      "identifier": ""
+    }
+  },
+  "inertial_to_body_fixed_rotation_frame": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "tnw_to_inertial_rotation_matrix": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "rsw_to_inertial_rotation_matrix": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "inertial_to_body_fixed_313_euler_angles": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "intermediate_aerodynamic_rotation_matrix_variable": {
+    "properties": {
+      "body": "string",
+      "base_frame": "AerodynamicsReferenceFrames",
+      "target_frame": "AerodynamicsReferenceFrames",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "periapsis_altitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "apoapsis_altitude": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "central_body_fixed_spherical_position": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "central_body_fixed_cartesian_position": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    }
+  },
+  "body_mass": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "radiation_pressure_coefficient": {
+    "properties": {
+      "body": "string",
+      "emitting_body": "string"
+    }
+  },
+  "total_mass_rate": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "gravity_field_potential": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string"
+    }
+  },
+  "gravity_field_laplacian_of_potential": {
+    "properties": {
+      "body_undergoing_acceleration": "string",
+      "body_exerting_acceleration": "string"
+    }
+  },
+  "minimum_body_distance": {
+    "properties": {
+      "body_name": "string",
+      "bodies_to_check": "string[]"
+    }
+  },
+  "minimum_visible_station_body_distances": {
+    "properties": {
+      "body_name": "string",
+      "station_name": "string",
+      "bodies_to_check": "string[]",
+      "minimum_elevation_angle": "float"
+    }
+  },
+  "received_irradiance": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  },
+  "received_irradiance_shadow_function": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  },
+  "actual_cross_section": {
+    "properties": {
+      "target_name": "string",
+      "central_body_name": "string",
+      "acceleration_type": "string"
+    },
+    "optional": {
+      "acceleration_type": "radiation_pressure"
+    }
+  },
+  "aerodynamic_coefficients": {
+    "properties": {
+      "target_name": "string",
+      "central_body_name": "string"
+    }
+  },
+  "aerodynamic_force_coefficients_control_surface_increment": {
+    "properties": {
+      "body": "string",
+      "control_surface_name": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "aerodynamic_force_coefficients_control_surface_free": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "aerodynamic_moment_coefficients_control_surface_increment": {
+    "properties": {
+      "body": "string",
+      "control_surface_name": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "aerodynamic_moment_coefficients_control_surface_free": {
+    "properties": {
+      "body": "string",
+      "central_body": "string"
+    },
+    "optional": {
+      "central_body": ""
+    }
+  },
+  "center_of_mass": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "control_surface_deflection": {
+    "properties": {
+      "body": "string",
+      "control_surface": "string"
+    }
+  },
+  "cross_section_change": {
+    "properties": {
+      "target_name": "string",
+      "source_name": "string",
+      "acceleration_type": "string"
+    },
+    "optional": {
+      "acceleration_type": "radiation_pressure"
+    }
+  },
+  "full_body_paneled_geometry": {
+    "properties": {
+      "target_name": "string"
+    }
+  },
+  "illuminated_panel_fraction": {
+    "properties": {
+      "target_name": "string",
+      "source_name": "string",
+      "panel_type": "string"
+    },
+    "optional": {
+      "panel_type": ""
+    }
+  },
+  "inertia_tensor": {
+    "properties": {
+      "body": "string"
+    }
+  },
+  "per_target_panel_radiation_pressure_force": {
+    "properties": {
+      "target_name": "string",
+      "source_name": "string"
+    }
+  },
+  "radiation_pressure_source_panel_geometry": {
+    "properties": {
+      "target_name": "string",
+      "source_name": "string"
+    }
+  },
+  "radiation_pressure_source_panel_irradiance": {
+    "properties": {
+      "target_name": "string",
+      "source_name": "string"
+    }
+  },
+  "total_spherical_harmonic_cosine_coefficient_variations": {
+    "properties": {
+      "body": "string",
+      "minimum_degree": "int",
+      "maximum_degree": "int",
+      "minimum_order": "int",
+      "maximum_order": "int"
+    }
+  },
+  "total_spherical_harmonic_sine_coefficient_variations": {
+    "properties": {
+      "body": "string",
+      "minimum_degree": "int",
+      "maximum_degree": "int",
+      "minimum_order": "int",
+      "maximum_order": "int"
+    }
+  },
+  "vehicle_panel_surface_normals_body_fixed_frame": {
+    "properties": {
+      "body_name": "string",
+      "part_name": "string"
+    },
+    "optional": {
+      "part_name": ""
+    }
+  },
+  "vehicle_panel_surface_normals_inertial_frame": {
+    "properties": {
+      "body_name": "string",
+      "part_name": "string"
+    },
+    "optional": {
+      "part_name": ""
+    }
+  },
+  "visible_radiation_source_area": {
+    "properties": {
+      "target_body": "string",
+      "source_body": "string"
+    }
+  }
+}

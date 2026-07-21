@@ -9,7 +9,6 @@ if __name__ == "__main__":
             str(ACCELERATION_CONTRACT_PATH),
             "tudatpy.dynamics.propagation_setup.acceleration",
             "--types",
-            "tudatpy.dynamics.environment_setup",
-            "tudatpy.dynamics.propagation_setup",
+            "tudatpy.dynamics",
         ]
     )

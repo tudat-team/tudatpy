@@ -1,0 +1,138 @@
+{
+  "constant": {
+    "properties": {
+      "reference_area": "float",
+      "constant_force_coefficient": "float[3]",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients"
+    }
+  },
+  "constant_force_and_moment": {
+    "properties": {
+      "reference_length": "float",
+      "reference_area": "float",
+      "moment_reference_point": "float[3]",
+      "constant_force_coefficient": "float[3]",
+      "constant_moment_coefficient": "float[3]",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames",
+      "moment_coefficients_frame": "AerodynamicCoefficientFrames"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
+      "moment_coefficients_frame": "positive_body_fixed_frame_coefficients"
+    }
+  },
+  "panelled": {
+    "properties": {
+      "gas_surface_interaction_model": "GasSurfaceInteractionModelType",
+      "reference_area": "float",
+      "maximum_number_of_pixels": "int",
+      "only_drag_component": "bool"
+    },
+    "optional": {
+      "maximum_number_of_pixels": 0,
+      "only_drag_component": false
+    }
+  },
+  "constant_variable_cross_section": {
+    "properties": {
+      "constant_force_coefficient": "float[3]",
+      "maximum_number_of_pixels": "int",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames"
+    },
+    "optional": {
+      "maximum_number_of_pixels": 0,
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients"
+    }
+  },
+  "tabulated": {
+    "properties": {
+      "independent_variables": "float[]",
+      "force_coefficients": "float[3][]",
+      "moment_coefficients": "float[3][]",
+      "reference_length": "float",
+      "reference_area": "float",
+      "independent_variable_name": "AerodynamicCoefficientsIndependentVariables",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames",
+      "moment_coefficients_frame": "AerodynamicCoefficientFrames",
+      "moment_reference_point": "float[3]",
+      "interpolator_settings": "any"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
+      "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
+      "moment_reference_point": null,
+      "interpolator_settings": null
+    }
+  },
+  "tabulated_force_only": {
+    "properties": {
+      "independent_variables": "float[]",
+      "force_coefficients": "float[3][]",
+      "reference_area": "float",
+      "independent_variable_name": "AerodynamicCoefficientsIndependentVariables",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames",
+      "interpolator_settings": "any"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
+      "interpolator_settings": null
+    }
+  },
+  "tabulated_from_files": {
+    "properties": {
+      "force_coefficient_files": "string{}",
+      "moment_coefficient_files": "string{}",
+      "reference_length": "float",
+      "reference_area": "float",
+      "independent_variable_names": "AerodynamicCoefficientsIndependentVariables[]",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames",
+      "moment_coefficients_frame": "AerodynamicCoefficientFrames",
+      "moment_reference_point": "float[3]",
+      "interpolator_settings": "any"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
+      "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
+      "moment_reference_point": null,
+      "interpolator_settings": null
+    }
+  },
+  "tabulated_force_only_from_files": {
+    "properties": {
+      "force_coefficient_files": "string{}",
+      "reference_area": "float",
+      "independent_variable_names": "AerodynamicCoefficientsIndependentVariables[]",
+      "force_coefficients_frame": "AerodynamicCoefficientFrames",
+      "interpolator_settings": "any"
+    },
+    "optional": {
+      "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
+      "interpolator_settings": null
+    }
+  },
+  "scaled_by_constant": {
+    "properties": {
+      "unscaled_coefficient_settings": "environment_setup.aerodynamic_coefficients.aerodynamic_coefficient_settings",
+      "force_scaling_constant": "float",
+      "moment_scaling_constant": "float",
+      "is_scaling_absolute": "bool"
+    },
+    "optional": {
+      "is_scaling_absolute": false
+    }
+  },
+  "scaled_by_vector": {
+    "properties": {
+      "unscaled_coefficient_settings": "environment_setup.aerodynamic_coefficients.aerodynamic_coefficient_settings",
+      "force_scaling_vector": "float[3]",
+      "moment_scaling_vector": "float[3]",
+      "is_scaling_absolute": "bool"
+    },
+    "optional": {
+      "is_scaling_absolute": false
+    }
+  }
+}

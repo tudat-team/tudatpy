@@ -1,0 +1,16 @@
+{
+  "linear_station_motion": {
+    "properties": {
+      "linear_velocity": "float[3]",
+      "reference_epoch": "float"
+    },
+    "optional": {
+      "reference_epoch": 0.0
+    }
+  },
+  "piecewise_constant_station_motion": {
+    "properties": {
+      "displacement_list": "float[3]{}"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "step_size_control_elementwise_scalar_tolerance": {
+    "properties": {
+      "relative_error_tolerance": "float",
+      "absolute_error_tolerance": "float",
+      "safety_factor": "float",
+      "minimum_factor_increase": "float",
+      "maximum_factor_increase": "float"
+    },
+    "optional": {
+      "safety_factor": 0.8,
+      "minimum_factor_increase": 0.1,
+      "maximum_factor_increase": 4.0
+    }
+  },
+  "step_size_control_elementwise_matrix_tolerance": {
+    "properties": {
+      "relative_error_tolerance": "float[][]",
+      "absolute_error_tolerance": "float[][]",
+      "safety_factor": "float",
+      "minimum_factor_increase": "float",
+      "maximum_factor_increase": "float"
+    },
+    "optional": {
+      "safety_factor": 0.8,
+      "minimum_factor_increase": 0.1,
+      "maximum_factor_increase": 4.0
+    }
+  },
+  "step_size_control_blockwise_scalar_tolerance": {
+    "properties": {
+      "block_indices": "int[4][]",
+      "relative_error_tolerance": "float",
+      "absolute_error_tolerance": "float",
+      "safety_factor": "float",
+      "minimum_factor_increase": "float",
+      "maximum_factor_increase": "float"
+    },
+    "optional": {
+      "safety_factor": 0.8,
+      "minimum_factor_increase": 0.1,
+      "maximum_factor_increase": 4.0
+    }
+  },
+  "step_size_control_blockwise_matrix_tolerance": {
+    "properties": {
+      "block_indices": "int[4][]",
+      "relative_error_tolerance": "float[][]",
+      "absolute_error_tolerance": "float[][]",
+      "safety_factor": "float",
+      "minimum_factor_increase": "float",
+      "maximum_factor_increase": "float"
+    },
+    "optional": {
+      "safety_factor": 0.8,
+      "minimum_factor_increase": 0.1,
+      "maximum_factor_increase": 4.0
+    }
+  }
+}

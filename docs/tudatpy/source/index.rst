@@ -20,6 +20,7 @@ On this page, we provide a comprehensive overview of the functionality available
 * :ref:`plotting`: This submodule contains various pieces of functionality to support the easy plotting of results generated with Tudatpy. Unlike most of the main Tudatpy submodules (which are written in C++, and exposed to Python), this submodule is written in Python
 * :ref:`util`: This submodule contains various small pieces of functionality to support the easy post-processing of results generated with Tudatpy. Unlike most of the main Tudatpy submodules (which are written in C++, and exposed to Python), this submodule is written in Python
 * :ref:`constants`: This submodule contains various numerical constants used inside Tudat
+* :ref:`json_interface`: This submodule creates Tudat settings objects from contract-governed JSON files.
 
 
 .. toctree::
@@ -33,6 +34,7 @@ On this page, we provide a comprehensive overview of the functionality available
    estimation
    exceptions
    interface
+   json_interface
    math
    trajectory_design
    plotting
@@ -53,4 +55,3 @@ Bibliography
 ------------
 
 .. bibliography::
-   

@@ -1,0 +1,12 @@
+{
+  "from_thrust": {
+    "properties": {
+      "use_all_thrust_models": "bool",
+      "associated_thrust_source": "string"
+    },
+    "optional": {
+      "use_all_thrust_models": true,
+      "associated_thrust_source": ""
+    }
+  }
+}

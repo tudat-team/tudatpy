@@ -1,0 +1,14 @@
+{
+  "specular_diffuse_body_panel_reflection": {
+    "properties": {
+      "specular_reflectivity": "float",
+      "diffuse_reflectivity": "float",
+      "with_instantaneous_reradiation": "bool"
+    }
+  },
+  "lambertian_body_panel_reflection": {
+    "properties": {
+      "reflectivity": "float"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "dsn_stations": {
+    "properties": {}
+  },
+  "radio_telescope_stations": {
+    "properties": {}
+  },
+  "evn_stations": {
+    "properties": {}
+  },
+  "ilrs_stations_from_sinex_domes": {
+    "properties": {
+      "domes_ids": "string[]",
+      "sinex_state_file": "string",
+      "sinex_eccentricity_file": "string",
+      "throw_exception_on_missing_data": "bool"
+    },
+    "optional": {
+      "throw_exception_on_missing_data": false
+    }
+  },
+  "optical_telescope_stations": {
+    "properties": {}
+  }
+}

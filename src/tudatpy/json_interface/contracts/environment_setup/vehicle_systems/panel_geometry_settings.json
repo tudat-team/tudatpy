@@ -1,0 +1,23 @@
+{
+  "frame_fixed_panel_geometry": {
+    "properties": {
+      "surface_normal": "float[3]",
+      "area": "float",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "frame_orientation": ""
+    }
+  },
+  "body_tracking_panel_geometry": {
+    "properties": {
+      "body_to_track": "string",
+      "towards_tracked_body": "bool",
+      "area": "float",
+      "frame_orientation": "string"
+    },
+    "optional": {
+      "frame_orientation": ""
+    }
+  }
+}
