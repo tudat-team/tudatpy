@@ -1,0 +1,145 @@
+{
+  "point_mass_gravity": {
+    "properties": {}
+  },
+  "einstein_infeld_hofmann": {
+    "properties": {}
+  },
+  "aerodynamic": {
+    "properties": {}
+  },
+  "radiation_pressure": {
+    "properties": {
+      "target_type": "RadiationPressureTargetModelType"
+    },
+    "optional": {
+      "target_type": "undefined_target"
+    }
+  },
+  "cannonball_radiation_pressure": {
+    "properties": {}
+  },
+  "spherical_harmonic_gravity": {
+    "properties": {
+      "maximum_degree": "int",
+      "maximum_order": "int"
+    }
+  },
+  "mutual_spherical_harmonic_gravity": {
+    "properties": {
+      "maximum_degree_body_exerting": "int",
+      "maximum_order_body_exerting": "int",
+      "maximum_degree_body_undergoing": "int",
+      "maximum_order_body_undergoing": "int",
+      "maximum_degree_central_body": "int",
+      "maximum_order_central_body": "int"
+    },
+    "optional": {
+      "maximum_degree_central_body": 0,
+      "maximum_order_central_body": 0
+    }
+  },
+  "full_two_body_spherical_harmonic_gravity": {
+    "properties": {
+      "maximum_degree_body_undergoing": "int",
+      "maximum_order_body_undergoing": "int",
+      "maximum_degree_body_exerting": "int",
+      "maximum_order_body_exerting": "int",
+      "maximum_degree_central_body": "int",
+      "maximum_order_central_body": "int"
+    },
+    "optional": {
+      "maximum_degree_central_body": 0,
+      "maximum_order_central_body": 0
+    }
+  },
+  "full_two_body_spherical_harmonic_gravity_from_coefficient_combinations": {
+    "properties": {
+      "coefficient_combinations": "int[4][]"
+    }
+  },
+  "polyhedron_gravity": {
+    "properties": {}
+  },
+  "ring_gravity": {
+    "properties": {}
+  },
+  "relativistic_correction": {
+    "properties": {
+      "use_schwarzschild": "bool",
+      "use_lense_thirring": "bool",
+      "use_de_sitter": "bool",
+      "de_sitter_central_body": "string",
+      "lense_thirring_angular_momentum": "float[3]"
+    },
+    "optional": {
+      "use_schwarzschild": false,
+      "use_lense_thirring": false,
+      "use_de_sitter": false,
+      "de_sitter_central_body": "",
+      "lense_thirring_angular_momentum": [0, 0, 0]
+    }
+  },
+  "relativistic_from_metric": {
+    "properties": {}
+  },
+  "empirical": {
+    "properties": {
+      "constant_acceleration": "float[3]",
+      "sine_acceleration": "float[3]",
+      "cosine_acceleration": "float[3]"
+    },
+    "optional": {
+      "constant_acceleration": [0, 0, 0],
+      "sine_acceleration": [0, 0, 0],
+      "cosine_acceleration": [0, 0, 0]
+    }
+  },
+  "rtg": {
+    "properties": {
+      "reference_thrust_vector": "float[3]",
+      "decay_scale_factor": "float",
+      "reference_epoch": "float"
+    }
+  },
+  "yarkovsky": {
+    "properties": {
+      "yarkovsky_parameter": "float"
+    }
+  },
+  "direct_tidal_dissipation_acceleration": {
+    "properties": {
+      "k2_love_number": "float",
+      "time_lag": "float",
+      "include_direct_radial_component": "bool",
+      "use_tide_raised_on_planet": "bool",
+      "explicit_libraional_tide_on_satellite": "bool"
+    },
+    "optional": {
+      "include_direct_radial_component": true,
+      "use_tide_raised_on_planet": true,
+      "explicit_libraional_tide_on_satellite": false
+    }
+  },
+  "quasi_impulsive_shots_acceleration": {
+    "properties": {
+      "thrust_mid_times": "float[]",
+      "delta_v_values": "float[3][]",
+      "total_maneuver_time": "float",
+      "maneuver_rise_time": "float"
+    }
+  },
+  "thrust_from_engines": {
+    "properties": {
+      "engine_names": "string[]"
+    }
+  },
+  "thrust_from_engine": {
+    "properties": {
+      "engine_name": "string"
+    }
+  },
+  "thrust_from_all_engines": {
+    "properties": {}
+  }
+}

@@ -98,12 +98,21 @@ endmacro()
 
 macro (copy_python_in_build)
 
-    # Copy all python source files to build directory
-    file(GLOB_RECURSE py_files "${TUDATPY_SOURCE_DIR}/*.py")
-    foreach(py_file ${py_files})
-        file(RELATIVE_PATH py_file_name ${TUDATPY_SOURCE_DIR} ${py_file})
-        get_filename_component(parents ${py_file_name} DIRECTORY)
-        file(COPY ${py_file_name} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parents})
+    # Copy Python sources and JSON contracts to the build directory.
+    file(
+        GLOB_RECURSE package_files CONFIGURE_DEPENDS
+        "${TUDATPY_SOURCE_DIR}/*.py"
+        "${TUDATPY_SOURCE_DIR}/*.json"
+    )
+    foreach(package_file ${package_files})
+        file(RELATIVE_PATH package_file_name "${TUDATPY_SOURCE_DIR}" "${package_file}")
+        get_filename_component(parents "${package_file_name}" DIRECTORY)
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${parents}")
+        configure_file(
+            "${package_file}"
+            "${CMAKE_CURRENT_BINARY_DIR}/${package_file_name}"
+            COPYONLY
+        )
     endforeach()
 
 endmacro()
