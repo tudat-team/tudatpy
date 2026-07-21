@@ -8,6 +8,7 @@
     "optional": {
       "transfer_state_to_next_arc": false,
       "processing_settings": null
-    }
+    },
+    "unsupported": ["processing_settings"]
   }
 }

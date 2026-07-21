@@ -23,6 +23,7 @@ class ContractEntry:
 
     properties: dict[str, str]
     optional: dict[str, Any]
+    unsupported: frozenset[str]
 
 
 _TYPE_PATTERN = re.compile(
@@ -293,19 +294,35 @@ def load_contract(
     for factory_name, raw_entry in document.items():
         entry_path = f"contract.{factory_name}"
         entry = expect_object(raw_entry, entry_path)
-        unknown_sections = entry.keys() - {"properties", "optional"}
+        unknown_sections = entry.keys() - {"properties", "optional", "unsupported"}
         if unknown_sections:
             names = ", ".join(sorted(unknown_sections))
             raise JSONSettingsValidationError(f"{entry_path} contains undeclared sections: {names}")
 
         properties = expect_object(entry.get("properties"), f"{entry_path}.properties")
         optional = expect_object(entry.get("optional", {}), f"{entry_path}.optional")
+        unsupported = entry.get("unsupported", [])
+        if (
+            not isinstance(unsupported, list)
+            or any(not isinstance(name, str) for name in unsupported)
+            or len(unsupported) != len(set(unsupported))
+        ):
+            raise JSONSettingsValidationError(
+                f"{entry_path}.unsupported must be an array of unique property names"
+            )
 
         unknown_optional = optional.keys() - properties.keys()
         if unknown_optional:
             names = ", ".join(sorted(unknown_optional))
             raise JSONSettingsValidationError(
                 f"{entry_path}.optional contains undeclared properties: {names}"
+            )
+
+        unknown_unsupported = set(unsupported) - properties.keys()
+        if unknown_unsupported:
+            names = ", ".join(sorted(unknown_unsupported))
+            raise JSONSettingsValidationError(
+                f"{entry_path}.unsupported contains undeclared properties: {names}"
             )
 
         typed_properties: dict[str, str] = {}
@@ -336,7 +353,7 @@ def load_contract(
                 f"Factory {factory_name!r} is not exposed by {factory_module.__name__}"
             )
 
-        contract[factory_name] = ContractEntry(typed_properties, optional)
+        contract[factory_name] = ContractEntry(typed_properties, optional, frozenset(unsupported))
 
     return contract
 
@@ -495,6 +512,16 @@ def create_settings_object(
     arguments = expect_object(arguments, f"{path}.{factory_name}")
     entry = contract[factory_name]
 
+    supplied_unsupported = arguments.keys() & entry.unsupported
+    required_unsupported = entry.unsupported - entry.optional.keys()
+    unsupported = supplied_unsupported or required_unsupported
+    if unsupported:
+        names = ", ".join(sorted(unsupported))
+        raise JSONSettingsValidationError(
+            f"{path}.{factory_name} is not yet supported by the JSON interface; "
+            f"unsupported properties: {names}"
+        )
+
     missing = entry.properties.keys() - entry.optional.keys() - arguments.keys()
     if missing:
         names = ", ".join(sorted(missing))
@@ -509,6 +536,7 @@ def create_settings_object(
             f"{path}.{factory_name} contains undeclared properties: {names}"
         )
 
+    values = {**entry.optional, **arguments}
     converted_arguments = {
         name: _convert_value(
             value,
@@ -518,7 +546,8 @@ def create_settings_object(
             contract_root,
             factory_context,
         )
-        for name, value in arguments.items()
+        for name, value in values.items()
+        if value is not None or name not in entry.optional or entry.optional[name] is not None
     }
 
     factory = getattr(factory_module, factory_name)

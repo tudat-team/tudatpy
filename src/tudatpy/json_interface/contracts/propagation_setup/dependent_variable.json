@@ -149,13 +149,15 @@
       "body_undergoing_acceleration": "string",
       "body_exerting_acceleration": "string",
       "parameter_settings": "any"
-    }
+    },
+    "unsupported": ["parameter_settings"]
   },
   "total_acceleration_derivative_partial_wrt_parameter": {
     "properties": {
       "body_undergoing_acceleration": "string",
       "parameter_settings": "any"
-    }
+    },
+    "unsupported": ["parameter_settings"]
   },
   "single_torque_norm": {
     "properties": {

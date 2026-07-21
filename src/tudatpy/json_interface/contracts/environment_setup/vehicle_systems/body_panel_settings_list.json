@@ -3,7 +3,7 @@
     "properties": {
       "file_path": "string",
       "frame_origin": "float[3]",
-      "material_properties": "any{}",
+      "material_properties": "environment_setup.vehicle_systems.material_properties{}",
       "reradiation_settings": "bool{}",
       "input_unit": "string",
       "frame_orientation": "string"

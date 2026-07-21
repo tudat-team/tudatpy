@@ -65,7 +65,8 @@
       "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
       "moment_reference_point": null,
       "interpolator_settings": null
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "tabulated_force_only": {
     "properties": {
@@ -79,7 +80,8 @@
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "interpolator_settings": null
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "tabulated_from_files": {
     "properties": {
@@ -98,7 +100,8 @@
       "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
       "moment_reference_point": null,
       "interpolator_settings": null
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "tabulated_force_only_from_files": {
     "properties": {
@@ -111,7 +114,8 @@
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "interpolator_settings": null
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "scaled_by_constant": {
     "properties": {

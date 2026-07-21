@@ -7,6 +7,7 @@
     },
     "optional": {
       "processing_settings": null
-    }
+    },
+    "unsupported": ["processing_settings"]
   }
 }

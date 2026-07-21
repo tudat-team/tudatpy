@@ -16,7 +16,8 @@
       "propagator": "cowell",
       "output_variables": [],
       "processing_settings": null
-    }
+    },
+    "unsupported": ["acceleration_models", "processing_settings"]
   },
   "translational_from_acceleration_settings": {
     "properties": {
@@ -35,7 +36,8 @@
       "propagator": "cowell",
       "output_variables": [],
       "processing_settings": null
-    }
+    },
+    "unsupported": ["processing_settings"]
   },
   "rotational": {
     "properties": {
@@ -53,7 +55,8 @@
       "propagator": "quaternions",
       "output_variables": [],
       "processing_settings": null
-    }
+    },
+    "unsupported": ["torque_models", "processing_settings"]
   },
   "mass": {
     "properties": {
@@ -69,7 +72,8 @@
     "optional": {
       "output_variables": [],
       "processing_settings": null
-    }
+    },
+    "unsupported": ["mass_rate_models", "processing_settings"]
   },
   "multitype": {
     "properties": {
@@ -83,7 +87,8 @@
     "optional": {
       "output_variables": [],
       "processing_settings": null
-    }
+    },
+    "unsupported": ["processing_settings"]
   },
   "first_order_bodycentric_relativistic_time_settings": {
     "properties": {
@@ -131,6 +136,7 @@
       "distance_scaling_factor": 1.0,
       "dependent_variables_to_save": [],
       "output_settings": null
-    }
+    },
+    "unsupported": ["output_settings"]
   }
 }

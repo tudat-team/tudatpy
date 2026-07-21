@@ -115,6 +115,7 @@
       "minimum_degree": "int",
       "minimum_order": "int",
       "interpolation_settings": "any"
-    }
+    },
+    "unsupported": ["interpolation_settings"]
   }
 }

@@ -93,7 +93,8 @@
       "max_degree": -1,
       "max_order": -1,
       "is_log2": true
-    }
+    },
+    "unsupported": ["poly_data"]
   },
   "coma_model_from_stokes_data": {
     "properties": {
@@ -107,6 +108,7 @@
       "max_degree": -1,
       "max_order": -1,
       "is_log2": true
-    }
+    },
+    "unsupported": ["stokes_data"]
   }
 }

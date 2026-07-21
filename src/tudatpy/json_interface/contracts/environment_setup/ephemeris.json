@@ -26,7 +26,8 @@
       "frame_orientation": "ECLIPJ2000",
       "interpolator_settings": null,
       "body_name_to_use": ""
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "approximate_jpl_model": {
     "properties": {
@@ -131,7 +132,8 @@
     },
     "optional": {
       "interpolator_settings": null
-    }
+    },
+    "unsupported": ["interpolator_settings"]
   },
   "multi_arc_ephemeris": {
     "properties": {

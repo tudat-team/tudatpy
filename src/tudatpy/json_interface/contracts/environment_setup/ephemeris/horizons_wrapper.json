@@ -6,10 +6,10 @@
       "frame_origin": "string",
       "frame_orientation": "string",
       "query_type": "string",
-      "epoch_start": "string|float|null",
-      "epoch_end": "string|float|null",
+      "epoch_start": "float|null",
+      "epoch_end": "float|null",
       "epoch_step": "string|null",
-      "epoch_list": "any[]|null",
+      "epoch_list": "float[]|null",
       "extended_query": "bool",
       "aberations": "string"
     },

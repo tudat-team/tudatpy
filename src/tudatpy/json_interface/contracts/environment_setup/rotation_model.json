@@ -47,7 +47,12 @@
       "cio_interpolation_settings": null,
       "tdb_to_tt_interpolation_settings": null,
       "short_term_eop_interpolation_settings": null
-    }
+    },
+    "unsupported": [
+      "cio_interpolation_settings",
+      "tdb_to_tt_interpolation_settings",
+      "short_term_eop_interpolation_settings"
+    ]
   },
   "constant_rotation_model": {
     "properties": {
@@ -133,6 +138,7 @@
     "optional": {
       "reference_epoch_j2000": 0.0,
       "angle_base_frame": ""
-    }
+    },
+    "unsupported": ["pole_periodic_terms"]
   }
 }

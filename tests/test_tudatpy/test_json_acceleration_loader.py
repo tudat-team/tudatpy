@@ -1,10 +1,14 @@
 import json
 import re
+import sys
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
 from tudatpy.dynamics import environment_setup, propagation_setup
+from tudatpy.kernel.dynamics import environment_setup as kernel_environment_setup
+from tudatpy.kernel.dynamics.propagation_setup import propagator as kernel_propagator
 from tudatpy.json_interface import (
     ACCELERATION_CONTRACT_PATH,
     JSONSettingsValidationError,
@@ -101,6 +105,101 @@ def test_all_contract_entries_are_in_api_docs():
         for factory in json.loads(path.read_text(encoding="utf-8"))
     }
     assert contracted <= documented
+
+
+def test_json_composition_factories_are_public_tudat_api():
+    assert environment_setup.body_settings is kernel_environment_setup.body_settings
+    assert environment_setup.body_list_settings is kernel_environment_setup.body_list_settings
+    assert (
+        propagation_setup.propagator.translational_from_acceleration_settings
+        is kernel_propagator.translational_from_acceleration_settings
+    )
+
+
+def test_body_settings_contract_uses_rigid_body_settings_for_mass():
+    contract = json.loads(
+        (
+            ACCELERATION_CONTRACT_PATH.parents[1] / "environment_setup" / "body_settings.json"
+        ).read_text(encoding="utf-8")
+    )["body_settings"]
+
+    assert "constant_mass" not in contract["properties"]
+    assert contract["properties"]["rigid_body_settings"] == "environment_setup.rigid_body"
+
+
+def test_contract_defaults_control_factory_arguments(tmp_path):
+    module_name = "_tudatpy_json_contract_default_test"
+    module = ModuleType(module_name)
+    module.settings = lambda value=1: value
+    sys.modules[module_name] = module
+    try:
+        contract_path = _write_json(
+            tmp_path / "contract.json",
+            {
+                "settings": {
+                    "properties": {"value": "int"},
+                    "optional": {"value": 7},
+                }
+            },
+        )
+        settings_path = _write_json(tmp_path / "settings.json", {"settings": {}})
+
+        assert load_settings(settings_path, contract_path, module_name=module_name) == 7
+    finally:
+        del sys.modules[module_name]
+
+
+def test_unsupported_contract_input_is_rejected(tmp_path):
+    module_name = "_tudatpy_json_unsupported_input_test"
+    module = ModuleType(module_name)
+    module.settings = lambda external_input: external_input
+    sys.modules[module_name] = module
+    try:
+        contract_path = _write_json(
+            tmp_path / "contract.json",
+            {
+                "settings": {
+                    "properties": {"external_input": "any"},
+                    "unsupported": ["external_input"],
+                }
+            },
+        )
+        settings_path = _write_json(
+            tmp_path / "settings.json",
+            {"settings": {"external_input": {"value": 1}}},
+        )
+
+        with pytest.raises(JSONSettingsValidationError, match="not yet supported"):
+            load_settings(settings_path, contract_path, module_name=module_name)
+    finally:
+        del sys.modules[module_name]
+
+
+def test_untyped_and_coma_inputs_are_flagged_unsupported():
+    contract_root = ACCELERATION_CONTRACT_PATH.parents[1]
+    for path in contract_root.rglob("*.json"):
+        for entry in json.loads(path.read_text(encoding="utf-8")).values():
+            unsupported = set(entry.get("unsupported", []))
+            any_properties = {
+                name
+                for name, type_name in entry["properties"].items()
+                if type_name.startswith("any")
+            }
+            assert any_properties <= unsupported
+
+    atmosphere = json.loads(
+        (contract_root / "environment_setup/atmosphere/atmosphere_settings.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    wind = json.loads(
+        (contract_root / "environment_setup/atmosphere/wind_model_settings.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert atmosphere["coma_model_from_poly_data"]["unsupported"] == ["poly_data"]
+    assert atmosphere["coma_model_from_stokes_data"]["unsupported"] == ["stokes_data"]
+    assert wind["coma_wind_model"]["unsupported"] == ["dataset_collection"]
 
 
 def test_loads_perturbed_satellite_accelerations_with_tudat_api(tmp_path):
@@ -207,6 +306,7 @@ def test_translational_settings_create_acceleration_models_from_json(tmp_path):
         },
     )
     bodies = environment_setup.create_system_of_bodies(load_body_list_settings(body_settings_path))
+    assert bodies.get("Vehicle").mass == pytest.approx(2.2)
     propagator_path = _write_json(
         tmp_path / "propagator.json",
         {

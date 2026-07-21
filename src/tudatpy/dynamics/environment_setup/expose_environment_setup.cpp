@@ -113,58 +113,25 @@ std::shared_ptr< tss::BodySettings > bodySettings(
         settings = std::make_shared< tss::BodySettings >( );
     }
 
-    if( atmosphereSettings )
-    {
-        settings->atmosphereSettings = *atmosphereSettings;
-    }
-    if( ephemerisSettings )
-    {
-        settings->ephemerisSettings = *ephemerisSettings;
-    }
-    if( gravityFieldSettings )
-    {
-        settings->gravityFieldSettings = *gravityFieldSettings;
-    }
-    if( rotationModelSettings )
-    {
-        settings->rotationModelSettings = *rotationModelSettings;
-    }
-    if( shapeSettings )
-    {
-        settings->shapeModelSettings = *shapeSettings;
-    }
-    if( aerodynamicCoefficientSettings )
-    {
-        settings->aerodynamicCoefficientSettings = *aerodynamicCoefficientSettings;
-    }
-    if( gravityFieldVariationSettings )
-    {
-        settings->gravityFieldVariationSettings = *gravityFieldVariationSettings;
-    }
-    if( shapeDeformationSettings )
-    {
-        settings->bodyDeformationSettings = *shapeDeformationSettings;
-    }
-    if( groundStationSettings )
-    {
-        settings->groundStationSettings = *groundStationSettings;
-    }
-    if( rigidBodySettings )
-    {
-        settings->rigidBodyPropertiesSettings = *rigidBodySettings;
-    }
-    if( radiationPressureTargetSettings )
-    {
-        settings->radiationPressureTargetModelSettings = *radiationPressureTargetSettings;
-    }
-    if( radiationSourceSettings )
-    {
-        settings->radiationSourceModelSettings = *radiationSourceSettings;
-    }
-    if( vehicleShapeSettings )
-    {
-        settings->bodyExteriorPanelSettings_ = *vehicleShapeSettings;
-    }
+    const auto applyOverride = []( const auto& settingOverride, auto& target ) {
+        if( settingOverride )
+        {
+            target = *settingOverride;
+        }
+    };
+    applyOverride( atmosphereSettings, settings->atmosphereSettings );
+    applyOverride( ephemerisSettings, settings->ephemerisSettings );
+    applyOverride( gravityFieldSettings, settings->gravityFieldSettings );
+    applyOverride( rotationModelSettings, settings->rotationModelSettings );
+    applyOverride( shapeSettings, settings->shapeModelSettings );
+    applyOverride( aerodynamicCoefficientSettings, settings->aerodynamicCoefficientSettings );
+    applyOverride( gravityFieldVariationSettings, settings->gravityFieldVariationSettings );
+    applyOverride( shapeDeformationSettings, settings->bodyDeformationSettings );
+    applyOverride( groundStationSettings, settings->groundStationSettings );
+    applyOverride( rigidBodySettings, settings->rigidBodyPropertiesSettings );
+    applyOverride( radiationPressureTargetSettings, settings->radiationPressureTargetModelSettings );
+    applyOverride( radiationSourceSettings, settings->radiationSourceModelSettings );
+    applyOverride( vehicleShapeSettings, settings->bodyExteriorPanelSettings_ );
     return settings;
 }
 

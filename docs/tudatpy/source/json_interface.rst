@@ -6,6 +6,12 @@
 This module creates Tudat settings objects from JSON documents governed by the
 packaged contracts. A JSON object of the form ``{"factory_name": {...}}`` invokes
 the corresponding settings factory after its inputs have been validated.
+Optional properties omitted from a document are passed to the Tudat factory using
+the default recorded in the contract. A ``null`` contract default delegates to the
+factory default, for settings that are absent or defaults that JSON cannot represent.
+Inputs listed in a factory's ``unsupported`` array remain part of the API contract
+but cannot yet be supplied through JSON. Optional unsupported inputs always use
+their default; a factory with a required unsupported input cannot yet be loaded.
 
 The special object ``{"$ref": "relative/path.json"}`` includes another JSON
 document. Paths are resolved relative to the file containing the reference.
