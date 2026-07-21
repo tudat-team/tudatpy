@@ -150,8 +150,6 @@ public:
      * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
      * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
      * if the variable is true.
-     * \param sphericalHarmonicsCache Cache object for computing/retrieving repeated terms in spherical harmonics potential
-     *          gradient calculation.
      */
     MaxwellGravityDeformationModel(
             const StateFunction stateOfDeformingBodyFunction,
@@ -179,7 +177,7 @@ public:
         staticCoefficients_( staticCoefficients ), getCosineHarmonicsCoefficients( cosineCoefficients ),
         getSineHarmonicsCoefficients( sineCoefficients ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-        rotationToBodyFixedDerivativeFunction_( rotationToLocalFrameDerivativeFunction ), saveSphericalHarmonicTermsSeparately_( false ),
+        rotationToBodyFixedDerivativeFunction_( rotationToLocalFrameDerivativeFunction ),
         stateOfDeformingBodyFunction_( stateOfDeformingBodyFunction ), stateOfPerturbingBodyFunction_( stateOfPerturbingBodyFunction ),
         includeOrder1_( includeOrder1 ), includeCentrifugalPotential_( includeCentrifugalPotential ),
         angularVelocityDeformingBody_( angularVelocityDeformingBody ),
@@ -189,7 +187,6 @@ public:
         stateOfPerturbingBody_.resize( numberPerturbingBodies );
         currentRelativePosition_.resize( numberPerturbingBodies );
         currentRelativeVelocity_.resize( numberPerturbingBodies );
-        currentInertialRelativePosition_.resize( numberPerturbingBodies );
         currentInertialRelativeState_.resize( numberPerturbingBodies );
         currentLongitude_.resize( numberPerturbingBodies );
         currentLatitude_.resize( numberPerturbingBodies );
@@ -225,149 +222,12 @@ public:
      * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN );
+
     void updateEquilibriumDeformation( const double currentTime = TUDAT_NAN );
-    Eigen::VectorXd getEquilibriumCoefficients( ) const
-    {
-        return equilibriumCoefficients_;
-    }
-
-    Eigen::VectorXd getDerivativeEquilibriumCoefficients( ) const
-    {
-        return derivativeEquilibriumCoefficients_;
-    }
-
-    Eigen::VectorXd getCurrentCoefficients( )
-    {
-        return nominalCoefficients_;
-    }
-
-    //! Function to retrieve the spherical harmonics cache for this acceleration.
-    /*!
-     *  Function to retrieve the spherical harmonics cache for this acceleration.
-     *  \return Spherical harmonics cache for this acceleration
-     */
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
-    {
-        return sphericalHarmonicsCache_;
-    }
-
-    //! Function to retrieve the spherical harmonics reference radius.
-    /*!
-     *  Function to retrieve the spherical harmonics reference radius.
-     *  \return Spherical harmonics reference radius.
-     */
-    double getReferenceRadius( )
-    {
-        return referenceRadius_;
-    }
-
-    //! Matrix of cosine coefficients.
-    /*!
-     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
-     */
-    CoefficientMatrixReturningFunction getCosineHarmonicCoefficientsFunction( )
-    {
-        return getCosineHarmonicsCoefficients;
-    }
-
-    //! Matrix of sine coefficients.
-    /*!
-     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
-     */
-    CoefficientMatrixReturningFunction getSineHarmonicCoefficientsFunction( )
-    {
-        return getSineHarmonicsCoefficients;
-    }
-
-    //! Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
-    /*!
-     *  Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
-     *  \return current rotation from body-fixed frame to integration frame, in the form of a quaternion.
-     */
-    Eigen::Quaterniond getCurrentRotationToIntegrationFrame( )
-    {
-        return rotationToIntegrationFrame_;
-    }
-
-    //! Function to retrieve the current rotation from body-fixed frame to integration frame, as a rotation matrix.
-    /*!
-     *  Function to retrieve the current rotation from body-fixed frame to integration frame, as a rotation matrix.
-     *  \return current rotation from body-fixed frame to integration frame, as a rotation matrix.
-     */
-    Eigen::Matrix3d getCurrentRotationToIntegrationFrameMatrix( )
-    {
-        return rotationToIntegrationFrame_.toRotationMatrix( );
-    }
-
-    //! Function to retrieve maximum degree of gravity field expansion
-    /*!
-     * Function to retrieve maximum degree of gravity field expansion
-     * \return Maximum degree of gravity field expansion
-     */
-    int getMaximumDegree( )
-    {
-        return maximumDegree_;
-    }
-
-    //! Function to retrieve maximum order of gravity field expansion
-    /*!
-     * Function to retrieve maximum order of gravity field expansion
-     * \return Maximum order of gravity field expansion
-     */
-    int getMaximumOrder( )
-    {
-        return maximumOrder_;
-    }
 
     std::vector< std::string > getPerturbingBody( ) const
     {
         return perturbingBody_;
-    }
-
-    double getLoveNumber( ) const
-    {
-        return k2_;
-    }
-
-    double getMaxwellRelaxationTime( ) const
-    {
-        return maxwellRelaxationTime_;
-    }
-
-    double getGlobalRelaxationTime( ) const
-    {
-        return globalRelaxationTime_;
-    }
-
-    double getGravitationalParameterDeformingBody( ) const
-    {
-        return gravitationalParameterDeformingBody_( );
-    }
-
-    std::vector< double > getGravitationalParameterPerturbingBody( ) const
-    {
-        std::vector< double > gravitationalParameters;
-        gravitationalParameters.reserve( gravitationalParameterPerturbingBody_.size( ) );
-        for( const std::function< double( ) >& gravitationalParameterFunction : gravitationalParameterPerturbingBody_ )
-        {
-            gravitationalParameters.push_back( gravitationalParameterFunction( ) );
-        }
-        return gravitationalParameters;
-    }
-
-    double getReferenceRadius( ) const
-    {
-        return referenceRadius_;
-    }
-
-    StateFunction getStateOfDeformingBodyFunction( )
-    {
-        return stateOfDeformingBodyFunction_;
-    }
-
-    std::vector< StateFunction > getStateOfPerturbingBodyFunction( )
-    {
-        return stateOfPerturbingBodyFunction_;
     }
 
 protected:
@@ -439,27 +299,7 @@ private:
 
     std::vector< Eigen::Vector3d > currentRelativeVelocity_;
 
-    //! Current position vector from body exerting acceleration to body undergoing acceleration, in inertial frame
-    std::vector< Eigen::Vector3d > currentInertialRelativePosition_;
-
     std::vector< Eigen::Vector6d > currentInertialRelativeState_;
-
-    //!  Spherical harmonics cache for this acceleration
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
-
-    std::map< std::pair< int, int >, Eigen::VectorXd > deformationPerTerm_;
-
-    //! List of contributions to accelerations at given degrees/orders, represented by first/second entry of map key pair.
-    std::map< std::pair< int, int >, Eigen::Vector3d > accelerationPerTerm_;
-
-    //! Boolean that denotes whether each of the separate spherical harmonic terms should be saved (in accelerationPerTerm_)
-    bool saveSphericalHarmonicTermsSeparately_;
-
-    //! Maximum degree of gravity field expansion
-    int maximumDegree_;
-
-    //! Maximum order of gravity field expansion
-    int maximumOrder_;
 
     //! Function returning the state of the body undergoing deformation
     StateFunction stateOfDeformingBodyFunction_;
