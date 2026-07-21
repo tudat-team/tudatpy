@@ -13,6 +13,7 @@
 
 #include "tudat/simulation/propagation_setup/environmentUpdater.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 
 namespace tudat
 {
@@ -82,6 +83,18 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
+        const simulation_setup::SystemOfBodies& bodies );
+
+//! Get list of required environment model update settings from gravity deformation models.
+/*!
+ * Get list of required environment model update settings from gravity deformation models.
+ * \param massRateModels List of gravity deformation models used in simulation.
+ * \param bodies List of body objects used in the simulations.
+ * \return List of required environment model update settings.
+ */
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createGravityPropagationEnvironmentUpdaterSettings(
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >
+                gravityDeformationModels,
         const simulation_setup::SystemOfBodies& bodies );
 
 //! Function to update environment to allow all required updates to be made
@@ -216,6 +229,13 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case custom_state: {
             break;
         }
+        case gravity_deformation_state: {
+            environmentModelsToUpdate = createGravityPropagationEnvironmentUpdaterSettings(
+                    std::dynamic_pointer_cast< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings )
+                            ->getGravityDeformationModelsMap( ),
+                    bodies );
+            break;
+        }
         default: {
             throw std::runtime_error( "Error, cannot create environment updates for type " +
                                       std::to_string( propagatorSettings->getStateType( ) ) );
@@ -275,6 +295,205 @@ std::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > > 
     // Create and return environment updater object.
     return std::make_shared< EnvironmentUpdater< StateScalarType, TimeType > >(
             bodies, environmentModelsToUpdate, integratedTypeAndBodyList );
+}
+
+template< typename StateScalarType, typename TimeType >
+void checkTorqueDependencies(
+        const std::unordered_map< IntegratedStateType,
+                                  std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModelsMap,
+        std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModelsToUpdate,
+        std::map< std::string, std::vector< IntegratedStateType > > listIntegratedStatesPerBody,
+        std::map< StateDerivativeDependency, std::vector< std::string > >& updateSettings,
+        std::vector< std::function< void( const double ) > >& updateModelFunctions )
+{
+    if( stateDerivativeModelsMap.count( rotational_state ) > 0 )
+    {
+        for( auto model : stateDerivativeModelsMap.at( rotational_state ) )
+        {
+            std::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationModel =
+                    std::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >( model );
+
+            bool updateCurrentModel = false;
+
+            std::vector< std::string > integratedBodies = rotationModel->getBodiesToBeIntegratedNumerically( );
+            for( auto body : integratedBodies )
+            {
+                std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > > torqueModels =
+                        rotationModel->getTorquesMap( ).at( body );
+                for( auto it : torqueModels )
+                {
+                    for( auto singleTorqueModel : it.second )
+                    {
+                        basic_astrodynamics::AvailableTorque torqueType = basic_astrodynamics::getTorqueModelType( singleTorqueModel );
+                        std::vector< StateDerivativeDependency > dependencies = getTorqueStateDerivativeDependencies( torqueType );
+
+                        for( auto dependency : dependencies )
+                        {
+                            IntegratedStateType stateType = getStateTypeForDependency( dependency );
+                            if( std::count( listIntegratedStatesPerBody.at( body ).begin( ),
+                                            listIntegratedStatesPerBody.at( body ).end( ),
+                                            stateType ) )
+                            {
+                                // Found torque dependency
+                                updateSettings[ dependency ].push_back( body );
+                                updateModelFunctions.push_back( std::bind(
+                                        &basic_astrodynamics::TorqueModel::updateMembers, singleTorqueModel, std::placeholders::_1 ) );
+                                if( !updateCurrentModel )
+                                {
+                                    stateDerivativeModelsToUpdate[ rotational_state ].push_back( model );
+                                    updateCurrentModel = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template< typename StateScalarType, typename TimeType >
+void checkGravityDeformationDependencies(
+        const std::unordered_map< IntegratedStateType,
+                                  std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModelsMap,
+        std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModelsToUpdate,
+        std::map< std::string, std::vector< IntegratedStateType > > listIntegratedStatesPerBody,
+        std::map< StateDerivativeDependency, std::vector< std::string > >& updateSettings,
+        std::vector< std::function< void( const double ) > >& updateModelFunctions )
+{
+    if( stateDerivativeModelsMap.count( gravity_deformation_state ) > 0 )
+    {
+        for( auto model : stateDerivativeModelsMap.at( gravity_deformation_state ) )
+        {
+            std::shared_ptr< GravityStateDerivative< StateScalarType, TimeType > > gravityModel =
+                    std::dynamic_pointer_cast< GravityStateDerivative< StateScalarType, TimeType > >( model );
+
+            bool updateCurrentModel = false;
+
+            std::vector< std::string > integratedBodies = gravityModel->getBodiesToIntegrate( );
+            for( auto body : integratedBodies )
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > gravityDeformationModels =
+                        gravityModel->getGravityDeformationModels( ).at( body );
+                for( auto singleDeformationModel : gravityDeformationModels )
+                {
+                    basic_astrodynamics::GravityDeformationType deformationType =
+                            basic_astrodynamics::getGravityDeformationModelType( singleDeformationModel );
+                    std::vector< StateDerivativeDependency > dependencies = getGravityStateDerivativeDependencies( deformationType );
+
+                    for( auto dependency : dependencies )
+                    {
+                        IntegratedStateType stateType = getStateTypeForDependency( dependency );
+                        if( std::count( listIntegratedStatesPerBody.at( body ).begin( ),
+                                        listIntegratedStatesPerBody.at( body ).end( ),
+                                        stateType ) )
+                        {
+                            // Found gravity deformation dependency
+                            updateSettings[ dependency ].push_back( body );
+                            updateModelFunctions.push_back( std::bind( &basic_astrodynamics::GravityDeformationModel::updateMembers,
+                                                                       singleDeformationModel,
+                                                                       std::placeholders::_1 ) );
+                            if( !updateCurrentModel )
+                            {
+                                stateDerivativeModelsToUpdate[ gravity_deformation_state ].push_back( model );
+                                updateCurrentModel = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+template< typename StateScalarType, typename TimeType >
+std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType > > createStateDerivativeUpdaterForDynamicalEquations(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+        const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+            stateDerivativeModelsMap;
+    for( unsigned int i = 0; i < stateDerivativeModels.size( ); i++ )
+    {
+        stateDerivativeModelsMap[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back( stateDerivativeModels.at( i ) );
+    }
+
+    std::vector< std::function< void( const double ) > > updateModelFunctions;
+    std::map< StateDerivativeDependency, std::vector< std::string > > updateSettings;
+
+    // std::map< StateDerivativeDependency, std::vector< std::string > > updateSettings2;
+
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+            stateDerivativeModelsToUpdate;
+
+    std::map< std::string, std::vector< IntegratedStateType > > listIntegratedStatesPerBody;
+    for( auto it : stateDerivativeModelsMap )
+    {
+        for( auto it2 : it.second )
+        {
+            std::vector< std::string > currentBodies = it2->getBodiesToIntegrate( );
+            for( auto currentBody : currentBodies )
+            {
+                // MISSING EXTRA CHECKS!
+                listIntegratedStatesPerBody[ currentBody ].push_back( it.first );
+            }
+        }
+    }
+
+    checkTorqueDependencies< StateScalarType, TimeType >(
+            stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
+    checkGravityDeformationDependencies< StateScalarType, TimeType >(
+            stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
+
+    for( auto it : updateSettings )
+    {
+        for( auto it2 : it.second )
+        {
+            std::cout << "dependency " << it.first << " for body " << it2 << std::endl;
+        }
+    }
+
+    std::map< StateDerivativeDependency,
+              std::vector< std::pair< std::string, std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >
+            environmentUpdateFunctions;
+    for( auto it : updateSettings )
+    {
+        switch( it.first )
+        {
+            case inertia_tensor_derivative_dependency: {
+                for( auto currentBody : it.second )
+                {
+                    environmentUpdateFunctions[ inertia_tensor_derivative_dependency ].push_back(
+                            std::make_pair( currentBody,
+                                            [ rigidBodyProperties = bodies.at( currentBody )->getMassProperties( ) ](
+                                                    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& derivative ) {
+                                                rigidBodyProperties->updateInertiaTensorDerivative( derivative.template cast< double >( ) );
+                                            } ) );
+                };
+                break;
+            }
+            case rotation_rate_derivative_dependency: {
+                for( auto currentBody : it.second )
+                {
+                    environmentUpdateFunctions[ rotation_rate_derivative_dependency ].push_back( std::make_pair(
+                            currentBody,
+                            [ body = bodies.at( currentBody ) ]( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& derivative ) {
+                                body->setCurrentAngularVelocityDerivativeVectorInLocalFrame( derivative.template cast< double >( ) );
+                            } ) );
+                };
+                break;
+            }
+        }
+    }
+
+    // Create and return state derivative updater object.
+    return std::make_shared< StateDerivativeUpdater< StateScalarType, TimeType > >(
+            bodies, updateSettings, updateModelFunctions, stateDerivativeModelsToUpdate, environmentUpdateFunctions );
 }
 
 }  // namespace propagators

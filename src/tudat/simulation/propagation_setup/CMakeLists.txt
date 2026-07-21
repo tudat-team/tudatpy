@@ -28,10 +28,12 @@ set(propagation_HEADERS
         propagationPrintSettings.h
         propagationProcessingSettings.h
         accelerationSettings.h
+        gravityDeformationSettings.h
         propagationOutputSettings.h
         setNumericallyIntegratedStates.h
         environmentUpdater.h
         dependentVariablesInterface.h
+        createGravityDeformationModels.h
         )
 
 # Add header files.
@@ -50,6 +52,7 @@ set(propagation_SOURCES
         propagationOutput.cpp
         environmentUpdater.cpp
         dependentVariablesInterface.cpp
+        createGravityDeformationModels.cpp
         )
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)

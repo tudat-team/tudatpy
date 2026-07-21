@@ -243,6 +243,20 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     //                    }
                     //                }
                     break;
+                case gravity_deformation_state:
+                    if( environmentModelsToUpdate.count( spherical_harmonic_gravity_field_update ) > 0 )
+                    {
+                        std::vector< std::string > bodiesToUpdate = environmentModelsToUpdate.at( spherical_harmonic_gravity_field_update );
+                        std::vector< std::string >::iterator findIterator =
+                                std::find( bodiesToUpdate.begin( ), bodiesToUpdate.end( ), std::get< 0 >( it->second.at( i ) ) );
+
+                        if( findIterator != bodiesToUpdate.end( ) )
+                        {
+                            bodiesToUpdate.erase( findIterator );
+                            environmentModelsToUpdate[ spherical_harmonic_gravity_field_update ] = bodiesToUpdate;
+                        }
+                    }
+                    break;
                 case custom_state:
                     break;
                 case proper_time:
@@ -269,6 +283,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( bodiesToIntegrate.at( i ) );
+        singleTorqueUpdateNeeds[ body_mass_update ].push_back( bodiesToIntegrate.at( i ) );
     }
     addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
 
@@ -999,6 +1014,69 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             // Add requested updates of current acceleration model to
             // full list of environment updates.
             addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
+        }
+    }
+
+    return environmentModelsToUpdate;
+}
+
+//! Get list of required environment model update settings from gravity deformation models.
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createGravityPropagationEnvironmentUpdaterSettings(
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >
+                gravityDeformationModels,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleGravityDeformationModelUpdateNeeds;
+
+    // Iterate over all bodies with gravity deformation model.
+    for( std::map< std::string, std::vector< std::shared_ptr< GravityDeformationModel > > >::const_iterator
+                 gravityDeformationModelIterator = gravityDeformationModels.begin( );
+         gravityDeformationModelIterator != gravityDeformationModels.end( );
+         gravityDeformationModelIterator++ )
+    {
+        for( unsigned int i = 0; i < gravityDeformationModelIterator->second.size( ); i++ )
+        {
+            singleGravityDeformationModelUpdateNeeds.clear( );
+
+            // Identify gravity deformation type and set required environment update settings.
+            simulation_setup::GravityDeformationType currentGravityDeformationModelType =
+                    getGravityDeformationModelType( gravityDeformationModelIterator->second.at( i ) );
+
+            singleGravityDeformationModelUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                    gravityDeformationModelIterator->first );
+
+            switch( currentGravityDeformationModelType )
+            {
+                case simulation_setup::maxwell_deformation: {
+                    std::shared_ptr< MaxwellGravityDeformationModel > maxwellGravityModel =
+                            std::dynamic_pointer_cast< MaxwellGravityDeformationModel >( gravityDeformationModelIterator->second.at( i ) );
+                    singleGravityDeformationModelUpdateNeeds[ body_translational_state_update ].push_back(
+                            gravityDeformationModelIterator->first );
+                    singleGravityDeformationModelUpdateNeeds[ body_rotational_state_update ].push_back(
+                            gravityDeformationModelIterator->first );
+                    // singleGravityDeformationModelUpdateNeeds[ body_mass_distribution_update ].push_back(
+                    // gravityDeformationModelIterator->first );
+                    for( unsigned int k = 0; k < maxwellGravityModel->getPerturbingBody( ).size( ); k++ )
+                    {
+                        singleGravityDeformationModelUpdateNeeds[ body_translational_state_update ].push_back(
+                                maxwellGravityModel->getPerturbingBody( ).at( k ) );
+                        singleGravityDeformationModelUpdateNeeds[ body_rotational_state_update ].push_back(
+                                maxwellGravityModel->getPerturbingBody( ).at( k ) );
+                    }
+                    break;
+                }
+                default:
+                    throw std::runtime_error(
+                            std::string( "Error when setting gravity deformation model update needs, model type not recognized: " ) +
+                            std::to_string( currentGravityDeformationModelType ) );
+            }
+
+            // Add requested updates of current acceleration model to full list of environment updates.
+            addEnvironmentUpdates( environmentModelsToUpdate, singleGravityDeformationModelUpdateNeeds );
         }
     }
 

@@ -199,7 +199,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             {
                 // Create and initialize exponential atmosphere model.
                 std::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel;
-                if( exponentialAtmosphereSettings->getBodyName( ) == undefined_body )
+                if( exponentialAtmosphereSettings->getBodyName( ) == undefined_body_ea )
                 {
                     exponentialAtmosphereModel =
                             std::make_shared< ExponentialAtmosphere >( exponentialAtmosphereSettings->getDensityScaleHeight( ),

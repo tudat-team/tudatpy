@@ -40,7 +40,7 @@ namespace aerodynamics
 /*!
  *  Bodies with predefined exponential atmospheres.
  */
-enum BodiesWithPredefinedExponentialAtmospheres { undefined_body = -1, earth = 0, mars = 1 };
+enum BodiesWithPredefinedExponentialAtmospheres { undefined_body_ea = -1, earth_ea = 0, mars_ea = 1 };
 
 //! Exponential atmosphere class.
 /*!

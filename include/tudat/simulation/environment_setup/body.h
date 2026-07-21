@@ -33,6 +33,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/math/basic/rotationRepresentations.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
@@ -128,6 +129,11 @@ public:
      * \return Current state.
      */
     Eigen::Vector6d getState( );
+
+    void getStateByReference( Eigen::Vector6d& state )
+    {
+        state = currentState_;
+    }
 
     //! Get current custom state.
     /*!
@@ -397,6 +403,13 @@ public:
         isRotationSet_ = true;
     }
 
+    template< typename TimeType = double >
+    Eigen::Quaterniond getRotationToBaseFrameFromEphemeris( const TimeType time )
+    {
+        setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >( time );
+        return currentRotationToGlobalFrame_;
+    }
+
     //! Function to set the full rotational state directly
     /*!
      * Function to set the full rotational state  directly (rotation from global to body-fixed frame
@@ -476,6 +489,10 @@ public:
      *  \return Current angular velocity vector for body's rotation, expressed in the local frame.
      */
     Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( );
+
+    Eigen::Vector3d getCurrentAngularVelocityDerivativeVectorInLocalFrame( );
+
+    void setCurrentAngularVelocityDerivativeVectorInLocalFrame( const Eigen::Vector3d& angularVelocityDerivativeVector );
 
     //! Function to set the ephemeris of the body.
     /*!
@@ -568,6 +585,10 @@ public:
      * \param gravityFieldVariationSet Object containing all variations in the gravity field of this body.
      */
     void setGravityFieldVariationSet( const std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet );
+
+    void setCurrentPropagatedGravityField( const Eigen::VectorXd gravityCoefficients );
+
+    void setStaticDegreeTwoCoefficients( Eigen::VectorXd staticDegreeTwoCoefficients );
 
     //! Function to get the gravity field model of the body.
     /*!
@@ -738,6 +759,8 @@ public:
      */
     Eigen::Matrix3d getBodyInertiaTensor( );
 
+    Eigen::Matrix3d getBodyInertiaTensorDerivative( );
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -867,6 +890,8 @@ private:
     //! Current angular velocity vector for body's rotation, expressed in the body-fixed frame.
     Eigen::Vector3d currentAngularVelocityVectorInLocalFrame_;
 
+    Eigen::Vector3d currentAngularVelocityDerivativeVectorInLocalFrame_;
+
     //    //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     //    double currentMass_;
 
@@ -935,6 +960,8 @@ private:
     bool isCustomStateSet_;
 
     bool isRotationSet_;
+
+    Eigen::VectorXd staticDegreeTwoCoefficients_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
 

@@ -971,6 +971,11 @@ Enumeration of available integrated state types.
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "MassPropagatorSettings", R"doc(No propagator documentation found.)doc" );
 
+    py::class_< tp::GravityDeformationPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::GravityDeformationPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "GravityDeformationPropagatorSettings", R"doc(Gravity deformation propagator settings.)doc" );
+
     py::class_< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
@@ -1172,10 +1177,10 @@ initial_time : astro.time_representation.Time
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
 
-    .. note:: 
-    
+    .. note::
+
         The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
-    
+
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 propagator : RotationalPropagatorType, default=quaternions
@@ -1306,6 +1311,15 @@ Returns
 SingleArcPropagatorSettings
     Custom propagator settings object.
      )doc" );
+
+    m.def( "gravity_deformation",
+           &tp::gravityPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies_to_integrate" ),
+           py::arg( "deformation_models" ),
+           py::arg( "initial_gravity" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ) );
 
     m.def( "multitype",
            &tp::multiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

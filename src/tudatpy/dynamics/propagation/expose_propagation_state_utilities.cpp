@@ -207,7 +207,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
     m.def( "get_damped_proper_mode_initial_rotational_state",
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const double,
+                              std::map< std::string, double >,
                               const std::vector< double >,
                               const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
@@ -257,8 +257,9 @@ void expose_propagation_state_utility_bindings( py::module& m )
      settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
      dynamics for a single body (e.g. translational-rotational dynamics for a single body)
 
- body_mean_rotational_rate : float
-     Mean rotational rate :math:`\omega_{p}` to which the damping algorithm will force the body-fixed rotation about its z-axis.
+ body_mean_rotational_rate : dict[str, float]
+     Mean rotational rate :math:`\omega_{p}` for each propagated body, keyed by body name. The damping algorithm
+     forces each body's body-fixed rotation about its z-axis toward the corresponding value.
  dissipation_times : list[ float ]
      List of damping times :math:`\tau_{d}` for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly
  propagate_undamped : bool, default = True
@@ -309,6 +310,8 @@ void expose_propagation_state_utility_bindings( py::module& m )
             m, "AccelerationModel" );
 
     py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+
+    py::class_< tba::GravityDeformationModel, std::shared_ptr< tba::GravityDeformationModel > >( m, "GravityDeformationModel" );
 }
 
 }  // namespace propagation

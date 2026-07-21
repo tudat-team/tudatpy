@@ -45,6 +45,8 @@ public:
 
     virtual void updateMassDistribution( const double currentTime ) = 0;
 
+    virtual void updateInertiaTensorDerivative( const Eigen::Vector5d& ) {}
+
     virtual void resetCurrentTime( );
 
     double getCurrentMass( );
@@ -52,6 +54,8 @@ public:
     Eigen::Vector3d getCurrentCenterOfMass( );
 
     Eigen::Matrix3d getCurrentInertiaTensor( );
+
+    Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
 
     virtual void setCurrentMass( const double currentMass ) = 0;
 
@@ -64,6 +68,8 @@ protected:
 
     Eigen::Matrix3d currentInertiaTensor_;
 
+    Eigen::Matrix3d currentDerivativeInertiaTensor_;
+
     bool isBodyInPropagation_;
 
     bool isMassComputed_;
@@ -71,6 +77,8 @@ protected:
     bool isComComputed_;
 
     bool isInertiaTensorComputed_;
+
+    bool isDerivativeInertiaTensorComputed_;
 };
 
 class TimeDependentRigidBodyProperties : public RigidBodyProperties
@@ -141,6 +149,8 @@ public:
     virtual void updateMass( const double currentTime );
 
     virtual void updateMassDistribution( const double currentTime );
+
+    virtual void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients );
 
     virtual void setCurrentMass( const double currentMass );
 

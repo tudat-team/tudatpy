@@ -114,6 +114,17 @@ public:
         return Eigen::Matrix3d::Zero( );
     }
 
+    virtual Eigen::Matrix3d getDerivativeInertiaTensor( )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
+    virtual void resetDerivativeInertiaTensor( const double derivativeC20Coefficient,
+                                               const double derivativeC21Coefficient,
+                                               const double derivativeC22Coefficient,
+                                               const double derivativeS21Coefficient,
+                                               const double derivativeS22Coefficient ) {};
+
 protected:
     //! Gravitational parameter.
     /*!

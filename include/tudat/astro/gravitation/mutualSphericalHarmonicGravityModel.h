@@ -111,7 +111,8 @@ public:
                     basic_mathematics::SphericalHarmonicsCache( ),
             const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyUndergoingAcceleration =
                     basic_mathematics::SphericalHarmonicsCache( ) ):
-        useCentralBodyFixedFrame_( useCentralBodyFixedFrame ), gravitationalParameterFunction_( gravitationalParameterFunction )
+        useCentralBodyFixedFrame_( useCentralBodyFixedFrame ), gravitationalParameterFunction_( gravitationalParameterFunction ),
+        toLocalFrameOfBodyUndergoingAccelerationTransformation_( toLocalFrameOfBodyUndergoingAccelerationTransformation )
     {
         // Create spherical harmonic acceleration due to expansion of body exerting acceleration
         accelerationModelFromShExpansionOfBodyExertingAcceleration_ = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
@@ -155,6 +156,10 @@ public:
         this->currentTime_ = currentTime;
         this->currentAcceleration_ = accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
                 accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
+        // std::cout << ( toLocalFrameOfBodyUndergoingAccelerationTransformation_( ).inverse( ) *
+        //      accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) ).transpose( ) << std::endl;
+        // std::cout << ( toLocalFrameOfBodyUndergoingAccelerationTransformation_( ).inverse( ) *
+        //      accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( ) ).transpose( ) << std::endl;
     }
 
     //! Function to reset the current time
@@ -233,6 +238,8 @@ protected:
      *  as this term is only calculated by accelerationModelFromShExpansionOfBodyExertingAcceleration_.
      */
     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
+
+    std::function< Eigen::Quaterniond( ) > toLocalFrameOfBodyUndergoingAccelerationTransformation_;
 };
 
 }  // namespace gravitation

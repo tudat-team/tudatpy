@@ -24,6 +24,7 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
+#include "tudat/astro/basic_astro/gravityDeformationModel.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
@@ -34,6 +35,7 @@
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
+#include "tudat/simulation/propagation_setup/createGravityDeformationModels.h"
 
 namespace tudat
 {
@@ -1631,6 +1633,202 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
 //              statePrintInterval);
 // }
 
+//! Class for defining settings for propagating the gravity deformation of a body
+/*!
+ *  Class for defining settings for propagating the gravity deformation of a body.
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+class GravityDeformationPropagatorSettings : public SingleArcPropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    //! Constructor of gravity deformation propagator settings, with single gravity deformation model per body.
+    /*!
+     * Constructor of gravity deformation propagator settings, with single gravity deformation model per body.
+     * \param bodiesWithGravityToPropagate List of bodies for which the gravity deformation is to be propagated.
+     * \param gravityDeformationModels List of gravity deformation models per propagated body.
+     * \param initialBodyGravity Initial gravity coefficients used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    GravityDeformationPropagatorSettings(
+            const std::vector< std::string > bodiesWithGravityToPropagate,
+            const std::map< std::string, std::shared_ptr< basic_astrodynamics::GravityDeformationModel > >& gravityDeformationModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyGravity,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+            const double statePrintInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( gravity_deformation_state,
+                                                                  initialBodyGravity,
+                                                                  integratorSettings->initialTimeDeprecated_,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave ),
+        bodiesWithGravityToPropagate_( bodiesWithGravityToPropagate )
+    {
+        for( std::map< std::string, std::shared_ptr< basic_astrodynamics::GravityDeformationModel > >::const_iterator deformationModelIt =
+                     gravityDeformationModels.begin( );
+             deformationModelIt != gravityDeformationModels.end( );
+             deformationModelIt++ )
+        {
+            gravityDeformationModels_[ deformationModelIt->first ].push_back( deformationModelIt->second );
+        }
+    }
+
+    //! Constructor of gravity deformation propagator settings, with already-created gravity deformation models.
+    /*!
+     * Constructor of gravity deformation state propagator settings, with already-created gravity deformation models.
+     * \param bodiesWithGravityToPropagate List of bodies for which the gravity deformation is to be propagated.
+     * \param gravityDeformationModels List of gravity deformation models per propagated body.
+     * \param initialBodyGravity Initial gravity coefficients used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    GravityDeformationPropagatorSettings(
+            const std::vector< std::string > bodiesWithGravityToPropagate,
+            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >&
+                    gravityDeformationModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyGravity,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+            const double statePrintInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( gravity_deformation_state,
+                                                                  initialBodyGravity,
+                                                                  integratorSettings->initialTimeDeprecated_,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave ),
+        bodiesWithGravityToPropagate_( bodiesWithGravityToPropagate ), gravityDeformationModels_( gravityDeformationModels )
+    {
+        verifyInput( );
+    }
+
+    GravityDeformationPropagatorSettings(
+            const std::vector< std::string > bodiesWithGravityToPropagate,
+            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >&
+                    gravityDeformationModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyGravity,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( gravity_deformation_state,
+                                                                  initialBodyGravity,
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
+        bodiesWithGravityToPropagate_( bodiesWithGravityToPropagate ), gravityDeformationModels_( gravityDeformationModels )
+    {
+        verifyInput( );
+    }
+
+    //! List of bodies for which the gravity deformation is to be propagated.
+    std::vector< std::string > bodiesWithGravityToPropagate_;
+
+    //! Function to create the gravity deformation models with support for thrust-acceleration-based mass-rate models.
+    /*!
+     * Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up
+     * mass-rate models determined from thrust accelerations.
+     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
+     * \param accelerationMap Map of accelerations in the propagation.
+     */
+    void resetIntegratedStateModels(
+        const simulation_setup::SystemOfBodies& bodies/*,
+        const basic_astrodynamics::AccelerationMap& accelerationMap*/ )
+    {
+        gravityDeformationModels_ =
+                simulation_setup::createGravityDeformationModelsMap( bodies, gravityDeformationSettingsMap_ /*, accelerationMap*/ );
+    }
+
+    // //! Function to create the gravity deformation models.
+    // /*!
+    //     * Function to create the gravity deformation models.
+    //     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
+    //     */
+    // virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
+    // {
+    //     resetIntegratedStateModels( bodies, basic_astrodynamics::AccelerationMap( ) );
+    // }
+
+    //! Function to get the gravity deformation settings map.
+    /*!
+     * Function to get the gravity deformation settings map.
+     * \return The gravity deformation settings map.
+     */
+    simulation_setup::SelectedGravityDeformationModelMap getGravityDeformationSettingsMap( ) const
+    {
+        return gravityDeformationSettingsMap_;
+    }
+
+    //! Function to get the gravity deformation models map.
+    /*!
+     * Function to get the gravity deformation models map.
+     * \return The gravity deformation models map.
+     */
+    basic_astrodynamics::GravityDeformationModelMap getGravityDeformationModelsMap( ) const
+    {
+        if( gravityDeformationModels_.size( ) == 0 && gravityDeformationSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Inconsistent sizes for map of gravity deformation settings and map of gravity deformation models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return gravityDeformationModels_;
+    }
+
+private:
+    void verifyInput( )
+    {
+        if( this->initialStates_.rows( ) != static_cast< int >( 5 * bodiesWithGravityToPropagate_.size( ) ) )
+        {
+            throw std::runtime_error( "Error when defining body gravity deformation propagator settings, provided initial state size (" +
+                                      std::to_string( this->initialStates_.rows( ) ) +
+                                      ") is incompatible with list of bodies for which gravity deformation is to be propagated (size " +
+                                      std::to_string( 5 * bodiesWithGravityToPropagate_.size( ) ) + ")" );
+        }
+    }
+
+    //! List of gravity deformation settings per propagated body.
+    simulation_setup::SelectedGravityDeformationModelMap gravityDeformationSettingsMap_;
+
+    //! List of gravity deformation models per propagated body.
+    basic_astrodynamics::GravityDeformationModelMap gravityDeformationModels_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, TimeType > > gravityPropagatorSettings(
+        const std::vector< std::string > bodiesWihGravityToPropagate,
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >&
+                gravityDeformationModels,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyGravity,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ) ) /*,
+                const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )*/
+{
+    return std::make_shared< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( bodiesWihGravityToPropagate,
+                                                                                                  gravityDeformationModels,
+                                                                                                  initialBodyGravity,
+                                                                                                  integratorSettings,
+                                                                                                  terminationSettings,
+                                                                                                  dependentVariablesToSave );
+}
+
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
 /*!
  *  Function to evaluate a floating point state-derivative function as though it was a vector state function.
@@ -2921,6 +3119,25 @@ std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string
 
             break;
         }
+        case gravity_deformation_state: {
+            std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, TimeType > > gravityPropagatorSettings =
+                    std::dynamic_pointer_cast< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( gravityPropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error getting integrated state type list, gravity deformation state input inconsistent" );
+            }
+
+            // Retrieve list of integrated bodies in correct formatting.
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > integratedBodies;
+            for( unsigned int i = 0; i < gravityPropagatorSettings->bodiesWithGravityToPropagate_.size( ); i++ )
+            {
+                integratedBodies.push_back(
+                        std::make_tuple( gravityPropagatorSettings->bodiesWithGravityToPropagate_.at( i ), "", PropagatorType( ) ) );
+            }
+            integratedStateList[ gravity_deformation_state ] = integratedBodies;
+
+            break;
+        }
         default:
             throw std::runtime_error( "Error, could not process integrated state type in getIntegratedTypeAndBodyList " +
                                       std::to_string( propagatorSettings->getStateType( ) ) );
@@ -2977,6 +3194,11 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
                     {
                         currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     }
+                    break;
+                }
+                case gravity_deformation_state: {
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     break;
                 }
                 default:
@@ -3045,6 +3267,10 @@ inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
                     }
                     break;
                 }
+                case gravity_deformation_state:
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
                 default:
                     throw std::runtime_error( "Error when getting processed state strings, type not recognized" );
             }

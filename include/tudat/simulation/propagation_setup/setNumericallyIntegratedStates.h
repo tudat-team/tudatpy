@@ -739,6 +739,57 @@ void resetIntegratedBodyMass(
     }
 }
 
+//! Resets the gravity field models of the integrated bodies from the numerical integration results.
+/*!
+ * Resets the gravity field models of the integrated bodies from the numerical integration results.
+ * \param bodies List of bodies used in simulations.
+ * \param equationsOfMotionNumericalSolution Numerical solution of the body masses.
+ * \param bodiesToIntegrate List of names of bodies for which the gravity deformation is numerically integrated (in the order in
+ * which they are in the equationsOfMotionNumericalSolution map.
+ * \param startIndexAndSize Pair with start index and total (contiguous) size of integrated states in entries of
+ * equationsOfMotionNumericalSolution
+ */
+template< typename TimeType, typename StateScalarType >
+void resetIntegratedBodyGravity(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const std::pair< unsigned int, unsigned int > startIndexAndSize )
+{
+    if( startIndexAndSize.second != bodiesToIntegrate.size( ) )
+    {
+        throw std::runtime_error( "Error when resetting body gravity, number of bodies inconsistent with input size." );
+    }
+
+    // Iterate over all bodies for which gravity deformation is propagated.
+    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
+    {
+        std::map< double, double > currentBodyGravityMap;
+
+        // Create gravity map with double entries.
+        for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
+                     equationsOfMotionNumericalSolution.begin( );
+             stateIterator != equationsOfMotionNumericalSolution.end( );
+             stateIterator++ )
+        {
+            currentBodyGravityMap[ static_cast< double >( stateIterator->first ) ] =
+                    static_cast< double >( stateIterator->second( startIndexAndSize.first + i ) );
+        }
+
+        typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
+
+        std::cout << "WARNING IN resetIntegratedBodyGravity: MISSING IMPLEMENTATION!" << std::endl;
+
+        // // Create and set interpolator.
+        // bodies.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction(
+        //             std::bind(
+        //                 static_cast< double( LocalInterpolator::* )( const double ) >
+        //                 ( &LocalInterpolator::interpolate ),
+        //                 std::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), std::placeholders::_1 )
+        //                 );
+    }
+}
+
 //! Base class for settings how numerically integrated states are processed
 /*!
  *  Base class for defining settings on how numerically integrated states are to be processed in the
@@ -1357,6 +1408,47 @@ public:
 private:
 };
 
+//! Class used for processing numerically integrated gravity fields of bodies.
+template< typename TimeType, typename StateScalarType >
+class GravityIntegratedStateProcessor : public SingleArcIntegratedStateProcessor< TimeType, StateScalarType >
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param startIndex Index in the state vector where the translational state starts.
+     * \param bodies List of bodies used in simulations.
+     * \param bodiesToIntegrate List of bodies for which the gravity deformation is numerically
+     * integrated. Order in this vector is the same as the order in state vector.
+     */
+    GravityIntegratedStateProcessor( const int startIndex,
+                                     const simulation_setup::SystemOfBodies& bodies,
+                                     const std::vector< std::string >& bodiesToIntegrate ):
+        SingleArcIntegratedStateProcessor< TimeType, StateScalarType >( gravity_deformation_state,
+                                                                        std::make_pair( startIndex, bodiesToIntegrate.size( ) ),
+                                                                        bodies,
+                                                                        bodiesToIntegrate )
+    {
+        std::cout << "in GravityIntegratedStateProcessor constructor" << std::endl;
+    }
+
+    //! Destructor
+    ~GravityIntegratedStateProcessor( ) {}
+
+    //! Function processing gravity deformation state in the full numericalSolution
+    /*!
+     * Function that processes the entries of the propagated gravity deformation in the full numericalSolution, resetting bodies' gravity
+     * models
+     * \param numericalSolution Full numerical solution of state, in global representation.
+     */
+    void processIntegratedStates( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
+    {
+        resetIntegratedBodyGravity( this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_ );
+    }
+
+private:
+};
+
 template< typename StateScalarType, typename TimeType >
 void checkRotationalStatesFeasibility( const std::vector< std::string >& bodiesToIntegrate,
                                        const simulation_setup::SystemOfBodies& bodies,
@@ -1572,6 +1664,17 @@ void checkPropagatedStatesFeasibility( const std::shared_ptr< SingleArcPropagato
             {
                 throw std::runtime_error( "Error, input type for proper time dynamics is inconsistent when checking dynamics feasibility" );
             }
+
+            break;
+        }
+        case gravity_deformation_state: {
+            // Check input feasibility
+            std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, TimeType > > gravityPropagatorSettings =
+                    std::dynamic_pointer_cast< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( gravityPropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, input type for gravity dynamics is inconsistent when checking dynamics feasibility" );
+            }
             break;
         }
         default:
@@ -1730,6 +1833,21 @@ createIntegratedStateProcessors( const std::shared_ptr< SingleArcPropagatorSetti
             break;
         }
         case custom_state: {
+            break;
+        }
+        case gravity_deformation_state: {
+            // Check input feasibility
+            std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, TimeType > > gravityPropagatorSettings =
+                    std::dynamic_pointer_cast< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+            if( gravityPropagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
+            }
+
+            // Create gravity processors.
+            integratedStateProcessors[ gravity_deformation_state ] =
+                    std::make_shared< GravityIntegratedStateProcessor< TimeType, StateScalarType > >(
+                            startIndex, bodies, gravityPropagatorSettings->bodiesWithGravityToPropagate_ );
             break;
         }
         default:

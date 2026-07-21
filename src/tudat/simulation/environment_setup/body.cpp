@@ -13,11 +13,13 @@
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 #include <iostream>
@@ -35,12 +37,14 @@ Body::Body( const Eigen::Vector6d& state ):
     currentRotationToGlobalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
     currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
     currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-    currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ), bodyName_( "unnamed_body" )
+    currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
+    currentAngularVelocityDerivativeVectorInLocalFrame_( Eigen::Vector3d( ) ), bodyName_( "unnamed_body" )
 {
     currentLongState_ = currentState_.cast< long double >( );
     isStateSet_ = false;
     isCustomStateSet_ = false;
     isRotationSet_ = false;
+    staticDegreeTwoCoefficients_ = Eigen::VectorXd::Zero( 5 );
 }
 
 std::shared_ptr< BaseStateInterface > Body::getEphemerisFrameToBaseFrame( )
@@ -174,8 +178,7 @@ void Body::setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentR
 
     Eigen::Matrix3d currentRotationMatrixToLocalFrame = currentRotationToLocalFrame_.toRotationMatrix( );
     currentRotationToLocalFrameDerivative_ =
-            linear_algebra::getCrossProductMatrix( currentRotationalStateFromLocalToGlobalFrame.block< 3, 1 >( 4, 0 ) ) *
-            currentRotationMatrixToLocalFrame;
+            -currentRotationMatrixToLocalFrame * linear_algebra::getCrossProductMatrix( currentAngularVelocityVectorInGlobalFrame_ );
     isRotationSet_ = true;
 }
 
@@ -281,6 +284,16 @@ Eigen::Vector3d Body::getCurrentAngularVelocityVectorInLocalFrame( )
     return currentAngularVelocityVectorInLocalFrame_;
 }
 
+Eigen::Vector3d Body::getCurrentAngularVelocityDerivativeVectorInLocalFrame( )
+{
+    return currentAngularVelocityDerivativeVectorInLocalFrame_;
+}
+
+void Body::setCurrentAngularVelocityDerivativeVectorInLocalFrame( const Eigen::Vector3d& angularVelocityDerivativeVector )
+{
+    currentAngularVelocityDerivativeVectorInLocalFrame_ = angularVelocityDerivativeVector;
+}
+
 void Body::setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
 {
     bodyEphemeris_ = bodyEphemeris;
@@ -300,6 +313,55 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
     {
         massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
     }
+}
+
+void Body::setCurrentPropagatedGravityField( const Eigen::VectorXd gravityCoefficients )
+{
+    double C20 = gravityCoefficients[ 0 ];
+    double C21 = gravityCoefficients[ 1 ];
+    double C22 = gravityCoefficients[ 2 ];
+    double S21 = gravityCoefficients[ 3 ];
+    double S22 = gravityCoefficients[ 4 ];
+
+    C20 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    C21 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    C22 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    S21 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    S22 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+
+    C20 += staticDegreeTwoCoefficients_[ 0 ];
+    C21 += staticDegreeTwoCoefficients_[ 1 ];
+    C22 += staticDegreeTwoCoefficients_[ 2 ];
+    S21 += staticDegreeTwoCoefficients_[ 3 ];
+    S22 += staticDegreeTwoCoefficients_[ 4 ];
+
+    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsModel =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+    if( sphericalHarmonicsModel == nullptr )
+    {
+        throw std::runtime_error( "Error when setting current propagated gravity field, should be a spherical harmonics expansion model" );
+    }
+    Eigen::MatrixXd cosineCoefficients = sphericalHarmonicsModel->getCosineCoefficients( );
+    Eigen::MatrixXd sineCoefficients = sphericalHarmonicsModel->getSineCoefficients( );
+    cosineCoefficients( 2, 0 ) = C20;
+    cosineCoefficients( 2, 1 ) = C21;
+    cosineCoefficients( 2, 2 ) = C22;
+    sineCoefficients( 2, 1 ) = S21;
+    sineCoefficients( 2, 2 ) = S22;
+    sphericalHarmonicsModel->setCosineCoefficients( cosineCoefficients );
+    sphericalHarmonicsModel->setSineCoefficients( sineCoefficients );
+
+    if( massProperties_ == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when resetting propagated gravity field, rigid body properties are not defined and cannot be updated" );
+    }
+    massProperties_->setIsBodyInPropagation( isBodyInPropagation_ );
+}
+
+void Body::setStaticDegreeTwoCoefficients( Eigen::VectorXd staticDegreeTwoCoefficients )
+{
+    staticDegreeTwoCoefficients_ = staticDegreeTwoCoefficients;
 }
 
 void Body::setAtmosphereModel( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
@@ -596,6 +658,16 @@ Eigen::Matrix3d Body::getBodyInertiaTensor( )
         throw std::runtime_error( "Error when retrieving inertia tensor of " + bodyName_ + ", no mass properties found" );
     }
     return massProperties_->getCurrentInertiaTensor( );
+}
+
+Eigen::Matrix3d Body::getBodyInertiaTensorDerivative( )
+{
+    if( massProperties_ == nullptr )
+    {
+        throw std::runtime_error( "Error when retrieving the time derivative of the inertia tensor of " + bodyName_ +
+                                  ", no mass properties found" );
+    }
+    return massProperties_->getCurrentDerivativeInertiaTensor( );
 }
 
 void Body::setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )

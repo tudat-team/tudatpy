@@ -123,3 +123,6 @@ TUDAT_ADD_TEST_CASE(RingGravityField
 
 TUDAT_ADD_TEST_CASE(RingGravityModel
         PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(GravityDeformationModel
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_estimatable_parameters )

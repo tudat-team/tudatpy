@@ -21,7 +21,7 @@ ExponentialAtmosphere::ExponentialAtmosphere( const BodiesWithPredefinedExponent
 {
     switch( bodyWithPredefinedExponentialAtmosphere )
     {
-        case earth: {
+        case earth_ea: {
             // Set local variables for Earth exponential atmosphere. Based on lecture notes
             // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
 
@@ -41,7 +41,7 @@ ExponentialAtmosphere::ExponentialAtmosphere( const BodiesWithPredefinedExponent
             ratioOfSpecificHeats_ = 1.4;
             break;
         }
-        case mars: {
+        case mars_ea: {
             // Set local variables for Earth exponential atmosphere. Based on Spohn, T., Breuer, D.,
             // and Johnson, T., Eds., Encyclopedia of the Solar System, 3rd ed. Elsevier, 2014.
 

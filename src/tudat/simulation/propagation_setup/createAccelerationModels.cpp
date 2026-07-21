@@ -398,6 +398,9 @@ std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
         const bool useCentralBodyFixedFrame,
         const bool useDegreeZeroTerm )
 {
+    std::cout << "body exerting acceleration " << nameOfBodyExertingAcceleration << std::endl;
+    std::cout << "body undergoing acceleration " << nameOfBodyUndergoingAcceleration << std::endl;
+
     // Declare pointer to return object
     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > accelerationModel;
 
@@ -449,14 +452,17 @@ std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
                 useMutualAttraction = false;
             }
 
+            // useMutualAttraction = true;
             // Check if mutual acceleration is to be used.
             if( !useMutualAttraction )
             {
+                std::cout << "no mutual attraction" << std::endl;
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter, sphericalHarmonicsGravityField );
             }
             else
             {
+                std::cout << "use mutual attraction" << std::endl;
                 // Create function returning summed gravitational parameter of the two bodies.
                 std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, sphericalHarmonicsGravityField );
