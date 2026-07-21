@@ -1378,6 +1378,12 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case total_acceleration_derivative_partial_wrt_parameter:
             break;
+        case single_gravity_deformation_state_derivative_dependent_variable:
+            break;
+        case maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable:
+            break;
+        case maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable:
+            break;
         case total_spherical_harmonic_cosine_coefficient_variation:
             variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;

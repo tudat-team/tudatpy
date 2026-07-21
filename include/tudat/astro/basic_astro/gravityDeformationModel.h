@@ -73,6 +73,12 @@ public:
         return currentDeformation_;
     }
 
+    //! Get the current derivative of the gravity-deformation state.
+    const Eigen::VectorXd& getCurrentStateDerivative( ) const
+    {
+        return currentDeformation_;
+    }
+
     void getAccelerationByReference( Eigen::VectorXd& deformation ) const
     {
         deformation = currentDeformation_;
@@ -228,6 +234,18 @@ public:
     std::vector< std::string > getPerturbingBody( ) const
     {
         return perturbingBody_;
+    }
+
+    //! Get the current equilibrium gravity coefficients in unnormalized form.
+    const Eigen::VectorXd& getCurrentEquilibriumCoefficients( ) const
+    {
+        return equilibriumCoefficients_;
+    }
+
+    //! Get the current time derivative of the equilibrium gravity coefficients in unnormalized form.
+    const Eigen::VectorXd& getCurrentEquilibriumCoefficientDerivative( ) const
+    {
+        return derivativeEquilibriumCoefficients_;
     }
 
 protected:

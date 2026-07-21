@@ -18,6 +18,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
+#include "tudat/astro/propagators/gravityDerivative.h"
 #include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/astro/relativity/solarSystemMetric.h"
@@ -519,6 +520,117 @@ Eigen::VectorXd getConstellationMinimumVisibleDistance(
         const std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator,
         const double limitAngle,
         const double time );
+
+//! Retrieve the gravity-deformation state derivative model for a body.
+template< typename TimeType = double, typename StateScalarType = double >
+std::shared_ptr< GravityStateDerivative< StateScalarType, TimeType > > getGravityStateDerivativeModelForBody(
+        const std::string& bodyUndergoingDeformation,
+        const std::unordered_map< IntegratedStateType,
+                                  std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModels )
+{
+    if( stateDerivativeModels.count( gravity_deformation_state ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation model for " + bodyUndergoingDeformation +
+                                  ", no gravity-deformation state derivative models found." );
+    }
+
+    std::shared_ptr< GravityStateDerivative< StateScalarType, TimeType > > modelForBody;
+    for( const auto& stateDerivativeModel : stateDerivativeModels.at( gravity_deformation_state ) )
+    {
+        std::shared_ptr< GravityStateDerivative< StateScalarType, TimeType > > gravityStateDerivative =
+                std::dynamic_pointer_cast< GravityStateDerivative< StateScalarType, TimeType > >( stateDerivativeModel );
+        if( gravityStateDerivative == nullptr )
+        {
+            throw std::runtime_error( "Error when getting gravity deformation model, state derivative type is inconsistent." );
+        }
+
+        const std::vector< std::string > propagatedBodies = gravityStateDerivative->getBodiesToIntegrate( );
+        if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingDeformation ) != propagatedBodies.end( ) )
+        {
+            if( modelForBody != nullptr )
+            {
+                throw std::runtime_error( "Error when getting gravity deformation model for " + bodyUndergoingDeformation +
+                                          ", multiple gravity-deformation state derivative models found." );
+            }
+            modelForBody = gravityStateDerivative;
+        }
+    }
+
+    if( modelForBody == nullptr )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation model for " + bodyUndergoingDeformation +
+                                  ", the body is not propagated by a gravity-deformation state derivative model." );
+    }
+    return modelForBody;
+}
+
+//! Retrieve the gravity deformation model selected by dependent-variable settings.
+template< typename TimeType = double, typename StateScalarType = double >
+std::shared_ptr< basic_astrodynamics::GravityDeformationModel > getGravityDeformationModelForDependentVariable(
+        const std::shared_ptr< SingleGravityDeformationDependentVariableSaveSettings >& dependentVariableSettings,
+        const std::unordered_map< IntegratedStateType,
+                                  std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                stateDerivativeModels )
+{
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation dependent variable, settings are inconsistent." );
+    }
+
+    const std::shared_ptr< GravityStateDerivative< StateScalarType, TimeType > > gravityStateDerivative =
+            getGravityStateDerivativeModelForBody< TimeType, StateScalarType >( dependentVariableSettings->associatedBody_,
+                                                                                stateDerivativeModels );
+    const basic_astrodynamics::GravityDeformationModelMap& gravityDeformationModels =
+            gravityStateDerivative->getGravityDeformationModels( );
+    const auto bodyModelsIterator = gravityDeformationModels.find( dependentVariableSettings->associatedBody_ );
+    if( bodyModelsIterator == gravityDeformationModels.end( ) )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation dependent variable, no model found for body " +
+                                  dependentVariableSettings->associatedBody_ + "." );
+    }
+
+    const std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > >& bodyModels = bodyModelsIterator->second;
+    const int deformationModelIndex = dependentVariableSettings->deformationModelIndex_;
+    if( deformationModelIndex >= 0 )
+    {
+        if( deformationModelIndex >= static_cast< int >( bodyModels.size( ) ) )
+        {
+            throw std::runtime_error( "Error when getting gravity deformation dependent variable, requested model index is out of range." );
+        }
+        if( basic_astrodynamics::getGravityDeformationModelType( bodyModels.at( deformationModelIndex ) ) !=
+            dependentVariableSettings->gravityDeformationModelType_ )
+        {
+            throw std::runtime_error(
+                    "Error when getting gravity deformation dependent variable, model type at requested index is inconsistent." );
+        }
+        return bodyModels.at( deformationModelIndex );
+    }
+    if( deformationModelIndex != -1 )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation dependent variable, model index must be -1 or non-negative." );
+    }
+
+    std::shared_ptr< basic_astrodynamics::GravityDeformationModel > selectedModel;
+    for( const std::shared_ptr< basic_astrodynamics::GravityDeformationModel >& bodyModel : bodyModels )
+    {
+        if( basic_astrodynamics::getGravityDeformationModelType( bodyModel ) == dependentVariableSettings->gravityDeformationModelType_ )
+        {
+            if( selectedModel != nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when getting gravity deformation dependent variable, multiple models of the requested "
+                        "type were found; specify a model index." );
+            }
+            selectedModel = bodyModel;
+        }
+    }
+    if( selectedModel == nullptr )
+    {
+        throw std::runtime_error( "Error when getting gravity deformation dependent variable, no model of the requested type was found." );
+    }
+    return selectedModel;
+}
 
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
@@ -1408,6 +1520,54 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     parameterSize = 3;
                 }
             }
+            break;
+        }
+        case single_gravity_deformation_state_derivative_dependent_variable: {
+            const std::shared_ptr< SingleGravityDeformationDependentVariableSaveSettings > gravityDeformationSettings =
+                    std::dynamic_pointer_cast< SingleGravityDeformationDependentVariableSaveSettings >( dependentVariableSettings );
+            const std::shared_ptr< basic_astrodynamics::GravityDeformationModel > gravityDeformationModel =
+                    getGravityDeformationModelForDependentVariable< TimeType, StateScalarType >( gravityDeformationSettings,
+                                                                                                 stateDerivativeModels );
+            variableFunction = [ gravityDeformationModel ]( ) { return gravityDeformationModel->getCurrentStateDerivative( ); };
+            parameterSize = 5;
+            break;
+        }
+        case maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable: {
+            const std::shared_ptr< SingleGravityDeformationDependentVariableSaveSettings > gravityDeformationSettings =
+                    std::dynamic_pointer_cast< SingleGravityDeformationDependentVariableSaveSettings >( dependentVariableSettings );
+            const std::shared_ptr< basic_astrodynamics::GravityDeformationModel > gravityDeformationModel =
+                    getGravityDeformationModelForDependentVariable< TimeType, StateScalarType >( gravityDeformationSettings,
+                                                                                                 stateDerivativeModels );
+            const std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > maxwellDeformationModel =
+                    std::dynamic_pointer_cast< basic_astrodynamics::MaxwellGravityDeformationModel >( gravityDeformationModel );
+            if( maxwellDeformationModel == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when getting Maxwell equilibrium coefficients dependent variable, "
+                        "selected gravity deformation model is not a Maxwell model." );
+            }
+            variableFunction = [ maxwellDeformationModel ]( ) { return maxwellDeformationModel->getCurrentEquilibriumCoefficients( ); };
+            parameterSize = 5;
+            break;
+        }
+        case maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable: {
+            const std::shared_ptr< SingleGravityDeformationDependentVariableSaveSettings > gravityDeformationSettings =
+                    std::dynamic_pointer_cast< SingleGravityDeformationDependentVariableSaveSettings >( dependentVariableSettings );
+            const std::shared_ptr< basic_astrodynamics::GravityDeformationModel > gravityDeformationModel =
+                    getGravityDeformationModelForDependentVariable< TimeType, StateScalarType >( gravityDeformationSettings,
+                                                                                                 stateDerivativeModels );
+            const std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > maxwellDeformationModel =
+                    std::dynamic_pointer_cast< basic_astrodynamics::MaxwellGravityDeformationModel >( gravityDeformationModel );
+            if( maxwellDeformationModel == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when getting Maxwell equilibrium-coefficient derivative dependent variable, "
+                        "selected gravity deformation model is not a Maxwell model." );
+            }
+            variableFunction = [ maxwellDeformationModel ]( ) {
+                return maxwellDeformationModel->getCurrentEquilibriumCoefficientDerivative( );
+            };
+            parameterSize = 5;
             break;
         }
         case keplerian_state_dependent_variable: {

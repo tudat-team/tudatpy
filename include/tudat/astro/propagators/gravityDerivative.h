@@ -254,7 +254,7 @@ public:
         return totalGravityDeformation;
     }
 
-    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > > getGravityDeformationModels( )
+    const basic_astrodynamics::GravityDeformationModelMap& getGravityDeformationModels( ) const
     {
         return gravityDeformationModels_;
     }

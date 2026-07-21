@@ -34,6 +34,9 @@ enum GravityDeformationType { maxwell_deformation = 0 };
 GravityDeformationType getGravityDeformationModelType(
         std::shared_ptr< basic_astrodynamics::GravityDeformationModel > gravityDeformationModel );
 
+//! Get the descriptive name of a gravity deformation model type.
+std::string getGravityDeformationModelName( const GravityDeformationType gravityDeformationType );
+
 }  // namespace basic_astrodynamics
 }  // namespace tudat
 

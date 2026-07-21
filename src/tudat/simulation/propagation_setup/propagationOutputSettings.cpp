@@ -285,6 +285,15 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case total_acceleration_derivative_partial_wrt_parameter:
             variableName = "Total acceleration derivative partial w.r.t. parameter";
             break;
+        case single_gravity_deformation_state_derivative_dependent_variable:
+            variableName = "Gravity deformation state derivative of type ";
+            break;
+        case maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable:
+            variableName = "Gravity deformation equilibrium coefficients of type ";
+            break;
+        case maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable:
+            variableName = "Gravity deformation equilibrium coefficient derivative of type ";
+            break;
         case minimum_constellation_distance:
             variableName = "Minimum instantaneous constellation distance";
             break;
@@ -393,6 +402,25 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
         else
         {
             variableId += basic_astrodynamics::getTorqueModelName( torqueDependentVariableSettings->torqueModelType_ );
+        }
+    }
+    else if( ( dependentVariableSettings->dependentVariableType_ == single_gravity_deformation_state_derivative_dependent_variable ) ||
+             ( dependentVariableSettings->dependentVariableType_ ==
+               maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable ) ||
+             ( dependentVariableSettings->dependentVariableType_ ==
+               maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable ) )
+    {
+        std::shared_ptr< SingleGravityDeformationDependentVariableSaveSettings > gravityDeformationDependentVariableSettings =
+                std::dynamic_pointer_cast< SingleGravityDeformationDependentVariableSaveSettings >( dependentVariableSettings );
+        if( gravityDeformationDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (gravity deformation type)." );
+        }
+        variableId += basic_astrodynamics::getGravityDeformationModelName(
+                gravityDeformationDependentVariableSettings->gravityDeformationModelType_ );
+        if( gravityDeformationDependentVariableSettings->deformationModelIndex_ >= 0 )
+        {
+            variableId += "at index " + std::to_string( gravityDeformationDependentVariableSettings->deformationModelIndex_ ) + " ";
         }
     }
     else if( dependentVariableSettings->dependentVariableType_ == intermediate_aerodynamic_rotation_matrix_variable )

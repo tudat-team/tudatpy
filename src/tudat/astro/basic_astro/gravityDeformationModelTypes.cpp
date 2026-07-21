@@ -28,6 +28,17 @@ GravityDeformationType getGravityDeformationModelType(
     throw std::runtime_error( "Error, could not identify gravity deformation type" );
 }
 
+std::string getGravityDeformationModelName( const GravityDeformationType gravityDeformationType )
+{
+    switch( gravityDeformationType )
+    {
+        case maxwell_deformation:
+            return "Maxwell deformation ";
+        default:
+            throw std::runtime_error( "Error, could not identify gravity deformation type" );
+    }
+}
+
 }  // namespace basic_astrodynamics
 
 }  // namespace tudat

@@ -14,6 +14,7 @@
 #include <string>
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/basic_astro/gravityDeformationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
@@ -150,7 +151,10 @@ enum PropagationDependentVariables {
     number_density = 82,
     local_wind_velocity_dependent_variable = 83,
     acceleration_derivative_partial_wrt_parameter = 84,
-    total_acceleration_derivative_partial_wrt_parameter = 85
+    total_acceleration_derivative_partial_wrt_parameter = 85,
+    single_gravity_deformation_state_derivative_dependent_variable = 86,
+    maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable = 87,
+    maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable = 88
 
 };
 
@@ -349,6 +353,35 @@ public:
 
     // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
+};
+
+//! Class to define settings for saving a quantity from a single gravity deformation model.
+class SingleGravityDeformationDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    /*!
+     * Constructor.
+     * \param dependentVariableType Type of dependent variable that is to be saved.
+     * \param gravityDeformationModelType Type of gravity deformation model that is to be selected.
+     * \param bodyUndergoingDeformation Name of the body undergoing the deformation.
+     * \param deformationModelIndex Index in the body's gravity-deformation model list. By default -1, in which case
+     * the requested model type must occur exactly once.
+     * \param componentIndex Index of the vector component to be saved. By default -1, i.e. all components are saved.
+     */
+    SingleGravityDeformationDependentVariableSaveSettings( const PropagationDependentVariables dependentVariableType,
+                                                           const basic_astrodynamics::GravityDeformationType gravityDeformationModelType,
+                                                           const std::string& bodyUndergoingDeformation,
+                                                           const int deformationModelIndex = -1,
+                                                           const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( dependentVariableType, bodyUndergoingDeformation, "", componentIndex ),
+        gravityDeformationModelType_( gravityDeformationModelType ), deformationModelIndex_( deformationModelIndex )
+    {}
+
+    //! Type of gravity deformation model that is to be selected.
+    basic_astrodynamics::GravityDeformationType gravityDeformationModelType_;
+
+    //! Index in the body's gravity-deformation model list, or -1 if the requested type is unique.
+    int deformationModelIndex_;
 };
 
 // Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames.
@@ -1155,6 +1188,49 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleTorqueVariab
 {
     return std::make_shared< SingleTorqueDependentVariableSaveSettings >(
             torqueModelType, bodyUndergoingTorque, bodyExertingTorque, false );
+}
+
+//! Create settings to save the current derivative computed by a gravity deformation model.
+inline std::shared_ptr< SingleDependentVariableSaveSettings > gravityDeformationStateDerivativeDependentVariable(
+        const basic_astrodynamics::GravityDeformationType gravityDeformationModelType,
+        const std::string& bodyUndergoingDeformation,
+        const int deformationModelIndex = -1,
+        const int componentIndex = -1 )
+{
+    return std::make_shared< SingleGravityDeformationDependentVariableSaveSettings >(
+            single_gravity_deformation_state_derivative_dependent_variable,
+            gravityDeformationModelType,
+            bodyUndergoingDeformation,
+            deformationModelIndex,
+            componentIndex );
+}
+
+//! Create settings to save the current equilibrium coefficients of a Maxwell gravity deformation model.
+inline std::shared_ptr< SingleDependentVariableSaveSettings > maxwellGravityDeformationEquilibriumCoefficientsDependentVariable(
+        const std::string& bodyUndergoingDeformation,
+        const int deformationModelIndex = -1,
+        const int componentIndex = -1 )
+{
+    return std::make_shared< SingleGravityDeformationDependentVariableSaveSettings >(
+            maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable,
+            basic_astrodynamics::maxwell_deformation,
+            bodyUndergoingDeformation,
+            deformationModelIndex,
+            componentIndex );
+}
+
+//! Create settings to save the current equilibrium-coefficient derivative of a Maxwell gravity deformation model.
+inline std::shared_ptr< SingleDependentVariableSaveSettings > maxwellGravityDeformationEquilibriumCoefficientDerivativeDependentVariable(
+        const std::string& bodyUndergoingDeformation,
+        const int deformationModelIndex = -1,
+        const int componentIndex = -1 )
+{
+    return std::make_shared< SingleGravityDeformationDependentVariableSaveSettings >(
+            maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable,
+            basic_astrodynamics::maxwell_deformation,
+            bodyUndergoingDeformation,
+            deformationModelIndex,
+            componentIndex );
 }
 
 //! @get_docstring(controlSurfaceDeflectionDependentVariable)
