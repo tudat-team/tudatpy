@@ -11,6 +11,7 @@
 #include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 
 #include <algorithm>
+#include <cmath>
 #include <set>
 
 #include <Eigen/Eigenvalues>
@@ -343,7 +344,7 @@ void InterArcStateContinuityConstraintSettings::validate( ) const
                                       bodyEntry.first + "\"." );
         }
     }
-    if( !( constraintScalingFactor_ > 0.0 ) )
+    if( !std::isfinite( constraintScalingFactor_ ) || !( constraintScalingFactor_ > 0.0 ) )
     {
         throw std::runtime_error(
                 "Error in InterArcStateContinuityConstraintSettings: constraint scaling factor must be strictly positive (" +
@@ -356,6 +357,14 @@ void InterArcStateContinuityConstraintSettings::validate( ) const
         {
             throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body +
                                       ": connection epochs are empty." );
+        }
+        for( const double connectionEpoch : connectionEpochs )
+        {
+            if( !std::isfinite( connectionEpoch ) )
+            {
+                throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body +
+                                          ": connection epochs must be finite." );
+            }
         }
         const auto arcPairsIterator = arcPairsByBody_.find( body );
         if( arcPairsIterator != arcPairsByBody_.end( ) && arcPairsIterator->second.size( ) != connectionEpochs.size( ) )
@@ -403,6 +412,11 @@ void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const std:
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body + ": weight matrix entry " +
                                   std::to_string( entryIndex ) + " must be a 6x6 matrix for translational position/velocity continuity." );
+    }
+    if( !constraintWeightMatrix.allFinite( ) )
+    {
+        throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body + ": weight matrix entry " +
+                                  std::to_string( entryIndex ) + " contains a non-finite value." );
     }
     const double weightMatrixNorm = constraintWeightMatrix.norm( );
     const double symmetryNorm = ( constraintWeightMatrix - constraintWeightMatrix.transpose( ) ).norm( );

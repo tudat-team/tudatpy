@@ -179,18 +179,18 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          .. math::
 
-            J_i=\frac{1}{2}\Delta\mathbf{z}_i^T\mathbf{W}\Delta\mathbf{z}_i+Q_{d,i},
+            J_i=\frac{1}{2}\Delta\mathbf{z}_i^T\mathbf{W}\Delta\mathbf{z}_i+J_{d,i},
 
-         where :math:`Q_{d,i}` is the continuity cost defined by that settings class. Observation residual RMS
-         remains observation-only. If no continuity constraints are attached, :math:`Q_{d,i}=0` and the normal
+         where :math:`J_{d,i}` is the continuity cost defined by that settings class. Observation residual RMS
+         remains observation-only. If no continuity constraints are attached, :math:`J_{d,i}=0` and the normal
          equation is unchanged.
 
          The results of the estimation are stored in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` object
-         (which by default contains the results from the iteration where the residual was lowest), with
+         (which contains the results from the iteration with the lowest cost defined above), with
          two key quantities being:
 
-         * The residual vector of the iteration that had the lowest residual, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
-         * The values of the parameters at the iteration that had the lowest residual, from the :attr:`~tudatpyestimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+         * The residual vector of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+         * The parameter values of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
 
          After the estimation is finished, the properties of both the environment (in the ``bodies``) and the estimated parameters
          (in the ``parameters_to_estimate``) are modified as follows:

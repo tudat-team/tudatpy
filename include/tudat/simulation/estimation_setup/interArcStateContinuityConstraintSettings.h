@@ -27,10 +27,11 @@ namespace simulation_setup
 {
 
 //! User-facing soft-continuity constraint between consecutive multi-arc translational state arcs of one or more bodies.
-//! The cost added to the LSQ target is, per pair (Lari et al. 2021 Eq. 28):
-//!   pairCost = stateDiscrepancy^T * scaledConstraintWeight * stateDiscrepancy
-//! where scaledConstraintWeight is the constraint weight matrix divided by the product of the constraint scaling
-//! factor and the total constrained dimension. Larger constraint scaling factors weaken the penalty.
+//! The cost added to Tudat's LSQ target is, per pair (Lari et al. 2021, Eqs. 4 and 28):
+//!   pairCost = 0.5 * stateDiscrepancy^T * scaledConstraintWeight * stateDiscrepancy
+//! where scaledConstraintWeight is the constraint weight matrix multiplied by the number of scalar observations
+//! and divided by the product of the constraint scaling factor and total constrained dimension. Larger constraint
+//! scaling factors weaken the penalty.
 class InterArcStateContinuityConstraintSettings
 {
 public:

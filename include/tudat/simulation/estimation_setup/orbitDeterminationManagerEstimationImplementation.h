@@ -145,7 +145,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                     variationalEquationsSolver_,
                     normalizationTerms,
                     static_cast< int >( numberEstimatedParameters_ ),
-                    "parameter estimation" );
+                    "parameter estimation",
+                    static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
             interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
             interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
         }

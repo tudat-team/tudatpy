@@ -774,9 +774,9 @@ struct CovarianceAnalysisOutput {
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+                              const bool exceptionDuringPropagation = false,
                               const double interArcContinuityCost = 0.0,
-                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
-                              const bool exceptionDuringPropagation = false ):
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
         normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
@@ -1131,9 +1131,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      considerNormalizationFactors,
                                                                      covarianceConsiderContribution,
                                                                      considerCovariance,
+                                                                     exceptionDuringPropagation,
                                                                      interArcContinuityCost,
-                                                                     interArcContinuityDiscrepancies,
-                                                                     exceptionDuringPropagation ),
+                                                                     interArcContinuityDiscrepancies ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
         exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )

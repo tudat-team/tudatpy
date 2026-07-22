@@ -183,7 +183,7 @@ BodyStateBlockIndices getBodyStateBlockIndicesInMultiArcLayout(
         const int arcIndex,
         const std::string& body )
 {
-    const auto indexMapPerArc = stmInterface->getArcWiseAndFullSolutionInitialStateIndices( );
+    const auto& indexMapPerArc = stmInterface->getArcWiseAndFullSolutionInitialStateIndices( );
     const auto arcIterator = indexMapPerArc.find( arcIndex );
     if( arcIterator == indexMapPerArc.end( ) )
     {
@@ -209,6 +209,10 @@ inline int computeTotalConstraintDimension(
     int totalConstraintDimension = 0;
     for( const auto& settings : constraintSettings )
     {
+        if( settings == nullptr )
+        {
+            throw std::runtime_error( "Error in assembleInterArcContinuityContribution: constraint settings contain a null entry." );
+        }
         for( const auto& body : settings->bodies( ) )
         {
             for( std::size_t pairIndex = 0; pairIndex < settings->numberOfPairsForBody( body ); ++pairIndex )
@@ -276,6 +280,7 @@ void addInterArcContinuityPairContribution(
         const Eigen::VectorXd& columnNormalizationFactors,
         const int totalParameterSize,
         const int totalConstraintDimension,
+        const int numberOfObservations,
         InterArcConstraintContribution& contribution )
 {
     const double connectionEpoch = settings.connectionEpochsForBody( body ).at( pairIndex );
@@ -357,14 +362,17 @@ void addInterArcContinuityPairContribution(
         throw std::runtime_error( "Error in assembleInterArcContinuityContribution: weight matrix for body \"" + body +
                                   "\" is incompatible with its propagated state block." );
     }
-    const Eigen::MatrixXd scaledConstraintWeight =
-            constraintWeightMatrix / ( settings.constraintScalingFactor( ) * static_cast< double >( totalConstraintDimension ) );
+    // Settings accept matrices symmetric to numerical tolerance. Use their symmetric part consistently in both
+    // the cost gradient and Hessian so those two terms remain derivatives of the same quadratic objective.
+    const Eigen::MatrixXd scaledConstraintWeight = static_cast< double >( numberOfObservations ) *
+            ( 0.5 * ( constraintWeightMatrix + constraintWeightMatrix.transpose( ) ) ) /
+            ( settings.constraintScalingFactor( ) * static_cast< double >( totalConstraintDimension ) );
 
     const Eigen::MatrixXd pairNormalMatrixContribution =
             continuityDesignMatrix.transpose( ) * scaledConstraintWeight * continuityDesignMatrix;
     contribution.additionalNormalMatrix.noalias( ) += 0.5 * ( pairNormalMatrixContribution + pairNormalMatrixContribution.transpose( ) );
     contribution.additionalRightHandSide.noalias( ) -= continuityDesignMatrix.transpose( ) * ( scaledConstraintWeight * stateDiscrepancy );
-    contribution.totalConstraintCost += ( stateDiscrepancy.transpose( ) * scaledConstraintWeight * stateDiscrepancy )( 0, 0 );
+    contribution.totalConstraintCost += 0.5 * ( stateDiscrepancy.transpose( ) * scaledConstraintWeight * stateDiscrepancy )( 0, 0 );
     contribution.perPairDiscrepancies.push_back( stateDiscrepancy );
 }
 
@@ -375,11 +383,14 @@ void addInterArcContinuityPairContribution(
 //! adds the resulting soft prior to the normal equations. Per Lari et al. (2021) Eq. 28, this is:
 //!   stateDiscrepancy = rightArcState(connectionEpoch) - leftArcState(connectionEpoch)
 //!   continuityDesignMatrix = rightArcVariationalRows - leftArcVariationalRows
-//!   constraintWeight = constraintWeightMatrix / (constraintScalingFactor * totalConstraintDimension)
+//!   constraintWeight = numberOfObservations * constraintWeightMatrix /
+//!                      (constraintScalingFactor * totalConstraintDimension)
 //!   normal += continuityDesignMatrix^T * constraintWeight * continuityDesignMatrix
 //!   rhs    -= continuityDesignMatrix^T * constraintWeight * stateDiscrepancy
-//! where totalConstraintDimension is the rank sum across every settings entry passed in. Column-normalization of
-//! continuityDesignMatrix uses the same factors that the OD loop applies to the observation design matrix.
+//! This is the normal-equation form of Lari et al. (2021), Eqs. (4) and (28), after multiplying the total averaged
+//! objective by numberOfObservations / 2 to match Tudat's observation-cost convention. totalConstraintDimension
+//! is the rank sum across every settings entry passed in. Column-normalization of continuityDesignMatrix uses the
+//! same factors that the OD loop applies to the observation design matrix.
 template< typename ObservationScalarType, typename TimeType >
 InterArcConstraintContribution assembleInterArcContinuityContribution(
         const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings,
@@ -388,7 +399,8 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
         const std::shared_ptr< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< ObservationScalarType > >&
                 stmInterface,
         const Eigen::VectorXd& columnNormalizationFactors,
-        const int totalParameterSize )
+        const int totalParameterSize,
+        const int numberOfObservations = 1 )
 {
     InterArcConstraintContribution contribution;
     contribution.additionalNormalMatrix = Eigen::MatrixXd::Zero( totalParameterSize, totalParameterSize );
@@ -411,6 +423,10 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
         throw std::runtime_error( "Error in assembleInterArcContinuityContribution: columnNormalizationFactors size (" +
                                   std::to_string( columnNormalizationFactors.size( ) ) + ") does not match totalParameterSize (" +
                                   std::to_string( totalParameterSize ) + ")." );
+    }
+    if( numberOfObservations <= 0 )
+    {
+        throw std::runtime_error( "Error in assembleInterArcContinuityContribution: numberOfObservations must be positive." );
     }
 
     const int fullStmCols = stmInterface->getFullStateTransitionMatrixSize( ) + stmInterface->getFullSensitivityMatrixSize( );
@@ -491,6 +507,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                                        columnNormalizationFactors,
                                                        totalParameterSize,
                                                        totalConstraintDimension,
+                                                       numberOfObservations,
                                                        contribution );
             }
         }
@@ -512,7 +529,8 @@ InterArcConstraintContribution assembleInterArcContinuityContributionFromManager
         const std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >& variationalEquationsSolver,
         const Eigen::VectorXd& columnNormalizationFactors,
         const int totalParameterSize,
-        const std::string& context )
+        const std::string& context,
+        const int numberOfObservations )
 {
     InterArcConstraintContribution contribution;
     contribution.additionalNormalMatrix = Eigen::MatrixXd( 0, 0 );
@@ -554,7 +572,8 @@ InterArcConstraintContribution assembleInterArcContinuityContributionFromManager
                                                                                       multiArcSimulator,
                                                                                       multiArcStmInterface,
                                                                                       columnNormalizationFactors,
-                                                                                      totalParameterSize );
+                                                                                      totalParameterSize,
+                                                                                      numberOfObservations );
 }
 
 }  // namespace simulation_setup

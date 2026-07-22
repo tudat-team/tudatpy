@@ -100,7 +100,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                 variationalEquationsSolver_,
                 normalizationTerms,
                 static_cast< int >( numberEstimatedParameters_ ),
-                "covariance analysis" );
+                "covariance analysis",
+                static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
         if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
         {
             inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
@@ -135,9 +136,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     considerNormalizationTerms,
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
+                    exceptionDuringPropagation,
                     interArcContribution.totalConstraintCost,
-                    interArcContribution.perPairDiscrepancies,
-                    exceptionDuringPropagation );
+                    interArcContribution.perPairDiscrepancies );
 
     return estimationOutput;
 }

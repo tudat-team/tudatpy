@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquatio
             continuityDesignMatrix.transpose( ) * scaledConstraintWeight * continuityDesignMatrix;
     const Eigen::VectorXd expectedRightHandSideContribution =
             -continuityDesignMatrix.transpose( ) * ( scaledConstraintWeight * stateDiscrepancy );
-    const double expectedCost = stateDiscrepancy.transpose( ) * scaledConstraintWeight * stateDiscrepancy;
+    const double expectedCost = 0.5 * stateDiscrepancy.transpose( ) * scaledConstraintWeight * stateDiscrepancy;
 
     BOOST_CHECK_LT( ( contribution.additionalNormalMatrix - expectedNormalMatrixContribution ).norm( ) /
                             std::max( expectedNormalMatrixContribution.norm( ), 1.0E-30 ),
@@ -650,10 +650,10 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_ComponentMasksAndRelativeR
 
     const Eigen::VectorXd& stateDiscrepancy = fullContribution.perPairDiscrepancies.at( 0 );
     BOOST_CHECK_EQUAL( stateDiscrepancy.rows( ), 6 );
-    const double expectedPositionCost = ( 2.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.head( 3 ).squaredNorm( );
-    const double expectedVelocityCost = ( 4.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.tail( 3 ).squaredNorm( );
-    const double expectedFullCost =
-            ( 1.0 / ( 5.0 * 6.0 ) ) * ( 2.0 * stateDiscrepancy.head( 3 ).squaredNorm( ) + 4.0 * stateDiscrepancy.tail( 3 ).squaredNorm( ) );
+    const double expectedPositionCost = 0.5 * ( 2.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.head( 3 ).squaredNorm( );
+    const double expectedVelocityCost = 0.5 * ( 4.0 / ( 5.0 * 3.0 ) ) * stateDiscrepancy.tail( 3 ).squaredNorm( );
+    const double expectedFullCost = 0.5 * ( 1.0 / ( 5.0 * 6.0 ) ) *
+            ( 2.0 * stateDiscrepancy.head( 3 ).squaredNorm( ) + 4.0 * stateDiscrepancy.tail( 3 ).squaredNorm( ) );
 
     BOOST_CHECK_CLOSE_FRACTION( positionContribution.totalConstraintCost, expectedPositionCost, 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( velocityContribution.totalConstraintCost, expectedVelocityCost, 1.0E-12 );
@@ -793,9 +793,24 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_NormalisationInvariance )
                                                                             fixture.stmInterface,
                                                                             scaledColumnNormalizationFactors,
                                                                             totalParameterSize );
+    const int numberOfObservations = 7;
+    auto observationScaled = assembleInterArcContinuityContribution< double, double >( { settings },
+                                                                                       fixture.parametersToEstimate,
+                                                                                       fixture.simulator,
+                                                                                       fixture.stmInterface,
+                                                                                       unitColumnNormalizationFactors,
+                                                                                       totalParameterSize,
+                                                                                       numberOfObservations );
 
     // The cost is computed in physical units (independent of column normalization) and must match exactly.
     BOOST_CHECK_CLOSE_FRACTION( unit.totalConstraintCost, scaled.totalConstraintCost, 1.0E-12 );
+    BOOST_CHECK_LT( ( observationScaled.additionalNormalMatrix - numberOfObservations * unit.additionalNormalMatrix ).norm( ) /
+                            std::max( observationScaled.additionalNormalMatrix.norm( ), 1.0E-30 ),
+                    1.0E-12 );
+    BOOST_CHECK_LT( ( observationScaled.additionalRightHandSide - numberOfObservations * unit.additionalRightHandSide ).norm( ) /
+                            std::max( observationScaled.additionalRightHandSide.norm( ), 1.0E-30 ),
+                    1.0E-12 );
+    BOOST_CHECK_CLOSE_FRACTION( observationScaled.totalConstraintCost, numberOfObservations * unit.totalConstraintCost, 1.0E-12 );
 
     // Uniformly scaling every column-normalization factor by k scales the normal matrix contribution by 1/k^2
     // and the right-hand-side contribution by 1/k. The normalized parameter update must therefore be divided
@@ -918,7 +933,7 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
     // Re-estimate with a position-only continuity prior at the shared OCM boundary.
     parametersToEstimate->resetParameterValues( initialEstimate );
     auto estimationInputWithConstraint = std::make_shared< EstimationInput< double, double > >( observations );
-    auto constraint = positionOnlyContinuity( "Earth", { arcStartTimes[ 1 ] }, 1.0, 1.0E-12 );
+    auto constraint = positionOnlyContinuity( "Earth", { arcStartTimes[ 1 ] }, 1.0, 1.0E14 );
     estimationInputWithConstraint->setInterArcContinuityConstraints( { constraint } );
     auto outputWithConstraint = orbitDeterminationManager.estimateParameters( estimationInputWithConstraint );
 
@@ -950,12 +965,12 @@ BOOST_AUTO_TEST_CASE( test_OdLoop_WithInterArcContinuity_EndToEnd )
         BOOST_CHECK_SMALL( ( outputDiscrepancies.at( i ) - bestIterationDiscrepancies.at( i ) ).norm( ), 1.0E-14 );
     }
 
-    // The boundary discrepancy at the best iteration should be smaller than at the first iteration for any
-    // non-trivially-weak constraint.
+    // The prior must have a useful, non-catastrophic effect: the selected iteration reduces the constrained
+    // position jump from its initial value while retaining a sub-metre observation residual RMS.
     const Eigen::VectorXd& bestIterationStateDiscrepancy = history.at( bestIterationIndex ).at( 0 );
     BOOST_CHECK_EQUAL( bestIterationStateDiscrepancy.rows( ), 6 );
-    BOOST_TEST_MESSAGE( "Best-iter position discrepancy with constraint: " << bestIterationStateDiscrepancy.head( 3 ).norm( ) );
-    BOOST_TEST_MESSAGE( "Best-iter velocity discrepancy with constraint: " << bestIterationStateDiscrepancy.tail( 3 ).norm( ) );
+    BOOST_CHECK_LT( bestIterationStateDiscrepancy.head( 3 ).norm( ), history.front( ).at( 0 ).head( 3 ).norm( ) );
+    BOOST_CHECK_LT( linear_algebra::getVectorEntryRootMeanSquare( outputWithConstraint->residuals_ ), 1.0 );
     BOOST_CHECK( std::isfinite( bestIterationStateDiscrepancy.norm( ) ) );
 }
 
@@ -1265,6 +1280,25 @@ BOOST_AUTO_TEST_CASE( test_LeastSquaresEmptyAdditionsNoOp )
                        std::runtime_error );
 }
 
+//! CovarianceAnalysisOutput's pre-existing final positional argument is the propagation-exception flag. New
+//! continuity diagnostics must remain appended after it to avoid silently converting that bool to a cost.
+BOOST_AUTO_TEST_CASE( test_CovarianceOutputConstructorRetainsPositionalCompatibility )
+{
+    auto output = CovarianceAnalysisOutput< double, double >( Eigen::MatrixXd::Identity( 1, 1 ),
+                                                              Eigen::VectorXd::Ones( 1 ),
+                                                              Eigen::VectorXd::Ones( 1 ),
+                                                              Eigen::MatrixXd::Identity( 1, 1 ),
+                                                              Eigen::MatrixXd::Zero( 0, 0 ),
+                                                              Eigen::VectorXd::Zero( 0 ),
+                                                              Eigen::MatrixXd::Zero( 0, 0 ),
+                                                              Eigen::MatrixXd::Zero( 0, 0 ),
+                                                              true );
+
+    BOOST_CHECK( output.exceptionDuringPropagation_ );
+    BOOST_CHECK_EQUAL( output.getInterArcContinuityCost( ), 0.0 );
+    BOOST_CHECK( output.getInterArcContinuityDiscrepancies( ).empty( ) );
+}
+
 //! Test A5: hard-equality constraints (Lagrange multipliers) and soft additions (additionalNormalMatrix /
 //! additionalRightHandSide) compose correctly. The hard constraint augments the system to (n + n_c); the soft
 //! addition goes into the top-left n×n parameter block only.
@@ -1355,6 +1389,14 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     // Non-positive constraint scaling factors throw.
     BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", epochs, 1.0, 0.0 ), std::runtime_error );
     BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", epochs, 1.0, -1.0 ), std::runtime_error );
+    BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", epochs, 1.0, std::numeric_limits< double >::infinity( ) ), std::runtime_error );
+
+    // Epochs and weights must be finite to prevent invalid comparisons/eigendecompositions during assembly.
+    BOOST_CHECK_THROW( positionOnlyContinuity( "Sat", { 100.0, std::numeric_limits< double >::quiet_NaN( ) }, 1.0, 1.0 ),
+                       std::runtime_error );
+    Eigen::Matrix< double, 6, 6 > nonFiniteWeight = Eigen::Matrix< double, 6, 6 >::Identity( );
+    nonFiniteWeight( 0, 0 ) = std::numeric_limits< double >::infinity( );
+    BOOST_CHECK_THROW( generalContinuity( "Sat", epochs, { nonFiniteWeight } ), std::runtime_error );
 
     // Asymmetric weight matrix throws.
     Eigen::Matrix< double, 6, 6 > asymmetric = Eigen::Matrix< double, 6, 6 >::Zero( );

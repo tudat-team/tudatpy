@@ -952,7 +952,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          **read-only**
 
-         Soft inter-arc continuity cost :math:`Q_d` at the covariance-analysis linearization point. See
+         Soft inter-arc continuity cost :math:`J_d` at the covariance-analysis linearization point. See
          :class:`InterArcStateContinuityConstraintSettings` for its definition and input mapping. This value is
          zero when no inter-arc continuity constraints were attached.
 
@@ -1041,7 +1041,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          **read-only**
 
-         Per-iteration continuity cost :math:`Q_d`. See :class:`InterArcStateContinuityConstraintSettings` for the
+         Per-iteration continuity cost :math:`J_d`. See :class:`InterArcStateContinuityConstraintSettings` for the
          mathematical definition. Empty if no continuity constraints were attached to the input.
 
          :type: list[float]

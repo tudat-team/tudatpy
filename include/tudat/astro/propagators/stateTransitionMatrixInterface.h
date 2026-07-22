@@ -670,7 +670,7 @@ public:
         return fullSensitivityMatrixSize_;
     }
 
-    std::map< int, std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > >
+    const std::map< int, std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > >&
     getArcWiseAndFullSolutionInitialStateIndices( ) const
     {
         return arcWiseAndFullSolutionInitialStateIndices_;
@@ -756,9 +756,8 @@ protected:
         Eigen::MatrixXd fullCombinedStateTransitionMatrix =
                 Eigen::MatrixXd::Zero( fullStateSize_, fullStateTransitionMatrixSize_ + fullSensitivityMatrixSize_ );
 
-        std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > > arcWiseAndFullSolutionIndices =
-                arcWiseAndFullSolutionInitialStateIndices_.at( currentArc );
-        for( auto bodyEntry : arcWiseAndFullSolutionIndices )
+        const auto& arcWiseAndFullSolutionIndices = arcWiseAndFullSolutionInitialStateIndices_.at( currentArc );
+        for( const auto& bodyEntry : arcWiseAndFullSolutionIndices )
         {
             std::pair< int, int > indicesInArcWiseSolution = bodyEntry.second.first;
             std::pair< std::pair< int, int >, int > indicesInFullSolution = bodyEntry.second.second;
@@ -772,7 +771,7 @@ protected:
                                                          indicesInArcWiseSolution.second,
                                                          indicesInArcWiseSolution.second );
 
-            for( auto otherBodyEntry : arcWiseAndFullSolutionIndices )
+            for( const auto& otherBodyEntry : arcWiseAndFullSolutionIndices )
             {
                 if( otherBodyEntry.first != bodyEntry.first )
                 {

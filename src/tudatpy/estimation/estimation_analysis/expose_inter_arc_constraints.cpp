@@ -57,21 +57,23 @@ void expose_inter_arc_constraints( py::module& m )
 
          where :math:`\mathbf{M}` contains the applicable rows of the full state-transition and sensitivity
          matrix. With user-supplied positive semi-definite weight :math:`\mathbf{C}_{bk}`, scaling factor
-         :math:`\mu_s` for settings object :math:`s`, and
+         :math:`\mu_s` for settings object :math:`s`, :math:`m` scalar observations, and
 
          .. math::
 
             m_d=\sum_{b,k}\operatorname{rank}(\mathbf{C}_{bk}),\qquad
-            \mathbf{W}_{d,bk}=\frac{\mathbf{C}_{bk}}{\mu_s m_d},
+            \mathbf{W}_{d,bk}=\frac{m}{\mu_s m_d}\mathbf{C}_{bk},
 
          the implemented continuity cost is
 
          .. math::
 
-            Q_d=\sum_{b,k}\mathbf{d}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{d}_{bk}.
+            J_d=\frac{1}{2}\sum_{b,k}\mathbf{d}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{d}_{bk}.
 
-         The rank sum generalizes the number of scalar jump constraints :math:`m_d=6(n-1)` in Eq. (28) of
-         `Lari et al. (2021) <https://doi.org/10.1007/s10686-021-09823-8>`_ to component masks and general
+         This is Eqs. (4) and (28) of
+         `Lari et al. (2021) <https://doi.org/10.1007/s10686-021-09823-8>`_, after multiplying the averaged total
+         objective by :math:`m/2` to match Tudat's :math:`\frac{1}{2}\mathbf{r}^{T}\mathbf{W}\mathbf{r}`
+         convention. The rank sum generalizes Lari et al.'s :math:`m_d=6(n-1)` to component masks and general
          rank-deficient weights. If :math:`\mathbf{N}` contains the observation-design-matrix column
          normalization factors, :math:`\widetilde{\mathbf{D}}_{bk}=\mathbf{D}_{bk}\operatorname{diag}(\mathbf{N})^{-1}`.
          The normal matrix and estimation right-hand side receive
