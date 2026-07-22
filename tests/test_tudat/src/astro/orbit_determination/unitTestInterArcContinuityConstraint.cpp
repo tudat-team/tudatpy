@@ -345,22 +345,22 @@ BOOST_AUTO_TEST_CASE( test_EvaluateArcStateAtTime_NearBoundaryEpochsAreInterpola
         arcSolution[ time ] = stateAtTime( time );
     }
 
-    const Eigen::VectorXd initialState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
-            arcSolution, arcInitialTime, arcInitialTime, arcFinalTime, 0, 6 );
-    const Eigen::VectorXd finalState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
-            arcSolution, arcFinalTime, arcInitialTime, arcFinalTime, 0, 6 );
+    const Eigen::VectorXd initialState =
+            simulation_setup::evaluateArcStateAtTime< double, double >( arcSolution, arcInitialTime, arcInitialTime, arcFinalTime, 0, 6 );
+    const Eigen::VectorXd finalState =
+            simulation_setup::evaluateArcStateAtTime< double, double >( arcSolution, arcFinalTime, arcInitialTime, arcFinalTime, 0, 6 );
     BOOST_CHECK_SMALL( ( initialState - stateAtTime( arcInitialTime ) ).norm( ), std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL( ( finalState - stateAtTime( arcFinalTime ) ).norm( ), std::numeric_limits< double >::epsilon( ) );
 
     const double nearStartEpoch = arcInitialTime + 1.25;
-    const Eigen::VectorXd nearStartState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
-            arcSolution, nearStartEpoch, arcInitialTime, arcFinalTime, 0, 6 );
+    const Eigen::VectorXd nearStartState =
+            simulation_setup::evaluateArcStateAtTime< double, double >( arcSolution, nearStartEpoch, arcInitialTime, arcFinalTime, 0, 6 );
     BOOST_CHECK_SMALL( ( nearStartState - stateAtTime( nearStartEpoch ) ).norm( ), 1.0E-6 );
     BOOST_CHECK_GT( ( nearStartState - stateAtTime( arcInitialTime ) ).norm( ), 1.0E-3 );
 
     const double nearFinalEpoch = arcFinalTime - 1.25;
-    const Eigen::VectorXd nearFinalState = simulation_setup::detail::evaluateArcStateAtTime< double, double >(
-            arcSolution, nearFinalEpoch, arcInitialTime, arcFinalTime, 0, 6 );
+    const Eigen::VectorXd nearFinalState =
+            simulation_setup::evaluateArcStateAtTime< double, double >( arcSolution, nearFinalEpoch, arcInitialTime, arcFinalTime, 0, 6 );
     BOOST_CHECK_SMALL( ( nearFinalState - stateAtTime( nearFinalEpoch ) ).norm( ), 1.0E-6 );
     BOOST_CHECK_GT( ( nearFinalState - stateAtTime( arcFinalTime ) ).norm( ), 1.0E-3 );
 }
@@ -1375,7 +1375,9 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
             InterArcStateContinuityConstraintSettings( { "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
                                                        InterArcStateContinuityConstraintSettings::WeightMatrixMap{
-                                                               { "Sat", { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) } } },
+                                                               { "Sat",
+                                                                 { tudat::simulation_setup::createCartesianStateWeightMatrix(
+                                                                         Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },
                                                        1.0,
                                                        makeSingleBodyArcPairs( "Sat", { { 0, 1 } } ) ),
             std::runtime_error );
@@ -1385,27 +1387,33 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
             InterArcStateContinuityConstraintSettings( { "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
                                                        InterArcStateContinuityConstraintSettings::WeightMatrixMap{
-                                                               { "Sat", { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) } } },
+                                                               { "Sat",
+                                                                 { tudat::simulation_setup::createCartesianStateWeightMatrix(
+                                                                         Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },
                                                        1.0,
                                                        makeSingleBodyArcPairs( "Sat", { { 0, 2 }, { 1, 3 } } ) ),
             std::runtime_error );
 
     // weightMatrices size must either broadcast from one matrix or match the number of arc pairs.
-    BOOST_CHECK_THROW(
-            InterArcStateContinuityConstraintSettings(
-                    { "Sat" },
-                    makeSingleBodyEpochs( "Sat", epochs ),
-                    InterArcStateContinuityConstraintSettings::WeightMatrixMap{
-                            { "Sat", std::vector< Eigen::MatrixXd >( 3, tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) ) } },
-                    1.0 ),
-            std::runtime_error );
+    BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
+                               { "Sat" },
+                               makeSingleBodyEpochs( "Sat", epochs ),
+                               InterArcStateContinuityConstraintSettings::WeightMatrixMap{
+                                       { "Sat",
+                                         std::vector< Eigen::MatrixXd >( 3,
+                                                                         tudat::simulation_setup::createCartesianStateWeightMatrix(
+                                                                                 Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) ) } },
+                               1.0 ),
+                       std::runtime_error );
 
     // Duplicate bodies throw.
     BOOST_CHECK_THROW(
             InterArcStateContinuityConstraintSettings( { "Sat", "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
                                                        InterArcStateContinuityConstraintSettings::WeightMatrixMap{
-                                                               { "Sat", { tudat::simulation_setup::detail::diagonalWeight( 1.0, 1.0 ) } } },
+                                                               { "Sat",
+                                                                 { tudat::simulation_setup::createCartesianStateWeightMatrix(
+                                                                         Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },
                                                        1.0 ),
             std::runtime_error );
 }

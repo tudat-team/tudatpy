@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <Eigen/Core>
@@ -35,6 +36,10 @@ class InterArcStateContinuityConstraintSettings
 public:
     using EpochMap = std::map< std::string, std::vector< double > >;
     using WeightMatrixMap = std::map< std::string, std::vector< Eigen::MatrixXd > >;
+    using CartesianStateWeight = std::variant< double, Eigen::VectorXd >;
+    using CartesianStateWeightMap = std::map< std::string, CartesianStateWeight >;
+    using WeightMatrixInput = std::variant< Eigen::MatrixXd, std::vector< Eigen::MatrixXd > >;
+    using WeightMatrixInputMap = std::map< std::string, WeightMatrixInput >;
     using ArcPairMap = std::map< std::string, std::vector< std::pair< int, int > > >;
 
     InterArcStateContinuityConstraintSettings( std::vector< std::string > bodies,
@@ -91,97 +96,74 @@ private:
     ArcPairMap arcPairsByBody_;
 };
 
-namespace detail
-{
-
-inline Eigen::MatrixXd diagonalWeight( double position, double velocity )
-{
-    Eigen::MatrixXd constraintWeightMatrix = Eigen::MatrixXd::Zero( 6, 6 );
-    constraintWeightMatrix( 0, 0 ) = position;
-    constraintWeightMatrix( 1, 1 ) = position;
-    constraintWeightMatrix( 2, 2 ) = position;
-    constraintWeightMatrix( 3, 3 ) = velocity;
-    constraintWeightMatrix( 4, 4 ) = velocity;
-    constraintWeightMatrix( 5, 5 ) = velocity;
-    return constraintWeightMatrix;
-}
-
-inline InterArcStateContinuityConstraintSettings::WeightMatrixMap createUniformBodyWeightMap( const std::vector< std::string >& bodies,
-                                                                                              const Eigen::MatrixXd& weightMatrix )
-{
-    InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody;
-    for( const auto& body : bodies )
-    {
-        weightMatricesByBody[ body ] = { weightMatrix };
-    }
-    return weightMatricesByBody;
-}
-
-}  // namespace detail
+//! Create the 6x6 diagonal weight matrix for Cartesian-state continuity.
+Eigen::MatrixXd createCartesianStateWeightMatrix( const Eigen::Vector3d& positionWeights, const Eigen::Vector3d& velocityWeights );
 
 //! Build a soft-prior settings object with both position and velocity continuity.
-inline std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
+std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
         std::vector< std::string > bodies,
         InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
         double positionWeight = 1.0,
         double velocityWeight = 1.0,
         double constraintScalingFactor = 1.0,
-        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} )
-{
-    auto weightMatricesByBody = detail::createUniformBodyWeightMap( bodies, detail::diagonalWeight( positionWeight, velocityWeight ) );
-    return std::make_shared< InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                          std::move( connectionEpochsByBody ),
-                                                                          std::move( weightMatricesByBody ),
-                                                                          constraintScalingFactor,
-                                                                          std::move( arcPairsByBody ) );
-}
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
+
+//! Build full-state settings with body-specific isotropic or component-wise position and velocity weights.
+std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap positionWeightsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap velocityWeightsByBody,
+        double constraintScalingFactor = 1.0,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
 
 //! Build a settings object with position-only continuity (velocity rows/columns of the weight matrix zeroed).
-inline std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
+std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
         std::vector< std::string > bodies,
         InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
         double positionWeight = 1.0,
         double constraintScalingFactor = 1.0,
-        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} )
-{
-    auto weightMatricesByBody = detail::createUniformBodyWeightMap( bodies, detail::diagonalWeight( positionWeight, 0.0 ) );
-    return std::make_shared< InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                          std::move( connectionEpochsByBody ),
-                                                                          std::move( weightMatricesByBody ),
-                                                                          constraintScalingFactor,
-                                                                          std::move( arcPairsByBody ) );
-}
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
+
+//! Build position-only settings with body-specific isotropic or component-wise position weights.
+std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap positionWeightsByBody,
+        double constraintScalingFactor = 1.0,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
 
 //! Build a settings object with velocity-only continuity (position rows/columns of the weight matrix zeroed).
-inline std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
+std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
         std::vector< std::string > bodies,
         InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
         double velocityWeight = 1.0,
         double constraintScalingFactor = 1.0,
-        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} )
-{
-    auto weightMatricesByBody = detail::createUniformBodyWeightMap( bodies, detail::diagonalWeight( 0.0, velocityWeight ) );
-    return std::make_shared< InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                          std::move( connectionEpochsByBody ),
-                                                                          std::move( weightMatricesByBody ),
-                                                                          constraintScalingFactor,
-                                                                          std::move( arcPairsByBody ) );
-}
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
+
+//! Build velocity-only settings with body-specific isotropic or component-wise velocity weights.
+std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap velocityWeightsByBody,
+        double constraintScalingFactor = 1.0,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
 
 //! Build a soft-prior settings object with arbitrary body-specific, possibly per-boundary, 6x6 PSD weight matrices.
-inline std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
+std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
         std::vector< std::string > bodies,
         InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
         InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody,
         double constraintScalingFactor = 1.0,
-        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} )
-{
-    return std::make_shared< InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                          std::move( connectionEpochsByBody ),
-                                                                          std::move( weightMatricesByBody ),
-                                                                          constraintScalingFactor,
-                                                                          std::move( arcPairsByBody ) );
-}
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
+
+//! Build general settings from one or more body-specific 6x6 PSD weight matrices.
+std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::WeightMatrixInputMap weightMatricesByBody,
+        double constraintScalingFactor = 1.0,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody = {} );
 
 }  // namespace simulation_setup
 }  // namespace tudat

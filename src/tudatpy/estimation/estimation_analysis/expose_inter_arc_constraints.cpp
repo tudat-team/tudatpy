@@ -11,10 +11,7 @@
 #include "expose_inter_arc_constraints.h"
 
 #include <Eigen/Core>
-#include <map>
 #include <memory>
-#include <set>
-#include <utility>
 #include <vector>
 
 #include <pybind11/eigen.h>
@@ -25,124 +22,6 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
-namespace
-{
-
-//! Build a 6x6 diagonal weight matrix from either a scalar or a length-3 sequence of per-component weights.
-Eigen::MatrixXd buildDiagonalWeight( const py::object& positionWeight, const py::object& velocityWeight )
-{
-    Eigen::MatrixXd constraintWeightMatrix = Eigen::MatrixXd::Zero( 6, 6 );
-    auto fillBlock = [ &constraintWeightMatrix ]( const py::object& value, int startIdx ) {
-        if( value.is_none( ) )
-        {
-            return;
-        }
-        if( PyNumber_Check( value.ptr( ) ) != 0 && PySequence_Check( value.ptr( ) ) == 0 )
-        {
-            const double scalar = value.cast< double >( );
-            constraintWeightMatrix( startIdx, startIdx ) = scalar;
-            constraintWeightMatrix( startIdx + 1, startIdx + 1 ) = scalar;
-            constraintWeightMatrix( startIdx + 2, startIdx + 2 ) = scalar;
-        }
-        else
-        {
-            const std::vector< double > weights = value.cast< std::vector< double > >( );
-            if( weights.size( ) != 3 )
-            {
-                throw std::runtime_error( "Inter-arc continuity weight must be a scalar or a length-3 sequence." );
-            }
-            for( int i = 0; i < 3; ++i )
-            {
-                constraintWeightMatrix( startIdx + i, startIdx + i ) = weights[ static_cast< std::size_t >( i ) ];
-            }
-        }
-    };
-    fillBlock( positionWeight, 0 );
-    fillBlock( velocityWeight, 3 );
-    return constraintWeightMatrix;
-}
-
-void validateDictionaryKeys( const py::dict& values, const std::vector< std::string >& bodies, const std::string& argumentName )
-{
-    std::set< std::string > expectedBodies( bodies.begin( ), bodies.end( ) );
-    for( const auto& item : values )
-    {
-        const std::string body = py::cast< std::string >( item.first );
-        if( expectedBodies.count( body ) == 0 )
-        {
-            throw std::runtime_error( "Inter-arc continuity " + argumentName + " contains unknown body \"" + body + "\"." );
-        }
-    }
-    for( const auto& body : bodies )
-    {
-        if( !values.contains( py::str( body ) ) )
-        {
-            throw std::runtime_error( "Inter-arc continuity " + argumentName + " is missing body \"" + body + "\"." );
-        }
-    }
-}
-
-py::object getBodyValue( const py::dict& values, const std::string& body )
-{
-    return py::reinterpret_borrow< py::object >( values[ py::str( body ) ] );
-}
-
-py::dict buildUniformWeightDictionary( const std::vector< std::string >& bodies, const double value )
-{
-    py::dict weights;
-    for( const auto& body : bodies )
-    {
-        weights[ py::str( body ) ] = py::float_( value );
-    }
-    return weights;
-}
-
-tss::InterArcStateContinuityConstraintSettings::WeightMatrixMap buildDiagonalWeightMatricesByBody( const std::vector< std::string >& bodies,
-                                                                                                   const py::dict& positionWeights,
-                                                                                                   const py::dict& velocityWeights )
-{
-    validateDictionaryKeys( positionWeights, bodies, "position_weights" );
-    validateDictionaryKeys( velocityWeights, bodies, "velocity_weights" );
-    tss::InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody;
-    for( const auto& body : bodies )
-    {
-        weightMatricesByBody[ body ] = { buildDiagonalWeight( getBodyValue( positionWeights, body ),
-                                                              getBodyValue( velocityWeights, body ) ) };
-    }
-    return weightMatricesByBody;
-}
-
-tss::InterArcStateContinuityConstraintSettings::WeightMatrixMap buildGeneralWeightMatricesByBody( const std::vector< std::string >& bodies,
-                                                                                                  const py::dict& weightMatrices )
-{
-    validateDictionaryKeys( weightMatrices, bodies, "weight_matrices" );
-    tss::InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody;
-    for( const auto& body : bodies )
-    {
-        const py::object bodyWeightMatrices = getBodyValue( weightMatrices, body );
-        try
-        {
-            weightMatricesByBody[ body ] = { bodyWeightMatrices.cast< Eigen::MatrixXd >( ) };
-        }
-        catch( const py::cast_error& )
-        {
-            weightMatricesByBody[ body ] = bodyWeightMatrices.cast< std::vector< Eigen::MatrixXd > >( );
-        }
-    }
-    return weightMatricesByBody;
-}
-
-tss::InterArcStateContinuityConstraintSettings::ArcPairMap buildArcPairsByBody( const py::object& arcPairs )
-{
-    if( arcPairs.is_none( ) )
-    {
-        return {};
-    }
-    return arcPairs.cast< tss::InterArcStateContinuityConstraintSettings::ArcPairMap >( );
-}
-
-}  // namespace
-
 namespace tudatpy
 {
 namespace estimation
@@ -152,6 +31,8 @@ namespace estimation_analysis
 
 void expose_inter_arc_constraints( py::module& m )
 {
+    using Settings = tss::InterArcStateContinuityConstraintSettings;
+
     py::class_< tss::InterArcStateContinuityConstraintSettings, std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > >(
             m,
             "InterArcStateContinuityConstraintSettings",
@@ -165,126 +46,210 @@ void expose_inter_arc_constraints( py::module& m )
          :meth:`EstimationInput.set_inter_arc_continuity_constraints` to attach the feature. The feature is
          currently supported for pure multi-arc translational estimators only.
 
-         See Lari et al. (2021), Eq. (28) for the underlying mathematics. The cost contribution per boundary
-         uses the state discrepancy, the constraint weight matrix, the constraint scaling factor, and the total
-         constrained dimension across every settings entry. Larger constraint scaling factors weaken the penalty.
+         For body :math:`b` and constrained arc pair :math:`k=(\ell,r)` at connection epoch :math:`t_{c,bk}`,
+         the state discrepancy and its parameter partials are
+
+         .. math::
+
+            \mathbf{d}_{bk} &= \mathbf{x}_{r,b}(t_{c,bk})-\mathbf{x}_{\ell,b}(t_{c,bk}),\\
+            \mathbf{D}_{bk} &= \frac{\partial\mathbf{d}_{bk}}{\partial\mathbf{p}}
+            =\mathbf{M}_{r,b}(t_{c,bk})-\mathbf{M}_{\ell,b}(t_{c,bk}),
+
+         where :math:`\mathbf{M}` contains the applicable rows of the full state-transition and sensitivity
+         matrix. With user-supplied positive semi-definite weight :math:`\mathbf{C}_{bk}`, scaling factor
+         :math:`\mu_s` for settings object :math:`s`, and
+
+         .. math::
+
+            m_d=\sum_{b,k}\operatorname{rank}(\mathbf{C}_{bk}),\qquad
+            \mathbf{W}_{d,bk}=\frac{\mathbf{C}_{bk}}{\mu_s m_d},
+
+         the implemented continuity cost is
+
+         .. math::
+
+            Q_d=\sum_{b,k}\mathbf{d}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{d}_{bk}.
+
+         The rank sum generalizes the number of scalar jump constraints :math:`m_d=6(n-1)` in Eq. (28) of
+         `Lari et al. (2021) <https://doi.org/10.1007/s10686-021-09823-8>`_ to component masks and general
+         rank-deficient weights. If :math:`\mathbf{N}` contains the observation-design-matrix column
+         normalization factors, :math:`\widetilde{\mathbf{D}}_{bk}=\mathbf{D}_{bk}\operatorname{diag}(\mathbf{N})^{-1}`.
+         The normal matrix and estimation right-hand side receive
+
+         .. math::
+
+            \Delta\widetilde{\mathbf{P}}^{-1} &=
+            \sum_{b,k}\widetilde{\mathbf{D}}_{bk}^{T}\mathbf{W}_{d,bk}\widetilde{\mathbf{D}}_{bk},\\
+            \Delta\widetilde{\mathbf{g}} &=-
+            \sum_{b,k}\widetilde{\mathbf{D}}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{d}_{bk}.
+
+         ``bodies`` selects :math:`b`; ``connection_epochs`` supplies :math:`t_{c,bk}`; ``arc_pairs`` supplies
+         :math:`(\ell,r)` (or consecutive pairs are inferred); the factory weight arguments construct
+         :math:`\mathbf{C}_{bk}`; and ``constraint_scaling_factor`` is :math:`\mu_s`. Larger values of
+         :math:`\mu_s` weaken the constraint.
+
+         Attributes
+         ----------
+         bodies : list[str]
+             Bodies whose multi-arc translational states are constrained.
+         connection_epochs : dict[str, list[float]]
+             Body-specific connection epochs :math:`t_{c,bk}`, in seconds since J2000.
+         constraint_scaling_factor : float
+             Positive penalty scaling factor :math:`\mu_s`.
+         arc_pairs : dict[str, list[tuple[int, int]]]
+             Optional body-specific zero-based ``(left_arc, right_arc)`` pairs.
       )doc" )
             .def_property_readonly( "bodies", &tss::InterArcStateContinuityConstraintSettings::bodies )
             .def_property_readonly( "connection_epochs", &tss::InterArcStateContinuityConstraintSettings::connectionEpochsByBody )
             .def_property_readonly( "constraint_scaling_factor", &tss::InterArcStateContinuityConstraintSettings::constraintScalingFactor )
             .def_property_readonly( "arc_pairs", &tss::InterArcStateContinuityConstraintSettings::arcPairsByBody );
 
-    m.def(
-            "full_state_continuity",
-            []( std::vector< std::string > bodies,
-                tss::InterArcStateContinuityConstraintSettings::EpochMap epochs,
-                py::dict positionWeights,
-                py::dict velocityWeights,
-                double constraintScalingFactor,
-                py::object arcPairs ) {
-                auto weightMatricesByBody = buildDiagonalWeightMatricesByBody( bodies, positionWeights, velocityWeights );
-                auto arcPairsByBody = buildArcPairsByBody( arcPairs );
-                return std::make_shared< tss::InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                                           std::move( epochs ),
-                                                                                           std::move( weightMatricesByBody ),
-                                                                                           constraintScalingFactor,
-                                                                                           std::move( arcPairsByBody ) );
-            },
-            py::arg( "bodies" ),
-            py::arg( "epochs" ),
-            py::arg( "position_weights" ),
-            py::arg( "velocity_weights" ),
-            py::arg( "constraint_scaling_factor" ) = 1.0,
-            py::arg( "arc_pairs" ) = py::none( ),
-            R"doc(
+    m.def( "full_state_continuity",
+           static_cast< std::shared_ptr< Settings > ( * )( std::vector< std::string >,
+                                                           Settings::EpochMap,
+                                                           Settings::CartesianStateWeightMap,
+                                                           Settings::CartesianStateWeightMap,
+                                                           double,
+                                                           Settings::ArcPairMap ) >( &tss::fullStateContinuity ),
+           py::arg( "bodies" ),
+           py::arg( "epochs" ),
+           py::arg( "position_weights" ),
+           py::arg( "velocity_weights" ),
+           py::arg( "constraint_scaling_factor" ) = 1.0,
+           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           R"doc(
 
-         Build a full translational-state (position + velocity) continuity settings object. ``epochs``, ``position_weights``,
-         and ``velocity_weights`` must be dictionaries keyed by body name. Weight values may each be a scalar
-         (isotropic) or a length-3 sequence (anisotropic). ``constraint_scaling_factor`` is one global scaling
-         factor for all bodies and connection epochs.
+         Build full translational-state continuity settings.
+
+         The position and velocity entries form the diagonal blocks of :math:`\mathbf{C}_{bk}` defined by
+         :class:`InterArcStateContinuityConstraintSettings`. One matrix is broadcast to every connection epoch
+         of a body.
+
+         Parameters
+         ----------
+         bodies : list[str]
+             Bodies whose position and velocity jumps are constrained.
+         epochs : dict[str, list[float]]
+             Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
+         position_weights : dict[str, float | array_like[float, 3]]
+             Isotropic scalar or three Cartesian diagonal position weights for each body.
+         velocity_weights : dict[str, float | array_like[float, 3]]
+             Isotropic scalar or three Cartesian diagonal velocity weights for each body.
+         constraint_scaling_factor : float, default = 1.0
+             Positive factor :math:`\mu_s`; larger values weaken the constraint.
+         arc_pairs : dict[str, list[tuple[int, int]]], optional
+             Zero-based consecutive arc pairs. If omitted, epoch entry :math:`k` connects arcs :math:`k` and :math:`k+1`.
+
+         Returns
+         -------
+         InterArcStateContinuityConstraintSettings
+             Settings containing the resulting full-state weight matrices.
       )doc" );
 
-    m.def(
-            "position_only_continuity",
-            []( std::vector< std::string > bodies,
-                tss::InterArcStateContinuityConstraintSettings::EpochMap epochs,
-                py::dict positionWeights,
-                double constraintScalingFactor,
-                py::object arcPairs ) {
-                py::dict zeroVelocityWeights = buildUniformWeightDictionary( bodies, 0.0 );
-                auto weightMatricesByBody = buildDiagonalWeightMatricesByBody( bodies, positionWeights, zeroVelocityWeights );
-                auto arcPairsByBody = buildArcPairsByBody( arcPairs );
-                return std::make_shared< tss::InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                                           std::move( epochs ),
-                                                                                           std::move( weightMatricesByBody ),
-                                                                                           constraintScalingFactor,
-                                                                                           std::move( arcPairsByBody ) );
-            },
-            py::arg( "bodies" ),
-            py::arg( "epochs" ),
-            py::arg( "position_weights" ),
-            py::arg( "constraint_scaling_factor" ) = 1.0,
-            py::arg( "arc_pairs" ) = py::none( ),
-            R"doc(
+    m.def( "position_only_continuity",
+           static_cast< std::shared_ptr< Settings > ( * )(
+                   std::vector< std::string >, Settings::EpochMap, Settings::CartesianStateWeightMap, double, Settings::ArcPairMap ) >(
+                   &tss::positionOnlyContinuity ),
+           py::arg( "bodies" ),
+           py::arg( "epochs" ),
+           py::arg( "position_weights" ),
+           py::arg( "constraint_scaling_factor" ) = 1.0,
+           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           R"doc(
 
-         Build a position-only continuity settings object. Velocity-row entries of the constraint weight matrix
-         are zero so the constraint leaves the inter-arc Delta-v free. ``epochs`` and ``position_weights`` must
-         be dictionaries keyed by body name. ``constraint_scaling_factor`` is one global scaling factor.
+         Build position-only continuity settings.
+
+         This constructs :math:`\mathbf{C}_{bk}` with the velocity block set to zero, leaving inter-arc velocity
+         jumps unconstrained. See :class:`InterArcStateContinuityConstraintSettings` for the mathematical model.
+
+         Parameters
+         ----------
+         bodies : list[str]
+             Bodies whose position jumps are constrained.
+         epochs : dict[str, list[float]]
+             Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
+         position_weights : dict[str, float | array_like[float, 3]]
+             Isotropic scalar or three Cartesian diagonal position weights for each body.
+         constraint_scaling_factor : float, default = 1.0
+             Positive factor :math:`\mu_s`; larger values weaken the constraint.
+         arc_pairs : dict[str, list[tuple[int, int]]], optional
+             Zero-based consecutive arc pairs; inferred from epoch order when omitted.
+
+         Returns
+         -------
+         InterArcStateContinuityConstraintSettings
+             Settings containing position-only weight matrices.
       )doc" );
 
-    m.def(
-            "velocity_only_continuity",
-            []( std::vector< std::string > bodies,
-                tss::InterArcStateContinuityConstraintSettings::EpochMap epochs,
-                py::dict velocityWeights,
-                double constraintScalingFactor,
-                py::object arcPairs ) {
-                py::dict zeroPositionWeights = buildUniformWeightDictionary( bodies, 0.0 );
-                auto weightMatricesByBody = buildDiagonalWeightMatricesByBody( bodies, zeroPositionWeights, velocityWeights );
-                auto arcPairsByBody = buildArcPairsByBody( arcPairs );
-                return std::make_shared< tss::InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                                           std::move( epochs ),
-                                                                                           std::move( weightMatricesByBody ),
-                                                                                           constraintScalingFactor,
-                                                                                           std::move( arcPairsByBody ) );
-            },
-            py::arg( "bodies" ),
-            py::arg( "epochs" ),
-            py::arg( "velocity_weights" ),
-            py::arg( "constraint_scaling_factor" ) = 1.0,
-            py::arg( "arc_pairs" ) = py::none( ),
-            R"doc(
+    m.def( "velocity_only_continuity",
+           static_cast< std::shared_ptr< Settings > ( * )(
+                   std::vector< std::string >, Settings::EpochMap, Settings::CartesianStateWeightMap, double, Settings::ArcPairMap ) >(
+                   &tss::velocityOnlyContinuity ),
+           py::arg( "bodies" ),
+           py::arg( "epochs" ),
+           py::arg( "velocity_weights" ),
+           py::arg( "constraint_scaling_factor" ) = 1.0,
+           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           R"doc(
 
-         Build a velocity-only continuity settings object. Position-row entries of the constraint weight matrix
-         are zero so the constraint leaves inter-arc position jumps free. ``epochs`` and ``velocity_weights`` must
-         be dictionaries keyed by body name. ``constraint_scaling_factor`` is one global scaling factor.
+         Build velocity-only continuity settings.
+
+         This constructs :math:`\mathbf{C}_{bk}` with the position block set to zero, leaving inter-arc position
+         jumps unconstrained. See :class:`InterArcStateContinuityConstraintSettings` for the mathematical model.
+
+         Parameters
+         ----------
+         bodies : list[str]
+             Bodies whose velocity jumps are constrained.
+         epochs : dict[str, list[float]]
+             Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
+         velocity_weights : dict[str, float | array_like[float, 3]]
+             Isotropic scalar or three Cartesian diagonal velocity weights for each body.
+         constraint_scaling_factor : float, default = 1.0
+             Positive factor :math:`\mu_s`; larger values weaken the constraint.
+         arc_pairs : dict[str, list[tuple[int, int]]], optional
+             Zero-based consecutive arc pairs; inferred from epoch order when omitted.
+
+         Returns
+         -------
+         InterArcStateContinuityConstraintSettings
+             Settings containing velocity-only weight matrices.
       )doc" );
 
-    m.def(
-            "general_continuity",
-            []( std::vector< std::string > bodies,
-                tss::InterArcStateContinuityConstraintSettings::EpochMap epochs,
-                py::dict weightMatrices,
-                double constraintScalingFactor,
-                py::object arcPairs ) {
-                auto weightMatricesByBody = buildGeneralWeightMatricesByBody( bodies, weightMatrices );
-                auto arcPairsByBody = buildArcPairsByBody( arcPairs );
-                return std::make_shared< tss::InterArcStateContinuityConstraintSettings >( std::move( bodies ),
-                                                                                           std::move( epochs ),
-                                                                                           std::move( weightMatricesByBody ),
-                                                                                           constraintScalingFactor,
-                                                                                           std::move( arcPairsByBody ) );
-            },
-            py::arg( "bodies" ),
-            py::arg( "epochs" ),
-            py::arg( "weight_matrices" ),
-            py::arg( "constraint_scaling_factor" ) = 1.0,
-            py::arg( "arc_pairs" ) = py::none( ),
-            R"doc(
+    m.def( "general_continuity",
+           static_cast< std::shared_ptr< Settings > ( * )(
+                   std::vector< std::string >, Settings::EpochMap, Settings::WeightMatrixInputMap, double, Settings::ArcPairMap ) >(
+                   &tss::generalContinuity ),
+           py::arg( "bodies" ),
+           py::arg( "epochs" ),
+           py::arg( "weight_matrices" ),
+           py::arg( "constraint_scaling_factor" ) = 1.0,
+           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           R"doc(
 
-         Build a generic continuity settings object from body-specific 6x6 PSD weight matrices. ``epochs`` and
-         ``weight_matrices`` must be dictionaries keyed by body name. Each body may provide one matrix, broadcast
-         to every connection epoch for that body, or one matrix per body-specific connection epoch.
+         Build continuity settings from general Cartesian-state weight matrices.
+
+         See :class:`InterArcStateContinuityConstraintSettings` for the definition of
+         :math:`\mathbf{C}_{bk}` and the complete mathematical model.
+
+         Parameters
+         ----------
+         bodies : list[str]
+             Bodies whose Cartesian-state jumps are constrained.
+         epochs : dict[str, list[float]]
+             Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
+         weight_matrices : dict[str, numpy.ndarray[float, 6, 6] | list[numpy.ndarray[float, 6, 6]]]
+             Symmetric positive semi-definite matrices :math:`\mathbf{C}_{bk}`. One matrix is broadcast to all
+             epochs of its body; otherwise supply one matrix per epoch.
+         constraint_scaling_factor : float, default = 1.0
+             Positive factor :math:`\mu_s`; larger values weaken the constraint.
+         arc_pairs : dict[str, list[tuple[int, int]]], optional
+             Zero-based consecutive arc pairs; inferred from epoch order when omitted.
+
+         Returns
+         -------
+         InterArcStateContinuityConstraintSettings
+             Settings containing the supplied general weight matrices.
       )doc" );
 }
 

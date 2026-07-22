@@ -173,13 +173,17 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          If soft inter-arc continuity constraints have been attached to the ``estimation_input`` through
          :meth:`~tudatpy.estimation.estimation_analysis.EstimationInput.set_inter_arc_continuity_constraints`, the least-squares solve
-         uses an augmented normalized normal equation. For each constrained connection, with
-         :math:`\mathbf{d}=\mathbf{x}_\mathrm{right}(t_c)-\mathbf{x}_\mathrm{left}(t_c)`, normalized right-minus-left
-         state-transition/sensitivity block :math:`\mathbf{D}_\mathrm{norm}`, and constraint weight matrix
-         :math:`\mathbf{W}_d`, the term :math:`\mathbf{D}_\mathrm{norm}^{T}\mathbf{W}_d\mathbf{D}_\mathrm{norm}`
-         is added to the normal matrix and :math:`-\mathbf{D}_\mathrm{norm}^{T}\mathbf{W}_d\mathbf{d}` is added to the
-         right-hand side used to compute :math:`\Delta\mathbf{p}_{i}`. If no continuity constraints are attached,
-         these additional terms are absent.
+         uses the augmented normalized normal matrix and right-hand side defined by
+         :class:`~tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings`. The iteration
+         selected as best minimizes the implemented total cost
+
+         .. math::
+
+            J_i=\frac{1}{2}\Delta\mathbf{z}_i^T\mathbf{W}\Delta\mathbf{z}_i+Q_{d,i},
+
+         where :math:`Q_{d,i}` is the continuity cost defined by that settings class. Observation residual RMS
+         remains observation-only. If no continuity constraints are attached, :math:`Q_{d,i}=0` and the normal
+         equation is unchanged.
 
          The results of the estimation are stored in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` object
          (which by default contains the results from the iteration where the residual was lowest), with
@@ -232,12 +236,17 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          If soft inter-arc continuity constraints have been attached to the ``covariance_analysis_input`` through
          :meth:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput.set_inter_arc_continuity_constraints`, the covariance
-         is computed from an augmented normalized normal matrix. For each constrained connection, with
-         :math:`\mathbf{d}=\mathbf{x}_\mathrm{right}(t_c)-\mathbf{x}_\mathrm{left}(t_c)`, normalized right-minus-left
-         state-transition/sensitivity block :math:`\mathbf{D}_\mathrm{norm}`, and constraint weight matrix
-         :math:`\mathbf{W}_d`, the regularizing term
-         :math:`\mathbf{D}_\mathrm{norm}^{T}\mathbf{W}_d\mathbf{D}_\mathrm{norm}` is added before inversion.
-         If no continuity constraints are attached, the covariance expression above is unchanged.
+         is computed from the augmented normalized normal matrix defined by
+         :class:`~tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings`. Equivalently,
+         the unnormalized covariance expression includes the sum of continuity information terms:
+
+         .. math::
+
+            \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}
+            +\sum_{b,k}\mathbf{D}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{D}_{bk}\right)^{-1}.
+
+         The implementation forms the normalized equivalent of this equation. If no continuity constraints are
+         attached, the added sum is zero.
 
          In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed that denotes the contribution
          of the consider covariance to the parameter uncertainties, which is computed from the above as:

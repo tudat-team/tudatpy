@@ -20,6 +20,228 @@ namespace tudat
 namespace simulation_setup
 {
 
+namespace
+{
+
+template< typename BodyMapType >
+void validateBodyMapKeys( const BodyMapType& values, const std::vector< std::string >& bodies, const std::string& argumentName )
+{
+    const std::set< std::string > expectedBodies( bodies.begin( ), bodies.end( ) );
+    for( const auto& bodyEntry : values )
+    {
+        if( expectedBodies.count( bodyEntry.first ) == 0 )
+        {
+            throw std::runtime_error( "Inter-arc continuity " + argumentName + " contains unknown body \"" + bodyEntry.first + "\"." );
+        }
+    }
+    for( const auto& body : expectedBodies )
+    {
+        if( values.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Inter-arc continuity " + argumentName + " is missing body \"" + body + "\"." );
+        }
+    }
+}
+
+Eigen::Vector3d resolveCartesianStateWeights( const InterArcStateContinuityConstraintSettings::CartesianStateWeight& weights )
+{
+    if( const auto* scalarWeight = std::get_if< double >( &weights ) )
+    {
+        return Eigen::Vector3d::Constant( *scalarWeight );
+    }
+    const Eigen::VectorXd& componentWeights = std::get< Eigen::VectorXd >( weights );
+    if( componentWeights.size( ) != 3 )
+    {
+        throw std::runtime_error( "Inter-arc continuity Cartesian component weights must be a scalar or a length-3 sequence." );
+    }
+    return componentWeights;
+}
+
+InterArcStateContinuityConstraintSettings::WeightMatrixMap createUniformBodyWeightMap( const std::vector< std::string >& bodies,
+                                                                                       const Eigen::MatrixXd& weightMatrix )
+{
+    InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody;
+    for( const auto& body : bodies )
+    {
+        weightMatricesByBody[ body ] = { weightMatrix };
+    }
+    return weightMatricesByBody;
+}
+
+InterArcStateContinuityConstraintSettings::WeightMatrixMap createCartesianStateWeightMap(
+        const std::vector< std::string >& bodies,
+        const InterArcStateContinuityConstraintSettings::CartesianStateWeightMap& positionWeightsByBody,
+        const InterArcStateContinuityConstraintSettings::CartesianStateWeightMap& velocityWeightsByBody )
+{
+    validateBodyMapKeys( positionWeightsByBody, bodies, "position_weights" );
+    validateBodyMapKeys( velocityWeightsByBody, bodies, "velocity_weights" );
+
+    InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody;
+    for( const auto& body : bodies )
+    {
+        weightMatricesByBody[ body ] = { createCartesianStateWeightMatrix(
+                resolveCartesianStateWeights( positionWeightsByBody.at( body ) ),
+                resolveCartesianStateWeights( velocityWeightsByBody.at( body ) ) ) };
+    }
+    return weightMatricesByBody;
+}
+
+}  // namespace
+
+Eigen::MatrixXd createCartesianStateWeightMatrix( const Eigen::Vector3d& positionWeights, const Eigen::Vector3d& velocityWeights )
+{
+    Eigen::MatrixXd constraintWeightMatrix = Eigen::MatrixXd::Zero( 6, 6 );
+    constraintWeightMatrix.diagonal( ).head< 3 >( ) = positionWeights;
+    constraintWeightMatrix.diagonal( ).tail< 3 >( ) = velocityWeights;
+    return constraintWeightMatrix;
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        const double positionWeight,
+        const double velocityWeight,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    auto weightMatricesByBody = createUniformBodyWeightMap(
+            bodies,
+            createCartesianStateWeightMatrix( Eigen::Vector3d::Constant( positionWeight ), Eigen::Vector3d::Constant( velocityWeight ) ) );
+    return generalContinuity( std::move( bodies ),
+                              std::move( connectionEpochsByBody ),
+                              std::move( weightMatricesByBody ),
+                              constraintScalingFactor,
+                              std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap positionWeightsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap velocityWeightsByBody,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    auto weightMatricesByBody = createCartesianStateWeightMap( bodies, positionWeightsByBody, velocityWeightsByBody );
+    return generalContinuity( std::move( bodies ),
+                              std::move( connectionEpochsByBody ),
+                              std::move( weightMatricesByBody ),
+                              constraintScalingFactor,
+                              std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        const double positionWeight,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    return fullStateContinuity( std::move( bodies ),
+                                std::move( connectionEpochsByBody ),
+                                positionWeight,
+                                0.0,
+                                constraintScalingFactor,
+                                std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > positionOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap positionWeightsByBody,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    InterArcStateContinuityConstraintSettings::CartesianStateWeightMap zeroVelocityWeightsByBody;
+    for( const auto& body : bodies )
+    {
+        zeroVelocityWeightsByBody[ body ] = 0.0;
+    }
+    return fullStateContinuity( std::move( bodies ),
+                                std::move( connectionEpochsByBody ),
+                                std::move( positionWeightsByBody ),
+                                std::move( zeroVelocityWeightsByBody ),
+                                constraintScalingFactor,
+                                std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        const double velocityWeight,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    return fullStateContinuity( std::move( bodies ),
+                                std::move( connectionEpochsByBody ),
+                                0.0,
+                                velocityWeight,
+                                constraintScalingFactor,
+                                std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > velocityOnlyContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::CartesianStateWeightMap velocityWeightsByBody,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    InterArcStateContinuityConstraintSettings::CartesianStateWeightMap zeroPositionWeightsByBody;
+    for( const auto& body : bodies )
+    {
+        zeroPositionWeightsByBody[ body ] = 0.0;
+    }
+    return fullStateContinuity( std::move( bodies ),
+                                std::move( connectionEpochsByBody ),
+                                std::move( zeroPositionWeightsByBody ),
+                                std::move( velocityWeightsByBody ),
+                                constraintScalingFactor,
+                                std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::WeightMatrixMap weightMatricesByBody,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    return std::make_shared< InterArcStateContinuityConstraintSettings >( std::move( bodies ),
+                                                                          std::move( connectionEpochsByBody ),
+                                                                          std::move( weightMatricesByBody ),
+                                                                          constraintScalingFactor,
+                                                                          std::move( arcPairsByBody ) );
+}
+
+std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
+        std::vector< std::string > bodies,
+        InterArcStateContinuityConstraintSettings::EpochMap connectionEpochsByBody,
+        InterArcStateContinuityConstraintSettings::WeightMatrixInputMap weightMatricesByBody,
+        const double constraintScalingFactor,
+        InterArcStateContinuityConstraintSettings::ArcPairMap arcPairsByBody )
+{
+    validateBodyMapKeys( weightMatricesByBody, bodies, "weight_matrices" );
+    InterArcStateContinuityConstraintSettings::WeightMatrixMap resolvedWeightMatricesByBody;
+    for( const auto& body : bodies )
+    {
+        const auto& weightMatrixInput = weightMatricesByBody.at( body );
+        if( const auto* weightMatrix = std::get_if< Eigen::MatrixXd >( &weightMatrixInput ) )
+        {
+            resolvedWeightMatricesByBody[ body ] = { *weightMatrix };
+        }
+        else
+        {
+            resolvedWeightMatricesByBody[ body ] = std::get< std::vector< Eigen::MatrixXd > >( weightMatrixInput );
+        }
+    }
+    return generalContinuity( std::move( bodies ),
+                              std::move( connectionEpochsByBody ),
+                              std::move( resolvedWeightMatricesByBody ),
+                              constraintScalingFactor,
+                              std::move( arcPairsByBody ) );
+}
+
 InterArcStateContinuityConstraintSettings::InterArcStateContinuityConstraintSettings( std::vector< std::string > bodies,
                                                                                       EpochMap connectionEpochsByBody,
                                                                                       WeightMatrixMap weightMatricesByBody,
