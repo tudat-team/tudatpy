@@ -1,12 +1,18 @@
 // serialization/pybind11_helpers.h
 #pragma once
 #include <pybind11/pybind11.h>
+
+#include <tudat/config.hpp>
+
+#if TUDAT_BUILD_WITH_SERIALIZATION
 #include <stdexcept>
 #include <string>
 #include "tudat/io/serialization/file_io.h"
+#endif
 
 namespace py = pybind11;
 
+#if TUDAT_BUILD_WITH_SERIALIZATION
 namespace tudat::serialization
 {
 
@@ -76,6 +82,7 @@ auto make_pickle_polymorphic_derived( )
 }
 
 }  // namespace tudat::serialization
+#endif
 
 // =====================================================================
 //  Convenience macros for pybind11 exposure
@@ -87,6 +94,8 @@ auto make_pickle_polymorphic_derived( )
     .def( "__eq__", &__VA_ARGS__::operator==, py::arg( "rhs" ) ).def( "__ne__", []( const __VA_ARGS__& self, const __VA_ARGS__& other ) { \
         return self != other;                                                                                                             \
     } )
+
+#if TUDAT_BUILD_WITH_SERIALIZATION
 
 //! Add pickle (value-type / standalone objects) via tudat::serialization::make_pickle
 #define TUDATPY_DEF_PICKLE( ... ) .def( tudat::serialization::make_pickle< __VA_ARGS__ >( ) )
@@ -145,3 +154,18 @@ auto make_pickle_polymorphic_derived( )
 #define TUDATPY_DEF_FILE_IO_POLYMORPHIC( ... )     \
     TUDATPY_DEF_JSON_IO_POLYMORPHIC( __VA_ARGS__ ) \
     TUDATPY_DEF_BINARY_IO_POLYMORPHIC( __VA_ARGS__ )
+
+#else
+
+// Keep binding expression chains syntactically valid while omitting serialization APIs.
+#define TUDATPY_DEF_PICKLE( ... )
+#define TUDATPY_DEF_PICKLE_POLYMORPHIC( ... )
+#define TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( ... )
+#define TUDATPY_DEF_JSON_IO( ... )
+#define TUDATPY_DEF_JSON_IO_POLYMORPHIC( ... )
+#define TUDATPY_DEF_BINARY_IO( ... )
+#define TUDATPY_DEF_BINARY_IO_POLYMORPHIC( ... )
+#define TUDATPY_DEF_FILE_IO( ... )
+#define TUDATPY_DEF_FILE_IO_POLYMORPHIC( ... )
+
+#endif

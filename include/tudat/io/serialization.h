@@ -31,7 +31,11 @@
  * headers only force the matching registration objects to be retained.
  */
 
+#include <tudat/config.hpp>
+
+#if TUDAT_BUILD_WITH_SERIALIZATION
 #include "tudat/io/serialization/base.h"
 #include "tudat/io/serialization/registrations.h"
+#endif
 
 #endif  // TUDAT_SERIALIZATION_H

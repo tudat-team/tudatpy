@@ -22,8 +22,11 @@ set(observation_models_SOURCES
         "corrections/solarCoronaCorrection.cpp"
         "corrections/neQuick2IonosphericCorrection.cpp"
         "observationFrequencies.cpp"
-        "observationSettingsSerialization.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND observation_models_SOURCES "observationSettingsSerialization.cpp")
+endif ()
 
 # Set the header files.
 set(observation_models_HEADERS

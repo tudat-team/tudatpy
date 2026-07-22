@@ -17,3 +17,9 @@ stream, pybind11, or unrelated polymorphic-registration implementation code.
 Internal code must include the narrowest layer it needs. `base.h`, `serialization.h`, and
 `registrations.h` are compatibility/convenience umbrella headers and must not be introduced into
 new model or binding implementation headers.
+
+`TUDAT_BUILD_WITH_SERIALIZATION` is enabled by default. Configuring with
+`-DTUDAT_BUILD_WITH_SERIALIZATION=OFF` omits archive/file-I/O implementations, polymorphic
+registration objects, serialization tests, and Python pickle/file-I/O bindings. The intrusive
+Cereal schemas remain in model headers so the option does not create a source-incompatible model
+API variant; consequently, Cereal remains a public header dependency in either configuration.

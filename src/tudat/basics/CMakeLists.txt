@@ -12,8 +12,11 @@
 set(basics_SOURCES
         "utilities.cpp"
         "deprecationWarnings.cpp"
-        "timeSerialization.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND basics_SOURCES "timeSerialization.cpp")
+endif ()
 
 # Add header files.
 set(basics_HEADERS

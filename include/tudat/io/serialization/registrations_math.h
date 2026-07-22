@@ -10,8 +10,11 @@
  * @brief Retains and initializes math polymorphic registrations.
  */
 
-#include <cereal/types/polymorphic.hpp>
+#include <tudat/config.hpp>
 
+#if TUDAT_BUILD_WITH_SERIALIZATION
+#include <cereal/types/polymorphic.hpp>
 CEREAL_FORCE_DYNAMIC_INIT( tudat_serialization_math )
+#endif
 
 #endif  // TUDAT_SERIALIZATION_REGISTRATIONS_MATH_H

@@ -104,4 +104,6 @@ TUDAT_ADD_LIBRARY("input_output"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 
-add_subdirectory(serialization)
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    add_subdirectory(serialization)
+endif ()

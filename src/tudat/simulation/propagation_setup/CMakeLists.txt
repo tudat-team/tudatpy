@@ -50,8 +50,11 @@ set(propagation_SOURCES
         propagationOutput.cpp
         environmentUpdater.cpp
         dependentVariablesInterface.cpp
-        propagationSettingsSerialization.cpp
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND propagation_SOURCES propagationSettingsSerialization.cpp)
+endif ()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES

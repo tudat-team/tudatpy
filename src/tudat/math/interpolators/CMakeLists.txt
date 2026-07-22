@@ -16,8 +16,11 @@ set(interpolators_SOURCES
         "interpolator.cpp"
         "multiLinearInterpolator.cpp"
         "chebyshevApproximation.cpp"
-        "interpolatorSettingsSerialization.cpp"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND interpolators_SOURCES "interpolatorSettingsSerialization.cpp")
+endif ()
 
 # Add header files.
 set(interpolators_HEADERS

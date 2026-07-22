@@ -90,8 +90,11 @@ set(estimation_SOURCES
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
-        observationOutputSerialization.cpp
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND estimation_SOURCES observationOutputSerialization.cpp)
+endif ()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND estimation_SOURCES

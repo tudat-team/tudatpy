@@ -109,6 +109,11 @@ option(
     ON
 )
 option(
+    TUDAT_BUILD_WITH_SERIALIZATION
+    "Build Tudat binary/JSON serialization, polymorphic registrations, and Python pickle/file-I/O bindings."
+    ON
+)
+option(
     TUDAT_BUILD_WITH_PCH
     "Enable precompiled headers for supported targets."
     ON
@@ -245,6 +250,11 @@ set(
 # TODO: NOT SURE IF THIS BELONGS HERE (Comes from tudatpy cmake)
 if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+endif ()
+if (NOT TUDAT_BUILD_WITH_SERIALIZATION)
+    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=1)
 endif ()
 if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
@@ -571,12 +581,14 @@ add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
 
-# Serialization registration objects must be linked by every supported Tudat aggregate. Their
-# force-initialization symbols keep the domain registration translation units alive in static
-# builds while ordinary model libraries remain registration-free.
-list(PREPEND Tudat_PROPAGATION_LIBRARIES Tudat::tudat_serialization)
-list(PREPEND Tudat_ESTIMATION_LIBRARIES Tudat::tudat_serialization)
-target_link_libraries(Tudat_LIBRARIES INTERFACE Tudat::tudat_serialization)
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    # Serialization registration objects must be linked by every supported Tudat aggregate. Their
+    # force-initialization symbols keep the domain registration translation units alive in static
+    # builds while ordinary model libraries remain registration-free.
+    list(PREPEND Tudat_PROPAGATION_LIBRARIES Tudat::tudat_serialization)
+    list(PREPEND Tudat_ESTIMATION_LIBRARIES Tudat::tudat_serialization)
+    target_link_libraries(Tudat_LIBRARIES INTERFACE Tudat::tudat_serialization)
+endif ()
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)

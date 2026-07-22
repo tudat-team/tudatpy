@@ -73,8 +73,11 @@ set(environment_SOURCES
         createCameras.cpp
         createRelativisticTimeConverter.cpp
         createMetric.cpp
-        gravityFieldVariationSettingsSerialization.cpp
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND environment_SOURCES gravityFieldVariationSettingsSerialization.cpp)
+endif ()
 
 # Add library.
 TUDAT_ADD_LIBRARY("environment_setup"
