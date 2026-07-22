@@ -99,7 +99,7 @@ class GaiaAstrometry:
         GaiaAstrometry
             Copy containing only data for the given mpc_numbers.
         """
-        if isinstance(mpc_numbers, Iterable):
+        if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
         if any(m not in self.mpc_numbers for m in mpc_numbers):
@@ -631,7 +631,7 @@ class GaiaAsteroids:
             MPC numbers to retrieve orbits for. If None, select all objects in the
             catalog, by default None.
         """
-        if not isinstance(mpc_numbers, Iterable):
+        if mpc_numbers is not None and not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
         filter = [('number_mp', 'in', mpc_numbers)] if mpc_numbers is not None else None
