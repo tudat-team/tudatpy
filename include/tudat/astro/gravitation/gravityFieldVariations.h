@@ -423,7 +423,7 @@ public:
      * \param tideType Type of tidal gravity field variation to select
      * \return Selected variation models in environment order
      */
-    std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations(
+    std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariationsForDegree(
             const std::vector< std::string >& deformingBodies,
             const int requestedDegree,
             const BodyDeformationTypes tideType = basic_solid_body );

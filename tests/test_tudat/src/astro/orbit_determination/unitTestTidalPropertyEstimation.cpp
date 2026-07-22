@@ -486,12 +486,26 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
             "Earth", 2, std::vector< int >{ 2 }, "Sun", true ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
             "Earth", 2, std::vector< int >{ 0, 1 }, "Moon", false ) );
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Moon", true ) );
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
+            "Earth", 3, std::vector< std::string >{ "Moon", "Sun" }, true ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
     printEstimatableParameterEntries( parametersToEstimate );
+
+    bool sharedMultiModelLoveNumberFound = false;
+    for( const auto& parameterEntry : parametersToEstimate->getVectorParameters( ) )
+    {
+        std::shared_ptr< FullDegreeTidalLoveNumber > fullDegreeLoveNumber =
+                std::dynamic_pointer_cast< FullDegreeTidalLoveNumber >( parameterEntry.second );
+        if( fullDegreeLoveNumber != nullptr && fullDegreeLoveNumber->getDegree( ) == 3 )
+        {
+            sharedMultiModelLoveNumberFound = true;
+            BOOST_CHECK_EQUAL( fullDegreeLoveNumber->getGravityFieldVariationModels( ).size( ), 2 );
+        }
+    }
+    BOOST_CHECK( sharedMultiModelLoveNumberFound );
 
     // Define observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
@@ -517,6 +531,16 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     // Simulate observations
     std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    // Exercise the complete shared multi-model covariance path before perturbing the estimation parameters.
+    std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< double, double > >( observationsAndTimes );
+    std::shared_ptr< CovarianceAnalysisOutput< double > > covarianceOutput = orbitDeterminationManager.computeCovariance( covarianceInput );
+    BOOST_REQUIRE( covarianceOutput != nullptr );
+    const Eigen::MatrixXd covarianceMatrix = covarianceOutput->getUnnormalizedCovarianceMatrix( );
+    BOOST_CHECK_EQUAL( covarianceMatrix.rows( ), parametersToEstimate->getParameterSetSize( ) );
+    BOOST_CHECK_EQUAL( covarianceMatrix.cols( ), parametersToEstimate->getParameterSetSize( ) );
+    BOOST_CHECK( covarianceMatrix.allFinite( ) );
 
     // Perturb parameter estimate
     Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
@@ -1021,6 +1045,44 @@ BOOST_AUTO_TEST_CASE( test_MultiModelFullDegreeLoveNumberParameterSetup )
         BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( ), moonOrderTwoBefore, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 0 ).real( ), sunOrderZeroBefore, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 2 ).real( ), sunOrderTwoBefore, 1.0E-14 );
+    }
+
+    // Complex order-varying resets update both components at the selected orders in every selected model.
+    {
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings =
+                getSeparateMoonSunEarthTideSettings( std::complex< double >( 0.301, -0.001 ), std::complex< double >( 0.295, -0.002 ) );
+        bodies = createSystemOfBodies( bodySettings );
+
+        const std::vector< std::string > deformingBodiesMoonSun = { "Moon", "Sun" };
+        const std::vector< int > estimatedOrders = { 0, 2 };
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", 2, estimatedOrders, deformingBodiesMoonSun, true ) );
+        std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+                createParametersToEstimate< double, double >( parameterNames, bodies );
+        std::shared_ptr< SingleDegreeVariableTidalLoveNumber > loveNumberParameter =
+                std::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumber >( parameterSet->getVectorParameters( ).begin( )->second );
+        BOOST_REQUIRE( loveNumberParameter != nullptr );
+        BOOST_CHECK_EQUAL( loveNumberParameter->getGravityFieldVariationModels( ).size( ), 2 );
+        BOOST_CHECK_EQUAL( loveNumberParameter->getParameterSize( ), 4 );
+
+        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > tideModels = getBasicTideModels( );
+        BOOST_REQUIRE_EQUAL( tideModels.size( ), 2 );
+        const std::complex< double > moonOrderOneBefore = tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 1 );
+        const std::complex< double > sunOrderOneBefore = tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 1 );
+
+        Eigen::VectorXd resetValue( 4 );
+        resetValue << 0.41, -0.011, 0.43, -0.013;
+        loveNumberParameter->setParameterValue( resetValue );
+
+        for( unsigned int modelIndex = 0; modelIndex < tideModels.size( ); modelIndex++ )
+        {
+            const std::vector< std::complex< double > > resetLoveNumbers = tideModels.at( modelIndex )->getLoveNumbersOfDegree( 2 );
+            BOOST_CHECK_SMALL( std::abs( resetLoveNumbers.at( 0 ) - std::complex< double >( 0.41, -0.011 ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL( std::abs( resetLoveNumbers.at( 2 ) - std::complex< double >( 0.43, -0.013 ) ), 1.0E-14 );
+        }
+        BOOST_CHECK_SMALL( std::abs( tideModels.at( 0 )->getLoveNumbersOfDegree( 2 ).at( 1 ) - moonOrderOneBefore ), 1.0E-14 );
+        BOOST_CHECK_SMALL( std::abs( tideModels.at( 1 )->getLoveNumbersOfDegree( 2 ).at( 1 ) - sunOrderOneBefore ), 1.0E-14 );
     }
 }
 

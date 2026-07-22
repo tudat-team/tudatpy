@@ -2621,7 +2621,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     {
                         // Get associated gravity field variation models covering the requested deforming bodies
                         std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
-                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations(
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
                                         tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
                         std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
                         for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
@@ -2684,7 +2684,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     {
                         // Get associated gravity field variation models covering the requested deforming bodies
                         std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
-                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariations(
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
                                         tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
                         std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
                         for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )

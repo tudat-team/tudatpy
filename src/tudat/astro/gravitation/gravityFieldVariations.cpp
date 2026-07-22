@@ -342,7 +342,7 @@ std::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTi
 }
 
 //! Function to retrieve all compatible tidal gravity field variations covering the requested deforming bodies
-std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsSet::getDirectTidalGravityFieldVariations(
+std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsSet::getDirectTidalGravityFieldVariationsForDegree(
         const std::vector< std::string >& namesOfBodiesCausingDeformation,
         const int requestedDegree,
         const BodyDeformationTypes tideType )

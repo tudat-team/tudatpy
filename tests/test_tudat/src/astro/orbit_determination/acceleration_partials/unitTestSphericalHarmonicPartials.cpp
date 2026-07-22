@@ -715,6 +715,28 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                 createGravityFieldModelVariationsSet( "Earth", bodies, gravityFieldVariationSettings ) );
         bodies.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
 
+        // A basic and a mode-coupled tide raised by the same body must retain distinct interfaces.
+        const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > distinctTidalInterfaces =
+                createTidalLoveNumberInterfaces( bodies, "Earth" );
+        BOOST_REQUIRE_EQUAL( distinctTidalInterfaces.size( ), 2 );
+        unsigned int basicInterfaceCount = 0;
+        unsigned int modeCoupledInterfaceCount = 0;
+        for( const auto& tidalInterface : distinctTidalInterfaces )
+        {
+            if( std::dynamic_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( tidalInterface->getGravityFieldVariations( ) ) !=
+                nullptr )
+            {
+                basicInterfaceCount++;
+            }
+            if( std::dynamic_pointer_cast< ModeCoupledSolidBodyTideGravityFieldVariations >(
+                        tidalInterface->getGravityFieldVariations( ) ) != nullptr )
+            {
+                modeCoupledInterfaceCount++;
+            }
+        }
+        BOOST_CHECK_EQUAL( basicInterfaceCount, 1 );
+        BOOST_CHECK_EQUAL( modeCoupledInterfaceCount, 1 );
+
         // Set current state of vehicle and earth.
         double testTime = 1.0E6;
         earth->setState( Eigen::Vector6d::Zero( ) );
@@ -818,6 +840,30 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
                 createParametersToEstimate( parameterNames, bodies );
+
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > modeCoupledParameter;
+        for( const auto& parameterEntry : parameterSet->getVectorParameters( ) )
+        {
+            if( parameterEntry.second->getParameterName( ).first == mode_coupled_tidal_love_numbers )
+            {
+                modeCoupledParameter = parameterEntry.second;
+            }
+        }
+        BOOST_REQUIRE( modeCoupledParameter != nullptr );
+
+        unsigned int modeCoupledDependencyCount = 0;
+        for( const auto& tidalInterface : distinctTidalInterfaces )
+        {
+            const std::pair< int, std::pair< int, int > > partialOutput =
+                    tidalInterface->setParameterPartialFunction( modeCoupledParameter, 5, 5 );
+            if( partialOutput.first > 0 )
+            {
+                modeCoupledDependencyCount++;
+                BOOST_CHECK( std::dynamic_pointer_cast< ModeCoupledSolidBodyTideGravityFieldVariations >(
+                                     tidalInterface->getGravityFieldVariations( ) ) != nullptr );
+            }
+        }
+        BOOST_CHECK_EQUAL( modeCoupledDependencyCount, 1 );
 
         // Check if incompatible tidal parameters correctly throw an error
         {
