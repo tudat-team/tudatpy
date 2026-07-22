@@ -10,8 +10,6 @@
  * @brief Retains and initializes acceleration/torque polymorphic registrations.
  */
 
-#include <tudat/config.hpp>
-
 #if TUDAT_BUILD_WITH_SERIALIZATION
 #include <cereal/types/polymorphic.hpp>
 CEREAL_FORCE_DYNAMIC_INIT( tudat_serialization_acceleration )

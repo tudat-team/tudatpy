@@ -15,6 +15,8 @@
 #include <memory>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <typeinfo>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -42,6 +44,35 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+namespace
+{
+
+void printTerminationTypeInfoDiagnostic( const std::string& settingsName, const std::type_info& localTypeInfo )
+{
+    std::cerr << "[serialization diagnostics] termination setting=" << settingsName << ", local dynamic RTTI name=" << localTypeInfo.name( )
+              << ", address=" << static_cast< const void* >( &localTypeInfo ) << ", hash=" << localTypeInfo.hash_code( ) << '\n';
+
+    bool matchingRegistrationNameFound = false;
+    for( const auto& registrationTypeInfo : serialization::diagnostics::getPropagationRegistrationTypeInfo( ) )
+    {
+        if( std::string( registrationTypeInfo.second->name( ) ) == localTypeInfo.name( ) )
+        {
+            matchingRegistrationNameFound = true;
+            std::cerr << "[serialization diagnostics] matching registration RTTI label=" << registrationTypeInfo.first
+                      << ", address=" << static_cast< const void* >( registrationTypeInfo.second )
+                      << ", hash=" << registrationTypeInfo.second->hash_code( ) << ", equal=" << std::boolalpha
+                      << ( localTypeInfo == *registrationTypeInfo.second ) << std::noboolalpha << '\n';
+        }
+    }
+    if( !matchingRegistrationNameFound )
+    {
+        std::cerr << "[serialization diagnostics] no registration RTTI with the same name was found\n";
+    }
+    std::cerr << std::flush;
+}
+
+}  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_settings_serialization )
 
@@ -286,16 +317,21 @@ BOOST_AUTO_TEST_CASE( test_PropagationTerminationSettingsSerialization )
     std::shared_ptr< PropagationTerminationSettings > baseTermSettings =
             std::make_shared< PropagationTerminationSettings >( time_stopping_condition, false );
 
-    std::vector< std::shared_ptr< PropagationTerminationSettings > > settingsVector = { timeTermSettings,   cpuTimeTermSettings,
-                                                                                        depVarTermSettings, hybridTermSettings,
-                                                                                        nonSeqTermSettings, customTermSettings,
-                                                                                        baseTermSettings };
+    const std::vector< std::pair< std::string, std::shared_ptr< PropagationTerminationSettings > > > settingsVector = {
+        { "time", timeTermSettings },     { "CPU time", cpuTimeTermSettings },      { "dependent variable", depVarTermSettings },
+        { "hybrid", hybridTermSettings }, { "non-sequential", nonSeqTermSettings }, { "custom", customTermSettings },
+        { "base", baseTermSettings }
+    };
 
-    for( const auto& settings : settingsVector )
+    for( const auto& namedSettings : settingsVector )
     {
+        const std::string& settingsName = namedSettings.first;
+        const auto& settings = namedSettings.second;
         std::stringstream ss;
 
         const bool isCustom = std::dynamic_pointer_cast< PropagationCustomTerminationSettings >( settings ) != nullptr;
+        printTerminationTypeInfoDiagnostic( settingsName, typeid( *settings ) );
+        std::string serializationPhase = "binary save";
 
         try
         {
@@ -306,6 +342,7 @@ BOOST_AUTO_TEST_CASE( test_PropagationTerminationSettingsSerialization )
 
             std::shared_ptr< PropagationTerminationSettings > deserializedSettings;
 
+            serializationPhase = "binary load";
             {
                 cereal::BinaryInputArchive iarchive( ss );
                 iarchive( deserializedSettings );
@@ -315,12 +352,34 @@ BOOST_AUTO_TEST_CASE( test_PropagationTerminationSettingsSerialization )
 
             if( !isCustom )
             {
-                BOOST_CHECK( *settings == *deserializedSettings );
+                BOOST_REQUIRE_MESSAGE( deserializedSettings != nullptr,
+                                       "Deserialization returned null for " << settingsName << " termination settings" );
+                std::cerr << "[serialization diagnostics] termination setting '" << settingsName
+                          << "' loaded dynamic RTTI name=" << typeid( *deserializedSettings ).name( )
+                          << ", address=" << static_cast< const void* >( &typeid( *deserializedSettings ) ) << '\n'
+                          << std::flush;
+                BOOST_CHECK_MESSAGE( *settings == *deserializedSettings,
+                                     "Round-trip equality failed for " << settingsName << " termination settings" );
+            }
+        }
+        catch( const std::exception& exception )
+        {
+            std::cerr << "[serialization diagnostics] termination setting '" << settingsName << "' failed during " << serializationPhase
+                      << ": " << exception.what( ) << '\n'
+                      << std::flush;
+            if( isCustom )
+            {
+                BOOST_CHECK_MESSAGE( std::string( exception.what( ) ).find( "checkStopCondition_" ) != std::string::npos,
+                                     "Custom termination serialization threw the wrong exception: " << exception.what( ) );
+            }
+            else
+            {
+                BOOST_ERROR( "Serialization failed for non-custom " << settingsName << " termination settings: " << exception.what( ) );
             }
         }
         catch( ... )
         {
-            BOOST_CHECK_MESSAGE( isCustom, "Serialization failed for non-custom termination settings" );
+            BOOST_ERROR( "Serialization failed with a non-standard exception for " << settingsName << " termination settings" );
         }
     }
 }

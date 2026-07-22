@@ -5,8 +5,6 @@
 #ifndef TUDAT_SERIALIZATION_FILE_IO_DECLARATIONS_H
 #define TUDAT_SERIALIZATION_FILE_IO_DECLARATIONS_H
 
-#include <tudat/config.hpp>
-
 #include <memory>
 #include <string>
 

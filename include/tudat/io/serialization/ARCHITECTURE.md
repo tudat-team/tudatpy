@@ -21,5 +21,7 @@ new model or binding implementation headers.
 `TUDAT_BUILD_WITH_SERIALIZATION` is enabled by default. Configuring with
 `-DTUDAT_BUILD_WITH_SERIALIZATION=OFF` omits archive/file-I/O implementations, polymorphic
 registration objects, serialization tests, and Python pickle/file-I/O bindings. The intrusive
-Cereal schemas remain in model headers so the option does not create a source-incompatible model
-API variant; consequently, Cereal remains a public header dependency in either configuration.
+Cereal schemas remain in model headers so model definitions and archived data layouts do not vary
+with this option; consequently, Cereal remains a public header dependency in either configuration.
+The selected value is exported to CMake consumers as the public
+`TUDAT_BUILD_WITH_SERIALIZATION` target compile definition rather than through `config.hpp`.

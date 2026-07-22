@@ -15,7 +15,7 @@ set(serialization_PRIVATE_LINKS
         tudat_propagation_setup
         )
 
-if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     list(APPEND serialization_SOURCES
             registrationsEstimation.cpp
             )
@@ -24,7 +24,7 @@ if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             tudat_estimation_setup
             tudat_orbit_determination
             )
-endif()
+endif ()
 
 TUDAT_ADD_LIBRARY("serialization"
         "${serialization_SOURCES}"
@@ -32,3 +32,19 @@ TUDAT_ADD_LIBRARY("serialization"
         PUBLIC_SERIALIZATION
         PRIVATE_LINKS ${serialization_PRIVATE_LINKS}
         )
+
+# Cereal compares std::type_info objects to decide whether a polymorphic pointer's static and
+# dynamic types are identical. Apple static libraries otherwise inherit Tudat's hidden inline
+# visibility, which can produce distinct libc++ RTTI objects for the same header-defined type in
+# this registration library and in a consumer. Cereal then attempts a nonsensical T -> T cast and
+# reports the type as both its own base and derived type.
+if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY)
+    set_target_properties(tudat_serialization PROPERTIES
+            CXX_VISIBILITY_PRESET default
+            VISIBILITY_INLINES_HIDDEN FALSE)
+    get_target_property(_tudat_serialization_visibility tudat_serialization CXX_VISIBILITY_PRESET)
+    get_target_property(_tudat_serialization_inline_visibility tudat_serialization VISIBILITY_INLINES_HIDDEN)
+    message(STATUS
+            "Apple serialization RTTI visibility: preset=${_tudat_serialization_visibility}, "
+            "inlines_hidden=${_tudat_serialization_inline_visibility}")
+endif ()

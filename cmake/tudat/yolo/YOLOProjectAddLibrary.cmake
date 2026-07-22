@@ -35,6 +35,11 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             SYSTEM PRIVATE ${PARSED_ARGS_PRIVATE_INCLUDES} ${Boost_INCLUDE_DIRS} ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS} ${TudatResources_INCLUDE_DIRS}
             )
 
+    # Public headers conditionally expose archive/file-I/O methods. Export the selected value so
+    # build-tree and installed consumers see the same interface as the library itself.
+    target_compile_definitions("${target_name}"
+            PUBLIC TUDAT_BUILD_WITH_SERIALIZATION=$<BOOL:${TUDAT_BUILD_WITH_SERIALIZATION}>)
+
     # Keep Cereal private unless the library's installed headers expose Tudat serialization APIs.
     if(PARSED_ARGS_PUBLIC_SERIALIZATION)
         set(serialization_public_link cereal::cereal)

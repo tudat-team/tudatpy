@@ -151,21 +151,94 @@ createHybridArcSimulationResults( )
             createSingleArcSimulationResults( ), createMultiArcSimulationResults( ) );
 }
 
+void printPropagationRegistrationTypeInfoDiagnostics( )
+{
+    std::cerr << "[serialization diagnostics] compiler=";
+#if defined( __clang__ )
+    std::cerr << "clang " << __clang_version__;
+#elif defined( __GNUC__ )
+    std::cerr << "gcc " << __VERSION__;
+#else
+    std::cerr << "unknown";
+#endif
+#if defined( _LIBCPP_VERSION )
+    std::cerr << ", libc++=" << _LIBCPP_VERSION;
+#elif defined( __GLIBCXX__ )
+    std::cerr << ", libstdc++=" << __GLIBCXX__;
+#endif
+    std::cerr << '\n';
+
+    for( const auto& registrationTypeInfo : serialization::diagnostics::getPropagationRegistrationTypeInfo( ) )
+    {
+        std::cerr << "[serialization diagnostics] registration RTTI: label=" << registrationTypeInfo.first
+                  << ", name=" << registrationTypeInfo.second->name( )
+                  << ", address=" << static_cast< const void* >( registrationTypeInfo.second )
+                  << ", hash=" << registrationTypeInfo.second->hash_code( ) << '\n';
+    }
+    std::cerr << std::flush;
+}
+
+void printLocalTypeInfoDiagnostic( const char* label, const std::type_info& localTypeInfo )
+{
+    std::cerr << "[serialization diagnostics] local RTTI: label=" << label << ", name=" << localTypeInfo.name( )
+              << ", address=" << static_cast< const void* >( &localTypeInfo ) << ", hash=" << localTypeInfo.hash_code( ) << '\n';
+
+    bool matchingRegistrationNameFound = false;
+    for( const auto& registrationTypeInfo : serialization::diagnostics::getPropagationRegistrationTypeInfo( ) )
+    {
+        if( std::string( registrationTypeInfo.second->name( ) ) == localTypeInfo.name( ) )
+        {
+            matchingRegistrationNameFound = true;
+            std::cerr << "[serialization diagnostics] matching registration RTTI: label=" << registrationTypeInfo.first
+                      << ", address=" << static_cast< const void* >( registrationTypeInfo.second ) << ", equal=" << std::boolalpha
+                      << ( localTypeInfo == *registrationTypeInfo.second ) << std::noboolalpha << '\n';
+        }
+    }
+    if( !matchingRegistrationNameFound )
+    {
+        std::cerr << "[serialization diagnostics] no registration RTTI with the same name was found\n";
+    }
+    std::cerr << std::flush;
+}
+
 template< typename ResultType >
 std::shared_ptr< ResultType > roundTripSerialize( const std::shared_ptr< ResultType >& originalResult )
 {
     std::stringstream serializationStream;
 
+    const std::type_info& staticTypeInfo = typeid( ResultType );
+    const std::type_info& dynamicTypeInfo = typeid( *originalResult );
+    std::cerr << "[serialization diagnostics] round trip start: static=" << staticTypeInfo.name( ) << " ("
+              << static_cast< const void* >( &staticTypeInfo ) << "), dynamic=" << dynamicTypeInfo.name( ) << " ("
+              << static_cast< const void* >( &dynamicTypeInfo ) << ")\n"
+              << std::flush;
+
+    try
     {
-        cereal::BinaryOutputArchive outputArchive( serializationStream );
-        outputArchive( originalResult );
+        {
+            cereal::BinaryOutputArchive outputArchive( serializationStream );
+            outputArchive( originalResult );
+        }
+    }
+    catch( const std::exception& exception )
+    {
+        std::cerr << "[serialization diagnostics] binary save failed: " << exception.what( ) << '\n' << std::flush;
+        throw;
     }
 
     std::shared_ptr< ResultType > deserializedResult;
 
+    try
     {
-        cereal::BinaryInputArchive inputArchive( serializationStream );
-        inputArchive( deserializedResult );
+        {
+            cereal::BinaryInputArchive inputArchive( serializationStream );
+            inputArchive( deserializedResult );
+        }
+    }
+    catch( const std::exception& exception )
+    {
+        std::cerr << "[serialization diagnostics] binary load failed: " << exception.what( ) << '\n' << std::flush;
+        throw;
     }
 
     return deserializedResult;
@@ -177,6 +250,10 @@ BOOST_AUTO_TEST_SUITE( test_PropagationResults_serialization )
 
 BOOST_AUTO_TEST_CASE( test_PropagationResultsSerialization )
 {
+    printPropagationRegistrationTypeInfoDiagnostics( );
+    printLocalTypeInfoDiagnostic( "MultiArcDependentVariablesInterface<double>",
+                                  typeid( propagators::MultiArcDependentVariablesInterface< double > ) );
+
     std::vector< std::shared_ptr< propagators::SimulationResults< double, double > > > resultsVector = {
         createSingleArcSimulationResults( ),
         createSingleArcVariationalSimulationResults( ),
@@ -266,6 +343,8 @@ BOOST_AUTO_TEST_CASE( test_DependentVariablesInterfacePolymorphicSerialization )
 {
     using namespace propagators;
 
+    printPropagationRegistrationTypeInfoDiagnostics( );
+
     auto dependentVariableSettings =
             std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Vehicle", "Earth" );
 
@@ -313,6 +392,7 @@ BOOST_AUTO_TEST_CASE( test_DependentVariablesInterfacePolymorphicSerialization )
             std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< double > > >( { singleArcInterface } ),
             std::vector< double >( { 0.0 } ),
             std::vector< double >( { 9.0 } ) );
+    printLocalTypeInfoDiagnostic( "MultiArcDependentVariablesInterface<double>", typeid( MultiArcDependentVariablesInterface< double > ) );
     std::shared_ptr< DependentVariablesInterface< double > > multiArcBase = multiArcInterface;
     auto deserializedMultiArc =
             std::dynamic_pointer_cast< MultiArcDependentVariablesInterface< double > >( roundTripSerialize( multiArcBase ) );

@@ -13,8 +13,6 @@
  * file_io.h directly according to the dependency layer it needs.
  */
 
-#include <tudat/config.hpp>
-
 #if TUDAT_BUILD_WITH_SERIALIZATION
 #include "tudat/io/serialization/file_io.h"
 #else

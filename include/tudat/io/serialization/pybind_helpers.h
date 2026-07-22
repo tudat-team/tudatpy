@@ -2,8 +2,6 @@
 #pragma once
 #include <pybind11/pybind11.h>
 
-#include <tudat/config.hpp>
-
 #if TUDAT_BUILD_WITH_SERIALIZATION
 #include <stdexcept>
 #include <string>
