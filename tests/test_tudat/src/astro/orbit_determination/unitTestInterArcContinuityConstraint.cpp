@@ -153,19 +153,19 @@ TwoArcFixture buildTwoArcFixture(
     return fixture;
 }
 
-InterArcStateContinuityConstraintSettings::EpochMap makeSingleBodyEpochs( const std::string& body, const std::vector< double >& epochs )
+std::map< std::string, std::vector< double > > makeSingleBodyEpochs( const std::string& body, const std::vector< double >& epochs )
 {
-    return InterArcStateContinuityConstraintSettings::EpochMap{ { body, epochs } };
+    return std::map< std::string, std::vector< double > >{ { body, epochs } };
 }
 
-InterArcStateContinuityConstraintSettings::ArcPairMap makeSingleBodyArcPairs( const std::string& body,
-                                                                              const std::vector< std::pair< int, int > >& arcPairs )
+std::map< std::string, std::vector< std::pair< int, int > > > makeSingleBodyArcPairs( const std::string& body,
+                                                                                      const std::vector< std::pair< int, int > >& arcPairs )
 {
     if( arcPairs.empty( ) )
     {
         return {};
     }
-    return InterArcStateContinuityConstraintSettings::ArcPairMap{ { body, arcPairs } };
+    return std::map< std::string, std::vector< std::pair< int, int > > >{ { body, arcPairs } };
 }
 
 std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity(
@@ -220,7 +220,7 @@ std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity( 
 {
     return simulation_setup::generalContinuity( { body },
                                                 makeSingleBodyEpochs( body, epochs ),
-                                                InterArcStateContinuityConstraintSettings::WeightMatrixMap{ { body, weightMatrices } },
+                                                std::map< std::string, std::vector< Eigen::MatrixXd > >{ { body, weightMatrices } },
                                                 constraintScalingFactor,
                                                 makeSingleBodyArcPairs( body, arcPairs ) );
 }
@@ -483,7 +483,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_StructureAndSymmetry )
 
 //! Exact assembly check: the design matrix is the right-arc variational block minus the left-arc variational block,
 //! its columns are normalized before the normal equations are formed, the residual sign is negative state discrepancy,
-//! and dense rank-deficient PSD weights are handled without whitening/Cholesky assumptions.
+//! dense rank-deficient PSD weights are handled without whitening/Cholesky assumptions, and accepted
+//! round-off-level asymmetry is removed consistently from the rank, cost, gradient, and normal matrix.
 BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquations )
 {
     auto fixture = buildTwoArcFixture( );
@@ -493,8 +494,11 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DensePsdExactNormalEquatio
     Eigen::Matrix< double, 6, 1 > rankOneWeightVector;
     rankOneWeightVector << 2.0, -1.0, 0.5, 0.25, -0.75, 1.5;
     Eigen::Matrix< double, 6, 6 > denseRankOneWeightMatrix = rankOneWeightVector * rankOneWeightVector.transpose( );
+    Eigen::Matrix< double, 6, 6 > nearSymmetricRankOneWeightMatrix = denseRankOneWeightMatrix;
+    nearSymmetricRankOneWeightMatrix( 0, 1 ) += 1.0E-13;
+    nearSymmetricRankOneWeightMatrix( 1, 0 ) -= 1.0E-13;
     const double constraintScalingFactor = 2.0;
-    auto settings = generalContinuity( "Earth", { connectionEpoch }, { denseRankOneWeightMatrix }, constraintScalingFactor );
+    auto settings = generalContinuity( "Earth", { connectionEpoch }, { nearSymmetricRankOneWeightMatrix }, constraintScalingFactor );
 
     Eigen::VectorXd columnNormalizationFactors( totalParameterSize );
     for( int i = 0; i < totalParameterSize; ++i )
@@ -729,12 +733,11 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_MultiBodyPerBodyEpochs )
     BOOST_CHECK_GT( marsConnectionEpoch, fixture.arcStartTimes[ 1 ] );
     BOOST_CHECK_LT( marsConnectionEpoch, fixture.arcEndTimes[ 0 ] );
 
-    auto multiBodySettings =
-            simulation_setup::positionOnlyContinuity( { "Earth", "Mars" },
-                                                      InterArcStateContinuityConstraintSettings::EpochMap{
-                                                              { "Earth", { earthConnectionEpoch } }, { "Mars", { marsConnectionEpoch } } },
-                                                      1.0,
-                                                      2.0 );
+    auto multiBodySettings = simulation_setup::positionOnlyContinuity(
+            { "Earth", "Mars" },
+            std::map< std::string, std::vector< double > >{ { "Earth", { earthConnectionEpoch } }, { "Mars", { marsConnectionEpoch } } },
+            1.0,
+            2.0 );
     auto multiBodyContribution = assembleInterArcContinuityContribution< double, double >( { multiBodySettings },
                                                                                            fixture.parametersToEstimate,
                                                                                            fixture.simulator,
@@ -1016,9 +1019,8 @@ BOOST_AUTO_TEST_CASE( test_AssembleInterArcContinuity_DuplicateBodyInitialStateP
     auto multiArcStateParameters = fixture.parametersToEstimate->getEstimatedMultiArcInitialStateParameters( );
     BOOST_REQUIRE_EQUAL( multiArcStateParameters.size( ), 1u );
 
-    typedef EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > InitialStateParameter;
-    std::vector< std::shared_ptr< InitialStateParameter > > duplicatedInitialStateParameters = { multiArcStateParameters.at( 0 ),
-                                                                                                 multiArcStateParameters.at( 0 ) };
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+            duplicatedInitialStateParameters = { multiArcStateParameters.at( 0 ), multiArcStateParameters.at( 0 ) };
     auto duplicatedParametersToEstimate = std::make_shared< EstimatableParameterSet< double > >(
             std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
             std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ),
@@ -1357,8 +1359,6 @@ BOOST_AUTO_TEST_CASE( test_LeastSquares_HardAndSoftConstraintsCompose )
 //! rules in the constructor reject obviously malformed inputs.
 BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndValidation )
 {
-    using tudat::simulation_setup::InterArcStateContinuityConstraintSettings;
-
     const std::vector< double > epochs = { 100.0, 200.0 };
 
     // Position-only: position weights non-zero, velocity weights zero. Rank should be 3.
@@ -1416,7 +1416,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     BOOST_CHECK_THROW(
             InterArcStateContinuityConstraintSettings( { "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
-                                                       InterArcStateContinuityConstraintSettings::WeightMatrixMap{
+                                                       std::map< std::string, std::vector< Eigen::MatrixXd > >{
                                                                { "Sat",
                                                                  { tudat::simulation_setup::createCartesianStateWeightMatrix(
                                                                          Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },
@@ -1428,7 +1428,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     BOOST_CHECK_THROW(
             InterArcStateContinuityConstraintSettings( { "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
-                                                       InterArcStateContinuityConstraintSettings::WeightMatrixMap{
+                                                       std::map< std::string, std::vector< Eigen::MatrixXd > >{
                                                                { "Sat",
                                                                  { tudat::simulation_setup::createCartesianStateWeightMatrix(
                                                                          Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },
@@ -1440,7 +1440,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     BOOST_CHECK_THROW( InterArcStateContinuityConstraintSettings(
                                { "Sat" },
                                makeSingleBodyEpochs( "Sat", epochs ),
-                               InterArcStateContinuityConstraintSettings::WeightMatrixMap{
+                               std::map< std::string, std::vector< Eigen::MatrixXd > >{
                                        { "Sat",
                                          std::vector< Eigen::MatrixXd >( 3,
                                                                          tudat::simulation_setup::createCartesianStateWeightMatrix(
@@ -1452,7 +1452,7 @@ BOOST_AUTO_TEST_CASE( test_InterArcStateContinuityConstraintSettings_PresetsAndV
     BOOST_CHECK_THROW(
             InterArcStateContinuityConstraintSettings( { "Sat", "Sat" },
                                                        makeSingleBodyEpochs( "Sat", epochs ),
-                                                       InterArcStateContinuityConstraintSettings::WeightMatrixMap{
+                                                       std::map< std::string, std::vector< Eigen::MatrixXd > >{
                                                                { "Sat",
                                                                  { tudat::simulation_setup::createCartesianStateWeightMatrix(
                                                                          Eigen::Vector3d::Ones( ), Eigen::Vector3d::Ones( ) ) } } },

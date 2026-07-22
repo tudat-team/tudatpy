@@ -11,7 +11,11 @@
 #include "expose_inter_arc_constraints.h"
 
 #include <Eigen/Core>
+#include <map>
 #include <memory>
+#include <string>
+#include <utility>
+#include <variant>
 #include <vector>
 
 #include <pybind11/eigen.h>
@@ -31,8 +35,6 @@ namespace estimation_analysis
 
 void expose_inter_arc_constraints( py::module& m )
 {
-    using Settings = tss::InterArcStateContinuityConstraintSettings;
-
     py::class_< tss::InterArcStateContinuityConstraintSettings, std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > >(
             m,
             "InterArcStateContinuityConstraintSettings",
@@ -56,13 +58,15 @@ void expose_inter_arc_constraints( py::module& m )
             =\mathbf{M}_{r,b}(t_{c,bk})-\mathbf{M}_{\ell,b}(t_{c,bk}),
 
          where :math:`\mathbf{M}` contains the applicable rows of the full state-transition and sensitivity
-         matrix. With user-supplied positive semi-definite weight :math:`\mathbf{C}_{bk}`, scaling factor
-         :math:`\mu_s` for settings object :math:`s`, :math:`m` scalar observations, and
+         matrix. Let :math:`\mathbf{C}_{bk}` be the user-supplied positive semi-definite weight matrix and
+         :math:`\overline{\mathbf{C}}_{bk}=\tfrac{1}{2}(\mathbf{C}_{bk}+\mathbf{C}_{bk}^{T})` its symmetric
+         part. This distinction only affects matrices whose asymmetry is within the numerical validation tolerance.
+         With scaling factor :math:`\mu_s` for settings object :math:`s`, :math:`m` scalar observations, and
 
          .. math::
 
-            m_d=\sum_{b,k}\operatorname{rank}(\mathbf{C}_{bk}),\qquad
-            \mathbf{W}_{d,bk}=\frac{m}{\mu_s m_d}\mathbf{C}_{bk},
+            m_d=\sum_{b,k}\operatorname{rank}(\overline{\mathbf{C}}_{bk}),\qquad
+            \mathbf{W}_{d,bk}=\frac{m}{\mu_s m_d}\overline{\mathbf{C}}_{bk},
 
          the implemented continuity cost is
 
@@ -107,18 +111,19 @@ void expose_inter_arc_constraints( py::module& m )
             .def_property_readonly( "arc_pairs", &tss::InterArcStateContinuityConstraintSettings::arcPairsByBody );
 
     m.def( "full_state_continuity",
-           static_cast< std::shared_ptr< Settings > ( * )( std::vector< std::string >,
-                                                           Settings::EpochMap,
-                                                           Settings::CartesianStateWeightMap,
-                                                           Settings::CartesianStateWeightMap,
-                                                           double,
-                                                           Settings::ArcPairMap ) >( &tss::fullStateContinuity ),
+           static_cast< std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > ( * )(
+                   std::vector< std::string >,
+                   std::map< std::string, std::vector< double > >,
+                   std::map< std::string, std::variant< double, Eigen::VectorXd > >,
+                   std::map< std::string, std::variant< double, Eigen::VectorXd > >,
+                   double,
+                   std::map< std::string, std::vector< std::pair< int, int > > > ) >( &tss::fullStateContinuity ),
            py::arg( "bodies" ),
            py::arg( "epochs" ),
            py::arg( "position_weights" ),
            py::arg( "velocity_weights" ),
            py::arg( "constraint_scaling_factor" ) = 1.0,
-           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           py::arg( "arc_pairs" ) = std::map< std::string, std::vector< std::pair< int, int > > >( ),
            R"doc(
 
          Build full translational-state continuity settings.
@@ -149,14 +154,17 @@ void expose_inter_arc_constraints( py::module& m )
       )doc" );
 
     m.def( "position_only_continuity",
-           static_cast< std::shared_ptr< Settings > ( * )(
-                   std::vector< std::string >, Settings::EpochMap, Settings::CartesianStateWeightMap, double, Settings::ArcPairMap ) >(
-                   &tss::positionOnlyContinuity ),
+           static_cast< std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > ( * )(
+                   std::vector< std::string >,
+                   std::map< std::string, std::vector< double > >,
+                   std::map< std::string, std::variant< double, Eigen::VectorXd > >,
+                   double,
+                   std::map< std::string, std::vector< std::pair< int, int > > > ) >( &tss::positionOnlyContinuity ),
            py::arg( "bodies" ),
            py::arg( "epochs" ),
            py::arg( "position_weights" ),
            py::arg( "constraint_scaling_factor" ) = 1.0,
-           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           py::arg( "arc_pairs" ) = std::map< std::string, std::vector< std::pair< int, int > > >( ),
            R"doc(
 
          Build position-only continuity settings.
@@ -184,14 +192,17 @@ void expose_inter_arc_constraints( py::module& m )
       )doc" );
 
     m.def( "velocity_only_continuity",
-           static_cast< std::shared_ptr< Settings > ( * )(
-                   std::vector< std::string >, Settings::EpochMap, Settings::CartesianStateWeightMap, double, Settings::ArcPairMap ) >(
-                   &tss::velocityOnlyContinuity ),
+           static_cast< std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > ( * )(
+                   std::vector< std::string >,
+                   std::map< std::string, std::vector< double > >,
+                   std::map< std::string, std::variant< double, Eigen::VectorXd > >,
+                   double,
+                   std::map< std::string, std::vector< std::pair< int, int > > > ) >( &tss::velocityOnlyContinuity ),
            py::arg( "bodies" ),
            py::arg( "epochs" ),
            py::arg( "velocity_weights" ),
            py::arg( "constraint_scaling_factor" ) = 1.0,
-           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           py::arg( "arc_pairs" ) = std::map< std::string, std::vector< std::pair< int, int > > >( ),
            R"doc(
 
          Build velocity-only continuity settings.
@@ -219,14 +230,17 @@ void expose_inter_arc_constraints( py::module& m )
       )doc" );
 
     m.def( "general_continuity",
-           static_cast< std::shared_ptr< Settings > ( * )(
-                   std::vector< std::string >, Settings::EpochMap, Settings::WeightMatrixInputMap, double, Settings::ArcPairMap ) >(
-                   &tss::generalContinuity ),
+           static_cast< std::shared_ptr< tss::InterArcStateContinuityConstraintSettings > ( * )(
+                   std::vector< std::string >,
+                   std::map< std::string, std::vector< double > >,
+                   std::map< std::string, std::variant< Eigen::MatrixXd, std::vector< Eigen::MatrixXd > > >,
+                   double,
+                   std::map< std::string, std::vector< std::pair< int, int > > > ) >( &tss::generalContinuity ),
            py::arg( "bodies" ),
            py::arg( "epochs" ),
            py::arg( "weight_matrices" ),
            py::arg( "constraint_scaling_factor" ) = 1.0,
-           py::arg( "arc_pairs" ) = Settings::ArcPairMap( ),
+           py::arg( "arc_pairs" ) = std::map< std::string, std::vector< std::pair< int, int > > >( ),
            R"doc(
 
          Build continuity settings from general Cartesian-state weight matrices.

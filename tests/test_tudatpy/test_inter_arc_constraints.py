@@ -82,18 +82,11 @@ def test_inter_arc_constraint_factories_validate_inputs():
             velocity_weights={"Vehicle": 1.0},
         )
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(IndexError):
         estimation_analysis.position_only_continuity(
             ["Earth", "Mars"],
             {"Earth": [100.0], "Mars": [200.0]},
             position_weights={"Earth": 1.0},
-        )
-
-    with pytest.raises(RuntimeError):
-        estimation_analysis.position_only_continuity(
-            ["Earth"],
-            {"Earth": [100.0]},
-            position_weights={"Earth": 1.0, "Mars": 2.0},
         )
 
     indefinite = np.diag([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0])

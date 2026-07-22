@@ -93,6 +93,7 @@ set(estimation_SOURCES
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
+        interArcContinuityConstraint.cpp
         interArcStateContinuityConstraintSettings.cpp
         )
 

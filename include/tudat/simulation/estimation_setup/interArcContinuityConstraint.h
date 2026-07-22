@@ -21,7 +21,6 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/LU>
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
@@ -45,13 +44,7 @@ struct InterArcConstraintContribution {
 };
 
 //! Number of independent scalar constraints represented by a PSD weight matrix.
-inline int computeConstraintDimension( const Eigen::MatrixXd& constraintWeightMatrix )
-{
-    // Lari et al. (2021), Eq. (28), defines m_d as the number of scalar jump constraints. Matrix rank is the
-    // corresponding count when a general PSD matrix selects arbitrary state-component combinations. Rely on
-    // Eigen's scale-aware default rank threshold instead of defining an application-specific eigenvalue cutoff.
-    return constraintWeightMatrix.fullPivLu( ).rank( );
-}
+int computeConstraintDimension( const Eigen::MatrixXd& constraintWeightMatrix );
 
 //! Single-arc state evaluator at an arbitrary time inside [arcInitialTime, arcFinalTime].
 //! Short-circuits at the arc endpoints (avoids interpolation noise at shared OCM boundaries) and otherwise uses
@@ -203,26 +196,8 @@ BodyStateBlockIndices getBodyStateBlockIndicesInMultiArcLayout(
     return rows;
 }
 
-inline int computeTotalConstraintDimension(
-        const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings )
-{
-    int totalConstraintDimension = 0;
-    for( const auto& settings : constraintSettings )
-    {
-        if( settings == nullptr )
-        {
-            throw std::runtime_error( "Error in assembleInterArcContinuityContribution: constraint settings contain a null entry." );
-        }
-        for( const auto& body : settings->bodies( ) )
-        {
-            for( std::size_t pairIndex = 0; pairIndex < settings->numberOfPairsForBody( body ); ++pairIndex )
-            {
-                totalConstraintDimension += computeConstraintDimension( settings->weightMatrixForBodyAndPair( body, pairIndex ) );
-            }
-        }
-    }
-    return totalConstraintDimension;
-}
+int computeTotalConstraintDimension(
+        const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings );
 
 template< typename ObservationScalarType >
 std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ObservationScalarType > >
