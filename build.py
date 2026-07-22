@@ -1141,6 +1141,7 @@ class Builder:
                     f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
                     f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
+                    f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                 ]
 

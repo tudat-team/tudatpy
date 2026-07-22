@@ -100,7 +100,7 @@ public:
      * \param time Time at which density is to be computed (seconds since J2000).
      * \return Atmospheric density [kg/m^3].
      */
-    double getDensity( const double altitude, const double longitude, const double geodeticLatitude, const double time )
+    double getDensity( const double altitude, const double longitude, const double geodeticLatitude, const double time ) override
     {
         computeProperties( altitude, longitude, geodeticLatitude, time );
         return density_;
@@ -116,7 +116,7 @@ public:
      * \param time Time at which pressure is to be computed (seconds since J2000).
      * \return Atmospheric pressure.
      */
-    double getPressure( const double altitude, const double longitude, const double geodeticLatitude, const double time )
+    double getPressure( const double altitude, const double longitude, const double geodeticLatitude, const double time ) override
     {
         if( useIdealGasLaw_ )
         {
@@ -138,7 +138,7 @@ public:
      * \param time Time at which temperature is to be computed (seconds since J2000).
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double altitude, const double longitude, const double geodeticLatitude, const double time )
+    double getTemperature( const double altitude, const double longitude, const double geodeticLatitude, const double time ) override
     {
         computeProperties( altitude, longitude, geodeticLatitude, time );
         return temperature_;
@@ -153,7 +153,7 @@ public:
      * \param time Time at which speed of sound is to be computed (seconds since J2000).
      * \return Speed of sound.
      */
-    double getSpeedOfSound( const double altitude, const double longitude, const double geodeticLatitude, const double time )
+    double getSpeedOfSound( const double altitude, const double longitude, const double geodeticLatitude, const double time ) override
     {
         computeProperties( altitude, longitude, geodeticLatitude, time );
         return speedOfSound_;
@@ -222,11 +222,11 @@ public:
         return totalNumberDensity_;
     }
 
-    virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
-                                     const double altitude,
-                                     const double longitude,
-                                     const double geodeticLatitude,
-                                     const double time )
+    double getNumberDensity( const AtmosphericCompositionSpecies species,
+                             const double altitude,
+                             const double longitude,
+                             const double geodeticLatitude,
+                             const double time ) override
     {
         if( !( speciesIndices.count( species ) > 0 ) )
         {
@@ -236,7 +236,7 @@ public:
         return numberDensities_.at( speciesIndices.at( species ) );
     }
 
-    bool doesModelDefineSpeciesNumberDensity( const AtmosphericCompositionSpecies species )
+    bool doesModelDefineSpeciesNumberDensity( const AtmosphericCompositionSpecies species ) override
     {
         if( speciesIndices.count( species ) > 0 )
         {
