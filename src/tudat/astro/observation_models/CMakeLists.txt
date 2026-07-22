@@ -22,6 +22,7 @@ set(observation_models_SOURCES
         "corrections/solarCoronaCorrection.cpp"
         "corrections/neQuick2IonosphericCorrection.cpp"
         "observationFrequencies.cpp"
+        "observationSettingsSerialization.cpp"
         )
 
 # Set the header files.
@@ -60,6 +61,7 @@ set(observation_models_HEADERS
 TUDAT_ADD_LIBRARY("observation_models"
         "${observation_models_SOURCES}"
         "${observation_models_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

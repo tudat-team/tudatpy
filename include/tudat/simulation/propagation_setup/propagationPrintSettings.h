@@ -16,11 +16,9 @@
 #include <map>
 #include <iostream>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -330,7 +328,7 @@ private:
     }
 
 public:
-    TUDAT_DEFINE_FILE_IO( PropagationPrintSettings )
+    TUDAT_DECLARE_FILE_IO( PropagationPrintSettings )
 };
 
 }  // namespace propagators

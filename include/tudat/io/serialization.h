@@ -15,19 +15,20 @@
  * @file serialization.h
  * @brief Master header for Tudat cereal serialization infrastructure.
  *
- * Provides core serialization helpers (Eigen, archives, serialize/deserialize
- * utilities) backed by cereal.
+ * Provides archive/file helpers and retains all Tudat polymorphic registration
+ * domains. Prefer a narrower sub-header in implementation code.
  *
  * Sub-headers:
- *   - serialization/base.h                Core infrastructure (Eigen, helpers, archives)
- *   - serialization/pybind_helpers.h      Pybind11 pickle / file-IO helpers
- *   - serialization/registrations.h       Centralized CEREAL_REGISTER_TYPE / ... calls
+ *   - serialization/core.h                Archive-independent Cereal support
+ *   - serialization/eigen.h               Eigen matrix adapter
+ *   - serialization/archives.h            Supported archive implementations
+ *   - serialization/file_io.h             File/string helpers and definition macros
+ *   - serialization/pybind_helpers.h      Pybind11 pickle / file-I/O helpers
+ *   - serialization/registrations.h       Registration-retention declarations
  *
- * All CEREAL_REGISTER_TYPE and CEREAL_REGISTER_POLYMORPHIC_RELATION calls
- * have been centralized in the registrations_*.h headers under
- * tudat/io/serialization/.  Include "registrations.h" (or the specific domain
- * header) in exactly one translation unit per registration group, or include
- * the master header below.
+ * CEREAL_REGISTER_TYPE and CEREAL_REGISTER_POLYMORPHIC_RELATION definitions are
+ * instantiated once in the serialization library. The public registrations_*.h
+ * headers only force the matching registration objects to be retained.
  */
 
 #include "tudat/io/serialization/base.h"

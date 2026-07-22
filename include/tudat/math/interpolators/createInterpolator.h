@@ -26,13 +26,8 @@
 
 #include "tudat/io/mapTextFileReader.h"
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/vector.hpp>
-
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -175,7 +170,7 @@ public:
                 boundaryHandling_ == rhs.boundaryHandling_;
     }
 
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( InterpolatorSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( InterpolatorSettings )
 
 protected:
     //! Default constructor for serialization.

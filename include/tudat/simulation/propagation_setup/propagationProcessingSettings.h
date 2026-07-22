@@ -19,15 +19,9 @@
 
 #include <Eigen/Core>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/vector.hpp>
-
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -122,7 +116,7 @@ public:
     }
 
     //! Save processing settings to a file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( PropagatorProcessingSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( PropagatorProcessingSettings )
 
 protected:
     bool clearNumericalSolutions_;

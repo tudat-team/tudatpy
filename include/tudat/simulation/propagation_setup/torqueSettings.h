@@ -11,11 +11,8 @@
 #ifndef TUDAT_TORQUESETTINGS_H
 #define TUDAT_TORQUESETTINGS_H
 
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
@@ -67,7 +64,7 @@ public:
     }
 
     //! Save torque settings to a JSON file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( TorqueSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( TorqueSettings )
 
 protected:
     // Default constructor for serialization

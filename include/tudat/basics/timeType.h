@@ -17,14 +17,13 @@
 #include <cmath>
 #include <algorithm>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -1061,7 +1060,7 @@ protected:
     int daysToAdd;
 
 public:
-    TUDAT_DEFINE_BINARY_IO( Time )
+    TUDAT_DECLARE_BINARY_IO( Time )
 
 private:
     friend class cereal::access;

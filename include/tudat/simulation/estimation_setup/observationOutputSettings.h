@@ -11,11 +11,6 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-
 #include <memory>
 #include <functional>
 #include <string>
@@ -24,7 +19,8 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -205,7 +201,7 @@ public:
     LinkEndType originatingLinkEndType_;
 
     //! Save dependent variable settings to a JSON file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( ObservationDependentVariableSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( ObservationDependentVariableSettings )
 
 protected:
     // Default constructor for serialization

@@ -50,6 +50,7 @@ set(propagation_SOURCES
         propagationOutput.cpp
         environmentUpdater.cpp
         dependentVariablesInterface.cpp
+        propagationSettingsSerialization.cpp
         )
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
@@ -65,6 +66,7 @@ endif ()
 TUDAT_ADD_LIBRARY("propagation_setup"
         "${propagation_SOURCES}"
         "${propagation_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )

@@ -26,6 +26,7 @@
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
 #include <tudat/io/serialization/pybind_helpers.h>
+#include <tudat/io/serialization/registrations_estimation.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;

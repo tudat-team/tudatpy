@@ -16,10 +16,6 @@
 #include <memory>
 #include <vector>
 
-#include <cereal/access.hpp>
-#include <cereal/types/map.hpp>
-#include <cereal/types/vector.hpp>
-
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
@@ -28,7 +24,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -55,7 +52,7 @@ public:
     virtual ~ObservationAncillarySimulationSettings( ) {}
 
     //! Save ancillary settings to a JSON file
-    TUDAT_DEFINE_FILE_IO( ObservationAncillarySimulationSettings )
+    TUDAT_DECLARE_FILE_IO( ObservationAncillarySimulationSettings )
 
     void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {

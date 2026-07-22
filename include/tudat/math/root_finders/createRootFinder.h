@@ -19,11 +19,8 @@
 #include <tudat/math/root_finders/secantRootFinder.h>
 #include <tudat/math/root_finders/terminationConditions.h>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-
-#include <tudat/io/serialization/base.h>
+#include <tudat/io/serialization/core.h>
+#include <tudat/io/serialization/file_io_declarations.h>
 
 namespace tudat
 {
@@ -71,7 +68,7 @@ public:
     }
 
     //! Save root finder settings to a JSON file
-    TUDAT_DEFINE_FILE_IO( RootFinderSettings )
+    TUDAT_DECLARE_FILE_IO( RootFinderSettings )
 
     //! Type of root finder to be used
     RootFinderType rootFinderType_;

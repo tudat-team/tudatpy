@@ -11,10 +11,6 @@
 #ifndef TUDAT_OBSERVATIONOUTPUT
 #define TUDAT_OBSERVATIONOUTPUT
 
-#include <cereal/access.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-
 #include <functional>
 #include <map>
 #include <memory>
@@ -30,6 +26,8 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -170,7 +168,7 @@ public:
     }
 
     //! Save dependent variable bookkeeping to a binary file
-    TUDAT_DEFINE_BINARY_IO( ObservationDependentVariableBookkeeping )
+    TUDAT_DECLARE_BINARY_IO( ObservationDependentVariableBookkeeping )
 
     bool operator==( const ObservationDependentVariableBookkeeping& rhs ) const
     {

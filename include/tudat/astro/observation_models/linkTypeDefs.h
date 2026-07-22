@@ -16,11 +16,8 @@
 #include <string>
 #include <vector>
 
-#include <cereal/access.hpp>
-#include <cereal/types/map.hpp>
-#include <cereal/types/string.hpp>
-
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -88,7 +85,7 @@ struct LinkEndId {
         return bodyName_ == rhs.bodyName_ && stationName_ == rhs.stationName_;
     }
 
-    TUDAT_DEFINE_FILE_IO( LinkEndId )
+    TUDAT_DECLARE_FILE_IO( LinkEndId )
 
     bool operator<( const LinkEndId& rhs ) const
     {
@@ -265,7 +262,7 @@ struct LinkDefinition {
         return isEqual;
     }
 
-    TUDAT_DEFINE_FILE_IO( LinkDefinition )
+    TUDAT_DECLARE_FILE_IO( LinkDefinition )
 
 private:
     friend class cereal::access;

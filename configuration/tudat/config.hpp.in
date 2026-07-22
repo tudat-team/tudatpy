@@ -19,6 +19,8 @@
 #define TUDAT_BUILD_COMMIT "@TUDAT_BUILD_COMMIT@"
 #define TUDAT_BUILD_TIME "@TUDAT_BUILD_TIME@"
 
+#cmakedefine01 TUDAT_BUILD_WITH_ESTIMATION_TOOLS
+
 // TODO: This need to be moved somewhere else eventually.
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
 

@@ -16,6 +16,7 @@ set(interpolators_SOURCES
         "interpolator.cpp"
         "multiLinearInterpolator.cpp"
         "chebyshevApproximation.cpp"
+        "interpolatorSettingsSerialization.cpp"
         )
 
 # Add header files.
@@ -39,6 +40,7 @@ set(interpolators_HEADERS
 TUDAT_ADD_LIBRARY("interpolators"
         "${interpolators_SOURCES}"
         "${interpolators_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

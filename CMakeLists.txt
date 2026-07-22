@@ -571,6 +571,13 @@ add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
 
+# Serialization registration objects must be linked by every supported Tudat aggregate. Their
+# force-initialization symbols keep the domain registration translation units alive in static
+# builds while ordinary model libraries remain registration-free.
+list(PREPEND Tudat_PROPAGATION_LIBRARIES Tudat::tudat_serialization)
+list(PREPEND Tudat_ESTIMATION_LIBRARIES Tudat::tudat_serialization)
+target_link_libraries(Tudat_LIBRARIES INTERFACE Tudat::tudat_serialization)
+
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)
 endif ()

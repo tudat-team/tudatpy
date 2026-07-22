@@ -13,14 +13,10 @@
 
 #include <memory>
 
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/vector.hpp>
-
 #include "tudat/simulation/propagation_setup/propagationOutput.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -715,7 +711,7 @@ protected:
 
 public:
     //! Save termination details to a binary file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( PropagationTerminationDetails )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( PropagationTerminationDetails )
 
 private:
     friend class cereal::access;

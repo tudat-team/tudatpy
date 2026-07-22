@@ -20,6 +20,7 @@
 
 #include "scalarTypes.h"
 #include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 

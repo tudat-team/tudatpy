@@ -16,11 +16,6 @@
 #include <iostream>
 #include <memory>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-
 #include <tuple>
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
@@ -30,7 +25,8 @@
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 // #include "tudat/math/interpolators/createInterpolator.h"
 
@@ -75,7 +71,7 @@ public:
     }
 
     //! Save acceleration settings to a JSON file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( AccelerationSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( AccelerationSettings )
 
 protected:
     // Default constructor for serialization

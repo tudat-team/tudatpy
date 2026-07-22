@@ -17,10 +17,8 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include <cereal/access.hpp>
-#include <cereal/types/string.hpp>
-
-#include "tudat/io/serialization/base.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
@@ -77,7 +75,7 @@ public:
     }
 
     //! Save variable settings to a JSON file (preserves polymorphic type)
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( VariableSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( VariableSettings )
 
 protected:
     // Default constructor for cereal deserialization

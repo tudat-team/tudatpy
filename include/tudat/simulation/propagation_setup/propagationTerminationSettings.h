@@ -20,11 +20,8 @@
 
 #include <iostream>
 
-#include <cereal/access.hpp>
-#include <cereal/types/base_class.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -84,7 +81,7 @@ public:
     }
 
     //! Save termination settings to a JSON file
-    TUDAT_DEFINE_FILE_IO_POLYMORPHIC( PropagationTerminationSettings )
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( PropagationTerminationSettings )
 
 public:
     //! Default constructor for cereal deserialization

@@ -3,8 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <stdexcept>
 #include <string>
-#include "tudat/io/serialization/base.h"
-#include "tudat/io/serialization/registrations.h"
+#include "tudat/io/serialization/file_io.h"
 
 namespace py = pybind11;
 

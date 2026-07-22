@@ -39,6 +39,7 @@
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 #include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_acceleration.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;

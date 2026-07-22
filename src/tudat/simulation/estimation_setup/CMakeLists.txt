@@ -90,6 +90,7 @@ set(estimation_SOURCES
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
+        observationOutputSerialization.cpp
         )
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
@@ -106,6 +107,7 @@ endif ()
 TUDAT_ADD_LIBRARY("estimation_setup"
         "${estimation_SOURCES}"
         "${estimation_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
