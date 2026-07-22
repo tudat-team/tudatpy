@@ -120,11 +120,12 @@ public:
     //! Default constructor for deserialization only — not for general use
     SingleArcSimulationResults( ):
         SimulationResults< StateScalarType, TimeType >( ), sequentialPropagation_( true ),
-        rawSolutionConversionFunction_( []( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& processedSolution,
-                                            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution ) {
-            processedSolution = rawSolution;
+        rawSolutionConversionFunction_( []( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+                                            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) {
+            throwRawSolutionConversionUnavailable( );
         } ),
-        propagationIsPerformed_( false ), solutionIsCleared_( false ), onlyProcessedSolutionSet_( false ),
+        rawSolutionConversionFunctionIsAvailable_( false ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
+        onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {}
 
@@ -141,8 +142,8 @@ public:
         propagatedStateIds_( getPropagatedStateStrings( integratedStateAndBodyList ) ),
         integratedStateAndBodyList_( integratedStateAndBodyList ), outputSettings_( outputSettings ),
         dependentVariableInterface_( dependentVariableInterface ), sequentialPropagation_( sequentialPropagation ),
-        rawSolutionConversionFunction_( rawSolutionConversionFunction ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
-        onlyProcessedSolutionSet_( false ),
+        rawSolutionConversionFunction_( rawSolutionConversionFunction ), rawSolutionConversionFunctionIsAvailable_( true ),
+        propagationIsPerformed_( false ), solutionIsCleared_( false ), onlyProcessedSolutionSet_( false ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {}
 
@@ -184,6 +185,11 @@ public:
                 const std::map< TimeType, unsigned int >& cumulativeNumberOfFunctionEvaluations,
                 std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason )
     {
+        if( !rawSolutionConversionFunctionIsAvailable_ )
+        {
+            throwRawSolutionConversionUnavailable( );
+        }
+
         if( sequentialPropagation_ || !isPropagationOngoing_ )
         {
             reset( );
@@ -523,10 +529,21 @@ private:
     //! Bool denoting whether the propagation is sequential or bidirectional (default is true).
     bool sequentialPropagation_;
 
+    [[noreturn]] static void throwRawSolutionConversionUnavailable( )
+    {
+        throw std::runtime_error(
+                "Cannot reset deserialized SingleArcSimulationResults with raw propagation results: the original raw-solution "
+                "conversion function is a runtime callback and cannot be serialized. Create a new simulation-results object with "
+                "the required conversion function before resetting it with raw results." );
+    }
+
     //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
     const std::function< void( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) >
             rawSolutionConversionFunction_;
+
+    //! Whether the runtime conversion callback is usable (it is unavailable after deserialization).
+    bool rawSolutionConversionFunctionIsAvailable_;
 
     bool propagationIsPerformed_;
 
@@ -597,6 +614,7 @@ private:
         ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        // Skip: rawSolutionConversionFunctionIsAvailable_ (always false for a deserialized object)
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
         ar( CEREAL_NVP( solutionIsCleared_ ) );
         ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );
@@ -608,6 +626,7 @@ private:
     void load( Archive& ar, const std::uint32_t version )
     {
         static_cast< void >( version );
+        rawSolutionConversionFunctionIsAvailable_ = false;
         ar( cereal::base_class< SimulationResults< StateScalarType, TimeType > >( this ) );
         ar( CEREAL_NVP( equationsOfMotionNumericalSolution_ ) );
         ar( CEREAL_NVP( equationsOfMotionNumericalSolutionRaw_ ) );
@@ -621,6 +640,7 @@ private:
         ar( CEREAL_NVP( dependentVariableInterface_ ) );
         ar( CEREAL_NVP( sequentialPropagation_ ) );
         // Skip: rawSolutionConversionFunction_ (std::function, not serializable)
+        // Skip: rawSolutionConversionFunctionIsAvailable_ (forced to false for every loaded object)
         ar( CEREAL_NVP( propagationIsPerformed_ ) );
         ar( CEREAL_NVP( solutionIsCleared_ ) );
         ar( CEREAL_NVP( onlyProcessedSolutionSet_ ) );

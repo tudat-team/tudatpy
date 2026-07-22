@@ -35,6 +35,7 @@ CEREAL_REGISTER_TYPE( tudat::simulation_setup::AccelerationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::RadiationPressureAccelerationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::FullTwoBodySphericalHarmonicAccelerationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::EmpiricalAccelerationSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::YarkovskyAccelerationSettings )
@@ -50,6 +51,8 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSetti
                                       tudat::simulation_setup::SphericalHarmonicAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
                                       tudat::simulation_setup::MutualSphericalHarmonicAccelerationSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
+                                      tudat::simulation_setup::FullTwoBodySphericalHarmonicAccelerationSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
                                       tudat::simulation_setup::RelativisticAccelerationCorrectionSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSettings,
@@ -70,9 +73,15 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::AccelerationSetti
 
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::TorqueSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::SphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::FullTwoBodySphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_TYPE( tudat::simulation_setup::FourthDegreeFullTwoBodyGravitationalTorqueSettings )
 CEREAL_REGISTER_TYPE( tudat::simulation_setup::CustomTorqueSettings )
 
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::SphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
+                                      tudat::simulation_setup::FullTwoBodySphericalHarmonicTorqueSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings,
+                                      tudat::simulation_setup::FourthDegreeFullTwoBodyGravitationalTorqueSettings )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::simulation_setup::TorqueSettings, tudat::simulation_setup::CustomTorqueSettings )
 
 #endif  // TUDAT_SERIALIZATION_REGISTRATIONS_ACCELERATION_H

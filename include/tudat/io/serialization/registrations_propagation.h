@@ -20,6 +20,8 @@
  *   - VariableSettings / SingleDependentVariableSaveSettings hierarchy (propagationOutputSettings.h)
  *   - PropagationTerminationSettings hierarchy (propagationTerminationSettings.h)
  *   - PropagationTerminationDetails hierarchy (propagationTermination.h)
+ *   - PropagatorProcessingSettings hierarchy (propagationProcessingSettings.h)
+ *   - DependentVariablesInterface hierarchy (dependentVariablesInterface.h)
  *
  * Include this header (once) in any translation unit that needs to serialize
  * any of these polymorphic types.
@@ -34,6 +36,8 @@
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
+#include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
 
 // =====================================================================
 // SimulationResults hierarchy  (propagationResults.h)
@@ -68,6 +72,60 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, t
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::MultiArcVariationalResultsDT )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcDynamicsResultsDT )
 CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::SimulationResultsDT, tudat::propagators::HybridArcVariationalResultsDT )
+
+// =====================================================================
+// PropagatorProcessingSettings hierarchy
+// =====================================================================
+
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcPropagatorProcessingSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcPropagatorProcessingSettings )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcPropagatorProcessingSettings )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagatorProcessingSettings,
+                                      tudat::propagators::SingleArcPropagatorProcessingSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagatorProcessingSettings,
+                                      tudat::propagators::MultiArcPropagatorProcessingSettings )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::PropagatorProcessingSettings,
+                                      tudat::propagators::HybridArcPropagatorProcessingSettings )
+
+// =====================================================================
+// DependentVariablesInterface hierarchy
+// =====================================================================
+
+namespace tudat
+{
+namespace propagators
+{
+using DependentVariablesInterfaceDouble = DependentVariablesInterface< double >;
+using SingleArcDependentVariablesInterfaceDouble = SingleArcDependentVariablesInterface< double >;
+using MultiArcDependentVariablesInterfaceDouble = MultiArcDependentVariablesInterface< double >;
+using HybridArcDependentVariablesInterfaceDouble = HybridArcDependentVariablesInterface< double >;
+using DependentVariablesInterfaceTime = DependentVariablesInterface< tudat::Time >;
+using SingleArcDependentVariablesInterfaceTime = SingleArcDependentVariablesInterface< tudat::Time >;
+using MultiArcDependentVariablesInterfaceTime = MultiArcDependentVariablesInterface< tudat::Time >;
+using HybridArcDependentVariablesInterfaceTime = HybridArcDependentVariablesInterface< tudat::Time >;
+}  // namespace propagators
+}  // namespace tudat
+
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDependentVariablesInterfaceTime )
+CEREAL_REGISTER_TYPE( tudat::propagators::MultiArcDependentVariablesInterfaceTime )
+CEREAL_REGISTER_TYPE( tudat::propagators::HybridArcDependentVariablesInterfaceTime )
+
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceDouble,
+                                      tudat::propagators::SingleArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceDouble,
+                                      tudat::propagators::MultiArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceDouble,
+                                      tudat::propagators::HybridArcDependentVariablesInterfaceDouble )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceTime,
+                                      tudat::propagators::SingleArcDependentVariablesInterfaceTime )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceTime,
+                                      tudat::propagators::MultiArcDependentVariablesInterfaceTime )
+CEREAL_REGISTER_POLYMORPHIC_RELATION( tudat::propagators::DependentVariablesInterfaceTime,
+                                      tudat::propagators::HybridArcDependentVariablesInterfaceTime )
 
 // =====================================================================
 // VariableSettings / DependentVariableSaveSettings hierarchy  (propagationOutputSettings.h)

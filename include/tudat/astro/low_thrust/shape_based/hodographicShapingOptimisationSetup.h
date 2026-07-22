@@ -30,13 +30,6 @@
 #include <pagmo/rng.hpp>
 #include <Eigen/Core>
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/utility.hpp>
-#include "tudat/io/serialization/base.h"
-
 typedef Eigen::Matrix< double, 6, 1 > StateType;
 
 using namespace tudat::ephemerides;
@@ -86,40 +79,8 @@ struct FixedTimeHodographicShapingOptimisationProblem {
         return 1u;
     }
 
-    TUDAT_DEFINE_BINARY_IO( FixedTimeHodographicShapingOptimisationProblem )
-
 protected:
 private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( initialState_ ) );
-        ar( CEREAL_NVP( finalState_ ) );
-        ar( CEREAL_NVP( timeOfFlight_ ) );
-        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
-        ar( CEREAL_NVP( numberOfRevolutions_ ) );
-        ar( CEREAL_NVP( radialVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( normalVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( axialVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( problemBounds_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( initialState_ ) );
-        ar( CEREAL_NVP( finalState_ ) );
-        ar( CEREAL_NVP( timeOfFlight_ ) );
-        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
-        ar( CEREAL_NVP( numberOfRevolutions_ ) );
-        ar( CEREAL_NVP( radialVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( normalVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( axialVelocityFunctionComponents_ ) );
-        ar( CEREAL_NVP( problemBounds_ ) );
-    }
-
     Eigen::Vector6d initialState_;
 
     Eigen::Vector6d finalState_;
@@ -130,35 +91,13 @@ private:
 
     int numberOfRevolutions_;
 
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > radialVelocityFunctionComponents_;
 
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > normalVelocityFunctionComponents_;
 
-    std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
+    const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
 
-    std::vector< std::vector< double > > problemBounds_;
-
-public:
-    bool operator==( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
-    {
-        return !( *this == rhs );
-    }
-
-    //! Equality comparison via equals method
-    bool equals( const FixedTimeHodographicShapingOptimisationProblem& rhs ) const
-    {
-        return initialState_ == rhs.initialState_ && finalState_ == rhs.finalState_ && timeOfFlight_ == rhs.timeOfFlight_ &&
-                centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
-                numberOfRevolutions_ == rhs.numberOfRevolutions_ &&
-                radialVelocityFunctionComponents_ == rhs.radialVelocityFunctionComponents_ &&
-                normalVelocityFunctionComponents_ == rhs.normalVelocityFunctionComponents_ &&
-                axialVelocityFunctionComponents_ == rhs.axialVelocityFunctionComponents_ && problemBounds_ == rhs.problemBounds_;
-    }
+    const std::vector< std::vector< double > > problemBounds_;
 };
 
 //! Test function for a new low-thrust trajectory class in Tudat
@@ -194,67 +133,23 @@ struct HodographicShapingOptimisationProblem {
         return minimizeMaximumThrust_ ? 2u : 1u;
     }
 
-    TUDAT_DEFINE_BINARY_IO( HodographicShapingOptimisationProblem )
-
 protected:
 private:
-    friend class cereal::access;
+    const std::function< Eigen::Vector6d( const double ) > initialStateFunction_;
 
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
-        ar( CEREAL_NVP( numberOfRevolutions_ ) );
-        ar( CEREAL_NVP( problemBounds_ ) );
-        ar( CEREAL_NVP( minimizeMaximumThrust_ ) );
-        ar( CEREAL_NVP( initialMass_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( centralBodyGravitationalParameter_ ) );
-        ar( CEREAL_NVP( numberOfRevolutions_ ) );
-        ar( CEREAL_NVP( problemBounds_ ) );
-        ar( CEREAL_NVP( minimizeMaximumThrust_ ) );
-        ar( CEREAL_NVP( initialMass_ ) );
-    }
+    const std::function< Eigen::Vector6d( const double ) > finalStateFunction_;
 
     double centralBodyGravitationalParameter_;
 
     int numberOfRevolutions_;
 
-    std::vector< std::vector< double > > problemBounds_;
+    std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction_;
+
+    const std::vector< std::vector< double > > problemBounds_;
 
     bool minimizeMaximumThrust_;
 
     double initialMass_;
-
-    // Non-serializable function members (ignored in save/load, default-constructed after deserialization)
-    std::function< Eigen::Vector6d( const double ) > initialStateFunction_;
-
-    std::function< Eigen::Vector6d( const double ) > finalStateFunction_;
-
-    std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction_;
-
-public:
-    bool operator==( const HodographicShapingOptimisationProblem& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const HodographicShapingOptimisationProblem& rhs ) const
-    {
-        return !( *this == rhs );
-    }
-
-    //! Equality comparison via equals method
-    bool equals( const HodographicShapingOptimisationProblem& rhs ) const
-    {
-        return centralBodyGravitationalParameter_ == rhs.centralBodyGravitationalParameter_ &&
-                numberOfRevolutions_ == rhs.numberOfRevolutions_ && problemBounds_ == rhs.problemBounds_ &&
-                minimizeMaximumThrust_ == rhs.minimizeMaximumThrust_ && initialMass_ == rhs.initialMass_;
-    }
 };
 
 }  // namespace shape_based_methods

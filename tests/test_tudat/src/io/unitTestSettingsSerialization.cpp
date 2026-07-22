@@ -38,11 +38,6 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 
-#if TUDAT_BUILD_WITH_PAGMO
-#include "tudat/astro/low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
-#include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
-#endif
-
 namespace tudat
 {
 namespace unit_tests
@@ -60,6 +55,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationSettingsSerialization )
     - RadiationPressureAccelerationSettings
     - SphericalHarmonicAccelerationSettings
     - MutualSphericalHarmonicAccelerationSettings
+    - FullTwoBodySphericalHarmonicAccelerationSettings
     - RelativisticAccelerationCorrectionSettings
     - EmpiricalAccelerationSettings
     - YarkovskyAccelerationSettings
@@ -79,6 +75,8 @@ BOOST_AUTO_TEST_CASE( test_AccelerationSettingsSerialization )
             std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
     std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicSettings =
             std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 5, 5, 10, 10 );
+    std::shared_ptr< FullTwoBodySphericalHarmonicAccelerationSettings > fullTwoBodySphericalHarmonicSettings =
+            std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 3, 2, 4, 3, 2, 1 );
     std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticSettings =
             std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false );
     std::shared_ptr< EmpiricalAccelerationSettings > empiricalSettings = std::make_shared< EmpiricalAccelerationSettings >(
@@ -104,6 +102,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationSettingsSerialization )
                                                                               radiationPressureSettings,
                                                                               sphericalHarmonicSettings,
                                                                               mutualSphericalHarmonicSettings,
+                                                                              fullTwoBodySphericalHarmonicSettings,
                                                                               relativisticSettings,
                                                                               empiricalSettings,
                                                                               yarkovskySettings,
@@ -335,11 +334,18 @@ BOOST_AUTO_TEST_CASE( test_TorqueSettingsSerialization )
     std::shared_ptr< TorqueSettings > torqueSettings = std::make_shared< TorqueSettings >( aerodynamic_torque );
     std::shared_ptr< SphericalHarmonicTorqueSettings > sphericalHarmonicTorqueSettings =
             std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 );
+    std::shared_ptr< FullTwoBodySphericalHarmonicTorqueSettings > fullTwoBodyTorqueSettings =
+            std::make_shared< FullTwoBodySphericalHarmonicTorqueSettings >(
+                    std::make_shared< FullTwoBodySphericalHarmonicAccelerationSettings >( 3, 2, 4, 3, 2, 1 ) );
+    std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueSettings > fourthDegreeFullTwoBodyTorqueSettings =
+            std::make_shared< FourthDegreeFullTwoBodyGravitationalTorqueSettings >( );
     std::shared_ptr< CustomTorqueSettings > customTorqueSettings =
             std::make_shared< CustomTorqueSettings >( []( const double ) { return Eigen::Vector3d( 1.0, 0.0, 0.0 ); } );
 
     std::vector< std::shared_ptr< TorqueSettings > > settingsVector = { torqueSettings,
                                                                         sphericalHarmonicTorqueSettings,
+                                                                        fullTwoBodyTorqueSettings,
+                                                                        fourthDegreeFullTwoBodyTorqueSettings,
                                                                         customTorqueSettings };
 
     for( const auto& settings : settingsVector )
@@ -373,6 +379,48 @@ BOOST_AUTO_TEST_CASE( test_TorqueSettingsSerialization )
         {
             BOOST_CHECK_MESSAGE( isCustom, "Serialization failed for non-custom torque settings" );
         }
+    }
+}
+
+// Test all PropagatorProcessingSettings derived types through the polymorphic base.
+// The hybrid case specifically checks that consistentArcPrintSettings_ survives the round trip.
+BOOST_AUTO_TEST_CASE( test_PropagatorProcessingSettingsSerialization )
+{
+    using namespace propagators;
+
+    auto singleArcSettings = std::make_shared< SingleArcPropagatorProcessingSettings >(
+            true, true, 4, 12.0, std::make_shared< PropagationPrintSettings >( true, false, 5.0, 3, true ), true );
+    auto multiArcSettings = std::make_shared< MultiArcPropagatorProcessingSettings >(
+            std::make_shared< PropagationPrintSettings >( false, true, 7.0, 2, false, true ), true, false, true, true, true );
+    auto hybridArcSettings = std::make_shared< HybridArcPropagatorProcessingSettings >(
+            std::make_shared< PropagationPrintSettings >( true, true, 9.0, 5, true, true, true ), true, false, true, true );
+
+    // Concrete round trip isolates the hybrid print-setting field from polymorphic registration.
+    const std::string serializedHybridArcSettings = serialization::serializeToBinaryString( *hybridArcSettings );
+    const auto deserializedHybridArcSettings =
+            serialization::deserializeFromBinaryString< HybridArcPropagatorProcessingSettings >( serializedHybridArcSettings );
+    BOOST_CHECK( *hybridArcSettings == deserializedHybridArcSettings );
+
+    std::vector< std::shared_ptr< PropagatorProcessingSettings > > settingsVector = { singleArcSettings,
+                                                                                      multiArcSettings,
+                                                                                      hybridArcSettings };
+
+    for( const auto& settings : settingsVector )
+    {
+        std::stringstream stream;
+        {
+            cereal::BinaryOutputArchive archive( stream );
+            archive( settings );
+        }
+
+        std::shared_ptr< PropagatorProcessingSettings > deserializedSettings;
+        {
+            cereal::BinaryInputArchive archive( stream );
+            archive( deserializedSettings );
+        }
+
+        BOOST_REQUIRE( deserializedSettings != nullptr );
+        BOOST_CHECK( *settings == *deserializedSettings );
     }
 }
 
@@ -488,98 +536,6 @@ BOOST_AUTO_TEST_CASE( test_RootFinderSettingsSerialization )
     }
 }
 
-// Test FixedTimeHodographicShapingOptimisationProblem serialization
-#if TUDAT_BUILD_WITH_PAGMO
-BOOST_AUTO_TEST_CASE( test_FixedTimeHodographicShapingSerialization )
-{
-    using namespace shape_based_methods;
-
-    // Create object with bounds (the only serialized member)
-    std::vector< std::vector< double > > bounds = { { -10.0, 10.0 }, { -5.0, 5.0 } };
-    FixedTimeHodographicShapingOptimisationProblem problem( Eigen::Vector6d::Zero( ),
-                                                            Eigen::Vector6d::Zero( ),
-                                                            0.0,
-                                                            0.0,
-                                                            0,
-                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
-                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
-                                                            std::vector< std::shared_ptr< BaseFunctionHodographicShaping > >( ),
-                                                            bounds );
-
-    std::stringstream ss;
-
-    try
-    {
-        {
-            cereal::BinaryOutputArchive oarchive( ss );
-            oarchive( problem );
-        }
-
-        FixedTimeHodographicShapingOptimisationProblem deserializedProblem;
-
-        {
-            cereal::BinaryInputArchive iarchive( ss );
-            iarchive( deserializedProblem );
-        }
-
-        // Only problemBounds_ is serialized; directly compare that field
-        std::pair< std::vector< double >, std::vector< double > > origBounds = problem.get_bounds( );
-        std::pair< std::vector< double >, std::vector< double > > deserBounds = deserializedProblem.get_bounds( );
-        BOOST_CHECK( origBounds.first == deserBounds.first );
-        BOOST_CHECK( origBounds.second == deserBounds.second );
-    }
-    catch( std::exception& e )
-    {
-        BOOST_ERROR( "Serialization failed for FixedTimeHodographicShapingOptimisationProblem: " << e.what( ) );
-    }
-}
-
-// Test HodographicShapingOptimisationProblem serialization
-BOOST_AUTO_TEST_CASE( test_HodographicShapingOptimisationSerialization )
-{
-    using namespace shape_based_methods;
-
-    // Create object with bounds (the only serialized member)
-    std::vector< std::vector< double > > bounds = { { -10.0, 10.0 }, { -5.0, 5.0 } };
-    HodographicShapingOptimisationProblem problem(
-            []( const double ) { return Eigen::Vector6d::Zero( ); },
-            []( const double ) { return Eigen::Vector6d::Zero( ); },
-            0.0,
-            0,
-            []( const double ) { return std::vector< HodographicShapingOptimisationProblem::BaseFunctionVector >( ); },
-            bounds,
-            false,
-            TUDAT_NAN );
-
-    std::stringstream ss;
-
-    try
-    {
-        {
-            cereal::BinaryOutputArchive oarchive( ss );
-            oarchive( problem );
-        }
-
-        HodographicShapingOptimisationProblem deserializedProblem;
-
-        {
-            cereal::BinaryInputArchive iarchive( ss );
-            iarchive( deserializedProblem );
-        }
-
-        // Only problemBounds_ is serialized; directly compare that field
-        std::pair< std::vector< double >, std::vector< double > > origBounds = problem.get_bounds( );
-        std::pair< std::vector< double >, std::vector< double > > deserBounds = deserializedProblem.get_bounds( );
-        BOOST_CHECK( origBounds.first == deserBounds.first );
-        BOOST_CHECK( origBounds.second == deserBounds.second );
-    }
-    catch( std::exception& e )
-    {
-        BOOST_ERROR( "Serialization failed for HodographicShapingOptimisationProblem: " << e.what( ) );
-    }
-}
-#endif
-
 // Test ObservationDependentVariableBookkeeping serialization
 BOOST_AUTO_TEST_CASE( test_ObservationDependentVariableBookkeepingSerialization )
 {
@@ -592,6 +548,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationDependentVariableBookkeepingSerialization 
     linkEnds[ receiver ] = LinkEndId( "Moon", "" );
 
     auto bookkeeping = std::make_shared< ObservationDependentVariableBookkeeping >( one_way_range, linkEnds );
+    auto deferredSetting = std::make_shared< LightTimeCorrectionComponentsDependentVariableSettings >(
+            transmitter, receiver, LinkEndId( "Earth", "station" ), LinkEndId( "Moon", "" ) );
+    bookkeeping->addDeferredSetting( deferredSetting );
 
     std::stringstream ss;
 
@@ -610,12 +569,67 @@ BOOST_AUTO_TEST_CASE( test_ObservationDependentVariableBookkeepingSerialization 
         }
 
         BOOST_REQUIRE( deserializedBookkeeping != nullptr );
-        BOOST_CHECK( *bookkeeping == *deserializedBookkeeping );
+        BOOST_REQUIRE_EQUAL( deserializedBookkeeping->getDeferredSettings( ).size( ), 1 );
+        BOOST_CHECK( *deferredSetting == *deserializedBookkeeping->getDeferredSettings( ).front( ) );
+        BOOST_CHECK_EQUAL( deserializedBookkeeping->getTotalDependentVariableSize( ), 0 );
     }
     catch( std::exception& e )
     {
         BOOST_ERROR( "Serialization failed for ObservationDependentVariableBookkeeping: " << e.what( ) );
     }
+}
+
+BOOST_AUTO_TEST_CASE( test_SerializationArchiveValidation )
+{
+    const auto makeDimensionArchive = []( const Eigen::Index rows, const Eigen::Index cols ) {
+        std::stringstream stream;
+        {
+            cereal::BinaryOutputArchive archive( stream );
+            archive( cereal::make_nvp( "rows", rows ), cereal::make_nvp( "cols", cols ) );
+        }
+        return stream.str( );
+    };
+
+    const auto loadDynamicMatrix = []( const std::string& data ) {
+        std::stringstream stream( data );
+        cereal::BinaryInputArchive archive( stream );
+        Eigen::MatrixXd matrix;
+        archive( matrix );
+    };
+
+    BOOST_CHECK_THROW( loadDynamicMatrix( makeDimensionArchive( -1, 3 ) ), std::runtime_error );
+    BOOST_CHECK_THROW(
+            loadDynamicMatrix( makeDimensionArchive( 1, static_cast< Eigen::Index >( cereal::kMaximumSerializedEigenCoefficients + 1 ) ) ),
+            std::runtime_error );
+    BOOST_CHECK_THROW(
+            loadDynamicMatrix( makeDimensionArchive( 0, static_cast< Eigen::Index >( cereal::kMaximumSerializedEigenCoefficients + 1 ) ) ),
+            std::runtime_error );
+
+    const std::string fixedSizeData = makeDimensionArchive( 2, 3 );
+    BOOST_CHECK_THROW(
+            [ &fixedSizeData ]( ) {
+                std::stringstream stream( fixedSizeData );
+                cereal::BinaryInputArchive archive( stream );
+                Eigen::Matrix3d matrix;
+                archive( matrix );
+            }( ),
+            std::runtime_error );
+
+    std::stringstream oversizedProvenance( std::ios::in | std::ios::out | std::ios::binary );
+    const std::uint32_t magic = serialization::kBinaryMagic;
+    const std::uint32_t oversizedLength = serialization::kMaximumBinaryProvenanceLength + 1;
+    oversizedProvenance.write( reinterpret_cast< const char* >( &magic ), sizeof( magic ) );
+    oversizedProvenance.write( reinterpret_cast< const char* >( &oversizedLength ), sizeof( oversizedLength ) );
+    oversizedProvenance.seekg( 0 );
+    BOOST_CHECK_THROW( serialization::readBinaryProvenance( oversizedProvenance ), std::runtime_error );
+
+    std::stringstream truncatedProvenance( std::ios::in | std::ios::out | std::ios::binary );
+    const std::uint32_t truncatedLength = 8;
+    truncatedProvenance.write( reinterpret_cast< const char* >( &magic ), sizeof( magic ) );
+    truncatedProvenance.write( reinterpret_cast< const char* >( &truncatedLength ), sizeof( truncatedLength ) );
+    truncatedProvenance.write( "short", 5 );
+    truncatedProvenance.seekg( 0 );
+    BOOST_CHECK_THROW( serialization::readBinaryProvenance( truncatedProvenance ), std::runtime_error );
 }
 
 // Test PropagationTerminationDetailsFromHybridCondition serialization

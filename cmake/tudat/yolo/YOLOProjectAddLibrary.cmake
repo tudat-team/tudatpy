@@ -36,7 +36,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             )
 
     target_link_libraries("${target_name}"
-            PUBLIC    ${PARSED_ARGS_PUBLIC_LINKS}
+            PUBLIC    cereal::cereal ${PARSED_ARGS_PUBLIC_LINKS}
             PRIVATE   ${PARSED_ARGS_PRIVATE_LINKS}
             INTERFACE ${PARSED_ARGS_INTERFACE_LINKS}
             )

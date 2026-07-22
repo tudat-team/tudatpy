@@ -42,6 +42,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -50,6 +51,9 @@
 // Provide Eigen matrix serialization for cereal
 namespace cereal
 {
+
+//! Guard against malformed archives requesting unreasonable allocations.
+constexpr std::uintmax_t kMaximumSerializedEigenCoefficients = 100000000;
 
 //! Serialize an Eigen matrix (save)
 template< class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols >
@@ -78,6 +82,42 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
 
     ar( make_nvp( "rows", rows ) );
     ar( make_nvp( "cols", cols ) );
+
+    if( rows < 0 || cols < 0 )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived dimensions must be non-negative." );
+    }
+    if( Rows != Eigen::Dynamic && rows != Rows )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived row count " + std::to_string( rows ) +
+                                  " does not match fixed row count " + std::to_string( Rows ) + "." );
+    }
+    if( Cols != Eigen::Dynamic && cols != Cols )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived column count " + std::to_string( cols ) +
+                                  " does not match fixed column count " + std::to_string( Cols ) + "." );
+    }
+    if( MaxRows != Eigen::Dynamic && rows > MaxRows )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived row count exceeds the matrix maximum." );
+    }
+    if( MaxCols != Eigen::Dynamic && cols > MaxCols )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived column count exceeds the matrix maximum." );
+    }
+
+    const std::uintmax_t unsignedRows = static_cast< std::uintmax_t >( rows );
+    const std::uintmax_t unsignedCols = static_cast< std::uintmax_t >( cols );
+    if( unsignedRows > kMaximumSerializedEigenCoefficients || unsignedCols > kMaximumSerializedEigenCoefficients )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: an archived dimension exceeds the supported maximum of " +
+                                  std::to_string( kMaximumSerializedEigenCoefficients ) + "." );
+    }
+    if( unsignedRows != 0 && unsignedCols > kMaximumSerializedEigenCoefficients / unsignedRows )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen matrix: archived dimensions contain more than " +
+                                  std::to_string( kMaximumSerializedEigenCoefficients ) + " coefficients." );
+    }
 
     matrix.resize( rows, cols );
 
@@ -144,15 +184,6 @@ std::shared_ptr< T > deserializeSharedPtrFromBinaryString( const std::string& da
     return object;
 }
 
-//! Helper function to deserialize into an existing object from a binary string
-template< typename T >
-void deserializeFromBinaryString( const std::string& data, T& object )
-{
-    std::istringstream iss( data );
-    cereal::BinaryInputArchive ia( iss );
-    ia( object );
-}
-
 // =====================================================================
 //  Provenance helpers (not in anonymous namespace — template two-phase
 //  lookup requires them at namespace scope).
@@ -160,6 +191,9 @@ void deserializeFromBinaryString( const std::string& data, T& object )
 
 //! Magic number for binary serialization files ("TED1").
 constexpr std::uint32_t kBinaryMagic = 0x54454431;
+
+//! Maximum accepted length of the human-readable provenance header.
+constexpr std::uint32_t kMaximumBinaryProvenanceLength = 4096;
 
 //! Provenance string for the current build: "version@commit@date".
 inline std::string currentProvenance( )
@@ -173,6 +207,10 @@ inline std::string currentProvenance( )
 inline void writeBinaryHeader( std::ostream& stream )
 {
     const std::string p = currentProvenance( );
+    if( p.size( ) > kMaximumBinaryProvenanceLength )
+    {
+        throw std::runtime_error( "Cannot write binary serialization header: provenance exceeds the supported length." );
+    }
     const std::uint32_t len = static_cast< std::uint32_t >( p.size( ) );
     stream.write( reinterpret_cast< const char* >( &kBinaryMagic ), sizeof( kBinaryMagic ) );
     stream.write( reinterpret_cast< const char* >( &len ), sizeof( len ) );
@@ -199,8 +237,17 @@ inline std::string readBinaryProvenance( std::istream& stream )
     {
         throw std::runtime_error( "Corrupt binary header: could not read provenance length" );
     }
+    if( len > kMaximumBinaryProvenanceLength )
+    {
+        throw std::runtime_error( "Corrupt binary header: provenance length " + std::to_string( len ) +
+                                  " exceeds the supported maximum of " + std::to_string( kMaximumBinaryProvenanceLength ) + "." );
+    }
     std::string provenance( len, '\0' );
     stream.read( provenance.data( ), len );
+    if( !stream )
+    {
+        throw std::runtime_error( "Corrupt binary header: provenance data is truncated" );
+    }
     return provenance;
 }
 
@@ -280,14 +327,23 @@ template< typename T >
 void saveToBinaryFile( const T& object, const std::string& path )
 {
     std::string filePath = path + ".tudat";
-    std::ofstream outputStream( filePath, std::ios::binary );
-    if( !outputStream )
+    try
     {
-        throw std::runtime_error( "Unable to open file for binary save: " + filePath );
+        std::ofstream outputStream;
+        outputStream.exceptions( std::ios::failbit | std::ios::badbit );
+        outputStream.open( filePath, std::ios::binary );
+        writeBinaryHeader( outputStream );
+        {
+            cereal::BinaryOutputArchive archive( outputStream );
+            archive( object );
+        }
+        outputStream.flush( );
+        outputStream.close( );
     }
-    writeBinaryHeader( outputStream );
-    cereal::BinaryOutputArchive archive( outputStream );
-    archive( object );
+    catch( const std::ios_base::failure& exception )
+    {
+        throw std::runtime_error( "Unable to write binary serialization file '" + filePath + "': " + exception.what( ) );
+    }
 }
 
 //! Helper function to deserialize an object from a binary file.
@@ -325,39 +381,6 @@ T loadFromBinaryFile( const std::string& path )
     }
 }
 
-//! Helper function to deserialize from a binary file into an existing
-//! object.  Warns on provenance mismatch.
-//! Appends ".tudat" extension automatically.
-template< typename T >
-void loadFromBinaryFile( const std::string& path, T& object )
-{
-    std::string filePath = path + ".tudat";
-    std::ifstream inputStream( filePath, std::ios::binary );
-    if( !inputStream )
-    {
-        throw std::runtime_error( "Unable to open file for binary load: " + filePath );
-    }
-
-    const std::string fileProvenance = readBinaryProvenance( inputStream );
-    const auto parts = checkProvenance( fileProvenance );
-
-    try
-    {
-        cereal::BinaryInputArchive archive( inputStream );
-        archive( object );
-    }
-    catch( const std::exception& e )
-    {
-        std::string msg = "Could not deserialize this object.\n";
-        if( !parts.commit.empty( ) )
-        {
-            msg += "This file was created with commit " + parts.commit + ".\n";
-        }
-        msg += "Error: " + std::string( e.what( ) );
-        throw std::runtime_error( msg );
-    }
-}
-
 //! Helper function to serialize an object to a JSON file.
 //! Embeds provenance "version@commit@date" as archive metadata.
 //! Appends ".json" extension automatically.
@@ -365,15 +388,23 @@ template< typename T >
 void saveToJsonFile( const T& object, const std::string& path )
 {
     std::string filePath = path + ".json";
-    std::ofstream outputStream( filePath );
-    if( !outputStream )
+    try
     {
-        throw std::runtime_error( "Unable to open file for JSON save: " + filePath );
+        std::ofstream outputStream;
+        outputStream.exceptions( std::ios::failbit | std::ios::badbit );
+        outputStream.open( filePath );
+        {
+            cereal::JSONOutputArchive archive( outputStream );
+            archive( cereal::make_nvp( "tudat_provenance", currentProvenance( ) ) );
+            archive( cereal::make_nvp( "root", object ) );
+        }
+        outputStream.flush( );
+        outputStream.close( );
     }
-
-    cereal::JSONOutputArchive archive( outputStream );
-    archive( cereal::make_nvp( "tudat_provenance", currentProvenance( ) ) );
-    archive( cereal::make_nvp( "root", object ) );
+    catch( const std::ios_base::failure& exception )
+    {
+        throw std::runtime_error( "Unable to write JSON serialization file '" + filePath + "': " + exception.what( ) );
+    }
 }
 
 //! Helper function to deserialize an object from a JSON file.
@@ -404,43 +435,6 @@ T loadFromJsonFile( const std::string& path )
         std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
         archive( cereal::make_nvp( "root", *objectPtr ) );
         return std::move( *objectPtr );
-    }
-    catch( const std::exception& e )
-    {
-        std::string msg = "Could not deserialize this object.\n";
-        if( !parts.commit.empty( ) )
-        {
-            msg += "This file was created with commit " + parts.commit + ".\n";
-        }
-        msg += "Error: " + std::string( e.what( ) );
-        throw std::runtime_error( msg );
-    }
-}
-
-//! Helper function to deserialize from a JSON file into an existing object.
-//! Warns on provenance mismatch.
-//! Appends ".json" extension automatically.
-template< typename T >
-void loadFromJsonFile( const std::string& path, T& object )
-{
-    std::string filePath = path + ".json";
-    std::ifstream inputStream( filePath );
-    if( !inputStream )
-    {
-        throw std::runtime_error( "Unable to open file for JSON load: " + filePath );
-    }
-
-    std::string raw( ( std::istreambuf_iterator< char >( inputStream ) ), std::istreambuf_iterator< char >( ) );
-    inputStream.close( );
-
-    const std::string fileProvenance = extractJsonProvenance( raw );
-    const auto parts = checkProvenance( fileProvenance );
-
-    try
-    {
-        std::istringstream iss( raw );
-        cereal::JSONInputArchive archive( iss );
-        archive( cereal::make_nvp( "root", object ) );
     }
     catch( const std::exception& e )
     {
@@ -486,29 +480,6 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
     return loadFromBinaryFile< std::shared_ptr< T > >( path );
 }
 
-//! Helper function to serialize an object to a JSON string
-template< typename T >
-std::string serializeToJsonString( const T& object )
-{
-    std::ostringstream oss;
-    {
-        cereal::JSONOutputArchive oa( oss );
-        oa( cereal::make_nvp( "root", object ) );
-    }
-    return oss.str( );
-}
-
-//! Helper function to deserialize an object from a JSON string
-template< typename T >
-T deserializeFromJsonString( const std::string& data )
-{
-    std::istringstream iss( data );
-    cereal::JSONInputArchive ia( iss );
-    std::unique_ptr< T > objectPtr( cereal::access::construct< T >( ) );
-    ia( cereal::make_nvp( "root", *objectPtr ) );
-    return std::move( *objectPtr );
-}
-
 }  // namespace serialization
 
 }  // namespace tudat
@@ -523,9 +494,8 @@ T deserializeFromJsonString( const std::string& data )
 //  Four patterns:
 //    TUDAT_DEFINE_FILE_IO(ClassName)              — binary + JSON, value
 //    TUDAT_DEFINE_BINARY_IO(ClassName)            — binary only, value
-//    TUDAT_DEFINE_JSON_IO(ClassName)              — JSON only, value
-//    TUDAT_DEFINE_JSON_IO_POLYMORPHIC(BaseName)   — JSON only, shared_ptr<Base>
 //    TUDAT_DEFINE_BINARY_IO_POLYMORPHIC(BaseName) — binary only, shared_ptr<Base>
+//    TUDAT_DEFINE_FILE_IO_POLYMORPHIC(BaseName)   — binary + JSON, shared_ptr<Base>
 //
 //  For templated classes pass the full instantiation, e.g.:
 //    TUDAT_DEFINE_BINARY_IO(SingleArcSimulationResults<StateScalarType, TimeType>)
@@ -559,38 +529,6 @@ T deserializeFromJsonString( const std::string& data )
     static __VA_ARGS__ loadFromBinary( const std::string& path )                  \
     {                                                                             \
         return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path ); \
-    }
-
-//! Add saveToJson/loadFromJson only (value types).
-#define TUDAT_DEFINE_JSON_IO( ... )                                             \
-    void saveToJson( const std::string& path ) const                            \
-    {                                                                           \
-        ::tudat::serialization::saveToJsonFile( *this, path );                  \
-    }                                                                           \
-    static __VA_ARGS__ loadFromJson( const std::string& path )                  \
-    {                                                                           \
-        return ::tudat::serialization::loadFromJsonFile< __VA_ARGS__ >( path ); \
-    }
-
-//! Add saveToJson/loadFromJson for polymorphic base (load returns shared_ptr<Base>).
-//! Throws if deserialization produces a null pointer.
-#define TUDAT_DEFINE_JSON_IO_POLYMORPHIC( ... )                                                                              \
-    void saveToJson( const std::string& path ) const                                                                         \
-    {                                                                                                                        \
-        auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
-        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                                      \
-    }                                                                                                                        \
-    static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                            \
-    {                                                                                                                        \
-        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                              \
-        if( !result )                                                                                                        \
-        {                                                                                                                    \
-            throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from JSON file '" + path +                     \
-                                      "'.\n"                                                                                 \
-                                      "The file was likely written through a base-class pointer of a different hierarchy.\n" \
-                                      "Use the base class's loadFromJson() instead." );                                      \
-        }                                                                                                                    \
-        return result;                                                                                                       \
     }
 
 //! Add saveToBinary/loadFromBinary for polymorphic base (load returns shared_ptr<Base>).

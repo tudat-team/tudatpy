@@ -864,8 +864,6 @@ class TestSimulationBasedPickle:
 # The following classes from the serialization inventory cannot be tested:
 #
 # 1. Not exposed as pybind11 classes (C++ internal only):
-#    - FixedTimeHodographicShapingOptimisationProblem
-#    - HodographicShapingOptimisationProblem
 #    - ObservationDependentVariableBookkeeping
 #    - ModelInterpolationSettings
 #    - PropagatorType (exists as enum TranslationalPropagatorType instead)

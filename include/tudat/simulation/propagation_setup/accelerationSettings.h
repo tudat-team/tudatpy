@@ -458,6 +458,47 @@ public:
     int maximumDegreeOfBody2_;
 
     int maximumDegreeOfCentralBody_;
+
+protected:
+    // Default constructor for serialization
+    FullTwoBodySphericalHarmonicAccelerationSettings( ):
+        maximumDegreeOfBody1_( 0 ), maximumDegreeOfBody2_( 0 ), maximumDegreeOfCentralBody_( 0 )
+    {}
+
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const FullTwoBodySphericalHarmonicAccelerationSettings* >( &other );
+        return rhs != nullptr && AccelerationSettings::equals( other ) &&
+                coefficientCombinationsToUse_ == rhs->coefficientCombinationsToUse_ &&
+                coefficientCombinationsToUseForCentralBody_ == rhs->coefficientCombinationsToUseForCentralBody_ &&
+                maximumDegreeOfBody1_ == rhs->maximumDegreeOfBody1_ && maximumDegreeOfBody2_ == rhs->maximumDegreeOfBody2_ &&
+                maximumDegreeOfCentralBody_ == rhs->maximumDegreeOfCentralBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( coefficientCombinationsToUse_ ),
+            CEREAL_NVP( coefficientCombinationsToUseForCentralBody_ ),
+            CEREAL_NVP( maximumDegreeOfBody1_ ),
+            CEREAL_NVP( maximumDegreeOfBody2_ ),
+            CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( coefficientCombinationsToUse_ ),
+            CEREAL_NVP( coefficientCombinationsToUseForCentralBody_ ),
+            CEREAL_NVP( maximumDegreeOfBody1_ ),
+            CEREAL_NVP( maximumDegreeOfBody2_ ),
+            CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+    }
 };
 
 inline std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAcceleration(

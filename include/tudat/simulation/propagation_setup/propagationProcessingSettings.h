@@ -851,7 +851,8 @@ private:
     void save( Archive& ar ) const
     {
         ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
-        ar( CEREAL_NVP( useIdenticalSettings_ ),
+        ar( CEREAL_NVP( consistentArcPrintSettings_ ),
+            CEREAL_NVP( useIdenticalSettings_ ),
             CEREAL_NVP( printStateTypeStart_ ),
             CEREAL_NVP( singleArcSettings_ ),
             CEREAL_NVP( multiArcSettings_ ),
@@ -862,7 +863,8 @@ private:
     void load( Archive& ar )
     {
         ar( cereal::base_class< PropagatorProcessingSettings >( this ) );
-        ar( CEREAL_NVP( useIdenticalSettings_ ),
+        ar( CEREAL_NVP( consistentArcPrintSettings_ ),
+            CEREAL_NVP( useIdenticalSettings_ ),
             CEREAL_NVP( printStateTypeStart_ ),
             CEREAL_NVP( singleArcSettings_ ),
             CEREAL_NVP( multiArcSettings_ ),

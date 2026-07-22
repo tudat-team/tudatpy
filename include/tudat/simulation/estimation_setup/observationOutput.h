@@ -209,6 +209,7 @@ private:
         ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
         ar( CEREAL_NVP( dependentVariableSizes_ ) );
         ar( CEREAL_NVP( totalDependentVariableSize_ ) );
+        ar( CEREAL_NVP( deferredSettings_ ) );
     }
 
     template< class Archive >
@@ -220,6 +221,7 @@ private:
         ar( CEREAL_NVP( dependentVariableStartIndices_ ) );
         ar( CEREAL_NVP( dependentVariableSizes_ ) );
         ar( CEREAL_NVP( totalDependentVariableSize_ ) );
+        ar( CEREAL_NVP( deferredSettings_ ) );
     }
 
     observation_models::ObservableType observableType_;

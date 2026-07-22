@@ -12,6 +12,7 @@
 #define TUDAT_DEPENDENTVARIABLESINTERFACE_H
 
 #include <iostream>
+#include <limits>
 #include <vector>
 
 #include <memory>
@@ -335,6 +336,43 @@ private:
 
     std::map< std::string, int > dependentVariablesIdsAndSize_;
 
+    void rebuildDependentVariableMetadata( )
+    {
+        dependentVariablesTypes_.clear( );
+        dependentVariablesIdsAndIndices_.clear( );
+        dependentVariablesSize_ = 0;
+
+        for( const auto& dependentVariableSettings : dependentVariablesSettings_ )
+        {
+            if( dependentVariableSettings == nullptr )
+            {
+                throw std::runtime_error(
+                        "Cannot deserialize SingleArcDependentVariablesInterface: a dependent-variable setting is null." );
+            }
+
+            const std::string dependentVariableId = getDependentVariableId( dependentVariableSettings );
+            const auto sizeIterator = dependentVariablesIdsAndSize_.find( dependentVariableId );
+            if( sizeIterator == dependentVariablesIdsAndSize_.end( ) || sizeIterator->second <= 0 )
+            {
+                throw std::runtime_error(
+                        "Cannot deserialize SingleArcDependentVariablesInterface: no valid archived size was found for "
+                        "dependent variable '" +
+                        dependentVariableId + "'." );
+            }
+            if( dependentVariablesSize_ > std::numeric_limits< int >::max( ) - sizeIterator->second )
+            {
+                throw std::runtime_error(
+                        "Cannot deserialize SingleArcDependentVariablesInterface: total dependent-variable size overflows int." );
+            }
+
+            dependentVariablesTypes_.push_back( dependentVariableSettings->dependentVariableType_ );
+            dependentVariablesIdsAndIndices_[ dependentVariableId ] = dependentVariablesSize_;
+            dependentVariablesSize_ += sizeIterator->second;
+        }
+
+        dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
+    }
+
     // --- Cereal serialization support ---
     friend class cereal::access;
 
@@ -345,12 +383,12 @@ private:
         ar( CEREAL_NVP( dependentVariablesSettings_ ) );
         ar( CEREAL_NVP( dependentVariableIds_ ) );
         ar( CEREAL_NVP( orderedDependentVariableSettings_ ) );
+        ar( CEREAL_NVP( dependentVariablesIdsAndSize_ ) );
         // Skip: dependentVariablesInterpolator_ (runtime interpolator, reconstructable from history)
         // Skip: dependentVariables_ (pre-allocated vector, recomputed on use)
         // Skip: dependentVariablesTypes_ (recomputed from dependentVariablesSettings_)
-        // Skip: dependentVariablesSize_ (recomputed from dependentVariablesSettings_)
-        // Skip: dependentVariablesIdsAndIndices_ (recomputed from dependentVariablesSettings_)
-        // Skip: dependentVariablesIdsAndSize_ (recomputed from dependentVariablesSettings_)
+        // Skip: dependentVariablesSize_ (recomputed from archived sizes)
+        // Skip: dependentVariablesIdsAndIndices_ (recomputed from settings and archived sizes)
     }
 
     template< class Archive >
@@ -360,8 +398,8 @@ private:
         ar( CEREAL_NVP( dependentVariablesSettings_ ) );
         ar( CEREAL_NVP( dependentVariableIds_ ) );
         ar( CEREAL_NVP( orderedDependentVariableSettings_ ) );
-        // All skipped members are derived data — they remain at their default-constructed values
-        // and should be re-initialized by the caller if needed.
+        ar( CEREAL_NVP( dependentVariablesIdsAndSize_ ) );
+        rebuildDependentVariableMetadata( );
     }
 
 public:
@@ -599,6 +637,11 @@ template< typename TimeType = double >
 class HybridArcDependentVariablesInterface : public DependentVariablesInterface< TimeType >
 {
 public:
+    using BaseType = ::tudat::propagators::DependentVariablesInterface< TimeType >;
+
+    //! Default constructor (for serialization only)
+    HybridArcDependentVariablesInterface( ) = default;
+
     //! Constructor
     /*!
      * Constructor
@@ -656,6 +699,39 @@ private:
 
     //! Object to retrieve dependent variable for multi arc component
     std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > multiArcInterface_;
+
+    bool equals( const BaseType& rhs ) const override
+    {
+        const auto* rhsDerived = dynamic_cast< const HybridArcDependentVariablesInterface* >( &rhs );
+        if( rhsDerived == nullptr )
+        {
+            return false;
+        }
+
+        const bool singleArcInterfacesAreEqual = ( singleArcInterface_ == rhsDerived->singleArcInterface_ ) ||
+                ( singleArcInterface_ != nullptr && rhsDerived->singleArcInterface_ != nullptr &&
+                  *singleArcInterface_ == *rhsDerived->singleArcInterface_ );
+        const bool multiArcInterfacesAreEqual = ( multiArcInterface_ == rhsDerived->multiArcInterface_ ) ||
+                ( multiArcInterface_ != nullptr && rhsDerived->multiArcInterface_ != nullptr &&
+                  *multiArcInterface_ == *rhsDerived->multiArcInterface_ );
+        return singleArcInterfacesAreEqual && multiArcInterfacesAreEqual;
+    }
+
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< DependentVariablesInterface< TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcInterface_ ), CEREAL_NVP( multiArcInterface_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< DependentVariablesInterface< TimeType > >( this ) );
+        ar( CEREAL_NVP( singleArcInterface_ ), CEREAL_NVP( multiArcInterface_ ) );
+    }
 };
 
 }  // namespace propagators

@@ -47,7 +47,6 @@ target_link_libraries(kernel PRIVATE
     ${Boost_SYSTEM_LIBRARY}
     ${Tudat_PROPAGATION_LIBRARIES}
     ${Tudat_ESTIMATION_LIBRARIES}
-    cereal::cereal
 )
 
 # ---- Precompiled header for pybind11 bindings ----

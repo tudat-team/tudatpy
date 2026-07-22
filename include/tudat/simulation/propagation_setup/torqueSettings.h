@@ -160,6 +160,40 @@ public:
     {}
 
     std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAccelerationSettings_;
+
+protected:
+    // Default constructor for serialization
+    FullTwoBodySphericalHarmonicTorqueSettings( ): fullTwoBodySphericalHarmonicAccelerationSettings_( nullptr ) {}
+
+    bool equals( const TorqueSettings& rhs ) const override
+    {
+        const auto* derived = dynamic_cast< const FullTwoBodySphericalHarmonicTorqueSettings* >( &rhs );
+        if( derived == nullptr || !TorqueSettings::equals( rhs ) )
+        {
+            return false;
+        }
+        return ( fullTwoBodySphericalHarmonicAccelerationSettings_ == derived->fullTwoBodySphericalHarmonicAccelerationSettings_ ) ||
+                ( fullTwoBodySphericalHarmonicAccelerationSettings_ != nullptr &&
+                  derived->fullTwoBodySphericalHarmonicAccelerationSettings_ != nullptr &&
+                  *fullTwoBodySphericalHarmonicAccelerationSettings_ == *derived->fullTwoBodySphericalHarmonicAccelerationSettings_ );
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        ar( CEREAL_NVP( fullTwoBodySphericalHarmonicAccelerationSettings_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+        ar( CEREAL_NVP( fullTwoBodySphericalHarmonicAccelerationSettings_ ) );
+    }
 };
 
 class FourthDegreeFullTwoBodyGravitationalTorqueSettings : public TorqueSettings
@@ -168,6 +202,28 @@ public:
     FourthDegreeFullTwoBodyGravitationalTorqueSettings( ):
         TorqueSettings( basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque )
     {}
+
+protected:
+    bool equals( const TorqueSettings& rhs ) const override
+    {
+        return dynamic_cast< const FourthDegreeFullTwoBodyGravitationalTorqueSettings* >( &rhs ) != nullptr &&
+                TorqueSettings::equals( rhs );
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< TorqueSettings >( this ) );
+    }
 };
 
 inline Eigen::Vector3d applyTorqueScalingFunction( const std::function< Eigen::Vector3d( const double ) > torqueFunction,

@@ -790,8 +790,6 @@ class TestHybridTerminationDetailsFileIO:
 #      (need dedicated multi-arc/hybrid test infrastructure)
 #
 # 4. Not exposed as pybind11 classes:
-#    - FixedTimeHodographicShapingOptimisationProblem
-#    - HodographicShapingOptimisationProblem
 #    - ObservationDependentVariableBookkeeping
 #    - ModelInterpolationSettings
 #    - PropagatorType (exists as enum TranslationalPropagatorType instead)

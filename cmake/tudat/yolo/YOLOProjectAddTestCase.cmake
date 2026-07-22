@@ -91,10 +91,10 @@ function("TUDAT_ADD_TEST_CASE" arg1)
             list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
         endif ()
 
-        # Unity build on Linux can expose circular static-library dependencies;
-        # GNU ld resolves archives in one pass unless grouped.
+        # Linux static-library links can expose circular dependencies between
+        # Tudat libraries; GNU ld resolves archives in one pass unless grouped.
         set(test_private_link_items ${test_private_links})
-        if (CMAKE_UNITY_BUILD AND TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        if (TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
             set(test_private_link_items
                     -Wl,--start-group
                     ${test_private_links}

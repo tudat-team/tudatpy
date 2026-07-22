@@ -262,6 +262,94 @@ BOOST_AUTO_TEST_CASE( test_PropagationResultsSerialization )
     }
 }
 
+BOOST_AUTO_TEST_CASE( test_DependentVariablesInterfacePolymorphicSerialization )
+{
+    using namespace propagators;
+
+    auto dependentVariableSettings =
+            std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Vehicle", "Earth" );
+
+    std::vector< double > times;
+    std::vector< Eigen::VectorXd > dependentVariableValues;
+    for( int i = 0; i < 10; ++i )
+    {
+        times.push_back( static_cast< double >( i ) );
+        dependentVariableValues.push_back( ( Eigen::Vector3d( ) << i, 2 * i, 3 * i ).finished( ) );
+    }
+    auto interpolator =
+            std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > >( times, dependentVariableValues, 8 );
+
+    const std::string dependentVariableId = getDependentVariableId( dependentVariableSettings );
+    const std::map< std::pair< int, int >, std::string > dependentVariableIds = { { { 0, 3 }, dependentVariableId } };
+    const std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedSettings = {
+        { { 0, 3 }, dependentVariableSettings }
+    };
+    const simulation_setup::SystemOfBodies bodies;
+
+    auto singleArcInterface = std::make_shared< SingleArcDependentVariablesInterface< double > >(
+            interpolator,
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( { dependentVariableSettings } ),
+            dependentVariableIds,
+            orderedSettings,
+            bodies );
+
+    // Concrete round trip isolates restoration of the derived metadata from polymorphic registration.
+    const std::string serializedSingleArc = serialization::serializeToBinaryString( *singleArcInterface );
+    auto deserializedSingleArc =
+            serialization::deserializeFromBinaryString< SingleArcDependentVariablesInterface< double > >( serializedSingleArc );
+    BOOST_CHECK_EQUAL( deserializedSingleArc.getDependentVariablesize( ), 3 );
+    BOOST_CHECK( deserializedSingleArc.getSingleDependentVariableIndices( dependentVariableSettings ) == std::make_pair( 0, 3 ) );
+    deserializedSingleArc.updateDependentVariablesInterpolator( interpolator );
+    BOOST_CHECK_SMALL(
+            ( deserializedSingleArc.getSingleDependentVariable( dependentVariableSettings, 4.0 ) - Eigen::Vector3d( 4.0, 8.0, 12.0 ) )
+                    .norm( ),
+            1.0e-14 );
+
+    std::shared_ptr< DependentVariablesInterface< double > > singleArcBase = singleArcInterface;
+    auto deserializedSingleArcBase = roundTripSerialize( singleArcBase );
+    BOOST_REQUIRE( std::dynamic_pointer_cast< SingleArcDependentVariablesInterface< double > >( deserializedSingleArcBase ) != nullptr );
+
+    auto multiArcInterface = std::make_shared< MultiArcDependentVariablesInterface< double > >(
+            std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< double > > >( { singleArcInterface } ),
+            std::vector< double >( { 0.0 } ),
+            std::vector< double >( { 9.0 } ) );
+    std::shared_ptr< DependentVariablesInterface< double > > multiArcBase = multiArcInterface;
+    auto deserializedMultiArc =
+            std::dynamic_pointer_cast< MultiArcDependentVariablesInterface< double > >( roundTripSerialize( multiArcBase ) );
+    BOOST_REQUIRE( deserializedMultiArc != nullptr );
+    BOOST_CHECK_EQUAL( deserializedMultiArc->getNumberOfArcs( ), 1 );
+
+    auto hybridArcInterface = std::make_shared< HybridArcDependentVariablesInterface< double > >( singleArcInterface, multiArcInterface );
+    std::shared_ptr< DependentVariablesInterface< double > > hybridArcBase = hybridArcInterface;
+    auto deserializedHybridArc =
+            std::dynamic_pointer_cast< HybridArcDependentVariablesInterface< double > >( roundTripSerialize( hybridArcBase ) );
+    BOOST_REQUIRE( deserializedHybridArc != nullptr );
+    BOOST_REQUIRE( deserializedHybridArc->getSingleArcInterface( ) != nullptr );
+    BOOST_REQUIRE( deserializedHybridArc->getMultiArcInterface( ) != nullptr );
+    BOOST_CHECK( *hybridArcInterface == *deserializedHybridArc );
+}
+
+BOOST_AUTO_TEST_CASE( test_DeserializedRawSolutionConversionThrows )
+{
+    auto deserializedResults = roundTripSerialize( createSingleArcSimulationResults( ) );
+    const auto rawSolutionBeforeReset = deserializedResults->getEquationsOfMotionNumericalSolutionRaw( );
+    const auto processedSolutionBeforeReset = deserializedResults->getEquationsOfMotionNumericalSolution( );
+
+    BOOST_CHECK_EXCEPTION( deserializedResults->reset(
+                                   createRawStateHistory( ),
+                                   createDependentVariableHistory( ),
+                                   createComputationTimeHistory( ),
+                                   createFunctionEvaluationHistory( ),
+                                   std::make_shared< propagators::PropagationTerminationDetails >( propagators::propagation_never_run ) ),
+                           std::runtime_error,
+                           []( const std::runtime_error& exception ) {
+                               return std::string( exception.what( ) ).find( "cannot be serialized" ) != std::string::npos;
+                           } );
+
+    BOOST_CHECK( rawSolutionBeforeReset == deserializedResults->getEquationsOfMotionNumericalSolutionRaw( ) );
+    BOOST_CHECK( processedSolutionBeforeReset == deserializedResults->getEquationsOfMotionNumericalSolution( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
