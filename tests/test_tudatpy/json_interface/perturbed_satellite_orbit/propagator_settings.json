@@ -1,0 +1,22 @@
+{
+  "translational_from_acceleration_settings": {
+    "central_bodies": ["Earth"],
+    "acceleration_settings": {
+      "$ref": "acceleration_settings.json"
+    },
+    "bodies_to_integrate": ["Delfi-C3"],
+    "initial_states": {
+      "$ref": "initial_state_from_tle.json"
+    },
+    "initial_time": 262656000.0,
+    "integrator_settings": {
+      "$ref": "integrator_settings.json"
+    },
+    "termination_settings": {
+      "$ref": "termination_settings.json"
+    },
+    "output_variables": {
+      "$ref": "dependent_variable_settings.json"
+    }
+  }
+}

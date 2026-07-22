@@ -1,0 +1,6 @@
+{
+  "runge_kutta_fixed_step": {
+    "time_step": 10.0,
+    "coefficient_set": "rk_4"
+  }
+}

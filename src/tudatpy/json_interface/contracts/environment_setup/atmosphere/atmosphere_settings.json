@@ -30,24 +30,6 @@
       "use_anomalous_oxygen": true
     }
   },
-  "mcd": {
-    "properties": {
-      "mcd_data_path": "string",
-      "dust_scenario": "int",
-      "perturbation_key": "int",
-      "perturbation_seed": "float",
-      "gravity_wave_length": "float",
-      "high_resolution_mode": "int"
-    },
-    "optional": {
-      "mcd_data_path": "",
-      "dust_scenario": 1,
-      "perturbation_key": 0,
-      "perturbation_seed": 0.0,
-      "gravity_wave_length": 0.0,
-      "high_resolution_mode": 0
-    }
-  },
   "tabulated": {
     "properties": {
       "atmosphere_data_file": "string",

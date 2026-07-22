@@ -1,0 +1,26 @@
+{
+  "body_list_settings": {
+    "body_settings": {
+      "Sun": {
+        "$ref": "body_settings/sun.json"
+      },
+      "Earth": {
+        "$ref": "body_settings/earth.json"
+      },
+      "Moon": {
+        "$ref": "body_settings/moon.json"
+      },
+      "Mars": {
+        "$ref": "body_settings/mars.json"
+      },
+      "Venus": {
+        "$ref": "body_settings/venus.json"
+      },
+      "Delfi-C3": {
+        "$ref": "body_settings/delfi_c3.json"
+      }
+    },
+    "global_frame_origin": "Earth",
+    "global_frame_orientation": "J2000"
+  }
+}

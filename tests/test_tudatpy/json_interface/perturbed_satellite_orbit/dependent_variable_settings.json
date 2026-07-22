@@ -1,0 +1,74 @@
+[
+  {
+    "total_acceleration": {
+      "body": "Delfi-C3"
+    }
+  },
+  {
+    "keplerian_state": {
+      "body": "Delfi-C3",
+      "central_body": "Earth"
+    }
+  },
+  {
+    "latitude": {
+      "body": "Delfi-C3",
+      "central_body": "Earth"
+    }
+  },
+  {
+    "longitude": {
+      "body": "Delfi-C3",
+      "central_body": "Earth"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "point_mass_gravity_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Sun"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "point_mass_gravity_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Moon"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "point_mass_gravity_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Mars"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "point_mass_gravity_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Venus"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "spherical_harmonic_gravity_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Earth"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "aerodynamic_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Earth"
+    }
+  },
+  {
+    "single_acceleration_norm": {
+      "acceleration_type": "radiation_pressure_type",
+      "body_undergoing_acceleration": "Delfi-C3",
+      "body_exerting_acceleration": "Sun"
+    }
+  }
+]

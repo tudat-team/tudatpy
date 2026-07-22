@@ -333,13 +333,17 @@ def load_contract(
             alternatives = type_expression.split("|")
             for alternative in alternatives:
                 base_type, _ = _parse_type(alternative, property_path)
-                if base_type not in _BUILTIN_TYPES and "." not in base_type:
+                if (
+                    property_name not in unsupported
+                    and base_type not in _BUILTIN_TYPES
+                    and "." not in base_type
+                ):
                     _find_named_type(base_type, type_modules)
             typed_properties[property_name] = type_expression
 
         for property_name, default_value in optional.items():
             # JSON null represents defaults that are None or not finite in Python.
-            if default_value is not None:
+            if property_name not in unsupported and default_value is not None:
                 _convert_value(
                     default_value,
                     typed_properties[property_name],
@@ -514,7 +518,7 @@ def create_settings_object(
 
     supplied_unsupported = arguments.keys() & entry.unsupported
     required_unsupported = entry.unsupported - entry.optional.keys()
-    unsupported = supplied_unsupported or required_unsupported
+    unsupported = supplied_unsupported | required_unsupported
     if unsupported:
         names = ", ".join(sorted(unsupported))
         raise JSONSettingsValidationError(
@@ -547,7 +551,8 @@ def create_settings_object(
             factory_context,
         )
         for name, value in values.items()
-        if value is not None or name not in entry.optional or entry.optional[name] is not None
+        if name not in entry.unsupported
+        and (value is not None or name not in entry.optional or entry.optional[name] is not None)
     }
 
     factory = getattr(factory_module, factory_name)

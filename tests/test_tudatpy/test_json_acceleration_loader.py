@@ -175,6 +175,32 @@ def test_unsupported_contract_input_is_rejected(tmp_path):
         del sys.modules[module_name]
 
 
+def test_optional_unsupported_input_uses_factory_default(tmp_path):
+    module_name = "_tudatpy_json_optional_unsupported_input_test"
+    module = ModuleType(module_name)
+    module.settings = lambda external_input="factory default": external_input
+    sys.modules[module_name] = module
+    try:
+        contract_path = _write_json(
+            tmp_path / "contract.json",
+            {
+                "settings": {
+                    "properties": {"external_input": "ExternalType"},
+                    "optional": {"external_input": "contract default"},
+                    "unsupported": ["external_input"],
+                }
+            },
+        )
+        settings_path = _write_json(tmp_path / "settings.json", {"settings": {}})
+
+        assert (
+            load_settings(settings_path, contract_path, module_name=module_name)
+            == "factory default"
+        )
+    finally:
+        del sys.modules[module_name]
+
+
 def test_untyped_and_coma_inputs_are_flagged_unsupported():
     contract_root = ACCELERATION_CONTRACT_PATH.parents[1]
     for path in contract_root.rglob("*.json"):

@@ -1,0 +1,26 @@
+{
+  "body_settings": {
+    "body_name": "Delfi-C3",
+    "use_default_settings": false,
+    "aerodynamic_coefficient_settings": {
+      "constant": {
+        "reference_area": 0.035,
+        "constant_force_coefficient": [1.2, 0.0, 0.0]
+      }
+    },
+    "radiation_pressure_target_settings": {
+      "cannonball_radiation_target": {
+        "reference_area": 0.035,
+        "radiation_pressure_coefficient": 1.2,
+        "per_source_occulting_bodies": {
+          "Sun": ["Earth"]
+        }
+      }
+    },
+    "rigid_body_settings": {
+      "constant_rigid_body_properties": {
+        "mass": 2.2
+      }
+    }
+  }
+}

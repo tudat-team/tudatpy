@@ -9,7 +9,8 @@
     "optional": {
       "station_position_element_type": "cartesian_position_type",
       "station_motion_settings": []
-    }
+    },
+    "unsupported": ["station_position_element_type"]
   },
   "dsn_station": {
     "properties": {

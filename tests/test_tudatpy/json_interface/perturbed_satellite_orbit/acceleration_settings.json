@@ -1,0 +1,38 @@
+{
+  "Delfi-C3": {
+    "Sun": [
+      {
+        "radiation_pressure": {}
+      },
+      {
+        "point_mass_gravity": {}
+      }
+    ],
+    "Earth": [
+      {
+        "spherical_harmonic_gravity": {
+          "maximum_degree": 5,
+          "maximum_order": 5
+        }
+      },
+      {
+        "aerodynamic": {}
+      }
+    ],
+    "Moon": [
+      {
+        "point_mass_gravity": {}
+      }
+    ],
+    "Mars": [
+      {
+        "point_mass_gravity": {}
+      }
+    ],
+    "Venus": [
+      {
+        "point_mass_gravity": {}
+      }
+    ]
+  }
+}
