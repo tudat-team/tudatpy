@@ -94,20 +94,15 @@ protected:
     // Used for serialization testing
     bool equals( const RootFinderSettings& other ) const
     {
-        const auto* rhs = dynamic_cast< const RootFinderSettings* >( &other );
-        if( !rhs )
-        {
-            return false;
-        }
-        return rootFinderType_ == rhs->rootFinderType_ &&
-                ( relativeIndependentVariableTolerance_ == rhs->relativeIndependentVariableTolerance_ ||
-                  ( std::isnan( relativeIndependentVariableTolerance_ ) && std::isnan( rhs->relativeIndependentVariableTolerance_ ) ) ) &&
-                ( absoluteIndependentVariableTolerance_ == rhs->absoluteIndependentVariableTolerance_ ||
-                  ( std::isnan( absoluteIndependentVariableTolerance_ ) && std::isnan( rhs->absoluteIndependentVariableTolerance_ ) ) ) &&
-                ( rootFunctionTolerance_ == rhs->rootFunctionTolerance_ ||
-                  ( std::isnan( rootFunctionTolerance_ ) && std::isnan( rhs->rootFunctionTolerance_ ) ) ) &&
-                maximumNumberOfIterations_ == rhs->maximumNumberOfIterations_ &&
-                maximumIterationHandling_ == rhs->maximumIterationHandling_;
+        return rootFinderType_ == other.rootFinderType_ &&
+                ( relativeIndependentVariableTolerance_ == other.relativeIndependentVariableTolerance_ ||
+                  ( std::isnan( relativeIndependentVariableTolerance_ ) && std::isnan( other.relativeIndependentVariableTolerance_ ) ) ) &&
+                ( absoluteIndependentVariableTolerance_ == other.absoluteIndependentVariableTolerance_ ||
+                  ( std::isnan( absoluteIndependentVariableTolerance_ ) && std::isnan( other.absoluteIndependentVariableTolerance_ ) ) ) &&
+                ( rootFunctionTolerance_ == other.rootFunctionTolerance_ ||
+                  ( std::isnan( rootFunctionTolerance_ ) && std::isnan( other.rootFunctionTolerance_ ) ) ) &&
+                maximumNumberOfIterations_ == other.maximumNumberOfIterations_ &&
+                maximumIterationHandling_ == other.maximumIterationHandling_;
     }
 
 private:

@@ -10,10 +10,6 @@
 
 #include <cereal/types/polymorphic.hpp>
 
-#include <typeinfo>
-#include <utility>
-#include <vector>
-
 #include "tudat/io/serialization/archives.h"
 
 /**
@@ -104,34 +100,6 @@ using SingleArcDependentVariablesInterfaceTime = SingleArcDependentVariablesInte
 using MultiArcDependentVariablesInterfaceTime = MultiArcDependentVariablesInterface< tudat::Time >;
 using HybridArcDependentVariablesInterfaceTime = HybridArcDependentVariablesInterface< tudat::Time >;
 }  // namespace propagators
-}  // namespace tudat
-
-namespace tudat
-{
-namespace serialization
-{
-namespace diagnostics
-{
-
-std::vector< std::pair< const char*, const std::type_info* > > getPropagationRegistrationTypeInfo( )
-{
-    return { { "DependentVariablesInterface<double>", &typeid( tudat::propagators::DependentVariablesInterfaceDouble ) },
-             { "SingleArcDependentVariablesInterface<double>", &typeid( tudat::propagators::SingleArcDependentVariablesInterfaceDouble ) },
-             { "MultiArcDependentVariablesInterface<double>", &typeid( tudat::propagators::MultiArcDependentVariablesInterfaceDouble ) },
-             { "HybridArcDependentVariablesInterface<double>", &typeid( tudat::propagators::HybridArcDependentVariablesInterfaceDouble ) },
-             { "PropagationTerminationSettings", &typeid( tudat::propagators::PropagationTerminationSettings ) },
-             { "PropagationTimeTerminationSettings", &typeid( tudat::propagators::PropagationTimeTerminationSettings ) },
-             { "PropagationCPUTimeTerminationSettings", &typeid( tudat::propagators::PropagationCPUTimeTerminationSettings ) },
-             { "PropagationDependentVariableTerminationSettings",
-               &typeid( tudat::propagators::PropagationDependentVariableTerminationSettings ) },
-             { "PropagationCustomTerminationSettings", &typeid( tudat::propagators::PropagationCustomTerminationSettings ) },
-             { "PropagationHybridTerminationSettings", &typeid( tudat::propagators::PropagationHybridTerminationSettings ) },
-             { "NonSequentialPropagationTerminationSettings",
-               &typeid( tudat::propagators::NonSequentialPropagationTerminationSettings ) } };
-}
-
-}  // namespace diagnostics
-}  // namespace serialization
 }  // namespace tudat
 
 CEREAL_REGISTER_TYPE( tudat::propagators::SingleArcDependentVariablesInterfaceDouble )

@@ -18,8 +18,6 @@
 #include "tudat/math/root_finders/createRootFinder.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
-#include <iostream>
-
 #include "tudat/io/serialization/core.h"
 #include "tudat/io/serialization/file_io_declarations.h"
 
@@ -288,7 +286,7 @@ protected:
         if( !PropagationTerminationSettings::equals( rhs ) ) return false;
         if( limitValue_ != derived->limitValue_ ) return false;
         if( useAsLowerLimit_ != derived->useAsLowerLimit_ ) return false;
-        // Compare shared_ptr: both null → equal; both non-null → compare raw pointers
+        // Compare shared_ptr targets by value so independently deserialized settings can be equal.
         if( static_cast< bool >( terminationRootFinderSettings_ ) != static_cast< bool >( derived->terminationRootFinderSettings_ ) )
             return false;
         if( terminationRootFinderSettings_ && derived->terminationRootFinderSettings_ &&

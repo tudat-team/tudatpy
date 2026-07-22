@@ -42,9 +42,4 @@ if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY)
     set_target_properties(tudat_serialization PROPERTIES
             CXX_VISIBILITY_PRESET default
             VISIBILITY_INLINES_HIDDEN FALSE)
-    get_target_property(_tudat_serialization_visibility tudat_serialization CXX_VISIBILITY_PRESET)
-    get_target_property(_tudat_serialization_inline_visibility tudat_serialization VISIBILITY_INLINES_HIDDEN)
-    message(STATUS
-            "Apple serialization RTTI visibility: preset=${_tudat_serialization_visibility}, "
-            "inlines_hidden=${_tudat_serialization_inline_visibility}")
 endif ()

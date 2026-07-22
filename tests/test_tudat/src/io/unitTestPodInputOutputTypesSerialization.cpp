@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <sstream>
+#include <typeinfo>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -126,12 +127,8 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysisOutputSerialization )
     {
         auto roundTripped = roundTripSerialize( result );
         BOOST_REQUIRE( roundTripped != nullptr );
-        if( !( *result == *roundTripped ) )
-        {
-            BOOST_FAIL( "Round-tripped object is not equal to original." );
-            std::cout << "--- Serialization mismatch for type: " << typeid( *result ).name( ) << " ---\n";
-        }
-        BOOST_CHECK( *result == *roundTripped );
+        BOOST_CHECK_MESSAGE( *result == *roundTripped,
+                             "Round-tripped object is not equal to original. Type: " << typeid( *result ).name( ) );
     }
     // checkCovarianceAnalysisOutputRoundTrip< double >( );
     // checkCovarianceAnalysisOutputRoundTrip< tudat::Time >( );

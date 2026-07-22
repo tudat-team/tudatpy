@@ -469,11 +469,6 @@ void expose_propagation_results_bindings( py::module& m )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
                   R"doc(
-            .def( "clear_data",
-                  py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
-                  R"doc(
-
-         Function to delete the contents of this object.
 
          Function to delete the contents of this object. This function is typically called when wanting to manually reduce the
          memory usage in large analyses by clearing data. It does not need to be used manually before repropagating.

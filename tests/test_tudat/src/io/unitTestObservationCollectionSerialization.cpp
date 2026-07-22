@@ -146,13 +146,18 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerialization )
     }
 
     // Create the original observation set
+    auto dependentVariableBookkeeping = std::make_shared< ObservationDependentVariableBookkeeping >( observableType, linkEnds );
+    auto ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, 60.0 );
     std::shared_ptr< SingleObservationSet< double, double > > originalObservationSet =
             std::make_shared< SingleObservationSet< double, double > >( observableType,
                                                                         linkEnds,
                                                                         observations,
                                                                         observationTimes,
-                                                                        receiver  // reference link end
-            );
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        dependentVariableBookkeeping,
+                                                                        ancillarySettings );
 
     // Serialize to binary stream
     std::stringstream serializationStream;
@@ -170,6 +175,8 @@ BOOST_AUTO_TEST_CASE( test_SingleObservationSetSerialization )
 
     // Verify that the deserialized object is not null
     BOOST_REQUIRE( deserializedObservationSet != nullptr );
+    BOOST_CHECK( originalObservationSet != deserializedObservationSet );
+    BOOST_CHECK( *originalObservationSet == *deserializedObservationSet );
 
     // Verify observable type
     BOOST_CHECK_EQUAL( deserializedObservationSet->getObservableType( ), originalObservationSet->getObservableType( ) );
@@ -336,6 +343,8 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionSerialization )
     }
 
     compareObservationCollections( originalCollection, deserializedCollection );
+    BOOST_CHECK( originalCollection == deserializedCollection );
+    BOOST_CHECK( originalCollection.getObservationsSets( ).front( ) != deserializedCollection.getObservationsSets( ).front( ) );
 
     Eigen::VectorXd originalConcatenatedObservations = originalCollection.getConcatenatedObservations( );
     Eigen::VectorXd originalConcatenatedResiduals = originalCollection.getConcatenatedResiduals( );

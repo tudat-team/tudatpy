@@ -30,13 +30,7 @@ if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
     set(TEST_TO_BE_SKIPPED ${TEST_TO_BE_SKIPPED})
 endif ()
 
-# Temporary CI diagnostic mode: the ordinary helper remains a no-op so only call sites explicitly
-# switched to TUDAT_ADD_TEST_CASE2 are configured and run.
 function("TUDAT_ADD_TEST_CASE" arg1)
-
-endfunction()
-
-function("TUDAT_ADD_TEST_CASE2" arg1)
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
     # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
     # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.

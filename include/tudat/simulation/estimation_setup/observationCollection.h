@@ -2655,7 +2655,20 @@ public:
     //! Equality comparison via equals method
     bool equals( const ObservationCollection& rhs ) const
     {
-        return observationSetList_ == rhs.observationSetList_;
+        if( observationSetList_.size( ) != rhs.observationSetList_.size( ) )
+        {
+            return false;
+        }
+        for( std::size_t i = 0; i < observationSetList_.size( ); ++i )
+        {
+            const auto& lhsSet = observationSetList_.at( i );
+            const auto& rhsSet = rhs.observationSetList_.at( i );
+            if( static_cast< bool >( lhsSet ) != static_cast< bool >( rhsSet ) || ( lhsSet && *lhsSet != *rhsSet ) )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     TUDAT_DEFINE_BINARY_IO( ObservationCollection< ObservationScalarType, TimeType > )

@@ -1067,27 +1067,20 @@ public:
 protected:
     bool equals( const CovarianceAnalysisOutput& rhs ) const
     {
-        const auto* rhsDerived = dynamic_cast< const CovarianceAnalysisOutput* >( &rhs );
-        if( rhsDerived == nullptr )
-        {
-            return false;
-        }
-        return ( designMatrixSaved_ == rhsDerived->designMatrixSaved_ ) &&
-                ( exceptionDuringPropagation_ == rhsDerived->exceptionDuringPropagation_ ) &&
-                ( considerParametersIncluded_ == rhsDerived->considerParametersIncluded_ ) &&
-                ( normalizedDesignMatrix_ == rhsDerived->normalizedDesignMatrix_ ) &&
-                ( weightsMatrixDiagonal_ == rhsDerived->weightsMatrixDiagonal_ ) &&
-                ( designMatrixTransformationDiagonal_ == rhsDerived->designMatrixTransformationDiagonal_ ) &&
-                ( inverseNormalizedCovarianceMatrix_ == rhsDerived->inverseNormalizedCovarianceMatrix_ ) &&
-                ( inverseUnnormalizedCovarianceMatrix_ == rhsDerived->inverseUnnormalizedCovarianceMatrix_ ) &&
-                ( normalizedCovarianceMatrix_ == rhsDerived->normalizedCovarianceMatrix_ ) &&
-                ( unnormalizedCovarianceMatrix_ == rhsDerived->unnormalizedCovarianceMatrix_ ) &&
-                ( considerCovarianceContribution_ == rhsDerived->considerCovarianceContribution_ ) &&
-                ( normalizedCovarianceWithConsiderParameters_ == rhsDerived->normalizedCovarianceWithConsiderParameters_ ) &&
-                ( unnormalizedCovarianceWithConsiderParameters_ == rhsDerived->unnormalizedCovarianceWithConsiderParameters_ ) &&
-                ( normalizedDesignMatrixConsiderParameters_ == rhsDerived->normalizedDesignMatrixConsiderParameters_ ) &&
-                ( considerNormalizationFactors_ == rhsDerived->considerNormalizationFactors_ ) &&
-                ( considerCovariance_ == rhsDerived->considerCovariance_ );
+        return ( designMatrixSaved_ == rhs.designMatrixSaved_ ) && ( exceptionDuringPropagation_ == rhs.exceptionDuringPropagation_ ) &&
+                ( considerParametersIncluded_ == rhs.considerParametersIncluded_ ) &&
+                ( normalizedDesignMatrix_ == rhs.normalizedDesignMatrix_ ) && ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
+                ( designMatrixTransformationDiagonal_ == rhs.designMatrixTransformationDiagonal_ ) &&
+                ( inverseNormalizedCovarianceMatrix_ == rhs.inverseNormalizedCovarianceMatrix_ ) &&
+                ( inverseUnnormalizedCovarianceMatrix_ == rhs.inverseUnnormalizedCovarianceMatrix_ ) &&
+                ( normalizedCovarianceMatrix_ == rhs.normalizedCovarianceMatrix_ ) &&
+                ( unnormalizedCovarianceMatrix_ == rhs.unnormalizedCovarianceMatrix_ ) &&
+                ( considerCovarianceContribution_ == rhs.considerCovarianceContribution_ ) &&
+                ( normalizedCovarianceWithConsiderParameters_ == rhs.normalizedCovarianceWithConsiderParameters_ ) &&
+                ( unnormalizedCovarianceWithConsiderParameters_ == rhs.unnormalizedCovarianceWithConsiderParameters_ ) &&
+                ( normalizedDesignMatrixConsiderParameters_ == rhs.normalizedDesignMatrixConsiderParameters_ ) &&
+                ( considerNormalizationFactors_ == rhs.considerNormalizationFactors_ ) &&
+                ( considerCovariance_ == rhs.considerCovariance_ );
     }
 
 private:
@@ -1338,21 +1331,14 @@ public:
 protected:
     bool equals( const EstimationOutput& rhs ) const
     {
-        const auto* rhsDerived = dynamic_cast< const EstimationOutput* >( &rhs );
-        if( rhsDerived == nullptr )
-        {
-            return false;
-        }
         // for (auto result: simulationResultsPerIteration_) { @todo: finish checking all results for each iteraiton
         //     if
         // }
         return CovarianceAnalysisOutput< ObservationScalarType, TimeType >::equals( rhs ) &&
-                ( parameterEstimate_ == rhsDerived->parameterEstimate_ ) && ( residuals_ == rhsDerived->residuals_ ) &&
-                ( bestIteration_ == rhsDerived->bestIteration_ ) &&
-                ( residualStandardDeviation_ == rhsDerived->residualStandardDeviation_ ) &&
-                ( residualHistory_ == rhsDerived->residualHistory_ ) && ( parameterHistory_ == rhsDerived->parameterHistory_ ) &&
-                ( exceptionDuringInversion_ == rhsDerived->exceptionDuringInversion_ ) &&
-                ( numberOfParameters_ == rhsDerived->numberOfParameters_ );
+                ( parameterEstimate_ == rhs.parameterEstimate_ ) && ( residuals_ == rhs.residuals_ ) &&
+                ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
+                ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
+                ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ );
     }
 
 private:
