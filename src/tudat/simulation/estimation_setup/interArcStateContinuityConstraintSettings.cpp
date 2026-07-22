@@ -23,6 +23,7 @@ namespace simulation_setup
 
 static Eigen::Vector3d resolveCartesianStateWeights( const std::variant< double, Eigen::VectorXd >& weights )
 {
+    // Scalar input is the isotropic convenience form; vector input exposes independent Cartesian components.
     if( const auto* scalarWeight = std::get_if< double >( &weights ) )
     {
         return Eigen::Vector3d::Constant( *scalarWeight );
@@ -38,6 +39,7 @@ static Eigen::Vector3d resolveCartesianStateWeights( const std::variant< double,
 static std::map< std::string, std::vector< Eigen::MatrixXd > > createUniformBodyWeightMap( const std::vector< std::string >& bodies,
                                                                                            const Eigen::MatrixXd& weightMatrix )
 {
+    // A one-element list intentionally selects the settings class' broadcast-to-all-pairs convention.
     std::map< std::string, std::vector< Eigen::MatrixXd > > weightMatricesByBody;
     for( const auto& body : bodies )
     {
@@ -51,6 +53,7 @@ static std::map< std::string, std::vector< Eigen::MatrixXd > > createCartesianSt
         const std::map< std::string, std::variant< double, Eigen::VectorXd > >& positionWeightsByBody,
         const std::map< std::string, std::variant< double, Eigen::VectorXd > >& velocityWeightsByBody )
 {
+    // Resolve each body's position and velocity shorthand into the common general 6D matrix representation.
     std::map< std::string, std::vector< Eigen::MatrixXd > > weightMatricesByBody;
     for( const auto& body : bodies )
     {
@@ -63,6 +66,7 @@ static std::map< std::string, std::vector< Eigen::MatrixXd > > createCartesianSt
 
 Eigen::MatrixXd createCartesianStateWeightMatrix( const Eigen::Vector3d& positionWeights, const Eigen::Vector3d& velocityWeights )
 {
+    // Translational states use Tudat's [position, velocity] ordering; zero entries act as component masks.
     Eigen::MatrixXd constraintWeightMatrix = Eigen::MatrixXd::Zero( 6, 6 );
     constraintWeightMatrix.diagonal( ).head< 3 >( ) = positionWeights;
     constraintWeightMatrix.diagonal( ).tail< 3 >( ) = velocityWeights;
@@ -77,6 +81,7 @@ std::shared_ptr< InterArcStateContinuityConstraintSettings > fullStateContinuity
         const double constraintScalingFactor,
         std::map< std::string, std::vector< std::pair< int, int > > > arcPairsByBody )
 {
+    // All preset factories converge on generalContinuity so matrix and arc metadata share one validation path.
     auto weightMatricesByBody = createUniformBodyWeightMap(
             bodies,
             createCartesianStateWeightMatrix( Eigen::Vector3d::Constant( positionWeight ), Eigen::Vector3d::Constant( velocityWeight ) ) );
@@ -200,6 +205,7 @@ std::shared_ptr< InterArcStateContinuityConstraintSettings > generalContinuity(
         const auto& weightMatrixInput = weightMatricesByBody.at( body );
         if( const auto* weightMatrix = std::get_if< Eigen::MatrixXd >( &weightMatrixInput ) )
         {
+            // A single matrix is stored as a one-element list and broadcast by weightMatrixForBodyAndPair.
             resolvedWeightMatricesByBody[ body ] = { *weightMatrix };
         }
         else
@@ -224,6 +230,7 @@ InterArcStateContinuityConstraintSettings::InterArcStateContinuityConstraintSett
     weightMatricesByBody_( std::move( weightMatricesByBody ) ), constraintScalingFactor_( constraintScalingFactor ),
     arcPairsByBody_( std::move( arcPairsByBody ) )
 {
+    // Validate after moving into members so every check observes the exact representation retained by the object.
     validate( );
 }
 
@@ -264,6 +271,7 @@ const std::vector< double >& InterArcStateContinuityConstraintSettings::connecti
 
 const std::vector< std::pair< int, int > >& InterArcStateContinuityConstraintSettings::arcPairsForBody( const std::string& body ) const
 {
+    // Absence is meaningful: assembly will infer consecutive pairs (0,1), (1,2), ... in epoch order.
     static const std::vector< std::pair< int, int > > emptyArcPairs;
     const auto iterator = arcPairsByBody_.find( body );
     return iterator == arcPairsByBody_.end( ) ? emptyArcPairs : iterator->second;
@@ -282,6 +290,7 @@ const Eigen::MatrixXd& InterArcStateContinuityConstraintSettings::weightMatrixFo
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings: empty weight matrix list for body " + body + "." );
     }
+    // One matrix applies uniformly; otherwise validation guarantees one matrix for each configured pair.
     return bodyWeightMatrices.size( ) == 1 ? bodyWeightMatrices.front( ) : bodyWeightMatrices.at( pairIndex );
 }
 
@@ -302,6 +311,7 @@ std::size_t InterArcStateContinuityConstraintSettings::totalNumberOfPairs( ) con
 
 void InterArcStateContinuityConstraintSettings::validate( ) const
 {
+    // First validate settings-wide invariants before dereferencing any body-indexed input maps.
     if( bodies_.empty( ) )
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings: body list is empty." );
@@ -324,6 +334,7 @@ void InterArcStateContinuityConstraintSettings::validate( ) const
                 "Error in InterArcStateContinuityConstraintSettings: constraint scaling factor must be strictly positive (" +
                 std::to_string( constraintScalingFactor_ ) + ")." );
     }
+    // Each body's epochs, optional explicit pairs, and weights must describe the same ordered set of constraints.
     for( const auto& body : bodies_ )
     {
         const auto& connectionEpochs = connectionEpochsByBody_.at( body );
@@ -382,6 +393,7 @@ void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const std:
                                                                       const Eigen::MatrixXd& constraintWeightMatrix,
                                                                       std::size_t entryIndex ) const
 {
+    // General weights may couple Cartesian components but must still define a finite 6D PSD quadratic form.
     if( constraintWeightMatrix.rows( ) != 6 || constraintWeightMatrix.cols( ) != 6 )
     {
         throw std::runtime_error( "Error in InterArcStateContinuityConstraintSettings for body " + body + ": weight matrix entry " +
@@ -400,6 +412,7 @@ void InterArcStateContinuityConstraintSettings::validateWeightMatrix( const std:
                                   std::to_string( entryIndex ) + " is not symmetric (asymmetry norm = " + std::to_string( symmetryNorm ) +
                                   ")." );
     }
+    // Validation permits round-off-level skew; test definiteness on the symmetric matrix used by assembly.
     Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > eigenSolver( 0.5 * ( constraintWeightMatrix + constraintWeightMatrix.transpose( ) ) );
     if( eigenSolver.info( ) != Eigen::Success )
     {

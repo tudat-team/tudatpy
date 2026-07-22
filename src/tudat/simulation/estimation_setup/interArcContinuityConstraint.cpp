@@ -29,6 +29,8 @@ int computeConstraintDimension( const Eigen::MatrixXd& constraintWeightMatrix )
 
 int computeTotalConstraintDimension( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraintSettings )
 {
+    // Sum globally rather than per settings object: this is the single m_d denominator used for every configured
+    // constraint term in the Orbit14 averaged objective.
     int totalConstraintDimension = 0;
     for( const auto& settings : constraintSettings )
     {

@@ -176,6 +176,8 @@ BodyStateBlockIndices getBodyStateBlockIndicesInMultiArcLayout(
         const int arcIndex,
         const std::string& body )
 {
+    // Use the interface's layout metadata because multi-body state row offsets may differ between arc-wise
+    // propagation output and the full variational matrix.
     const auto& indexMapPerArc = stmInterface->getArcWiseAndFullSolutionInitialStateIndices( );
     const auto arcIterator = indexMapPerArc.find( arcIndex );
     if( arcIterator == indexMapPerArc.end( ) )
@@ -205,6 +207,7 @@ getArcWiseTranslationalStateParameterForBody(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >& parametersToEstimate,
         const std::string& body )
 {
+    // Body names are not guaranteed unique across a malformed parameter set, so reject ambiguity explicitly.
     std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >
             matchingParameter;
     int matchingParameterCount = 0;
@@ -258,6 +261,7 @@ void addInterArcContinuityPairContribution(
         const int numberOfObservations,
         InterArcConstraintContribution& contribution )
 {
+    // One invocation constructs the complete quadratic contribution of one body at one arc connection.
     const double connectionEpoch = settings.connectionEpochsForBody( body ).at( pairIndex );
     const std::vector< double >& arcStartTimes = multiArcSimulator->getArcStartTimes( );
     const std::vector< double >& arcEndTimes = multiArcSimulator->getArcEndTimes( );
@@ -287,6 +291,7 @@ void addInterArcContinuityPairContribution(
     }
 
     const auto& perArcResults = multiArcSimulator->getMultiArcPropagationResults( )->getSingleArcResults( );
+    // Evaluate both independently propagated trajectories at one physical epoch before taking their signed jump.
     const Eigen::VectorXd leftArcState =
             evaluateArcStateAtTime( perArcResults.at( arcPair.first )->getEquationsOfMotionNumericalSolution( ),
                                     connectionEpoch,
@@ -318,6 +323,7 @@ void addInterArcContinuityPairContribution(
             rightArcVariationalMatrix.block( rightBodyRows.fullStateStart, 0, rightBodyRows.size, totalParameterSize ) -
             leftArcVariationalMatrix.block( leftBodyRows.fullStateStart, 0, leftBodyRows.size, totalParameterSize );
 
+    // Express the continuity design matrix in the same normalized parameter coordinates as the observation design.
     for( int column = 0; column < continuityDesignMatrix.cols( ); ++column )
     {
         const double normalizationFactor = columnNormalizationFactors( column );
@@ -343,6 +349,8 @@ void addInterArcContinuityPairContribution(
             ( 0.5 * ( constraintWeightMatrix + constraintWeightMatrix.transpose( ) ) ) /
             ( settings.constraintScalingFactor( ) * static_cast< double >( totalConstraintDimension ) );
 
+    // Accumulate Hessian, negative gradient, objective value, and user-facing diagnostics from the same effective
+    // weight. Keeping these operations adjacent makes their common sign and scaling convention explicit.
     const Eigen::MatrixXd pairNormalMatrixContribution =
             continuityDesignMatrix.transpose( ) * scaledConstraintWeight * continuityDesignMatrix;
     contribution.additionalNormalMatrix.noalias( ) += 0.5 * ( pairNormalMatrixContribution + pairNormalMatrixContribution.transpose( ) );
@@ -377,6 +385,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
         const int totalParameterSize,
         const int numberOfObservations = 1 )
 {
+    // Initialize a correctly shaped no-op result so callers need no special case when settings are empty.
     InterArcConstraintContribution contribution;
     contribution.additionalNormalMatrix = Eigen::MatrixXd::Zero( totalParameterSize, totalParameterSize );
     contribution.additionalRightHandSide = Eigen::VectorXd::Zero( totalParameterSize );
@@ -413,6 +422,7 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                   "). Inter-arc continuity priors currently require a pure multi-arc parameter set." );
     }
 
+    // The Orbit14 normalization uses one global scalar dimension across every settings entry, body, and pair.
     const int totalConstraintDimension = computeTotalConstraintDimension( constraintSettings );
     if( totalConstraintDimension == 0 )
     {
@@ -437,6 +447,8 @@ InterArcConstraintContribution assembleInterArcContinuityContribution(
                                           "\" has no inter-arc continuity epochs." );
             }
 
+            // Determine the body's state dimension from layout metadata, then cross-check it against the estimated
+            // arc-wise parameter before processing individual pairs.
             const int representativeArcIndex = arcPairs.empty( ) ? 0 : arcPairs.front( ).first;
             const BodyStateBlockIndices firstBodyRows =
                     getBodyStateBlockIndicesInMultiArcLayout( stmInterface, representativeArcIndex, body );
