@@ -1,4 +1,7 @@
-from data.utils import _offset_vector_to_corrections
+"""
+Unit tests for observation correction utilities in observation_correction_utils.py
+"""
+from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections
 import numpy as np
 
 def test_corrections_zero_offset_gives_zero():
@@ -21,7 +24,8 @@ def test_corrections_pure_ra_direction():
     # Check that RA is changed and DEC unchanged
     assert np.isclose(dec_corr, 0.0, rtol=0, atol=1e-15)
     # By small angle approximation, correction to RA is equal to offset in y-axis
-    assert np.isclose(ra_corr, -correction, rtol=1e-10, atol=0)
+    # (atol floor accounts for floating point noise of the RA wrapping)
+    assert np.isclose(ra_corr, -correction, rtol=1e-10, atol=1e-15)
 
 
 def test_corrections_pure_dec_direction():
@@ -50,5 +54,19 @@ def test_corrections_ra_and_dec():
     offset_vec = 2e-9 * dir_ra + 3e-9 * dir_dec
     ra_corr, dec_corr = _offset_vector_to_corrections(offset_vec, ra, dec)
 
-    assert np.isclose(ra_corr, -2e-9/np.cos(dec), rtol=1e-7, atol=0)
+    assert np.isclose(ra_corr, -2e-9/np.cos(dec), rtol=1e-7, atol=1e-15)
     assert np.isclose(dec_corr, -3e-9, rtol=1e-7, atol=0)
+
+
+def test_corrections_ra_wrapping():
+    """Test that RA corrections are wrapped to [-pi, pi) across the RA discontinuity"""
+    # Observation just below +pi, offset pushing the true direction across the discontinuity
+    ra, dec = np.pi - 1e-9, 0.0
+    correction = 4e-9
+    dir_ra = np.array([-np.sin(ra), np.cos(ra), 0.0])
+    offset_vec = -correction * dir_ra # True direction ends up past +pi
+    ra_corr, dec_corr = _offset_vector_to_corrections(offset_vec, ra, dec)
+
+    # Without wrapping the correction would be ~ -2*pi + 4e-9
+    assert np.isclose(ra_corr, correction, rtol=1e-7, atol=0)
+    assert np.isclose(dec_corr, 0.0, rtol=0, atol=1e-15)
