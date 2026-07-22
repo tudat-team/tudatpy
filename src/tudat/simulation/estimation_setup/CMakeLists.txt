@@ -64,6 +64,7 @@ set(estimation_HEADERS
         processTrackingTxtFile.h
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
+        compressDopplerObservationCollection.h
         )
 
 # Add header files.
