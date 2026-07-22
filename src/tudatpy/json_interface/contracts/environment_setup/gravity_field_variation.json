@@ -114,8 +114,7 @@
       "sine_variations_table": "float[][]{}",
       "minimum_degree": "int",
       "minimum_order": "int",
-      "interpolation_settings": "any"
-    },
-    "unsupported": ["interpolation_settings"]
+      "interpolation_settings": "math.interpolators.interpolator_settings"
+    }
   }
 }

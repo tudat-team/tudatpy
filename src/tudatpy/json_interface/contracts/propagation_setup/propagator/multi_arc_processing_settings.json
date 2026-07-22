@@ -1,0 +1,20 @@
+{
+  "multi_arc_processing_settings": {
+    "properties": {
+      "clear_numerical_solution": "bool",
+      "set_integrated_result": "bool",
+      "print_output_on_first_arc_only": "bool",
+      "print_current_arc_index": "bool",
+      "create_dependent_variable_interface": "bool",
+      "consistent_single_arc_print_settings": "propagation_setup.propagator.print_settings"
+    },
+    "optional": {
+      "clear_numerical_solution": false,
+      "set_integrated_result": false,
+      "print_output_on_first_arc_only": false,
+      "print_current_arc_index": false,
+      "create_dependent_variable_interface": false,
+      "consistent_single_arc_print_settings": null
+    }
+  }
+}

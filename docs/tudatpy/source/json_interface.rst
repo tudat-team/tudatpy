@@ -5,7 +5,13 @@
 
 This module creates Tudat settings objects from JSON documents governed by the
 packaged contracts. A JSON object of the form ``{"factory_name": {...}}`` invokes
-the corresponding settings factory after its inputs have been validated.
+the corresponding settings factory after its inputs have been validated. The
+same compact syntax applies to every supported contract. A factory with no
+explicitly supplied inputs may be written as ``"factory_name"``,
+``{"factory_name": {}}``, or ``{"factory_name": null}``. When a contract expects
+a variable-length array, one item may be supplied directly without enclosing it
+in an array. Fixed-size arrays, including vectors and matrices, retain their
+explicit array shape.
 Optional properties omitted from a document are passed to the Tudat factory using
 the default recorded in the contract. A ``null`` contract default delegates to the
 factory default, for settings that are absent or defaults that JSON cannot represent.

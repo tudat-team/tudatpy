@@ -56,11 +56,6 @@ namespace propagation_setup
 namespace propagator
 {
 
-std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > multiArcProcessingSettings( )
-{
-    return std::make_shared< tudat::propagators::MultiArcPropagatorProcessingSettings >( );
-}
-
 std::shared_ptr< tp::BodycenteredToTopocentricTimePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
 bodycenteredToTopocentricTimePropagatorSettingsFromArray(
         const std::pair< std::string, std::string >& reference_point_id,
@@ -145,6 +140,69 @@ translationalStatePropagatorSettingsFromAccelerationSettings(
                                                                                      propagator,
                                                                                      outputVariables,
                                                                                      processingSettings );
+}
+
+std::shared_ptr< tp::RotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
+rotationalStatePropagatorSettingsFromTorqueSettings(
+        const tss::SelectedTorqueMap& torqueSettings,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& initialStates,
+        const TIME_TYPE& initialTime,
+        const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integratorSettings,
+        const std::shared_ptr< tp::PropagationTerminationSettings >& terminationSettings,
+        const tp::RotationalPropagatorType propagator,
+        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >& outputVariables,
+        const std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >& processingSettings,
+        const std::shared_ptr< tss::SystemOfBodies >& bodies )
+{
+    if( bodies == nullptr )
+    {
+        throw std::invalid_argument( "bodies must be provided to create torque models" );
+    }
+    const tba::TorqueModelMap torqueModels = tss::createTorqueModelsMap( *bodies, torqueSettings, bodiesToIntegrate );
+    return tp::rotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >( torqueModels,
+                                                                                  bodiesToIntegrate,
+                                                                                  initialStates,
+                                                                                  initialTime,
+                                                                                  integratorSettings,
+                                                                                  terminationSettings,
+                                                                                  propagator,
+                                                                                  outputVariables,
+                                                                                  processingSettings );
+}
+
+std::shared_ptr< tp::MassPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > massPropagatorSettingsFromMassRateSettings(
+        const std::vector< std::string >& bodiesWithMassToPropagate,
+        const tss::SelectedMassRateModelMap& massRateSettings,
+        const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& initialBodyMasses,
+        const TIME_TYPE& initialTime,
+        const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integratorSettings,
+        const std::shared_ptr< tp::PropagationTerminationSettings >& terminationSettings,
+        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >& outputVariables,
+        const std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >& processingSettings,
+        const tss::SelectedAccelerationMap& accelerationSettings,
+        const std::vector< std::string >& centralBodies,
+        const std::shared_ptr< tss::SystemOfBodies >& bodies )
+{
+    if( bodies == nullptr )
+    {
+        throw std::invalid_argument( "bodies must be provided to create mass-rate models" );
+    }
+
+    tba::AccelerationMap accelerationModels;
+    if( !accelerationSettings.empty( ) )
+    {
+        accelerationModels = tss::createAccelerationModelsMap( *bodies, accelerationSettings, bodiesWithMassToPropagate, centralBodies );
+    }
+    const tba::MassRateModelMap massRateModels = tss::createMassRateModelsMap( *bodies, massRateSettings, accelerationModels );
+    return tp::massPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >( bodiesWithMassToPropagate,
+                                                                       massRateModels,
+                                                                       initialBodyMasses,
+                                                                       initialTime,
+                                                                       integratorSettings,
+                                                                       terminationSettings,
+                                                                       outputVariables,
+                                                                       processingSettings );
 }
 
 void expose_propagator_setup( py::module& m )
@@ -785,6 +843,151 @@ Enumeration of available integrated state types.
          :type: MultiArcPropagatorProcessingSettings
       )doc" );
 
+    m.def( "propagation_print_settings",
+           &tp::propagationPrintSettings,
+           py::arg( "print_number_of_function_evaluations" ) = false,
+           py::arg( "print_dependent_variable_indices" ) = false,
+           py::arg( "results_print_frequency_in_seconds" ) = TUDAT_NAN,
+           py::arg( "results_print_frequency_in_steps" ) = 0,
+           py::arg( "print_termination_reason" ) = false,
+           py::arg( "print_propagation_clock_time" ) = false,
+           py::arg( "print_state_indices" ) = false,
+           py::arg( "print_initial_and_final_conditions" ) = false,
+           py::arg( "print_dependent_variables_during_propagation" ) = false,
+           py::arg( "print_processed_state_indices" ) = false,
+           R"doc(
+
+Create settings controlling console output during propagation.
+
+Parameters
+----------
+print_number_of_function_evaluations : bool, optional
+    Whether to print the final number of function evaluations.
+print_dependent_variable_indices : bool, optional
+    Whether to print the saved dependent-variable indices.
+results_print_frequency_in_seconds : float, optional
+    Simulation-time interval between intermediate console output.
+results_print_frequency_in_steps : int, optional
+    Integration-step interval between intermediate console output.
+print_termination_reason : bool, optional
+    Whether to print the propagation termination reason.
+print_propagation_clock_time : bool, optional
+    Whether to print the elapsed propagation clock time.
+print_state_indices : bool, optional
+    Whether to print the propagated-state indices.
+print_initial_and_final_conditions : bool, optional
+    Whether to print the initial and final time and state.
+print_dependent_variables_during_propagation : bool, optional
+    Whether intermediate output includes dependent variables.
+print_processed_state_indices : bool, optional
+    Whether to print the processed-state indices.
+
+Returns
+-------
+PropagationPrintSettings
+    Settings controlling which propagation information is printed.
+
+     )doc" );
+
+    m.def( "single_arc_processing_settings",
+           &tp::singleArcPropagatorProcessingSettings,
+           py::arg( "clear_numerical_solution" ) = false,
+           py::arg( "set_integrated_result" ) = false,
+           py::arg( "results_save_frequency_in_steps" ) = 1,
+           py::arg( "results_save_frequency_in_seconds" ) = TUDAT_NAN,
+           py::arg( "print_settings" ) = nullptr,
+           py::arg( "create_dependent_variable_interface" ) = false,
+           R"doc(
+
+Create processing settings for a single-arc propagation.
+
+Parameters
+----------
+clear_numerical_solution : bool, optional
+    Whether to discard stored numerical histories after processing.
+set_integrated_result : bool, optional
+    Whether to use the propagated result to update the environment.
+results_save_frequency_in_steps : int, optional
+    Number of integration steps between saved results.
+results_save_frequency_in_seconds : float, optional
+    Simulation-time interval between saved results.
+print_settings : PropagationPrintSettings, optional
+    Console-output settings; defaults to no output.
+create_dependent_variable_interface : bool, optional
+    Whether to construct an interpolated dependent-variable interface.
+
+Returns
+-------
+SingleArcPropagatorProcessingSettings
+    Settings controlling result storage, environment updates, and console output.
+
+     )doc" );
+
+    m.def( "multi_arc_processing_settings",
+           &tp::multiArcPropagatorProcessingSettings,
+           py::arg( "clear_numerical_solution" ) = false,
+           py::arg( "set_integrated_result" ) = false,
+           py::arg( "print_output_on_first_arc_only" ) = false,
+           py::arg( "print_current_arc_index" ) = false,
+           py::arg( "create_dependent_variable_interface" ) = false,
+           py::arg( "consistent_single_arc_print_settings" ) = nullptr,
+           R"doc(
+
+Create processing settings for a multi-arc propagation.
+
+Parameters
+----------
+clear_numerical_solution : bool, optional
+    Whether to discard stored numerical histories after processing.
+set_integrated_result : bool, optional
+    Whether to use propagated results to update the environment.
+print_output_on_first_arc_only : bool, optional
+    Whether console output is restricted to the first arc.
+print_current_arc_index : bool, optional
+    Whether to print the current arc index.
+create_dependent_variable_interface : bool, optional
+    Whether to construct an interpolated dependent-variable interface.
+consistent_single_arc_print_settings : PropagationPrintSettings, optional
+    Console-output settings applied consistently to every constituent arc.
+
+Returns
+-------
+MultiArcPropagatorProcessingSettings
+    Settings controlling processing of all constituent arcs.
+
+     )doc" );
+
+    m.def( "hybrid_arc_processing_settings",
+           &tp::hybridArcPropagatorProcessingSettings,
+           py::arg( "clear_numerical_solution" ) = false,
+           py::arg( "set_integrated_result" ) = false,
+           py::arg( "print_state_type_start" ) = false,
+           py::arg( "create_dependent_variable_interface" ) = false,
+           py::arg( "consistent_arc_print_settings" ) = nullptr,
+           R"doc(
+
+Create processing settings for a hybrid-arc propagation.
+
+Parameters
+----------
+clear_numerical_solution : bool, optional
+    Whether to discard stored numerical histories after processing.
+set_integrated_result : bool, optional
+    Whether to use propagated results to update the environment.
+print_state_type_start : bool, optional
+    Whether to print a header when each propagated state type starts.
+create_dependent_variable_interface : bool, optional
+    Whether to construct an interpolated dependent-variable interface.
+consistent_arc_print_settings : PropagationPrintSettings, optional
+    Console-output settings applied to the single- and multi-arc components.
+
+Returns
+-------
+HybridArcPropagatorProcessingSettings
+    Settings controlling the single- and multi-arc components.
+
+     )doc" );
+
     // CLASSES
     py::class_< tp::PropagatorSettings< STATE_SCALAR_TYPE >, std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > > >(
             m,
@@ -1272,6 +1475,55 @@ RotationalStatePropagatorSettings
 
      )doc" );
 
+    m.def( "rotational_from_torque_settings",
+           &rotationalStatePropagatorSettingsFromTorqueSettings,
+           py::arg( "torque_settings" ),
+           py::arg( "bodies_to_integrate" ),
+           py::arg( "initial_states" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "propagator" ) = tp::quaternions,
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
+           py::arg( "bodies" ) = nullptr,
+           R"doc(
+
+Create rotational propagator settings directly from torque settings.
+
+This factory creates the torque models with ``bodies`` and then creates the
+same propagator settings as :func:`rotational`.
+
+Parameters
+----------
+torque_settings : dict[str, dict[str, list[TorqueSettings]]]
+    Torque settings from which the models are created.
+bodies_to_integrate : list[str]
+    Bodies whose rotational states are propagated.
+initial_states : numpy.ndarray
+    Concatenated quaternion and angular-velocity initial states.
+initial_time : astro.time_representation.Time
+    Initial propagation epoch.
+integrator_settings : IntegratorSettings
+    Settings defining the numerical integrator.
+termination_settings : PropagationTerminationSettings
+    Settings defining when propagation terminates.
+propagator : RotationalPropagatorType, optional
+    Formulation used to propagate the rotational state.
+output_variables : list[SingleDependentVariableSaveSettings], optional
+    Dependent variables saved during propagation.
+processing_settings : SingleArcPropagatorProcessingSettings, optional
+    Settings controlling result storage, processing, and console output.
+bodies : SystemOfBodies
+    Runtime environment used to create the torque models.
+
+Returns
+-------
+RotationalStatePropagatorSettings
+    Settings ready for use by ``create_dynamics_simulator``.
+
+     )doc" );
+
     m.def( "mass",
            &tp::massPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "bodies_with_mass_to_propagate" ),
@@ -1326,6 +1578,58 @@ SingleArcPropagatorSettings
 
 
 
+
+     )doc" );
+
+    m.def( "mass_from_mass_rate_settings",
+           &massPropagatorSettingsFromMassRateSettings,
+           py::arg( "bodies_with_mass_to_propagate" ),
+           py::arg( "mass_rate_settings" ),
+           py::arg( "initial_body_masses" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
+           py::arg( "acceleration_settings" ) = tss::SelectedAccelerationMap( ),
+           py::arg( "central_bodies" ) = std::vector< std::string >( ),
+           py::arg( "bodies" ) = nullptr,
+           R"doc(
+
+Create mass propagator settings directly from mass-rate settings.
+
+The optional acceleration settings are used to create thrust accelerations
+needed by thrust-derived mass-rate models.
+
+Parameters
+----------
+bodies_with_mass_to_propagate : list[str]
+    Bodies whose masses are propagated.
+mass_rate_settings : dict[str, list[MassRateModelSettings]]
+    Mass-rate settings from which the models are created.
+initial_body_masses : numpy.ndarray
+    Initial masses in the order of ``bodies_with_mass_to_propagate``.
+initial_time : astro.time_representation.Time
+    Initial propagation epoch.
+integrator_settings : IntegratorSettings
+    Settings defining the numerical integrator.
+termination_settings : PropagationTerminationSettings
+    Settings defining when propagation terminates.
+output_variables : list[SingleDependentVariableSaveSettings], optional
+    Dependent variables saved during propagation.
+processing_settings : SingleArcPropagatorProcessingSettings, optional
+    Settings controlling result storage, processing, and console output.
+acceleration_settings : dict[str, dict[str, list[AccelerationSettings]]], optional
+    Acceleration settings needed by thrust-derived mass-rate models.
+central_bodies : list[str], optional
+    Central bodies used when creating optional acceleration models.
+bodies : SystemOfBodies
+    Runtime environment used to create all models.
+
+Returns
+-------
+MassPropagatorSettings
+    Settings ready for use by ``create_dynamics_simulator``.
 
      )doc" );
 
@@ -1426,8 +1730,6 @@ MultiTypePropagatorSettings
     Multi-type propagator settings object.
 
      )doc" );
-
-    m.def( "multi_arc_processing_settings", &multiArcProcessingSettings );
 
     m.def( "multi_arc",
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

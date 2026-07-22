@@ -3,11 +3,10 @@
     "properties": {
       "single_arc_settings": "propagation_setup.propagator.single_arc_propagator_settings",
       "multi_arc_settings": "propagation_setup.propagator.multi_arc_propagator_settings",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.hybrid_arc_processing_settings"
     },
     "optional": {
       "processing_settings": null
-    },
-    "unsupported": ["processing_settings"]
+    }
   }
 }

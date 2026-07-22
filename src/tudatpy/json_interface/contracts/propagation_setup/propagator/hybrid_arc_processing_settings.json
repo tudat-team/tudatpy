@@ -1,0 +1,18 @@
+{
+  "hybrid_arc_processing_settings": {
+    "properties": {
+      "clear_numerical_solution": "bool",
+      "set_integrated_result": "bool",
+      "print_state_type_start": "bool",
+      "create_dependent_variable_interface": "bool",
+      "consistent_arc_print_settings": "propagation_setup.propagator.print_settings"
+    },
+    "optional": {
+      "clear_numerical_solution": false,
+      "set_integrated_result": false,
+      "print_state_type_start": false,
+      "create_dependent_variable_interface": false,
+      "consistent_arc_print_settings": null
+    }
+  }
+}

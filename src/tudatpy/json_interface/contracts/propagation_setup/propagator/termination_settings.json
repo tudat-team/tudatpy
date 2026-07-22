@@ -19,13 +19,12 @@
       "limit_value": "float",
       "use_as_lower_limit": "bool",
       "terminate_exactly_on_final_condition": "bool",
-      "termination_root_finder_settings": "any"
+      "termination_root_finder_settings": "math.root_finders.root_finder_settings"
     },
     "optional": {
       "terminate_exactly_on_final_condition": false,
       "termination_root_finder_settings": null
-    },
-    "unsupported": ["termination_root_finder_settings"]
+    }
   },
   "hybrid_termination": {
     "properties": {

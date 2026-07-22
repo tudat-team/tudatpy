@@ -269,6 +269,30 @@ private:
     bool printArcIndex_;
 };
 
+//! Create settings controlling console output during propagation.
+inline std::shared_ptr< PropagationPrintSettings > propagationPrintSettings( const bool printNumberOfFunctionEvaluations = false,
+                                                                             const bool printDependentVariableData = false,
+                                                                             const double resultsPrintFrequencyInSeconds = TUDAT_NAN,
+                                                                             const int resultsPrintFrequencyInSteps = 0,
+                                                                             const bool printTerminationReason = false,
+                                                                             const bool printPropagationTime = false,
+                                                                             const bool printPropagatedStateData = false,
+                                                                             const bool printInitialAndFinalConditions = false,
+                                                                             const bool printDependentVariableDuringPropagation = false,
+                                                                             const bool printProcessedStateData = false )
+{
+    return std::make_shared< PropagationPrintSettings >( printNumberOfFunctionEvaluations,
+                                                         printDependentVariableData,
+                                                         resultsPrintFrequencyInSeconds,
+                                                         resultsPrintFrequencyInSteps,
+                                                         printTerminationReason,
+                                                         printPropagationTime,
+                                                         printPropagatedStateData,
+                                                         printInitialAndFinalConditions,
+                                                         printDependentVariableDuringPropagation,
+                                                         printProcessedStateData );
+}
+
 }  // namespace propagators
 
 }  // namespace tudat

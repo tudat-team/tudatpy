@@ -62,35 +62,5 @@
     "optional": {
       "is_scaling_absolute": false
     }
-  },
-  "coma_model_from_poly_data": {
-    "properties": {
-      "poly_data": "any",
-      "molecular_weight": "float",
-      "max_degree": "int",
-      "max_order": "int",
-      "is_log2": "bool"
-    },
-    "optional": {
-      "max_degree": -1,
-      "max_order": -1,
-      "is_log2": true
-    },
-    "unsupported": ["poly_data"]
-  },
-  "coma_model_from_stokes_data": {
-    "properties": {
-      "stokes_data": "any",
-      "molecular_weight": "float",
-      "max_degree": "int",
-      "max_order": "int",
-      "is_log2": "bool"
-    },
-    "optional": {
-      "max_degree": -1,
-      "max_order": -1,
-      "is_log2": true
-    },
-    "unsupported": ["stokes_data"]
   }
 }

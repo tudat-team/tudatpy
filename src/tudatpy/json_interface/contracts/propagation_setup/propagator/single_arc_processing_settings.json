@@ -1,0 +1,20 @@
+{
+  "single_arc_processing_settings": {
+    "properties": {
+      "clear_numerical_solution": "bool",
+      "set_integrated_result": "bool",
+      "results_save_frequency_in_steps": "int",
+      "results_save_frequency_in_seconds": "float",
+      "print_settings": "propagation_setup.propagator.print_settings",
+      "create_dependent_variable_interface": "bool"
+    },
+    "optional": {
+      "clear_numerical_solution": false,
+      "set_integrated_result": false,
+      "results_save_frequency_in_steps": 1,
+      "results_save_frequency_in_seconds": null,
+      "print_settings": null,
+      "create_dependent_variable_interface": false
+    }
+  }
+}

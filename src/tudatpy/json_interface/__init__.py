@@ -4,6 +4,7 @@ from ._acceleration import ACCELERATION_CONTRACT_PATH, load_acceleration_setting
 from ._environment import BODY_LIST_SETTINGS_CONTRACT_PATH, load_body_list_settings
 from ._propagator import (
     SINGLE_ARC_PROPAGATOR_CONTRACT_PATH,
+    load_single_arc_propagator_settings,
     load_translational_propagator_settings,
 )
 from ._contract import (
@@ -23,6 +24,7 @@ __all__ = [
     "load_acceleration_settings",
     "load_body_list_settings",
     "load_settings",
+    "load_single_arc_propagator_settings",
     "load_translational_propagator_settings",
     "validate_all_contracts",
     "validate_contract_against_module",

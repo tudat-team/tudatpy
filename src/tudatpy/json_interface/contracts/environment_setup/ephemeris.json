@@ -18,7 +18,7 @@
       "time_step": "float",
       "frame_origin": "string",
       "frame_orientation": "string",
-      "interpolator_settings": "any",
+      "interpolator_settings": "math.interpolators.interpolator_settings",
       "body_name_to_use": "string"
     },
     "optional": {
@@ -26,8 +26,7 @@
       "frame_orientation": "ECLIPJ2000",
       "interpolator_settings": null,
       "body_name_to_use": ""
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "approximate_jpl_model": {
     "properties": {
@@ -128,12 +127,11 @@
       "start_time": "float",
       "end_time": "float",
       "time_step": "float",
-      "interpolator_settings": "any"
+      "interpolator_settings": "math.interpolators.interpolator_settings"
     },
     "optional": {
       "interpolator_settings": null
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "multi_arc_ephemeris": {
     "properties": {

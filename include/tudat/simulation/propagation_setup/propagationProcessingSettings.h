@@ -652,6 +652,69 @@ private:
     friend class HybridArcPropagatorSettings;
 };
 
+//! Create processing settings for a single-arc propagation.
+inline std::shared_ptr< SingleArcPropagatorProcessingSettings > singleArcPropagatorProcessingSettings(
+        const bool clearNumericalSolutions = false,
+        const bool setIntegratedResult = false,
+        const int resultsSaveFrequencyInSteps = 1,
+        const double resultsSaveFrequencyInSeconds = TUDAT_NAN,
+        const std::shared_ptr< PropagationPrintSettings > printSettings = nullptr,
+        const bool updateDependentVariableInterpolator = false )
+{
+    return std::make_shared< SingleArcPropagatorProcessingSettings >(
+            clearNumericalSolutions,
+            setIntegratedResult,
+            resultsSaveFrequencyInSteps,
+            resultsSaveFrequencyInSeconds,
+            printSettings == nullptr ? std::make_shared< PropagationPrintSettings >( ) : printSettings,
+            updateDependentVariableInterpolator );
+}
+
+//! Create processing settings for a multi-arc propagation.
+inline std::shared_ptr< MultiArcPropagatorProcessingSettings > multiArcPropagatorProcessingSettings(
+        const bool clearNumericalSolutions = false,
+        const bool setIntegratedResult = false,
+        const bool printFirstArcOnly = false,
+        const bool printCurrentArcIndex = false,
+        const bool updateDependentVariableInterpolator = false,
+        const std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings = nullptr )
+{
+    if( consistentSingleArcPrintSettings == nullptr )
+    {
+        return std::make_shared< MultiArcPropagatorProcessingSettings >( clearNumericalSolutions,
+                                                                         setIntegratedResult,
+                                                                         printFirstArcOnly,
+                                                                         printCurrentArcIndex,
+                                                                         updateDependentVariableInterpolator );
+    }
+    return std::make_shared< MultiArcPropagatorProcessingSettings >( consistentSingleArcPrintSettings,
+                                                                     clearNumericalSolutions,
+                                                                     setIntegratedResult,
+                                                                     printFirstArcOnly,
+                                                                     printCurrentArcIndex,
+                                                                     updateDependentVariableInterpolator );
+}
+
+//! Create processing settings for a hybrid-arc propagation.
+inline std::shared_ptr< HybridArcPropagatorProcessingSettings > hybridArcPropagatorProcessingSettings(
+        const bool clearNumericalSolutions = false,
+        const bool setIntegratedResult = false,
+        const bool printStateTypeStart = false,
+        const bool updateDependentVariableInterpolator = false,
+        const std::shared_ptr< PropagationPrintSettings > consistentArcPrintSettings = nullptr )
+{
+    if( consistentArcPrintSettings == nullptr )
+    {
+        return std::make_shared< HybridArcPropagatorProcessingSettings >(
+                clearNumericalSolutions, setIntegratedResult, printStateTypeStart, updateDependentVariableInterpolator );
+    }
+    return std::make_shared< HybridArcPropagatorProcessingSettings >( consistentArcPrintSettings,
+                                                                      clearNumericalSolutions,
+                                                                      setIntegratedResult,
+                                                                      printStateTypeStart,
+                                                                      updateDependentVariableInterpolator );
+}
+
 }  // namespace propagators
 
 }  // namespace tudat

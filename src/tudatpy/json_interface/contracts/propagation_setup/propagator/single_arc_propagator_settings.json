@@ -10,14 +10,14 @@
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "propagator": "TranslationalPropagatorType",
       "output_variables": "propagation_setup.dependent_variable[]",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "propagator": "cowell",
       "output_variables": [],
       "processing_settings": null
     },
-    "unsupported": ["acceleration_models", "processing_settings"]
+    "unsupported": ["acceleration_models"]
   },
   "translational_from_acceleration_settings": {
     "properties": {
@@ -30,14 +30,13 @@
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "propagator": "TranslationalPropagatorType",
       "output_variables": "propagation_setup.dependent_variable[]",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "propagator": "cowell",
       "output_variables": [],
       "processing_settings": null
-    },
-    "unsupported": ["processing_settings"]
+    }
   },
   "rotational": {
     "properties": {
@@ -49,14 +48,32 @@
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "propagator": "RotationalPropagatorType",
       "output_variables": "propagation_setup.dependent_variable[]",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "propagator": "quaternions",
       "output_variables": [],
       "processing_settings": null
     },
-    "unsupported": ["torque_models", "processing_settings"]
+    "unsupported": ["torque_models"]
+  },
+  "rotational_from_torque_settings": {
+    "properties": {
+      "torque_settings": "propagation_setup.torque[]{}{}",
+      "bodies_to_integrate": "string[]",
+      "initial_states": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "propagator": "RotationalPropagatorType",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
+    },
+    "optional": {
+      "propagator": "quaternions",
+      "output_variables": [],
+      "processing_settings": null
+    }
   },
   "mass": {
     "properties": {
@@ -67,13 +84,33 @@
       "integrator_settings": "propagation_setup.integrator.integrator_settings",
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "output_variables": "propagation_setup.dependent_variable[]",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "output_variables": [],
       "processing_settings": null
     },
-    "unsupported": ["mass_rate_models", "processing_settings"]
+    "unsupported": ["mass_rate_models"]
+  },
+  "mass_from_mass_rate_settings": {
+    "properties": {
+      "bodies_with_mass_to_propagate": "string[]",
+      "mass_rate_settings": "propagation_setup.mass_rate[]{}",
+      "initial_body_masses": "float[]",
+      "initial_time": "float",
+      "integrator_settings": "propagation_setup.integrator.integrator_settings",
+      "termination_settings": "propagation_setup.propagator.termination_settings",
+      "output_variables": "propagation_setup.dependent_variable[]",
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings",
+      "acceleration_settings": "propagation_setup.acceleration[]{}{}",
+      "central_bodies": "string[]"
+    },
+    "optional": {
+      "output_variables": [],
+      "processing_settings": null,
+      "acceleration_settings": {},
+      "central_bodies": []
+    }
   },
   "multitype": {
     "properties": {
@@ -82,13 +119,12 @@
       "initial_time": "float",
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "output_variables": "propagation_setup.dependent_variable[]",
-      "processing_settings": "any"
+      "processing_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "output_variables": [],
       "processing_settings": null
-    },
-    "unsupported": ["processing_settings"]
+    }
   },
   "first_order_bodycentric_relativistic_time_settings": {
     "properties": {
@@ -130,13 +166,12 @@
       "termination_settings": "propagation_setup.propagator.termination_settings",
       "distance_scaling_factor": "float",
       "dependent_variables_to_save": "propagation_setup.dependent_variable[]",
-      "output_settings": "any"
+      "output_settings": "propagation_setup.propagator.single_arc_processing_settings"
     },
     "optional": {
       "distance_scaling_factor": 1.0,
       "dependent_variables_to_save": [],
       "output_settings": null
-    },
-    "unsupported": ["output_settings"]
+    }
   }
 }

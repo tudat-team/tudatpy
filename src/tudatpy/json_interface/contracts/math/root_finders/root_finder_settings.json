@@ -1,0 +1,66 @@
+{
+  "bisection": {
+    "properties": {
+      "relative_variable_tolerance": "float",
+      "absolute_variable_tolerance": "float",
+      "root_function_tolerance": "float",
+      "maximum_iteration": "int",
+      "maximum_iteration_handling": "MaximumIterationHandling"
+    },
+    "optional": {
+      "relative_variable_tolerance": null,
+      "absolute_variable_tolerance": null,
+      "root_function_tolerance": null,
+      "maximum_iteration": 1000,
+      "maximum_iteration_handling": "throw_exception"
+    }
+  },
+  "newton_raphson": {
+    "properties": {
+      "relative_variable_tolerance": "float",
+      "absolute_variable_tolerance": "float",
+      "root_function_tolerance": "float",
+      "maximum_iteration": "int",
+      "maximum_iteration_handling": "MaximumIterationHandling"
+    },
+    "optional": {
+      "relative_variable_tolerance": null,
+      "absolute_variable_tolerance": null,
+      "root_function_tolerance": null,
+      "maximum_iteration": 1000,
+      "maximum_iteration_handling": "throw_exception"
+    }
+  },
+  "halley": {
+    "properties": {
+      "relative_variable_tolerance": "float",
+      "absolute_variable_tolerance": "float",
+      "root_function_tolerance": "float",
+      "maximum_iteration": "int",
+      "maximum_iteration_handling": "MaximumIterationHandling"
+    },
+    "optional": {
+      "relative_variable_tolerance": null,
+      "absolute_variable_tolerance": null,
+      "root_function_tolerance": null,
+      "maximum_iteration": 1000,
+      "maximum_iteration_handling": "throw_exception"
+    }
+  },
+  "secant": {
+    "properties": {
+      "relative_variable_tolerance": "float",
+      "absolute_variable_tolerance": "float",
+      "root_function_tolerance": "float",
+      "maximum_iteration": "int",
+      "maximum_iteration_handling": "MaximumIterationHandling"
+    },
+    "optional": {
+      "relative_variable_tolerance": null,
+      "absolute_variable_tolerance": null,
+      "root_function_tolerance": null,
+      "maximum_iteration": 1000,
+      "maximum_iteration_handling": "throw_exception"
+    }
+  }
+}

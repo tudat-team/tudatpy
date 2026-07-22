@@ -58,15 +58,14 @@
       "force_coefficients_frame": "AerodynamicCoefficientFrames",
       "moment_coefficients_frame": "AerodynamicCoefficientFrames",
       "moment_reference_point": "float[3]",
-      "interpolator_settings": "any"
+      "interpolator_settings": "math.interpolators.interpolator_settings"
     },
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
       "moment_reference_point": null,
       "interpolator_settings": null
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "tabulated_force_only": {
     "properties": {
@@ -75,13 +74,12 @@
       "reference_area": "float",
       "independent_variable_name": "AerodynamicCoefficientsIndependentVariables",
       "force_coefficients_frame": "AerodynamicCoefficientFrames",
-      "interpolator_settings": "any"
+      "interpolator_settings": "math.interpolators.interpolator_settings"
     },
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "interpolator_settings": null
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "tabulated_from_files": {
     "properties": {
@@ -93,15 +91,14 @@
       "force_coefficients_frame": "AerodynamicCoefficientFrames",
       "moment_coefficients_frame": "AerodynamicCoefficientFrames",
       "moment_reference_point": "float[3]",
-      "interpolator_settings": "any"
+      "interpolator_settings": "math.interpolators.interpolator_settings"
     },
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "moment_coefficients_frame": "positive_body_fixed_frame_coefficients",
       "moment_reference_point": null,
       "interpolator_settings": null
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "tabulated_force_only_from_files": {
     "properties": {
@@ -109,13 +106,12 @@
       "reference_area": "float",
       "independent_variable_names": "AerodynamicCoefficientsIndependentVariables[]",
       "force_coefficients_frame": "AerodynamicCoefficientFrames",
-      "interpolator_settings": "any"
+      "interpolator_settings": "math.interpolators.interpolator_settings"
     },
     "optional": {
       "force_coefficients_frame": "negative_aerodynamic_frame_coefficients",
       "interpolator_settings": null
-    },
-    "unsupported": ["interpolator_settings"]
+    }
   },
   "scaled_by_constant": {
     "properties": {

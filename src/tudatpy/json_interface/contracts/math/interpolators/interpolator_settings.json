@@ -1,0 +1,55 @@
+{
+  "linear_interpolation": {
+    "properties": {
+      "lookup_scheme": "AvailableLookupScheme",
+      "boundary_interpolation": "BoundaryInterpolationType"
+    },
+    "optional": {
+      "lookup_scheme": "hunting_algorithm",
+      "boundary_interpolation": "extrapolate_at_boundary_with_warning"
+    }
+  },
+  "piecewise_constant_interpolation": {
+    "properties": {
+      "lookup_scheme": "AvailableLookupScheme",
+      "boundary_interpolation": "BoundaryInterpolationType"
+    },
+    "optional": {
+      "lookup_scheme": "hunting_algorithm",
+      "boundary_interpolation": "extrapolate_at_boundary_with_warning"
+    }
+  },
+  "cubic_spline_interpolation": {
+    "properties": {
+      "lookup_scheme": "AvailableLookupScheme",
+      "boundary_interpolation": "BoundaryInterpolationType"
+    },
+    "optional": {
+      "lookup_scheme": "hunting_algorithm",
+      "boundary_interpolation": "extrapolate_at_boundary_with_warning"
+    }
+  },
+  "hermite_spline_interpolation": {
+    "properties": {
+      "lookup_scheme": "AvailableLookupScheme",
+      "boundary_interpolation": "BoundaryInterpolationType"
+    },
+    "optional": {
+      "lookup_scheme": "hunting_algorithm",
+      "boundary_interpolation": "extrapolate_at_boundary_with_warning"
+    }
+  },
+  "lagrange_interpolation": {
+    "properties": {
+      "number_of_points": "int",
+      "lookup_scheme": "AvailableLookupScheme",
+      "boundary_interpolation": "BoundaryInterpolationType",
+      "lagrange_boundary_handling": "LagrangeInterpolatorBoundaryHandling"
+    },
+    "optional": {
+      "lookup_scheme": "hunting_algorithm",
+      "boundary_interpolation": "extrapolate_at_boundary_with_warning",
+      "lagrange_boundary_handling": "lagrange_cubic_spline_boundary_interpolation"
+    }
+  }
+}

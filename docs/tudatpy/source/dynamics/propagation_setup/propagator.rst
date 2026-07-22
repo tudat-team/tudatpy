@@ -48,7 +48,19 @@ Functions
 
    rotational
 
+   rotational_from_torque_settings
+
    mass
+
+   mass_from_mass_rate_settings
+
+   propagation_print_settings
+
+   single_arc_processing_settings
+
+   multi_arc_processing_settings
+
+   hybrid_arc_processing_settings
 
    custom_state
 
@@ -88,7 +100,19 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational_from_torque_settings
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.mass_from_mass_rate_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.propagation_print_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.single_arc_processing_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.multi_arc_processing_settings
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.hybrid_arc_processing_settings
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.custom_state
 

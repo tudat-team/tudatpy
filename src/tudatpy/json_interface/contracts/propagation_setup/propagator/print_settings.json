@@ -1,0 +1,28 @@
+{
+  "propagation_print_settings": {
+    "properties": {
+      "print_number_of_function_evaluations": "bool",
+      "print_dependent_variable_indices": "bool",
+      "results_print_frequency_in_seconds": "float",
+      "results_print_frequency_in_steps": "int",
+      "print_termination_reason": "bool",
+      "print_propagation_clock_time": "bool",
+      "print_state_indices": "bool",
+      "print_initial_and_final_conditions": "bool",
+      "print_dependent_variables_during_propagation": "bool",
+      "print_processed_state_indices": "bool"
+    },
+    "optional": {
+      "print_number_of_function_evaluations": false,
+      "print_dependent_variable_indices": false,
+      "results_print_frequency_in_seconds": null,
+      "results_print_frequency_in_steps": 0,
+      "print_termination_reason": false,
+      "print_propagation_clock_time": false,
+      "print_state_indices": false,
+      "print_initial_and_final_conditions": false,
+      "print_dependent_variables_during_propagation": false,
+      "print_processed_state_indices": false
+    }
+  }
+}
