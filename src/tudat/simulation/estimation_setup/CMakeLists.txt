@@ -62,6 +62,9 @@ set(estimation_HEADERS
         processOdfFile.h
         processPsfFile.h
         processTrackingTxtFile.h
+        interArcStateContinuityConstraintSettings.h
+        interArcContinuityConstraint.h
+        compressDopplerObservationCollection.h
         )
 
 # Add header files.
@@ -90,6 +93,8 @@ set(estimation_SOURCES
         createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
+        interArcContinuityConstraint.cpp
+        interArcStateContinuityConstraintSettings.cpp
         )
 
 if (TUDAT_BUILD_WITH_SERIALIZATION)

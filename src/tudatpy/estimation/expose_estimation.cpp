@@ -26,6 +26,7 @@
 #include "estimation_analysis/expose_estimation_analysis.h"
 #include "estimation_analysis/expose_estimation_analysis_estimator.h"
 #include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
+#include "estimation_analysis/expose_inter_arc_constraints.h"
 
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
@@ -56,6 +57,7 @@ void expose_estimation( py::module& m )
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );
+    estimation_analysis::expose_inter_arc_constraints( estimation_analysis_submodule );
 };
 
 }  // namespace estimation

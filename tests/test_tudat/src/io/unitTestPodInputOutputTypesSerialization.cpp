@@ -63,6 +63,7 @@ std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > 
     const Eigen::VectorXd considerNormalizationFactors( ( Eigen::VectorXd( 1 ) << 19.0 ).finished( ) );
     const Eigen::MatrixXd considerCovarianceContribution( ( Eigen::MatrixXd( 2, 2 ) << 20.0, 21.0, 22.0, 23.0 ).finished( ) );
     const Eigen::MatrixXd considerCovariance( ( Eigen::MatrixXd( 2, 2 ) << 24.0, 25.0, 26.0, 27.0 ).finished( ) );
+    const std::vector< Eigen::VectorXd > interArcContinuityDiscrepancies = { ( Eigen::Vector2d( ) << 28.0, 29.0 ).finished( ) };
 
     return std::make_shared< simulation_setup::CovarianceAnalysisOutput< double, TimeType > >( normalizedDesignMatrix,
                                                                                                weightsMatrixDiagonal,
@@ -72,7 +73,9 @@ std::shared_ptr< simulation_setup::CovarianceAnalysisOutput< double, TimeType > 
                                                                                                considerNormalizationFactors,
                                                                                                considerCovarianceContribution,
                                                                                                considerCovariance,
-                                                                                               true );
+                                                                                               true,
+                                                                                               30.0,
+                                                                                               interArcContinuityDiscrepancies );
 }
 
 template< typename TimeType >
@@ -95,22 +98,29 @@ std::shared_ptr< simulation_setup::EstimationOutput< double, TimeType > > create
     const Eigen::MatrixXd covarianceConsiderContribution( ( Eigen::MatrixXd( 2, 2 ) << 63.0, 64.0, 65.0, 66.0 ).finished( ) );
     const Eigen::MatrixXd considerCovariance( ( Eigen::MatrixXd( 2, 2 ) << 67.0, 68.0, 69.0, 70.0 ).finished( ) );
 
-    return std::make_shared< simulation_setup::EstimationOutput< double, TimeType > >( parameterEstimate,
-                                                                                       residuals,
-                                                                                       normalizedDesignMatrix,
-                                                                                       weightsMatrixDiagonal,
-                                                                                       designMatrixTransformationDiagonal,
-                                                                                       inverseNormalizedCovarianceMatrix,
-                                                                                       residualStandardDeviation,
-                                                                                       bestIteration,
-                                                                                       residualHistory,
-                                                                                       parameterHistory,
-                                                                                       normalizedDesignMatrixConsiderParameters,
-                                                                                       considerNormalizationFactors,
-                                                                                       covarianceConsiderContribution,
-                                                                                       considerCovariance,
-                                                                                       true,
-                                                                                       false );
+    const std::vector< Eigen::VectorXd > interArcContinuityDiscrepancies = { ( Eigen::Vector2d( ) << 71.0, 72.0 ).finished( ) };
+    auto output = std::make_shared< simulation_setup::EstimationOutput< double, TimeType > >( parameterEstimate,
+                                                                                              residuals,
+                                                                                              normalizedDesignMatrix,
+                                                                                              weightsMatrixDiagonal,
+                                                                                              designMatrixTransformationDiagonal,
+                                                                                              inverseNormalizedCovarianceMatrix,
+                                                                                              residualStandardDeviation,
+                                                                                              bestIteration,
+                                                                                              residualHistory,
+                                                                                              parameterHistory,
+                                                                                              normalizedDesignMatrixConsiderParameters,
+                                                                                              considerNormalizationFactors,
+                                                                                              covarianceConsiderContribution,
+                                                                                              considerCovariance,
+                                                                                              true,
+                                                                                              false,
+                                                                                              73.0,
+                                                                                              interArcContinuityDiscrepancies );
+    output->setInterArcContinuityCostHistory( { 74.0, 75.0 } );
+    output->setInterArcContinuityDiscrepancyHistory(
+            { { ( Eigen::Vector2d( ) << 76.0, 77.0 ).finished( ) }, { ( Eigen::Vector2d( ) << 78.0, 79.0 ).finished( ) } } );
+    return output;
 }
 
 }  // namespace
