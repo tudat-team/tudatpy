@@ -553,6 +553,10 @@ class GaiaAsteroids:
         """Return a copy of the asteroid data table which contains orbit and covariance data."""
         return self._table.copy()
 
+    def copy(self) -> 'GaiaAsteroids':
+        """Return a copy of the object itself"""
+        return copy.deepcopy(self)
+
     def get_state_for_mpc(self,
                           mpc_number: int) -> tuple[float, np.ndarray]:
         """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame
