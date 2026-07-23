@@ -208,60 +208,20 @@ jobs:
         conda list
 
     - name: Build
-      if: runner.os == 'Linux'
+      if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
     - name: Build
-      if: runner.os == 'macOS'
-      # MCD pulls in GNU Fortran/libgcc symbols for which Apple ld cannot emit compact-unwind metadata.
-      # The warning is noisy but does not indicate a Tudat build failure. Filter only this exact diagnostic
-      # from the CI log instead of using -Wl,-no_compact_unwind, which changes linker behavior.
-      shell: bash -l {0}
-      run: |
-        set -o pipefail
-        cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }} 2>&1 \
-          | awk '!/ld: warning: could not create compact unwind for /'
-
-    - name: Build
       if: runner.os == 'Windows'
-      shell: pwsh
+      shell: cmd
       run: |
-        # Ninja invokes conda-forge's Windows compiler activation hook for many compile rules. That hook
-        # echoes its full Visual Studio discovery script, which floods the CI log while not being a compiler
-        # warning. Filter only that activation block and preserve the cmake --build exit code.
-        $buildScript = Join-Path $env:RUNNER_TEMP "build_tudat.cmd"
-        $buildCommands = @"
         @echo off
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
-        "@
-        Set-Content -Path $buildScript -Encoding ASCII -Value $buildCommands
-
-        $script:inNoisyCompilerActivation = $false
-        & cmd.exe /D /E:ON /V:OFF /S /C "`"$buildScript`"" 2>&1 | ForEach-Object {
-          $line = $_.ToString()
-          if ($line -match '^[A-Z]:\\.*>SET DISTUTILS_USE_SDK=1\s*$') {
-            $script:inNoisyCompilerActivation = $true
-            return
-          }
-          if ($script:inNoisyCompilerActivation) {
-            if ($line -match '^\[\d+/\d+\] ') {
-              $script:inNoisyCompilerActivation = $false
-              Write-Output $line
-              return
-            }
-            if ($line -match '^\[vcvarsall\.bat\] Environment initialized for:') {
-              $script:inNoisyCompilerActivation = $false
-            }
-            return
-          }
-          Write-Output $line
-        }
-        exit $LASTEXITCODE
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
