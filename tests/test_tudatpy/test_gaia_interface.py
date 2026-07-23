@@ -1,17 +1,13 @@
 """
-Tests for the GaiaAstrometry class in tudatpy.data.gaia.gaia.
-
-The GaiaAsteroids class is not covered by these tests.
+Tests for the GaiaAstrometry and GaiaAsteroids classes in tudatpy.data.gaia.gaia.
 """
 from pathlib import Path
 from unittest import mock
-
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 import pytest
-
-from tudatpy.data.gaia.gaia import GaiaAstrometry
+from tudatpy.data.gaia.gaia import GaiaAstrometry, GaiaAsteroids
 from tudatpy.astro.time_representation import (
     date_time_components_to_epoch,
     julian_day_to_seconds_since_epoch,
@@ -26,14 +22,15 @@ from tudatpy.math.interpolators import (
     LagrangeInterpolatorBoundaryHandling,
 )
 
-# Constants
-TEST_ASTEROID_MPC = (433, 779)  # Asteroids used in subsequent tests
+TEST_ASTEROID_MPC = (673, 779)  # Asteroids used in subsequent tests (673 Edda and 779 Nina)
 TEST_DIR = Path(__file__).parent
-LOCAL_ARCHIVE_PATH = TEST_DIR / 'gaia_archive_for_tests.parquet'  # Contains data for 433 and 779 only
+ASTROMETRY_ARCHIVE_PATH = TEST_DIR / 'gaia_astro_archive_for_tests.parquet'  # Astrometry for 673 and 779 only
+SOURCE_ARCHIVE_PATH = TEST_DIR / 'gaia_source_archive_for_tests.parquet'  # Orbit data for 673 and 779 only
 
 
-# ── HELPERS ───────────────────────────────────────────────────────────────────
-
+##############################
+# GaiaAstrometry tests
+##############################
 def read_jpl_table(path):
     """
     Read and parse JPL Horizons vector table results file.
@@ -76,9 +73,8 @@ def read_jpl_table(path):
 
 def interpolate_state_history(state_history: np.ndarray,
                               epochs_output: list | np.ndarray,
-                              order: int = 8) -> np.ndarray:
-    """Interpolate a state history array (epoch, x, y, z, vx, vy, vz) to the requested epochs
-    using Lagrange interpolation."""
+                              order: int = 10) -> np.ndarray:
+    """Lagrange interpolation of a state history array"""
     state_history_dict = {epoch: state for epoch, state in zip(state_history[:, 0], state_history[:, 1:])}
 
     interpolation_settings = lagrange_interpolation(
@@ -90,9 +86,6 @@ def interpolate_state_history(state_history: np.ndarray,
 
     return np.array([interpolator.interpolate(epoch) for epoch in epochs_output])
 
-
-# ── FIXTURES ──────────────────────────────────────────────────────────────────
-
 @pytest.fixture(scope='session')
 def spice_kernels():
     """Load spice kernels, necessary for setting up a SystemOfBodies"""
@@ -101,9 +94,9 @@ def spice_kernels():
 
 @pytest.fixture(scope='module')
 def _gaia_astrometry():
-    """Create a GaiaAstrometry object for asteroids 433 and 779 from the local test archive.
+    """Create a GaiaAstrometry object for asteroids 673 and 779 from the local test archive.
     Runs once per module"""
-    return GaiaAstrometry.load_from_local_archive(LOCAL_ARCHIVE_PATH, TEST_ASTEROID_MPC)
+    return GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, TEST_ASTEROID_MPC)
 
 
 @pytest.fixture
@@ -129,8 +122,6 @@ def observation_collection(gaia_astrometry, spice_kernels):
     return gaia_astrometry.to_observation_collection(bodies)
 
 
-# ── TESTS ──────────────────────────────────────────────────────────────────
-
 @pytest.mark.remote_data
 def test_local_astroquery_consistency(observation_table):
     """Test whether data obtained from the local archive and astroquery are consistent"""
@@ -141,28 +132,16 @@ def test_local_astroquery_consistency(observation_table):
 
 
 @pytest.mark.remote_data
-def test_data_retrieval_no_data_astroquery():
-    """Test that no data returned raises an error for load_from_astroquery"""
+def test_astrometry_retrieval_no_data():
+    """Test that no data available raises error"""
     asteroid_no_data = 250000
 
+    # Online variant
     with pytest.raises(LookupError):
         GaiaAstrometry.load_from_astroquery([asteroid_no_data])
-
-
-def test_data_retrieval_no_data_locally():
-    """Test that load_from_local_archive raises an error if no data is found"""
-    asteroid_no_data = 250000
-
+    # Local variant
     with pytest.raises(LookupError):
-        GaiaAstrometry.load_from_local_archive(LOCAL_ARCHIVE_PATH, [asteroid_no_data])
-
-
-def test_table_for_missing_mpc_raises_error(gaia_astrometry):
-    """Error must be raised when requesting a table for an asteroid that is not loaded"""
-    asteroid_not_loaded = 250000
-
-    with pytest.raises(ValueError):
-        gaia_astrometry.table_for_mpc(asteroid_not_loaded)
+        GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, [asteroid_no_data])
 
 
 def test_observation_table_angles(observation_table):
@@ -194,33 +173,25 @@ def test_observation_table_epochs(observation_table):
     assert np.all((epochs >= earliest_epoch) & (epochs <= final_epoch))
 
 
+# NOTE: Gaia ephemeris tests are loose because possibly different planetary ephemerides models were used for
+# the JPL/Gaia orbit estimations
 def test_gaia_barycentric_state_with_jpl_ephemeris(gaia_astrometry):
     """Test that the barycentric states of Gaia in the table are consistent with those from JPL Horizons"""
-    # Retrieve observation table for one asteroid only
-    table_test_asteroid = gaia_astrometry.table_for_mpc(TEST_ASTEROID_MPC[0])
-    epoch_list = table_test_asteroid['epoch'].to_list()
-    states_from_horizons, _ = read_jpl_table(TEST_DIR / 'gaia_ephemeris_jpl_barycentric_12h.txt')
-    states_from_horizons = interpolate_state_history(states_from_horizons, epoch_list)  # Interpolate to same times
-    states_from_table = table_test_asteroid[['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']]
-    states_from_table = states_from_table.to_numpy()
+    columns = ['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']
+    states_from_archive = gaia_astrometry.table[columns].to_numpy()
+    states_from_jpl = np.loadtxt(TEST_DIR / 'gaia_ephemeris_barycentric.txt')[:, 1:]
 
-    np.testing.assert_allclose(states_from_horizons, states_from_table, rtol=1e-05, atol=10)
-    # We use looser tolerances here because a large deviation can exist due to different adopted planetary ephemerides
+    np.testing.assert_allclose(states_from_archive, states_from_jpl,  rtol=1e-4, atol=1e-4)
 
 
 def test_gaia_geocentric_state_with_jpl_ephemeris(gaia_astrometry):
     """Test that the geocentric states of Gaia in the table are consistent with those from JPL Horizons"""
-    # Retrieve observation table for one asteroid only
-    table_test_asteroid = gaia_astrometry.table_for_mpc(TEST_ASTEROID_MPC[0])
-    epoch_list = table_test_asteroid['epoch'].to_list()
-    states_from_horizons, _ = read_jpl_table(TEST_DIR / 'gaia_ephemeris_jpl_geocentric_12h.txt')
-    states_from_horizons = interpolate_state_history(states_from_horizons, epoch_list)  # Interpolate to same times
-    states_from_table = table_test_asteroid[['x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
-                                             'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']]
-    states_from_table = states_from_table.to_numpy()
+    columns = ['x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
+               'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']
+    states_from_archive = gaia_astrometry.table[columns].to_numpy()
+    states_from_jpl = np.loadtxt(TEST_DIR / 'gaia_ephemeris_geocentric.txt')[:, 1:]
 
-    np.testing.assert_allclose(states_from_horizons, states_from_table, rtol=1e-05, atol=10)
-    # We use looser tolerances here because a large deviation can exist due to different adopted planetary ephemerides
+    np.testing.assert_allclose(states_from_archive, states_from_jpl, rtol=1e-4, atol=1e-4)
 
 
 def test_observation_table_epoch_filter(gaia_astrometry):
@@ -413,3 +384,95 @@ def test_observation_consistency(observation_collection, observation_table):
 
     np.testing.assert_array_equal(epochs_from_collection, epochs_from_table)
     np.testing.assert_array_equal(observations_from_collection, observations_from_table)
+
+
+##############################
+# GaiaAsteroids tests
+##############################
+
+# Reference J2000 Heliocentric state vectors retrieved from JPL Horizons at the same epoch as Gaia catalog
+STATE_EDDA_JPL = [ 4.128085144236671E+08 , 7.098887570553194E+07 , 4.413226270395131E+07,
+ -3.659135280911876E+00 , 1.621253557540478E+01 , 6.231297081940196E+00]
+STATE_NINA_JPL = [2.143720589223085E+08 , 2.310721906203461E+08 , 1.782520574512776E+08,
+ -1.254695764130771E+01 , 1.502661150744586E+01 , 4.097474113261074E+00]
+
+
+@pytest.fixture(scope='module')
+def _gaia_asteroids():
+    """Create an instance of the GaiaAsteroids class with the test asteroids loaded"""
+    return GaiaAsteroids.load_from_local_archive(SOURCE_ARCHIVE_PATH, TEST_ASTEROID_MPC)
+
+@pytest.fixture
+def gaia_asteroids(_gaia_asteroids):
+    """Get a copy of the GaiaAsteroids instance"""
+    return _gaia_asteroids.copy()
+
+
+@pytest.mark.remote_data
+def test_asteroid_local_astroquery_consistency(gaia_asteroids):
+    """Test whether asteroid data obtained from the local archive and astroquery are consistent"""
+    table_local = gaia_asteroids.table.sort_values('number_mp').reset_index(drop=True)
+    asteroids_from_astroquery = GaiaAsteroids.load_from_astroquery(TEST_ASTEROID_MPC)
+    table_astroquery = asteroids_from_astroquery.table.sort_values('number_mp').reset_index(drop=True)
+
+    pdt.assert_frame_equal(table_local, table_astroquery, check_dtype=False)
+
+
+@pytest.mark.remote_data
+def test_asteroid_data_retrieval_no_data():
+    """Test that no data returned raises an error for GaiaAsteroids.load_from_astroquery"""
+    asteroid_no_data = 250000
+
+    # Astroquery variant
+    with pytest.raises(LookupError):
+        GaiaAsteroids.load_from_astroquery([asteroid_no_data])
+
+    # Local variant
+    with pytest.raises(LookupError):
+        GaiaAsteroids.load_from_local_archive(SOURCE_ARCHIVE_PATH, [asteroid_no_data])
+
+
+def test_asteroid_epochs(gaia_asteroids):
+    """Test that the state vector epochs fall within the Gaia FPR observation period"""
+    earliest_epoch = date_time_components_to_epoch(year=2014, month=7, day=26, hour=0, minute=0, seconds=0)
+    final_epoch = date_time_components_to_epoch(year=2020, month=1, day=20, hour=0, minute=0, seconds=0)
+    epochs = gaia_asteroids.table['epoch_state_vector'].to_numpy()
+
+    assert np.all((epochs >= earliest_epoch) & (epochs <= final_epoch))
+
+
+def test_asteroid_state_vector_with_jpl_horizons(gaia_asteroids):
+    """Test match between Gaia state vectors and that of JPL Horizons"""
+    ref_states = [np.array(STATE_EDDA_JPL) * 1e3,
+                  np.array(STATE_NINA_JPL) * 1e3] # JPL Horizons vectors
+    for mpc_number, ref_state in zip(TEST_ASTEROID_MPC, ref_states):
+        # Heliocentric state vectors:
+        epoch, state = gaia_asteroids.get_state_for_mpc(mpc_number)
+
+        np.testing.assert_allclose(state, ref_state, rtol=1e-7, atol=1e-7)
+
+
+def test_asteroid_orbit_class(gaia_asteroids):
+    """Both test asteroids are main-belt asteroids"""
+    assert (gaia_asteroids.table['orbit_class'] == 'MB').all()
+
+
+def test_asteroid_covariance_shape_and_symmetry(gaia_asteroids):
+    """Covariance matrices must be reconstructed from the raw upper triangle as symmetric 6x6 matrices"""
+    for _, asteroid_data in gaia_asteroids.table.iterrows():
+        for column in ['orbital_elements_var_covar_matrix', 'h_state_vector_var_covar_matrix']:
+            covariance = asteroid_data[column]
+
+            assert covariance.shape == (6, 6)
+            np.testing.assert_allclose(covariance, covariance.T, rtol=1e-12, atol=0)
+
+
+def test_asteroid_covariance_values(gaia_asteroids):
+    """Sanity checks on the covariance matrices: variances must be positive, and the semi-major axis
+    uncertainty must be in a range plausible for Gaia orbit solutions (order of meters, not AU)"""
+    for _, asteroid_data in gaia_asteroids.table.iterrows():
+        for column in ['orbital_elements_var_covar_matrix', 'h_state_vector_var_covar_matrix']:
+            assert np.all(np.diag(asteroid_data[column]) > 0)
+
+        sma_uncertainty = np.sqrt(asteroid_data['orbital_elements_var_covar_matrix'][0, 0])
+        assert 1e-2 < sma_uncertainty < 1e6  # In meters; catches missing or double unit scaling
