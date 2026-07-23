@@ -24,8 +24,9 @@ except ImportError:  # pragma: no cover
 from resource_data_registry import DATA_REGISTRY
 
 DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat_resources")).expanduser()
-DEFAULT_CACHE = Path(os.environ.get("TUDATPY_RESOURCE_CACHE",
-                                    "~/.cache/tudatpy_resources")).expanduser()
+DEFAULT_CACHE = Path(
+    os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
+).expanduser()
 
 
 def _has_progressbar() -> bool:
@@ -128,8 +129,11 @@ def _download_with_requests(url: str, dest_path: Path) -> None:
     total = int(response.headers.get("Content-Length", 0))
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     with dest_path.open("wb") as fd:
-        for chunk in _progress_bar(response.iter_content(chunk_size=32_768), 
-            total=total or None, description=dest_path.name):
+        for chunk in _progress_bar(
+            response.iter_content(chunk_size=32_768),
+            total=total or None,
+            description=dest_path.name,
+        ):
             if chunk:
                 fd.write(chunk)
 
@@ -143,8 +147,9 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _download_file(url: str, dest_path: Path, force: bool = False, 
-                   expected_hash: Optional[str] = None) -> bool:
+def _download_file(
+    url: str, dest_path: Path, force: bool = False, expected_hash: Optional[str] = None
+) -> bool:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     if dest_path.exists():
         if not force:
@@ -160,14 +165,15 @@ def _download_file(url: str, dest_path: Path, force: bool = False,
         got = _sha256_file(dest_path)
         if got.lower() != expected_hash.lower():
             dest_path.unlink(missing_ok=True)
-            raise RuntimeError((f"SHA256 mismatch for {dest_path}: "
-                                f" expected {expected_hash}, got {got}"))
+            raise RuntimeError(
+                (f"SHA256 mismatch for {dest_path}: " f" expected {expected_hash}, got {got}")
+            )
     return True
 
 
-def _download_tarball(url: str, cache_dir: Path, 
-                      force: bool = False, 
-                      expected_hash: Optional[str] = None) -> Path:
+def _download_tarball(
+    url: str, cache_dir: Path, force: bool = False, expected_hash: Optional[str] = None
+) -> Path:
     cache_dir.mkdir(parents=True, exist_ok=True)
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
@@ -184,8 +190,12 @@ def _download_tarball(url: str, cache_dir: Path,
         got = _sha256_file(tar_path)
         if got.lower() != expected_hash.lower():
             tar_path.unlink(missing_ok=True)
-            raise RuntimeError((f"SHA256 mismatch for tarball {tar_path}: "
-                                f" expected {expected_hash}, got {got}"))
+            raise RuntimeError(
+                (
+                    f"SHA256 mismatch for tarball {tar_path}: "
+                    f" expected {expected_hash}, got {got}"
+                )
+            )
     return tar_path
 
 
@@ -205,8 +215,9 @@ def _find_tar_member(tar: tarfile.TarFile, target: str) -> tarfile.TarInfo:
     raise KeyError(f"File '{target}' not found in tarball")
 
 
-def _extract_tarball_members(tar_path: Path, targets: List[str], 
-    dest_root: Path, force: bool = False) -> int:
+def _extract_tarball_members(
+    tar_path: Path, targets: List[str], dest_root: Path, force: bool = False
+) -> int:
     installed = 0
     with tarfile.open(tar_path, mode="r:*") as tar:
         for target in targets:
@@ -252,16 +263,18 @@ def install_files(
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
         tar_path = _download_tarball(tarball_url, cache_dir, force=force, expected_hash=expected)
-        installed += _extract_tarball_members(
-            tar_path, targets, dest_path, force=force
-        )
+        installed += _extract_tarball_members(tar_path, targets, dest_path, force=force)
 
     return installed
 
 
-def download_extra_file(url: str, dest_path: Path, 
-                        cache_dir: Path, force: bool = False, 
-                        hashes: Optional[Dict[str, str]] = None) -> Path:
+def download_extra_file(
+    url: str,
+    dest_path: Path,
+    cache_dir: Path,
+    force: bool = False,
+    hashes: Optional[Dict[str, str]] = None,
+) -> Path:
     """Download an extra file to the destination path.
 
     If dest_path is a directory, the filename is derived from the URL.
@@ -299,14 +312,28 @@ def parse_arguments() -> argparse.Namespace:
         default="missing",
         help="scratch=overwrite all; missing=download only missing; update=selected subset; extra=download one extra URL; list=show registry entries.",
     )
-    parser.add_argument("--dest", default=str(DEFAULT_DEST), help="Destination root for resource files.")
-    parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE), help="Cache directory for downloads and tarballs.")
-    parser.add_argument("--files", nargs="+", help="Exact registry keys or prefixes for update mode.")
-    parser.add_argument("--search", help="Substring search to select registry files for update or list.")
+    parser.add_argument(
+        "--dest", default=str(DEFAULT_DEST), help="Destination root for resource files."
+    )
+    parser.add_argument(
+        "--cache-dir",
+        default=str(DEFAULT_CACHE),
+        help="Cache directory for downloads and tarballs.",
+    )
+    parser.add_argument(
+        "--files", nargs="+", help="Exact registry keys or prefixes for update mode."
+    )
+    parser.add_argument(
+        "--search", help="Substring search to select registry files for update or list."
+    )
     parser.add_argument("--extra-url", help="URL of an extra file to download in extra mode.")
-    parser.add_argument("--extra-dest", help="Relative or absolute destination path for extra mode.")
+    parser.add_argument(
+        "--extra-dest", help="Relative or absolute destination path for extra mode."
+    )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
-    parser.add_argument("--list-search", help="Search string to filter registry output in list mode.")
+    parser.add_argument(
+        "--list-search", help="Search string to filter registry output in list mode."
+    )
     parser.add_argument(
         "--hash-file",
         help="Path to a JSON file mapping registry keys or URLs to SHA256 hex digests.",
@@ -354,7 +381,9 @@ def main() -> None:
         extra_dest = Path(args.extra_dest) if args.extra_dest else dest_path
         if not extra_dest.is_absolute():
             extra_dest = dest_path / extra_dest
-        downloaded = download_extra_file(args.extra_url, extra_dest, cache_dir, force=args.force, hashes=hash_map)
+        downloaded = download_extra_file(
+            args.extra_url, extra_dest, cache_dir, force=args.force, hashes=hash_map
+        )
         print(f"Downloaded extra resource to {downloaded}")
         return
 

@@ -4,7 +4,9 @@ TUDAT_RESOURCES_URL = "https://zenodo.org/records/21277280"
 TUDAT_ZENODO_STATIC_RECORD = 21277280
 TUDAT_ZENODO_ROLLING_RECORD = 21261530
 TUDAT_ZENODO_STATIC_API_BASE = f"https://zenodo.org/api/records/{TUDAT_ZENODO_STATIC_RECORD}/files"
-TUDAT_ZENODO_ROLLING_API_BASE = f"https://zenodo.org/api/records/{TUDAT_ZENODO_ROLLING_RECORD}/files"
+TUDAT_ZENODO_ROLLING_API_BASE = (
+    f"https://zenodo.org/api/records/{TUDAT_ZENODO_ROLLING_RECORD}/files"
+)
 
 TUDAT_ZENODO_STATIC_TARBALLS = {
     "spice_kernels/inpop19a_TCB_m100_p100_asc": "inpop19a_TCB_m100_p100_asc.tar.gz",
@@ -41,6 +43,7 @@ def _rewrite_zenodo_tarball_url(path: str, url: str) -> str:
             return f"{TUDAT_ZENODO_ROLLING_API_BASE}/resource-rolling.tar.gz/content"
 
     return url
+
 
 _RAW_DATA_REGISTRY = {
     "atmosphere_tables/dtm_mars.dat": f"{TUDAT_RESOURCES_URL}/atmosphere_tables/dtm_mars.dat",
@@ -201,6 +204,5 @@ _RAW_DATA_REGISTRY = {
 }
 
 DATA_REGISTRY = {
-    key: _rewrite_zenodo_tarball_url(key, url)
-    for key, url in _RAW_DATA_REGISTRY.items()
+    key: _rewrite_zenodo_tarball_url(key, url) for key, url in _RAW_DATA_REGISTRY.items()
 }
