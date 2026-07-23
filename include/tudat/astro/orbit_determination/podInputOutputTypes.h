@@ -22,6 +22,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
@@ -489,6 +490,26 @@ public:
         return considerParametersIncluded_;
     }
 
+    //! Configure soft inter-arc translational state continuity priors.
+    /*!
+     * Configure soft inter-arc translational state continuity priors for covariance analysis and estimation.
+     * These priors add a normal-equation contribution of the form D_norm^T W_d D_norm (and, for estimation only,
+     * -D_norm^T W_d d to the right-hand side), where D_norm is the right-minus-left STM/sensitivity block after
+     * applying the estimator's column normalization. The feature currently supports pure multi-arc translational
+     * estimations only; hybrid-arc estimations are rejected when the prior is assembled.
+     * \param constraints Continuity-prior settings. Passing an empty vector disables the feature.
+     */
+    void setInterArcContinuityConstraints( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
+    {
+        interArcContinuityConstraints_ = constraints;
+    }
+
+    //! Get the configured soft inter-arc continuity priors.
+    const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& getInterArcContinuityConstraints( ) const
+    {
+        return interArcContinuityConstraints_;
+    }
+
 protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
@@ -518,6 +539,9 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
+
+    //! Soft inter-arc translational state continuity priors. Empty by default (feature off).
+    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
@@ -750,12 +774,15 @@ struct CovarianceAnalysisOutput {
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-                              const bool exceptionDuringPropagation = false ):
+                              const bool exceptionDuringPropagation = false,
+                              const double interArcContinuityCost = 0.0,
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
         normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( normalizedDesignMatrixConsiderParameters ),
         considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
+        interArcContinuityCost_( interArcContinuityCost ), interArcContinuityDiscrepancies_( interArcContinuityDiscrepancies ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
         if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
@@ -963,6 +990,16 @@ struct CovarianceAnalysisOutput {
         return considerCovariance_;
     }
 
+    double getInterArcContinuityCost( ) const
+    {
+        return interArcContinuityCost_;
+    }
+
+    const std::vector< Eigen::VectorXd >& getInterArcContinuityDiscrepancies( ) const
+    {
+        return interArcContinuityDiscrepancies_;
+    }
+
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
         if( designMatrixSaved_ )
@@ -1029,6 +1066,12 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd considerCovariance_;
 
+    //! Total soft inter-arc continuity-prior cost at the covariance-analysis linearization point.
+    double interArcContinuityCost_;
+
+    //! Per-pair inter-arc state discrepancies used to assemble the covariance-analysis continuity prior.
+    std::vector< Eigen::VectorXd > interArcContinuityDiscrepancies_;
+
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 
@@ -1058,6 +1101,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
      * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
      * motion (and variational equations).
+     * \param interArcContinuityCost Soft inter-arc continuity-prior cost at the selected best iteration.
+     * \param interArcContinuityDiscrepancies Inter-arc continuity-prior state discrepancies at the selected best iteration.
      */
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
@@ -1075,7 +1120,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
-                      const bool exceptionDuringPropagation = false ):
+                      const bool exceptionDuringPropagation = false,
+                      const double interArcContinuityCost = 0.0,
+                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
                                                                      weightsMatrixDiagonal,
                                                                      designMatrixTransformationDiagonal,
@@ -1084,7 +1131,9 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      considerNormalizationFactors,
                                                                      covarianceConsiderContribution,
                                                                      considerCovariance,
-                                                                     exceptionDuringPropagation ),
+                                                                     exceptionDuringPropagation,
+                                                                     interArcContinuityCost,
+                                                                     interArcContinuityDiscrepancies ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
         exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
@@ -1189,6 +1238,26 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return simulationResultsPerIteration_;
     }
 
+    void setInterArcContinuityCostHistory( const std::vector< double >& history )
+    {
+        interArcContinuityCostHistory_ = history;
+    }
+
+    const std::vector< double >& getInterArcContinuityCostHistory( ) const
+    {
+        return interArcContinuityCostHistory_;
+    }
+
+    void setInterArcContinuityDiscrepancyHistory( const std::vector< std::vector< Eigen::VectorXd > >& history )
+    {
+        interArcContinuityDiscrepancyHistory_ = history;
+    }
+
+    const std::vector< std::vector< Eigen::VectorXd > >& getInterArcContinuityDiscrepancyHistory( ) const
+    {
+        return interArcContinuityDiscrepancyHistory_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1217,6 +1286,17 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     int numberOfParameters_;
 
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration_;
+
+    //! Total inter-arc continuity-prior cost contribution per iteration (sum across all configured pairs). Empty if
+    //! no inter-arc continuity priors were attached. Populated via setInterArcContinuityCostHistory rather
+    //! than through the constructor (the ctor already takes 14+ positional args; extending it would be unwieldy
+    //! for an opt-in feature).
+    std::vector< double > interArcContinuityCostHistory_;
+
+    //! Per-iteration list of per-pair state discrepancies at every constrained boundary. Outer index is iteration,
+    //! inner index is pair index in the assembly order.
+    //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
+    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory_;
 
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
