@@ -546,6 +546,37 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity priors.
+
+         The inputs map directly to the discrepancy, weight, cost, and normal-equation model documented by
+         :class:`InterArcStateContinuityConstraintSettings`. Constraints are currently supported only for pure
+         multi-arc translational estimators. Pass an empty list to disable the feature.
+
+         Parameters
+         ----------
+         constraints : list[InterArcStateContinuityConstraintSettings]
+             Settings defining all constrained bodies, arc pairs, connection epochs, weights, and scaling factors.
+
+         Returns
+         -------
+         None
+             Modifies this input object in place.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached soft inter-arc continuity-prior settings.
+
+         :type: list[InterArcStateContinuityConstraintSettings]
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -556,6 +587,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          Class for defining all inputs to the estimation.
 
+         This class contains the observations, a-priori information, convergence settings, optional consider
+         parameter information, and optional soft inter-arc continuity constraints used by
+         :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`.
 
 
 
@@ -647,7 +681,38 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
-     )doc" );
+     )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity constraints to the estimation input.
+
+         The inputs map directly to the discrepancy, weight, cost, and normal-equation model documented by
+         :class:`InterArcStateContinuityConstraintSettings`. A settings object may constrain one or more bodies.
+         Pass an empty list to disable the feature.
+
+         Parameters
+         ----------
+         constraints : list[InterArcStateContinuityConstraintSettings]
+             Settings defining all constrained bodies, arc pairs, connection epochs, weights, and scaling factors.
+
+         Returns
+         -------
+         None
+             Modifies this input object in place.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached inter-arc continuity constraint settings.
+
+         :type: list[InterArcStateContinuityConstraintSettings]
+      )doc" );
 
     m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 
@@ -666,6 +731,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          * The inverse covariance matrix :math:`\mathbf{P}^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable
          * The consider partials matrix :math:`\mathbf{H}_{c}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}_{c}}` of the observations w.r.t. the consider parameters (if any)
          * The contribution :math:`\Delta \mathbf{P}_{c}` of the consider parameters to the estimated parameter covariance
+         * Optional soft inter-arc continuity-prior diagnostics, when such priors are attached to the input
 
          In the computation of the covariance  (see TODO), the columns of the :math:`H` matrices are normalized to reduce numerical instability
          that can result from the partials w.r.t. different parameters being of a very different order of magnitude. The normalization is achieved
@@ -879,6 +945,29 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          Vector of consider parameter normalization terms :math:`\mathbf{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_cost",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCost,
+                                    R"doc(
+
+         **read-only**
+
+         Soft inter-arc continuity cost :math:`J_d` at the covariance-analysis linearization point. See
+         :class:`InterArcStateContinuityConstraintSettings` for its definition and input mapping. This value is
+         zero when no inter-arc continuity constraints were attached.
+
+         :type: float
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_discrepancies",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancies,
+                                    R"doc(
+
+         **read-only**
+
+         State discrepancy vectors :math:`\mathbf{d}_{bk}` used to assemble the continuity terms in covariance
+         analysis. See :class:`InterArcStateContinuityConstraintSettings` for their definition and ordering inputs.
+
+         :type: list[numpy.ndarray[numpy.float64[6, 1]]]
       )doc" );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -945,7 +1034,31 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                            R"doc(No documentation found.)doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" );
+                           R"doc(No documentation found.)doc" )
+            .def_property_readonly( "inter_arc_continuity_cost_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
+                                    R"doc(
+
+         **read-only**
+
+         Per-iteration continuity cost :math:`J_d`. See :class:`InterArcStateContinuityConstraintSettings` for the
+         mathematical definition. Empty if no continuity constraints were attached to the input.
+
+         :type: list[float]
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_discrepancy_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancyHistory,
+                                    R"doc(
+
+         **read-only**
+
+         Per-iteration list of state discrepancies at every constrained boundary, computed as the right-arc state
+         minus the left-arc state at the connection epoch. Outer index is iteration, inner index is pair in the
+         order produced by the attached settings. For the current translational-state continuity settings, each
+         discrepancy has six entries.
+
+         :type: list[list[numpy.ndarray[numpy.float64[6, 1]]]]
+      )doc" );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 
