@@ -48,10 +48,9 @@
  * The following tolerances account for coordinate-convention, interpolation,
  * MCD-version, and perturbation differences:
  *
- *   - Unperturbed case 1: 0.5%
- *   - Other 20 km and 150 km reference cases: 15-20%
- *   - 50 km reference case: 35%
- *   - Small-scale stochastic perturbation case 6: 150% (path regression only)
+ *   - Cases 1, 2, 4, 5, and 9: at most 0.3%
+ *   - Case 3: 0.3% for pressure and 16% for density and temperature
+ *   - Case 6: 0.1% for pressure, 90% for density, and 50% for temperature
  *
  * These tolerances validate that:
  *   1. The MCD Fortran interface works correctly
@@ -159,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
     double expectedZonalWind = -34.2;
     double expectedMeridionalWind = -7.82;
 
-    double tolerance = 0.5;
+    double tolerance = 0.3;
     BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
     BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
     BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
@@ -168,8 +167,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 }
 
 // INPUT_K2: scenario 1, 20 km above the areoid, high resolution, and a
-// large-scale perturbation with seed 5. The 15% tolerance is retained for
-// the version-sensitive perturbed result.
+// large-scale perturbation with seed 5.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -178,17 +176,18 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 2, 5.0, 0.0, 1 );
 
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 77.8, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 2.29e-3, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 178.0, 15.0 );
+    const double tolerance = 0.2;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 77.8, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 2.29e-3, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 178.0, tolerance );
 }
 
 // INPUT_K3 reference location: scenario 1, 50 km above the areoid, high
 // resolution. This regression deliberately disables the INPUT_K3
 // small-scale perturbation (perturbationKey=3), which has historically
 // caused Fortran memory failures. It therefore validates the mean
-// atmosphere at the reference location. The larger tolerance reflects the
-// increased sensitivity of density and pressure to altitude at 50 km.
+// atmosphere at the reference location. The 16% density and temperature
+// tolerances reflect comparison against the perturbed reference values.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -197,14 +196,13 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 1 );
 
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 1.80, 35.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 7.31e-5, 35.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 129.0, 35.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 1.80, 0.3 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 7.31e-5, 16.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 129.0, 16.0 );
 }
 
 // INPUT_K4: scenario 1, 150 km above the areoid, high resolution, and no
-// perturbations. At this altitude the influence of topography is small; the
-// 15% tolerance accommodates remaining MCD-version differences.
+// perturbations. At this altitude the influence of topography is small.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -213,9 +211,10 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 1 );
 
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, 15.0 );
+    const double tolerance = 0.3;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, tolerance );
 }
 
 // INPUT_K5: scenario 1, 150 km above the areoid, high resolution, and a
@@ -229,21 +228,22 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase5 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 2, 5.0, 0.0, 1 );
 
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.63e-6, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.19e-10, 15.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 190.0, 15.0 );
+    const double tolerance = 0.2;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.63e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.19e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 190.0, tolerance );
 }
 
 // INPUT_K6: scenario 1, 150 km above the areoid, low resolution, and
 // small-scale gravity-wave perturbations with seed 5 and a 16 km wavelength.
 //
-// Exact agreement with REF_OUTPUT_K6 is not expected: this stochastic path
-// is sensitive to the MCD version and seed handling, and the low-resolution
-// implementation can apply gravity-wave perturbations differently. The
-// 150% tolerance intentionally makes this a perturbation-path regression:
-// it checks that the call succeeds and returns values on the scale of the
-// perturbed reference result, rather than claiming precise numerical
-// equivalence.
+// The result depends on earlier perturbation calls in the same process. MCD
+// retains its seed and random state in Fortran SAVE variables and reseeds only
+// when the numeric seed changes. Case 6 agrees with REF_OUTPUT_K6 to within
+// 0.1% in isolation, but after case 2 or 5 uses seed 5 for a large-scale
+// perturbation, the density and temperature differences rise to 84.4% and
+// 44.2%. The corresponding tolerances therefore make this an order-dependent
+// perturbation-path regression until the Fortran state is reset or isolated.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -253,14 +253,13 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 3, 5.0, 16000.0, 0 );
 
     // Perturbed REF_OUTPUT_K6 values.
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 150.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 9.47e-11, 150.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 226.0, 150.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 0.1 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 9.47e-11, 90.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 226.0, 50.0 );
 }
 
 // INPUT_K9: scenario 1, 150 km above the areoid, low resolution, and no
-// perturbations. The 20% tolerance accounts for the combination of the
-// low-resolution data path and the sensitivity of the upper atmosphere.
+// perturbations.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase9 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -269,9 +268,10 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase9 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 0 );
 
-    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 20.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, 20.0 );
-    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, 20.0 );
+    const double tolerance = 0.3;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, tolerance );
 }
 
 // Test MCD atmosphere in propagation
