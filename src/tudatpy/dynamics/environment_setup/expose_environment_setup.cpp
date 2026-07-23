@@ -286,8 +286,8 @@ void expose_environment_setup( py::module& m )
                             &tss::BodySettings::climateModelSettings,
                             R"doc(
 
-         Object that defines the settings of the climate model that is to be created. Currently it only supports 
-         the Mars Climate Database (MCD), configured with
+         Object that defines the settings of the climate model that is to be created. Currently it only supports
+         the Mars Climate Database (MCD; only available when users have a local copy and have built tudatpy locally), configured with
          :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
 
 

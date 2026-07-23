@@ -133,6 +133,7 @@ Classes
    EmptyWindModelSettings
    ConstantWindModelSettings
    CustomWindModelSettings
+   ClimateModelSettings
    AtmosphereSettings
    ComaSettings
    ExponentialAtmosphereSettings
@@ -140,12 +141,6 @@ Classes
    ScaledAtmosphereSettings
    NRLMSISE00Input
    NRLMSISE00Atmosphere
-
-.. ifconfig:: has_mcd_support
-
-   .. autosummary::
-
-      ClimateModelSettings
 
 
 Wind Model Settings
@@ -166,13 +161,11 @@ Wind Model Settings
    :members:
    :show-inheritance:
 
-.. ifconfig:: has_mcd_support
+Climate Model Settings
+~~~~~~~~~~~~~~~~~~~~~~
 
-   Climate Model Settings
-   ~~~~~~~~~~~~~~~~~~~~~~
-
-   .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
-      :members:
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
+   :members:
 
 
 Atmosphere Settings
