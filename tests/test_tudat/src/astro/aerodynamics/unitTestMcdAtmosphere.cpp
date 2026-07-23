@@ -158,7 +158,14 @@ std::shared_ptr< aerodynamics::McdAtmosphereModel > createReferenceMcdAtmosphere
     return atmosphereModel;
 }
 
-// Test Case 1: INPUT_K1.txt - clim scenario 1, 20km, high-res, no perturbation
+// Reference cases 1-6 and 9 reproduce configurations from the MCD
+// INPUT_K*.txt files and compare against their REF_OUTPUT_K* results. Cases
+// 7, 8, and 10 require the warm-scenario data set, which is not distributed
+// with the MCD data used by this project, and are therefore not registered.
+
+// INPUT_K1: scenario 1, 20 km above the areoid, high resolution, no
+// perturbations. A tight tolerance is possible because the climate model is
+// explicitly configured with the reference case's vertical-coordinate key.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 {
     double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -180,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
     double zonalWind = atmosphereModel->getZonalWind( altitude, longitude, latitude, time );
     double meridionalWind = atmosphereModel->getMeridionalWind( altitude, longitude, latitude, time );
 
-    // REF_OUTPUT_K1 values
+    // REF_OUTPUT_K1 values.
     double expectedPressure = 75.7;
     double expectedDensity = 2.23e-3;
     double expectedTemperature = 177.0;
@@ -195,7 +202,9 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
     BOOST_CHECK_CLOSE( std::abs( meridionalWind ), std::abs( expectedMeridionalWind ), tolerance );
 }
 
-// Test Case 2: INPUT_K2.txt - large-scale perturbation at 20 km
+// INPUT_K2: scenario 1, 20 km above the areoid, high resolution, and a
+// large-scale perturbation with seed 5. The 15% tolerance is retained for
+// the version-sensitive perturbed result.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -209,7 +218,12 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
     BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 178.0, 15.0 );
 }
 
-// Test Case 3: INPUT_K3.txt - mean atmosphere at 50 km
+// INPUT_K3 reference location: scenario 1, 50 km above the areoid, high
+// resolution. This regression deliberately disables the INPUT_K3
+// small-scale perturbation (perturbationKey=3), which has historically
+// caused Fortran memory failures. It therefore validates the mean
+// atmosphere at the reference location. The larger tolerance reflects the
+// increased sensitivity of density and pressure to altitude at 50 km.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -223,7 +237,9 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
     BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 129.0, 35.0 );
 }
 
-// Test Case 4: INPUT_K4.txt - mean atmosphere at 150 km
+// INPUT_K4: scenario 1, 150 km above the areoid, high resolution, and no
+// perturbations. At this altitude the influence of topography is small; the
+// 15% tolerance accommodates remaining MCD-version differences.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -237,7 +253,9 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
     BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, 15.0 );
 }
 
-// Test Case 5: INPUT_K5.txt - large-scale perturbation at 150 km
+// INPUT_K5: scenario 1, 150 km above the areoid, high resolution, and a
+// large-scale perturbation with seed 5. The expected values are the
+// perturbed REF_OUTPUT_K5 pressure, density, and temperature.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase5 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -251,7 +269,16 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase5 )
     BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 190.0, 15.0 );
 }
 
-// Test Case 6: INPUT_K6.txt - small-scale perturbations at 150 km
+// INPUT_K6: scenario 1, 150 km above the areoid, low resolution, and
+// small-scale gravity-wave perturbations with seed 5 and a 16 km wavelength.
+//
+// Exact agreement with REF_OUTPUT_K6 is not expected: this stochastic path
+// is sensitive to the MCD version and seed handling, and the low-resolution
+// implementation can apply gravity-wave perturbations differently. The
+// 150% tolerance intentionally makes this a perturbation-path regression:
+// it checks that the call succeeds and returns values on the scale of the
+// perturbed reference result, rather than claiming precise numerical
+// equivalence.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -260,15 +287,15 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
     const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
     const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 3, 5.0, 16000.0, 0 );
 
-    // Perturbed values are version- and seed-sensitive. These broad bounds
-    // retain the original test's purpose: exercising the perturbation path
-    // and checking that it returns physically plausible values.
+    // Perturbed REF_OUTPUT_K6 values.
     BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 150.0 );
     BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 9.47e-11, 150.0 );
     BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 226.0, 150.0 );
 }
 
-// Test Case 9: INPUT_K9.txt - low-resolution mean atmosphere at 150 km
+// INPUT_K9: scenario 1, 150 km above the areoid, low resolution, and no
+// perturbations. The 20% tolerance accounts for the combination of the
+// low-resolution data path and the sensitivity of the upper atmosphere.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase9 )
 {
     const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
@@ -376,6 +403,9 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 
 BOOST_AUTO_TEST_CASE( testMcdClimateModelCaching )
 {
+    // The current cache uses the complete query tuple as an exact key.
+    // Repeating that tuple must return the retained result, while changing
+    // one coordinate must create a separate result.
     mcd_interface::MarsClimateDatabaseClimateModel climateModel;
     const double altitude = 5000.0;
     const double longitude = 0.5;
@@ -393,6 +423,9 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelCaching )
 
 BOOST_AUTO_TEST_CASE( testMcdClimateModelExtraVariableCaching )
 {
+    // Adding a requested MCD extra variable changes the contents required
+    // from each cache entry. Existing entries must consequently be
+    // invalidated, after which identical queries should again be reused.
     mcd_interface::MarsClimateDatabaseClimateModel climateModel;
     const double altitude = 5000.0;
     const double longitude = 0.5;
@@ -414,6 +447,10 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelExtraVariableCaching )
 
 BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheKeys )
 {
+    // All query coordinates, including the vertical-coordinate
+    // interpretation (zkey), contribute to cache identity. Unlike the
+    // former atmosphere-model cache, the current cache has no tolerance
+    // within which nearby queries are treated as identical.
     mcd_interface::MarsClimateDatabaseClimateModel climateModel;
     const double altitude = 5000.0;
     const double longitude = 0.5;
@@ -432,6 +469,9 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheKeys )
 
 BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheEviction )
 {
+    // Limit the cache to two entries and insert three distinct queries.
+    // Reloading the oldest query must recompute an equivalent result,
+    // demonstrating bounded first-in-first-out eviction.
     mcd_interface::MarsClimateDatabaseClimateModel climateModel( "", 1, 0, 0.0, 0.0, 0, 2 );
     const double longitude = 0.5;
     const double latitude = 0.3;
