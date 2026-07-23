@@ -177,30 +177,11 @@ jobs:
 
     - name: Configure CMake
       if: runner.os == 'Windows'
+      env:
+        BUILD_TYPE: ${{ matrix.build_type }}
+        CONDA_ENV: ${{ matrix.platform.path_conda_env }}
       shell: cmd
-      run: |
-        @echo off
-        for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
-        if "%VSINSTALL%"=="" exit /b 1
-        set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
-        if not exist "%VCVARS64%" exit /b 1
-        echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
-        call "%VCVARS64%" >nul 2>nul
-        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
-        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
-        set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
-        "%CONDA_ENV%\Library\bin\cmake.exe" -B "%GITHUB_WORKSPACE%\build" -S "%GITHUB_WORKSPACE%" -G Ninja ^
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
-          -DCMAKE_C_COMPILER=cl ^
-          -DCMAKE_CXX_COMPILER=cl ^
-          -DCMAKE_Fortran_COMPILER="%CONDA_ENV%\Library\bin\flang-new.exe" ^
-          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} ^
-          -DTUDAT_FORCE_DYNAMIC_RUNTIME=ON ^
-          -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
-          -DTUDAT_BUILD_WITH_PCH=ON ^
-          -DTUDAT_BUILD_WITH_MCD_INTERFACE=ON ^
-          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
-          -DCMAKE_UNITY_BUILD=ON
+      run: .github\scripts\configure_mcd_windows.cmd "${{ matrix.platform.ccache }}"
 
     - name: Debug
       run: |
@@ -226,42 +207,11 @@ jobs:
 
     - name: Build
       if: runner.os == 'Windows'
+      env:
+        BUILD_TYPE: ${{ matrix.build_type }}
+        CONDA_ENV: ${{ matrix.platform.path_conda_env }}
       shell: pwsh
-      run: |
-        # Ninja invokes conda-forge's Windows compiler activation hook for many compile rules. That hook
-        # echoes its full Visual Studio discovery script, which floods the CI log while not being a compiler
-        # warning. Filter only that activation block and preserve the cmake --build exit code.
-        $buildScript = Join-Path $env:RUNNER_TEMP "build_tudat.cmd"
-        $buildCommands = @"
-        @echo off
-        call "%VCVARS64%" >nul 2>nul
-        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
-        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
-        "@
-        Set-Content -Path $buildScript -Encoding ASCII -Value $buildCommands
-
-        $script:inNoisyCompilerActivation = $false
-        & cmd.exe /D /E:ON /V:OFF /S /C "`"$buildScript`"" 2>&1 | ForEach-Object {
-          $line = $_.ToString()
-          if ($line -match '^[A-Z]:\\.*>SET DISTUTILS_USE_SDK=1\s*$') {
-            $script:inNoisyCompilerActivation = $true
-            return
-          }
-          if ($script:inNoisyCompilerActivation) {
-            if ($line -match '^\[\d+/\d+\] ') {
-              $script:inNoisyCompilerActivation = $false
-              Write-Output $line
-              return
-            }
-            if ($line -match '^\[vcvarsall\.bat\] Environment initialized for:') {
-              $script:inNoisyCompilerActivation = $false
-            }
-            return
-          }
-          Write-Output $line
-        }
-        exit $LASTEXITCODE
+      run: .github/scripts/build_mcd_windows.ps1
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
