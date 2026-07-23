@@ -604,6 +604,16 @@ BOOST_AUTO_TEST_CASE( test_ObservationDependentVariableBookkeepingSerialization 
 
 BOOST_AUTO_TEST_CASE( test_SerializationArchiveValidation )
 {
+    std::ostringstream provenanceWarnings;
+    std::streambuf* originalErrorBuffer = std::cerr.rdbuf( provenanceWarnings.rdbuf( ) );
+    serialization::checkProvenance( serialization::currentProvenance( ) );
+    const std::string warningsForMatchingProvenance = provenanceWarnings.str( );
+    serialization::checkProvenance( "test-version@test-commit@test-date" );
+    std::cerr.rdbuf( originalErrorBuffer );
+
+    BOOST_CHECK( warningsForMatchingProvenance.empty( ) );
+    BOOST_CHECK_NE( provenanceWarnings.str( ).find( "[Tudat] Warning: loading serialized file" ), std::string::npos );
+
     const auto makeDimensionArchive = []( const Eigen::Index rows, const Eigen::Index cols ) {
         std::stringstream stream;
         {

@@ -14,6 +14,19 @@ namespace py = pybind11;
 namespace tudat::serialization
 {
 
+inline constexpr char saveToJsonDoc[] =
+        "Serialize this object to JSON. Python pickle uses the same serialization schema. Compatibility with other builds is not "
+        "guaranteed.";
+inline constexpr char loadFromJsonDoc[] =
+        "Deserialize this object from JSON. Python pickle uses the same serialization schema. Compatibility with other builds is not "
+        "guaranteed. Only load trusted files.";
+inline constexpr char saveToBinaryDoc[] =
+        "Serialize this object in binary form. Python pickle uses the same serialization schema. Compatibility with other builds is not "
+        "guaranteed.";
+inline constexpr char loadFromBinaryDoc[] =
+        "Deserialize this object from binary. Python pickle uses the same serialization schema. Compatibility with other builds is not "
+        "guaranteed. Only load trusted files.";
+
 // For plain value types (non-polymorphic)
 template< typename T >
 auto make_pickle( )
@@ -116,32 +129,40 @@ auto make_pickle_polymorphic_derived( )
 // =====================================================================
 
 //! Add save_to_json and load_from_json (value type — load returns T by value)
-#define TUDATPY_DEF_JSON_IO( ... )                                      \
-    .def( "save_to_json", &__VA_ARGS__::saveToJson, py::arg( "path" ) ) \
-            .def_static(                                                \
-                    "load_from_json", []( const std::string& path ) { return __VA_ARGS__::loadFromJson( path ); }, py::arg( "path" ) )
+#define TUDATPY_DEF_JSON_IO( ... )                                                                           \
+    .def( "save_to_json", &__VA_ARGS__::saveToJson, py::arg( "path" ), tudat::serialization::saveToJsonDoc ) \
+            .def_static(                                                                                     \
+                    "load_from_json",                                                                        \
+                    []( const std::string& path ) { return __VA_ARGS__::loadFromJson( path ); },             \
+                    py::arg( "path" ),                                                                       \
+                    tudat::serialization::loadFromJsonDoc )
 
 //! Add save_to_json and load_from_json (polymorphic — load returns correct dynamic Python type)
 #define TUDATPY_DEF_JSON_IO_POLYMORPHIC( ... )                                                                             \
-    .def( "save_to_json", &__VA_ARGS__::saveToJson, py::arg( "path" ) )                                                    \
+    .def( "save_to_json", &__VA_ARGS__::saveToJson, py::arg( "path" ), tudat::serialization::saveToJsonDoc )               \
             .def_static(                                                                                                   \
                     "load_from_json",                                                                                      \
                     []( const std::string& path ) -> py::object { return py::cast( __VA_ARGS__::loadFromJson( path ) ); }, \
-                    py::arg( "path" ) )
+                    py::arg( "path" ),                                                                                     \
+                    tudat::serialization::loadFromJsonDoc )
 
 //! Add save_to_binary and load_from_binary (value type — load returns T by value)
-#define TUDATPY_DEF_BINARY_IO( ... )                                        \
-    .def( "save_to_binary", &__VA_ARGS__::saveToBinary, py::arg( "path" ) ) \
-            .def_static(                                                    \
-                    "load_from_binary", []( const std::string& path ) { return __VA_ARGS__::loadFromBinary( path ); }, py::arg( "path" ) )
+#define TUDATPY_DEF_BINARY_IO( ... )                                                                               \
+    .def( "save_to_binary", &__VA_ARGS__::saveToBinary, py::arg( "path" ), tudat::serialization::saveToBinaryDoc ) \
+            .def_static(                                                                                           \
+                    "load_from_binary",                                                                            \
+                    []( const std::string& path ) { return __VA_ARGS__::loadFromBinary( path ); },                 \
+                    py::arg( "path" ),                                                                             \
+                    tudat::serialization::loadFromBinaryDoc )
 
 //! Add save_to_binary and load_from_binary (polymorphic — load returns correct dynamic Python type)
 #define TUDATPY_DEF_BINARY_IO_POLYMORPHIC( ... )                                                                             \
-    .def( "save_to_binary", &__VA_ARGS__::saveToBinary, py::arg( "path" ) )                                                  \
+    .def( "save_to_binary", &__VA_ARGS__::saveToBinary, py::arg( "path" ), tudat::serialization::saveToBinaryDoc )           \
             .def_static(                                                                                                     \
                     "load_from_binary",                                                                                      \
                     []( const std::string& path ) -> py::object { return py::cast( __VA_ARGS__::loadFromBinary( path ) ); }, \
-                    py::arg( "path" ) )
+                    py::arg( "path" ),                                                                                       \
+                    tudat::serialization::loadFromBinaryDoc )
 
 //! Add both JSON and binary file IO (value type)
 #define TUDATPY_DEF_FILE_IO( ... )     \

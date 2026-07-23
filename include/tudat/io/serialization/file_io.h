@@ -201,20 +201,17 @@ inline ProvenanceParts checkProvenance( const std::string& fileProvenance )
     }
 
     static bool warnedOnce = false;
-    if( !warnedOnce )
+    const std::string& current = currentProvenance( );
+    if( fileProvenance != current && !warnedOnce )
     {
-        const std::string& current = currentProvenance( );
-        if( fileProvenance != current )
-        {
-            std::cerr << "[Tudat] Warning: loading serialized file "
-                         "created with:\n"
-                      << "    " << fileProvenance << "\n"
-                      << "  Current build is:\n"
-                      << "    " << current << "\n"
-                      << "  There is no guarantee of backward "
-                         "compatibility beyond 6 months.\n"
-                      << std::endl;
-        }
+        std::cerr << "[Tudat] Warning: loading serialized file "
+                     "created with:\n"
+                  << "    " << fileProvenance << "\n"
+                  << "  Current build is:\n"
+                  << "    " << current << "\n"
+                  << "  There is no guarantee of backward "
+                     "compatibility beyond 6 months.\n"
+                  << std::endl;
         warnedOnce = true;
     }
 
