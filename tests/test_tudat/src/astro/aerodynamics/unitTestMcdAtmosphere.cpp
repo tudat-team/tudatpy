@@ -22,68 +22,36 @@
  *
  * REFERENCE TEST CASES:
  * ---------------------
- * The test cases are based on the MCD v6.1 test suite provided in:
- *   third_parties/mcd/testcase/
+ * The test cases are based on the MCD v6.1 INPUT_K and REF_OUTPUT_K test suite.
+ * Those reference files are upstream test data and are not bundled here.
  *
- * Each test case corresponds to one of the INPUT_K*.txt files and compares
- * results against the corresponding REF_OUTPUT_K* reference files.
+ * Each numbered reference case is based on an INPUT_K file and compares
+ * results against the corresponding REF_OUTPUT_K file. Any deliberate
+ * deviation from the reference input is documented with that case.
  *
- * IMPORTANT NOTES ON COORDINATE SYSTEMS:
- * ---------------------------------------
- * The MCD Fortran code supports multiple vertical coordinate systems (zkey):
- *   zkey = 1: Radial distance from planet center (m)
- *   zkey = 2: Height above areoid (MOLA zero datum) (m)
- *   zkey = 3: Height above local surface (m)
- *   zkey = 4: Pressure level (Pa)
- *   zkey = 5: Altitude above mean Mars radius (3396000 m) (m)
+ * VERTICAL COORDINATES:
+ * ---------------------
+ * The reference INPUT_K files express their locations using zkey=1 (radial
+ * distance from the planet center). The production McdAtmosphereModel expects
+ * altitude above the local surface and therefore requires its shared climate
+ * model to use zkey=3.
  *
- * COORDINATE CONVERSION CHALLENGE:
- * --------------------------------
- * The reference test files (INPUT_K*.txt) use zkey=1 format, specifying
- * positions as radial distances from Mars center (e.g., 3416200 m for 20km
- * altitude above the mean radius of 3396200 m).
- *
- * However, Tudat's flight conditions module computes altitude as height above
- * the local surface (matching zkey=3), accounting for:
- *   - Local topography from MOLA (Mars Orbiter Laser Altimeter) data
- *   - Local areoid variations (Mars geoid from gravity field harmonics)
- *
- * CURRENT IMPLEMENTATION:
- * -----------------------
- * The McdAtmosphereModel class uses zkey=3 (height above local surface) by default:
- *   1. Input: altitude above local surface (from Tudat's shape model)
- *   2. MCD call: Uses zkey=3 with this altitude directly
- *   3. Atmosphere queries validate that the shared MCD climate model still uses zkey=3
- *
- * COORDINATE SYSTEM COMPATIBILITY:
- * ---------------------------------
- * Tudat's flight conditions expose altitude above the configured shape model.
- * MCD's zkey=3 expects height above the local surface, so this is the convention
- * used by the atmosphere model.
- *
- * If high-resolution topography is enabled (highResolutionMode=1), MCD will
- * internally account for local MOLA topography when computing atmospheric properties.
- *
- * Direct MCD reference tests may disable the vertical-coordinate validation and
- * set zkey manually to match the reference data.
- *
- * LIMITATIONS:
- * ------------
- * 1. Small differences (~0.1%) may exist between Tudat's oblate spheroid model
- *    and MCD's precise areoid definition from gravity harmonics
- * 2. These differences are negligible compared to atmospheric variability
+ * The direct reference regressions are a deliberate exception: they disable
+ * that production validation and query the climate model with zkey=2 (height
+ * above the areoid) at the altitude listed for each reference location. They
+ * consequently validate the MCD scenario and atmospheric output near the
+ * reference location; they do not test literal parsing of the INPUT_K radial
+ * coordinate.
  *
  * TEST TOLERANCES:
  * ----------------
- * The following tolerances account for:
- *   - Small shape/topography differences between Tudat and MCD
- *   - Temporal interpolation in MCD climatology
- *   - Numerical precision differences
+ * The following tolerances account for coordinate-convention, interpolation,
+ * MCD-version, and perturbation differences:
  *
- *   - Low altitude (20 km): 15% - good agreement expected
- *   - Medium altitude (50 km): 35% - more sensitive to interpolation
- *   - High altitude (150 km): 15-20% - topography effects minimal
- *   - Perturbed cases: 15-20% - additional variability from perturbations
+ *   - Unperturbed case 1: 0.5%
+ *   - Other 20 km and 150 km reference cases: 15-20%
+ *   - 50 km reference case: 35%
+ *   - Small-scale stochastic perturbation case 6: 150% (path regression only)
  *
  * These tolerances validate that:
  *   1. The MCD Fortran interface works correctly
@@ -92,11 +60,11 @@
  *
  * EXPECTED BEHAVIOR:
  * ------------------
- * All active tests should PASS with the specified tolerances. Failures may indicate:
+ * All active tests should pass with the specified tolerances. Failures may indicate:
  *   1. MCD data files not properly installed or path incorrect
  *   2. MCD Fortran library not properly linked
  *   3. Actual coordinate conversion errors beyond expected differences
- *   4. Issues with the MCD Fortran code itself (rare)
+ *   4. Issues with the MCD Fortran code itself
  *
  * REFERENCE:
  * ----------
@@ -108,17 +76,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <limits>
 #include <boost/test/unit_test.hpp>
-
-#include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
 #include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
-#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
@@ -158,14 +122,15 @@ std::shared_ptr< aerodynamics::McdAtmosphereModel > createReferenceMcdAtmosphere
     return atmosphereModel;
 }
 
-// Reference cases 1-6 and 9 reproduce configurations from the MCD
-// INPUT_K*.txt files and compare against their REF_OUTPUT_K* results. Cases
-// 7, 8, and 10 require the warm-scenario data set, which is not distributed
-// with the MCD data used by this project, and are therefore not registered.
+// Reference cases 1-6 and 9 exercise the scenarios and locations defined by
+// the MCD INPUT_K*.txt files and compare against their REF_OUTPUT_K* results.
+// As described above, the wrapper queries these locations using zkey=2 rather
+// than reproducing the files' zkey=1 radial coordinates literally. Cases 7,
+// 8, and 10 require the warm-scenario data set, which is not distributed with
+// the MCD data used by this project, and are therefore not registered.
 
-// INPUT_K1: scenario 1, 20 km above the areoid, high resolution, no
-// perturbations. A tight tolerance is possible because the climate model is
-// explicitly configured with the reference case's vertical-coordinate key.
+// INPUT_K1 reference scenario: scenario 1, a corresponding altitude of 20 km
+// above the areoid, high resolution, and no perturbations.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 {
     double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
