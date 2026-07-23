@@ -2659,13 +2659,34 @@ public:
         {
             return false;
         }
-        for( std::size_t i = 0; i < observationSetList_.size( ); ++i )
+
+        auto lhsObservable = observationSetList_.cbegin( );
+        auto rhsObservable = rhs.observationSetList_.cbegin( );
+        for( ; lhsObservable != observationSetList_.cend( ); ++lhsObservable, ++rhsObservable )
         {
-            const auto& lhsSet = observationSetList_.at( i );
-            const auto& rhsSet = rhs.observationSetList_.at( i );
-            if( static_cast< bool >( lhsSet ) != static_cast< bool >( rhsSet ) || ( lhsSet && *lhsSet != *rhsSet ) )
+            if( lhsObservable->first != rhsObservable->first || lhsObservable->second.size( ) != rhsObservable->second.size( ) )
             {
                 return false;
+            }
+
+            auto lhsLinkEnds = lhsObservable->second.cbegin( );
+            auto rhsLinkEnds = rhsObservable->second.cbegin( );
+            for( ; lhsLinkEnds != lhsObservable->second.cend( ); ++lhsLinkEnds, ++rhsLinkEnds )
+            {
+                if( lhsLinkEnds->first != rhsLinkEnds->first || lhsLinkEnds->second.size( ) != rhsLinkEnds->second.size( ) )
+                {
+                    return false;
+                }
+
+                for( std::size_t i = 0; i < lhsLinkEnds->second.size( ); ++i )
+                {
+                    const auto& lhsSet = lhsLinkEnds->second.at( i );
+                    const auto& rhsSet = rhsLinkEnds->second.at( i );
+                    if( static_cast< bool >( lhsSet ) != static_cast< bool >( rhsSet ) || ( lhsSet && *lhsSet != *rhsSet ) )
+                    {
+                        return false;
+                    }
+                }
             }
         }
         return true;

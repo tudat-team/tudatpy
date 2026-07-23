@@ -344,7 +344,16 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionSerialization )
 
     compareObservationCollections( originalCollection, deserializedCollection );
     BOOST_CHECK( originalCollection == deserializedCollection );
-    BOOST_CHECK( originalCollection.getObservationsSets( ).front( ) != deserializedCollection.getObservationsSets( ).front( ) );
+    const auto& originalSets = originalCollection.getObservationsReference( );
+    const auto& deserializedSets = deserializedCollection.getObservationsReference( );
+    BOOST_REQUIRE( !originalSets.empty( ) );
+    BOOST_REQUIRE( !deserializedSets.empty( ) );
+    BOOST_REQUIRE( !originalSets.cbegin( )->second.empty( ) );
+    BOOST_REQUIRE( !deserializedSets.cbegin( )->second.empty( ) );
+    BOOST_REQUIRE( !originalSets.cbegin( )->second.cbegin( )->second.empty( ) );
+    BOOST_REQUIRE( !deserializedSets.cbegin( )->second.cbegin( )->second.empty( ) );
+    BOOST_CHECK( originalSets.cbegin( )->second.cbegin( )->second.front( ) !=
+                 deserializedSets.cbegin( )->second.cbegin( )->second.front( ) );
 
     Eigen::VectorXd originalConcatenatedObservations = originalCollection.getConcatenatedObservations( );
     Eigen::VectorXd originalConcatenatedResiduals = originalCollection.getConcatenatedResiduals( );
