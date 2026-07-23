@@ -228,38 +228,28 @@ jobs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        # Ninja invokes conda-forge's Windows compiler activation hook for many compile rules. That hook
-        # echoes its full Visual Studio discovery script, which floods the CI log while not being a compiler
-        # warning. Filter only that activation block and preserve the cmake --build exit code.
         $buildScript = Join-Path $env:RUNNER_TEMP "build_tudat.cmd"
-        $buildCommands = @"
+        @"
         @echo off
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
-        "@
-        Set-Content -Path $buildScript -Encoding ASCII -Value $buildCommands
+        "@ | Set-Content -Path $buildScript -Encoding ASCII
 
-        $script:inNoisyCompilerActivation = $false
+        $filteringActivation = $false
         & cmd.exe /D /E:ON /V:OFF /S /C "`"$buildScript`"" 2>&1 | ForEach-Object {
-          $line = $_.ToString()
+          $line = "$_"
           if ($line -match '^[A-Z]:\\.*>SET DISTUTILS_USE_SDK=1\s*$') {
-            $script:inNoisyCompilerActivation = $true
-            return
+            $filteringActivation = $true
+          } elseif ($filteringActivation -and $line -match '^\[\d+/\d+\] ') {
+            $filteringActivation = $false
+            $line
+          } elseif ($filteringActivation -and $line -match '^\[vcvarsall\.bat\] Environment initialized for:') {
+            $filteringActivation = $false
+          } elseif (-not $filteringActivation) {
+            $line
           }
-          if ($script:inNoisyCompilerActivation) {
-            if ($line -match '^\[\d+/\d+\] ') {
-              $script:inNoisyCompilerActivation = $false
-              Write-Output $line
-              return
-            }
-            if ($line -match '^\[vcvarsall\.bat\] Environment initialized for:') {
-              $script:inNoisyCompilerActivation = $false
-            }
-            return
-          }
-          Write-Output $line
         }
         exit $LASTEXITCODE
 
