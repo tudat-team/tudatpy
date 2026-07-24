@@ -36,6 +36,9 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_propagation.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -46,6 +49,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -357,7 +361,9 @@ void expose_dependent_variable_setup( py::module& m )
 
 
 
-    )doc" );
+    )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings )
+            .def( "__hash__", []( const tp::VariableSettings& ) { return 0; } ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
+                    TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
 
     m.def( "local_wind_velocity",
            &tp::localWindVelocityVariable,
@@ -455,7 +461,8 @@ Index of the component to be saved.
                                     
 :type: int
 
-                                    )doc" );
+                                    )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleDependentVariableSaveSettings );
     //            .def(py::init<
     //                 const tp::PropagationDependentVariables,
     //                 const std::string &,
@@ -488,9 +495,8 @@ The type of the acceleration that is to be saved.
 
 :type: AvailableAcceleration
 
-)doc" );
-
-    //            .def(py::init<
+)doc" ) TUDATPY_DEF_EQ_NE( tp::SingleAccelerationDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleAccelerationDependentVariableSaveSettings );
     //                 const
     //                 tudat::basic_astrodynamics::AvailableAcceleration,
     //                 const std::string &,
