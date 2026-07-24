@@ -19,8 +19,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/io/serialization/pybind_helpers.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
 namespace tom = tudat::observation_models;
 
@@ -336,7 +335,7 @@ Examples
 
 
 
-      )doc" ) TUDATPY_DEF_PICKLE( tom::LinkEndId )
+      )doc" )
             .def_property_readonly( "station_name",
                                     &tom::LinkEndId::getReferencePointName,
                                     R"doc(
@@ -344,8 +343,7 @@ Examples
       )doc" )
             .def( py::init< const std::string& >( ), py::arg( "body_name" ) )
             .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "station_name" ) )
-            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) ) TUDATPY_DEF_EQ_NE( tom::LinkEndId )
-                    TUDATPY_DEF_FILE_IO( tom::LinkEndId );
+            .def( py::init< const std::pair< std::string, std::string >& >( ), py::arg( "link_end" ) );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
@@ -515,8 +513,7 @@ Examples
 
              Attribute that contains the dictionary with link end type (as key) and link end if (as value).
 
-          )doc" ) TUDATPY_DEF_PICKLE( tom::LinkDefinition ) TUDATPY_DEF_EQ_NE( tom::LinkDefinition )
-                    TUDATPY_DEF_FILE_IO( tom::LinkDefinition );
+          )doc" );
 
     m.def( "link_definition",
            &tom::linkDefinition,

@@ -51,30 +51,21 @@ else:
     sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
 
 
-def has_mcd_support():
-    """Return whether the imported tudatpy build exposes atmosphere.mcd."""
+def module_has_members(module_name, member_names):
     try:
-        atmosphere = importlib.import_module("tudatpy.dynamics.environment_setup.atmosphere")
+        module = importlib.import_module(module_name)
     except Exception:
         return False
-    return hasattr(atmosphere, "mcd")
+    return all(hasattr(module, member_name) for member_name in member_names)
 
 
-HAS_MCD_SUPPORT = has_mcd_support()
-
-
-def filter_mcd_docs(app, docname, source):
-    """Hide MCD docs when the imported tudatpy build has no MCD support."""
-    if docname != "dynamics/environment_setup/atmosphere" or HAS_MCD_SUPPORT:
-        return
-
-    text = source[0]
-    text = text.replace("\n   mcd\n", "\n")
-    text = text.replace(
-        "\n.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd\n",
-        "\n",
-    )
-    source[0] = text
+has_mcd_support = module_has_members(
+    "tudatpy.dynamics.environment_setup.atmosphere",
+    [
+        "mars_climate_database_atmosphere_model",
+        "mars_climate_database_climate_model",
+    ],
+)
 
 
 # -- General configuration ------------------------------------------------
@@ -397,11 +388,11 @@ def simplify_signature_types(app, what, name, obj, options, signature, return_an
 
 
 def setup(app):
+    app.add_config_value("has_mcd_support", has_mcd_support, "env")
     app.connect("autodoc-process-docstring", process_constants_docstring)
     # run before default-priority (500) docstring processors
     app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
-    app.connect("source-read", filter_mcd_docs)
 
 
 # Add any paths that contain templates here, relative to this directory.

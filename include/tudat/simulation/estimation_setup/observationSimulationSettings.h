@@ -572,7 +572,8 @@ void addAncillarySettingsToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
         std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& ancillarySettings )
 {
-    observationSimulationSettings->setAncillarySettings( ancillarySettings );
+    observationSimulationSettings->setAncillarySettings(
+            const_cast< std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& >( ancillarySettings ) );
 }
 
 template< typename TimeType = double >

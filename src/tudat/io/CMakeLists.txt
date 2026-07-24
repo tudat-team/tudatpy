@@ -103,7 +103,3 @@ TUDAT_ADD_LIBRARY("input_output"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-
-if (TUDAT_BUILD_WITH_SERIALIZATION)
-    add_subdirectory(serialization)
-endif ()

@@ -19,8 +19,6 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/io/serialization/core.h"
-#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -88,17 +86,6 @@ public:
     virtual ~ObservationDependentVariableSettings( ) {}
 
     ObservationDependentVariables variableType_;
-
-    // Used for serialization testing
-    bool operator==( const ObservationDependentVariableSettings& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const ObservationDependentVariableSettings& rhs ) const
-    {
-        return !equals( rhs );
-    }
 
     //! Get identifier for base dependent variable settings
     std::string getBaseIdentifier( )
@@ -199,44 +186,6 @@ public:
 
     //! Link end type (originating end of the link)
     LinkEndType originatingLinkEndType_;
-
-    //! Save dependent variable settings to a JSON file
-    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( ObservationDependentVariableSettings )
-
-protected:
-    // Default constructor for serialization
-    ObservationDependentVariableSettings( ): variableType_( station_elevation_angle ) {}
-
-    // Each derived class should implement this function such that it returns true if a deserialized object is
-    // equal to the original object.
-    virtual bool equals( const ObservationDependentVariableSettings& rhs ) const
-    {
-        return variableType_ == rhs.variableType_ && linkEndId_ == rhs.linkEndId_ && linkEndType_ == rhs.linkEndType_ &&
-                originatingLinkEndId_ == rhs.originatingLinkEndId_ && originatingLinkEndType_ == rhs.originatingLinkEndType_;
-    }
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( variableType_ ) );
-        ar( CEREAL_NVP( linkEndId_ ) );
-        ar( CEREAL_NVP( linkEndType_ ) );
-        ar( CEREAL_NVP( originatingLinkEndId_ ) );
-        ar( CEREAL_NVP( originatingLinkEndType_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( variableType_ ) );
-        ar( CEREAL_NVP( linkEndId_ ) );
-        ar( CEREAL_NVP( linkEndType_ ) );
-        ar( CEREAL_NVP( originatingLinkEndId_ ) );
-        ar( CEREAL_NVP( originatingLinkEndType_ ) );
-    }
 };
 
 enum IntegratedObservationPropertyHandling { interval_start, interval_end, interval_undefined };
@@ -258,13 +207,13 @@ public:
         isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
     {}
 
-    std::string getIdentifier( ) override
+    std::string getIdentifier( )
     {
         return getBaseIdentifier( ) + getIntegrationHandlingString( integratedObservableHandling_ );
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
         bool isCompatible = true;
         std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
@@ -300,41 +249,6 @@ public:
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
     bool isLinkEndDefined_;
-
-protected:
-    // Default constructor for serialization
-    StationAngleObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ), isLinkEndDefined_( false ) {}
-
-    // Used for serialization testing
-    bool equals( const ObservationDependentVariableSettings& other ) const override
-    {
-        const auto* rhs = dynamic_cast< const StationAngleObservationDependentVariableSettings* >( &other );
-        if( !rhs )
-        {
-            return false;
-        }
-        return ObservationDependentVariableSettings::equals( other ) &&
-                integratedObservableHandling_ == rhs->integratedObservableHandling_ && isLinkEndDefined_ == rhs->isLinkEndDefined_;
-    }
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( integratedObservableHandling_ ) );
-        ar( CEREAL_NVP( isLinkEndDefined_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( integratedObservableHandling_ ) );
-        ar( CEREAL_NVP( isLinkEndDefined_ ) );
-    }
 };
 
 class InterlinkObservationDependentVariableSettings : public ObservationDependentVariableSettings
@@ -354,7 +268,7 @@ public:
 
     ~InterlinkObservationDependentVariableSettings( ) {}
 
-    std::string getIdentifier( ) override
+    std::string getIdentifier( )
     {
         std::string identifier = getBaseIdentifier( );
         if( relativeBody_ != "" )
@@ -367,7 +281,7 @@ public:
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
         bool isCompatible = true;
         std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
@@ -409,41 +323,6 @@ public:
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
     std::string relativeBody_;
-
-protected:
-    // Default constructor for serialization
-    InterlinkObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ) {}
-
-    // Used for serialization testing
-    bool equals( const ObservationDependentVariableSettings& other ) const override
-    {
-        const auto* rhs = dynamic_cast< const InterlinkObservationDependentVariableSettings* >( &other );
-        if( !rhs )
-        {
-            return false;
-        }
-        return ObservationDependentVariableSettings::equals( other ) &&
-                integratedObservableHandling_ == rhs->integratedObservableHandling_ && relativeBody_ == rhs->relativeBody_;
-    }
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( integratedObservableHandling_ ) );
-        ar( CEREAL_NVP( relativeBody_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( integratedObservableHandling_ ) );
-        ar( CEREAL_NVP( relativeBody_ ) );
-    }
 };
 
 //! Returns a function which checks whether an ancillary settings dependent variable exists for a given observable type (dependent on whether
@@ -464,7 +343,7 @@ public:
 
     ~AncillaryObservationDependentVariableSettings( ) {}
 
-    std::string getIdentifier( ) override
+    std::string getIdentifier( )
     {
         std::string identifier = getBaseIdentifier( );
         if( observableType_ != undefined_observation_model )
@@ -475,7 +354,7 @@ public:
     }
 
     //! Function that checks whether two dependent variable settings are compatible (i.e., they might refer to the same dependent variable).
-    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) override
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
         bool isCompatible = true;
         std::shared_ptr< AncillaryObservationDependentVariableSettings > ancillarySettings =
@@ -507,41 +386,6 @@ public:
     ObservableType observableType_;
 
     std::function< bool( const ObservableType observableType ) > isObservableTypeCompatible_;
-
-protected:
-    // Default constructor for serialization
-    AncillaryObservationDependentVariableSettings( ): observableType_( undefined_observation_model ) {}
-
-    // Used for serialization testing
-    bool equals( const ObservationDependentVariableSettings& other ) const override
-    {
-        const auto* rhs = dynamic_cast< const AncillaryObservationDependentVariableSettings* >( &other );
-        if( !rhs )
-        {
-            return false;
-        }
-        // isObservableTypeCompatible_ is a std::function (not comparable) — compare only scalar members
-        return ObservationDependentVariableSettings::equals( other ) && observableType_ == rhs->observableType_;
-    }
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( observableType_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( observableType_ ) );
-        // Reconstruct the function after loading
-        isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType_ );
-    }
 };
 
 //! Function that returns a string uniquely describing a dependent variable settings object
@@ -723,10 +567,10 @@ class LightTimeCorrectionComponentsDependentVariableSettings : public Observatio
 {
 public:
     LightTimeCorrectionComponentsDependentVariableSettings(
-            const LinkEndType transmitterLinkEndType,
-            const LinkEndType receiverLinkEndType,
-            const LinkEndId transmitterLinkEndId,
-            const LinkEndId receiverLinkEndId,
+            const LinkEndType transmitterLinkEndType = unidentified_link_end,
+            const LinkEndType receiverLinkEndType = unidentified_link_end,
+            const LinkEndId transmitterLinkEndId = LinkEndId( "", "" ),
+            const LinkEndId receiverLinkEndId = LinkEndId( "", "" ),
             const std::vector< observation_models::LightTimeCorrectionType > correctionTypeFilter =
                     std::vector< observation_models::LightTimeCorrectionType >( ) ):
         ObservationDependentVariableSettings( light_time_correction_components,
@@ -759,43 +603,6 @@ public:
     //! Size resolved from the actual LightTimeCalculator on the selected leg. A negative value
     //! means the settings have not yet been registered with an observation model.
     int resolvedSize_;
-
-protected:
-    // Default constructor for serialization
-    LightTimeCorrectionComponentsDependentVariableSettings( ): resolvedSize_( -1 ) {}
-
-    bool equals( const ObservationDependentVariableSettings& rhs ) const override
-    {
-        if( !ObservationDependentVariableSettings::equals( rhs ) )
-        {
-            return false;
-        }
-        const auto* derived = dynamic_cast< const LightTimeCorrectionComponentsDependentVariableSettings* >( &rhs );
-        if( !derived )
-        {
-            return false;
-        }
-        return correctionTypeFilter_ == derived->correctionTypeFilter_ && resolvedSize_ == derived->resolvedSize_;
-    }
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( correctionTypeFilter_ ) );
-        ar( CEREAL_NVP( resolvedSize_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( cereal::base_class< ObservationDependentVariableSettings >( this ) );
-        ar( CEREAL_NVP( correctionTypeFilter_ ) );
-        ar( CEREAL_NVP( resolvedSize_ ) );
-    }
 };
 
 //! Function to create a dependent variable saving the individual light-time correction
@@ -821,5 +628,4 @@ inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeCorrecti
 }  // namespace simulation_setup
 
 }  // namespace tudat
-
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS

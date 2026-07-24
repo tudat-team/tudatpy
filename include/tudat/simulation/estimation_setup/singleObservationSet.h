@@ -16,19 +16,12 @@
 #include <memory>
 #include <vector>
 
-#include <cereal/access.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/utility.hpp>
-
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -1249,7 +1242,7 @@ private:
         return singleDependentVariable;
     }
 
-    ObservableType observableType_;
+    const ObservableType observableType_;
 
     LinkDefinition linkEnds_;
 
@@ -1259,13 +1252,13 @@ private:
 
     std::vector< TimeType > observationTimes_;
 
-    LinkEndType referenceLinkEnd_;
+    const LinkEndType referenceLinkEnd_;
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     unsigned int numberOfObservations_;
 
@@ -1278,83 +1271,6 @@ private:
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
-
-public:
-    bool operator==( const SingleObservationSet& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const SingleObservationSet& rhs ) const
-    {
-        return !( *this == rhs );
-    }
-
-    //! Equality comparison via equals method
-    bool equals( const SingleObservationSet& rhs ) const
-    {
-        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
-            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
-        };
-
-        return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
-                observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
-                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
-                pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
-                pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
-                singleObservationSize_ == rhs.singleObservationSize_ && weights_ == rhs.weights_ && residuals_ == rhs.residuals_ &&
-                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
-    }
-
-    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
-
-protected:
-    // Default constructor for serialization
-    SingleObservationSet( ):
-        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), numberOfObservations_( 0 ),
-        singleObservationSize_( 0 )
-    {}
-
-private:
-    friend class cereal::access;
-
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( observableType_ ) );
-        ar( CEREAL_NVP( linkEnds_ ) );
-        ar( CEREAL_NVP( timeBounds_ ) );
-        ar( CEREAL_NVP( observations_ ) );
-        ar( CEREAL_NVP( observationTimes_ ) );
-        ar( CEREAL_NVP( referenceLinkEnd_ ) );
-        ar( CEREAL_NVP( observationsDependentVariables_ ) );
-        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
-        ar( CEREAL_NVP( ancillarySettings_ ) );
-        ar( CEREAL_NVP( numberOfObservations_ ) );
-        ar( CEREAL_NVP( singleObservationSize_ ) );
-        ar( CEREAL_NVP( weights_ ) );
-        ar( CEREAL_NVP( residuals_ ) );
-        ar( CEREAL_NVP( filteredObservationSet_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( observableType_ ) );
-        ar( CEREAL_NVP( linkEnds_ ) );
-        ar( CEREAL_NVP( timeBounds_ ) );
-        ar( CEREAL_NVP( observations_ ) );
-        ar( CEREAL_NVP( observationTimes_ ) );
-        ar( CEREAL_NVP( referenceLinkEnd_ ) );
-        ar( CEREAL_NVP( observationsDependentVariables_ ) );
-        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
-        ar( CEREAL_NVP( ancillarySettings_ ) );
-        ar( CEREAL_NVP( numberOfObservations_ ) );
-        ar( CEREAL_NVP( singleObservationSize_ ) );
-        ar( CEREAL_NVP( weights_ ) );
-        ar( CEREAL_NVP( residuals_ ) );
-        ar( CEREAL_NVP( filteredObservationSet_ ) );
-    }
 };
 
 template< typename ObservationScalarType = double,

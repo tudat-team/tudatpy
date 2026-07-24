@@ -14,10 +14,6 @@ set(basics_SOURCES
         "deprecationWarnings.cpp"
         )
 
-if (TUDAT_BUILD_WITH_SERIALIZATION)
-    list(APPEND basics_SOURCES "timeSerialization.cpp")
-endif ()
-
 # Add header files.
 set(basics_HEADERS
         "utilities.h"
@@ -35,7 +31,6 @@ set(basics_HEADERS
 TUDAT_ADD_LIBRARY("basics"
         "${basics_SOURCES}"
         "${basics_HEADERS}"
-        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

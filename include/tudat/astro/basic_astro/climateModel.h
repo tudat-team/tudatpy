@@ -7,25 +7,25 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#ifndef TUDAT_CLIMATEMODEL_H
+#define TUDAT_CLIMATEMODEL_H
 
-#ifndef TUDATPY_EXPOSE_INTER_ARC_CONSTRAINTS_H
-#define TUDATPY_EXPOSE_INTER_ARC_CONSTRAINTS_H
-
-#include <pybind11/pybind11.h>
-
-namespace py = pybind11;
-
-namespace tudatpy
-{
-namespace estimation
-{
-namespace estimation_analysis
+namespace tudat
 {
 
-void expose_inter_arc_constraints( py::module& m );
+namespace environment
+{
 
-}  // namespace estimation_analysis
-}  // namespace estimation
-}  // namespace tudatpy
+class ClimateModel
+{
+public:
+    ClimateModel( ) = default;
 
-#endif  // TUDATPY_EXPOSE_INTER_ARC_CONSTRAINTS_H
+    virtual ~ClimateModel( ) = default;
+};
+
+}  // namespace environment
+
+}  // namespace tudat
+
+#endif

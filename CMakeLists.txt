@@ -109,11 +109,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_SERIALIZATION
-    "Build Tudat binary/JSON serialization, polymorphic registrations, and Python pickle/file-I/O bindings."
-    ON
-)
-option(
     TUDAT_BUILD_WITH_PCH
     "Enable precompiled headers for supported targets."
     ON
@@ -176,6 +171,12 @@ option(
 option(
     TUDAT_BUILD_WITH_PAGMO
     "Build Tudat with pagmo."
+    OFF
+)
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD_INTERFACE
+    "Build Tudat with Mars Climate Database support."
     OFF
 )
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
@@ -250,11 +251,6 @@ set(
 # TODO: NOT SURE IF THIS BELONGS HERE (Comes from tudatpy cmake)
 if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
-endif ()
-if (NOT TUDAT_BUILD_WITH_SERIALIZATION)
-    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=0)
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=1)
 endif ()
 if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
@@ -371,7 +367,7 @@ endif ()
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
 message(STATUS "TudatResources_INCLUDE_DIRS: ${TudatResources_INCLUDE_DIRS}")
-include_directories(TudatResources_INCLUDE_DIRS)
+include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -393,10 +389,6 @@ if (APPLE OR (WIN32 AND CLANG))
     list(GET _TUDAT_EIGEN_INCLUDE_DIRS 0 _TUDAT_EIGEN_PRIMARY_INCLUDE_DIR)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${_TUDAT_EIGEN_PRIMARY_INCLUDE_DIR}\"")
 endif ()
-
-# Cereal serialization library (header-only)
-find_package(cereal REQUIRED)
-message(STATUS "cereal found: ${cereal_DIR}")
 
 # PAGMO dependency
 if (TUDAT_BUILD_WITH_PAGMO)
@@ -453,32 +445,25 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# MCD dependency - add option and enable Fortran if needed
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
-
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language
     enable_language(Fortran)
-    
+
     # Find NetCDF (required for MCD)
     find_package(NetCDF REQUIRED COMPONENTS Fortran C)
-    
+
     if(NOT NetCDF_FOUND)
         message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
                            "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
     endif()
-    
+
     message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
     message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
     message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
-    
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=1)
 else()
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=0)
 endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
@@ -496,14 +481,14 @@ include(YOLOProjectAddExternalData)
 include(TudatLinkLibraries)
 
 # Build MCD library if enabled (must be AFTER TudatLinkLibraries)
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
     add_subdirectory(${MCD_SOURCE_DIR})
-    
+
     # Set MCD data directory path
     set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
     target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
-    
+
     message(STATUS "MCD: Library configured successfully")
     message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
 endif()
@@ -513,42 +498,6 @@ file(
     RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
     "${CMAKE_INSTALL_PREFIX}"
     "${INSTALL_DATA_DIR}/tudat"
-)
-
-# Capture git commit hash and build timestamp for serialization provenance.
-# Falls back gracefully when git is unavailable (e.g. tarball builds).
-execute_process(
-    COMMAND git rev-parse HEAD
-    WORKING_DIRECTORY "${BASE_DIRECTORY}"
-    OUTPUT_VARIABLE TUDAT_BUILD_COMMIT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-if(NOT TUDAT_BUILD_COMMIT)
-    set(TUDAT_BUILD_COMMIT "unknown")
-endif()
-
-# Build date in YYYY-MM-DD format via git (or date command as fallback).
-execute_process(
-    COMMAND git log -1 --format=%cd --date=format:%Y-%m-%d
-    WORKING_DIRECTORY "${BASE_DIRECTORY}"
-    OUTPUT_VARIABLE TUDAT_BUILD_TIME
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-if(NOT TUDAT_BUILD_TIME)
-    execute_process(
-        COMMAND date +%Y-%m-%d
-        OUTPUT_VARIABLE TUDAT_BUILD_TIME
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-endif()
-
-message(
-    STATUS
-    "Tudat build: version=${TUDATPY_FULL_VERSION}"
-    " commit=${TUDAT_BUILD_COMMIT}"
-    " date=${TUDAT_BUILD_TIME}"
 )
 
 configure_file(
@@ -580,15 +529,6 @@ add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
-
-if (TUDAT_BUILD_WITH_SERIALIZATION)
-    # Serialization registration objects must be linked by every supported Tudat aggregate. Their
-    # force-initialization symbols keep the domain registration translation units alive in static
-    # builds while ordinary model libraries remain registration-free.
-    list(PREPEND Tudat_PROPAGATION_LIBRARIES Tudat::tudat_serialization)
-    list(PREPEND Tudat_ESTIMATION_LIBRARIES Tudat::tudat_serialization)
-    target_link_libraries(Tudat_LIBRARIES INTERFACE Tudat::tudat_serialization)
-endif ()
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)

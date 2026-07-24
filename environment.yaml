@@ -12,9 +12,11 @@ dependencies:
   - nrlmsise-00
   - cspice
   - fftw
-  - cereal
   - c-compiler
   - cxx-compiler
+  - fortran-compiler
+  - libnetcdf
+  - netcdf-fortran
   - python
   - pybind11
   - pybind11-abi

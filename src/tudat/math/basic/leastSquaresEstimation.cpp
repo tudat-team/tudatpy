@@ -130,9 +130,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations,
-        const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide )
+        const Eigen::VectorXd& considerParametersDeviations )
 {
     Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
@@ -153,34 +151,10 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     if( constraintMultiplier.rows( ) != 0 )
     {
         int numberOfConstraints = constraintMultiplier.rows( );
-        int numberOfConstrainedParameters = constraintMultiplier.cols( );
+        int numberOfParameters = constraintMultiplier.cols( );
 
-        rightHandSide.conservativeResize( numberOfConstrainedParameters + numberOfConstraints );
-        rightHandSide.segment( numberOfConstrainedParameters, numberOfConstraints ) = constraintRightHandside;
-    }
-
-    // Soft-constraint additions (e.g. inter-arc continuity): inject into the parameter block of the LHS/RHS,
-    // leaving any Lagrange-multiplier rows from the hard equality constraint above untouched.
-    const int nParams = static_cast< int >( designMatrix.cols( ) );
-    if( additionalNormalMatrix.size( ) > 0 )
-    {
-        if( additionalNormalMatrix.rows( ) != nParams || additionalNormalMatrix.cols( ) != nParams )
-        {
-            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalNormalMatrix has shape " +
-                                      std::to_string( additionalNormalMatrix.rows( ) ) + "x" +
-                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
-                                      std::to_string( nParams ) + "." );
-        }
-        inverseOfCovarianceMatrix.topLeftCorner( nParams, nParams ) += additionalNormalMatrix;
-    }
-    if( additionalRightHandSide.size( ) > 0 )
-    {
-        if( additionalRightHandSide.size( ) != nParams )
-        {
-            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalRightHandSide has size " +
-                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " + std::to_string( nParams ) + "." );
-        }
-        rightHandSide.head( nParams ) += additionalRightHandSide;
+        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
     }
 
     return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
