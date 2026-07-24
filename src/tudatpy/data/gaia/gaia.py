@@ -37,6 +37,8 @@ _ASTEROID_TABLE_COLUMNS = [
     'h_state_vector_var_covar_matrix'
 ]
 
+_CORRECTION_COLUMNS = ['photocenter_corr_ra', 'photocenter_corr_dec',
+                       'light_deflection_corr_ra', 'light_deflection_corr_dec']
 _STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
 _ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release
 _ASTEROID_CATALOG = 'gaiafpr.sso_source'
@@ -52,7 +54,6 @@ class GaiaAstrometry:
         .load_from_local_archive
         """
         self._table = observations_and_metadata
-        self._corrected = False # Flag indicating if observation corrections have been applied
 
 
     @property
@@ -225,12 +226,16 @@ class GaiaAstrometry:
     def correct_observations(self,
                              bodies: SystemOfBodies,
                              diameters: dict = None,
-                             light_deflection_bodies: list = ['Sun'],
+                             light_deflection_bodies: Iterable = ('Sun',),
                              correct_photocenter: bool = True) -> None:
         """Apply photocenter and/or light-deflection corrections to the observations.
 
-        Corrections are made in-place, modifying the observations themselves. Applies the corrections to all asteroid
-        data currently loaded.
+        Applies corrections to the loaded asteroid astrometry for:
+            Photocenter-barycenter offset, according to Fuentes-Munoz et al. (2024)
+            Light-deflection due to relativity according to Klioner (2008)
+
+        The applied corrections are also stored in the correction columns of the astrometry table
+        so their magnitudes can be inspected.
 
         Parameters
         ----------
@@ -246,11 +251,17 @@ class GaiaAstrometry:
             Whether photocenter-barycenter corrections should be applied, by default True.
         """
         # Input validation
-        if self._corrected: # Check if this function has already been used for current object
-            raise RuntimeError('correct_observations was called, but corrections were already applied on this instance')
-
         if correct_photocenter and diameters is None:
             raise ValueError('Diameters must be specified when photocenter correction is applied.')
+
+        photocenter_columns = ['photocenter_corr_ra', 'photocenter_corr_dec']
+        light_deflection_columns = ['light_deflection_corr_ra', 'light_deflection_corr_dec']
+
+        # Prevent applying the same correction twice (nonzero correction columns indicate it was already applied)
+        if correct_photocenter and (self._table[photocenter_columns] != 0).any(axis=None):
+            raise RuntimeError('correct_observations was called, but photocenter corrections were already applied on this instance')
+        if light_deflection_bodies and (self._table[light_deflection_columns] != 0).any(axis=None):
+            raise RuntimeError('correct_observations was called, but light-deflection corrections were already applied on this instance')
 
         # Apply corrections to all asteroid data currently loaded
         for mpc_number in self.mpc_numbers:
@@ -267,6 +278,7 @@ class GaiaAstrometry:
                     body_name=str(mpc_number),
                     observer_body_name='Gaia'
                 )
+                self._table.loc[mask, photocenter_columns] = photocenter_corrections
                 self._table.loc[mask, ['ra', 'dec']] += photocenter_corrections
 
             # Apply light-bending corrections
@@ -277,15 +289,13 @@ class GaiaAstrometry:
                     bodies=bodies,
                     body_name=str(mpc_number),
                     observer_body_name='Gaia',
-                    perturbing_bodies_list=light_deflection_bodies,
+                    perturbing_bodies_list=list(light_deflection_bodies),
                 )
+                self._table.loc[mask, light_deflection_columns] = light_bending_corrections
                 self._table.loc[mask, ['ra', 'dec']] += light_bending_corrections
 
         # Wrap RA
         self._table['ra'] = (self._table['ra'] + np.pi) % (2 * np.pi) - np.pi
-
-        # Set correction flag
-        self._corrected = True
 
     @classmethod
     def load_from_astroquery(cls,
@@ -454,6 +464,9 @@ class GaiaAstrometry:
         vel_names = ['vx_gaia', 'vy_gaia', 'vz_gaia', 'vx_gaia_geocentric', 'vy_gaia_geocentric',
                      'vz_gaia_geocentric']
         table.loc[:, vel_names] *= ASTRONOMICAL_UNIT / JULIAN_DAY
+
+        # Initialize correction columns, filled in by correct_observations
+        table[_CORRECTION_COLUMNS] = 0.0
 
         return table
 

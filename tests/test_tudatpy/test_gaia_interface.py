@@ -215,7 +215,7 @@ def test_correct_observations_light_deflection(gaia_astrometry):
 
 def test_correct_observations_twice_raises_error(gaia_astrometry):
     """Applying corrections twice on the same instance must raise an error"""
-    fake_correction = lambda observations, **kwargs: np.zeros((len(observations), 2))
+    fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), 1e-9)
 
     with mock.patch('tudatpy.data.gaia.gaia.relativistic_light_deflection_from_observations',
                     side_effect=fake_correction):
