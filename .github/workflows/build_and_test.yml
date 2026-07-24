@@ -96,6 +96,18 @@ jobs:
         cp -R temp_mcd/data third_parties/mcd/
         cp temp_mcd/source/MCD.F90 third_parties/mcd/MCD.F90
         cp temp_mcd/source/mcd.h third_parties/mcd/interfaces/c_interfaces/mcd.h
+        # MCD's loadvar_mcd routine does not initialize its success status.
+        # Patch the private source after download until the release is corrected.
+        python - <<'PY'
+        from pathlib import Path
+
+        path = Path("third_parties/mcd/MCD.F90")
+        source = path.read_text()
+        marker = "      if (typevar.eq.'mean') then"
+        if source.count(marker) != 1:
+            raise RuntimeError("Could not locate the unique loadvar_mcd insertion point")
+        path.write_text(source.replace(marker, "      ier=0\n\n" + marker))
+        PY
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
