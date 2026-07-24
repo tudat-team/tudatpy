@@ -10,6 +10,7 @@ from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections
 from tudatpy.constants import SPEED_OF_LIGHT
+from collections.abc import Iterable
 
 def _calculate_light_deflection(
         observer_pos: np.ndarray,
@@ -48,8 +49,8 @@ def relativistic_light_deflection_from_observations(
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
-        observer_reference_name: str = None,
-        perturbing_bodies_list: list[str] = ['Sun'],
+        observer_reference_name: str | None = None,
+        perturbing_bodies_list: Iterable[str] = ('Sun',),
 ):
     """
     Compute corrections to observations for the relativstic deflection of light around massive bodies.
@@ -71,7 +72,7 @@ def relativistic_light_deflection_from_observations(
     observer_reference_name : str
         Name of the reference point on the observer body. If not given, it is assumed that the observer location
             coincides with the 'observer_body_name' body center.
-    perturbing_bodies_list : list[str]
+    perturbing_bodies_list : Iterable[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
 
     Returns
@@ -82,7 +83,7 @@ def relativistic_light_deflection_from_observations(
     if observations.shape[1] != 3:
         raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
     body_dne = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
-                for name in perturbing_bodies_list + [body_name, observer_body_name]]
+                for name in list(perturbing_bodies_list) + [body_name, observer_body_name]]
     if any(body_dne):
         raise ValueError('Some or all included bodies in the relativistic light deflection computation are missing'
                          'from SystemOfBodies or their associated ephemerides are not specified.')
@@ -152,10 +153,10 @@ def apply_light_deflection_correction_to_observation_collection(
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
-        observer_reference_name: str = None,
-        perturbing_bodies_list: list[str] = ('Sun',),
-        in_place: bool = False
-) -> ObservationCollection:
+        observer_reference_name: str | None = None,
+        perturbing_bodies_list: Iterable[str] = ('Sun',),
+        in_place: bool = True
+) -> ObservationCollection | None:
     """
     Compute corrections to observations for the relativstic deflection of light around massive bodies, and apply
     to an observation collection.
@@ -178,11 +179,11 @@ def apply_light_deflection_correction_to_observation_collection(
     observer_reference_name : str
         Name of the reference point on the observer body. If not given, it is assumed that the observer location
             coincides with the 'observer_body_name' body center.
-    perturbing_bodies_list : list[str]
+    perturbing_bodies_list : Iterable[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
     in_place : bool
         If true, corrections are applied in-place to the Observationcollection object. If false, a new Observationcollection
-            is returned with the corrections applied.
+            is returned with the corrections applied. By default, true.
     Returns
     -------
     None | ObservationCollection
