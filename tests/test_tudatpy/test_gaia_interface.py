@@ -31,62 +31,8 @@ SOURCE_ARCHIVE_PATH = TEST_DIR / 'gaia_source_archive_for_tests.parquet'  # Orbi
 ##############################
 # GaiaAstrometry tests
 ##############################
-def read_jpl_table(path):
-    """
-    Read and parse JPL Horizons vector table results file.
-    """
-    with open(path) as f:
-        lines = f.readlines()
 
-    # Locate the data block between the $$SOE and $$EOE markers.
-    start = next(i for i, line in enumerate(lines) if line.strip() == "$$SOE")
-    end = next(i for i, line in enumerate(lines) if line.strip() == "$$EOE")
-
-    rows = []
-    for line in lines[start + 1:end]:
-        line = line.strip()
-        if not line:
-            continue
-        # Split on commas; columns are JDTDB, Calendar Date, then the 12
-        # numeric fields. A trailing comma yields an empty final element.
-        fields = [field.strip() for field in line.split(",")]
-        jd = float(fields[0])
-        # fields[1] is the calendar date string, which we drop.
-        values = [float(field) for field in fields[2:14] if field != 'n.a.']
-        rows.append([jd] + values)
-
-    data = np.array(rows)
-
-    # Convert time (JDTDB) to TDB seconds since J2000, and states/uncertainty to SI
-    data[:, 0] = np.array([julian_day_to_seconds_since_epoch(jd) for jd in data[:, 0]])
-    data[:, 1:] *= 1000
-
-    state_history = data[:, :7]
-    if data.shape[1] > 7:  # Data contains uncertainty values
-        uncertainty = np.column_stack((data[:, 0], data[:, 7:]))
-
-    else:
-        uncertainty = None
-
-    return state_history, uncertainty
-
-
-def interpolate_state_history(state_history: np.ndarray,
-                              epochs_output: list | np.ndarray,
-                              order: int = 10) -> np.ndarray:
-    """Lagrange interpolation of a state history array"""
-    state_history_dict = {epoch: state for epoch, state in zip(state_history[:, 0], state_history[:, 1:])}
-
-    interpolation_settings = lagrange_interpolation(
-        order,
-        boundary_interpolation=BoundaryInterpolationType.throw_exception_at_boundary,
-        lagrange_boundary_handling=LagrangeInterpolatorBoundaryHandling.lagrange_no_boundary_interpolation
-    )
-    interpolator = create_one_dimensional_vector_interpolator(state_history_dict, interpolation_settings)
-
-    return np.array([interpolator.interpolate(epoch) for epoch in epochs_output])
-
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def spice_kernels():
     """Load spice kernels, necessary for setting up a SystemOfBodies"""
     spice.load_standard_kernels()
@@ -106,14 +52,14 @@ def gaia_astrometry(_gaia_astrometry):
 
 
 @pytest.fixture
-def observation_table(gaia_astrometry):
+def astrometry_table(gaia_astrometry):
     """Shortcut for gaia_astrometry.table"""
     return gaia_astrometry.table
 
 
 @pytest.fixture
 def observation_collection(gaia_astrometry, spice_kernels):
-    """ObservationCollection of gaia_astrometry constructed with to_observation_collection()"""
+    """ObservationCollection of gaia_astrometry with observations for 673 and 779"""
     # Gaia must be loaded in bodies with its ephemeris to use to_observation_collection()
     body_settings = get_default_body_settings(['Sun'], 'SSB', 'J2000')
     body_settings.add_empty_settings('Gaia')
@@ -123,12 +69,12 @@ def observation_collection(gaia_astrometry, spice_kernels):
 
 
 @pytest.mark.remote_data
-def test_local_astroquery_consistency(observation_table):
+def test_local_astroquery_consistency(astrometry_table):
     """Test whether data obtained from the local archive and astroquery are consistent"""
     astrometry_from_astroquery = GaiaAstrometry.load_from_astroquery(TEST_ASTEROID_MPC)
-    observation_table_from_astroquery = astrometry_from_astroquery.table
+    astrometry_table_from_astroquery = astrometry_from_astroquery.table
 
-    pdt.assert_frame_equal(observation_table, observation_table_from_astroquery, check_dtype=False)
+    pdt.assert_frame_equal(astrometry_table, astrometry_table_from_astroquery, check_dtype=False)
 
 
 @pytest.mark.remote_data
@@ -144,51 +90,60 @@ def test_astrometry_retrieval_no_data():
         GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, [asteroid_no_data])
 
 
-def test_observation_table_angles(observation_table):
+def test_observation_table_angles(astrometry_table):
     """Test units and range of angles in observation table"""
     # Check if angles are in radians and in correct range
-    ra, dec, pa = observation_table[['ra', 'dec', 'position_angle_scan']].to_numpy().T
+    ra, dec, pa = astrometry_table[['ra', 'dec', 'position_angle_scan']].to_numpy().T
 
     assert np.all((ra < np.pi) & (ra > -np.pi))
     assert np.all((dec < np.pi / 2) & (dec > -np.pi / 2))
     assert np.all((pa < 2 * np.pi) & (pa > 0))
 
+def test_table_ordering(astrometry_table):
+    """Test ordering of table entries (first by MPC, then by epoch)"""
+    # MPC ordering
+    assert astrometry_table['number_mp'].is_monotonic_increasing
 
-def test_observation_table_uncertainty(observation_table):
+    # Epoch ordering
+    for mpc in TEST_ASTEROID_MPC:
+        assert astrometry_table.loc[astrometry_table['number_mp'] == mpc, 'epoch'].is_monotonic_increasing
+
+
+def test_observation_table_uncertainty(astrometry_table):
     """Check that uncertainty and correlation are in the correct ranges"""
-    unc = observation_table[['ra_error_random', 'dec_error_random', 'ra_error_systematic',
+    unc = astrometry_table[['ra_error_random', 'dec_error_random', 'ra_error_systematic',
                              'dec_error_systematic']].to_numpy()
-    corr = observation_table[['ra_dec_correlation_random', 'ra_dec_correlation_systematic']].to_numpy()
+    corr = astrometry_table[['ra_dec_correlation_random', 'ra_dec_correlation_systematic']].to_numpy()
 
     assert np.all(unc >= 0)
     assert np.all((corr >= -1) & (corr <= 1))
 
 
-def test_observation_table_epochs(observation_table):
+def test_observation_table_epochs(astrometry_table):
     """Test if the epochs are in the range of the epochs for Gaia FPR"""
     earliest_epoch = date_time_components_to_epoch(year=2014, month=7, day=26, hour=0, minute=0, seconds=0)
     final_epoch = date_time_components_to_epoch(year=2020, month=1, day=20, hour=0, minute=0, seconds=0)
-    epochs = observation_table['epoch'].to_numpy()
+    epochs = astrometry_table['epoch'].to_numpy()
 
     assert np.all((epochs >= earliest_epoch) & (epochs <= final_epoch))
 
 
 # NOTE: Gaia ephemeris tests are loose because possibly different planetary ephemerides models were used for
 # the JPL/Gaia orbit estimations
-def test_gaia_barycentric_state_with_jpl_ephemeris(gaia_astrometry):
+def test_gaia_barycentric_state_with_jpl_ephemeris(astrometry_table):
     """Test that the barycentric states of Gaia in the table are consistent with those from JPL Horizons"""
     columns = ['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']
-    states_from_archive = gaia_astrometry.table[columns].to_numpy()
+    states_from_archive = astrometry_table.sort_values(by='epoch')[columns].to_numpy()
     states_from_jpl = np.loadtxt(TEST_DIR / 'gaia_ephemeris_barycentric.txt')[:, 1:]
 
     np.testing.assert_allclose(states_from_archive, states_from_jpl,  rtol=1e-4, atol=1e-4)
 
 
-def test_gaia_geocentric_state_with_jpl_ephemeris(gaia_astrometry):
+def test_gaia_geocentric_state_with_jpl_ephemeris(astrometry_table):
     """Test that the geocentric states of Gaia in the table are consistent with those from JPL Horizons"""
     columns = ['x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
                'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']
-    states_from_archive = gaia_astrometry.table[columns].to_numpy()
+    states_from_archive = astrometry_table.sort_values(by='epoch')[columns].to_numpy()
     states_from_jpl = np.loadtxt(TEST_DIR / 'gaia_ephemeris_geocentric.txt')[:, 1:]
 
     np.testing.assert_allclose(states_from_archive, states_from_jpl, rtol=1e-4, atol=1e-4)
@@ -210,11 +165,11 @@ def test_observation_table_epoch_filter(gaia_astrometry):
 
 
 def test_correct_observations_photocenter(gaia_astrometry):
-    """Tests that correct_observations correctly applies a photocenter offset to the observations"""
+    """Tests that correct_observations correctly modifies observation by calculated photocenter offset"""
     get_obs = lambda table, mpc: table.loc[table['number_mp'] == mpc, ['ra', 'dec']].to_numpy()
 
-    observation_table = gaia_astrometry.table
-    observations_uncorr = {mpc: get_obs(observation_table, mpc) for mpc in TEST_ASTEROID_MPC}
+    astrometry_table = gaia_astrometry.table
+    observations_uncorr = {mpc: get_obs(astrometry_table, mpc) for mpc in TEST_ASTEROID_MPC}
 
     # Make photocenter offset function return a fixed offset
     offset = 1e-9  # 1e-9 radians in RA and DEC
@@ -226,10 +181,10 @@ def test_correct_observations_photocenter(gaia_astrometry):
                     side_effect=fake_correction):
         gaia_astrometry.correct_observations(bodies=None, diameters=diameters,
                                              light_deflection_bodies=[], correct_photocenter=True)
-    observation_table = gaia_astrometry.table
+    astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
-        observations_corr = get_obs(observation_table, mpc)
+        observations_corr = get_obs(astrometry_table, mpc)
         np.testing.assert_allclose(observations_corr - observations_uncorr[mpc],
                                    np.full_like(observations_corr, offset), rtol=1e-7, atol=0)
 
@@ -238,8 +193,8 @@ def test_correct_observations_light_deflection(gaia_astrometry):
     """Test that correct_observations correctly applies a light deflection offset to the observations"""
     get_obs = lambda table, mpc: table.loc[table['number_mp'] == mpc, ['ra', 'dec']].to_numpy()
 
-    observation_table = gaia_astrometry.table
-    observations_uncorr = {mpc: get_obs(observation_table, mpc) for mpc in TEST_ASTEROID_MPC}
+    astrometry_table = gaia_astrometry.table
+    observations_uncorr = {mpc: get_obs(astrometry_table, mpc) for mpc in TEST_ASTEROID_MPC}
 
     # Make light deflection function return a fixed offset
     offset = 1e-9  # 1e-9 radians in RA and DEC
@@ -250,10 +205,10 @@ def test_correct_observations_light_deflection(gaia_astrometry):
                     side_effect=fake_correction):
         gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'],
                                              correct_photocenter=False)
-    observation_table = gaia_astrometry.table
+    astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
-        observations_corr = get_obs(observation_table, mpc)
+        observations_corr = get_obs(astrometry_table, mpc)
         np.testing.assert_allclose(observations_corr - observations_uncorr[mpc],
                                    np.full_like(observations_corr, offset), rtol=1e-7, atol=0)
 
@@ -273,7 +228,7 @@ def test_correct_observations_twice_raises_error(gaia_astrometry):
 
 
 def test_get_gaia_ephemeris_geocentric(gaia_astrometry, spice_kernels):
-    """Test if states in catalog and ephemeris match (geocentric case)"""
+    """Test if states in catalog and those retrieved from ephemeris match (geocentric case)"""
     # Construct Tudat ephemeris
     ephemeris_settings = gaia_astrometry.get_gaia_ephemeris(geocentric=True)
     body_settings = get_default_body_settings(['Sun', 'Earth'], 'SSB', 'J2000')
@@ -283,18 +238,16 @@ def test_get_gaia_ephemeris_geocentric(gaia_astrometry, spice_kernels):
     gaia_ephemeris = bodies.get('Gaia').ephemeris
 
     # Compare state vectors from Tudat and table
-    observation_table = gaia_astrometry.table
-    states_from_tudat = [gaia_ephemeris.cartesian_state(epoch) for epoch in observation_table.epoch]
-    states_from_tudat = np.array(states_from_tudat)
-    states_from_table = observation_table[['x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
-                                           'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']]
-    states_from_table = np.array(states_from_table)
+    astrometry_table = gaia_astrometry.table
+    states_from_tudat = np.array([gaia_ephemeris.cartesian_state(epoch) for epoch in astrometry_table.epoch])
+    states_from_table = astrometry_table[['x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
+                                'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']].to_numpy()
 
     np.testing.assert_array_equal(states_from_table, states_from_tudat)
 
 
 def test_get_gaia_ephemeris_barycentric(gaia_astrometry, spice_kernels):
-    """Test if states in catalog and ephemeris match (barycentric case)"""
+    """Test if states in catalog and those retrieved from ephemeris match (barycentric case)"""
     # Construct Tudat ephemeris
     ephemeris_settings = gaia_astrometry.get_gaia_ephemeris(geocentric=False)
     body_settings = get_default_body_settings(['Sun', 'Earth'], 'SSB', 'J2000')
@@ -304,11 +257,9 @@ def test_get_gaia_ephemeris_barycentric(gaia_astrometry, spice_kernels):
     gaia_ephemeris = bodies.get('Gaia').ephemeris
 
     # Compare state vectors from Tudat and table
-    observation_table = gaia_astrometry.table
-    states_from_tudat = [gaia_ephemeris.cartesian_state(epoch) for epoch in observation_table.epoch]
-    states_from_tudat = np.array(states_from_tudat)
-    states_from_table = observation_table[['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']]
-    states_from_table = np.array(states_from_table)
+    astrometry_table = gaia_astrometry.table
+    states_from_tudat = np.array([gaia_ephemeris.cartesian_state(epoch) for epoch in astrometry_table.epoch])
+    states_from_table = astrometry_table[['x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia']].to_numpy()
 
     np.testing.assert_array_equal(states_from_table, states_from_tudat)
 
@@ -336,24 +287,38 @@ def test_weight_matrix_symmetry(observation_collection):
     np.testing.assert_allclose(weight_matrix, weight_matrix.T, rtol=1e-10, atol=0)
 
 
-def test_covariance_matrix_variance_consistency(observation_collection, observation_table):
-    """Test that the covariance matrix diagonal is consistent with the observation table"""
+def test_covariance_matrix_variance_consistency(gaia_astrometry):
+    """Test that the covariance matrix diagonal matches the per-observation variances in the
+    astrometry table, ordered by epoch (RA then DEC per observation)."""
+    covariance = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
+    variance_from_matrix = np.diag(covariance)
+
+    table = gaia_astrometry.table_for_mpc(TEST_ASTEROID_MPC[0])
+
+    # By design, the systematic error is constant per transit: use the first entry of each transit_id
+    systematic = table.groupby('transit_id', sort=False)[
+        ['ra_error_systematic', 'dec_error_systematic']].transform('first')
+
+    var_ra = table['ra_error_random'] ** 2 + systematic['ra_error_systematic'] ** 2
+    var_dec = table['dec_error_random'] ** 2 + systematic['dec_error_systematic'] ** 2
+    variance_from_table = np.column_stack([var_ra, var_dec]).ravel()
+
+    np.testing.assert_array_equal(variance_from_matrix, variance_from_table)
+
+
+def test_covariance_weight_matrix_consistency(observation_collection, gaia_astrometry):
+    """Test that the covariance matrix computed from the astrometry table is consistent with weight matrix
+    passed to observation_collection"""
     # Get variances from observation collection
     parser = observation_parser(str(TEST_ASTEROID_MPC[0]))  # We check for one asteroid
     weight_matrix = observation_collection.get_concatenated_weight_matrix(parser).toarray()
-    covariance = np.linalg.inv(weight_matrix)
-    variance_from_obscol = np.diag(covariance)
+    covariance_from_obscol = np.linalg.inv(weight_matrix)
+    covariance_from_table = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
 
-    # Get variances from table
-    table = observation_table[observation_table['number_mp'] == TEST_ASTEROID_MPC[0]]
-    random_variance = np.ravel(table[['ra_error_random', 'dec_error_random']])
-    sys_variance = np.ravel(table[['ra_error_systematic', 'dec_error_systematic']])
-    variance_from_table = random_variance ** 2 + sys_variance ** 2
+    # NOTE: loose tolerance because of high condition number so much precision is lost during 2 inversions
+    np.testing.assert_allclose(covariance_from_obscol, covariance_from_table, rtol=1e-5, atol=0)
 
-    np.testing.assert_allclose(variance_from_obscol, variance_from_table, rtol=1e-4, atol=0)
-
-
-def test_covariance_matrix_nonzero_entries(observation_collection, observation_table):
+def test_covariance_matrix_nonzero_entries(observation_collection, astrometry_table):
     """Test block diagonal structure by checking number of nonzero entries in covariance matrix"""
     # Count number of nonzero entries in covariance matrix
     parser = observation_parser(str(TEST_ASTEROID_MPC[0]))  # We test for one asteroid
@@ -362,7 +327,7 @@ def test_covariance_matrix_nonzero_entries(observation_collection, observation_t
     nonzeros_covariance_matrix = np.count_nonzero(covariance)
 
     # Calculate expected number of nonzero entries for a block-diagonal structure
-    table = observation_table[observation_table['number_mp'] == TEST_ASTEROID_MPC[0]]
+    table = astrometry_table[astrometry_table['number_mp'] == TEST_ASTEROID_MPC[0]]
     transit_ids = pd.unique(table['transit_id'])
     transit_lengths = [2 * np.count_nonzero(table['transit_id'] == id) for id in transit_ids]  # times 2 because of RA, DEC
     nonzeros_expected = sum([n ** 2 for n in transit_lengths])
@@ -370,7 +335,7 @@ def test_covariance_matrix_nonzero_entries(observation_collection, observation_t
     assert nonzeros_covariance_matrix == nonzeros_expected
 
 
-def test_observation_consistency(observation_collection, observation_table):
+def test_observation_consistency(observation_collection, astrometry_table):
     """Test if observations in the table are consistent with those in observation_collection"""
     # Get observations and epochs from ObservationCollection
     parser = observation_parser(str(TEST_ASTEROID_MPC[0]))  # We check for one asteroid
@@ -378,7 +343,7 @@ def test_observation_consistency(observation_collection, observation_table):
     epochs_from_collection = observation_collection.get_concatenated_observation_times(parser)
 
     # Get observations and epochs from table
-    table = observation_table[observation_table['number_mp'] == TEST_ASTEROID_MPC[0]]
+    table = astrometry_table[astrometry_table['number_mp'] == TEST_ASTEROID_MPC[0]]
     epochs_from_table = table.epoch.to_numpy()
     observations_from_table = np.ravel(table[['ra', 'dec']])
 
@@ -392,7 +357,7 @@ def test_observation_consistency(observation_collection, observation_table):
 
 # Reference J2000 Heliocentric state vectors retrieved from JPL Horizons at the same epoch as Gaia catalog
 STATE_EDDA_JPL = [ 4.128085144236671E+08 , 7.098887570553194E+07 , 4.413226270395131E+07,
- -3.659135280911876E+00 , 1.621253557540478E+01 , 6.231297081940196E+00]
+ -3.659135280911876E+00 , 1.621253557540478E+01 , 6.231297081940196E+00] # KM, KM/s
 STATE_NINA_JPL = [2.143720589223085E+08 , 2.310721906203461E+08 , 1.782520574512776E+08,
  -1.254695764130771E+01 , 1.502661150744586E+01 , 4.097474113261074E+00]
 
