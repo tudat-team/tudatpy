@@ -45,15 +45,19 @@ _ASTEROID_CATALOG = 'gaiafpr.sso_source'
 class GaiaAstrometry:
     """Handles retrieval and processing of Gaia solar-system astrometry."""
     def __init__(self,
-                 observations_and_metadata: pd.DataFrame):
-        """Create an empty GaiaAstrometry object."""
+                 observations_and_metadata: pd.DataFrame) -> None:
+        """Create an empty GaiaAstrometry object.
+
+        Usually the GaiaAstrometry class is instantiated via the classmethods .load_from_astroquery or
+        .load_from_local_archive
+        """
         self._table = observations_and_metadata
         self._corrected = False # Flag indicating if observation corrections have been applied
 
 
     @property
     def table(self) -> pd.DataFrame:
-        """Copy of the observation table."""
+        """Read-only copy of the astrometry table."""
         return self._table.copy()
 
 
@@ -62,12 +66,12 @@ class GaiaAstrometry:
         if mpc_number not in self.mpc_numbers:
             raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
 
-        return self.table.query('number_mp == @mpc_number')
+        return self.table.query('number_mp == @mpc_number').reset_index(drop=True)
 
 
     @property
     def mpc_numbers(self) -> np.ndarray:
-        """Array of asteroid MPC numbers that appear in the observation table."""
+        """Array of asteroid MPC numbers that have data in the astrometry table."""
         return pd.unique(self._table['number_mp'])
 
 
@@ -84,14 +88,13 @@ class GaiaAstrometry:
 
     def copy_for_mpc(self,
                      mpc_numbers: int | Iterable) -> "GaiaAstrometry":
-        """Return a copy of the query object for a selection of asteroids.
+        """Return a copy of the astrometry object for a selection of asteroids.
 
-        Useful to create query objects for individual asteroids without calling
-        retrieve_data every time.
+        Useful to get the astrometry for just one asteroid in the retrieved data.
 
         Parameters
         ----------
-        mpc_numbers : int | list | tuple
+        mpc_numbers : int | Iterable
             MPC numbers to keep in the copy.
 
         Returns
@@ -106,14 +109,16 @@ class GaiaAstrometry:
             raise ValueError('Requested MPC numbers are not in loaded observation table')
 
         new = self.copy()
-        new._table = new._table.query('number_mp in @mpc_numbers')
+        new._table = new._table.query('number_mp in @mpc_numbers').reset_index(drop=True)
 
         return new
 
     def get_observation_covariance_matrix(self,
                                           mpc_number: int) -> np.ndarray:
         """
-        From the observation set, build the observation covariance matrix for a certain asteroid in the observations.
+        From the retrieved astrometry, build the observation covariance matrix for one asteroid.
+
+        This matrix is also passed to the observationCollection upon calling to_observation_collection().
 
         Parameters
         ----------
@@ -171,7 +176,7 @@ class GaiaAstrometry:
         -------
         ObservationCollection
             Tudat ObservationCollection containing observations of all asteroids organized in SingleObservationSets
-                by link-ends.
+                by link-ends. Asteroids are named by their MPC number.
         """
         # Check if Gaia is in bodies
         if not bodies.does_body_exist('Gaia') or bodies.get('Gaia').ephemeris is None:
@@ -326,7 +331,6 @@ class GaiaAstrometry:
             WHERE number_mp IN ({query_mpc_numbers}) 
             AND astrometric_outcome_ccd = 1
             AND astrometric_outcome_transit = 1
-            ORDER BY epoch ASC
             """
             job = Gaia.launch_job_async(query)
             table = job.get_results()
@@ -340,8 +344,7 @@ class GaiaAstrometry:
 
         # Convert units and reset index
         table = cls._convert_units(table)
-        table = table.reset_index(drop=True)
-        assert table['epoch'].is_monotonic_increasing # Sanity check for ordering by epoch
+        table = table.sort_values(by=['number_mp', 'epoch']).reset_index(drop=True)
 
         return cls(table)
 
@@ -382,11 +385,10 @@ class GaiaAstrometry:
             raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
 
         table = table[_ASTROMETRY_TABLE_COLUMNS]
-        table = table.sort_values(by='epoch')
 
         # Convert units and save
         table = cls._convert_units(table)
-        table = table.reset_index(drop=True)
+        table = table.sort_values(by=['number_mp', 'epoch']).reset_index(drop=True)
 
         return cls(table)
 
@@ -507,13 +509,13 @@ class GaiaAstrometry:
                            geocentric: bool = True) -> ephemeris.EphemerisSettings:
         """Get tabulated ephemeris settings generated from the archived Gaia state vectors.
 
-        Uses all reported state vectors in the loaded observation table.
+        Uses all reported state vectors in the loaded astrometry table.
 
         Parameters
         ----------
         geocentric : bool, optional
-            If True, use the geocentric variant of the Gaia state vectors. Recommended
-            because it reduces the dependency on the adopted planetary ephemeris model, by default True.
+            If True, use the geocentric variant of the Gaia state vectors, if false, use the barycentric variant.
+            Recommended, because it reduces the dependency on the adopted planetary ephemeris model, by default True.
 
         Returns
         -------
@@ -544,13 +546,16 @@ class GaiaAsteroids:
     Class that retrieves Gaia-derived asteroid orbits and covariance data, found in the sso_source tables on the Gaia archives
     """
     def __init__(self,
-                 asteroid_orbits_and_covariance: pd.DataFrame):
-        """Construct a GaiaAsteroids object"""
+                 asteroid_orbits_and_covariance: pd.DataFrame) -> None:
+        """Create an empty GaiaAsteroids object.
+
+        Usually, this object is created by the classmethods .load_from_astroquery or .load_from_local_archive.
+        """
         self._table = asteroid_orbits_and_covariance
 
     @property
     def table(self) -> pd.DataFrame:
-        """Return a copy of the asteroid data table which contains orbit and covariance data."""
+        """Read-only copy of the asteroid data table which contains orbit and covariance data."""
         return self._table.copy()
 
     def copy(self) -> 'GaiaAsteroids':
@@ -559,7 +564,8 @@ class GaiaAsteroids:
 
     def get_state_for_mpc(self,
                           mpc_number: int) -> tuple[float, np.ndarray]:
-        """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame
+        """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame.
+        Data must be loaded into the asteroids table via one of the load methods.
 
         Parameters
         ----------
@@ -569,7 +575,7 @@ class GaiaAsteroids:
         Returns
         -------
         float
-            Epoch of the state vector.
+            Epoch of the state vector in sec since J2000.
         np.ndarray
             State vector (heliocentric J2000).
         """
@@ -589,7 +595,7 @@ class GaiaAsteroids:
         Returns
         -------
         GaiaAsteroids
-            Instance with observations loaded from astroquery.
+            Instance with data loaded from astroquery.
         """
         if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
@@ -615,6 +621,7 @@ class GaiaAsteroids:
         table = cls._convert_units(table)
         table = cls._add_orbital_elements(table)
         table = cls._add_orbit_class(table)
+        table = table.sort_values(by='number_mp').reset_index(drop=True)
 
         return cls(table)
 
@@ -634,6 +641,11 @@ class GaiaAsteroids:
         mpc_numbers : int | list | tuple, optional
             MPC numbers to retrieve orbits for. If None, select all objects in the
             catalog, by default None.
+
+        Returns
+        -------
+        GaiaAsteroids
+            Instance with data loaded from a .parquet file of the Gaia archive.
         """
         if mpc_numbers is not None and not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
@@ -661,13 +673,14 @@ class GaiaAsteroids:
         table = cls._convert_units(table)
         table = cls._add_orbital_elements(table)
         table = cls._add_orbit_class(table)
+        table = table.sort_values(by='number_mp').reset_index(drop=True)
 
         return cls(table)
 
     @staticmethod
     def generate_parquet(archive_dir: Path | str,
                          dir_to_save: Path | str) -> None:
-        """Generate a .parquet file from CSV files. This file can be passed to retrieve_data_locally. All CSV files
+        """Generate a .parquet file from CSV files. This file can be passed to load_from_local_acrhive. All CSV files
         labeled SsoSource_ must be in the archive directory. Files can be downloaded from
         https://cdn.gea.esac.esa.int/?prefix=Gaia/
 
@@ -759,7 +772,7 @@ class GaiaAsteroids:
 
     @staticmethod
     def _add_orbit_class(table: pd.DataFrame) -> pd.DataFrame:
-        """Add some columns to make accessing elements more convenient."""
+        """Add orbit class of each asteroid according to JPL SBDB convention."""
         # Important orbital elements
         orbital_elements = np.vstack(table.orbital_elements)
         a, e, i, _, _, _ = orbital_elements.T
