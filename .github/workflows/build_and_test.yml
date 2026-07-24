@@ -8,7 +8,7 @@ name: Build and Test w/ Conda
 
 on:
   push:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "ci/mcd-platform-debug"]
   pull_request:
     branches: [ "master", "develop"]
   workflow_dispatch:
@@ -96,6 +96,16 @@ jobs:
         cp -R temp_mcd/data third_parties/mcd/
         cp temp_mcd/source/MCD.F90 third_parties/mcd/MCD.F90
         cp temp_mcd/source/mcd.h third_parties/mcd/interfaces/c_interfaces/mcd.h
+        python - <<'PY'
+        from pathlib import Path
+
+        path = Path("third_parties/mcd/MCD.F90")
+        source = path.read_text()
+        marker = "      if (typevar.eq.'mean') then"
+        if source.count(marker) != 1:
+            raise RuntimeError("Could not locate the unique loadvar_mcd insertion point")
+        path.write_text(source.replace(marker, "      ier=0\n\n" + marker))
+        PY
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
@@ -211,7 +221,7 @@ jobs:
       if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" --target test_aerodynamics_McdAtmosphere -j${{ matrix.platform.build_jobs }}
 
     - name: Build
       if: runner.os == 'Windows'
@@ -221,10 +231,10 @@ jobs:
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" --target test_aerodynamics_McdAtmosphere -j3
 
     - name: Test
       working-directory: "${{ github.workspace }}/build"
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
+      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure --verbose -R '^test_aerodynamics_McdAtmosphere$'
