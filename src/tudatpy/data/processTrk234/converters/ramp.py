@@ -2,12 +2,33 @@
 Ramp converter
 """
 
-from trk234 import bands, SFDU
+import datetime
+from enum import Enum, auto
 
 from pandas import DataFrame, concat
+from trk234 import SFDU, bands
+
+
+class OpenRampHandling(Enum):
+    """Strategy for closing open-ended ramp intervals (i.e. ramps without a `trk_chdo.ramp_type` event of type 4 or 5 in the file)."""
+
+    raise_exception = auto()
+    """Raise a ``ValueError`` if any open ramp is found."""
+
+    close_silently = auto()
+    """Close open ramps silently by setting ``end_time = start_time + 1 s``. This implies that the frequency needs to be extrapolated."""
+
+    print_warning = auto()
+    """Close open ramps with a unit interval and print a warning every time."""
+
+    print_warning_once = auto()
+    """Close open ramps with a unit interval and print a warning only on the first occurrence."""
 
 
 class RampConverter:
+    def __init__(self) -> None:
+        self.warning_printed = False
+
     def extract(self, sfdu_list: list[SFDU]) -> DataFrame:
         # Filter SFDU objects that represent ramp data.
         # - Ramp format_code == 9
@@ -120,3 +141,47 @@ class RampConverter:
         merged_df = merged_df.rename(columns={"epoch": "start_time"})
 
         return merged_df
+
+    def handle_open_ramps(
+        self,
+        ramp_df: DataFrame,
+        handling: OpenRampHandling = OpenRampHandling.print_warning_once,
+    ) -> DataFrame:
+        """
+        Handle open-ended ramp intervals.
+
+        Parameters
+        ----------
+        ramp_df : pandas.DataFrame
+            Processed ramp DataFrame with "start_time" and "end_time" columns.
+        handling : OpenRampHandling
+            Strategy for closing open ramp intervals.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Copy of ``ramp_df`` with ``end_time`` values of ``NaT`` populated.
+        """
+        ramp_df = ramp_df.copy()
+        open_mask = ramp_df["end_time"].isna()
+        if not open_mask.any():
+            return ramp_df
+
+        match handling:
+            case OpenRampHandling.raise_exception:
+                raise ValueError("Open-ended ramp intervals found in ramp DataFrame.")
+            case OpenRampHandling.print_warning:
+                print("Warning: open-ended ramp intervals found. Closing with default duration.")
+            case OpenRampHandling.print_warning_once:
+                if not self.warning_printed:
+                    print(
+                        "Warning: open-ended ramp intervals found. Closing with default duration."
+                    )
+                    self.warning_printed = True
+            case OpenRampHandling.close_silently:
+                pass
+
+        ramp_df.loc[open_mask, "end_time"] = ramp_df.loc[
+            open_mask, "start_time"
+        ] + datetime.timedelta(seconds=1)
+        return ramp_df

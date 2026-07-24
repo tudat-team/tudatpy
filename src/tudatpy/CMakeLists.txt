@@ -41,6 +41,19 @@ update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(kernel PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(kernel SYSTEM PRIVATE 
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+    message(STATUS "Tudatpy: MCD support linked to kernel")
+endif()
+
 # Link against libraries
 target_link_libraries(kernel PRIVATE
     ${Boost_LIBRARIES}

@@ -88,6 +88,7 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude,
     {
         sumOfNumberDensity += numberDensities_[ i ];
     }
+    totalNumberDensity_ = sumOfNumberDensity;
     averageNumberDensity_ = sumOfNumberDensity / double( numberDensities_.size( ) );
 
     // Mean molar mass (Thermodynamics an Engineering Approach, Michael A. Boles)

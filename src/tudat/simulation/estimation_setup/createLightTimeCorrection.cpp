@@ -147,36 +147,25 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryCorrectionCalculator, wetCorrectionCalculator;
                 std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair( groundStation.getReferencePointName( ), "" );
 
-                if( troposphericCorrectionSettings->getTroposphericDryCorrection( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrection( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrection( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrection( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( ).count( stationSpacecraftPair ) &&
-                    troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( )
-                            .at( stationSpacecraftPair )
-                            .count( baseObservableType ) )
+                auto const& dryTroposphericCorrection = troposphericCorrectionSettings->getTroposphericDryCorrection( );
+                auto const& wetTroposphericCorrection = troposphericCorrectionSettings->getTroposphericWetCorrection( );
+                auto const& dryTroposphericCorrectionAdjustment = troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( );
+                auto const& wetTroposphericCorrectionAdjustment = troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( );
+
+                if( dryTroposphericCorrection.count( stationSpacecraftPair ) &&
+                    dryTroposphericCorrection.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    wetTroposphericCorrection.count( stationSpacecraftPair ) &&
+                    wetTroposphericCorrection.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    dryTroposphericCorrectionAdjustment.count( stationSpacecraftPair ) &&
+                    dryTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).count( baseObservableType ) &&
+                    wetTroposphericCorrectionAdjustment.count( stationSpacecraftPair ) &&
+                    wetTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).count( baseObservableType ) )
                 {
                     lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
-                            troposphericCorrectionSettings->getTroposphericDryCorrection( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericWetCorrection( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericDryCorrectionAdjustment( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
-                            troposphericCorrectionSettings->getTroposphericWetCorrectionAdjustment( )
-                                    .at( stationSpacecraftPair )
-                                    .at( baseObservableType ),
+                            dryTroposphericCorrection.at( stationSpacecraftPair ).at( baseObservableType ),
+                            wetTroposphericCorrection.at( stationSpacecraftPair ).at( baseObservableType ),
+                            dryTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).at( baseObservableType ),
+                            wetTroposphericCorrectionAdjustment.at( stationSpacecraftPair ).at( baseObservableType ),
                             troposphericElevationMapping,
                             isUplinkCorrection );
                 }

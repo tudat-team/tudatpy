@@ -27,6 +27,14 @@ TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(MutualExtendedBodySphericalHarmonicPartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        Tudat::tudat_electromagnetism
+        Tudat::tudat_basic_astrodynamics
+        Tudat::tudat_basic_mathematics
+        )
+
 TUDAT_ADD_TEST_CASE(MassRatePartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
@@ -46,7 +54,3 @@ TUDAT_ADD_TEST_CASE(EihPartials
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
-
-
-
-

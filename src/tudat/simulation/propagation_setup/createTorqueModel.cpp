@@ -175,6 +175,92 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
             std::bind( &Body::getBodyMass, bodyExertingTorque ) );
 }
 
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicTorque > createFullTwoBodySphericalHarmonicGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque )
+{
+    std::shared_ptr< FullTwoBodySphericalHarmonicTorqueSettings > fullTwoBodyTorqueSettings =
+            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicTorqueSettings >( torqueSettings );
+
+    if( fullTwoBodyTorqueSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating full two-body spherical harmonic torque, input is inconsistent" );
+    }
+
+    std::shared_ptr< FullTwoBodySphericalHarmonicAccelerationSettings > fullTwoBodyAccelerationSettings =
+            std::dynamic_pointer_cast< FullTwoBodySphericalHarmonicAccelerationSettings >(
+                    fullTwoBodyTorqueSettings->fullTwoBodySphericalHarmonicAccelerationSettings_ );
+    if( fullTwoBodyAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating full two-body spherical harmonic torque, expected full two-body spherical harmonic "
+                "acceleration settings on " +
+                nameOfBodyUndergoingTorque + " due to " + nameOfBodyExertingTorque );
+    }
+
+    std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > fullTwoBodyAcceleration =
+            std::dynamic_pointer_cast< gravitation::FullTwoBodySphericalHarmonicAcceleration >(
+                    createFullTwoBodySphericalHarmonicsGravityAcceleration(
+                            bodyUndergoingTorque,
+                            bodyExertingTorque,
+                            nameOfBodyUndergoingTorque,
+                            nameOfBodyExertingTorque,
+                            fullTwoBodyTorqueSettings->fullTwoBodySphericalHarmonicAccelerationSettings_,
+                            false,
+                            false ) );
+
+    return std::make_shared< gravitation::FullTwoBodySphericalHarmonicTorque >(
+            fullTwoBodyAcceleration, true, std::bind( &simulation_setup::Body::getBodyMass, bodyUndergoingTorque ) );
+}
+
+std::shared_ptr< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel > createFourthDegreeFullTwoBodyGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque )
+{
+    std::shared_ptr< FourthDegreeFullTwoBodyGravitationalTorqueSettings > fourthDegreeTorqueSettings =
+            std::dynamic_pointer_cast< FourthDegreeFullTwoBodyGravitationalTorqueSettings >( torqueSettings );
+
+    if( fourthDegreeTorqueSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque, input is inconsistent" );
+    }
+    if( bodyUndergoingTorque->getMassProperties( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body undergoing torque has no mass properties." );
+    }
+    if( bodyExertingTorque->getMassProperties( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body exerting torque has no mass properties." );
+    }
+    if( bodyUndergoingTorque->getRotationalEphemeris( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body undergoing torque has no rotational ephemeris." );
+    }
+    if( bodyExertingTorque->getRotationalEphemeris( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating fourth-degree full two-body gravitational torque on " + nameOfBodyUndergoingTorque +
+                                  " due to " + nameOfBodyExertingTorque + ", body exerting torque has no rotational ephemeris." );
+    }
+
+    return std::make_shared< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >(
+            std::bind( &simulation_setup::Body::getPosition, bodyUndergoingTorque ),
+            std::bind( &simulation_setup::Body::getPosition, bodyExertingTorque ),
+            std::bind( &simulation_setup::Body::getBodyMass, bodyExertingTorque ),
+            std::bind( &simulation_setup::Body::getBodyInertiaTensor, bodyUndergoingTorque ),
+            std::bind( &simulation_setup::Body::getBodyInertiaTensor, bodyExertingTorque ),
+            std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyUndergoingTorque ),
+            std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyExertingTorque ) );
+}
+
 //! Function to create a spherical harmonic gravitational torque
 std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > createRadiationPressureTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
@@ -253,6 +339,16 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel( const std
         }
         case basic_astrodynamics::spherical_harmonic_gravitational_torque: {
             torqueModel = createSphericalHarmonicGravitationalTorqueModel(
+                    bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
+            break;
+        }
+        case basic_astrodynamics::full_two_body_spherical_harmonic_gravitational_torque: {
+            torqueModel = createFullTwoBodySphericalHarmonicGravitationalTorqueModel(
+                    bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
+            break;
+        }
+        case basic_astrodynamics::fourth_degree_full_two_body_gravitational_torque: {
+            torqueModel = createFourthDegreeFullTwoBodyGravitationalTorqueModel(
                     bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
             break;
         }

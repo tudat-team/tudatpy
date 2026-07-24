@@ -1771,7 +1771,11 @@ deformed_body : str
 degree : int
     Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used.
+    The bodies may belong to one or more separate ``solid_body_tide`` variation models.
+    If the list is left empty, all compatible basic solid-body tide-raising bodies/models of ``deformed_body`` will be used.
+    By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once
+    parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 

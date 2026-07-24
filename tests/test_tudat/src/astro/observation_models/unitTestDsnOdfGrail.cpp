@@ -24,6 +24,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 

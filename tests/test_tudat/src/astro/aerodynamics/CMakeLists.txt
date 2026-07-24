@@ -143,17 +143,28 @@ TUDAT_ADD_TEST_CASE(MarsDtmAtmosphere
         ${Tudat_PROPAGATION_LIBRARIES}
 )
 
-if(TUDAT_BUILD_WITH_MCD)
-        TUDAT_ADD_TEST_CASE(McdAtmosphere
-                PRIVATE_LINKS
-                ${Tudat_PROPAGATION_LIBRARIES}
-        )
-endif()
-
 TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    TUDAT_ADD_TEST_CASE(McdAtmosphere
+                PRIVATE_LINKS
+                ${Tudat_PROPAGATION_LIBRARIES}
+                Tudat::tudat_estimatable_parameters
+                Tudat::tudat_aerodynamics
+        )
+
+    if(WIN32 AND TARGET test_aerodynamics_McdAtmosphere)
+        # The MCD Fortran routines use substantial local storage while reading
+        # climatology data. The default Windows executable stack can overflow
+        # before the first MCD query returns.
+        target_link_options(test_aerodynamics_McdAtmosphere PRIVATE
+                $<$<CXX_COMPILER_ID:MSVC>:/STACK:67108864>
+                )
+    endif()
+endif()
 
 TUDAT_ADD_TEST_CASE(ComaModel
         PRIVATE_LINKS

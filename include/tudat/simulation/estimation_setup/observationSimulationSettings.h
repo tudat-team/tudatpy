@@ -762,6 +762,36 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
     return getObservationSimulationSettings( linkDefsPerObservable, observationTimes, referenceLinkEnd );
 }
 
+/*!
+ * Function modifies the observable types used in the provided observation simulation settings.
+ * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler)
+ * with an idealized observable (e.g. n-way differenced range), since the latter might allows an
+ * easier physical interpretation of the problem. This setup only works if the real and idealized
+ * observables require the same ancillary settings (or if the ancillary settings required by the
+ * latter are a subset of the ones required by the former). If that is not the case, the user should
+ * manually modify the observation simulation settigns as needed.
+ *
+ * @param observationSimulationSettings Observation simulation settings for which the observable types should be modified.
+ * @param replacementObservableTypes Map having as keys the observable types to replace and as values the replacement observable types.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+void changeObservableTypesOfObservationSimulationSettings(
+        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::map< ObservableType, ObservableType >& replacementObservableTypes = {
+                { dsn_n_way_averaged_doppler, n_way_differenced_range },
+                { dsn_one_way_averaged_doppler, one_way_differenced_range } } )
+{
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); ++i )
+    {
+        ObservableType currentObservableType = observationSimulationSettings.at( i )->getObservableType( );
+
+        if( replacementObservableTypes.count( currentObservableType ) )
+        {
+            observationSimulationSettings.at( i )->setObservableType( replacementObservableTypes.at( currentObservableType ) );
+        }
+    }
+}
+
 // extern template class ObservationSimulationSettings< double >;
 // extern template class TabulatedObservationSimulationSettings< double >;
 // extern template class PerArcObservationSimulationSettings< double >;

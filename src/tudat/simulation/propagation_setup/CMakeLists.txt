@@ -44,12 +44,18 @@ set(propagation_SOURCES
         propagationOutputSettings.cpp
         createMassRateModels.cpp
         createAccelerationModels.cpp
+        accelerationSettings.cpp
         createEnvironmentUpdater.cpp
         propagationTermination.cpp
         propagationOutput.cpp
         environmentUpdater.cpp
         dependentVariablesInterface.cpp
         )
+
+set(PUBLIC_LINKS_LIST)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    list(APPEND PUBLIC_LINKS_LIST tudat_mcd_interface)
+endif()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES
@@ -64,6 +70,7 @@ endif ()
 TUDAT_ADD_LIBRARY("propagation_setup"
         "${propagation_SOURCES}"
         "${propagation_HEADERS}"
+        PUBLIC_LINKS ${PUBLIC_LINKS_LIST}
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )
