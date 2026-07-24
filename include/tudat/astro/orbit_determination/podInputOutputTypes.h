@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -18,6 +18,12 @@
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -766,6 +772,8 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
+    virtual ~CovarianceAnalysisOutput( ) = default;
+
     CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
@@ -1066,6 +1074,9 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd considerCovariance_;
 
+    //! Boolean denoting whether the design matrix was saved
+    bool designMatrixSaved_;
+
     //! Total soft inter-arc continuity-prior cost at the covariance-analysis linearization point.
     double interArcContinuityCost_;
 
@@ -1078,7 +1089,97 @@ struct CovarianceAnalysisOutput {
     //! Boolean denoting whether consider parameters are included
     bool considerParametersIncluded_;
 
-    bool designMatrixSaved_;
+public:
+    //! Default constructor for deserialization only — not for general use
+    CovarianceAnalysisOutput( ):
+        designMatrixSaved_( false ), interArcContinuityCost_( 0.0 ), exceptionDuringPropagation_( false ),
+        considerParametersIncluded_( false )
+    {}
+
+    // Used for serialization testing
+    bool operator==( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save covariance analysis output to a binary file
+    TUDAT_DEFINE_BINARY_IO( CovarianceAnalysisOutput< ObservationScalarType, TimeType > )
+
+protected:
+    bool equals( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return ( designMatrixSaved_ == rhs.designMatrixSaved_ ) && ( exceptionDuringPropagation_ == rhs.exceptionDuringPropagation_ ) &&
+                ( considerParametersIncluded_ == rhs.considerParametersIncluded_ ) &&
+                ( normalizedDesignMatrix_ == rhs.normalizedDesignMatrix_ ) && ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
+                ( designMatrixTransformationDiagonal_ == rhs.designMatrixTransformationDiagonal_ ) &&
+                ( inverseNormalizedCovarianceMatrix_ == rhs.inverseNormalizedCovarianceMatrix_ ) &&
+                ( inverseUnnormalizedCovarianceMatrix_ == rhs.inverseUnnormalizedCovarianceMatrix_ ) &&
+                ( normalizedCovarianceMatrix_ == rhs.normalizedCovarianceMatrix_ ) &&
+                ( unnormalizedCovarianceMatrix_ == rhs.unnormalizedCovarianceMatrix_ ) &&
+                ( considerCovarianceContribution_ == rhs.considerCovarianceContribution_ ) &&
+                ( normalizedCovarianceWithConsiderParameters_ == rhs.normalizedCovarianceWithConsiderParameters_ ) &&
+                ( unnormalizedCovarianceWithConsiderParameters_ == rhs.unnormalizedCovarianceWithConsiderParameters_ ) &&
+                ( normalizedDesignMatrixConsiderParameters_ == rhs.normalizedDesignMatrixConsiderParameters_ ) &&
+                ( considerNormalizationFactors_ == rhs.considerNormalizationFactors_ ) &&
+                ( considerCovariance_ == rhs.considerCovariance_ ) && ( interArcContinuityCost_ == rhs.interArcContinuityCost_ ) &&
+                ( interArcContinuityDiscrepancies_ == rhs.interArcContinuityDiscrepancies_ );
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( interArcContinuityCost_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancies_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( interArcContinuityCost_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancies_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
+    }
 };
 
 //! Data structure through which the output of the orbit determination is communicated
@@ -1304,6 +1405,70 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     //    //! List of numerical solutions of dependent variables (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+
+public:
+    //! Default constructor for deserialization only — not for general use
+    EstimationOutput( ):
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( ), bestIteration_( 0 ), residualStandardDeviation_( 0.0 ),
+        exceptionDuringInversion_( false ), numberOfParameters_( 0 )
+    {}
+
+    //! Save estimation output to a binary file
+    TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
+
+protected:
+    bool equals( const EstimationOutput& rhs ) const
+    {
+        // for (auto result: simulationResultsPerIteration_) { @todo: finish checking all results for each iteraiton
+        //     if
+        // }
+        return CovarianceAnalysisOutput< ObservationScalarType, TimeType >::equals( rhs ) &&
+                ( parameterEstimate_ == rhs.parameterEstimate_ ) && ( residuals_ == rhs.residuals_ ) &&
+                ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
+                ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
+                ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
+                ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
+                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
+        ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
+        ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+    }
 };
 
 // extern template class CovarianceAnalysisInput< double, double >;
@@ -1311,6 +1476,14 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 //
 // extern template class EstimationInput< double, double >;
 // extern template struct EstimationOutput< double >;
+
+// Type aliases for CEREAL_REGISTER_TYPE registration
+using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;
+using EstimationOutputDD = EstimationOutput< double, double >;
+
+// Type aliases for <double, Time> instantiations (used in Python bindings)
+using CovarianceAnalysisOutputDT = CovarianceAnalysisOutput< double, Time >;
+using EstimationOutputDT = EstimationOutput< double, Time >;
 
 }  // namespace simulation_setup
 

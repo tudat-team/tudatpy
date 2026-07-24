@@ -52,6 +52,10 @@ set(propagation_SOURCES
         dependentVariablesInterface.cpp
         )
 
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND propagation_SOURCES propagationSettingsSerialization.cpp)
+endif ()
+
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES
             dynamicsSimulatorDoubleDoubleInstantiation.cpp
@@ -65,6 +69,7 @@ endif ()
 TUDAT_ADD_LIBRARY("propagation_setup"
         "${propagation_SOURCES}"
         "${propagation_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}" "${Sofa_INCLUDE_DIRS}"
         )

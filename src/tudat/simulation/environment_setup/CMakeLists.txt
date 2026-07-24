@@ -75,10 +75,15 @@ set(environment_SOURCES
         createMetric.cpp
         )
 
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND environment_SOURCES gravityFieldVariationSettingsSerialization.cpp)
+endif ()
+
 # Add library.
 TUDAT_ADD_LIBRARY("environment_setup"
         "${environment_SOURCES}"
         "${environment_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
