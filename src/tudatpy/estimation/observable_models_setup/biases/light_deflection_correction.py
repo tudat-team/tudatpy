@@ -51,18 +51,19 @@ def relativistic_light_deflection_from_observations(
         observer_body_name: str,
         observer_reference_name: str | None = None,
         perturbing_bodies_list: Iterable[str] = ('Sun',),
-):
+) -> np.ndarray:
     """
     Compute corrections to observations for the relativstic deflection of light around massive bodies.
 
-    Compute corrections to observations for the relativstic deflection of light around massive bodies. Currently,
-    the implementation requires that a reference ephemeris for the observed body ('body_name') is provided in the
-    bodies object. This can e.g. be retrieved from a high accuracy ephemeris source such as JPL Horizons.
+    Compute corrections to observations for the relativstic deflection of light around massive bodies, according to
+    Klioner (2003). Currently, the implementation requires that a reference ephemeris for the observed body ('body_name')
+    is provided in the bodies object. This can be retrieved from a high accuracy ephemeris source such as JPL Horizons.
+    Corrections that are retrieved from this function should be added to observations.
 
     Parameters
     ----------
     observations : np.ndarray
-        Array of angular observations with columns [time, RA, DEC]
+        Array of angular observations with columns [time, RA, DEC], with time in s since J2000, and angles in rad
     bodies : SystemOfBodies
         SystemOfBodies object
     body_name : str
@@ -77,7 +78,8 @@ def relativistic_light_deflection_from_observations(
 
     Returns
     -------
-
+    np.ndarray
+        Nx2 array of corrections in RA and DEC. Must be added to observations
     """
     # Input validation
     if observations.shape[1] != 3:
