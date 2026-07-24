@@ -42,7 +42,7 @@ def photocenter_corrections_from_observations(
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
-        observer_reference_name: str = None
+        observer_reference_name: str | None = None
 ) -> np.ndarray:
     """
     Calculate corrections to observations to account for the photocenter-barycenter offset.
@@ -127,9 +127,9 @@ def apply_photocenter_correction_to_observation_collection(
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
-        observer_reference_name: str = None,
-        in_place: bool = False
-) -> ObservationCollection:
+        observer_reference_name: str | None = None,
+        in_place: bool = True
+) -> ObservationCollection | None:
     """
     Computes the photocenter-barycenter offset with 'photocenter_corrections_from_observations' and applies the
     corrections to an ObservationCollection.
@@ -152,6 +152,9 @@ def apply_photocenter_correction_to_observation_collection(
     observer_reference_name : str
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
             of the observer_body_name body.
+    in_place : bool
+        Flag if corrections should be applied in-place, or if a new ObservationCollection should be returned. By default,
+        True.
     Returns
     -------
     None | ObservationCollection

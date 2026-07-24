@@ -1,15 +1,31 @@
 """
 Unit tests for photocenter correction calculations in photocenter_correction.py
 """
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import numpy as np
 from numpy.linalg import norm
+from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import model_settings, links
 from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import (
     _photocenter_offset,
     photocenter_corrections_from_observations,
+    apply_photocenter_correction_to_observation_collection,
 )
+
+_MODULE = 'tudatpy.estimation.observable_models_setup.biases.photocenter_correction'
+
+
+def _build_angular_observation_collection(observation_pairs, times, body_name, observer_body_name):
+    """Build a real ObservationCollection holding angular observations of one body by one observer"""
+    link_ends = {
+        links.transmitter: links.body_origin_link_end_id(body_name),
+        links.receiver: links.body_origin_link_end_id(observer_body_name),
+    }
+    observation_set = observations.create_single_observation_set(
+        model_settings.angular_position_type, link_ends, list(observation_pairs), list(times), links.receiver)
+    return observations.ObservationCollection([observation_set])
 
 def _unit(vec):
     return vec / norm(vec)
@@ -115,3 +131,37 @@ def test_input_validation():
     # Non-positive diameter
     with pytest.raises(ValueError, match='diameter'):
         photocenter_corrections_from_observations(observations, -1.0, bodies_mock, 'Asteroid', 'Observer')
+
+
+@pytest.mark.parametrize('in_place', [True, False])
+def test_apply_photocenter_correction_to_observation_collection(in_place):
+    """Test that the wrapper adds computed corrections to a real collection's observations and wraps RA"""
+    # First observation RA sits just below +pi so its correction pushes it over the boundary (tests RA wrapping)
+    observation_pairs = [np.array([np.pi - 1e-9, 0.2]), np.array([0.3, 0.4])] # [RA, DEC]
+    corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
+    collection = _build_angular_observation_collection(observation_pairs, [0.0, 1.0], 'Asteroid', 'Observer')
+
+    with patch(f'{_MODULE}.photocenter_corrections_from_observations', return_value=corrections):
+        result = apply_photocenter_correction_to_observation_collection(
+            observation_collection=collection,
+            diameter=1000.0,
+            bodies=MagicMock(),
+            body_name='Asteroid',
+            observer_body_name='Observer',
+            in_place=in_place,
+        )
+
+    # Corrected observations, with RA (column 0) wrapped to (-pi, pi]
+    expected = np.array(observation_pairs) + corrections
+    expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
+    assert expected[0, 0] < 0 # Wrapping mapped the RA to the negative side of the boundary
+
+    if in_place:
+        assert result is None
+        target = collection
+    else:
+        assert result is not None
+        target = result
+
+    corrected, _ = target.get_concatenated_observations_and_times()
+    np.testing.assert_allclose(np.array(corrected).reshape(-1, 2), expected)
