@@ -109,11 +109,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_SERIALIZATION
-    "Build Tudat binary/JSON serialization, polymorphic registrations, and Python pickle/file-I/O bindings."
-    ON
-)
-option(
     TUDAT_BUILD_WITH_PCH
     "Enable precompiled headers for supported targets."
     ON
@@ -257,11 +252,6 @@ set(
 if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
     add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
 endif ()
-if (NOT TUDAT_BUILD_WITH_SERIALIZATION)
-    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=0)
-else ()
-    add_definitions(-DTUDAT_BUILD_WITH_SERIALIZATION=1)
-endif ()
 if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
 else ()
@@ -400,10 +390,6 @@ if (APPLE OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${_TUDAT_EIGEN_PRIMARY_INCLUDE_DIR}\"")
 endif ()
 
-# Cereal serialization library (header-only)
-find_package(cereal REQUIRED)
-message(STATUS "cereal found: ${cereal_DIR}")
-
 # PAGMO dependency
 if (TUDAT_BUILD_WITH_PAGMO)
     add_definitions(-DTUDAT_BUILD_WITH_PAGMO=1)
@@ -514,42 +500,6 @@ file(
     "${INSTALL_DATA_DIR}/tudat"
 )
 
-# Capture git commit hash and build timestamp for serialization provenance.
-# Falls back gracefully when git is unavailable (e.g. tarball builds).
-execute_process(
-    COMMAND git rev-parse HEAD
-    WORKING_DIRECTORY "${BASE_DIRECTORY}"
-    OUTPUT_VARIABLE TUDAT_BUILD_COMMIT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-if(NOT TUDAT_BUILD_COMMIT)
-    set(TUDAT_BUILD_COMMIT "unknown")
-endif()
-
-# Build date in YYYY-MM-DD format via git (or date command as fallback).
-execute_process(
-    COMMAND git log -1 --format=%cd --date=format:%Y-%m-%d
-    WORKING_DIRECTORY "${BASE_DIRECTORY}"
-    OUTPUT_VARIABLE TUDAT_BUILD_TIME
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-if(NOT TUDAT_BUILD_TIME)
-    execute_process(
-        COMMAND date +%Y-%m-%d
-        OUTPUT_VARIABLE TUDAT_BUILD_TIME
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-endif()
-
-message(
-    STATUS
-    "Tudat build: version=${TUDATPY_FULL_VERSION}"
-    " commit=${TUDAT_BUILD_COMMIT}"
-    " date=${TUDAT_BUILD_TIME}"
-)
-
 configure_file(
     "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
     "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
@@ -579,15 +529,6 @@ add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
-
-if (TUDAT_BUILD_WITH_SERIALIZATION)
-    # Serialization registration objects must be linked by every supported Tudat aggregate. Their
-    # force-initialization symbols keep the domain registration translation units alive in static
-    # builds while ordinary model libraries remain registration-free.
-    list(PREPEND Tudat_PROPAGATION_LIBRARIES Tudat::tudat_serialization)
-    list(PREPEND Tudat_ESTIMATION_LIBRARIES Tudat::tudat_serialization)
-    target_link_libraries(Tudat_LIBRARIES INTERFACE Tudat::tudat_serialization)
-endif ()
 
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/test_tudat)

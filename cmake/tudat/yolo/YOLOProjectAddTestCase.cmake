@@ -31,6 +31,10 @@ if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
 endif ()
 
 function("TUDAT_ADD_TEST_CASE" arg1)
+
+endfunction()
+
+function("TUDAT_ADD_TEST_CASE" arg1)
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
     # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
     # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.
@@ -87,10 +91,10 @@ function("TUDAT_ADD_TEST_CASE" arg1)
             list(APPEND test_private_links ${Tudat_ESTIMATION_LIBRARIES})
         endif ()
 
-        # Linux static-library links can expose circular dependencies between
-        # Tudat libraries; GNU ld resolves archives in one pass unless grouped.
+        # Unity build on Linux can expose circular static-library dependencies;
+        # GNU ld resolves archives in one pass unless grouped.
         set(test_private_link_items ${test_private_links})
-        if (TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        if (CMAKE_UNITY_BUILD AND TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
             set(test_private_link_items
                     -Wl,--start-group
                     ${test_private_links}

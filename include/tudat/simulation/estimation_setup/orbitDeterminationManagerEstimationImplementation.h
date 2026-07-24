@@ -17,7 +17,6 @@
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
-#include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
@@ -85,13 +84,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     std::vector< ParameterVectorType > parameterHistory;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
-    // Inter-arc continuity-prior setup. Empty constraint list (the default) skips the feature entirely.
-    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
-    double bestInterArcContinuityCost = 0.0;
-    std::vector< Eigen::VectorXd > bestInterArcContinuityDiscrepancies;
-    std::vector< double > interArcContinuityCostHistory;
-    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory;
-
     // Declare residual bookkeeping variables
     std::vector< double > rmsResidualHistory;
     std::vector< double > costFunctionHistory;
@@ -133,24 +125,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
                 estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
 
-        InterArcConstraintContribution interArcContribution;
-        if( !interArcConstraints.empty( ) )
-        {
-            // Assemble soft inter-arc continuity-prior contribution for this iteration. The normalisation factors are the same
-            // ones just applied to the observation design matrix above.
-            interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
-                    interArcConstraints,
-                    parametersToEstimate_,
-                    stateTransitionAndSensitivityMatrixInterface_,
-                    variationalEquationsSolver_,
-                    normalizationTerms,
-                    static_cast< int >( numberEstimatedParameters_ ),
-                    "parameter estimation",
-                    static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
-            interArcContinuityCostHistory.push_back( interArcContribution.totalConstraintCost );
-            interArcContinuityDiscrepancyHistory.push_back( interArcContribution.perPairDiscrepancies );
-        }
-
         // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
         Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
         Eigen::MatrixXd normalizedConsiderCovariance;
@@ -190,18 +164,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 conditionNumberCheck = TUDAT_NAN;
             }
             // Perform LSQ inversion
-            leastSquaresOutput = std::move(
-                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                   residuals.template cast< double >( ),
-                                                                                   weightsMatrixDiagonals,
-                                                                                   normalizedInverseAprioriCovarianceMatrix,
-                                                                                   conditionNumberCheck,
-                                                                                   constraintStateMultiplier,
-                                                                                   constraintRightHandSide,
-                                                                                   designMatrixConsiderParameters,
-                                                                                   normalizedConsiderParametersDeviation,
-                                                                                   interArcContribution.additionalNormalMatrix,
-                                                                                   interArcContribution.additionalRightHandSide ) );
+            leastSquaresOutput =
+                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                              residuals.template cast< double >( ),
+                                                                                              weightsMatrixDiagonals,
+                                                                                              normalizedInverseAprioriCovarianceMatrix,
+                                                                                              conditionNumberCheck,
+                                                                                              constraintStateMultiplier,
+                                                                                              constraintRightHandSide,
+                                                                                              designMatrixConsiderParameters,
+                                                                                              normalizedConsiderParametersDeviation ) );
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -240,10 +212,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
         costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
-        // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
-        // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
-        // remain meaningful.
-        costFunction += interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
@@ -297,11 +265,6 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestIteration = numberOfIterations;
             bestConsiderTransformationData = std::move( normalizationTermsConsider );
             bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
-            if( !interArcConstraints.empty( ) )
-            {
-                bestInterArcContinuityCost = interArcContribution.totalConstraintCost;
-                bestInterArcContinuityDiscrepancies = interArcContribution.perPairDiscrepancies;
-            }
         }
 
         // Increment number of iterations
@@ -364,18 +327,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                      bestConsiderCovarianceContribution,
                                                                                      estimationInput->getConsiderCovariance( ),
                                                                                      exceptionDuringInversion,
-                                                                                     exceptionDuringPropagation,
-                                                                                     bestInterArcContinuityCost,
-                                                                                     bestInterArcContinuityDiscrepancies );
+                                                                                     exceptionDuringPropagation );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
         estimationOutput->setSimulationResults( simulationResultsPerIteration );
-    }
-    if( !interArcConstraints.empty( ) )
-    {
-        estimationOutput->setInterArcContinuityCostHistory( interArcContinuityCostHistory );
-        estimationOutput->setInterArcContinuityDiscrepancyHistory( interArcContinuityDiscrepancyHistory );
     }
 
     return estimationOutput;

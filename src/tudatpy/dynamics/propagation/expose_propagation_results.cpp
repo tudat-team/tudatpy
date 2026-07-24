@@ -22,8 +22,6 @@
 #include <tudat/simulation/propagation_setup/dependentVariablesInterface.h>
 #include <tudat/simulation/propagation_setup/propagationResults.h>
 #include <tudat/simulation/propagation_setup/propagationTermination.h>
-#include <tudat/io/serialization/pybind_helpers.h>
-#include <tudat/io/serialization/registrations_propagation.h>
 
 #include "scalarTypes.h"
 
@@ -87,8 +85,7 @@ void expose_propagation_results_bindings( py::module& m )
 
 
          :type: bool
-      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationTerminationDetails ) TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::PropagationTerminationDetails )
-                    TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::PropagationTerminationDetails );
+      )doc" );
 
     py::class_< tp::PropagationTerminationDetailsFromHybridCondition,
                 std::shared_ptr< tp::PropagationTerminationDetailsFromHybridCondition >,
@@ -165,10 +162,7 @@ void expose_propagation_results_bindings( py::module& m )
              print("\n".join(condition_fulfilled))
 
 
-      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationTerminationDetailsFromHybridCondition )
-                    TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::PropagationTerminationDetailsFromHybridCondition )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationDetails,
-                                                                    tp::PropagationTerminationDetailsFromHybridCondition );
+      )doc" );
 
     py::class_< tp::DependentVariablesInterface< TIME_TYPE >, std::shared_ptr< tp::DependentVariablesInterface< TIME_TYPE > > >(
             m, "DependentVariablesInterface", R"doc(No documentation found.)doc" );
@@ -198,9 +192,7 @@ void expose_propagation_results_bindings( py::module& m )
          :type: DependentVariablesInterface
 
 
-)doc" ) TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_EQ_NE( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" );
 
     py::class_< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -465,17 +457,17 @@ void expose_propagation_results_bindings( py::module& m )
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
+)doc" )
             .def( "clear_data",
                   py::overload_cast<>( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::clearSolutionMaps ),
                   R"doc(
 
+         Function to delete the contents of this object.
+
          Function to delete the contents of this object. This function is typically called when wanting to manually reduce the
          memory usage in large analyses by clearing data. It does not need to be used manually before repropagating.
 
-)doc" ) TUDATPY_DEF_EQ_NE( tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                                            tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" );
 
     py::class_< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -524,11 +516,7 @@ void expose_propagation_results_bindings( py::module& m )
 
 
          :type: SingleArcSimulationResults
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
-                                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                    tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -581,11 +569,7 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
-                                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                    tp::MultiArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -620,16 +604,7 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          Boolean indicating whether the propagation for which this object stores the results has been performed or not
 
          :type: int
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                                          STATE_SCALAR_TYPE,
-                                                                          TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE(
-                            tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
-                                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                    tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                                   STATE_SCALAR_TYPE,
-                                                                   TIME_TYPE > );
+)doc" );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -660,11 +635,7 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          all numerical and logging results from the multi-arc component.
 
          :type: MultiArcSimulationResults
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE( tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
-                                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                    tp::HybridArcSimulationResults< tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > );
+)doc" );
 
     py::class_<
             tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -698,16 +669,7 @@ The results of the constituent arcs are accessed through the ``single_arc_result
          all numerical and logging results from the multi-arc component.
 
          :type: MultiArcVariationalSimulationResults
-)doc" ) TUDATPY_DEF_BINARY_IO_POLYMORPHIC( tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                                           STATE_SCALAR_TYPE,
-                                                                           TIME_TYPE > )
-                    TUDATPY_DEF_EQ_NE(
-                            tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
-                                    tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                                    tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                                    STATE_SCALAR_TYPE,
-                                                                    TIME_TYPE > );
+)doc" );
 }
 
 }  // namespace propagation

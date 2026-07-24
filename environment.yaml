@@ -12,7 +12,6 @@ dependencies:
   - nrlmsise-00
   - cspice
   - fftw
-  - cereal
   - c-compiler
   - cxx-compiler
   - fortran-compiler

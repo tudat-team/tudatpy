@@ -18,10 +18,6 @@ set(interpolators_SOURCES
         "chebyshevApproximation.cpp"
         )
 
-if (TUDAT_BUILD_WITH_SERIALIZATION)
-    list(APPEND interpolators_SOURCES "interpolatorSettingsSerialization.cpp")
-endif ()
-
 # Add header files.
 set(interpolators_HEADERS
         "cubicSplineInterpolator.h"
@@ -43,7 +39,6 @@ set(interpolators_HEADERS
 TUDAT_ADD_LIBRARY("interpolators"
         "${interpolators_SOURCES}"
         "${interpolators_HEADERS}"
-        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

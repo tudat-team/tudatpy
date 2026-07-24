@@ -35,8 +35,6 @@
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 
-#include <cereal/access.hpp>
-
 namespace tudat
 {
 
@@ -58,48 +56,6 @@ struct PropagatorType {
     RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
     bool otherPropagator_ = false;
     int customStateSize_ = 0;
-
-private:
-    friend class cereal::access;
-    template< class Archive >
-    void save( Archive& ar ) const
-    {
-        ar( CEREAL_NVP( translationalPropagatorType_ ) );
-        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
-        ar( CEREAL_NVP( otherPropagator_ ) );
-        ar( CEREAL_NVP( customStateSize_ ) );
-    }
-
-    template< class Archive >
-    void load( Archive& ar )
-    {
-        ar( CEREAL_NVP( translationalPropagatorType_ ) );
-        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
-        ar( CEREAL_NVP( otherPropagator_ ) );
-        ar( CEREAL_NVP( customStateSize_ ) );
-    }
-
-public:
-    //! Equality comparison for PropagatorType
-    bool operator==( const PropagatorType& rhs ) const
-    {
-        return equals( rhs );
-    }
-
-    bool operator!=( const PropagatorType& rhs ) const
-    {
-        return !( *this == rhs );
-    }
-
-    //! Equality comparison via equals method
-    bool equals( const PropagatorType& rhs ) const
-    {
-        return translationalPropagatorType_ == rhs.translationalPropagatorType_ &&
-                rotationalPropagatorType_ == rhs.rotationalPropagatorType_ && otherPropagator_ == rhs.otherPropagator_ &&
-                customStateSize_ == rhs.customStateSize_;
-    }
-
-private:
 };
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
