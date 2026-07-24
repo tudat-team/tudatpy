@@ -14,6 +14,7 @@ to read inputs from other softwares and integrate them with Tudat(py).
    :caption: Modules
 
    data/horizons
+   data/gaia
    data/mpc
    data/sbdb
    data/discos
