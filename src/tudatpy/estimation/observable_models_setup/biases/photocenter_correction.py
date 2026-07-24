@@ -47,16 +47,17 @@ def photocenter_corrections_from_observations(
     """
     Calculate corrections to observations to account for the photocenter-barycenter offset.
 
-    Calculate corrections to observations to account for the photocenter-barycenter offset. Currently, this function
-    requires that the bodies object contains an ephemeris for the observed body ('body_name') in order to retrieve its
-    inertial position as a function of time. The corrections that are output should be added to observations.
+    Calculate corrections to observations to account for the photocenter-barycenter offset, according to Fuentes-Munoz
+    et al. (2024). Currently, this function requires that the bodies object contains an ephemeris for the observed body
+    ('body_name') in order to retrieve its inertial position as a function of time. The corrections that are output
+    should be added to observations.
 
     Note that light-time offsets are small and are  neglected accordingly.
 
     Parameters
     ----------
     observations: np.ndarray
-        Observations as [time, RA, DEC] with time in seconds since J2000, RA, DEC as radians
+        Array of angular observations with columns [time, RA, DEC], with time in s since J2000, and angles in rad
     diameter : float
         Diameter of the body in meter
     bodies : SystemOfBodies
@@ -71,7 +72,7 @@ def photocenter_corrections_from_observations(
     Returns
     -------
     np.ndarray
-        Corrections as [RA, DEC]
+        Nx2 array of corrections for RA and DEC, to be added to observations
     """
     # Validate inputs
     body_dne = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
