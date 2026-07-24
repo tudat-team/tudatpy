@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelCaching )
     const double altitude = 5000.0;
     const double longitude = 0.5;
     const double latitude = 0.3;
-    const double time = 1000.0;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
     const auto firstResult = climateModel.getCache( altitude, longitude, latitude, time );
     const auto repeatedResult = climateModel.getCache( altitude, longitude, latitude, time );
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelExtraVariableCaching )
     const double altitude = 5000.0;
     const double longitude = 0.5;
     const double latitude = 0.3;
-    const double time = 1000.0;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
     const auto resultWithoutExtraVariables = climateModel.getCache( altitude, longitude, latitude, time );
     climateModel.addExtraVariableKeys( { mcd_interface::ExtVar::ratio_of_specific_heats } );
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheKeys )
     const double altitude = 5000.0;
     const double longitude = 0.5;
     const double latitude = 0.3;
-    const double time = 1000.0;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
     const auto baseline = climateModel.getCache( altitude, longitude, latitude, time );
     BOOST_CHECK( baseline != climateModel.getCache( altitude + 1.0, longitude, latitude, time ) );
@@ -440,7 +440,7 @@ BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheEviction )
     mcd_interface::MarsClimateDatabaseClimateModel climateModel( "", 1, 0, 0.0, 0.0, 0, 2 );
     const double longitude = 0.5;
     const double latitude = 0.3;
-    const double time = 1000.0;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
     const auto firstResult = climateModel.getCache( 5000.0, longitude, latitude, time );
     const auto secondResult = climateModel.getCache( 6000.0, longitude, latitude, time );
