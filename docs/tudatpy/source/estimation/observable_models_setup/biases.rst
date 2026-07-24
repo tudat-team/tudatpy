@@ -16,6 +16,13 @@ observation defined by the specific factory functions below.
 
 More details on the link with the observation model is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html>`_ .
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
+
+   /estimation/observable_models_setup/biases/photocenter_correction
+   /estimation/observable_models_setup/biases/light_deflection_correction
+
 
 Functions
 ---------
