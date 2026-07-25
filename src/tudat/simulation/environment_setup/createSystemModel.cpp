@@ -150,14 +150,12 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                                                                      frameOrigin,
                                                                      geometry3dLoaded );
 
+    exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
+
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
         std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = createReflectionLaw( panelSettings->reflectionLawSettings_ );
         exteriorPanel->setReflectionLaw( reflectionLaw );
-        if( panelSettings->panelTypeId_ != "" )
-        {
-            exteriorPanel->setPanelTypeId( panelSettings->panelTypeId_ );
-        }
     }
 
     if( panelSettings->materialProperties_ != nullptr )

@@ -87,10 +87,6 @@ enum EstimatebleParametersEnum {
     source_perpendicular_direction_radiation_pressure_scaling_factor,
     specular_reflectivity,
     diffuse_reflectivity,
-    energy_accommodation_coefficient,
-    normal_accommodation_coefficient,
-    tangential_accommodation_coefficient,
-    normal_velocity_at_wall_ratio,
     mode_coupled_tidal_love_numbers,
     nominal_rotation_pole_position,
     rotation_pole_position_rate,
@@ -109,7 +105,11 @@ enum EstimatebleParametersEnum {
     exponential_atmosphere_base_density,
     exponential_atmosphere_scale_height,
     arc_wise_exponential_atmosphere_base_density,
-    arc_wise_exponential_atmosphere_scale_height
+    arc_wise_exponential_atmosphere_scale_height,
+    energy_accommodation_coefficient,
+    normal_accommodation_coefficient,
+    tangential_accommodation_coefficient,
+    normal_velocity_at_wall_ratio
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

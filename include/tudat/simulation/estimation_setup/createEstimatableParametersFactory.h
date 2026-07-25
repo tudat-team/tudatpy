@@ -1861,7 +1861,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             case normal_accommodation_coefficient:
             case tangential_accommodation_coefficient:
             case normal_velocity_at_wall_ratio: {
-                if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+                if( currentBody->getVehicleSystems( ) == nullptr ||
+                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
                 {
                     std::string errorMessage =
                             "Error, no vehicle panels found in body " + currentBodyName + " when making panel material property parameter.";

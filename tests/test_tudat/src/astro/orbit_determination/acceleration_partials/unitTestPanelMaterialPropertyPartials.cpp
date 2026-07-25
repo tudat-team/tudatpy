@@ -46,6 +46,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -570,6 +571,35 @@ BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterFactoryGroupSelection )
     BOOST_CHECK_THROW(
             ( createDoubleParameterToEstimate< double, double >( energyAccommodationCoefficient( "Vehicle", "MissingGroup" ), bodies ) ),
             std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( testMaterialOnlyPanelGroupIdIsPreserved )
+{
+    const std::string groupId = "Bus";
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )
+            ->setRotationalEphemeris(
+                    std::make_shared< SimpleRotationalEphemeris >( 0.0, 0.0, 0.0, 0.0, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
+
+    std::shared_ptr< BodyPanelSettings > panelSettings = bodyPanelSettings( frameFixedPanelGeometry( Eigen::Vector3d::UnitX( ), 1.0 ),
+                                                                            nullptr,
+                                                                            groupId,
+                                                                            materialProperties( -1.0, -1.0, 0.8, 0.7, 0.6, 0.5 ) );
+    addBodyExteriorPanelledShape( fullPanelledBodySettings( { panelSettings } ), "Vehicle", bodies );
+
+    std::shared_ptr< EstimatableParameter< double > > parameter =
+            createDoubleParameterToEstimate< double, double >( energyAccommodationCoefficient( "Vehicle", groupId ), bodies );
+    BOOST_CHECK_EQUAL( parameter->getParameterName( ).second.second, groupId );
+    BOOST_CHECK_CLOSE( parameter->getParameterValue( ), 0.8, 1.0E-12 );
+}
+
+BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterFactoryWithoutVehicleSystems )
+{
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Vehicle" );
+    BOOST_CHECK_THROW( ( createDoubleParameterToEstimate< double, double >( energyAccommodationCoefficient( "Vehicle", "Bus" ), bodies ) ),
+                       std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
