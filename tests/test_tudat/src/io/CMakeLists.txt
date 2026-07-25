@@ -116,6 +116,9 @@ TUDAT_ADD_TEST_CASE(AerodynamicCoefficientReader
 TUDAT_ADD_TEST_CASE(OdfFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
+TUDAT_ADD_TEST_CASE(PsfFileReader
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
 TUDAT_ADD_TEST_CASE(ReadTabulatedMediaCorrections
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
 
@@ -127,3 +130,15 @@ TUDAT_ADD_TEST_CASE(TrackingTxtFileReader
 
 TUDAT_ADD_TEST_CASE(IfmsFileReader
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(InpopFileReading
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(CrdAndSinexReaders
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(IonexReader
+        PRIVATE_LINKS
+        tudat_input_output
+        tudat_basic_astrodynamics
+        )

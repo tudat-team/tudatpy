@@ -51,7 +51,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~CombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    virtual ~CombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
     /*!
@@ -151,7 +151,7 @@ public:
     }
 
     //! Destructor.
-    ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -250,6 +250,38 @@ public:
     //! Constructor
     /*!
      * Constructor
+     * \param propagationStartTimes Times at which the propagation starts for each arc
+     * \param parametersToEstimate parameters to be estimated
+     * \param numberOfInitialDynamicalParameters Size of the estimated initial state vector (and size of square
+     * sing-arc state transition matrix times number of arcs.)
+     * \param numberOfParameters Total number of estimated parameters (initial states and other parameters).
+     */
+    MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
+            const std::vector< double >& propagationStartTimes,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const int numberOfInitialDynamicalParameters,
+            const int numberOfParameters ):
+        CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
+        propagationStartTimes_( propagationStartTimes ), numberOfStateArcs_( propagationStartTimes.size( ) )
+    {
+        if( propagationStartTimes_.size( ) == 0 )
+        {
+            throw std::runtime_error(
+                    "Error when making MultiArcCombinedStateTransitionAndSensitivityMatrixInterface, propagation start time list is "
+                    "empty" );
+        }
+
+        estimatable_parameters::getParametersToEstimatePerArcTest(
+                parametersToEstimate, arcWiseParametersToEstimate_, propagationStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        processArcWiseParametersIndices( parametersToEstimate, propagationStartTimes_ );
+
+        sensitivityMatrixSize_ = fullSensitivityMatrixSize_;
+        stateTransitionMatrixSize_ = fullStateSize_;
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
      * \param stateTransitionMatrixInterpolators interpolators returning the state transition matrix as a function of time, vector
      * entries represent matrix history for each arc.
      * \param sensitivityMatrixInterpolators interpolators returning the sensitivity matrix as a function of time, vector
@@ -319,7 +351,7 @@ public:
     }
 
     //! Destructor
-    ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to reset the state transition and sensitivity matrix interpolators
     /*!
@@ -346,6 +378,12 @@ public:
         arcStartTimes_ = arcStartTimes;
         arcEndTimes_ = arcEndTimes;
 
+        if( arcStartTimes_.size( ) != arcEndTimes_.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when resetting multi arc state transition and sensitivity interface, incompatible time lists." );
+        }
+
         // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
         statePartialAdditionIndices_.clear( );
         for( unsigned int i = 0; i < statePartialAdditionIndices.size( ); i++ )
@@ -359,7 +397,8 @@ public:
         }
 
         if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
-            stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
+            stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) ||
+            arcStartTimes_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
         {
             throw std::runtime_error(
                     "Error when resetting multi arc state transition and sensitivity interface, vector sizes are inconsistent." );
@@ -370,13 +409,11 @@ public:
 
         lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
 
+        arcStartTimesPerBody_.clear( );
+        arcEndTimesPerBody_.clear( );
+        propagationStartTimesPerBody_.clear( );
         lookUpschemePerBody_.clear( );
-        for( auto itr: arcStartTimesPerBody_ )
-        {
-            std::vector< double > arcSplitTimes = itr.second.first;
-            arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
-            lookUpschemePerBody_[ itr.first ] = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
-        }
+        getArcStartTimesPerBody( );
     }
 
     //! Function to get the vector of interpolators returning the state transition matrix as a function of time.
@@ -436,8 +473,8 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
                 ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                    " & " + arcDefiningBodies.at( 0 ) + "." );
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                                          " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ] != -1 )
             {
@@ -469,10 +506,9 @@ public:
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
-
 
             if( addCentralBodyDependency )
             {
@@ -537,7 +573,7 @@ public:
         {
             std::map< std::string, std::pair< std::pair< int, int >, std::pair< std::pair< int, int >, int > > >
                     arcWiseAndFullSolutionIndices = arcWiseAndFullSolutionInitialStateIndices_.at( currentArc );
-            for( auto itr: arcWiseAndFullSolutionIndices )
+            for( auto itr : arcWiseAndFullSolutionIndices )
             {
                 std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
                 std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
@@ -551,7 +587,7 @@ public:
                                                              indicesInArcWiseSolution.second,
                                                              indicesInArcWiseSolution.second );
 
-                for( auto itr2: arcWiseAndFullSolutionIndices )
+                for( auto itr2 : arcWiseAndFullSolutionIndices )
                 {
                     if( itr2.first != itr.first )
                     {
@@ -588,6 +624,13 @@ public:
      */
     std::pair< int, double > getCurrentArc( const double evaluationTime )
     {
+        if( lookUpscheme_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
+                    "Call updateMatrixInterpolators first." );
+        }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
         if( evaluationTime <= arcEndTimes_.at( currentArc ) && evaluationTime >= arcStartTimes_.at( currentArc ) )
         {
@@ -608,6 +651,13 @@ public:
      */
     std::pair< int, double > getCurrentArc( const double evaluationTime, const std::string body )
     {
+        if( lookUpscheme_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting current arc in multi arc state transition and sensitivity interface, interface has not been "
+                    "initialized. "
+                    "Call updateMatrixInterpolators first." );
+        }
         int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
         if( lookUpschemePerBody_.count( body ) != 0 )
         {
@@ -643,7 +693,7 @@ public:
      */
     int getNumberOfArcs( )
     {
-        return arcStartTimes_.size( );
+        return numberOfStateArcs_;
     }
 
     std::vector< std::pair< int, int > > getStatePartialAdditionIndices( const int arcIndex )
@@ -774,7 +824,7 @@ protected:
 
     void getArcStartTimesPerBody( )
     {
-        for( auto itr: estimatedBodiesPerArc_ )
+        for( auto itr : estimatedBodiesPerArc_ )
         {
             for( unsigned int i = 0; i < itr.second.size( ); i++ )
             {
@@ -800,7 +850,7 @@ protected:
             }
         }
 
-        for( auto itr: arcStartTimesPerBody_ )
+        for( auto itr : arcStartTimesPerBody_ )
         {
             std::vector< double > arcSplitTimes = itr.second.first;
             arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
@@ -923,7 +973,7 @@ public:
     }
 
     //! Destructor
-    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ) { }
+    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ) {}
 
     //! Function to get the size of the total parameter vector.
     /*!
@@ -961,8 +1011,8 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) &&
                 ( currentArcsDefinedByEachBody[ i ].first != -1 ) && ( currentArcsDefinedByEachBody[ 0 ].first != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
-                                    " & " + arcDefiningBodies.at( 0 ) + "." );
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                                          " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ].first != -1 )
             {
@@ -1052,7 +1102,7 @@ public:
     //! Function to get the full concatenated state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the full concatenated state transition and sensitivity matrix at a given time. The state transition
-     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of teh current
+     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of the current
      *  arc)
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Full concatenated state transition and sensitivity matrices.
@@ -1123,7 +1173,7 @@ public:
                             multiArcInterface_->getArcWiseAndFullSolutionInitialStateIndices( ).at( currentArc.first );
 
             // Set multi-arc block
-            for( auto itr: arcWiseAndFullSolutionIndices )
+            for( auto itr : arcWiseAndFullSolutionIndices )
             {
                 std::pair< int, int > indicesInArcWiseSolution = itr.second.first;
                 std::pair< std::pair< int, int >, int > indicesInFullSolution = itr.second.second;
@@ -1164,7 +1214,7 @@ public:
                                                              fullSensitivityMatrixSize );
 
                 // Set multi-arc block (other bodies)
-                for( auto itr2: arcWiseAndFullSolutionIndices )
+                for( auto itr2 : arcWiseAndFullSolutionIndices )
                 {
                     if( itr2.first != itr.first )
                     {

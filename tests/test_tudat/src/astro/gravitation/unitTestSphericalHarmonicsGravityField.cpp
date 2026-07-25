@@ -241,6 +241,82 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalFieldFromFiniteDiffere
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, calculatedAcceleration, 1.0E-15 );
 }
 
+BOOST_AUTO_TEST_CASE( test_SphericalHarnomicsNearPole )
+{
+    using namespace basic_mathematics;
+    const double tolerance = 5.0e-14;
+    const double referenceRadius = 1.0;
+    const double radius = 1.3;
+    const double preMultiplier = 1.0;
+
+    std::vector< double > testLatitudes = { -1.3, -1.0, -0.6, -0.2, 0.0, 0.4, 0.8, 1.2 };
+    std::vector< double > testLongitudes = { 0.0, 0.7, 1.5, 2.9 };
+
+    for( double latitude : testLatitudes )
+    {
+        const double polynomialParameter = std::sin( latitude );
+        const double cosineOfLatitude = std::cos( latitude );
+
+        // Avoid region where singular formulation breaks down
+        if( std::abs( cosineOfLatitude ) < 1.0e-8 )
+        {
+            continue;
+        }
+
+        for( double longitude : testLongitudes )
+        {
+            SphericalHarmonicsCache cache;
+            cache.resetMaximumDegreeAndOrder( 20, 20 );
+            cache.update( radius, polynomialParameter, longitude, referenceRadius );
+
+            for( int degree = 1; degree <= 15; ++degree )
+            {
+                for( int order = 0; order <= degree; ++order )
+                {
+                    const double cosineCoefficient = 0.83;
+                    const double sineCoefficient = -0.41;
+
+                    const double legendrePolynomial = cache.getLegendreCacheConst( ).getLegendrePolynomial( degree, order );
+
+                    const double legendrePolynomialDerivative =
+                            cache.getLegendreCacheConst( ).getLegendrePolynomialDerivative( degree, order );
+
+                    // call legacy implementation
+                    const Eigen::Vector3d accelerationLegacy =
+                            basic_mathematics::computePotentialGradient( radius,
+                                                                         cache.getReferenceRadiusRatioPowers( degree + 1 ),
+                                                                         cache.getCosineOfMultipleLongitude( order ),
+                                                                         cache.getSineOfMultipleLongitude( order ),
+                                                                         cosineOfLatitude,
+                                                                         preMultiplier,
+                                                                         degree,
+                                                                         order,
+                                                                         cosineCoefficient,
+                                                                         sineCoefficient,
+                                                                         legendrePolynomial,
+                                                                         legendrePolynomialDerivative );
+
+                    // construct spherical position vector for new function
+                    Eigen::Vector3d sphericalPosition;
+                    sphericalPosition << radius, latitude, longitude;
+
+                    // call Bosch (pole-safe) implementation
+                    const Eigen::Vector3d accelerationBosch = basic_mathematics::computePotentialGradientNearPole(
+                            sphericalPosition, preMultiplier, degree, order, cosineCoefficient, sineCoefficient, cache );
+
+                    const Eigen::Vector3d accelerationDifference = ( accelerationLegacy - accelerationBosch );
+                    for( int index = 0; index < 3; index++ )
+                    {
+                        BOOST_CHECK_SMALL( accelerationDifference( index ) / std::max( accelerationLegacy( index ), 1.0 ), 5.0E-15 );
+                    }
+                    //                    std::cout<<degree<<" "<<order<<" "<<latitude<<" "<<longitude<<" "<<accelerationDifference(1) /
+                    //                    accelerationLegacy(1)<<std::endl;
+                }
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

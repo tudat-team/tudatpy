@@ -12,6 +12,7 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include <memory>
 
@@ -20,14 +21,19 @@
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/io/basicInputOutput.h"
 #include <limits>
 #include <string>
@@ -564,6 +570,52 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 // Check 3rd body gravitational potential - not sure why the tolerance needs to be so large
                 BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ), 1e-8 );
+            }
+
+            // Repropagate dynamics to make sure that any cached data is not consistent with previous run
+            systemInitialState.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
+            systemInitialState.segment( 3, 3 ) += Eigen::Vector3d::Constant( 1.0E-3 );
+            dynamicsSimulator.integrateEquationsOfMotion( systemInitialState );
+
+            std::cout << "Pre-comp" << std::endl;
+            std::map< double, Eigen::VectorXd > recomputedDependentVariableSolution =
+                    dynamicsSimulator.evaluateDependentVariablesAlongTrajectory< double, double >( numericalSolution );
+            std::cout << "Post-comp" << std::endl;
+
+            BOOST_CHECK_EQUAL( recomputedDependentVariableSolution.size( ), dependentVariableSolution.size( ) );
+
+            auto it1 = recomputedDependentVariableSolution.begin( );
+            auto it2 = dependentVariableSolution.begin( );
+
+            for( ; it1 != recomputedDependentVariableSolution.end( ); ++it1, ++it2 )
+            {
+                // Check keys
+                BOOST_CHECK_EQUAL( it1->first, it2->first );
+
+                // Check vector sizes
+                BOOST_CHECK_EQUAL( it1->second.size( ), it2->second.size( ) );
+
+                // Check vector contents element-wise
+
+                for( int i = 0; i < it1->second.size( ); ++i )
+                {
+                    // Correspondence is not perfect due to state/time conversions, high tolerance to match cases with values close to 0
+                    if( propagatorType > 0 )
+                    {
+                        if( i != 28 )
+                        {
+                            BOOST_CHECK_CLOSE_FRACTION( it1->second( i ), it2->second( i ), 1.0E-6 );
+                        }
+                        else
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( it1->second( i ) - it2->second( i ) ), 1.0E-17 );
+                        }
+                    }
+                    else
+                    {
+                        BOOST_CHECK_EQUAL( it1->second( i ), it2->second( i ) );
+                    }
+                }
             }
         }
     }
@@ -1293,13 +1345,287 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
     }
 }
 
+//! Unit test to check if acceleration derivatives w.r.t. estimatable parameters are correctly stored.
+/*!
+ * This test propagates a Vehicle subject to Earth spherical-harmonic gravity and Sun third-body point-mass gravity,
+ * while saving single-acceleration and total-acceleration partials w.r.t. scalar and vector parameters. Scalar
+ * gravitational-parameter partials are checked against the analytical acceleration/gravitational-parameter relation.
+ * Spherical-harmonic coefficient partials are checked by updating the state derivative model at each saved epoch and
+ * querying the actual acceleration partial object, so that the saved dependent-variable output is tested against the
+ * same direct partial interface used by the variational equations instead of a finite-difference reconstruction.
+ */
+BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+
+    const double initialEphemerisTime = 1.0E7;
+    const double finalEphemerisTime = initialEphemerisTime + 300.0;
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 3, 3 ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    std::vector< std::string > bodiesToIntegrate;
+    std::vector< std::string > centralBodies;
+    bodiesToIntegrate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 9000.0E3;
+    vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    Eigen::Vector6d systemInitialState =
+            convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    std::shared_ptr< EstimatableParameterSettings > earthGravitationalParameterSettings = gravitationalParameter( "Earth" );
+    std::shared_ptr< EstimatableParameterSettings > sunGravitationalParameterSettings = gravitationalParameter( "Sun" );
+    std::shared_ptr< EstimatableParameterSettings > moonGravitationalParameterSettings = gravitationalParameter( "Moon" );
+    std::shared_ptr< EstimatableParameterSettings > earthCosineCoefficientSettings =
+            sphericalHarmonicsCosineBlock( "Earth", std::vector< std::pair< int, int > >{ { 2, 0 }, { 2, 1 }, { 2, 2 } } );
+    std::shared_ptr< EstimatableParameterSettings > earthSineCoefficientSettings =
+            sphericalHarmonicsSineBlock( "Earth", std::vector< std::pair< int, int > >{ { 2, 1 }, { 2, 2 } } );
+
+    // Request the dependent variables under test: direct single-acceleration partials and total-acceleration partials
+    // w.r.t. gravitational parameters and spherical-harmonic coefficient blocks.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( spherical_harmonic_gravity, "Vehicle", "Earth" ) );
+    dependentVariables.push_back( std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", "Earth", spherical_harmonic_gravity, earthGravitationalParameterSettings ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( third_body_point_mass_gravity, "Vehicle", "Sun" ) );
+    dependentVariables.push_back( std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", "Sun", third_body_point_mass_gravity, sunGravitationalParameterSettings ) );
+    dependentVariables.push_back( std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", "Earth", spherical_harmonic_gravity, earthCosineCoefficientSettings ) );
+    dependentVariables.push_back( std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", "Earth", spherical_harmonic_gravity, earthSineCoefficientSettings ) );
+    dependentVariables.push_back( std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", earthGravitationalParameterSettings ) );
+    dependentVariables.push_back( std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >(
+            "Vehicle", sunGravitationalParameterSettings ) );
+    dependentVariables.push_back(
+            std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( "Vehicle", earthCosineCoefficientSettings ) );
+    dependentVariables.push_back(
+            std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( "Vehicle", earthSineCoefficientSettings ) );
+    dependentVariables.push_back( std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( "Vehicle", "Vehicle" ) );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToIntegrate,
+                                                                                systemInitialState,
+                                                                                double( finalEphemerisTime ),
+                                                                                cowell,
+                                                                                dependentVariables );
+
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+            double( initialEphemerisTime ), 0.1, CoefficientSets::rungeKuttaFehlberg78, 0.1, 0.1, 1.0, 1.0 );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    parameterNames.push_back( earthGravitationalParameterSettings );
+    parameterNames.push_back( sunGravitationalParameterSettings );
+    parameterNames.push_back( moonGravitationalParameterSettings );
+    parameterNames.push_back( earthCosineCoefficientSettings );
+    parameterNames.push_back( earthSineCoefficientSettings );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodies );
+
+    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
+            bodies,
+            integratorSettings,
+            propagatorSettings,
+            parametersToEstimate,
+            true,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+            false,
+            true );
+
+    const std::map< double, Eigen::MatrixXd >& stateTransitionSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
+    const std::map< double, Eigen::MatrixXd >& sensitivitySolution = variationalEquationsSimulator.getSensitivityMatrixSolution( );
+    const std::map< double, Eigen::VectorXd > dependentVariableSolution =
+            variationalEquationsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd >& equationsOfMotionSolution =
+            variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+    std::shared_ptr< VariationalEquations > variationalEquationsObject = variationalEquationsSimulator.getVariationalEquationsObject( );
+    const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+            variationalEquationsObject->getStateDerivativePartialList( );
+    std::shared_ptr< acceleration_partials::AccelerationPartial > earthSphericalHarmonicPartial = getAccelerationPartialForBody(
+            stateDerivativePartials.at( translational_state ), spherical_harmonic_gravity, "Vehicle", "Earth" );
+
+    const int earthAccelerationStart = 0;
+    const int earthGravitationalParameterPartialStart = 3;
+    const int sunAccelerationStart = 6;
+    const int sunGravitationalParameterPartialStart = 9;
+    const int earthCosineCoefficientPartialStart = 12;
+    const int earthCosineCoefficientPartialSize = 9;
+    const int earthSineCoefficientPartialStart = earthCosineCoefficientPartialStart + earthCosineCoefficientPartialSize;
+    const int earthSineCoefficientPartialSize = 6;
+    const int totalEarthGravitationalParameterPartialStart = earthSineCoefficientPartialStart + earthSineCoefficientPartialSize;
+    const int totalSunGravitationalParameterPartialStart = totalEarthGravitationalParameterPartialStart + 3;
+    const int totalEarthCosineCoefficientPartialStart = totalSunGravitationalParameterPartialStart + 3;
+    const int totalEarthCosineCoefficientPartialSize = 9;
+    const int totalEarthSineCoefficientPartialStart = totalEarthCosineCoefficientPartialStart + totalEarthCosineCoefficientPartialSize;
+    const int totalEarthSineCoefficientPartialSize = 6;
+
+    const double sunGravitationalParameter = bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+            earthCosineParameterIndices =
+                    parametersToEstimate->getParametersAndIndicesForParameterIdentifier( earthCosineCoefficientSettings->parameterType_ );
+    std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+            earthSineParameterIndices =
+                    parametersToEstimate->getParametersAndIndicesForParameterIdentifier( earthSineCoefficientSettings->parameterType_ );
+
+    // The coefficient-block dependent-variable output is only unambiguous if each requested coefficient setting maps
+    // to exactly one estimatable parameter object.
+    BOOST_CHECK_EQUAL( earthCosineParameterIndices.size( ), 1 );
+    BOOST_CHECK_EQUAL( earthSineParameterIndices.size( ), 1 );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > earthCosineParameter =
+            std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >(
+                    earthCosineParameterIndices.at( 0 ).second );
+    std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > earthSineParameter =
+            std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >(
+                    earthSineParameterIndices.at( 0 ).second );
+
+    // The spherical-harmonic coefficient blocks are vector parameters; the cast verifies that the subsequent direct
+    // partial-function query uses the same parameter type as the acceleration partial implementation.
+    BOOST_CHECK( earthCosineParameter != nullptr );
+    BOOST_CHECK( earthSineParameter != nullptr );
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > earthCosinePartialFunction =
+            earthSphericalHarmonicPartial->getParameterPartialFunction( earthCosineParameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > earthSinePartialFunction =
+            earthSphericalHarmonicPartial->getParameterPartialFunction( earthSineParameter );
+
+    // The direct partial functions must expose the same number of columns as the saved coefficient-block outputs.
+    BOOST_CHECK_EQUAL( earthCosinePartialFunction.second, earthCosineParameterIndices.at( 0 ).first.second );
+    BOOST_CHECK_EQUAL( earthSinePartialFunction.second, earthSineParameterIndices.at( 0 ).first.second );
+
+    auto dependentVariableIteratorMid = dependentVariableSolution.begin( );
+
+    for( unsigned int i = 0; i < dependentVariableSolution.size( ); i++ )
+    {
+        const Eigen::Vector3d earthAcceleration = dependentVariableIteratorMid->second.segment( earthAccelerationStart, 3 );
+        const Eigen::Vector3d earthGravitationalParameterPartial =
+                dependentVariableIteratorMid->second.segment( earthGravitationalParameterPartialStart, 3 );
+        const Eigen::Vector3d sunAcceleration = dependentVariableIteratorMid->second.segment( sunAccelerationStart, 3 );
+        const Eigen::Vector3d sunGravitationalParameterPartial =
+                dependentVariableIteratorMid->second.segment( sunGravitationalParameterPartialStart, 3 );
+        const Eigen::Vector3d totalEarthGravitationalParameterPartial =
+                dependentVariableIteratorMid->second.segment( totalEarthGravitationalParameterPartialStart, 3 );
+        const Eigen::Vector3d totalSunGravitationalParameterPartial =
+                dependentVariableIteratorMid->second.segment( totalSunGravitationalParameterPartialStart, 3 );
+
+        // For these gravity models, the acceleration is linear in the gravitational parameter, so da/dmu = a/mu.
+        BOOST_CHECK_SMALL( ( earthGravitationalParameterPartial - earthAcceleration / earthGravitationalParameter ).norm( ) /
+                                   ( earthAcceleration / earthGravitationalParameter ).norm( ),
+                           1.0E-12 );
+        BOOST_CHECK_SMALL( ( sunGravitationalParameterPartial - sunAcceleration / sunGravitationalParameter ).norm( ) /
+                                   ( sunAcceleration / sunGravitationalParameter ).norm( ),
+                           1.0E-11 );
+
+        // The total partial w.r.t. each gravitational parameter should equal the corresponding single-acceleration
+        // partial because only one acceleration model in this setup depends on each of these scalar parameters.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthGravitationalParameterPartial, totalEarthGravitationalParameterPartial, 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sunGravitationalParameterPartial, totalSunGravitationalParameterPartial, 1.0E-14 );
+
+        // Recreate the full variational state at the saved epoch so computeStateDerivative updates the environment,
+        // acceleration models, and partial objects to exactly the state associated with the saved dependent variables.
+        const Eigen::MatrixXd& currentStateTransition = stateTransitionSolution.at( dependentVariableIteratorMid->first );
+        const Eigen::MatrixXd& currentSensitivity = sensitivitySolution.at( dependentVariableIteratorMid->first );
+        const Eigen::VectorXd& currentState = equationsOfMotionSolution.at( dependentVariableIteratorMid->first );
+
+        Eigen::MatrixXd currentVariationalState =
+                Eigen::MatrixXd::Zero( currentState.rows( ), currentStateTransition.cols( ) + currentSensitivity.cols( ) + 1 );
+        currentVariationalState.block( 0, 0, currentState.rows( ), currentStateTransition.cols( ) ) = currentStateTransition;
+        currentVariationalState.block( 0, currentStateTransition.cols( ), currentState.rows( ), currentSensitivity.cols( ) ) =
+                currentSensitivity;
+        currentVariationalState.col( currentVariationalState.cols( ) - 1 ) = currentState;
+
+        variationalEquationsSimulator.getDynamicsSimulator( )->getDynamicsStateDerivative( )->computeStateDerivative(
+                dependentVariableIteratorMid->first, currentVariationalState );
+
+        Eigen::MatrixXd earthCosinePartial;
+        getOutputVectorInMatrixRepresentation(
+                dependentVariableIteratorMid->second.segment( earthCosineCoefficientPartialStart, earthCosineCoefficientPartialSize ),
+                earthCosinePartial,
+                3,
+                earthCosineParameterIndices.at( 0 ).first.second );
+
+        // Check the saved Earth cosine-coefficient partial against the current value returned by the actual
+        // spherical-harmonic acceleration partial object.
+        Eigen::MatrixXd expectedEarthCosinePartial = Eigen::MatrixXd::Zero( 3, earthCosinePartialFunction.second );
+        earthCosinePartialFunction.first( expectedEarthCosinePartial );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthCosinePartial, expectedEarthCosinePartial, 1.0E-14 );
+
+        Eigen::MatrixXd totalEarthCosinePartial;
+        getOutputVectorInMatrixRepresentation( dependentVariableIteratorMid->second.segment( totalEarthCosineCoefficientPartialStart,
+                                                                                             totalEarthCosineCoefficientPartialSize ),
+                                               totalEarthCosinePartial,
+                                               3,
+                                               earthCosineParameterIndices.at( 0 ).first.second );
+
+        // The total cosine-coefficient partial should match the single-acceleration partial because only the Earth
+        // spherical-harmonic acceleration depends on these coefficients.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthCosinePartial, earthCosinePartial, 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthCosinePartial, expectedEarthCosinePartial, 1.0E-14 );
+
+        Eigen::MatrixXd earthSinePartial;
+        getOutputVectorInMatrixRepresentation(
+                dependentVariableIteratorMid->second.segment( earthSineCoefficientPartialStart, earthSineCoefficientPartialSize ),
+                earthSinePartial,
+                3,
+                earthSineParameterIndices.at( 0 ).first.second );
+
+        // Check the saved Earth sine-coefficient partial through the same direct partial-object interface.
+        Eigen::MatrixXd expectedEarthSinePartial = Eigen::MatrixXd::Zero( 3, earthSinePartialFunction.second );
+        earthSinePartialFunction.first( expectedEarthSinePartial );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthSinePartial, expectedEarthSinePartial, 1.0E-14 );
+
+        Eigen::MatrixXd totalEarthSinePartial;
+        getOutputVectorInMatrixRepresentation(
+                dependentVariableIteratorMid->second.segment( totalEarthSineCoefficientPartialStart, totalEarthSineCoefficientPartialSize ),
+                totalEarthSinePartial,
+                3,
+                earthSineParameterIndices.at( 0 ).first.second );
+
+        // The total sine-coefficient partial should also collapse to the single Earth spherical-harmonic contribution.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, earthSinePartial, 1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalEarthSinePartial, expectedEarthSinePartial, 1.0E-14 );
+
+        dependentVariableIteratorMid++;
+    }
+}
+
 // Check if gravitational potential and laplacian are being saved correctly for spherical harmonics and polyhedron models
 BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
 {
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    for( unsigned int gravityModelsId: { 0, 1 } )
+    for( unsigned int gravityModelsId : { 0, 1 } )
     {
         // Create body objects.
         std::vector< std::string > bodiesToCreate;
@@ -1683,7 +2009,7 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
     std::map< double, Eigen::VectorXd > dependentVariableResults = dynamicsSimulator.getDependentVariableHistory( );
     std::pair< int, double > testPair;
     std::tuple< int, double, double > testTuple;
-    for( auto it: dependentVariableResults )
+    for( auto it : dependentVariableResults )
     {
         testPair = getClosestSatelliteDistance(
                 bodies, "Satellite1", std::vector< std::string >( { "Satellite2", "Satellite3", "Satellite4", "Satellite5" } ), it.first );

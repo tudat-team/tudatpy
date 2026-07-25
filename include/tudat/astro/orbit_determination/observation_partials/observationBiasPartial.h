@@ -47,13 +47,13 @@ public:
         transmitterWrtLinkEndStatePartial_( transmitterWrtLinkEndStatePartial ),
         receiverWrtLinkEndStatePartial_( receiverWrtLinkEndStatePartial ),
         transmitterAccelerationFunction_( transmitterAccelerationFunction ), receiverAccelerationFunction_( receiverAccelerationFunction )
-    { }
+    {}
 
     std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > getObservationPartialWrtObservationTime(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
@@ -147,10 +147,10 @@ public:
         ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_time_drift_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeDriftBias( ) { }
+    ~ObservationPartialWrtConstantTimeDriftBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. time drift bias
     /*!
@@ -166,7 +166,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
@@ -228,7 +228,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeDriftBias( ) { }
+    ~ObservationPartialWrtArcWiseTimeDriftBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise time drift bias
     /*!
@@ -244,7 +244,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
@@ -313,7 +313,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeBias( ) { }
+    ~ObservationPartialWrtConstantTimeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. time bias
     /*!
@@ -329,7 +329,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
@@ -374,7 +374,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeBias( ) { }
+    ~ObservationPartialWrtArcWiseTimeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise time bias
     /*!
@@ -390,7 +390,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         totalPartial_.setZero( );

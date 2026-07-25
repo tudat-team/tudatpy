@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_ESTIMATION_ANALYSIS_EPHEMERIS_FIT_H
 #define TUDATPY_EXPOSE_ESTIMATION_ANALYSIS_EPHEMERIS_FIT_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -27,7 +22,7 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_ephemeris_fit( py::module &m );
+void expose_estimation_analysis_ephemeris_fit( py::module& m );
 
 }  // namespace estimation_analysis
 }  // namespace estimation

@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_observations_setup.h"
 
 #include <pybind11/chrono.h>
@@ -30,7 +32,6 @@ namespace observations_setup
 
 void expose_observations_setup( py::module& m )
 {
-
     auto ancillary_settings = m.def_submodule( "ancillary_settings" );
     ancillary_settings::expose_ancillary_settings( ancillary_settings );
 
@@ -48,7 +49,6 @@ void expose_observations_setup( py::module& m )
 
     auto viability = m.def_submodule( "viability" );
     viability::expose_viability( viability );
-
 }
 
 }  // namespace observations_setup

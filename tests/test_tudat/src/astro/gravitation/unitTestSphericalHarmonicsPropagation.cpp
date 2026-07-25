@@ -27,11 +27,19 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
@@ -211,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             stateTransitionMatrixHistory.begin( )->second.rows( ),
             stateTransitionMatrixHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStateTransition.dat" );
-    for( auto it: stateTransitionMatrixHistory )
+    for( auto it : stateTransitionMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateTransitionMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = stateTransitionMatrixHistory.at( it.first );
@@ -238,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             sensitivityMatrixHistory.begin( )->second.rows( ),
             sensitivityMatrixHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestSensitivity.dat" );
-    for( auto it: sensitivityMatrixHistory )
+    for( auto it : sensitivityMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceSensitivityMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = sensitivityMatrixHistory.at( it.first );
@@ -247,8 +255,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         {
             for( int j = 0; j < currentMatrix.cols( ); j++ )
             {
-                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 3 ).norm( ) * 1.0E-10 );
-                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 3 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 1 ).norm( ) * 1.0E-10 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 1 ).norm( ) * 1.0E-10 );
             }
         }
     }
@@ -261,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             stateHistory.begin( )->second.rows( ),
             stateHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStates.dat" );
-    for( auto it: stateHistory )
+    for( auto it : stateHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = stateHistory.at( it.first );
@@ -283,7 +291,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
             dependentVariableHistory.begin( )->second.rows( ),
             dependentVariableHistory.begin( )->second.cols( ),
             tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestDependentVariables.dat" );
-    for( auto it: dependentVariableHistory )
+    for( auto it : dependentVariableHistory )
     {
         BOOST_CHECK_EQUAL( referenceDependentVariableHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = dependentVariableHistory.at( it.first );

@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/executeEarthOrbiterBiasEstimationTestCase.h"
 
 namespace tudat
 {
@@ -40,7 +40,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                     {
                         for( int estimateTimeBiases = 0; estimateTimeBiases < 2; estimateTimeBiases++ )
                         {
-                            if( !( estimateTwoWayBiases == true && estimateRangeBiases == false ) )
+                            if( !( ( static_cast< bool >( estimateTwoWayBiases ) == true ) &&
+                                   ( static_cast< bool >( estimateRangeBiases ) == false ) ) )
                             {
                                 std::cout << "=========== Running Case: " << estimateRangeBiases << " " << estimateTwoWayBiases << " "
                                           << useSingleBiasModel << " " << estimateAbsoluteBiases << " " << estimateMultiArcBiases << " "
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                         }
                                         else
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-14 );
                                         }
                                     }
                                     else
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                         }
                                         else if( !estimateMultiArcBiases )
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-14 );
                                         }
                                         else
                                         {

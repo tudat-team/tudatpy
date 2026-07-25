@@ -12,13 +12,20 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
@@ -162,7 +169,7 @@ void runEstimation( std::string saveDirectory,
             observationTimes.push_back( t );
         }
         catch( ... )
-        { }
+        {}
     }
 
     // Set accelerations on Vehicle that are to be taken into account.
@@ -221,7 +228,7 @@ void runEstimation( std::string saveDirectory,
 
     // Retrieve state history from SPICE
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > spiceStateHistory;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         spiceStateHistory[ t.getSeconds< long double >( ) ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ) -
@@ -271,7 +278,7 @@ void runEstimation( std::string saveDirectory,
 
     // Retrieve state history
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > propagatedStateHistory;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         propagatedStateHistory[ t.getSeconds< long double >( ) ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ) -
@@ -313,7 +320,7 @@ void runEstimation( std::string saveDirectory,
     std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 6, 1 > > > postFitStateInterpolator =
             propagators::createStateInterpolator< Time, long double >( propagatedStateHistoryPostFit );
     std::map< long double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitToWrite;
-    for( Time t: observationTimes )
+    for( Time t : observationTimes )
     {
         propagatedStateHistoryPostFitToWrite[ t.getSeconds< long double >( ) ] = postFitStateInterpolator->interpolate( t );
     }

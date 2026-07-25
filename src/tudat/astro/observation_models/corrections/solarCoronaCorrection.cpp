@@ -11,7 +11,7 @@
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/math/quadrature.h"
+#include "tudat/math/quadrature/gaussianQuadrature.h"
 
 namespace tudat
 {
@@ -48,10 +48,11 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
     // Fraction of the distance between the position of transmitter (fractionOfLOS = 0) and the position of the receiver
     // (fractionOfLOS = 1) is used as independent variable
 
-    std::function< double( double ) > electronDensityAlongLOS = [ = ]( const double fractionOfLOS ) {
-        return computeElectronDensity( transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ),
-                                       time );
-    };
+    std::function< double( double ) > electronDensityAlongLOS =
+            [ this, transmitterPositionWrtSun, receiverPositionWrtSun, time ]( const double fractionOfLOS ) {
+                return computeElectronDensity(
+                        transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ), time );
+            };
 
     numerical_quadrature::GaussianQuadrature< double, double > quadrature =
             numerical_quadrature::GaussianQuadrature< double, double >( electronDensityAlongLOS, 0.0, 1.0, 50 );
@@ -65,7 +66,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d legTransmitterState, legReceiverState;

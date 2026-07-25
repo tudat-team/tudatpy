@@ -13,7 +13,6 @@
 #define TUDAT_AERODYNAMIC_TORQUE_H
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 #include <memory>
 
 #include <Eigen/Core>

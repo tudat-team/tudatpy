@@ -13,7 +13,7 @@ attribute  (with entries of type :class:`~tudatpy.dynamics.environment_setup.sha
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.shape_deformation_model` attribute.
 
-The shape deformation models are used for global shape variations of a celesial body, which are used (for instance)
+The shape deformation models are used for global shape variations of a celestial body, which are used (for instance)
 for the high-accuracy modelling of the positions of ground stations on a body. Station-specific models for position variations
 of a station (such as plate motion) are set in the ground stations themselves (see :ref:`ground_station`).
 
@@ -30,14 +30,18 @@ Functions
 
    iers_2010_solid_body_tidal
 
+   ocean_tidal
 
-
+   pole_tidal
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.basic_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.degree_two_basic_solid_body_tidal
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.iers_2010_solid_body_tidal
 
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.ocean_tidal
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape_deformation.pole_tidal
 
 
 
@@ -60,6 +64,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings
    :members:
-
-
-

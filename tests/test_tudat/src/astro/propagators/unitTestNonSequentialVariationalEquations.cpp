@@ -11,10 +11,20 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include "tudat/simulation/simulation.h"
-#include "tudat/simulation/estimation.h"
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
+
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/rungeKuttaCoefficients.h"
+
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 namespace tudat
 {
@@ -389,33 +399,38 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcVariationalEquations )
     std::shared_ptr< MultiArcPropagatorSettings<> > nonSequentialPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( nonsequentialPropagationSettingsList );
 
-    // Define parameters to estimate
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    // Define parameters to estimate for non-sequential propagation / estimation
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesForward =
+            getInitialStateParameterSettings< double, double >( forwardPropagatorSettings, bodies );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesBackward =
+            getInitialStateParameterSettings< double, double >( backwardPropagatorSettings, bodies );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesNonSequential =
+            getInitialStateParameterSettings< double, double >( nonSequentialPropagatorSettings, bodies );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesToAdd;
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                bodiesToPropagate.at( i ),
-                concatenatedArcWiseStatesPerBody.at( bodiesToPropagate.at( i ) ),
-                midArcTimes,
-                centralBodies.at( i ) ) );
+        parameterNamesToAdd.push_back(
+                std::make_shared< EstimatableParameterSettings >( bodiesToPropagate.at( i ), gravitational_parameter ) );
 
-        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( bodiesToPropagate.at( i ), gravitational_parameter ) );
-
-        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNamesToAdd.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 0, 2, 2, bodiesToPropagate.at( i ), spherical_harmonics_cosine_coefficient_block ) );
-        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNamesToAdd.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 1, 2, 2, bodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
     }
+    parameterNamesForward.insert( parameterNamesForward.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
+    parameterNamesBackward.insert( parameterNamesBackward.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
+    parameterNamesNonSequential.insert( parameterNamesNonSequential.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesForward, bodies, forwardPropagatorSettings );
     printEstimatableParameterEntries( forwardParameters );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesBackward, bodies, backwardPropagatorSettings );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, nonSequentialPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesNonSequential, bodies, nonSequentialPropagatorSettings );
 
     // Propagate variational equations (forward leg)
     MultiArcVariationalEquationsSolver<> forwardVariationalEquationsSolver =
@@ -665,37 +680,38 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcVariationalEquations )
             nonSequentialSingleArcPropagatorSettings,
             std::make_shared< MultiArcPropagatorSettings<> >( nonSequentialPropagationSettingsList ) );
 
-    // Define parameters to estimate
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-            singleArcBodiesToPropagate.at( 0 ), midArcStatesJupiter, singleArcCentralBodies.at( 0 ) ) );
+    // Define parameters to estimate for non-sequential propagation / estimation
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesForward =
+            getInitialStateParameterSettings< double, double >( forwardPropagatorSettings, bodies );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesBackward =
+            getInitialStateParameterSettings< double, double >( backwardPropagatorSettings, bodies );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesNonSequential =
+            getInitialStateParameterSettings< double, double >( nonSequentialPropagatorSettings, bodies );
 
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesToAdd;
     for( unsigned int i = 0; i < multiArcBodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                multiArcBodiesToPropagate.at( i ),
-                concatenatedArcWiseStatesPerBody.at( multiArcBodiesToPropagate.at( i ) ),
-                midArcTimes,
-                multiArcCentralBodies.at( i ) ) );
-
-        parameterNames.push_back(
+        parameterNamesToAdd.push_back(
                 std::make_shared< EstimatableParameterSettings >( multiArcBodiesToPropagate.at( i ), gravitational_parameter ) );
 
-        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNamesToAdd.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 0, 2, 2, multiArcBodiesToPropagate.at( i ), spherical_harmonics_cosine_coefficient_block ) );
-        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNamesToAdd.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 1, 2, 2, multiArcBodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
     }
+    parameterNamesForward.insert( parameterNamesForward.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
+    parameterNamesBackward.insert( parameterNamesBackward.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
+    parameterNamesNonSequential.insert( parameterNamesNonSequential.end( ), parameterNamesToAdd.begin( ), parameterNamesToAdd.end( ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesForward, bodies, forwardPropagatorSettings );
     printEstimatableParameterEntries( forwardParameters );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesBackward, bodies, backwardPropagatorSettings );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
-            createParametersToEstimate< double >( parameterNames, bodies, nonSequentialPropagatorSettings );
+            createParametersToEstimate< double >( parameterNamesNonSequential, bodies, nonSequentialPropagatorSettings );
 
     // Propagate variational equations (forward leg)
     HybridArcVariationalEquationsSolver<> forwardVariationalEquationsSolver =

@@ -7,13 +7,17 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_geometry.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/basics/basicTypedefs.h>
+
+#include "tudat/math/geometric/capsule.h"
 
 namespace py = pybind11;
 
@@ -22,22 +26,15 @@ namespace tgs = tudat::geometric_shapes;
 namespace tudatpy
 {
 
-void expose_geometry( py::module &m )
+void expose_geometry( py::module& m )
 {
-    py::class_< tudat::SurfaceGeometry, std::shared_ptr< tudat::SurfaceGeometry > >(
-            m, "SurfaceGeometry" );
+    py::class_< tudat::SurfaceGeometry, std::shared_ptr< tudat::SurfaceGeometry > >( m, "SurfaceGeometry" );
 
-    py::class_< tgs::CompositeSurfaceGeometry,
-                std::shared_ptr< tgs::CompositeSurfaceGeometry >,
-                tudat::SurfaceGeometry >( m, "CompositeSurfaceGeometry" );
+    py::class_< tgs::CompositeSurfaceGeometry, std::shared_ptr< tgs::CompositeSurfaceGeometry >, tudat::SurfaceGeometry >(
+            m, "CompositeSurfaceGeometry" );
 
-    py::class_< tgs::Capsule, std::shared_ptr< tgs::Capsule >, tgs::CompositeSurfaceGeometry >(
-            m, "Capsule" )
-            .def( py::init< const double,
-                            const double,
-                            const double,
-                            const double,
-                            const double >( ),
+    py::class_< tgs::Capsule, std::shared_ptr< tgs::Capsule >, tgs::CompositeSurfaceGeometry >( m, "Capsule" )
+            .def( py::init< const double, const double, const double, const double, const double >( ),
                   py::arg( "nose_radius" ),
                   py::arg( "middle_radius" ),
                   py::arg( "rear_length" ),

@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_propagation_setup.h"
 
 #include <pybind11/chrono.h>
@@ -16,6 +18,11 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/simulation/propagation_setup/createAccelerationModels.h>
+#include <tudat/simulation/propagation_setup/createMassRateModels.h>
+#include <tudat/simulation/propagation_setup/createStateDerivativeModel.h>
+#include <tudat/simulation/propagation_setup/createTorqueModel.h>
+#include <tudat/simulation/propagation_setup/dynamicsSimulator.h>
 
 #include "acceleration/expose_acceleration.h"
 #include "dependent_variable/expose_dependent_variable.h"
@@ -44,7 +51,6 @@ namespace propagation_setup
 
 void expose_propagation_setup( py::module& m )
 {
-
     auto thrust_setup = m.def_submodule( "thrust" );
     thrust::expose_thrust_setup( thrust_setup );
 
@@ -66,13 +72,11 @@ void expose_propagation_setup( py::module& m )
     auto mass_setup = m.def_submodule( "mass_rate" );
     mass_rate::expose_mass_rate_setup( mass_setup );
 
-
     m.def( "create_acceleration_models",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const tss::SelectedAccelerationMap &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > & >(
-                   &tss::createAccelerationModelsMap ),
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const tss::SelectedAccelerationMap&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >& >( &tss::createAccelerationModelsMap ),
            py::arg( "body_system" ),
            py::arg( "selected_acceleration_per_body" ),
            py::arg( "bodies_to_propagate" ),
@@ -234,7 +238,6 @@ void expose_propagation_setup( py::module& m )
 
 
      )doc" );
-
 }
 
 }  // namespace propagation_setup

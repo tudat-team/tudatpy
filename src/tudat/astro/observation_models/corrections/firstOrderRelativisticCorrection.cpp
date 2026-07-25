@@ -24,7 +24,7 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d transmitterState, receiverState;
@@ -69,7 +69,7 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
         const double transmissionTime,
         const double receptionTime,
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve ppn parameter gamma.
     double ppnParameterGamma = ppnParameterGammaFunction_( );

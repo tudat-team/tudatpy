@@ -19,10 +19,11 @@
 #include <string>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ground_stations/groundStationState.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
-#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -52,15 +53,19 @@ public:
      */
     DsnNWayRangeObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
+            const std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
                     turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                dsn_n_way_range,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{ lightTimeCalculator } ),
+        numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
         this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
 
@@ -103,7 +108,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -125,10 +130,10 @@ public:
         std::vector< FrequencyBands > frequencyBands;
         try
         {
-            lowestRangingComponent = ancillarySettings->getAncilliaryDoubleData( sequential_range_lowest_ranging_component );
-            //            referenceFrequency = ancillarySettings->getAncilliaryDoubleData(
+            lowestRangingComponent = ancillarySettings->getAncillaryDoubleData( sequential_range_lowest_ranging_component );
+            //            referenceFrequency = ancillarySettings->getAncillaryDoubleData(
             //            sequential_range_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -170,9 +175,11 @@ public:
         // Set approximate up- and down-link frequencies.
         double currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
 
-        if( lightTimeCalculator_->doCorrectionsNeedFrequency( ) )
+        std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
+                getLightTimeCalculator( );
+        if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
         {
-            setTransmissionReceptionFrequencies( lightTimeCalculator_,
+            setTransmissionReceptionFrequencies( lightTimeCalculator,
                                                  timeScaleConverter_,
                                                  frequencyInterpolator_,
                                                  time,
@@ -181,7 +188,7 @@ public:
                                                  currentTurnAroundRatio );
         }
 
-        TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+        TimeType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
@@ -194,8 +201,8 @@ public:
 
         ObservationScalarType uplinkFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
-        ancillarySettings->setAncilliaryDoubleData( observation_models::range_conversion_factor,
-                                                    physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
+        ancillarySettings->setAncillaryDoubleData( observation_models::range_conversion_factor,
+                                                   physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
                 frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( utcTransmissionTime,
@@ -211,14 +218,27 @@ public:
         return observation;
     }
 
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
-        return lightTimeCalculator_;
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
+        const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
+        const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
+        for( unsigned int i = 0; i < legCalculators.size( ); i++ )
+        {
+            const auto fromType = getNWayLinkEnumFromIndex( static_cast< int >( i ), numberOfLinkEnds );
+            const auto toType = getNWayLinkEnumFromIndex( static_cast< int >( i ) + 1, numberOfLinkEnds );
+            legMap[ std::make_pair( fromType, toType ) ].push_back( legCalculators.at( i ) );
+        }
+        return legMap;
     }
 
 private:
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
-
     // Number of link ends
     unsigned int numberOfLinkEnds_;
 

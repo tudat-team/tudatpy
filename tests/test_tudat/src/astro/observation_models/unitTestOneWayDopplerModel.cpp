@@ -22,9 +22,10 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 
@@ -131,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         Eigen::Vector6d transmitterState, receiverState;
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
-                receiverState, transmitterState, observationTime, testCase, ancilliarySetings );
+                receiverState, transmitterState, observationTime, testCase, ancillarySetings );
 
         // Compare light time calculator link end conditions with observation model
         {
@@ -169,8 +170,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         biasSettingsList.push_back( std::make_shared< ConstantRelativeObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ) ) );
         std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
-        std::shared_ptr< ObservationModelSettings > biasedObservableSettings =
-                std::make_shared< ObservationModelSettings >( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
+        std::shared_ptr< ObservationModelSettings > biasedObservableSettings = std::make_shared< ObservationModelSettings >(
+                one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
 
         // Create observation model
         std::shared_ptr< ObservationModel< 1, double, double > > biasedObservationModel =

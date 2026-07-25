@@ -7,11 +7,15 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_rotation_model.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createRotationModel.h>
+#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -410,14 +414,14 @@ void expose_rotation_model_setup( py::module& m )
  .. math::
     \mathbf{R}^{(\text{GCRS}/\text{ITRS})} = \mathbf{R}^{(\text{GCRS}/\text{CIRS})}(X,Y,s)\mathbf{R}^{(\text{CIRS}/\text{TIRS})}(\theta_{E})\mathbf{R}^{(\text{TIRS}/\text{ITRS})}(x_{p}, y_{p}, s')
 
- using the intermediate frames TIRS (Terrestial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
+ using the intermediate frames TIRS (Terrestrial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
  :math:`\mathbf{R}^{(\text{TIRS}/\text{ITRS})}` implements Eq. (5.3). The inputs to these rotation matrices are :
 
  * :math:`X`, :math:`Y`: Celestial pole position elements
  * :math:`s`: The CIO (Celestial Intermediate Origin)
  * :math:`\theta_{E}`: Earth rotation angle (denoted as :math:`ERA` in IERS Conventions)
  * :math:`x_{p}`, :math:`y_{p}`: Polar motion components
- * :math:`s'`: The TIO (Terrestial Intermediate Origin)
+ * :math:`s'`: The TIO (Terrestrial Intermediate Origin)
 
  Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
  :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`
@@ -991,6 +995,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "merdian_periodic_terms" ),
            py::arg( "pole_periodic_terms" ),
            py::arg( "reference_epoch_j2000" ) = 0.0,
+           py::arg( "angle_base_frame" ) = "",
            R"doc(
 
  Function for creating a body rotation model using the typical formulation used by the IAU
@@ -1032,6 +1037,9 @@ void expose_rotation_model_setup( py::module& m )
      Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
  pole_periodic_terms : list[dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]]
      Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
+ angle_base_frame : str
+     Optional argument to be used when the angles :math:`W,\alpha,\delta` do not define the rotation between ``target_frame`` and ``base_frame``, but between ``target_frame`` and ``angle_base_frame`` (this input).
+     The additional required rotation between ``angle_base_frame`` and ``base_frame`` is then added to the computation of the rotation matrix (presently only J2000 and ECLIPJ2000 are supported for this input).
 
  Returns
  -------

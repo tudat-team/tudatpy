@@ -17,9 +17,14 @@ set(environment_HEADERS
         createAerodynamicControlSurfaces.h
         createRotationModel.h
         defaultBodies.h
+        defaultGroundStationSettings.h
         createBodies.h
+        createBodiesFactory.h
+        createBodiesSettings.h
         createGroundStations.h
         createBodyDeformationModel.h
+        baseStateInterface.h
+        rigidBodyProperties.h
         body.h
         createRadiationPressureInterface.h
         createGravityFieldVariations.h
@@ -32,6 +37,10 @@ set(environment_HEADERS
         createSystemModel.h
         createThrustModelGuidance.h
         thrustSettings.h
+        createClimateModel.h
+        createCameras.h
+        createRelativisticTimeConverter.h
+        createMetric.h
         )
 
 # Add header files.
@@ -39,6 +48,7 @@ set(environment_SOURCES
         createRadiationPressureInterface.cpp
         createEphemeris.cpp
         createRotationModel.cpp
+        createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
         createBodies.cpp
         createGravityField.cpp
@@ -49,6 +59,9 @@ set(environment_SOURCES
         createAerodynamicCoefficientInterface.cpp
         createAerodynamicControlSurfaces.cpp
         defaultBodies.cpp
+        defaultGroundStationSettings.cpp
+        baseStateInterface.cpp
+        rigidBodyProperties.cpp
         body.cpp
         createAtmosphereModel.cpp
         createSystemModel.cpp
@@ -58,6 +71,10 @@ set(environment_SOURCES
         createRadiationPressureTargetModel.cpp
         createOccultationModel.cpp
         createSurfacePropertyDistribution.cpp
+        createClimateModel.cpp
+        createCameras.cpp
+        createRelativisticTimeConverter.cpp
+        createMetric.cpp
         )
 
 # Add library.
@@ -67,3 +84,15 @@ TUDAT_ADD_LIBRARY("environment_setup"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
+
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(tudat_environment_setup PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(tudat_environment_setup SYSTEM PRIVATE 
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+endif()

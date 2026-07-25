@@ -18,14 +18,16 @@
 #include <cstdarg>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <memory>
+#include <map>
 #include <utility>
 #include <vector>
 
 #include "tudat/io/fieldType.h"
-#include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
 /*!
@@ -94,7 +96,8 @@ enum class TrackingDataType {
     transmission_frequency_linear_term,
     doppler_predicted_frequency_hz,
     doppler_troposphere_correction,
-    scan_nr
+    scan_nr,
+    doppler_integration_time
 };
 /*!
  * Simple converter class that can convert a string data field to a double.
@@ -107,7 +110,7 @@ public:
      * Constructor
      * @param trackingDataType the SI data type of the double representation
      */
-    explicit TrackingFileFieldConverter( TrackingDataType trackingDataType ): doubleDataType_( trackingDataType ) { }
+    explicit TrackingFileFieldConverter( TrackingDataType trackingDataType ): doubleDataType_( trackingDataType ) {}
 
     //! Destructor
     virtual ~TrackingFileFieldConverter( ) = default;
@@ -149,7 +152,7 @@ public:
      * Constructor
      * @param trackingDataType Data type of the double representation (SI)
      */
-    TrackingFileMonthFieldConverter( TrackingDataType trackingDataType ): TrackingFileFieldConverter( trackingDataType ) { }
+    TrackingFileMonthFieldConverter( TrackingDataType trackingDataType ): TrackingFileFieldConverter( trackingDataType ) {}
 
     /*!
      * Implementation to convert the months in three letter string to their double representation
@@ -177,7 +180,7 @@ public:
      */
     TrackingFileFieldMultiplyingConverter( TrackingDataType trackingDataType, double multiplier ):
         TrackingFileFieldConverter( trackingDataType ), multiplier_( multiplier )
-    { }
+    {}
 
     /*!
      * Convert string to double and apply given multiplication factor.
@@ -199,7 +202,7 @@ class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 public:
     TrackingFileFieldUTCTimeConverter( TrackingDataType trackingDataType = TrackingDataType::utc_reception_time_j2000 ):
         TrackingFileFieldConverter( trackingDataType )
-    { }
+    {}
     double toDouble( std::string& rawField ) const
     {
         return basic_astrodynamics::DateTime::fromIsoString( rawField ).epoch< double >( );
@@ -261,6 +264,8 @@ static const std::map< std::string, std::shared_ptr< TrackingFileFieldConverter 
 
 enum TrackingTxtFileReadFilterType { no_tracking_txt_file_filter, ifms_tracking_txt_file_filter };
 
+enum class FdetDateFormat { datetime_string, pair_of_numbers };
+
 /*!
  * Class to extract the raw data from a file with the appropriate conversion to doubles. Data fields that do not have an
  * appropriate converter are simply stored as raw strings.
@@ -296,13 +301,13 @@ private:
      * Read out the raw data map from a filestream
      * @param dataFile filestream
      */
-    void readRawDataMap( std::ifstream& dataFile );
+    void readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     /*!
      * Process a single raw line from the file and add it to the data maps
      * @param rawLine single line from the file as a string
      */
-    void addLineToRawDataMap( std::string& rawLine );
+    void addLineToRawDataMap( std::string& rawLine, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     bool validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod, const std::vector< std::string >& rawVector );
 
@@ -350,7 +355,7 @@ public:
     const std::vector< TrackingDataType >& getDataColumnTypes( )
     {
         columnDataTypes_.clear( );
-        for( auto& pair: doubleDataMap_ )
+        for( auto& pair : doubleDataMap_ )
         {
             columnDataTypes_.push_back( pair.first );
         }
@@ -443,16 +448,23 @@ private:
  * @param valueSeparators String of characters that separate columns. E.g. ",:" means that every , and : in the file will create a new column
  * @return TrackingFileContents
  */
-static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileContents( const std::string& fileName,
-                                                                                        const std::vector< std::string >& columnTypes,
-                                                                                        char commentSymbol = '#',
-                                                                                        const std::string& valueSeparators = ",: \t",
-                                                                                        const bool ignoreOmittedColumns = false )
+static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileContents(
+        const std::string& fileName,
+        const std::vector< std::string >& columnTypes,
+        char commentSymbol = '#',
+        const std::string& valueSeparators = ",: \t",
+        const bool ignoreOmittedColumns = false,
+        const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter )
 {
-    return std::make_shared< TrackingTxtFileContents >( fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns );
+    return std::make_shared< TrackingTxtFileContents >(
+            fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true )
+double getNominalTimeStepFromUtcTimes( const std::vector< double >& observationTimesUtc, const double cadenceTolerance = 0.01 );
+
+inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName,
+                                                                const bool applyTroposphereCorrection = true,
+                                                                const bool filterInvalidLines = true )
 {
     std::vector< std::string > columnTypes( { "sample_number",
                                               "utc_datetime_string",
@@ -467,8 +479,22 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
                                               "doppler_troposphere_correction",
                                               "doppler_noise_hz" } );
 
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true );
+    std::shared_ptr< TrackingTxtFileContents > unfilteredFileContents;
+    double nominalDopplerIntegrationTime = std::numeric_limits< double >::quiet_NaN( );
+    if( filterInvalidLines )
+    {
+        unfilteredFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true, no_tracking_txt_file_filter );
+        nominalDopplerIntegrationTime =
+                getNominalTimeStepFromUtcTimes( unfilteredFileContents->getDoubleDataColumn( TrackingDataType::utc_reception_time_j2000 ) );
+    }
+
+    auto rawFileContents = createTrackingTxtFileContents(
+            fileName, columnTypes, '#', ", \t", true, filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    if( filterInvalidLines )
+    {
+        rawFileContents->addMetaData( TrackingDataType::doppler_integration_time, nominalDopplerIntegrationTime );
+    }
     if( applyTroposphereCorrection )
     {
         rawFileContents->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency,
@@ -477,18 +503,10 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
     return rawFileContents;
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
-                                                                 const std::vector< std::string >& columnTypes = {
-                                                                         "utc_datetime_string",
-                                                                         "signal_to_noise_ratio",
-                                                                         "normalised_spectral_max",
-                                                                         "doppler_measured_frequency_hz",
-                                                                         "doppler_noise_hz" } )
-{
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t" );
-    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
-    return rawFileContents;
-}
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
+                                                          FdetDateFormat dateFormat = FdetDateFormat::datetime_string );
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, const std::vector< std::string >& columnTypes );
 
 }  // namespace input_output
 }  // namespace tudat

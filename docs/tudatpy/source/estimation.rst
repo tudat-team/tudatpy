@@ -20,8 +20,6 @@ Each of the submpdules provide a description of how the link between the setup l
 
 An overview of how to use the overall state propagation functionality can be found in the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation.html>`_
 
-``estimation``
-==============
 
 .. toctree::
    :maxdepth: 2

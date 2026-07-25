@@ -11,8 +11,14 @@
 #ifndef TUDAT_CREATENUMERICALSIMULATOR_H
 #define TUDAT_CREATENUMERICALSIMULATOR_H
 
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
-#include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/hybridArcDynamicsSimulator.h"
+#include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
+#include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/multiArcVariationalEquationsSolver.h"
+#include "tudat/simulation/estimation_setup/hybridArcVariationalEquationsSolver.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudat
@@ -73,7 +79,8 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
                 std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                 areEquationsOfMotionToBeIntegrated );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
                 bodies,
@@ -83,7 +90,7 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
     }
     else
     {
-        throw std::runtime_error( "Error when creating variational equations solver, dynamics type not recognized" );
+        throw std::runtime_error( "Error when creating dynamics simulator, dynamics type not recognized" );
     }
 }
 
@@ -183,7 +190,8 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                 totalParameterSize,
                 std::vector< std::vector< std::pair< int, int > > >( ) );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         throw std::runtime_error( "Error, cannot yet create empty hybrid arc state transition interface" );
         return nullptr;
@@ -193,6 +201,15 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
         throw std::runtime_error( "Error when creating state transition interface, dynamics type not recognized" );
     }
 }
+
+#if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
+extern template std::shared_ptr< propagators::VariationalEquationsSolver< double, double > >
+createVariationalEquationsSolver< double, double >(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+        const bool integrateEquationsOnCreation );
+#endif
 
 }  // namespace simulation_setup
 

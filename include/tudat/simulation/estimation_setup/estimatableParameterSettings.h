@@ -236,7 +236,7 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {}
 
@@ -271,7 +271,7 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -309,7 +309,7 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -349,7 +349,7 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
     {}
@@ -389,7 +389,7 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -425,7 +425,7 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -494,6 +494,10 @@ public:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an arcwise initial translational state.
@@ -598,6 +602,12 @@ public:
 
     //! Boolean to denote whether initial states are set, or if they need to be computed
     bool isStateSet_;
+
+    std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
+
+    std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
+
+    std::function< void( ) > initialStateSetClosure_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -644,6 +654,10 @@ public:
 
     //! Orientation w.r.t. which the initial state is to be estimated.
     std::string baseOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -656,6 +670,10 @@ public:
     {}
 
     InitialStateParameterType initialStateValue_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating time-independent empirical acceleration components
@@ -773,13 +791,35 @@ public:
     std::vector< double > arcStartTimeList_;
 };
 
+//! Class to define settings for estimating time-dependent (arcwise) atmosphere parameter settings
+class ArcWiseExponentialAtmosphereParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterType Type of exponential atmosphere parameter
+     * \param associatedBody Name of body associated with the (exponential) atmosphere
+     * \param arcStartTimeList List of times at which drag coefficient arcs are to start
+     */
+
+    ArcWiseExponentialAtmosphereParameterSettings( const EstimatebleParametersEnum parameterType,
+                                                   const std::string& associatedBody,
+                                                   const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, parameterType ), arcStartTimeList_( arcStartTimeList )
+    {}
+
+    //! List of times at which drag coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+};
+
 //! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class FullDegreeTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -836,9 +876,9 @@ public:
  *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
  *  degree. The estimation will provide separate Love numbers for each order
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -1208,6 +1248,34 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScali
 {
     return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
             arc_wise_lift_component_scaling_factor, bodyName, arcStartTimes );
+}
+
+// factory function parameter settings for arcwise ExponentialAtmosphereBaseDensity parameter
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereBaseDensity( const std::string& associatedBody,
+                                                                                                const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >(
+            arc_wise_exponential_atmosphere_base_density, associatedBody, arcStartTimes );
+}
+
+// factory function parameter settings for arcwise ExponentialAtmosphereScaleHeight parameter
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereScaleHeight( const std::string& associatedBody,
+                                                                                                const std::vector< double > arcStartTimes )
+{
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >(
+            arc_wise_exponential_atmosphere_scale_height, associatedBody, arcStartTimes );
+}
+
+// factory function parameter settings for ExponentialAtmosphereBaseDensity parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereBaseDensity( const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_base_density );
+}
+
+// factory function parameter settings for ExponentialAtmosphereScaleHeight parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereScaleHeight( const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_scale_height );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )

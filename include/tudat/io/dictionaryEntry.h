@@ -42,7 +42,7 @@ public:
      * create a dictionary, which is an STL set of shared-pointers to DictionaryEntry objects.
      * \sa Dictionary.
      */
-    DictionaryEntry( ): parameterName( "" ), isRequired( true ), isCaseSensitive( false ), isExtracted( false ), synonyms( ) { }
+    DictionaryEntry( ): parameterName( "" ), isRequired( true ), isCaseSensitive( false ), isExtracted( false ), synonyms( ) {}
 
     //! Default constructor.
     /*!
@@ -55,7 +55,7 @@ public:
     DictionaryEntry( std::string aParameterName, bool required = true, bool caseSensitive = false, StringSet someSynonyms = StringSet( ) ):
         parameterName( aParameterName ), isRequired( required ), isCaseSensitive( caseSensitive ), isExtracted( false ),
         synonyms( someSynonyms )
-    { }
+    {}
 
     //! Parameter name.
     /*!

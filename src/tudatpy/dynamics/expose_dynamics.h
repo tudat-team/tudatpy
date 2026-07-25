@@ -11,20 +11,7 @@
 #ifndef TUDATPY_EXPOSE_DYNAMICS_H
 #define TUDATPY_EXPOSE_DYNAMICS_H
 
-#include <pybind11/chrono.h>
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "environment/expose_environment.h"
-#include "environment_setup/expose_environment_setup.h"
-#include "propagation/expose_propagation.h"
-#include "propagation_setup/expose_propagation_setup.h"
-#include "simulator/expose_simulator.h"
-#include "parameters_setup/expose_parameters_setup.h"
-#include "parameters/expose_parameters.h"
 
 namespace py = pybind11;
 
@@ -33,7 +20,7 @@ namespace tudatpy
 namespace dynamics
 {
 
-void expose_dynamics( py::module &m );
+void expose_dynamics( py::module& m );
 
 }  // namespace dynamics
 }  // namespace tudatpy

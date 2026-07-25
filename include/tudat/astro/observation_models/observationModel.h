@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -21,6 +22,7 @@
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
@@ -61,10 +63,14 @@ public:
      * deviations from the physically ideal observable between reference points
      * (default none).
      */
-    ObservationModel( const ObservableType observableType,
-                      const LinkEnds linkEnds,
-                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
-        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator )
+    ObservationModel(
+            const ObservableType observableType,
+            const LinkEnds linkEnds,
+            const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr,
+            const std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators =
+                    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >( ) ):
+        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator ),
+        lightTimeCalculators_( lightTimeCalculators )
     {
         // Check if bias is empty
         if( observationBiasCalculator_ != nullptr )
@@ -101,6 +107,25 @@ public:
         return linkEnds_;
     }
 
+    virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const = 0;
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getObservationLightTimeCalculator(
+            const unsigned int pathIndex = 0 )
+    {
+        return getFullLinkLightTimeCalculatorFromBase( pathIndex );
+    }
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > getTimeScaleConverter( )
+    {
+        return timeScaleConverter_;
+    }
+
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > getObservationLightTimeCalculators( )
+    {
+        return lightTimeCalculators_;
+    }
+
     //! Function to compute the observable without any corrections
     /*!
      * Function to compute the observable without any corrections, i.e. the
@@ -121,9 +146,9 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) = 0;
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -141,15 +166,15 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            std::vector< double > &linkEndTimes,
-            std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
-                    time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                    time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
         }
         else
         {
@@ -163,7 +188,7 @@ public:
 
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
             // Add correction
             return currentObservation +
@@ -189,11 +214,11 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Compute ideal observable from derived class.
         return this->computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_, ancilliarySetings );
+                time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_, ancillarySetings );
     }
 
     //! Function to compute full observation at given time.
@@ -207,13 +232,13 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
-                    time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
+                    time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancillarySetings );
         }
         else
         {
@@ -227,7 +252,7 @@ public:
 
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancillarySetings );
 
             // Add correction
             return currentObservation +
@@ -252,11 +277,11 @@ public:
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             const int observationEntry,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         if( observationEntry < ObservationSize )
         {
-            return computeObservations( time, linkEndAssociatedWithTime, ancilliarySetings )( observationEntry );
+            return computeObservations( time, linkEndAssociatedWithTime, ancillarySetings )( observationEntry );
         }
         else
         {
@@ -307,12 +332,54 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        for( auto lightTimeCalculator : lightTimeCalculators_ )
+        {
+            if( lightTimeCalculator != nullptr )
+            {
+                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+            }
+        }
+    }
+
 protected:
+    std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getSingleLegLightTimeCalculator(
+            const unsigned int pathIndex = 0,
+            const unsigned int legIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving single-leg light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getSingleLegLightTimeCalculator( legIndex );
+    }
+
+    std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculatorFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving full-link light-time calculator: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex );
+    }
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculatorsFromBase(
+            const unsigned int pathIndex = 0 ) const
+    {
+        if( pathIndex >= lightTimeCalculators_.size( ) || lightTimeCalculators_.at( pathIndex ) == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving light-time calculators: observation model has none." );
+        }
+        return lightTimeCalculators_.at( pathIndex )->getLightTimeCalculators( );
+    }
+
     bool setFrequencyProperties( const TimeType time,
                                  const LinkEndType linkEndAssociatedWithTime,
                                  const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-                                 std::shared_ptr< ObservationAncilliarySimulationSettings > &ancilliarySetingsToUse )
+                                 const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
+                                 std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
@@ -324,26 +391,26 @@ protected:
             }
             else
             {
-                if( inputAncilliarySetings == nullptr )
+                if( inputAncillarySetings == nullptr )
                 {
-                    ancilliarySetingsToUse = std::make_shared< ObservationAncilliarySimulationSettings >( );
+                    ancillarySetingsToUse = std::make_shared< ObservationAncillarySimulationSettings >( );
                 }
                 else
                 {
-                    ancilliarySetingsToUse = inputAncilliarySetings;
+                    ancillarySetingsToUse = inputAncillarySetings;
                 }
                 setTransmissionFrequency( lightTimeCalculator,
                                           timeScaleConverter_,
                                           frequencyInterpolator_,
                                           time,
                                           linkEndAssociatedWithTime,
-                                          ancilliarySetingsToUse );
+                                          ancillarySetingsToUse );
             }
             return true;
         }
         else
         {
-            ancilliarySetingsToUse = inputAncilliarySetings;
+            ancillarySetingsToUse = inputAncillarySetings;
             return false;
         }
     }
@@ -351,9 +418,9 @@ protected:
     bool setFrequencyProperties(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-            std::shared_ptr< ObservationAncilliarySimulationSettings > &ancilliarySetingsToUse )
+            const std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > inputAncillarySetings,
+            std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
@@ -365,41 +432,41 @@ protected:
             }
             else
             {
-                if( inputAncilliarySetings == nullptr )
+                if( inputAncillarySetings == nullptr )
                 {
-                    ancilliarySetingsToUse = std::make_shared< ObservationAncilliarySimulationSettings >( );
+                    ancillarySetingsToUse = std::make_shared< ObservationAncillarySimulationSettings >( );
                 }
                 else
                 {
-                    ancilliarySetingsToUse = inputAncilliarySetings;
+                    ancillarySetingsToUse = inputAncillarySetings;
                 }
 
-                setTransmissionReceptionFrequencies( multiLegLightTimeCalculator,
+                setTransmissionReceptionFrequencies( fullLinkLightTimeCalculator,
                                                      timeScaleConverter_,
                                                      frequencyInterpolator_,
                                                      time,
                                                      linkEndAssociatedWithTime,
-                                                     ancilliarySetingsToUse,
-                                                     getTurnaroundRatio( ancilliarySetingsToUse ) );
+                                                     ancillarySetingsToUse,
+                                                     getTurnaroundRatio( ancillarySetingsToUse ) );
             }
             return true;
         }
         else
         {
-            ancilliarySetingsToUse = inputAncilliarySetings;
+            ancillarySetingsToUse = inputAncillarySetings;
             return false;
         }
     }
 
-    ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+    ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
     {
         std::vector< FrequencyBands > frequencyBands;
         FrequencyBands referenceUplinkBand;
         try
         {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
-        catch( std::runtime_error &caughtException )
+        catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
                                       std::string( caughtException.what( ) ) );
@@ -431,6 +498,8 @@ protected:
      * deviations from the physically true observable
      */
     std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
+
+    std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
 
     //! Boolean set by constructor to denote whether observationBiasCalculator_ is nullptr.
     bool isBiasNullptr_;

@@ -21,19 +21,35 @@ Functions
 
    spherical_harmonic_gravitational
 
+   full_two_body_spherical_harmonic_gravitational
+
+   full_two_body_spherical_harmonic_gravitational_from_coefficient_combinations
+
+   fourth_degree_full_two_body_gravitational
+
    second_degree_gravitational
 
    custom_torque
 
 
 
+
+   radiation_pressure_torque
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.aerodynamic
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.spherical_harmonic_gravitational
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.full_two_body_spherical_harmonic_gravitational
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.full_two_body_spherical_harmonic_gravitational_from_coefficient_combinations
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.fourth_degree_full_two_body_gravitational
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.second_degree_gravitational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.torque.custom_torque
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.torque.radiation_pressure_torque
 
 
 
@@ -64,6 +80,10 @@ Classes
 
    SphericalHarmonicTorqueSettings
 
+   FullTwoBodySphericalHarmonicTorqueSettings
+
+   FourthDegreeFullTwoBodyGravitationalTorqueSettings
+
 
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.torque.TorqueSettings
@@ -72,5 +92,10 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.torque.SphericalHarmonicTorqueSettings
    :members:
 
+.. autoclass:: tudatpy.dynamics.propagation_setup.torque.FullTwoBodySphericalHarmonicTorqueSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.torque.FourthDegreeFullTwoBodyGravitationalTorqueSettings
+   :members:
 
 

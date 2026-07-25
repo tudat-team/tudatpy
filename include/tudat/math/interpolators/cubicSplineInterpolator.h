@@ -196,7 +196,7 @@ public:
                                  selectedLookupScheme,
                                  boundaryHandling,
                                  std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    { }
+    {}
 
     //! Cubic spline interpolator constructor.
     /*!
@@ -269,10 +269,10 @@ public:
                                  selectedLookupScheme,
                                  boundaryHandling,
                                  std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    { }
+    {}
 
     //! Destructor.
-    ~CubicSplineInterpolator( ) { }
+    ~CubicSplineInterpolator( ) {}
 
     //! Interpolate.
     /*!

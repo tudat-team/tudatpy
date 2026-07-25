@@ -52,7 +52,7 @@ public:
     {
         std::map< int, Eigen::MatrixXd > cosineVariations = polynomialVariationModel->getCosineAmplitudes( );
         int cosineIndexCounter = 0;
-        for( auto it: cosineBlockIndicesPerPower )
+        for( auto it : cosineBlockIndicesPerPower )
         {
             if( cosineVariations.count( it.first ) == 0 )
             {
@@ -89,7 +89,7 @@ public:
 
         std::map< int, Eigen::MatrixXd > sineVariations = polynomialVariationModel->getSineAmplitudes( );
         int sineIndexCounter = 0;
-        for( auto it: sineBlockIndicesPerPower )
+        for( auto it : sineBlockIndicesPerPower )
         {
             if( sineVariations.count( it.first ) == 0 )
             {
@@ -126,7 +126,7 @@ public:
     }
 
     //! Virtual destructor.
-    ~PolynomialGravityFieldVariationsParameters( ) { }
+    ~PolynomialGravityFieldVariationsParameters( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!
@@ -149,7 +149,7 @@ public:
             polynomialCorrections( i + cosineCorrectionIndices_.size( ) ) =
                     polynomialVariationModel_->getSineAmplitudesReference( ).at( std::get< 0 >( sineCorrectionIndices_.at( i ) ) )(
                             std::get< 1 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ),
-                            std::get< 2 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) );
+                            std::get< 2 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) );
         }
         return polynomialCorrections;
     }
@@ -243,9 +243,9 @@ public:
     {
         std::vector< Eigen::MatrixXd > cosineVariations = periodicVariationModel->getCosineShAmplitudesCosineTime( );
         int cosineIndexCounter = 0;
-        for( auto it: cosineBlockIndicesPerPeriod )
+        for( auto it : cosineBlockIndicesPerPeriod )
         {
-            if( static_cast< int >( cosineVariations.size( ) ) < it.first )
+            if( static_cast< int >( cosineVariations.size( ) ) <= it.first )
             {
                 throw std::runtime_error( "Error when estimating gravity field periodic corrections of body " + bodyName +
                                           ", not periodic term of order " + std::to_string( it.first ) + " found for cosine coefficients" );
@@ -279,9 +279,9 @@ public:
 
         std::vector< Eigen::MatrixXd > sineVariations = periodicVariationModel->getSineShAmplitudesCosineTime( );
         int sineIndexCounter = 0;
-        for( auto it: sineBlockIndicesPerPeriod )
+        for( auto it : sineBlockIndicesPerPeriod )
         {
-            if( static_cast< int >( sineVariations.size( ) ) < it.first )
+            if( static_cast< int >( sineVariations.size( ) ) <= it.first )
             {
                 throw std::runtime_error( "Error when estimating gravity field periodic corrections of body " + bodyName +
                                           ", not periodic term of order " + std::to_string( it.first ) + " found for sine coefficients" );
@@ -315,7 +315,7 @@ public:
     }
 
     //! Virtual destructor.
-    ~PeriodicGravityFieldVariationsParameters( ) { }
+    ~PeriodicGravityFieldVariationsParameters( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!

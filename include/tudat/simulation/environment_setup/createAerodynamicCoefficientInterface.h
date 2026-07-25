@@ -11,11 +11,13 @@
 #ifndef TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 #define TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 
+#include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createAerodynamicControlSurfaces.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
@@ -27,6 +29,9 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 //  Class for providing settings for aerodynamic coefficient model.
 /*
@@ -79,10 +84,10 @@ public:
         momentReferencePoint_( momentReferencePoint ), independentVariableNames_( independentVariableNames ),
         forceCoefficientsFrame_( forceCoefficientsFrame ), momentCoefficientsFrame_( momentCoefficientsFrame ),
         addForceContributionToMoments_( addForceContributionToMoments ), interpolatorSettings_( interpolatorSettings )
-    { }
+    {}
 
     //  Destructor
-    virtual ~AerodynamicCoefficientSettings( ) { }
+    virtual ~AerodynamicCoefficientSettings( ) {}
 
     //  Function to return type of aerodynamic coefficient model that is to be created.
     /*
@@ -248,7 +253,7 @@ public:
                                         baseSettings->getInterpolatorSettings( ) ),
         baseSettings_( baseSettings ), forceScaling_( [ = ]( const double ) { return forceScaling; } ),
         momentScaling_( [ = ]( const double ) { return momentScaling; } ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     ScaledAerodynamicCoefficientInterfaceSettings( const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,
                                                    const std::function< Eigen::Vector3d( const double ) > forceScaling,
@@ -265,7 +270,7 @@ public:
                                         baseSettings->getInterpolatorSettings( ) ),
         baseSettings_( baseSettings ), forceScaling_( forceScaling ), momentScaling_( momentScaling ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     std::shared_ptr< AerodynamicCoefficientSettings > getBaseSettings( )
     {
@@ -344,7 +349,7 @@ public:
                                         addForceContributionToMoments,
                                         interpolatorSettings ),
         constantForceCoefficient_( constantForceCoefficient ), constantMomentCoefficient_( constantMomentCoefficient )
-    { }
+    {}
 
     //  Constructor.
     /*
@@ -376,7 +381,7 @@ public:
                                         addForceContributionToMoments,
                                         nullptr ),
         constantForceCoefficient_( constantForceCoefficient ), constantMomentCoefficient_( Eigen::Vector3d::Zero( ) )
-    { }
+    {}
 
     //  Function to return constant force coefficients.
     /*
@@ -429,7 +434,7 @@ public:
                                         momentCoefficientsFrame,
                                         addForceContributionToMoments ),
         forceCoefficientFunction_( forceCoefficientFunction ), momentCoefficientFunction_( momentCoefficientFunction )
-    { }
+    {}
 
     std::function< Eigen::Vector3d( const std::vector< double >& ) > getForceCoefficientFunction( )
     {
@@ -456,10 +461,10 @@ public:
                                             const bool onlyDrag,
                                             const aerodynamics::AerodynamicCoefficientFrames coefficientFrame,
                                             const Eigen::Vector3d& constantForceCoefficient = Eigen::Vector3d::Zero( ) ):
-        AerodynamicCoefficientSettings( panelled_coefficients, TUDAT_NAN, referenceArea, Eigen::Vector3d::Zero( ), { }, coefficientFrame ),
+        AerodynamicCoefficientSettings( panelled_coefficients, TUDAT_NAN, referenceArea, Eigen::Vector3d::Zero( ), {}, coefficientFrame ),
         gasSurfaceInteractionModelType_( gasSurfaceInteractionModelType ), maximumNumberOfPixels_( maximumNumberOfPixels ),
         onlyDrag_( onlyDrag ), constantForceCoefficient_( constantForceCoefficient )
-    { }
+    {}
 
     int getMaximumNumberOfPixels( ) const
     {
@@ -486,7 +491,7 @@ private:
 
     int maximumNumberOfPixels_;
 
-bool onlyDrag_;
+    bool onlyDrag_;
 
     // constant force coefficient (variable cross-section)
     Eigen::Vector3d constantForceCoefficient_;
@@ -795,7 +800,7 @@ public:
                                                      addForceContributionToMoments,
                                                      interpolatorSettings ),
         independentVariables_( independentVariables ), forceCoefficients_( forceCoefficients ), momentCoefficients_( momentCoefficients )
-    { }
+    {}
 
     //  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
     /*
@@ -848,7 +853,7 @@ public:
     }
 
     //  Destructor
-    ~TabulatedAerodynamicCoefficientSettings( ) { }
+    ~TabulatedAerodynamicCoefficientSettings( ) {}
 
     //  Function to return the values of the indepependent variables of tables of coefficients.
     /*
@@ -1142,7 +1147,7 @@ public:
     }
 
     //  Destructor
-    ~TabulatedAerodynamicCoefficientSettings( ) { }
+    ~TabulatedAerodynamicCoefficientSettings( ) {}
 
     //  Function to return values of force coefficients in table.
     /*

@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_OBSERVATIONS_DEPENDENT_VARIABLES_H
 #define TUDATPY_EXPOSE_OBSERVATIONS_DEPENDENT_VARIABLES_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -30,7 +25,7 @@ namespace observations_setup
 namespace observations_dependent_variables
 {
 
-void expose_observations_dependent_variables( py::module &m );
+void expose_observations_dependent_variables( py::module& m );
 
 }  // namespace observations_dependent_variables
 }  // namespace observations_setup

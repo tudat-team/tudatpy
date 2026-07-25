@@ -23,10 +23,10 @@
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/io/basicInputOutput.h"
 
 namespace tudat

@@ -12,13 +12,16 @@
 #ifndef TUDAT_HYBRID_METHOD_H
 #define TUDAT_HYBRID_METHOD_H
 
-#include <tudat/simulation/simulation.h>
 #include <cmath>
 #include <vector>
 #include <Eigen/Dense>
 #include <map>
+#include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/low_thrust/hybridMethodModel.h
-#include "tudat/simulation/optimisation.h"
+#include "tudat/math/integrators/numericalIntegrator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/optimisation_setup/optimisationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
 
 namespace tudatespace low_thrust_trajectories
 {
@@ -85,7 +88,7 @@ public:
     }
 
     //! Default destructor.
-    ~HybridMethod( ) { }
+    ~HybridMethod( ) {}
 
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time )

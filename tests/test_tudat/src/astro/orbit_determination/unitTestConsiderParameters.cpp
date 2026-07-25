@@ -26,9 +26,26 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
-#include "tudat/simulation/simulation.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -506,11 +523,9 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
 
     // Define parameters to estimate for non-sequential propagation / estimation
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames, considerParameterNames, parameterNamesAll;
+    parameterNames = getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                bodiesToPropagate.at( i ), initialStatesPerBody.at( bodiesToPropagate.at( i ) ), midArcTimes, centralBodies.at( i ) ) );
-
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( bodiesToPropagate.at( i ), gravitational_parameter ) );
     }
 

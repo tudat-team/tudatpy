@@ -14,8 +14,10 @@
 #ifndef TUDAT_TRANSMITTINGFREQUENCIES_H
 #define TUDAT_TRANSMITTINGFREQUENCIES_H
 
+#include <iostream>
+
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
-#include "tudat/math/interpolators.h"
+#include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 
 namespace tudat
@@ -24,15 +26,18 @@ namespace tudat
 namespace ground_stations
 {
 
+//! Options for handling queries in gaps between two transmitting frequency ramp intervals.
+enum FrequencyGapHandling { extrapolate_at_gaps, throw_exception_at_gaps, print_error_at_gaps, print_error_once_at_gaps };
+
 //! Class to compute the transmitted frequency of a ground station and its integral.
 class StationFrequencyInterpolator
 {
 public:
     //! Constructor
-    StationFrequencyInterpolator( ) { }
+    StationFrequencyInterpolator( ) {}
 
     //! Destructor
-    virtual ~StationFrequencyInterpolator( ) { }
+    virtual ~StationFrequencyInterpolator( ) {}
 
     /*! Templated function to compute the transmitted frequency at the specified time.
      *
@@ -85,10 +90,10 @@ class ConstantFrequencyInterpolator : public StationFrequencyInterpolator
 {
 public:
     //! Constructor
-    ConstantFrequencyInterpolator( double frequency ): StationFrequencyInterpolator( ), frequency_( frequency ) { }
+    ConstantFrequencyInterpolator( double frequency ): StationFrequencyInterpolator( ), frequency_( frequency ) {}
 
     //! Destructor
-    ~ConstantFrequencyInterpolator( ) { }
+    ~ConstantFrequencyInterpolator( ) {}
 
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
@@ -161,65 +166,27 @@ class PiecewiseLinearFrequencyInterpolator : public StationFrequencyInterpolator
 public:
     /*! Constructor
      *
-     * Constructor. The end time of each ramp should coincide with the start time of the following one.
+     * Constructor. By default, gaps between ramps are filled by extrapolating the previous ramp until the next
+     * ramp starts.
      *
      * @param startTimes Start time of each ramp
      * @param endTimes End time of each ramp
      * @param rampRates Rate of each ramp
      * @param startFrequency Start frequency of each ramp
+     * @param gapHandling Option for handling gaps between consecutive ramp intervals.
      */
     PiecewiseLinearFrequencyInterpolator( const std::vector< Time >& startTimes,
                                           const std::vector< Time >& endTimes,
                                           const std::vector< double >& rampRates,
-                                          const std::vector< double >& startFrequency ):
+                                          const std::vector< double >& startFrequency,
+                                          const FrequencyGapHandling gapHandling = extrapolate_at_gaps ):
         StationFrequencyInterpolator( ), startTimes_( startTimes ), endTimes_( endTimes ), rampRates_( rampRates ),
-        startFrequencies_( startFrequency )
+        startFrequencies_( startFrequency ), gapHandling_( gapHandling ), hasPrintedGapWarning_( false )
     {
-        // Check if dimensions of all vectors are consistent
-        if( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
-            startTimes_.size( ) != startFrequencies_.size( ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating piecewise linear frequency interpolator: the dimensions of the specified vectors "
-                    "are not consistent: start times (" +
-                    std::to_string( startTimes_.size( ) ) + "), end times (" + std::to_string( endTimes_.size( ) ) + "), ramp rates (" +
-                    std::to_string( rampRates_.size( ) ) + "), start frequencies (" + std::to_string( startFrequencies_.size( ) ) + ")." );
-        }
-
-        // Check if there are no discontinuities between end times and subsequent start times
-        for( unsigned int i = 1; i < startTimes_.size( ); ++i )
-        {
-            // If there are discontinuities
-            if( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
-            {
-                //                // If the start and end times are inconsistent throw error
-                //                if ( endTimes_.at( i - 1 ) > startTimes_.at( i ) )
-                //                {
-                //                    throw std::runtime_error(
-                //                            "Error when creating piecewise linear frequency interpolator: inconsistency between ramp end "
-                //                            "time (" + std::to_string( double( endTimes_.at( i - 1 ) ) ) + ";" +
-                //                            basic_astrodynamics::getCalendarDateFromTime( endTimes_.at( i - 1 ) ).isoString( ) + ") and
-                //                            start time of the following ramp (" + std::to_string( double( startTimes_.at( i ) ) ) + ";" +
-                //                            basic_astrodynamics::getCalendarDateFromTime( startTimes_.at( i ) ).isoString( ) +
-                //                            "); the end is smaller than the start time." );
-                //                }
-                //                // If there are gaps in the data save that information
-                //                else
-                //                {
-                //                    invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
-                //                    invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
-                //                }
-            }
-        }
-
-        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( startTimes_ );
-
-        if( !invalidTimeBlocksStartTimes_.empty( ) )
-        {
-            invalidStartTimeLookupScheme_ =
-                    std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
-        }
+        initialize( );
     }
+
+    void initialize( );
 
     /*! Templated function to compute the transmitted frequency at the specified time.
      *
@@ -252,6 +219,22 @@ public:
             }
         }
 
+        if( invalidStartTimeLookupScheme_ != nullptr )
+        {
+            for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
+            {
+                if( lookupTimeOriginal > invalidTimeBlocksStartTimes_.at( i ) && lookupTimeOriginal < invalidTimeBlocksEndTimes_.at( i ) )
+                {
+                    const std::string gapMessage = "Error when interpolating ramp reference frequency: look up time (" +
+                            std::to_string( static_cast< double >( lookupTimeOriginal ) ) +
+                            ") is in time interval without transmitted frequency (" +
+                            std::to_string( double( invalidTimeBlocksStartTimes_.at( i ) ) ) + " to " +
+                            std::to_string( double( invalidTimeBlocksEndTimes_.at( i ) ) ) + ").";
+                    handleGap( gapMessage );
+                }
+            }
+        }
+
         return startFrequencies_.at( lowerNearestNeighbour ) +
                 rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
     }
@@ -269,73 +252,73 @@ public:
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime, const TimeType quadratureEndTime )
     {
+        if( quadratureEndTime < quadratureStartTime )
+        {
+            return -computeFrequencyIntegral< ObservationScalarType, TimeType >( quadratureEndTime, quadratureStartTime );
+        }
+
         if( invalidStartTimeLookupScheme_ != nullptr )
         {
-            int invalidStartLowestNearestNeighbour = invalidStartTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-            // Integral is valid if both quadrature start/end times are before or after the invalid block. Need to check
-            // that they aren't before the block because the lookup scheme might return a lowest nearest neighbour to the
-            // right of the lookup time
-            if( !( ( quadratureStartTime > invalidTimeBlocksEndTimes_.at( invalidStartLowestNearestNeighbour ) &&
-                     quadratureEndTime > invalidTimeBlocksEndTimes_.at( invalidStartLowestNearestNeighbour ) ) ||
-                   ( quadratureStartTime < invalidTimeBlocksStartTimes_.at( invalidStartLowestNearestNeighbour ) &&
-                     quadratureEndTime < invalidTimeBlocksStartTimes_.at( invalidStartLowestNearestNeighbour ) ) ) )
+            for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); i++ )
             {
-                throw std::runtime_error(
-                        "Error when integrating ramp reference frequency: look up time (" +
-                        std::to_string( static_cast< double >( quadratureStartTime ) ) +
-                        ") is in time interval without transmitted frequency (" +
-                        std::to_string( double( invalidTimeBlocksStartTimes_.at( invalidStartLowestNearestNeighbour ) ) ) + " to " +
-                        std::to_string( double( invalidTimeBlocksEndTimes_.at( invalidStartLowestNearestNeighbour ) ) ) + ")." );
+                if( quadratureStartTime < invalidTimeBlocksEndTimes_.at( i ) && quadratureEndTime > invalidTimeBlocksStartTimes_.at( i ) )
+                {
+                    const std::string gapMessage = "Error when integrating ramp reference frequency: time interval (" +
+                            std::to_string( static_cast< double >( quadratureStartTime ) ) + " to " +
+                            std::to_string( static_cast< double >( quadratureEndTime ) ) +
+                            ") overlaps with time interval without transmitted frequency (" +
+                            std::to_string( double( invalidTimeBlocksStartTimes_.at( i ) ) ) + " to " +
+                            std::to_string( double( invalidTimeBlocksEndTimes_.at( i ) ) ) + ").";
+                    handleGap( gapMessage );
+                }
             }
         }
 
         ObservationScalarType integral = 0;
 
-        int startTimeLowestNearestNeighbour = - 1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-        int endTimeLowestNearestNeighbour = -1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+        int currentRamp = -1;
         try
         {
-            startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-            endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+            if( quadratureStartTime < startTimes_.at( 0 ) )
+            {
+                currentRamp = 0;
+            }
+            else
+            {
+                currentRamp = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+            }
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error when determining current ramp in frequency integral: " +
-                                      std::string( caughtException.what( ) ) + ", possibly the ground station does not have data"
-                                                                               "defined at the requested time." );
+            throw std::runtime_error(
+                    "Error when determining current ramp in frequency integral: " + std::string( caughtException.what( ) ) +
+                    ", possibly the ground station does not have data"
+                    "defined at the requested time." );
         }
 
-        if( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
+        TimeType currentTime = quadratureStartTime;
+        while( currentTime < quadratureEndTime )
         {
-            integral += static_cast< ObservationScalarType >( quadratureEndTime - quadratureStartTime ) *
-                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) +
-                      computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) ) /
-                    2.0;
-        }
-        else
-        {
-            ObservationScalarType timeDelta;
-
-            // First partial ramp
-            timeDelta = static_cast< ObservationScalarType >( endTimes_.at( startTimeLowestNearestNeighbour ) - quadratureStartTime );
-            integral += timeDelta *
-                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) +
-                      static_cast< ObservationScalarType >( rampRates_.at( startTimeLowestNearestNeighbour ) ) * timeDelta / 2.0 );
-
-            // Full ramps
-            for( unsigned int i = startTimeLowestNearestNeighbour + 1; i < startTimes_.size( ) && endTimes_.at( i ) < quadratureEndTime;
-                 i++ )
+            TimeType nextRampStartTime = quadratureEndTime;
+            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) && startTimes_.at( currentRamp + 1 ) < quadratureEndTime )
             {
-                timeDelta = static_cast< ObservationScalarType >( endTimes_.at( i ) ) -
-                        static_cast< ObservationScalarType >( startTimes_.at( i ) );
-                integral += timeDelta * ( startFrequencies_.at( i ) + rampRates_.at( i ) * timeDelta / 2.0 );
+                nextRampStartTime = startTimes_.at( currentRamp + 1 );
             }
 
-            // Final partial ramp
-            timeDelta = static_cast< ObservationScalarType >( quadratureEndTime - startTimes_.at( endTimeLowestNearestNeighbour ) );
-            integral += timeDelta *
-                    ( startFrequencies_.at( endTimeLowestNearestNeighbour ) +
-                      rampRates_.at( endTimeLowestNearestNeighbour ) * timeDelta / 2.0 );
+            ObservationScalarType timeDelta = static_cast< ObservationScalarType >( nextRampStartTime - currentTime );
+            ObservationScalarType frequencyAtCurrentTime = startFrequencies_.at( currentRamp ) +
+                    static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) *
+                            static_cast< ObservationScalarType >( currentTime - startTimes_.at( currentRamp ) );
+            ObservationScalarType frequencyAtNextRampStartTime = startFrequencies_.at( currentRamp ) +
+                    static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) *
+                            static_cast< ObservationScalarType >( nextRampStartTime - startTimes_.at( currentRamp ) );
+            integral += timeDelta * ( frequencyAtCurrentTime + frequencyAtNextRampStartTime ) / 2.0;
+
+            currentTime = nextRampStartTime;
+            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) && currentTime == startTimes_.at( currentRamp + 1 ) )
+            {
+                currentRamp++;
+            }
         }
 
         return integral;
@@ -377,7 +360,38 @@ public:
         return startFrequencies_;
     }
 
+    //! Function to retrieve the gap handling option
+    FrequencyGapHandling getGapHandling( )
+    {
+        return gapHandling_;
+    }
+
+    void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd );
+
 private:
+    void handleGap( const std::string& gapMessage )
+    {
+        switch( gapHandling_ )
+        {
+            case extrapolate_at_gaps:
+                break;
+            case throw_exception_at_gaps:
+                throw std::runtime_error( gapMessage );
+            case print_error_at_gaps:
+                std::cerr << gapMessage << std::endl;
+                break;
+            case print_error_once_at_gaps:
+                if( !hasPrintedGapWarning_ )
+                {
+                    std::cerr << gapMessage << std::endl;
+                    hasPrintedGapWarning_ = true;
+                }
+                break;
+            default:
+                throw std::runtime_error( "Error when handling transmitting frequency gap: unknown gap handling option." );
+        }
+    }
+
     //! Get frequency (with long double as observation scalar type and double as time type).
     virtual double getCurrentFrequency( const double lookupTime )
     {
@@ -438,6 +452,12 @@ private:
     //! Start and end times of blocks where no frequency was transmitted
     std::vector< Time > invalidTimeBlocksStartTimes_;
     std::vector< Time > invalidTimeBlocksEndTimes_;
+
+    //! Option for handling queries in gaps between ramp intervals
+    FrequencyGapHandling gapHandling_;
+
+    //! Boolean denoting whether a gap warning has already been printed
+    bool hasPrintedGapWarning_;
 
     //! Lookup scheme to find the nearest ramp start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< Time > > startTimeLookupScheme_;

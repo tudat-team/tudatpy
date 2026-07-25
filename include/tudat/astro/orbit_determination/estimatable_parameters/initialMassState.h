@@ -11,8 +11,6 @@
 #ifndef TUDAT_INITIALMASSSTATE_H
 #define TUDAT_INITIALMASSSTATE_H
 
-#include <boost/function.hpp>
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
 namespace tudat
@@ -30,15 +28,25 @@ public:
                                const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialMassState ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_mass_state, associatedBody ),
         initialMassState_( initialMassState )
-    { }
+    {}
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialMassState_ = initialStateGetFunction_( );
+        }
         return initialMassState_;
     }
 
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        // Update state in propagator settings (to ensure consistency) if link is set
+        if( initialStateSetFunction_ != nullptr )
+        {
+            initialStateSetFunction_( parameterValue );
+        }
         initialMassState_ = parameterValue;
     }
 
@@ -47,8 +55,28 @@ public:
         return 1;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
+    void addStateClosureFunctions(
+            const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
+            const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
+    {
+        initialStateGetFunction_ = initialStateGetFunction;
+        initialStateSetFunction_ = initialStateSetFunction;
+
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialMassState_ = initialStateGetFunction_( );
+        }
+    }
+
 private:
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialMassState_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 }  // namespace estimatable_parameters

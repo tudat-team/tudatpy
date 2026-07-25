@@ -18,14 +18,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
 #include "tudat/support/numericalObservationPartial.h"
@@ -94,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                      getAveragedDopplerAncillarySettings( 60.0 ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -131,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                      getAveragedDopplerAncillarySettings( 60.0 ) );
     }
 }
 

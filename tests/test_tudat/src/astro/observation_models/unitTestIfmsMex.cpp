@@ -12,20 +12,22 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
@@ -38,7 +40,6 @@ using namespace tudat::ephemerides;
 using namespace tudat::input_output;
 using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
-using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::reference_frames;
 using namespace tudat;
@@ -130,18 +131,18 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 processedIfmsFiles.push_back( std::make_shared< observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
                         rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
 
-                // Define ancilliary settings
-                ObservationAncilliarySimulationSettings ancilliarySettings;
-                ancilliarySettings.setAncilliaryDoubleVectorData(
+                // Define ancillary settings
+                ObservationAncillarySimulationSettings ancillarySettings;
+                ancillarySettings.setAncillaryDoubleVectorData(
                         frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) } );
-                ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band,
-                                                            convertFrequencyBandToDouble( currentReceptionBand ) );
+                ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band,
+                                                          convertFrequencyBandToDouble( currentReceptionBand ) );
 
                 // Create and process observation collection
                 observedUncompressedObservationCollection =
                         observation_models::createTrackingTxtFilesObservationCollection< long double, Time >(
-                                { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancilliarySettings );
+                                { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancillarySettings );
                 setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
             }
             else

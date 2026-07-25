@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_integrator.h"
 
 #include <pybind11/chrono.h>
@@ -16,9 +18,25 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/math/integrators/createNumericalIntegrator.h>
 
 #include "scalarTypes.h"
+
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -28,7 +46,6 @@ namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
-namespace tmrf = tudat::root_finders;
 
 namespace tudatpy
 {
@@ -39,7 +56,7 @@ namespace propagation_setup
 namespace integrator
 {
 
-void expose_integrator( py::module &m )
+void expose_integrator( py::module& m )
 {
     // ENUMS
     py::enum_< tni::MinimumIntegrationTimeStepHandling >( m, "MinimumIntegrationTimeStepHandling", R"doc(
@@ -1434,60 +1451,7 @@ IntegratorSettings
            py::arg( "safety_factor" ) = 0.8,
            py::arg( "maximum_factor_increase" ) = 4.0,
            py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
-           R"doc(
-
- Creates the settings for the Runge-Kutta variable step size integrator with vector tolerances.
-
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
-
- Function to create settings for the Runge-Kutta variable step size integrator with vector tolerances.
- For this integrator, the step size is varied based on the tolerances and safety factor provided.
- The tolerance is composed of an absolute and a relative part.
- Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
-
-
- Parameters
- ----------
- initial_time_step : float
-     Initial time step to be used.
- coefficient_set : CoefficientSets
-     Coefficient set (Butcher's tableau) to be used in the integration.
- minimum_step_size : float
-     Minimum time step to be used during the integration.
- maximum_step_size : float
-     Maximum time step to be used during the integration.
- relative_error_tolerance : numpy.ndarray[numpy.float64[m, n]]
-     Relative vector tolerance to adjust the time step.
- absolute_error_tolerance : numpy.ndarray[numpy.float64[m, n]]
-     Absolute vector tolerance to adjust the time step.
- assess_termination_on_minor_steps : bool, default=false
-     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the
-     integrator (true) or only at the end of each integration step (false).
-
- safety_factor : float, default=0.8
-     Safety factor used in the step size control.
- maximum_factor_increase : float, default=4.0
-     Maximum increase between consecutive time steps, expressed as the factor between new and old step size.
-
- minimum_factor_increase : float, default=0.1
-     Minimum increase between consecutive time steps, expressed as the factor between new and old step size.
-
- throw_exception_if_minimum_step_exceeded : bool, default=true
-     If set to false, the variable step integrator will use the minimum step size specified when the algorithm
-     computes the optimum one to be lower, instead of throwing an exception.
-
- Returns
- -------
- RungeKuttaVariableStepSizeSettingsVectorTolerances
-     RungeKuttaVariableStepSizeSettingsVectorTolerances object.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
 
     m.def( "runge_kutta_variable_step_size",
            &tni::rungeKuttaVariableStepSettingsScalarTolerances< TIME_TYPE >,
@@ -1501,60 +1465,7 @@ IntegratorSettings
            py::arg( "safety_factor" ) = 0.8,
            py::arg( "maximum_factor_increase" ) = 4.0,
            py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
-           R"doc(
-
- Creates the settings for the Runge-Kutta variable step size integrator with scalar tolerances.
-
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
-
- Function to create settings for the Runge-Kutta variable step size integrator with scalar tolerances.
- For this integrator, the step size is varied based on the tolerances and safety factor provided.
- The tolerance is composed of an absolute and a relative part.
- Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
-
-
- Parameters
- ----------
- initial_time_step : float
-     Initial time step to be used.
- coefficient_set : CoefficientSets
-     Coefficient set (Butcher's tableau) to be used in the integration.
- minimum_step_size : float
-     Minimum time step to be used during the integration.
- maximum_step_size : float
-     Maximum time step to be used during the integration.
- relative_error_tolerance : numpy.ndarray[numpy.float64[m, n]]
-     Relative vector tolerance to adjust the time step.
- absolute_error_tolerance : numpy.ndarray[numpy.float64[m, n]]
-     Absolute vector tolerance to adjust the time step.
- assess_termination_on_minor_steps : bool, default=false
-     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the
-     integrator (true) or only at the end of each integration step (false).
-
- safety_factor : float, default=0.8
-     Safety factor used in the step size control.
- maximum_factor_increase : float, default=4.0
-     Maximum increase between consecutive time steps, expressed as the factor between new and old step size.
-
- minimum_factor_increase : float, default=0.1
-     Minimum increase between consecutive time steps, expressed as the factor between new and old step size.
-
- throw_exception_if_minimum_step_exceeded : bool, default=true
-     If set to false, the variable step integrator will use the minimum step size specified when the algorithm
-     computes the optimum one to be lower, instead of throwing an exception.
-
- Returns
- -------
- RungeKuttaVariableStepSettingsScalarTolerances
-     RungeKuttaVariableStepSettingsScalarTolerances object.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
 
     /*!
      * DEPRECATED UNDOCUMENTED
@@ -1591,55 +1502,7 @@ IntegratorSettings
            py::arg( "assess_termination_on_minor_steps" ) = false,
            py::arg( "safety_factor" ) = 0.7,
            py::arg( "maximum_factor_increase" ) = 10.0,
-           py::arg( "minimum_factor_increase" ) = 0.1,
-           R"doc(
-
- Creates the settings for the Bulirsch-Stoer integrator.
-
-
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.bulirsch_stoer_variable_step` INTERFACE INSTEAD
-
- Function to create settings for the Bulirsch-Stoer integrator.
- For this integrator, the step size is varied based on the tolerances and safety factor provided.
- The tolerance is composed of an absolute and a relative part.
- Different extrapolation sequences can be used (see the `ExtrapolationMethodStepSequences` enum).
-
-
- Parameters
- ----------
- initial_time_step : float
-     Initial time step to be used.
- extrapolation_sequence : ExtrapolationMethodStepSequences
-     Extrapolation sequence to be used in the integration.
- maximum_number_of_steps : int
-     Number of entries in the sequence (e.g., number of integrations used for a single extrapolation).
- minimum_step_size : float
-     Minimum time step to be used during the integration.
- maximum_step_size : float
-     Maximum time step to be used during the integration.
- relative_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- absolute_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- assess_termination_on_minor_steps : bool, default=false
-     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
- safety_factor : float, default=0.7
-     Safety factor used in the step size control.
- maximum_factor_increase : float, default=10.0
-     Maximum increase between consecutive time steps, expressed as the factor between new and old step size.
- minimum_factor_increase : float, default=0.1
-     Minimum increase between consecutive time steps, expressed as the factor between new and old step size.
- Returns
- -------
- BulirschStoerIntegratorSettings
-     BulirschStoerIntegratorSettings object.
-
-
-
-
-
-
-     )doc" );
+           py::arg( "minimum_factor_increase" ) = 0.1 );
 }
 
 }  // namespace integrator

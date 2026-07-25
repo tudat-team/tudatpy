@@ -36,7 +36,7 @@
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -92,11 +92,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
     std::vector< Eigen::Vector3d > actualAccelerations;
 
     // Iterate over arbitrary values for Euler angles
-    for( double x: { 0., 0.984, 2.579, 2 * PI } )
+    for( double x : { 0., 0.984, 2.579, 2 * PI } )
     {
-        for( double y: { 0., 0.743, 1.903, PI } )
+        for( double y : { 0., 0.743, 1.903, PI } )
         {
-            for( double z: { 0., 0.646, 5.634, 2 * PI } )
+            for( double z : { 0., 0.646, 5.634, 2 * PI } )
             {
                 auto rotation = basic_mathematics::getQuaternionFrom313EulerAngles( Eigen::Vector3d( x, y, z ) );
 
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels );
-    for( auto it: panels )
+    for( auto it : panels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 
     for( int testCase = 0; testCase < 4; testCase++ )
     {
-        double inclination{ };
+        double inclination{};
         if( testCase == 0 || testCase == 3 )
         {
             // Put vehicle on circular orbit around the Sun with i = 0 deg
@@ -491,11 +491,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
         std::vector< double > specularReflectivities;
         std::vector< double > diffuseReflectivities;
-        for( auto it: panels )
+        for( auto it : panels )
         {
             it->updatePanel( Eigen::Quaterniond::Identity( ) );
         }
-        for( auto& panel: panels )
+        for( auto& panel : panels )
         {
             areas.push_back( panel->getPanelArea( ) );
             panelSurfaceNormals.push_back( panel->getFrameFixedSurfaceNormal( )( ) );
@@ -863,7 +863,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
             std::shared_ptr< Ephemeris > vehicleEphemeris = bodies.at( "Vehicle" )->getEphemeris( );
-            for( auto it: panels )
+            for( auto it : panels )
             {
                 it->updatePanel( Eigen::Quaterniond::Identity( ) );
             }
@@ -937,7 +937,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             auto accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, std::vector< std::string >{ "Vehicle" }, std::vector< std::string >{ "Sun" } );
             auto accelerationModelTimeVaryingPanelSurfaceNormal = accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
-            for( auto it: panels )
+            for( auto it : panels )
             {
                 it->updatePanel( Eigen::Quaterniond::Identity( ) );
             }
@@ -1023,7 +1023,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( targetPanels, targetPanels );
-    for( auto it: targetPanels )
+    for( auto it : targetPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }

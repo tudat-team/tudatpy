@@ -38,6 +38,20 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment.transform_to_inertial_orientation
 
 
+Enums
+-----
+
+.. currentmodule:: tudatpy.dynamics.environment
+
+.. autosummary::
+
+   FrequencyGapHandling
+
+
+.. autoclass:: tudatpy.dynamics.environment.FrequencyGapHandling
+   :members:
+
+
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment
@@ -46,7 +60,11 @@ Classes
 
 
    Ephemeris
-   
+
+   TimeEphemeris
+
+   Tle
+
    RotationalEphemeris
 
    GcrsToItrsRotationModel
@@ -72,6 +90,14 @@ Classes
    AerodynamicCoefficientInterface
 
    HypersonicLocalInclinationAnalysis
+
+   TransmittingFrequencyCalculator
+
+   ConstantTransmittingFrequencyCalculator
+
+   PiecewiseLinearFrequencyInterpolator
+
+   PointingAnglesCalculator
    
    GroundStation
    
@@ -91,11 +117,16 @@ Classes
 
    SystemOfBodies
 
-
-
    
 .. autoclass:: tudatpy.dynamics.environment.Ephemeris
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment.TimeEphemeris
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.Tle
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment.RotationalEphemeris
    :members:
@@ -137,6 +168,18 @@ Classes
    :members:
    :special-members: __init__
 
+.. autoclass:: tudatpy.dynamics.environment.TransmittingFrequencyCalculator
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.ConstantTransmittingFrequencyCalculator
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.PiecewiseLinearFrequencyInterpolator
+   :members:
+
+.. autoclass:: tudatpy.dynamics.environment.PointingAnglesCalculator
+   :members:
+
 .. autoclass:: tudatpy.dynamics.environment.GroundStation
    :members:
       
@@ -163,6 +206,3 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment.SystemOfBodies
    :members:
-
-
-

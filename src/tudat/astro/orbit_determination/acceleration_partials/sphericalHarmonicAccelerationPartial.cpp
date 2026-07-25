@@ -50,7 +50,8 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
 }
 
 //! Function to create a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     // Declare return variables, default number of rows = 0 (i.e. no dependency)
@@ -106,6 +107,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
             std::vector< int > orders = tidalLoveNumber->getOrders( );
             int sumOrders = tidalLoveNumber->getSumOrders( );
 
+            std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > > coefficientPartialFunctions;
+            std::pair< int, int > selectedDegreeAndOrder = std::make_pair( -1, -1 );
             std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
             for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
             {
@@ -113,33 +116,76 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                 currentTidalPartialOutput =
                         tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction( parameter, maximumDegree_, maximumOrder_ );
 
-                // Check consistency
-                if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                if( currentTidalPartialOutput.first > 0 )
                 {
-                    throw std::runtime_error( "Error when getting double tidal parameter partial, multiple dependencies found " +
-                                              std::to_string( numberOfRows ) + ", " + std::to_string( currentTidalPartialOutput.first ) );
-                }
-                else
-                {
-                    // If tidal dependency esists, set partial function
-                    if( currentTidalPartialOutput.first > 0 )
+                    if( numberOfRows == 0 )
                     {
-                        std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                                std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentDoubleParameterPartial,
-                                           tidalLoveNumberPartialInterfaces_.at( i ),
-                                           parameter,
-                                           currentTidalPartialOutput.second );
-                        partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtTidalModelParameter,
-                                                     this,
-                                                     coefficientPartialFunction,
-                                                     degree,
-                                                     orders,
-                                                     sumOrders,
-                                                     parameter->getParameterSize( ),
-                                                     std::placeholders::_1 );
                         numberOfRows = currentTidalPartialOutput.first;
+                        selectedDegreeAndOrder = currentTidalPartialOutput.second;
                     }
+                    else
+                    {
+                        if( numberOfRows != currentTidalPartialOutput.first )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting double tidal parameter partial, inconsistent parameter sizes found " +
+                                    std::to_string( numberOfRows ) + ", " + std::to_string( currentTidalPartialOutput.first ) );
+                        }
+                        if( selectedDegreeAndOrder != currentTidalPartialOutput.second )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting double tidal parameter partial, inconsistent degree/order metadata found." );
+                        }
+                    }
+
+                    std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > currentInterface =
+                            tidalLoveNumberPartialInterfaces_.at( i );
+                    std::pair< int, int > currentDegreeAndOrder = currentTidalPartialOutput.second;
+                    coefficientPartialFunctions.push_back( [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
+                        return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
+                                currentInterface->getCurrentDoubleParameterPartial( parameter, currentDegreeAndOrder ) );
+                    } );
                 }
+            }
+
+            if( coefficientPartialFunctions.size( ) > 0 )
+            {
+                std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                        [ coefficientPartialFunctions ]( ) {
+                            std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > totalCoefficientPartials(
+                                    coefficientPartialFunctions.front( )( ) );
+                            for( unsigned int functionIndex = 1; functionIndex < coefficientPartialFunctions.size( ); functionIndex++ )
+                            {
+                                const std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > currentCoefficientPartials(
+                                        coefficientPartialFunctions.at( functionIndex )( ) );
+                                if( currentCoefficientPartials.size( ) != totalCoefficientPartials.size( ) )
+                                {
+                                    throw std::runtime_error(
+                                            "Error when summing double tidal coefficient partials, inconsistent number of orders found." );
+                                }
+                                for( unsigned int orderIndex = 0; orderIndex < totalCoefficientPartials.size( ); orderIndex++ )
+                                {
+                                    if( currentCoefficientPartials.at( orderIndex ).rows( ) !=
+                                                totalCoefficientPartials.at( orderIndex ).rows( ) ||
+                                        currentCoefficientPartials.at( orderIndex ).cols( ) !=
+                                                totalCoefficientPartials.at( orderIndex ).cols( ) )
+                                    {
+                                        throw std::runtime_error(
+                                                "Error when summing double tidal coefficient partials, inconsistent matrix sizes found." );
+                                    }
+                                    totalCoefficientPartials.at( orderIndex ) += currentCoefficientPartials.at( orderIndex );
+                                }
+                            }
+                            return totalCoefficientPartials;
+                        };
+                partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtTidalModelParameter,
+                                             this,
+                                             coefficientPartialFunction,
+                                             degree,
+                                             orders,
+                                             sumOrders,
+                                             parameter->getParameterSize( ),
+                                             std::placeholders::_1 );
             }
         }
     }
@@ -149,7 +195,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
 }
 
 //! Function to create a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;
@@ -201,41 +248,86 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                 std::vector< int > orders = tidalLoveNumber->getOrders( );
                 int sumOrders = tidalLoveNumber->getSumOrders( );
 
+                std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > > coefficientPartialFunctions;
+                std::pair< int, int > selectedDegreeAndOrder = std::make_pair( -1, -1 );
                 std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
                 for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
                 {
                     // Check dependency on current partial object
                     currentTidalPartialOutput = tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction(
                             parameter, maximumDegree_, maximumOrder_ );
-                    if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                    if( currentTidalPartialOutput.first > 0 )
                     {
-                        std::cout << i << std::endl;
-                        throw std::runtime_error( "Error when getting vector tidal parameter partial B, inconsistent output" +
-                                                  std::to_string( numberOfRows ) + ", " +
-                                                  std::to_string( currentTidalPartialOutput.first ) );
-                    }
-                    else
-                    {
-                        // If tidal dependency esists, set partial function
-                        if( currentTidalPartialOutput.first > 0 )
+                        if( numberOfRows == 0 )
                         {
-                            std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                                    std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
-                                               tidalLoveNumberPartialInterfaces_.at( i ),
-                                               parameter,
-                                               currentTidalPartialOutput.second );
-                            partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtTidalModelParameter,
-                                                         this,
-                                                         coefficientPartialFunction,
-                                                         degree,
-                                                         orders,
-                                                         sumOrders,
-                                                         parameter->getParameterSize( ),
-                                                         std::placeholders::_1 );
-
                             numberOfRows = currentTidalPartialOutput.first;
+                            selectedDegreeAndOrder = currentTidalPartialOutput.second;
                         }
+                        else
+                        {
+                            if( numberOfRows != currentTidalPartialOutput.first )
+                            {
+                                throw std::runtime_error(
+                                        "Error when getting vector tidal parameter partial, inconsistent parameter sizes found " +
+                                        std::to_string( numberOfRows ) + ", " + std::to_string( currentTidalPartialOutput.first ) );
+                            }
+                            if( selectedDegreeAndOrder != currentTidalPartialOutput.second )
+                            {
+                                throw std::runtime_error(
+                                        "Error when getting vector tidal parameter partial, inconsistent degree/order metadata found." );
+                            }
+                        }
+
+                        std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > currentInterface =
+                                tidalLoveNumberPartialInterfaces_.at( i );
+                        std::pair< int, int > currentDegreeAndOrder = currentTidalPartialOutput.second;
+                        coefficientPartialFunctions.push_back( [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
+                            return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
+                                    currentInterface->getCurrentVectorParameterPartial( parameter, currentDegreeAndOrder ) );
+                        } );
                     }
+                }
+
+                if( coefficientPartialFunctions.size( ) > 0 )
+                {
+                    std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                            [ coefficientPartialFunctions ]( ) {
+                                std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > totalCoefficientPartials(
+                                        coefficientPartialFunctions.front( )( ) );
+                                for( unsigned int functionIndex = 1; functionIndex < coefficientPartialFunctions.size( ); functionIndex++ )
+                                {
+                                    const std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > currentCoefficientPartials(
+                                            coefficientPartialFunctions.at( functionIndex )( ) );
+                                    if( currentCoefficientPartials.size( ) != totalCoefficientPartials.size( ) )
+                                    {
+                                        throw std::runtime_error(
+                                                "Error when summing vector tidal coefficient partials, inconsistent number of orders "
+                                                "found." );
+                                    }
+                                    for( unsigned int orderIndex = 0; orderIndex < totalCoefficientPartials.size( ); orderIndex++ )
+                                    {
+                                        if( currentCoefficientPartials.at( orderIndex ).rows( ) !=
+                                                    totalCoefficientPartials.at( orderIndex ).rows( ) ||
+                                            currentCoefficientPartials.at( orderIndex ).cols( ) !=
+                                                    totalCoefficientPartials.at( orderIndex ).cols( ) )
+                                        {
+                                            throw std::runtime_error(
+                                                    "Error when summing vector tidal coefficient partials, inconsistent matrix sizes "
+                                                    "found." );
+                                        }
+                                        totalCoefficientPartials.at( orderIndex ) += currentCoefficientPartials.at( orderIndex );
+                                    }
+                                }
+                                return totalCoefficientPartials;
+                            };
+                    partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtTidalModelParameter,
+                                                 this,
+                                                 coefficientPartialFunction,
+                                                 degree,
+                                                 orders,
+                                                 sumOrders,
+                                                 parameter->getParameterSize( ),
+                                                 std::placeholders::_1 );
                 }
             }
             else

@@ -13,6 +13,8 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/tools/floating_point_comparison.hpp>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
 #include <cmath>
@@ -24,7 +26,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
-#include "tudat/simulation/simulation.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h"
 
@@ -62,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
-    SphericalShapingLeg *sphericalShapingLegPointer;
+    SphericalShapingLeg* sphericalShapingLegPointer;
     for( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
         if( creationType == 0 )
@@ -107,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
 
         // Loop over computed acceleration values and check peak acceleration
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -168,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
     std::shared_ptr< RootFinderSettings > rootFinderSettings =
             tudat::root_finders::bisectionRootFinderSettings( 1.0E-6, TUDAT_NAN, TUDAT_NAN, 30 );
 
-    SphericalShapingLeg *sphericalShapingLegPointer;
+    SphericalShapingLeg* sphericalShapingLegPointer;
     for( unsigned int creationType = 0; creationType < 2; creationType++ )
     {
         if( creationType == 0 )
@@ -213,7 +214,7 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, julianDate + timeOfFlight, 1.0E-14 );
 
         // Loop over computed acceleration values and check peak acceleration
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )

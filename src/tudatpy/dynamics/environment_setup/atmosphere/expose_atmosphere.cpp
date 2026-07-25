@@ -7,13 +7,18 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_atmosphere.h"
 
 #include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/aerodynamics/nrlmsise00InputFunctions.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/astro/aerodynamics/mcdAtmosphereModel.h>
+#include <tudat/simulation/environment_setup/createAtmosphereModel.h>
+#include <tudat/simulation/environment_setup/createClimateModel.h>
+#include <tudat/paths.hpp>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -55,27 +60,10 @@ void expose_atmosphere_setup( py::module& m )
     // NRLMSISE00
     py::class_< ta::NRLMSISE00Input, std::shared_ptr< ta::NRLMSISE00Input > >( m,
                                                                                "NRLMSISE00Input",
-                                                                               R"doc(Input for computation of NRLMSISE00 atmospheric
-                          conditions at current time and position.
+                                                                               R"doc(
+Input for computation of NRLMSISE00 atmospheric conditions at current time and position.
 
-                          Input for computation of NRLMSISE00 atmospheric
-                          conditions at current time and position. The
-                          computation of class may be reperformed every time
-                          step, to reflect the changes in atmospheric
-                          condition.
-
-                          :param year: Current year
-                          :param day_of_year: Day in the current year
-                          :param seconds_of_day: Number of seconds into the
-                          current day. :param local_solar_time: Local solar
-                          time at the computation position :param f107: Current
-                          daily F10.7 flux for previous day :param f107a: 81
-                          day average of F10.7 flux (centered on current
-                          day_of_year). :param ap_daily: Current daily magnetic
-                          index :param ap_vector: Current magnetic index data
-                          vector: \sa ap_array :param switches: List of
-                          NRLMSISE-specific flags: \sa nrlmsise_flags
-
+The values in this class may be recomputed every time step to reflect changing atmospheric conditions.
 )doc" )
             .def( py::init< int, int, double, double, double, double, double, std::vector< double >, std::vector< int > >( ),
                   py::arg( "year" ) = 0,
@@ -96,7 +84,10 @@ void expose_atmosphere_setup( py::module& m )
 
                          Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
 
-                         :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.io.read_solar_activity_data.
+                         Parameters
+                         ----------
+                         solar_activity_data : Dict[float, SolarActivityData]
+                             Solar activity data for a range of epochs as produced by tudatpy.data.read_solar_activity_data.
                          )doc" )
             .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
                             const bool,
@@ -121,11 +112,21 @@ void expose_atmosphere_setup( py::module& m )
                              Returns the local density at the given altitude,
                              longitude, latitude and time.
 
-                             :param altitude: Altitude at which to get the density. [m]
-                             :param longitude: Longitude at which to get the density [rad].
-                             :param latitude: Latitude at which to get the density [rad].
-                             :param time: Time at which density is to be computed [seconds since J2000].
-                             :return: Local density. [kg/m^3]
+                             Parameters
+                             ----------
+                             altitude : float
+                                 Altitude at which to get the density. [m]
+                             longitude : float
+                                 Longitude at which to get the density [rad].
+                             latitude : float
+                                 Latitude at which to get the density [rad].
+                             time : float
+                                 Time at which density is to be computed [seconds since J2000].
+
+                             Returns
+                             -------
+                             float
+                                 Local density. [kg/m^3]
                              )doc" );
 
     // END OF NRLMSISE00
@@ -152,7 +153,19 @@ void expose_atmosphere_setup( py::module& m )
 
 
 
+      )doc" )
+            .def_property( "include_corotation",
+                           &tss::WindModelSettings::getIncludeCorotation,
+                           &tss::WindModelSettings::setIncludeCorotation,
+                           R"doc(
+
+         Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+         :type: bool
       )doc" );
+
+    py::class_< tss::EmptyWindModelSettings, std::shared_ptr< tss::EmptyWindModelSettings >, tss::WindModelSettings >(
+            m, "EmptyWindModelSettings", R"doc(Settings for empty wind model (no physical wind, only co-rotation control).)doc" );
 
     py::class_< tss::ConstantWindModelSettings, std::shared_ptr< tss::ConstantWindModelSettings >, tss::WindModelSettings >(
             m, "ConstantWindModelSettings", R"doc(No documentation found.)doc" );
@@ -204,6 +217,10 @@ void expose_atmosphere_setup( py::module& m )
                 std::shared_ptr< tss::CustomConstantTemperatureAtmosphereSettings >,
                 tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
 
+    py::class_< tss::CustomNumberDensityAtmosphereSettings,
+                std::shared_ptr< tss::CustomNumberDensityAtmosphereSettings >,
+                tss::AtmosphereSettings >( m, "CustomNumberDensityAtmosphereSettings", R"doc(No documentation found.)doc" );
+
     py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
             m, "ScaledAtmosphereSettings", R"doc(No documentation found.)doc" );
 
@@ -215,10 +232,48 @@ void expose_atmosphere_setup( py::module& m )
     //         "TabulatedAtmosphereSettings",
     //                                  get_docstring("TabulatedAtmosphereSettings").c_str());
 
+    m.def( "empty_wind_model",
+           &tss::emptyWindModelSettings,
+           py::arg( "include_corotation" ) = true,
+           R"doc(
+
+ Function for creating empty wind model settings.
+
+ Function for settings object for an empty wind model (no physical wind, returns zero velocity).
+ This is useful when you want to control atmospheric co-rotation behavior without specifying actual wind.
+
+
+ Parameters
+ ----------
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+ Returns
+ -------
+ EmptyWindModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.EmptyWindModelSettings` class
+
+
+ Examples
+ --------
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`,
+ for an atmosphere without physical wind but with co-rotation disabled:
+
+ .. code-block:: python
+
+   # Create empty wind model with co-rotation disabled
+   empty_wind = environment_setup.atmosphere.empty_wind_model(include_corotation=False)
+   # Apply to the atmosphere settings
+   body_settings.get("Earth").atmosphere_settings.wind_settings = empty_wind
+
+
+     )doc" );
+
     m.def( "constant_wind_model",
            &tss::constantWindModelSettings,
            py::arg( "wind_velocity" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with constant wind velocity.
@@ -233,6 +288,9 @@ void expose_atmosphere_setup( py::module& m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which constant wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -268,6 +326,7 @@ void expose_atmosphere_setup( py::module& m )
            &tss::customWindModelSettings,
            py::arg( "wind_function" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with custom wind velocity.
@@ -275,8 +334,8 @@ void expose_atmosphere_setup( py::module& m )
  Function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
  The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -286,6 +345,9 @@ void expose_atmosphere_setup( py::module& m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -305,9 +367,9 @@ void expose_atmosphere_setup( py::module& m )
 
    # Define the wind in 3 directions in the vertical reference frame
    def wind_function(h, lon, lat, time):
-       # Meridional wind (pointing North) depends on latitude [deg] and time [sec since J2000]
+       # Meridional wind (pointing North) depends on latitude [rad] and time [sec since J2000]
        wind_Xv = lat*10/time
-       # Zonal wind (pointing West) only depends on the longitude [deg]
+       # Zonal wind (pointing West) only depends on the longitude [rad]
        wind_Yv = 5/lon
        # Vertical wind (pointing out of the centre of the Earth) only depends on the altitude [m]
        wind_Zv = 1000/h
@@ -319,6 +381,93 @@ void expose_atmosphere_setup( py::module& m )
        environment.AerodynamicsReferenceFrames.vertical_frame)
    # Apply the custom wind settings to the Earth atmosphere settings
    body_settings.get("Earth").atmosphere_settings.wind_settings = custom_wind
+
+
+     )doc" );
+
+    m.def( "coma_wind_model",
+           &tss::comaWindModelSettings,
+           py::arg( "dataset_collection" ),
+           py::arg( "requested_max_degree" ) = -1,
+           py::arg( "requested_max_order" ) = -1,
+           py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
+           R"doc(
+
+ Function for creating coma wind model settings.
+
+ Function for settings object, defining coma wind model from a dataset collection containing
+ wind velocity components in a modified vertical frame. The wind model uses spherical harmonic
+ expansion to compute wind velocities as a function of position.
+
+ .. important::
+     **Data fitting requirement**: The polynomial/Stokes coefficients for the wind model must be
+     fitted from **raw (untransformed)** wind velocity values in m/s. Unlike the coma density model
+     (which uses log2-transformed data), the wind model operates directly on the actual velocity values
+     without any logarithmic transformation.
+
+ The wind velocity components are defined in a **modified vertical frame**:
+
+ * **X-axis**: Meridional direction (in the meridian plane, pointing towards the North, aligned with central-body-fixed Z-axis direction)
+ * **Y-axis**: Zonal direction (completes the right-handed frame, pointing towards the West)
+ * **Z-axis**: Radial direction pointing **OUTWARD** from the comet nucleus center (away from origin)
+
+ .. warning::
+     The Z-axis direction is **OPPOSITE** to the standard Tudat vertical frame convention, where
+     Z points inward along the gravity vector. For the coma wind model, positive Z points radially
+     outward. This is critical for correct sign conventions when preparing input data.
+
+
+ Parameters
+ ----------
+ dataset_collection : ComaWindDatasetCollection
+     Collection containing wind component datasets in the modified vertical frame (either polynomial or Stokes coefficients).
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to use (-1 for automatic determination from data).
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to use (-1 for automatic determination from data).
+
+ associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
+     Reference frame in which the wind velocity is defined. For coma wind model, this uses a modified
+     vertical frame with Z-axis pointing radially outward (away from nucleus), opposite to standard vertical frame.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+ Returns
+ -------
+ WindModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaWindModelSettings` class
+
+
+ Examples
+ --------
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`
+ for a coma wind model using a dataset collection:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial coefficient files
+   wind_processor = data.coma_model.coma_wind_file_processor(
+       x_file_paths, y_file_paths, z_file_paths)
+
+   # Create dataset collection with Stokes coefficients
+   wind_datasets = wind_processor.create_coma_stokes_dataset(
+       radii_m=[1000, 2000, 3000],
+       sol_longitudes_deg=[0, 90, 180, 270])
+
+   # Create coma wind model settings in vertical frame
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       wind_datasets,
+       requested_max_degree=10,
+       requested_max_order=10,
+       associated_reference_frame=environment.AerodynamicsReferenceFrames.vertical_frame,
+       include_corotation=True)
+
+   # Apply to atmosphere settings
+   body_settings.get("Comet").atmosphere_settings.wind_settings = coma_wind
 
 
      )doc" );
@@ -613,8 +762,8 @@ using the NRLMSISE-00 global reference model:
  Function for settings object, defining constant temperature atmosphere model from custom density profile.
  The user is specifying the density profile as a function of altitude, longitude, latitude and time.
 
- .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
-           The altitude is in meters, and the time is a Julian date in seconds since J2000.
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
 
 
  Parameters
@@ -644,7 +793,7 @@ using the NRLMSISE-00 global reference model:
 
  .. code-block:: python
 
-   # Define the density as a function of altitude [m], longitude [deg], latitude [deg], and time [sec since J2000]
+   # Define the density as a function of altitude [m], longitude [rad], latitude [rad], and time [sec since J2000]
    def density_function(h, lon, lat, time):
        # Return the density according to an exponential model that varies with time to add noise with a sine (ignore lon/lat)
        return (1 + 0.15 * np.sin(time/10)) * np.exp(-h/7300)
@@ -659,6 +808,44 @@ using the NRLMSISE-00 global reference model:
        specific_gas_constant,
        ratio_of_specific_heats )
 
+
+     )doc" );
+
+    m.def( "custom_number_density",
+           py::overload_cast< const std::function< double( const double, const double, const double, const double ) >,
+                              const double,
+                              const double,
+                              const double >( &tss::customNumberDensityAtmosphereSettings ),
+           py::arg( "number_density_function" ),
+           py::arg( "molar_mass" ),
+           py::arg( "constant_temperature" ) = TUDAT_NAN,
+           py::arg( "ratio_of_specific_heats" ) = 1.4,
+           R"doc(
+
+ Function for creating atmospheric model settings from a custom number-density profile.
+
+ The supplied function returns total number density in m^-3 as a function of altitude,
+ longitude, latitude and time. Mass density is computed internally from the molar mass
+ using Avogadro's constant.
+
+ .. note:: The longitude and latitude will be passed to the function in **radians**.
+           The altitude is in meters, and the time is in seconds since J2000.
+
+ Parameters
+ ----------
+ number_density_function : callable[[float, float, float, float], float]
+     Function to retrieve the total number density at the current altitude, longitude,
+     latitude and time.
+ molar_mass : float
+     Molar mass of the atmospheric species in kg/mol.
+ constant_temperature : float, optional
+     Constant temperature used only for pressure and speed-of-sound queries.
+ ratio_of_specific_heats : float, default = 1.4
+     Ratio of specific heats used only for speed-of-sound queries.
+ Returns
+ -------
+ CustomNumberDensityAtmosphereSettings
+     Settings for a custom number-density-driven atmosphere.
 
      )doc" );
 
@@ -777,28 +964,377 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
+    // --- Coma Model ---
+
+    m.def( "coma_model_from_poly_data",
+           py::overload_cast< const tss::ComaPolyDataset&, double, int, int, bool >( &tss::comaSettings ),
+           py::arg( "poly_data" ),
+           py::arg( "molecular_weight" ),
+           py::arg( "max_degree" ) = -1,
+           py::arg( "max_order" ) = -1,
+           py::arg( "is_log2" ) = true,
+           R"doc(
+
+ Function for creating coma atmosphere model settings from polynomial coefficients.
+
+ Function for settings object, defining a coma atmosphere model based on spherical harmonic expansion
+ of gas density data. The coma model is designed for modeling cometary atmospheres (comae) where
+ gas density varies with position and time. This variant uses polynomial coefficient data that
+ describes the spatial distribution of gas density.
+
+ The density is computed using spherical harmonic expansion, allowing efficient representation of
+ complex 3D density distributions around the nucleus. The model supports time-dependent density
+ variations through multiple data files covering different time periods.
+
+ .. note::
+     **Data fitting**: By default (``is_log2=True``), the model assumes that the polynomial coefficients
+     were fitted from **log2-transformed** number density data (i.e., log2(n) where n is the number
+     density in m^-3) and internally applies the inverse transformation (2^x). If your coefficients
+     were fitted to raw (non-log2) number density data, set ``is_log2=False`` to skip the
+     back-transformation.
+
+
+ Parameters
+ ----------
+ poly_data : ComaPolyDataset
+     Polynomial coefficient dataset containing spherical harmonic coefficients for gas density
+     distribution. Create using :func:`~tudatpy.data.coma_model.coma_model_file_processor`.
+
+ molecular_weight : float
+     Molecular weight (molar mass) of the gas species [kg/mol]. For water vapor (H2O), use 0.018015 kg/mol.
+
+ max_degree : int, default = -1
+     Maximum spherical harmonic degree to use in density calculations. Set to -1 to automatically
+     use the maximum degree available in the dataset.
+
+ max_order : int, default = -1
+     Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
+     use the maximum order available in the dataset.
+
+ is_log2 : bool, default = True
+     Whether the coefficients were fitted to log2-transformed number density data. If True (default),
+     the model applies exp2 to convert back to actual number density. If False, the spherical
+     harmonics output is used directly as number density.
+
+ Returns
+ -------
+ ComaSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings` class
+     configured for coma model. The returned object can be used to add a temperature model via
+     the :meth:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings.add_temperature_model` method.
+
+
+ Examples
+ --------
+ In this example, we create a coma atmosphere model from polynomial coefficient files:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files
+   poly_file_paths = [
+       "coma_data/poly_coeffs_epoch1.txt",
+       "coma_data/poly_coeffs_epoch2.txt"
+   ]
+
+   # Create file processor from polynomial files
+   processor = data.coma_model.coma_model_file_processor(poly_file_paths)
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coefficient_dataset()
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015,  # H2O molecular weight in kg/mol
+       max_degree=10,
+       max_order=10)
+
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(poly_data=temperature_poly_dataset)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_settings
+
+
+    )doc" );
+
+    m.def( "coma_model_from_stokes_data",
+           py::overload_cast< const tss::ComaStokesDataset&, double, int, int, bool >( &tss::comaSettings ),
+           py::arg( "stokes_data" ),
+           py::arg( "molecular_weight" ),
+           py::arg( "max_degree" ) = -1,
+           py::arg( "max_order" ) = -1,
+           py::arg( "is_log2" ) = true,
+           R"doc(
+
+ Function for creating coma atmosphere model settings from Stokes coefficients.
+
+ Function for settings object, defining a coma atmosphere model based on spherical harmonic expansion
+ of gas density data using precomputed Stokes coefficients. The coma model is designed for modeling
+ cometary atmospheres (comae) where gas density varies with position and time. This variant uses
+ precomputed Stokes coefficients (spherical harmonics) evaluated at specific radii and solar longitudes.
+
+ Stokes coefficients provide a more direct representation of the spherical harmonic expansion compared
+ to polynomial coefficients, offering faster evaluation during simulation. The coefficients
+ are pre-evaluated at a grid of radii and solar longitudes, with interpolation used for intermediate values.
+
+ .. note::
+     **Data fitting**: By default (``is_log2=True``), the model assumes that the Stokes coefficients
+     (or the polynomial coefficients they are derived from) were fitted from **log2-transformed**
+     number density data (i.e., log2(n) where n is the number density in m^-3) and internally
+     applies the inverse transformation (2^x). If your coefficients were fitted to raw (non-log2)
+     number density data, set ``is_log2=False`` to skip the back-transformation.
+
+
+ Parameters
+ ----------
+ stokes_data : ComaStokesDataset
+     Precomputed Stokes coefficient dataset containing spherical harmonic coefficients evaluated at
+     specific radii and solar longitudes. Create using :func:`~tudatpy.data.coma_model.coma_model_file_processor`
+     or load from pre-existing Stokes coefficient CSV files.
+
+ molecular_weight : float
+     Molecular weight (molar mass) of the gas species [kg/mol]. For water vapor (H2O), use 0.018015 kg/mol.
+
+ max_degree : int, default = -1
+     Maximum spherical harmonic degree to use in density calculations. Set to -1 to automatically
+     use the maximum degree available in the dataset.
+
+ max_order : int, default = -1
+     Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
+     use the maximum order available in the dataset.
+
+ is_log2 : bool, default = True
+     Whether the coefficients were fitted to log2-transformed number density data. If True (default),
+     the model applies exp2 to convert back to actual number density. If False, the spherical
+     harmonics output is used directly as number density.
+
+ Returns
+ -------
+ ComaSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings` class
+     configured for coma model. The returned object can be used to add a temperature model via
+     the :meth:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings.add_temperature_model` method.
+
+
+ Examples
+ --------
+ In this example, we create a coma atmosphere model by converting polynomial coefficients to Stokes coefficients:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial coefficient files
+   poly_file_paths = ["coma_data/poly_coeffs_epoch1.txt"]
+   processor = data.coma_model.coma_model_file_processor(poly_file_paths)
+
+   # Create Stokes dataset by evaluating at specific radii and solar longitudes
+   stokes_dataset = processor.create_coma_stokes_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015,  # H2O molecular weight in kg/mol
+       max_degree=10,
+       max_order=10)
+
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(stokes_data=temperature_stokes_dataset)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_settings
+
+ Alternatively, load from pre-existing Stokes coefficient CSV files:
+
+ .. code-block:: python
+
+   # Create file processor from existing Stokes CSV files
+   processor = data.coma_model.coma_model_file_processor(
+       input_dir="coma_data/stokes_files",
+       prefix="stokes")
+
+   # Create Stokes dataset (radii and longitudes are read from files)
+   stokes_dataset = processor.create_coma_stokes_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[])
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(stokes_data=temperature_stokes_dataset)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_settings
+
+
+    )doc" );
+
+    // === ComaSettings class exposure ===
+    py::class_< tss::ComaSettings, std::shared_ptr< tss::ComaSettings >, tss::AtmosphereSettings >( m,
+                                                                                                    "ComaSettings",
+                                                                                                    R"doc(
+Settings class for coma atmosphere models.
+
+This class extends :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings`
+to provide configuration for cometary coma atmosphere models. It supports both polynomial
+and Stokes coefficient datasets for density modeling, and allows optional temperature
+modeling via the :meth:`add_temperature_model` method.
+
+.. note:: This class is typically created using the factory functions
+          :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model` rather than
+          being instantiated directly.
+
+Examples
+--------
+Create coma settings and add temperature model:
+
+.. code-block:: python
+
+  # Create coma atmosphere settings from polynomial data
+  coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
+      poly_data=density_poly_dataset,
+      molecular_weight=0.018015)  # H2O in kg/mol
+
+  # Add temperature model using polynomial data
+  coma_settings.add_temperature_model(
+      poly_data=temperature_poly_dataset,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+  # Apply to body
+  body_settings.get("67P").atmosphere_settings = coma_settings
+
+)doc" )
+            .def( "add_temperature_model",
+                  py::overload_cast< const tss::ComaPolyDataset&, const int, const int, const double >(
+                          &tss::ComaSettings::addTemperatureModel ),
+                  py::arg( "poly_data" ),
+                  py::arg( "max_degree" ) = -1,
+                  py::arg( "max_order" ) = -1,
+                  py::arg( "gamma" ) = 1.33,
+                  R"doc(
+Add temperature model from polynomial coefficient data.
+
+This method adds a temperature model to the coma atmosphere settings using polynomial
+coefficient data. The temperature model uses spherical harmonic expansion to compute
+temperature as a function of position and time.
+
+.. note:: The temperature data type (polynomial or Stokes) must match the density data type.
+
+Parameters
+----------
+poly_data : ComaPolyDataset
+    Polynomial coefficient dataset for temperature distribution.
+
+max_degree : int, default = -1
+    Maximum spherical harmonic degree for temperature calculations. Set to -1 to use
+    the maximum degree available in the dataset.
+
+max_order : int, default = -1
+    Maximum spherical harmonic order for temperature calculations. Set to -1 to use
+    the maximum order available in the dataset.
+
+gamma : float, default = 1.33
+    Heat capacity ratio (gamma = Cp/Cv) for the gas species. Default value 1.33 is
+    appropriate for water vapor.
+
+Examples
+--------
+.. code-block:: python
+
+  # Create coma settings with polynomial density data
+  coma_settings = environment_setup.atmosphere.coma_model_from_poly_data(
+      poly_data=density_poly_data,
+      molecular_weight=0.018015)
+
+  # Add temperature model with polynomial data
+  coma_settings.add_temperature_model(
+      poly_data=temperature_poly_data,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+)doc" )
+            .def( "add_temperature_model",
+                  py::overload_cast< const tss::ComaStokesDataset&, const int, const int, const double >(
+                          &tss::ComaSettings::addTemperatureModel ),
+                  py::arg( "stokes_data" ),
+                  py::arg( "max_degree" ) = -1,
+                  py::arg( "max_order" ) = -1,
+                  py::arg( "gamma" ) = 1.33,
+                  R"doc(
+Add temperature model from Stokes coefficient data.
+
+This method adds a temperature model to the coma atmosphere settings using precomputed
+Stokes (spherical harmonic) coefficient data. The temperature model uses interpolation
+of the Stokes coefficients to compute temperature as a function of position and time.
+
+.. note:: The temperature data type (polynomial or Stokes) must match the density data type.
+
+Parameters
+----------
+stokes_data : ComaStokesDataset
+    Stokes coefficient dataset for temperature distribution.
+
+max_degree : int, default = -1
+    Maximum spherical harmonic degree for temperature calculations. Set to -1 to use
+    the maximum degree available in the dataset.
+
+max_order : int, default = -1
+    Maximum spherical harmonic order for temperature calculations. Set to -1 to use
+    the maximum order available in the dataset.
+
+gamma : float, default = 1.33
+    Heat capacity ratio (gamma = Cp/Cv) for the gas species. Default value 1.33 is
+    appropriate for water vapor.
+
+Examples
+--------
+.. code-block:: python
+
+  # Create coma settings with Stokes density data
+  coma_settings = environment_setup.atmosphere.coma_model_from_stokes_data(
+      stokes_data=density_stokes_data,
+      molecular_weight=0.018015)
+
+  # Add temperature model with Stokes data
+  coma_settings.add_temperature_model(
+      stokes_data=temperature_stokes_data,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+)doc" );
+
     m.def( "mars_dtm",
            &tss::marsDtmAtmosphereSettings,
            R"doc(
 
 Function for creating Mars DTM atmospheric settings.
 
-Creates settings for the Mars DTM semiempirical thermosphere model, which is based on the DTM 
-algorithm originally developed for Earth's thermosphere and adapted for Mars by Bruinsma and 
-Lemoine (2002). The model reproduces observed densities with approximately 35% uncertainty 
-(1-σ) outside dust storm periods, with uncertainty increasing by roughly a factor of two 
+Creates settings for the Mars DTM semiempirical thermosphere model, which is based on the DTM
+algorithm originally developed for Earth's thermosphere and adapted for Mars by Bruinsma and
+Lemoine (2002). The model reproduces observed densities with approximately 35% uncertainty
+(1-σ) outside dust storm periods, with uncertainty increasing by roughly a factor of two
 during dust storms.
 
-Bruinsma, S., and F. G. Lemoine (2002), "A preliminary semiempirical thermosphere model of 
-Mars: DTM-Mars", *Journal of Geophysical Research*, 107(E10), 5085, 
+Bruinsma, S., and F. G. Lemoine (2002), "A preliminary semiempirical thermosphere model of
+Mars: DTM-Mars", *Journal of Geophysical Research*, 107(E10), 5085,
 doi:10.1029/2001JE001508.
 
 Parameters
 ----------
 space_weather_file : str, default=""
-    Path to file containing space weather data for Mars. If an empty string is provided 
-    (default), the model uses the standard coefficients from Bruinsma & Lemoine (2002) 
-    without additional space weather corrections. Users can provide a custom file path 
+    Path to file containing space weather data for Mars. If an empty string is provided
+    (default), the model uses the standard coefficients from Bruinsma & Lemoine (2002)
+    without additional space weather corrections. Users can provide a custom file path
     to use updated or mission-specific space weather data.
 
 Returns
@@ -826,6 +1362,235 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 
 )doc" );
+
+    py::class_< tss::ClimateModelSettings, std::shared_ptr< tss::ClimateModelSettings > >( m,
+                                                                                           "ClimateModelSettings",
+                                                                                           R"doc(
+
+         Base class for providing settings for climate models.
+
+         Climate models provide access to climate-database properties that may extend beyond the
+         subset used directly by an atmosphere model. For the Mars Climate Database, this is the
+         settings object used to access *all* requested MCD properties.
+
+      )doc" );
+
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+    m.def( "mars_climate_database_climate_model",
+           &tss::marsClimateDatabaseClimateModelSettings,
+           py::arg( "mcd_data_path" ) = "",
+           py::arg( "dust_scenario" ) = 1,
+           py::arg( "perturbation_key" ) = 0,
+           py::arg( "perturbation_seed" ) = 0.0,
+           py::arg( "gravity_wave_length" ) = 0.0,
+           py::arg( "high_resolution_mode" ) = 0,
+           py::arg( "max_cache_size" ) = 1000,
+           R"doc(
+
+ Function for creating Mars Climate Database climate model settings.
+
+ Function for settings object, defining a Mars climate model using the Mars Climate Database (MCD).
+ The MCD provides realistic atmospheric conditions for Mars based on GCM simulations. The climate model
+ is used to access *all* MCD properties requested by Tudat components, including properties beyond the
+ subset used directly by Tudat's atmosphere model. These settings define the MCD data source, dust/solar
+ EUV scenario, perturbation model and topography mode. To use the MCD as an atmosphere model, assign
+ these settings to
+ :attr:`~tudatpy.dynamics.environment_setup.BodySettings.climate_model_settings` and assign
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model` to the same body's
+ atmosphere settings.
+
+ .. note:: **Altitude Convention**: the MCD atmosphere interface uses MCD's height-above-surface mode
+           (``zkey=3``). The altitude passed by Tudat is therefore interpreted as height above the local
+           surface. When ``high_resolution_mode=1``, MCD uses high-resolution MOLA topography to provide
+           more accurate atmospheric properties at locations with significant terrain variations.
+
+
+ Parameters
+ ----------
+ mcd_data_path : str, default = ""
+     Path to the MCD data files directory. If an empty string is provided, Tudat uses the compile-time
+     default path set during CMake configuration. The directory should contain the MCD data subdirectories
+     such as ``clim_aveEUV`` and ``dust_high_resol``. Provide a non-empty path to override the default at
+     runtime.
+
+ dust_scenario : int, default = 1
+     Dust and solar EUV scenario controlling atmospheric opacity and solar forcing.
+
+     **Climatology scenarios:**
+
+     - 1: Climatology, average solar EUV
+     - 2: Climatology, minimum solar EUV
+     - 3: Climatology, maximum solar EUV
+
+     **Dust storm scenarios, with constant opacity 4:**
+
+     - 4: Dust storm, minimum solar EUV
+     - 5: Dust storm, average solar EUV
+     - 6: Dust storm, maximum solar EUV
+
+     **Extreme scenarios:**
+
+     - 7: Warm scenario, dustier than MY24 with maximum solar EUV
+     - 8: Cold scenario, clearer than MY24 with minimum solar EUV
+
+     **Mars-year-specific scenarios:**
+
+     - 24-35: Mars Years 24 through 35, with their associated solar EUV conditions
+
+ perturbation_key : int, default = 0
+     Type of atmospheric perturbations to apply:
+
+     - 0: None; use the mean atmospheric state only
+     - 1: Large-scale perturbations only, using ``perturbation_seed``
+     - 2: Small-scale gravity-wave perturbations only, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 3: Large- and small-scale perturbations, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 4: Large- and small-scale perturbations, using ``perturbation_seed`` and ``gravity_wave_length``
+     - 5: Add n-sigma perturbations, where ``perturbation_seed`` is the standard-deviation multiplier
+
+     .. warning:: Perturbations introduce stochastic variability. For reproducible results, use the same
+                  ``perturbation_seed`` value.
+
+ perturbation_seed : float, default = 0.0
+     Random seed or scaling factor for perturbations. For ``perturbation_key`` in {1, 2, 3, 4}, this is
+     the random seed for stochastic perturbations. For ``perturbation_key=5``, this is the multiplier for
+     standard deviations and must be in [-4, 4].
+
+ gravity_wave_length : float, default = 0.0
+     Vertical wavelength of gravity-wave perturbations in meters, used by perturbation modes {2, 3, 4}.
+     The horizontal wavelength is set by MCD. If set to 0.0, MCD uses its default value.
+
+ high_resolution_mode : int, default = 0
+     Flag to enable high-resolution topography from MOLA data:
+
+     - 0: Use GCM grid-resolution topography
+     - 1: Use high-resolution MOLA topography for improved accuracy near terrain features
+
+ max_cache_size : int, default = 1000
+     Maximum number of distinct MCD query results retained by the climate model cache. The cache is keyed
+     by exact vertical coordinate, longitude, latitude and time values. A positive value is required.
+
+ Returns
+ -------
+ ClimateModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings` class
+
+
+ Examples
+ --------
+ **Example 1**: Basic MCD atmosphere with default climate settings:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model()
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
+    )
+
+ **Example 2**: Dust storm scenario with high-resolution topography:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            dust_scenario=5,
+            high_resolution_mode=1,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
+    )
+
+ **Example 3**: Mars Year 32 with stochastic perturbations:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            dust_scenario=32,
+            perturbation_key=3,
+            perturbation_seed=42.0,
+            gravity_wave_length=16000.0,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
+    )
+
+ **Example 4**: Custom data path and n-sigma perturbations:
+
+ .. code-block:: python
+
+    body_settings.get("Mars").climate_model_settings = (
+        environment_setup.atmosphere.mars_climate_database_climate_model(
+            mcd_data_path="/path/to/mcd/data/",
+            dust_scenario=1,
+            perturbation_key=5,
+            perturbation_seed=2.0,
+            max_cache_size=1000,
+        )
+    )
+    body_settings.get("Mars").atmosphere_settings = (
+        environment_setup.atmosphere.mars_climate_database_atmosphere_model()
+    )
+
+
+ See Also
+ --------
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model` : Atmosphere settings that use the MCD climate model
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
+
+
+ References
+ ----------
+ .. [1] Millour, E., et al. (2015). "The Mars Climate Database (MCD version 5.2)."
+        European Planetary Science Congress, Vol. 10, EPSC2015-438.
+ .. [2] Forget, F., et al. (1999). "Improved general circulation models of the Martian atmosphere
+        from the surface to above 80 km." Journal of Geophysical Research, 104(E10), 24155-24175.
+
+
+     )doc" );
+
+    m.def( "mars_climate_database_atmosphere_model",
+           &tss::mcdAtmosphereSettings,
+           R"doc(
+
+	Function for creating Mars Climate Database atmospheric settings.
+
+	Function for settings object, defining an atmosphere model using the Mars Climate Database (MCD).
+	The MCD provides realistic atmospheric conditions for Mars based on GCM simulations. This setting
+	uses the Mars Climate Database climate model associated with the Mars body.
+
+	.. note:: Before using these atmosphere settings, set the same body's
+	          :attr:`~tudatpy.dynamics.environment_setup.BodySettings.climate_model_settings`
+	          with :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
+	          Atmospheric properties are retrieved from that associated climate model.
+
+	Examples
+	--------
+	.. code-block:: python
+
+	   body_settings.get("Mars").climate_model_settings = (
+	       environment_setup.atmosphere.mars_climate_database_climate_model()
+	   )
+	   body_settings.get("Mars").atmosphere_settings = (
+	       environment_setup.atmosphere.mars_climate_database_atmosphere_model()
+	   )
+
+	Returns
+	-------
+	AtmosphereSettings
+	    Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+
+	See Also
+	--------
+	:func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model` : MCD climate model settings
+	:func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model
+
+	)doc" );
+
+#endif
 }
 
 }  // namespace atmosphere

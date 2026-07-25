@@ -69,17 +69,17 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         {
             std::shared_ptr< simulation_setup::Body > currentBody = bodies.at( currentBodyName );
 
-            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
+            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
             {
                 throw std::runtime_error( "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                                          linkEndIterator->second.stationName_ + " not found on body " +
+                                          linkEndIterator->second.getReferencePointName( ) + " not found on body " +
                                           linkEndIterator->second.bodyName_ );
             }
 
             // Set ground station position function
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                     std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                               currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
+                               currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
                                std::placeholders::_1,
                                bodies.getFrameOrigin( ) );
 
@@ -117,7 +117,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     {
         // Check if current link end body corresponds to body with property to estimate.
         if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
-            ( linkEndIterator->second.stationName_ != "" ) )
+            ( linkEndIterator->second.getReferencePointName( ) != "" ) )
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.bodyName_;
@@ -128,11 +128,11 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
                 // Set ground station position function
-                std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
-                        std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                   ( currentBody )->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
-                                   std::placeholders::_1,
-                                   bodies.getFrameOrigin( ) );
+                std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction = std::bind(
+                        &ground_stations::GroundStationState::getCartesianPositionInTime,
+                        ( currentBody )->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
+                        std::placeholders::_1,
+                        bodies.getFrameOrigin( ) );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -140,45 +140,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             }
             else
             {
-                // Check which parameter is requested and create position partial if direct dependency between position and
-                // parameter exists.
-                switch( parameterToEstimate->getParameterName( ).first )
-                {
-                    case estimatable_parameters::gravitational_parameter:
-                        break;
-                    case estimatable_parameters::constant_drag_coefficient:
-                        break;
-                    case estimatable_parameters::radiation_pressure_coefficient:
-                        break;
-                    case estimatable_parameters::ppn_parameter_gamma:
-                        break;
-                    case estimatable_parameters::ppn_parameter_beta:
-                        break;
-                    case estimatable_parameters::equivalence_principle_lpi_violation_parameter:
-                        break;
-                    case estimatable_parameters::mean_moment_of_inertia:
-                        break;
-                    case estimatable_parameters::direct_dissipation_tidal_time_lag:
-                        break;
-                    case estimatable_parameters::inverse_tidal_quality_factor:
-                        break;
-                    case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
-                        break;
-                    case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
-                        break;
-                    case estimatable_parameters::drag_component_scaling_factor:
-                        break;
-                    case estimatable_parameters::side_component_scaling_factor:
-                        break;
-                    case estimatable_parameters::lift_component_scaling_factor:
-                        break;
-                    default:
-
-                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
-                                " not implemented when making position partial";
-                        throw std::runtime_error( errorMessage );
-                        break;
-                }
+                // No direct dependency exists for this parameter type.
             }
         }
     }
@@ -207,7 +169,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     {
         // Check if current link end body corresponds to body with property to estimate.
         if( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first &&
-            linkEndIterator->second.stationName_ != "" )
+            linkEndIterator->second.getReferencePointName( ) != "" )
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.bodyName_;
@@ -217,19 +179,19 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
-                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
+                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
                 {
                     throw std::runtime_error( "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                                              linkEndIterator->second.stationName_ + " not found on body " +
+                                              linkEndIterator->second.getReferencePointName( ) + " not found on body " +
                                               linkEndIterator->second.bodyName_ );
                 }
 
                 // Set ground station position function
-                std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
-                        std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                   currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
-                                   std::placeholders::_1,
-                                   bodies.getFrameOrigin( ) );
+                std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction = std::bind(
+                        &ground_stations::GroundStationState::getCartesianPositionInTime,
+                        currentBody->getGroundStation( linkEndIterator->second.getReferencePointName( ) )->getNominalStationState( ),
+                        std::placeholders::_1,
+                        bodies.getFrameOrigin( ) );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -241,35 +203,9 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // parameter exists.
                 switch( parameterToEstimate->getParameterName( ).first )
                 {
-                    case estimatable_parameters::spherical_harmonics_cosine_coefficient_block:
-                        break;
-                    case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
-                        break;
-                    case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
-                        break;
-                    case estimatable_parameters::arc_wise_constant_drag_coefficient:
-                        break;
-                    case estimatable_parameters::constant_additive_observation_bias:
-                        break;
-                    case estimatable_parameters::arcwise_constant_additive_observation_bias:
-                        break;
-                    case estimatable_parameters::constant_relative_observation_bias:
-                        break;
-                    case estimatable_parameters::arcwise_constant_relative_observation_bias:
-                        break;
-                    case estimatable_parameters::empirical_acceleration_coefficients:
-                        break;
-                    case estimatable_parameters::arc_wise_empirical_acceleration_coefficients:
-                        break;
-                    case estimatable_parameters::full_degree_tidal_love_number:
-                        break;
-                    case estimatable_parameters::single_degree_variable_tidal_love_number:
-                        break;
-                    case estimatable_parameters::desaturation_delta_v_values:
-                        break;
                     case estimatable_parameters::ground_station_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
-                        if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
                         {
                             if( currentBody->getRotationalEphemeris( ) == nullptr )
                             {
@@ -277,10 +213,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                                         "Warning, body's rotation model is not found when making position w.r.t. ground station position "
                                         "position partial" );
                             }
-                            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
+                            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.getReferencePointName( ) ) == 0 )
                             {
-                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
-                                                    "not found when making ground station position position partial" );
+                                throw std::runtime_error( "Warning, ground station " + linkEndIterator->second.getReferencePointName( ) +
+                                                          "not found when making ground station position position partial" );
                             }
 
                             // Create partial object.
@@ -291,7 +227,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     }
                     case estimatable_parameters::reference_point_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
-                        if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
+                        if( linkEndIterator->second.getReferencePointName( ) == parameterToEstimate->getParameterName( ).second.second )
                         {
                             if( currentBody->getRotationalEphemeris( ) == nullptr )
                             {
@@ -318,26 +254,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         break;
                     }
-                    case estimatable_parameters::constant_time_drift_observation_bias:
-                        break;
-                    case estimatable_parameters::arc_wise_time_drift_observation_bias:
-                        break;
-                    case estimatable_parameters::constant_time_observation_bias:
-                        break;
-                    case estimatable_parameters::arc_wise_time_observation_bias:
-                        break;
-                    case estimatable_parameters::yarkovsky_parameter:
-                        break;
-                    case estimatable_parameters::custom_estimated_parameter:
-                        break;
-                    case estimatable_parameters::area_to_mass_scaling_factor:
-                        break;
-                    case estimatable_parameters::full_acceleration_scaling_factor:
-                        break;
                     default:
-                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
-                                " not implemented when making position partial";
-                        throw std::runtime_error( errorMessage );
                         break;
                 }
             }

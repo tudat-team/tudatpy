@@ -32,13 +32,19 @@ set(io_SOURCES
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "readPsfFile.cpp"
+        "readCrdFile.cpp"
+        "readSinexFile.cpp"
+        "mapTextFileReader.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
         "readVariousPdsFiles.cpp"
         "readViennaMappingFunctionData.cpp"
         "readIonexFile.cpp"
-
+        "readInpopEphemerisFile.cpp"
+        "readNeQuick2Data.cpp"
+        "comaModelInputOutput.cpp"
 )
 
 # Add header files.
@@ -75,18 +81,25 @@ set(io_HEADERS
         "tabulatedAtmosphereReader.h"
         "util.h"
         "readOdfFile.h"
+        "readPsfFile.h"
+        "readCrdFile.h"
+        "readSinexFile.h"
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
         "readTabulatedWeatherData.h"
         "readTrackingTxtFile.h"
         "readVariousPdsFiles.h"
+        "readInpopEphemerisFile.h"
+        "comaModelInputOutput.h"
         )
 
 # Add library.
 TUDAT_ADD_LIBRARY("input_output"
         "${io_SOURCES}"
         "${io_HEADERS}"
+        PUBLIC_LINKS
+        tudat_ephemerides
+        tudat_interpolators
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
-

@@ -12,11 +12,14 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/math/statistics/basicStatistics.h"
 
 namespace tudat
 {
@@ -24,10 +27,8 @@ namespace unit_tests
 {
 
 using namespace tudat::observation_models;
-using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::interpolators;
-using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;
@@ -266,7 +267,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;
@@ -350,7 +351,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator: linkEndsPerObservable )
+        for( auto observableIterator : linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;

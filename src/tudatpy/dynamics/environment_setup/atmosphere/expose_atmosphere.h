@@ -24,7 +24,7 @@ namespace environment_setup
 namespace atmosphere
 {
 
-void expose_atmosphere_setup( py::module &m );
+void expose_atmosphere_setup( py::module& m );
 
 }  // namespace atmosphere
 }  // namespace environment_setup

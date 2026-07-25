@@ -18,14 +18,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/observation_models/oneWayDopplerObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
@@ -87,7 +85,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
-    // Test ancilliary functions
+    // Test ancillary functions
     {
         double nominalEvaluationTime = 1.1E7;
 
@@ -423,10 +421,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             partialScalingObject->update( linkEndStates, linkEndTimes, referenceLinkEnd, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutput =
-                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    earthStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutput =
-                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                    marsStatePartial->calculatePartial( linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             // Compute numerical proper time rate partials and compare to analytical results
             {
@@ -542,10 +540,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                     linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime, referenceLinkEnd, nominalObservableWithoutProperTime );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutputWithoutProperTime =
                     earthStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
             std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutputWithoutProperTime =
                     marsStatePartialWithoutProperTime->calculatePartial(
-                            linkEndStates, linkEndTimes, referenceLinkEnd, { }, nominalObservable );
+                            linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
 
             Eigen::MatrixXd partialWrtEarthState = earthStatePartialOutput.at( 0 ).first;
             Eigen::MatrixXd partialWrtEarthStateWithoutProperTime = earthStatePartialOutputWithoutProperTime.at( 0 ).first;

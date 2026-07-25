@@ -18,9 +18,8 @@
 #ifndef TUDAT_LINEAR_INTERPOLATOR_H
 #define TUDAT_LINEAR_INTERPOLATOR_H
 
-#include <boost/multi_array.hpp>
-#include <boost/array.hpp>
 #include <memory>
+#include <cmath>
 
 #include <Eigen/Core>
 
@@ -67,14 +66,19 @@ public:
      * specified range.
      * \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     * \param period Period for periodic/angular interpolation. If period > 0, the interpolator uses
+     * shortest-path interpolation suitable for angular coordinates. If period = 0 (default),
+     * standard non-periodic interpolation is used.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
                                 std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
+                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
+                        const IndependentVariableType period = IndependentVariableType( 0 ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
+        period_( period )
     {
         // Verify that the initialization variables are not empty.
         if( dataMap.size( ) == 0 )
@@ -115,17 +119,20 @@ public:
      * specified range.
      * \param defaultExtrapolationValue Default value to be used for extrapolation, in case
      * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     * \param period Period for periodic/angular interpolation.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme,
                         const BoundaryInterpolationType boundaryHandling,
-                        const DependentVariableType& defaultExtrapolationValue ):
+                        const DependentVariableType& defaultExtrapolationValue,
+                        const IndependentVariableType period = IndependentVariableType( 0 ) ):
         LinearInterpolator< IndependentVariableType, DependentVariableType >(
                 dataMap,
                 selectedLookupScheme,
                 boundaryHandling,
-                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    { }
+                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
+                period )
+    {}
 
     //! Constructor from vectors of independent and dependent data.
     /*!
@@ -142,6 +149,9 @@ public:
      *  specified range.
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *  of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param period Period for periodic/angular interpolation. If period > 0, the interpolator uses
+     *  shortest-path interpolation suitable for angular coordinates. If period = 0 (default),
+     *  standard non-periodic interpolation is used.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
@@ -149,8 +159,10 @@ public:
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
                                 std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
+                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
+                        const IndependentVariableType period = IndependentVariableType( 0 ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
+        period_( period )
     {
         // Verify that the initialization variables are not empty.
         if( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
@@ -188,29 +200,34 @@ public:
      *  specified range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case
      *  of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param period Period for periodic/angular interpolation.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme,
                         const BoundaryInterpolationType boundaryHandling,
-                        const DependentVariableType& defaultExtrapolationValue ):
+                        const DependentVariableType& defaultExtrapolationValue,
+                        const IndependentVariableType period = IndependentVariableType( 0 ) ):
         LinearInterpolator< IndependentVariableType, DependentVariableType >(
                 independentValues,
                 dependentValues,
                 selectedLookupScheme,
                 boundaryHandling,
-                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    { }
+                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ),
+                period )
+    {}
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~LinearInterpolator( ) { }
+    ~LinearInterpolator( ) {}
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
      * Function interpolates dependent variable value at given independent variable value.
+     * For periodic interpolation (period > 0), uses shortest-path interpolation suitable for
+     * angular coordinates.
      * \param independentVariableValue Value of independent variable at which interpolation
      * is to take place.
      * \return Interpolated value of dependent variable.
@@ -229,19 +246,53 @@ public:
         // Lookup nearest lower index.
         unsigned int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour( independentVariableValue );
 
-        // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
-        // the last and second to last elements of independentValues_.
+        // Determine the upper index for interpolation
+        unsigned int upperIndex = newNearestLowerIndex + 1;
+
+        // If newNearestLowerIndex is the last element of independentValues_:
+        // - For non-periodic: execute extrapolation with the last and second to last elements
+        // - For periodic: wrap around to first element
         if( newNearestLowerIndex == independentValues_.size( ) - 1 )
         {
-            newNearestLowerIndex -= 1;
+            if( this->isPeriodic( ) )
+            {
+                upperIndex = 0;  // Wrap to first grid point for periodic interpolation
+            }
+            else
+            {
+                newNearestLowerIndex -= 1;
+                upperIndex = newNearestLowerIndex + 1;
+            }
         }
 
-        // Perform linear interpolation.
-        interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
-                ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                        static_cast< ScalarType >( independentValues_[ newNearestLowerIndex + 1 ] -
-                                                   independentValues_[ newNearestLowerIndex ] ) *
-                        ( dependentValues_[ newNearestLowerIndex + 1 ] - dependentValues_[ newNearestLowerIndex ] );
+        // Perform linear interpolation
+        if( this->isPeriodic( ) )
+        {
+            // Periodic interpolation: use shortest angular distance
+            IndependentVariableType x0 = independentValues_[ newNearestLowerIndex ];
+            IndependentVariableType x1 = independentValues_[ upperIndex ];
+
+            // Compute shortest distance considering periodicity
+            IndependentVariableType dx = this->getShortestDistance( x0, x1 );
+            IndependentVariableType t_x = this->getShortestDistance( x0, independentVariableValue );
+
+            // Interpolation fraction - handle division carefully for custom types
+            // For scalar types, this is just t_x / dx
+            // For Time types or similar, we use static_cast to convert to ScalarType before division
+            ScalarType t = static_cast< ScalarType >( t_x ) / static_cast< ScalarType >( dx );
+
+            // Linear interpolation
+            interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
+                    t * ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
+        }
+        else
+        {
+            // Standard non-periodic interpolation
+            interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
+                    ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
+                            static_cast< ScalarType >( independentValues_[ upperIndex ] - independentValues_[ newNearestLowerIndex ] ) *
+                            ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
+        }
 
         return interpolatedValue;
     }
@@ -250,6 +301,63 @@ public:
     {
         return linear_interpolator;
     }
+
+    //! Function to get the period for periodic interpolation.
+    /*!
+     *  Function to get the period for periodic interpolation.
+     *  \return Period value (0 for non-periodic interpolation).
+     */
+    IndependentVariableType getPeriod( ) const
+    {
+        return period_;
+    }
+
+    //! Function to check if interpolator is configured for periodic interpolation.
+    /*!
+     *  Function to check if interpolator is configured for periodic interpolation.
+     *  \return True if period > 0, false otherwise.
+     */
+    bool isPeriodic( ) const
+    {
+        return period_ > IndependentVariableType( 0 );
+    }
+
+private:
+    //! Function to compute the shortest angular distance between two values.
+    /*!
+     *  Function to compute the shortest angular distance between two values, considering periodicity.
+     *  For periodic interpolation (period > 0), this returns the distance via the shortest path,
+     *  which may wrap around the periodic boundary. For non-periodic interpolation, returns val2 - val1.
+     *  \param val1 First value.
+     *  \param val2 Second value.
+     *  \return Shortest distance from val1 to val2, considering periodicity.
+     */
+    IndependentVariableType getShortestDistance( const IndependentVariableType& val1, const IndependentVariableType& val2 ) const
+    {
+        if( !isPeriodic( ) )
+        {
+            return val2 - val1;
+        }
+
+        IndependentVariableType diff = val2 - val1;
+        const IndependentVariableType halfPeriod = static_cast< IndependentVariableType >( static_cast< double >( period_ ) / 2.0 );
+        const IndependentVariableType negativeHalfPeriod =
+                static_cast< IndependentVariableType >( static_cast< double >( period_ ) / -2.0 );
+
+        while( diff > halfPeriod )
+        {
+            diff -= period_;
+        }
+        while( diff < negativeHalfPeriod )
+        {
+            diff += period_;
+        }
+
+        return diff;
+    }
+
+    //! Period for periodic/angular interpolation.
+    IndependentVariableType period_;
 };
 
 // extern template class LinearInterpolator< double, Eigen::VectorXd >;

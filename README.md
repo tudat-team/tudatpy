@@ -21,7 +21,7 @@ The next steps outline how to get to a working version of Tudatpy. First we list
   - At the opposite, please follow [this guide](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk) to access Windows file trough WSL.
   - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
   - In the Ubuntu terminal environment under WSL, run the command `sudo apt-get install build-essential` to install the necessary compilation tools
-- Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
+- Anaconda/Miniconda installation ([Installing Anaconda](https://docs.tudat.space/en/latest/getting-started/use-of-tools/conda.html))
 - CMake installation
   - Inside the Ubuntu terminal, install CMake by calling `sudo apt install cmake`.
 
@@ -65,7 +65,20 @@ conda activate tudatpy-dev
 It is possible that the creation of the environment will 'time out'. A likely reason for this is that the packages required cannot be found by the current channel, `conda-forge`. It is then advisable to add the channel `anaconda` to ensure a proper creation of the environment.
 >
 
-5. Build TudatPy
+5. Install `pre-commit` hooks
+
+This repository uses [pre-commit hooks](https://pre-commit.com) to automatically apply consistent formatting to all C++ and Python files.
+
+Run 
+
+```
+pre-commit install
+```
+
+to install the pre-commit hooks.
+After this, anything you commit will be automatically formatted using `clang-format` and `black`, without requiring your attention.
+
+6. Build TudatPy
 
 ```
 python build.py -h                   # Show help and available flags
@@ -74,7 +87,7 @@ python build.py -j <number-of-cores>  # Compile Tudatpy
 This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 
-6. Install
+7. Install
 
 ```
 python install.py -h                 # Show help and available flags
@@ -85,7 +98,7 @@ python install.py -e                 # Install in "editable mode"
 > This script installs Tudatpy in your active conda environment. If you install with the `-e` flag, you will not have to re-install every time you update the source code of the library.
 > And that's it! The next step shows you what to do if you want to uninstall the libraries.
 
-7. Uninstall
+8. Uninstall
 
 ```
 python uninstall.py -h                # Show help and available flags
@@ -110,10 +123,12 @@ Desired result:
 ````
 ### Running `tudat` tests
 
+Note that `tudat` tests are only built when using the `--tests` flag with `build.py`, for example `python build.py --tests -j4`.
+
 2. Enter the `tudatpy/build` directory and run the tests using `ctest`
 ````
 cd build
-ctest
+ctest -j <number-of-cores>
 ````
 
 Desired result:
@@ -122,3 +137,5 @@ Desired result:
 100% tests passed, 0 tests failed out of 224
 Total Test time (real) = 490.77 sec
 ````
+
+Note that when running tests in parallel with `-j`, CTest may execute tests in a non-sequential order to minimize total execution time.

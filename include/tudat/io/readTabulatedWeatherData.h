@@ -14,11 +14,19 @@
 #ifndef TUDAT_READTABULATEDWEATHERDATA_H
 #define TUDAT_READTABULATEDWEATHERDATA_H
 
-#include <vector>
+#include <algorithm>
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
+#include <Eigen/Core>
+
+#include "tudat/basics/utilities.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/environment_setup.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {
@@ -44,7 +52,7 @@ public:
     /*!
      * Constructor.
      */
-    DsnWeatherData( ): dsnStationComplexId_( -1 ) { }
+    DsnWeatherData( ): dsnStationComplexId_( -1 ) {}
 
     // Number of the DSN station complex
     int dsnStationComplexId_;
@@ -127,7 +135,6 @@ bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, st
  * @return Map with a single DsnWeatherData object per DSN complex id.
  */
 std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( const std::vector< std::string >& weatherFileNames );
-
 
 /*!
  * Sets the functions to compute the weather data variables (pressure, temperature, etc.) as a function of time in the

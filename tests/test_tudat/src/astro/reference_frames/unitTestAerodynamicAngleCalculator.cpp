@@ -18,7 +18,6 @@
 #include "tudat/astro/basic_astro/unitConversions.h"
 
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/io/basicInputOutput.h"
@@ -38,9 +37,9 @@ class ManualAerodynamicAngleInterface : public BodyFixedAerodynamicAngleInterfac
 public:
     ManualAerodynamicAngleInterface( const std::function< Eigen::Vector3d( const double ) > manualAngleFuncion ):
         BodyFixedAerodynamicAngleInterface( custom_body_fixed_angles ), manualAngleFuncion_( manualAngleFuncion )
-    { }
+    {}
 
-    virtual ~ManualAerodynamicAngleInterface( ) { }
+    virtual ~ManualAerodynamicAngleInterface( ) {}
 
     Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame )
     {

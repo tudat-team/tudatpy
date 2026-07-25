@@ -38,7 +38,7 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include "tudat/math/root_finders/createRootFinder.h"
@@ -620,7 +620,7 @@ BOOST_AUTO_TEST_CASE( testMgaHodographicShapingSingleLegWithoutFreeShapingCoeffi
         std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
         transferTrajectory->getLegs( ).at( 0 )->getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 5000 );
 
-        for( auto it: thrustAccelerationsAlongTrajectory )
+        for( auto it : thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
             if( currentCartesianThrustAcceleration.norm( ) > peakThrustAcceleration )
@@ -1284,7 +1284,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory_New )
 
             // Check if Keplerian state (slow elements) is the same for each output point
             Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-            for( auto it: statesAlongSingleLeg )
+            for( auto it : statesAlongSingleLeg )
             {
                 Eigen::Vector6d currentCartesianState = it.second;
                 Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(

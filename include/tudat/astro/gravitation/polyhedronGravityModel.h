@@ -98,7 +98,7 @@ public:
                                                                       aVerticesDefiningEachEdgeMatrix ) ),
         currentPotential_( TUDAT_NAN ), currentLaplacianOfPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential ),
         updateLaplacianOfPotential_( updateLaplacianOfGravitationalPotential )
-    { }
+    {}
 
     //! Constructor taking functions for position of bodies, and parameters of polyhedron.
     /*!
@@ -153,9 +153,9 @@ public:
                                                                       verticesDefiningEachEdgeFunction( ) ) ),
         currentPotential_( TUDAT_NAN ), currentLaplacianOfPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential ),
         updateLaplacianOfPotential_( updateLaplacianOfGravitationalPotential )
-    { }
+    {}
 
-    ~PolyhedronGravitationalAccelerationModel( ) { }
+    ~PolyhedronGravitationalAccelerationModel( ) {}
 
     //! Update class members.
     /*!

@@ -15,10 +15,12 @@
 
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
-#include "tudat/astro/aerodynamics/aerodynamics.h"
+#include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
+#include "tudat/astro/relativity/solarSystemMetric.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
@@ -29,6 +31,12 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
+#endif
 
 namespace tudat
 {
@@ -204,6 +212,141 @@ Eigen::VectorXd getVectorFunctionFromBlockFunction( const std::function< void( E
                                                     const int numberOfRows,
                                                     const int numberOfColumns );
 
+inline Eigen::VectorXd getVectorFunctionFromMatrixFunction( const std::function< void( Eigen::MatrixXd& ) > matrixFunction,
+                                                            const int numberOfRows,
+                                                            const int numberOfColumns )
+{
+    Eigen::MatrixXd matrixEvaluation = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+    matrixFunction( matrixEvaluation );
+
+    Eigen::VectorXd vectorEvaluation;
+    getMatrixInOutputVectorRepresentation( matrixEvaluation, vectorEvaluation );
+
+    return vectorEvaluation;
+}
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+inline std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationDerivativePartialForDependentVariable(
+        const orbit_determination::StateDerivativePartialsMap& stateDerivativePartials,
+        const std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialDependentVariableSettings )
+{
+    return getAccelerationPartialForBody( stateDerivativePartials,
+                                          partialDependentVariableSettings->accelerationModelType_,
+                                          partialDependentVariableSettings->associatedBody_,
+                                          partialDependentVariableSettings->secondaryBody_ );
+}
+
+inline IntegratedStateType getInitialStateParameterIntegratedStateType(
+        const estimatable_parameters::EstimatebleParametersEnum parameterType )
+{
+    switch( parameterType )
+    {
+        case estimatable_parameters::initial_body_state:
+        case estimatable_parameters::arc_wise_initial_body_state:
+            return translational_state;
+        case estimatable_parameters::initial_rotational_body_state:
+            return rotational_state;
+        case estimatable_parameters::initial_mass_state:
+            return body_mass_state;
+        default:
+            throw std::runtime_error( "Error, requested parameter is not an initial dynamical state parameter." );
+    }
+}
+
+template< typename StateScalarType = double >
+inline std::pair< std::function< Eigen::VectorXd( ) >, int > getAccelerationDerivativeParameterPartialVectorFunction(
+        const std::shared_ptr< orbit_determination::StateDerivativePartial > partialToUse,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        const std::string& errorPrefix )
+{
+    if( parametersToEstimate == nullptr )
+    {
+        throw std::runtime_error( errorPrefix + ", no estimatable parameter set was provided." );
+    }
+    if( parameterSettings == nullptr )
+    {
+        throw std::runtime_error( errorPrefix + ", parameter settings are null." );
+    }
+
+    std::vector< std::pair< std::pair< int, int >, std::shared_ptr< estimatable_parameters::EstimatableParameterBase > > >
+            matchingParameters = parametersToEstimate->getParametersAndIndicesForParameterIdentifier( parameterSettings->parameterType_ );
+
+    if( matchingParameters.size( ) != 1 )
+    {
+        throw std::runtime_error( errorPrefix + ", expected exactly one matching parameter in estimatable parameter set, found " +
+                                  std::to_string( matchingParameters.size( ) ) + "." );
+    }
+
+    int parameterColumns = matchingParameters.at( 0 ).first.second;
+    std::function< Eigen::VectorXd( ) > variableFunction;
+
+    if( estimatable_parameters::isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
+    {
+        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
+                        std::make_pair( parameterSettings->parameterType_.second.first, "" ),
+                        getInitialStateParameterIntegratedStateType( parameterSettings->parameterType_.first ) );
+
+        if( partialFunction.second == 0 )
+        {
+            variableFunction = [ = ]( ) { return Eigen::VectorXd::Zero( 3 * parameterColumns ); };
+        }
+        else
+        {
+            parameterColumns = partialFunction.second;
+            variableFunction = std::bind( &getVectorFunctionFromBlockFunction, partialFunction.first, 3, parameterColumns );
+        }
+    }
+    else if( estimatable_parameters::isDoubleParameter( parameterSettings->parameterType_.first ) )
+    {
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter =
+                std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< double > >( matchingParameters.at( 0 ).second );
+        if( parameter == nullptr )
+        {
+            throw std::runtime_error( errorPrefix + ", matching parameter is not a double parameter." );
+        }
+
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+                partialToUse->getParameterPartialFunction( parameter );
+
+        if( partialFunction.second == 0 )
+        {
+            variableFunction = [ = ]( ) { return Eigen::VectorXd::Zero( 3 * parameterColumns ); };
+        }
+        else
+        {
+            variableFunction = std::bind( &getVectorFunctionFromMatrixFunction, partialFunction.first, 3, parameterColumns );
+        }
+    }
+    else
+    {
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter =
+                std::dynamic_pointer_cast< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >(
+                        matchingParameters.at( 0 ).second );
+        if( parameter == nullptr )
+        {
+            throw std::runtime_error( errorPrefix + ", matching parameter is not a vector parameter." );
+        }
+
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+                partialToUse->getParameterPartialFunction( parameter );
+
+        if( partialFunction.second == 0 )
+        {
+            variableFunction = [ = ]( ) { return Eigen::VectorXd::Zero( 3 * parameterColumns ); };
+        }
+        else
+        {
+            parameterColumns = partialFunction.second;
+            variableFunction = std::bind( &getVectorFunctionFromMatrixFunction, partialFunction.first, 3, parameterColumns );
+        }
+    }
+
+    return std::make_pair( variableFunction, 3 * parameterColumns );
+}
+#endif
+
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 /*!
  * Function to compute the Fay-Riddell equilibrium heat flux from body properties
@@ -320,10 +463,10 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > get
 
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > listOfSuitableAccelerationModels;
 
-    for( basic_astrodynamics::AvailableAcceleration accelerationModelType: { basic_astrodynamics::spherical_harmonic_gravity,
-                                                                             basic_astrodynamics::polyhedron_gravity,
-                                                                             basic_astrodynamics::point_mass_gravity,
-                                                                             basic_astrodynamics::mutual_spherical_harmonic_gravity } )
+    for( basic_astrodynamics::AvailableAcceleration accelerationModelType : { basic_astrodynamics::spherical_harmonic_gravity,
+                                                                              basic_astrodynamics::polyhedron_gravity,
+                                                                              basic_astrodynamics::point_mass_gravity,
+                                                                              basic_astrodynamics::mutual_spherical_harmonic_gravity } )
     {
         listOfSuitableAccelerationModels = getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
                                                                          dependentVariableSettings->secondaryBody_,
@@ -398,7 +541,8 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         std::unordered_map< IntegratedStateType,
                                             std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
-                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
+                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ),
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate = nullptr )
 {
     std::function< Eigen::VectorXd( ) > variableFunction;
     int parameterSize;
@@ -1093,6 +1237,64 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
+        case local_wind_velocity_dependent_variable: {
+            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+            {
+                simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+            }
+
+            if( bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Error, no aerodynamic angle calculator when creating dependent variable function of type "
+                        "local_wind_velocity_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+
+            // Get the target frame from settings
+            std::shared_ptr< LocalWindVelocityDependentVariableSaveSettings > windVelocitySettings =
+                    std::dynamic_pointer_cast< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( windVelocitySettings == nullptr )
+            {
+                throw std::runtime_error( "Error: could not cast to LocalWindVelocityDependentVariableSaveSettings" );
+            }
+
+            reference_frames::AerodynamicsReferenceFrames targetFrame = windVelocitySettings->targetFrame_;
+
+            std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+                    bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( );
+
+            // If target frame is corotating frame, return wind velocity directly
+            if( targetFrame == reference_frames::corotating_frame )
+            {
+                variableFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity, aerodynamicAngleCalculator );
+            }
+            else
+            {
+                // Create function to transform wind velocity to target frame
+                std::function< Eigen::Vector3d( ) > windVelocityCorotatingFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity, aerodynamicAngleCalculator );
+
+                std::function< Eigen::Matrix3d( ) > rotationMatrixFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
+                                   aerodynamicAngleCalculator,
+                                   reference_frames::corotating_frame,
+                                   targetFrame );
+
+                variableFunction = [ windVelocityCorotatingFunction, rotationMatrixFunction ]( ) {
+                    // Evaluate before returning; the Eigen product expression would otherwise
+                    // reference temporaries created by the function calls above.
+                    Eigen::Vector3d transformedWindVelocity = rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
+                    return transformedWindVelocity;
+                };
+            }
+
+            parameterSize = 3;
+            break;
+        }
         case tnw_to_inertial_frame_rotation_dependent_variable: {
             std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                     std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );
@@ -1137,6 +1339,27 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             };
             variableFunction = std::bind( &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
 
+            parameterSize = 9;
+
+            break;
+        }
+        case vehicle_part_rotation_matrix_dependent_variable: {
+            // Check if body has vehicle systems
+            if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when getting vehicle part rotation matrix for body " + bodyWithProperty +
+                                          ", body does not have vehicle systems." );
+            }
+
+            // Get the part name from secondaryBody_ field
+            std::string partName = dependentVariableSettings->secondaryBody_;
+
+            // Create function to get rotation quaternion from vehicle systems
+            std::function< Eigen::Quaterniond( ) > rotationFunction = std::bind( &system_models::VehicleSystems::getPartRotationToBaseFrame,
+                                                                                 bodies.at( bodyWithProperty )->getVehicleSystems( ),
+                                                                                 partName );
+
+            variableFunction = std::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
             parameterSize = 9;
 
             break;
@@ -1344,7 +1567,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
         case acceleration_partial_wrt_body_translational_state: {
             std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
                     std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
@@ -1457,6 +1680,127 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 };
 
                 parameterSize = 18;
+            }
+            break;
+        }
+        case acceleration_derivative_partial_wrt_parameter: {
+            std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > parameterPartialVariableSettings =
+                    std::dynamic_pointer_cast< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            if( parameterPartialVariableSettings == nullptr )
+            {
+                std::string errorMessage =
+                        "Error, inconsistent input when creating dependent variable function of type "
+                        "acceleration_derivative_partial_wrt_parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                if( stateDerivativePartials.count( translational_state ) == 0 )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting acceleration_derivative_partial_wrt_parameter dependent variable, no translational "
+                            "state derivative partials found." );
+                }
+
+                std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
+                        getAccelerationDerivativePartialForDependentVariable( stateDerivativePartials.at( translational_state ),
+                                                                              parameterPartialVariableSettings );
+
+                std::pair< std::function< Eigen::VectorXd( ) >, int > partialFunction =
+                        getAccelerationDerivativeParameterPartialVectorFunction< StateScalarType >(
+                                partialToUse,
+                                parameterPartialVariableSettings->parameterSettings_,
+                                parametersToEstimate,
+                                "Error when requesting acceleration_derivative_partial_wrt_parameter dependent variable" );
+
+                variableFunction = partialFunction.first;
+                parameterSize = partialFunction.second;
+                parameterPartialVariableSettings->dependentVariableSize_ = parameterSize;
+            }
+            break;
+        }
+        case total_acceleration_derivative_partial_wrt_parameter: {
+            std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings > parameterPartialVariableSettings =
+                    std::dynamic_pointer_cast< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+            if( parameterPartialVariableSettings == nullptr )
+            {
+                std::string errorMessage =
+                        "Error, inconsistent input when creating dependent variable function of type "
+                        "total_acceleration_derivative_partial_wrt_parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                if( stateDerivativePartials.count( translational_state ) == 0 )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting total_acceleration_derivative_partial_wrt_parameter dependent variable, no "
+                            "translational state derivative partials found." );
+                }
+
+                std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                        getTranslationalStateDerivativeModelForBody( parameterPartialVariableSettings->associatedBody_,
+                                                                     stateDerivativeModels );
+
+                basic_astrodynamics::SingleBodyAccelerationMap accelerationModelList =
+                        nBodyModel->getFullAccelerationsMap( ).at( parameterPartialVariableSettings->associatedBody_ );
+
+                std::vector< std::function< Eigen::VectorXd( ) > > partialFunctions;
+                parameterSize = -1;
+
+                for( basic_astrodynamics::SingleBodyAccelerationMap::iterator itr = accelerationModelList.begin( );
+                     itr != accelerationModelList.end( );
+                     itr++ )
+                {
+                    std::string bodyExertingAcceleration = itr->first;
+
+                    for( unsigned int currentAcceleration = 0; currentAcceleration < itr->second.size( ); currentAcceleration++ )
+                    {
+                        std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse = getAccelerationPartialForBody(
+                                stateDerivativePartials.at( translational_state ),
+                                basic_astrodynamics::getAccelerationModelType( itr->second[ currentAcceleration ] ),
+                                parameterPartialVariableSettings->associatedBody_,
+                                bodyExertingAcceleration );
+
+                        std::pair< std::function< Eigen::VectorXd( ) >, int > currentPartialFunction =
+                                getAccelerationDerivativeParameterPartialVectorFunction< StateScalarType >(
+                                        partialToUse,
+                                        parameterPartialVariableSettings->parameterSettings_,
+                                        parametersToEstimate,
+                                        "Error when requesting total_acceleration_derivative_partial_wrt_parameter dependent variable" );
+
+                        if( parameterSize < 0 )
+                        {
+                            parameterSize = currentPartialFunction.second;
+                        }
+                        else if( parameterSize != currentPartialFunction.second )
+                        {
+                            throw std::runtime_error(
+                                    "Error when requesting total_acceleration_derivative_partial_wrt_parameter dependent variable, "
+                                    "inconsistent parameter partial sizes found." );
+                        }
+                        partialFunctions.push_back( currentPartialFunction.first );
+                    }
+                }
+
+                if( partialFunctions.size( ) == 0 )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting total_acceleration_derivative_partial_wrt_parameter dependent variable, no "
+                            "acceleration partial functions found." );
+                }
+
+                variableFunction = [ = ]( ) {
+                    Eigen::VectorXd variable = Eigen::VectorXd::Zero( parameterSize );
+
+                    for( unsigned int i = 0; i < partialFunctions.size( ); i++ )
+                    {
+                        variable += partialFunctions.at( i )( );
+                    }
+
+                    return variable;
+                };
+                parameterPartialVariableSettings->dependentVariableSize_ = parameterSize;
             }
             break;
         }
@@ -1925,7 +2269,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         std::unordered_map< IntegratedStateType,
                                             std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
-                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
+                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ),
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate = nullptr )
 {
     const int componentIndex = dependentVariableSettings->componentIndex_;
     const int dependentVariableSize = getDependentVariableSize( dependentVariableSettings, bodies );
@@ -1938,7 +2283,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
         const std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction =
                 getVectorDependentVariableFunction< TimeType, StateScalarType >(
-                        dependentVariableSettings, bodies, stateDerivativeModels, stateDerivativePartials );
+                        dependentVariableSettings, bodies, stateDerivativeModels, stateDerivativePartials, parametersToEstimate );
         return std::bind( &elementAtIndexFunction, vectorFunction.first, componentIndex );
     }
     else
@@ -2002,6 +2347,18 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                                       bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
                 break;
+            case number_density: {
+                if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                            bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+                {
+                    simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+                }
+                auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) );
+
+                variableFunction = std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentTotalNumberDensity, flightConditions );
+                break;
+            }
             case radiation_pressure_dependent_variable: {
                 auto radiationPressureAccelerationList = getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
                                                                                        dependentVariableSettings->secondaryBody_,
@@ -2970,10 +3327,176 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 }
                 break;
             }
-            case solar_longitude:
-            {
-                variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
-                                              std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
+            case solar_longitude: {
+                // Try ComaModel first
+                auto comaModel =
+                        std::dynamic_pointer_cast< aerodynamics::ComaModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                if( comaModel != nullptr )
+                {
+                    variableFunction = std::bind( &::tudat::aerodynamics::ComaModel::getSolarLongitude, comaModel );
+                }
+                else
+                {
+                    // Fall back to MarsDtmAtmosphereModel
+                    auto marsDtmModel = std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >(
+                            bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                    if( marsDtmModel != nullptr )
+                    {
+                        variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude, marsDtmModel );
+                    }
+                    else
+                    {
+                        std::string errorMessage = "Error when making solar longitude dependent variable for body " + bodyWithProperty +
+                                ". Body does not have a ComaModel or MarsDtmAtmosphereModel atmosphere.";
+                        throw std::runtime_error( errorMessage );
+                    }
+                }
+                break;
+            }
+            case proper_time_rate_kinematic_term:
+            case proper_time_rate_potential_term: {
+                // The dependent variable is keyed by ``(bodyWithProperty, secondaryBody)``,
+                // where ``secondaryBody`` is the optional reference-point name (empty for the
+                // body centre itself). We locate the matching relativistic-time state
+                // derivative among ``stateDerivativeModels[proper_time]`` and produce a
+                // closure that returns the requested -v^2/(2 c^2) (kinematic) or -U/c^2
+                // (potential) component every step. Three propagator pipelines are supported:
+                //   (1) FirstOrderBarycentricToBodyCentricTimeStateDerivative (and its
+                //       second-order subclass): Soffel et al. 2003 Eq. (58), reference point
+                //       is the body centre (secondaryBody == "").
+                //   (2) DirectProperTimeRateStateDerivative: series expansion from the
+                //       SolarSystemMetric, applicable to any reference point that has a state
+                //       function bound at construction.
+                //   (3) FirstOrderBodyCentricToTopoCentricTimeCalculator: Turyshev et al.
+                //       2013 Eq. (22), for ground stations identified by (body, station).
+                std::shared_ptr< ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType > >
+                        pnStateDerivative;
+                std::shared_ptr< ::tudat::DirectProperTimeRateStateDerivative< StateScalarType, TimeType > > directStateDerivative;
+                std::shared_ptr< ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator< StateScalarType, TimeType > >
+                        topoStateDerivative;
+
+                const auto properTimeIt = stateDerivativeModels.find( proper_time );
+                if( properTimeIt != stateDerivativeModels.end( ) )
+                {
+                    for( const auto& candidate : properTimeIt->second )
+                    {
+                        if( !secondaryBody.empty( ) )
+                        {
+                            auto topoCandidate = std::dynamic_pointer_cast<
+                                    ::tudat::FirstOrderBodyCentricToTopoCentricTimeCalculator< StateScalarType, TimeType > >( candidate );
+                            if( topoCandidate != nullptr &&
+                                topoCandidate->getReferencePoint( ) == std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                topoStateDerivative = topoCandidate;
+                                break;
+                            }
+                            auto directCandidate =
+                                    std::dynamic_pointer_cast< ::tudat::DirectProperTimeRateStateDerivative< StateScalarType, TimeType > >(
+                                            candidate );
+                            if( directCandidate != nullptr &&
+                                directCandidate->getReferencePoint( ) == std::make_pair( bodyWithProperty, secondaryBody ) )
+                            {
+                                directStateDerivative = directCandidate;
+                            }
+                            continue;
+                        }
+                        auto pnCandidate = std::dynamic_pointer_cast<
+                                ::tudat::FirstOrderBarycentricToBodyCentricTimeStateDerivative< StateScalarType, TimeType > >( candidate );
+                        if( pnCandidate != nullptr && pnCandidate->getCentralBody( ) == bodyWithProperty )
+                        {
+                            pnStateDerivative = pnCandidate;
+                            break;
+                        }
+                        auto directCandidate =
+                                std::dynamic_pointer_cast< ::tudat::DirectProperTimeRateStateDerivative< StateScalarType, TimeType > >(
+                                        candidate );
+                        if( directCandidate != nullptr && directCandidate->getCentralBody( ) == bodyWithProperty &&
+                            directCandidate->getReferencePoint( ).second.empty( ) )
+                        {
+                            directStateDerivative = directCandidate;
+                        }
+                    }
+                }
+
+                const double invSquareC = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                const bool wantKinematic = ( dependentVariableSettings->dependentVariableType_ == proper_time_rate_kinematic_term );
+
+                if( pnStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            const double v = pnStateDerivative->getCurrentCentralBodySpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ pnStateDerivative, invSquareC ]( ) {
+                            return -pnStateDerivative->getCurrentExternalScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else if( topoStateDerivative != nullptr )
+                {
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            const double v = topoStateDerivative->getCurrentReferencePointSpeed( );
+                            return -0.5 * v * v * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        variableFunction = [ topoStateDerivative, invSquareC ]( ) {
+                            return -topoStateDerivative->getCurrentLocalPotentialAndTidalContribution( ) * invSquareC;
+                        };
+                    }
+                }
+                else if( directStateDerivative != nullptr )
+                {
+                    auto referenceStateFunction = directStateDerivative->getReferencePointStateFunction( );
+                    if( wantKinematic )
+                    {
+                        variableFunction = [ referenceStateFunction, invSquareC ]( ) {
+                            const Eigen::Vector6d state = referenceStateFunction( );
+                            return -0.5 * state.segment( 3, 3 ).squaredNorm( ) * invSquareC;
+                        };
+                    }
+                    else
+                    {
+                        // Only the SolarSystemMetric currently exposes a cached total scalar
+                        // potential at the evaluation point (via getCurrentScalarPotential).
+                        // Other Metric subclasses (e.g. SchwarzschildMetric) would need a
+                        // dedicated dependent variable; rather than silently returning 0 we
+                        // throw so that users see the limitation.
+                        auto solarMetric =
+                                std::dynamic_pointer_cast< relativity::SolarSystemMetric >( directStateDerivative->getSpaceTimeMetric( ) );
+                        if( solarMetric == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating proper_time_rate_potential_term dependent "
+                                    "variable for body " +
+                                    bodyWithProperty + ( secondaryBody.empty( ) ? std::string( "" ) : std::string( ":" ) + secondaryBody ) +
+                                    ": direct-from-metric state derivative is not backed by a "
+                                    "SolarSystemMetric, which is required to expose the current "
+                                    "scalar potential." );
+                        }
+                        variableFunction = [ solarMetric, invSquareC ]( ) {
+                            return -solarMetric->getCurrentScalarPotential( ) * invSquareC;
+                        };
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error(
+                            "Error when creating proper-time-rate dependent variable: "
+                            "no relativistic-time state derivative found for body " +
+                            bodyWithProperty +
+                            ( secondaryBody.empty( ) ? std::string( "" ) : std::string( " with reference point " ) + secondaryBody ) +
+                            ". Make sure this body is being propagated as a post-Newtonian, "
+                            "topocentric, or direct-from-metric relativistic time state." );
+                }
                 break;
             }
             default:
@@ -3026,21 +3549,24 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
                                   std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
                 stateDerivativeModels,
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
-                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
+                std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ),
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate = nullptr )
 {
     // create list of vector parameters
     std::vector< std::pair< std::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
     std::vector< std::pair< std::string, int > > vectorVariableList;
 
-    for( std::shared_ptr< SingleDependentVariableSaveSettings > variable: dependentVariables )
+    for( std::shared_ptr< SingleDependentVariableSaveSettings > variable : dependentVariables )
     {
         std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction;
         // Create double parameter
-        if( isScalarDependentVariable( variable, bodies ) )
+        if( ( variable->dependentVariableType_ != acceleration_derivative_partial_wrt_parameter ) &&
+            ( variable->dependentVariableType_ != total_acceleration_derivative_partial_wrt_parameter ) &&
+            isScalarDependentVariable( variable, bodies ) )
         {
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-            std::function< double( ) > doubleFunction =
-                    getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels, stateDerivativePartials );
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+            std::function< double( ) > doubleFunction = getDoubleDependentVariableFunction(
+                    variable, bodies, stateDerivativeModels, stateDerivativePartials, parametersToEstimate );
 #else
             std::function< double( ) > doubleFunction = getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels );
 #endif
@@ -3049,8 +3575,9 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
         // Create vector parameter
         else
         {
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-            vectorFunction = getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels, stateDerivativePartials );
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+            vectorFunction = getVectorDependentVariableFunction(
+                    variable, bodies, stateDerivativeModels, stateDerivativePartials, parametersToEstimate );
 #else
             vectorFunction = getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels );
 #endif
@@ -3064,7 +3591,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
     std::map< std::pair< int, int >, std::string > dependentVariableIds;
 
     int variableCounter = 0;
-    for( std::pair< std::string, int > vectorVariable: vectorVariableList )
+    for( std::pair< std::string, int > vectorVariable : vectorVariableList )
     {
         dependentVariableIds[ { totalVariableSize, vectorVariable.second } ] = vectorVariable.first;
         orderedDependentVariables[ { totalVariableSize, vectorVariable.second } ] = dependentVariables.at( variableCounter );

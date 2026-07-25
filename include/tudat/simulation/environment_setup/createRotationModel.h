@@ -14,23 +14,42 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <functional>
+#include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/simulation/environment_setup/body.h"
-#include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
-#include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 
 namespace tudat
 {
 
+namespace aerodynamics
+{
+
+class TrimOrientationCalculator;
+
+}  // namespace aerodynamics
+
+namespace ephemerides
+{
+
+class AerodynamicAngleRotationalEphemeris;
+
+}  // namespace ephemerides
+
 namespace simulation_setup
 {
+
+class Body;
+class SystemOfBodies;
 
 // List of rotation models available in simulations
 /*
@@ -896,11 +915,12 @@ public:
                               const Eigen::Vector2d& polePrecession,
                               const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
                               const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-                              const double referenceEpochJ2000 = 0.0 ):
+                              const double referenceEpochJ2000 = 0.0,
+                              const std::string& anglesBaseFrame = "" ):
         RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
         nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
         meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms ),
-        referenceEpochJ2000_( referenceEpochJ2000 )
+        referenceEpochJ2000_( referenceEpochJ2000 ), anglesBaseFrame_( anglesBaseFrame )
     {}
 
     double nominalMeridian_;
@@ -920,6 +940,8 @@ public:
     double currentMeridian_;
 
     Eigen::Vector2d currentPolePosition_;
+
+    std::string anglesBaseFrame_;
 };
 
 // Function to create a state function for a body, valid both during propagation, and outside propagation
@@ -954,8 +976,12 @@ std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
 
 std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
         const std::shared_ptr< InertialDirectionSettings > directionSettings,
+        const std::string& body );
+
+std::shared_ptr< ephemerides::InertialBodyFixedDirectionCalculator > createInertialDirectionCalculator(
+        const std::shared_ptr< InertialDirectionSettings > directionSettings,
         const std::string& body,
-        const SystemOfBodies& bodies = SystemOfBodies( ) );
+        const SystemOfBodies& bodies );
 
 std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > createStateDirectionBasedRotationModel(
         const std::string& body,
@@ -985,8 +1011,12 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createTrimmedAerodynamicAngl
 
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
+        const std::string& body );
+
+std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
-        const SystemOfBodies& bodies = SystemOfBodies( ) );
+        const SystemOfBodies& bodies );
 
 //! @get_docstring(simpleRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings( const std::string& originalFrame,
@@ -1010,18 +1040,10 @@ inline std::shared_ptr< RotationModelSettings > simpleRotationModelSettings( con
 }
 
 //! @get_docstring(simpleRotationModelFromSpiceSettings)
-inline std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings( const std::string& originalFrame,
-                                                                                      const std::string& targetFrame,
-                                                                                      const std::string& targetFrameSpice,
-                                                                                      const double initialTime )
-{
-    return std::make_shared< SimpleRotationModelSettings >(
-            originalFrame,
-            targetFrame,
-            spice_interface::computeRotationQuaternionBetweenFrames( originalFrame, targetFrameSpice, initialTime ),
-            initialTime,
-            spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame( originalFrame, targetFrameSpice, initialTime ).norm( ) );
-}
+std::shared_ptr< RotationModelSettings > simpleRotationModelFromSpiceSettings( const std::string& originalFrame,
+                                                                               const std::string& targetFrame,
+                                                                               const std::string& targetFrameSpice,
+                                                                               const double initialTime );
 
 //! @get_docstring(constantRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > constantRotationModelSettings( const std::string& originalFrame,
@@ -1150,7 +1172,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
         const Eigen::Vector2d& polePrecession,
         const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
         const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-        double referenceEpochJ2000 = 0.0 )
+        double referenceEpochJ2000 = 0.0,
+        const std::string& anglesBaseFrame = "" )
 {
     return std::make_shared< IauRotationModelSettings >( baseFrameOrientation,
                                                          targetFrameOrientation,
@@ -1160,7 +1183,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          polePrecession,
                                                          meridianPeriodicTerms,
                                                          polePeriodicTerms,
-                                                         referenceEpochJ2000 );
+                                                         referenceEpochJ2000,
+                                                         anglesBaseFrame );
 }
 
 }  // namespace simulation_setup

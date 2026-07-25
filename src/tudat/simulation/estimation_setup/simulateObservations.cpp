@@ -1,4 +1,5 @@
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
@@ -58,7 +59,7 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange( const simulation_se
     std::map< double, Eigen::VectorXd > observationValues = singleObservationSet->getObservationsHistory( );
 
     std::map< double, Eigen::VectorXd > anglesAndRange;
-    for( auto it: angles )
+    for( auto it : angles )
     {
         anglesAndRange[ it.first ] =
                 ( Eigen::VectorXd( 3 ) << it.second( 0 ), it.second( 1 ), observationValues.at( it.first ) ).finished( );

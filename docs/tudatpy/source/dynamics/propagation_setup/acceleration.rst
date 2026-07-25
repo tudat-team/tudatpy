@@ -30,6 +30,10 @@ Functions
 
    mutual_spherical_harmonic_gravity
 
+   full_two_body_spherical_harmonic_gravity
+
+   full_two_body_spherical_harmonic_gravity_from_coefficient_combinations
+
    aerodynamic
 
    radiation_pressure
@@ -60,11 +64,19 @@ Functions
 
 
 
+
+   rtg
+
+   thrust_and_isp_from_custom_function
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.point_mass_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.full_two_body_spherical_harmonic_gravity
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.full_two_body_spherical_harmonic_gravity_from_coefficient_combinations
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.aerodynamic
 
@@ -93,6 +105,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.thrust_from_all_engines
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.yarkovsky
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.rtg
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.thrust_and_isp_from_custom_function
 
 
 
@@ -125,6 +141,8 @@ Classes
 
    MutualSphericalHarmonicAccelerationSettings
 
+   FullTwoBodySphericalHarmonicAccelerationSettings
+
    RelativisticAccelerationCorrectionSettings
 
    EmpiricalAccelerationSettings
@@ -146,6 +164,9 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.MutualSphericalHarmonicAccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.FullTwoBodySphericalHarmonicAccelerationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.RelativisticAccelerationCorrectionSettings

@@ -43,15 +43,12 @@ Unlike most other environment model options in Tudat, there are multiple options
 * Point-mass gravity field: defining the gravitational parameter manually (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central`), extracting it from Spice (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central_spice`) or from the Small-Body Database (SBDB; :func:`~tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb`)
 * Spherical harmonic gravity field: defining all the settings manually (:func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`), loading a pre-defined model for a solar system body (:func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`) or calculating the spherical harmonic coefficients (up to a given degree) based on an ellipsoidal homogeneous mass distribution (:func:`~tudatpy.dynamics.environment_setup.gravity_field.sh_triaxial_ellipsoid_from_density` and :func:`~tudatpy.dynamics.environment_setup.gravity_field.sh_triaxial_ellipsoid_from_gravitational_parameter`)
 
-In Tudat, the gravity field itself is not directly responsible for providing the the mass, center of mass or inertia tensor to the simulations. This is handled by so-called 'rigid body properties' (see :ref:`rigid_body'). However, when creating a gravity field, rigid body properties will always be created automatically when a body is endowed with a gravity field, in the following manner:
+In Tudat, the gravity field itself is not directly responsible for providing the the mass, center of mass or inertia tensor to the simulations. This is handled by so-called 'rigid body properties' (see :ref:`rigid_body`). However, when creating a gravity field, rigid body properties will always be created automatically when a body is endowed with a gravity field, in the following manner:
 
 * Point-mass gravity field: mass computed from gravitational parameter; zero inertia tensor, and center of mass at origin of body-fixed frame
 * Spherical harmonic gravity field: mass computed from gravitational parameter, center of mass computed from degree 1 gravity field coefficients, inertia tensor as described in :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (only if the :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` is set)
 * Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
-
-
-
-
+* Ring gravity field model: mass computed from gravitational parameter; zero inertia tensor, and center of mass at origin of body-fixed frame
 
 
 
@@ -92,6 +89,8 @@ Functions
 
    polyhedron_from_density
 
+   ring_model
+
    sbdb_wrapper.central_sbdb
 
    sbdb_wrapper.central_sbdb_density
@@ -114,6 +113,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_mu
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.polyhedron_from_density
+
+.. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.ring_model
 
 .. autofunction:: tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb
 
@@ -168,6 +169,5 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.gravity_field.PolyhedronGravityFieldSettings
    :members:
-
 
 

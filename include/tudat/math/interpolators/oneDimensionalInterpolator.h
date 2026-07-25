@@ -39,7 +39,8 @@ enum InterpolatorTypes {
     lagrange_interpolator = 3,
     hermite_spline_interpolator = 4,
     piecewise_constant_interpolator = 5,
-    discrete_jump_linear_interpolator = 6
+    discrete_jump_linear_interpolator = 6,
+    chebyshev_interpolator = 7
 
 };
 
@@ -212,8 +213,7 @@ public:
             case use_default_value_with_warning: {
                 if( acceptUserDefinedRisk )
                 {
-                    validRange = std::make_pair( IndependentVariableType( -std::numeric_limits< double >::infinity( ) ),
-                                                 IndependentVariableType( std::numeric_limits< double >::infinity( ) ) );
+                    validRange = std::make_pair( IndependentVariableType( -1.0E12 ), IndependentVariableType( 1.0E12 ) );
                 }
                 else
                 {

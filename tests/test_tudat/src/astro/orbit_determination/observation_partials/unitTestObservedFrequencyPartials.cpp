@@ -12,14 +12,19 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
-#include "tudat/simulation/estimation_setup.h"
-#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/io/readOdfFile.h"
 
 #include "tudat/io/readOdfFile.h"
@@ -65,7 +70,7 @@ class LinearStateWrapper
 public:
     LinearStateWrapper( const double referenceTime, Eigen::Vector6d referenceState ):
         referenceState_( referenceState ), referenceTime_( referenceTime )
-    { }
+    {}
 
     Eigen::Vector6d getLinearState( const double currentTime )
     {
@@ -93,21 +98,21 @@ void testPartials( const std::shared_ptr< observation_models::ObservationModel< 
                    const std::shared_ptr< PositionPartialScaling > observationPartialScaling,
                    LinearStateWrapper& stateWrapper,
                    const double testObservationTime,
-                   const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+                   const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
 
     // Compute nominal observation
     Eigen::Matrix< double, 1, 1 > currentObservation = observationModel->computeObservationsWithLinkEndData(
-            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
 
     // Update scaling
     observationPartialScaling->update( vectorOfStates, vectorOfTimes, receiver, currentObservation );
 
     // Compute partial
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > singlePartialSet = observationPartial->calculatePartial(
-            vectorOfStates, vectorOfTimes, receiver, ancilliarySettings, currentObservation.template cast< double >( ) );
+            vectorOfStates, vectorOfTimes, receiver, ancillarySettings, currentObservation.template cast< double >( ) );
 
     // Combine partial
     Eigen::Matrix< double, 1, 6 > totalPartial;
@@ -132,27 +137,27 @@ void testPartials( const std::shared_ptr< observation_models::ObservationModel< 
         perturbedReferenceState( i ) += positionPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         Eigen::Matrix< double, 1, 1 > upperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
 
         // Perturb parameter down
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i ) -= positionPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         Eigen::Matrix< double, 1, 1 > downperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
         numericalPartial( i ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * positionPerturbation );
 
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i + 3 ) += velocityPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         upperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
 
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i + 3 ) -= velocityPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         downperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
         stateWrapper.referenceState_( i + 3 ) += velocityPerturbation;
         numericalPartial( i + 3 ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * velocityPerturbation );
     }
@@ -234,10 +239,10 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartialsDirect )
                             std::make_shared< ObservationModelSettings >( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList ),
                             bodies ) );
 
-    // Create ancilliary settings
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+    // Create ancillary settings
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
 
     // Create Doppler model (frequency)
     std::shared_ptr< TwoWayDopplerObservationModel< double, double > > twoWayDopplerObservationModel =
@@ -384,7 +389,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                       true,
                                       10.0,
                                       parameterPerturbationMultipliers,
-                                      getDopplerMeasuredFrequencyAncilliarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
+                                      getDopplerMeasuredFrequencyAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
                                       1.1E7,
                                       100.0 );
     }
@@ -450,7 +455,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                       true,
                                       1.0,
                                       parameterPerturbationMultipliers,
-                                      getDopplerMeasuredFrequencyAncilliarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
+                                      getDopplerMeasuredFrequencyAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band } ),
                                       1.1E7,
                                       100.0 );
     }

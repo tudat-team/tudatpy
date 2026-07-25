@@ -72,8 +72,6 @@ createDifferencedObservablePartials(
         const bool isPartialForDifferencedObservable = false,
         const bool isPartialForConcatenatedObservable = false );
 
-
-
 //! Interface class for creating observation partials
 /*!
  *  Interface class for creating observation partials. This class is used instead of a single
@@ -182,6 +180,15 @@ public:
                 observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, true );
                 break;
+            case observation_models::one_way_doppler_measured_frequency:
+                // One-way Doppler measured frequency uses single link partials (not two-way)
+                observationPartials =
+                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >( observationModel,
+                                                                                                   bodies,
+                                                                                                   parametersToEstimate,
+                                                                                                   isPartialForDifferencedObservable,
+                                                                                                   isPartialForConcatenatedObservable );
+                break;
             case observation_models::n_way_range:
                 if( isPartialForConcatenatedObservable )
                 {
@@ -201,10 +208,12 @@ public:
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
                 break;
             case observation_models::differenced_time_of_arrival:
+            case observation_models::differenced_frequency_of_arrival:
                 if( isPartialForConcatenatedObservable )
                 {
                     throw std::runtime_error(
-                            "Error when requesting partial creation for differenced time of arrical; concatenated partial not supported" );
+                            "Error when requesting partial creation for differenced time/frequency of arrival; concatenated partial not "
+                            "supported" );
                 }
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
@@ -271,6 +280,15 @@ public:
         switch( observationModel->getObservableType( ) )
         {
             case observation_models::angular_position:
+            case observation_models::azimuth_elevation_angle:
+                observationPartials =
+                        createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >( observationModel,
+                                                                                                   bodies,
+                                                                                                   parametersToEstimate,
+                                                                                                   isPartialForDifferencedObservable,
+                                                                                                   isPartialForConcatenatedObservable );
+                break;
+            case observation_models::pixel_coordinates:
                 observationPartials =
                         createSingleLinkObservationPartials< ObservationScalarType, 2, TimeType >( observationModel,
                                                                                                    bodies,
@@ -420,8 +438,6 @@ createObservablePartialsList(
     return partialsList;
 }
 
-
-
 template< int ObservationSize, typename ScalarType, typename TimeType >
 class DifferencedObservationPartialCreator
 {
@@ -547,6 +563,53 @@ public:
                         &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
+            case differenced_frequency_of_arrival: {
+                if( !isParameterObservationLinkTimeProperty(
+                            getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
+                {
+                    if( firstPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; first "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) !=
+                                 one_way_doppler_measured_frequency )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; first "
+                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                        }
+                    }
+
+                    if( secondPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; second "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) !=
+                                 one_way_doppler_measured_frequency )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; second "
+                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                        }
+                    }
+                }
+
+                differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial,
+                        secondPartial,
+                        &observation_partials::getDifferencedFrequencyOfArrivalScalingFactor,
+                        getUndifferencedTimeAndStateIndices( differenced_frequency_of_arrival, linkEnds.size( ) ),
+                        &getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes );
+                break;
+            }
             case n_way_differenced_range: {
                 if( firstPartial != nullptr )
                 {
@@ -615,7 +678,7 @@ public:
                 const std::function< double( const observation_models::LinkEndType,
                                              const std::vector< Eigen::Vector6d >&,
                                              const std::vector< double >&,
-                                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >,
                                              const bool ) >
                         scalingFactorFunction = std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor< ScalarType >,
                                                            receivedFrequencyFunction,

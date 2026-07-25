@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_acceleration.h"
 // #include "kernel/expose_numerical_simulation/deprecation_support.h"
 
@@ -17,8 +19,24 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/propagation_setup.h>
+#include <tudat/simulation/environment_setup/thrustSettings.h>
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
+#include "tudat/simulation/propagation_setup/createMassRateModels.h"
+#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
+#include "tudat/simulation/propagation_setup/propagationOutput.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTermination.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -115,7 +133,7 @@ namespace propagation_setup
 namespace acceleration
 {
 
-void expose_acceleration_setup( py::module &m )
+void expose_acceleration_setup( py::module& m )
 {
     /*
      * This contains the addition of IntegratorSettings and
@@ -155,6 +173,10 @@ void expose_acceleration_setup( py::module &m )
       )doc" )
             .value( "mutual_spherical_harmonic_gravity_type",
                     tba::AvailableAcceleration::mutual_spherical_harmonic_gravity,
+                    R"doc(
+      )doc" )
+            .value( "full_two_body_spherical_harmonic_gravity_type",
+                    tba::AvailableAcceleration::full_two_body_spherical_harmonic_gravity,
                     R"doc(
       )doc" )
             .value( "polyhedron_gravity_type",
@@ -207,6 +229,14 @@ void expose_acceleration_setup( py::module &m )
       )doc" )
             .value( "yarkovsky_acceleration_type",
                     tba::AvailableAcceleration::yarkovsky_acceleration,
+                    R"doc(
+      )doc" )
+            .value( "relativistic_acceleration_from_metric_type",
+                    tba::AvailableAcceleration::relativistic_acceleration_from_metric,
+                    R"doc(
+      )doc" )
+            .value( "third_body_full_two_body_spherical_harmonic_gravity_type",
+                    tba::AvailableAcceleration::third_body_full_two_body_spherical_harmonic_gravity,
                     R"doc(
       )doc" )
             .export_values( );
@@ -270,6 +300,25 @@ void expose_acceleration_setup( py::module &m )
          Class for providing settings for the mutual spherical harmonics acceleration model,
          including the maximum degree and order up to which the fields of the bodies are to be expanded. Note that
          the minimum degree and order are currently always set to zero.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tss::FullTwoBodySphericalHarmonicAccelerationSettings,
+                std::shared_ptr< tss::FullTwoBodySphericalHarmonicAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "FullTwoBodySphericalHarmonicAccelerationSettings",
+                                             R"doc(
+
+         `AccelerationSettings`-derived class to define settings for full two-body spherical harmonic accelerations.
+
+         Class for providing settings for the full two-body spherical harmonic acceleration model, in which
+         couplings between the gravity-field coefficients of the body undergoing the acceleration and the body
+         exerting the acceleration are retained. This extends the mutual spherical harmonic acceleration by including
+         figure-figure terms as described by :cite:t:`dirkx2019`.
 
 
 
@@ -469,7 +518,7 @@ where:
 * :math:`G`: Newtonian gravitational constant
 * :math:`c`: speed of light
 
-Note that this acceleration *includes* the mutual point mass atrraction.
+Note that this acceleration *includes* the mutual point mass attraction.
 
 Technically, these equations are implicit, since  the terms :math:`\mathbf{a}_{a}`
 and :math:`\mathbf{a}_{b}` occur on the left- and right-hand sides of the equations (when evaluating the above for a set of bodies).
@@ -735,6 +784,166 @@ AccelerationSettings
 
      )doc" );
 
+    m.def( "full_two_body_spherical_harmonic_gravity",
+           &tss::fullTwoBodySphericalHarmonicAcceleration,
+           py::arg( "maximum_degree_body_undergoing" ),
+           py::arg( "maximum_order_body_undergoing" ),
+           py::arg( "maximum_degree_body_exerting" ),
+           py::arg( "maximum_order_body_exerting" ),
+           py::arg( "maximum_degree_central_body" ) = 0,
+           py::arg( "maximum_order_central_body" ) = 0,
+           R"doc(
+
+ Creates settings for the full two-body spherical harmonic gravity acceleration.
+
+ Creates settings for the full two-body spherical harmonic gravity acceleration between two extended bodies.
+ In contrast to :func:`~tudatpy.dynamics.propagation_setup.acceleration.mutual_spherical_harmonic_gravity`,
+ this model includes the figure-figure terms that couple spherical harmonic coefficients of both bodies.
+ The formulation follows the full two-body interaction model of :cite:t:`dirkx2019`.
+
+ Let body 1 denote the body undergoing acceleration, body 2 the body exerting acceleration, and
+ :math:`F_1` and :math:`F_2` their body-fixed frames. With
+ :math:`\mathbf{r}^{F_1}` the position of body 1 relative to body 2 expressed in :math:`F_1`,
+ :math:`r=\|\mathbf{r}^{F_1}\|`, :math:`\varphi` the latitude, :math:`\vartheta` the longitude,
+ :math:`R_i` the reference radius of body :math:`i`, and :math:`M_i` its mass, the mutual potential is
+ written as an effective one-body expansion:
+
+ .. math::
+
+    V_{1-2} =
+    \frac{G M_1 M_2}{r}
+    \sum_{l_1=0}^{\infty}\sum_{m_1=-l_1}^{l_1}
+    \sum_{l_2=0}^{\infty}\sum_{m_2=-l_2}^{l_2}
+    \left(\frac{R_1}{r}\right)^{l_1}
+    \left(\frac{R_2}{r}\right)^{l_2}
+    P_{l m}(\sin\varphi)
+    \left(
+    \bar{C}_{l_1,l_2;m_1,m_2}\cos m\vartheta+
+    \bar{S}_{l_1,l_2;m_1,m_2}\sin m\vartheta
+    \right)
+
+ where :math:`l=l_1+l_2`, :math:`m=m_1+m_2`, :math:`P_{lm}` is the associated Legendre polynomial,
+ and :math:`\bar{C}_{l_1,l_2;m_1,m_2}` and :math:`\bar{S}_{l_1,l_2;m_1,m_2}` are effective coefficients
+ built from the spherical harmonic coefficients of both bodies. For normalized coefficients, these effective
+ coefficients are, following :cite:t:`dirkx2019`:
+
+ .. math::
+
+    \bar{C}_{l_1,l_2;m_1,m_2} =
+    \sigma_{m_1}\sigma_{m_2}\bar{\gamma}^{l_1,m_1}_{l_2,m_2}
+    \frac{(1+\delta_{0m_1})(1+\delta_{0m_2})}{4}
+    \left(
+    \bar{C}^{1}_{l_1,|m_1|}\bar{C}^{2}_{l_2,|m_2|}
+    -s_{m_1}s_{m_2}\bar{S}^{1}_{l_1,|m_1|}\bar{S}^{2}_{l_2,|m_2|}
+    \right)
+
+ .. math::
+
+    \bar{S}_{l_1,l_2;m_1,m_2} =
+    s_{m_1+m_2}\sigma_{m_1}\sigma_{m_2}\bar{\gamma}^{l_1,m_1}_{l_2,m_2}
+    \frac{(1+\delta_{0m_1})(1+\delta_{0m_2})}{4}
+    \left(
+    s_{m_2}\bar{C}^{1}_{l_1,|m_1|}\bar{S}^{2}_{l_2,|m_2|}
+    +s_{m_1}\bar{S}^{1}_{l_1,|m_1|}\bar{C}^{2}_{l_2,|m_2|}
+    \right)
+
+ Here :math:`\delta_{0m}` is the Kronecker delta, :math:`\bar{\gamma}^{l_1,m_1}_{l_2,m_2}` is the
+ cross-body normalization factor, and :math:`\sigma_m` and :math:`s_m` are the signed-order convention
+ factors used by :cite:t:`dirkx2019` to map negative-order complex harmonics to real cosine/sine
+ coefficients. The coefficients of body 2 in the above equations are first transformed from :math:`F_2`
+ to :math:`F_1`.
+
+ The acceleration of body 1 is evaluated from the gradient of the selected potential terms:
+
+ .. math::
+
+    \dot{\mathbf{v}}_1 =
+    G M_2\mathbf{R}^{I/F_1}
+    \left(
+    \sum_{l_1=0}^{\infty}\sum_{m_1=-l_1}^{l_1}
+    \sum_{l_2=0}^{\infty}\sum_{m_2=-l_2}^{l_2}
+    \frac{\partial}{\partial \mathbf{r}^{F_1}}
+    V^{l_1,m_1}_{l_2,m_2}
+    \left(\mathbf{r}^{F_1},\mathbf{R}^{F_1/F_2}\right)
+    \right)
+
+ where :math:`\mathbf{R}^{I/F_1}` rotates vectors from :math:`F_1` to the propagation frame and
+ :math:`\mathbf{R}^{F_1/F_2}` is the relative rotation from :math:`F_2` to :math:`F_1`. See
+ :cite:t:`dirkx2019` for the full derivation and exact sign/normalization conventions.
+
+ Algorithmically, the model:
+
+ * computes the current relative position and expresses it in :math:`F_1`;
+ * rotates body-2 spherical harmonic coefficients into :math:`F_1`;
+ * combines body-1 and transformed body-2 coefficients into effective coefficients;
+ * precomputes the required powers of :math:`R_1/r` and :math:`R_2/r`;
+ * sums the selected effective potential-gradient terms and rotates the result back to the propagation frame.
+
+ Both bodies must have spherical harmonic gravity fields and rotation models defined. Depending on the central
+ body used in the propagation setup, this model may be used as a direct, central, or third-body acceleration.
+ For the third-body case, the optional central-body degree and order define which coefficient combinations are
+ retained for the central-body correction.
+
+
+ Parameters
+ ----------
+ maximum_degree_body_undergoing : int
+     Maximum spherical harmonic degree of the body undergoing the acceleration.
+ maximum_order_body_undergoing : int
+     Maximum spherical harmonic order of the body undergoing the acceleration.
+ maximum_degree_body_exerting : int
+     Maximum spherical harmonic degree of the body exerting the acceleration.
+ maximum_order_body_exerting : int
+     Maximum spherical harmonic order of the body exerting the acceleration.
+ maximum_degree_central_body : int, default=0
+     Maximum spherical harmonic degree of the central body contribution, if applicable.
+ maximum_order_central_body : int, default=0
+     Maximum spherical harmonic order of the central body contribution, if applicable.
+ Returns
+ -------
+ FullTwoBodySphericalHarmonicAccelerationSettings
+     Full two-body spherical harmonic acceleration settings object.
+
+
+
+
+
+     )doc" );
+
+    m.def(
+            "full_two_body_spherical_harmonic_gravity_from_coefficient_combinations",
+            []( const std::vector< std::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse ) {
+                return std::make_shared< tss::FullTwoBodySphericalHarmonicAccelerationSettings >( coefficientCombinationsToUse );
+            },
+            py::arg( "coefficient_combinations" ),
+            R"doc(
+
+ Creates settings for the full two-body spherical harmonic gravity acceleration from explicit coefficient combinations.
+
+ Creates settings for the full two-body spherical harmonic gravity acceleration using an explicit list of coefficient
+ combinations. Each entry in ``coefficient_combinations`` is a tuple
+ ``(degree_body_undergoing, order_body_undergoing, degree_body_exerting, order_body_exerting)``.
+ Only the requested coefficient-pair interactions are included in the model.
+ This is the explicit-combination counterpart of
+ :func:`~tudatpy.dynamics.propagation_setup.acceleration.full_two_body_spherical_harmonic_gravity`;
+ see that function for the governing equations and algorithmic outline.
+
+
+ Parameters
+ ----------
+ coefficient_combinations : list[tuple[int, int, int, int]]
+     Coefficient combinations retained in the full two-body interaction.
+ Returns
+ -------
+ FullTwoBodySphericalHarmonicAccelerationSettings
+     Full two-body spherical harmonic acceleration settings object.
+
+
+
+
+
+     )doc" );
+
     m.def( "polyhedron_gravity",
            &tss::polyhedronAcceleration,
            R"doc(
@@ -742,7 +951,7 @@ AccelerationSettings
 Creates settings for the polyhedron gravity acceleration.
 
 Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
-e.g. :cite:t:`wernerscheeres1996`, and the acceleration implememtation is from Eq. (16) of that reference.
+e.g. :cite:t:`wernerscheeres1996`, and the acceleration implementation is from Eq. (16) of that reference.
 
 Summarizing, it is computed from using combinations of geometric quantities associated with the polyhedron's edges and faces.
 
@@ -926,6 +1135,49 @@ In this example, we define the relativistic correction acceleration for a Mars o
 
      )doc" );
 
+    m.def( "relativistic_from_metric",
+           &tss::relativisticAccelerationFromMetric,
+           R"doc(
+
+Creates settings for direct relativistic acceleration from a configured space-time metric.
+
+The acceleration is evaluated from the geodesic equation in coordinate time:
+
+.. math::
+
+    a^i = \frac{d^2 x^i}{dt^2}
+    = \frac{v^i}{c}\,\Gamma^{0}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta}
+      - \Gamma^{i}_{\alpha\beta}\,\dot{x}^{\alpha}\dot{x}^{\beta},
+
+with
+
+.. math::
+
+    \dot{x}^{0}=c,\qquad \dot{x}^{i}=v^{i},
+
+and Christoffel symbols
+
+.. math::
+
+    \Gamma^{\mu}_{\alpha\beta}
+    =\frac{1}{2}g^{\mu\nu}\left(
+      \partial_{\alpha}g_{\nu\beta}
+      +\partial_{\beta}g_{\nu\alpha}
+      -\partial_{\nu}g_{\alpha\beta}\right).
+
+Here, :math:`x^i` are Cartesian coordinates, :math:`v^i` are Cartesian velocity components,
+:math:`t` is coordinate time, :math:`c` is the speed of light, and :math:`g_{\mu\nu}` is the metric tensor.
+
+The metric is read from ``bodies.space_time_properties.base_metric`` and this acceleration must be
+assigned with an empty string as body exerting acceleration.
+
+Returns
+-------
+AccelerationSettings
+    Settings object for direct relativistic acceleration from metric.
+
+     )doc" );
+
     m.def( "empirical",
            &tss::empiricalAcceleration,
            py::arg( "constant_acceleration" ) = Eigen::Vector3d::Zero( ),
@@ -1005,15 +1257,15 @@ In this example, we define the relativistic correction acceleration for a Mars o
  force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
  to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-The force enacted by the rtg emission is calculated as:
+ The force enacted by the RTG emission is calculated as:
 
  .. math::
 
      \mathbf{F}=R^{I/BF}\left(\mathbf{F}_{\text{0}} \cdot e^{\left(-\beta \left(t-t_{\text{0}}\right) \right)} \right)
 
  Here, :math:`R^{I/BF}` is the rotation matrix from the body-fixed frame (of the body undergoing the acceleration),
- :math: `\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math: `t_{\text{0}}` and
- :math:`beta` is the decay scale factor (:math: `= ln(2)/t_(1/2))`.
+ :math:`\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math:`t_{\text{0}}` and
+ :math:`\beta` is the decay scale factor (:math:`= \ln(2)/t_{1/2}`).
 
 
  Parameters
@@ -1022,7 +1274,7 @@ The force enacted by the rtg emission is calculated as:
      Force vector at the reference epoch, defined in the body-fixed frame.
  decay_scale_factor : float
      Scale factor of the exponential decay model.
- cosine_acceleration : float
+ reference_epoch : float
      Reference epoch for exponential decay model.
  Returns
  -------
@@ -1334,7 +1586,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a list of engine models.
 
- Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a list of engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1361,7 +1613,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration using a single engine models. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
 
@@ -1387,7 +1639,7 @@ through the spherical harmonic gravity:
 
  Creates settings for thrust acceleration using a single engine models.
 
- Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ Creates settings for thrust acceleration by combining thrust from all engines defined in the body. See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`__
  for more details on the definition of a thrust model in Tudat.
 
  Returns

@@ -12,6 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -19,7 +21,7 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -190,6 +192,24 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testObservationBoundariesViabilityCalculator )
+{
+    std::shared_ptr< ObservationViabilityCalculator > calculator = std::make_shared< ObservationBoundariesViabilityCalculator >(
+            std::vector< std::pair< double, double > >{ { -1.0, 2.0 }, { 0.5, 3.0 } } );
+
+    const std::vector< Eigen::Vector6d > linkEndStates;
+    const std::vector< double > linkEndTimes;
+
+    BOOST_CHECK( calculator->isObservationViable( linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << -1.0, 3.0 ).finished( ) ) );
+    BOOST_CHECK( !calculator->isObservationViable(
+            linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << -1.0 - std::numeric_limits< double >::epsilon( ), 2.0 ).finished( ) ) );
+    BOOST_CHECK( !calculator->isObservationViable(
+            linkEndStates, linkEndTimes, ( Eigen::Vector2d( ) << 1.0, std::numeric_limits< double >::quiet_NaN( ) ).finished( ) ) );
+
+    BOOST_CHECK_THROW( calculator->isObservationViable( linkEndStates, linkEndTimes, Eigen::VectorXd::Constant( 1, 0.0 ) ),
+                       std::runtime_error );
+}
+
 BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
 {
     // Load spice kernels.
@@ -235,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
             getTargetAnglesAndRange( bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ), "Moon", times, true );
     std::map< double, Eigen::VectorXd > targetAnglesAndRange2 =
             getTargetAnglesAndRange( bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ), "Moon", times, false );
-    for( auto it: targetAnglesAndRange )
+    for( auto it : targetAnglesAndRange )
     {
         double time = it.first;
         Eigen::Vector6d stateOfMoon = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( time );
@@ -268,7 +288,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             if( linkEnds.at( transmitter ).bodyName_ == referenceBody )
             {
                 currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                          ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                                                          ->getGroundStation( linkEnds.at( transmitter ).getReferencePointName( ) )
                                                           ->getPointingAnglesCalculator( );
                 elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
                         ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at( 0 ) ) );
@@ -276,7 +296,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             else if( linkEnds.at( receiver ).bodyName_ == referenceBody )
             {
                 currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                          ->getGroundStation( linkEnds.at( receiver ).stationName_ )
+                                                          ->getGroundStation( linkEnds.at( receiver ).getReferencePointName( ) )
                                                           ->getPointingAnglesCalculator( );
                 elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
                         ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at( 1 ) ) );
@@ -288,7 +308,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             //        if( linkEnds.at( transmitter ).bodyName_ == referenceBody )
             //        {
             //            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-            //                        linkEnds.at( transmitter ).stationName_ )->getPointingAnglesCalculator( );
+            //                        linkEnds.at( transmitter ).getReferencePointName( ) )->getPointingAnglesCalculator( );
             //            elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
             //                                           ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ), linkEndTimes.at(
             //                                           0 ) ) );
@@ -300,7 +320,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
             //        else if( linkEnds.at( receiver ).bodyName_ == referenceBody )
             //        {
             //            currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-            //                        linkEnds.at( receiver ).stationName_ )->getPointingAnglesCalculator( );
+            //                        linkEnds.at( receiver ).getReferencePointName( ) )->getPointingAnglesCalculator( );
             //            elevationAngles.push_back( currentPointingAnglesCalculator->calculateElevationAngleFromInertialVector(
             //                                           ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ), linkEndTimes.at(
             //                                           1 ) ) );
@@ -317,7 +337,7 @@ std::vector< double > getBodyLinkElevationAngles( const LinkEnds linkEnds,
                 if( linkEndIterator->second.bodyName_ == referenceBody )
                 {
                     currentPointingAnglesCalculator = bodies.at( referenceBody )
-                                                              ->getGroundStation( linkEndIterator->second.stationName_ )
+                                                              ->getGroundStation( linkEndIterator->second.getReferencePointName( ) )
                                                               ->getPointingAnglesCalculator( );
                     if( linkEndIndex != 0 )
                     {
@@ -1192,7 +1212,7 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3 );
 
                         // Define tolerance for ambiguous cases near zero
-                        double tolerance = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
+                        double tolerance = 10.0 * std::numeric_limits< double >::epsilon( ) * rotatedSpacecraft.norm( );
 
                         // Skip ambiguous region near 0 (test on tolerance, not 0)
                         if( rotatedSpacecraft( 0 ) < tolerance )
@@ -1200,7 +1220,6 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                             currentObservationIsViable = false;
                         }
                     }
-
 
                     BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
 

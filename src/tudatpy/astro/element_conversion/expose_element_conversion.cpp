@@ -8,18 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_element_conversion.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <tudat/astro/basic_astro/attitudeElementConversions.h>
+#include <tudat/astro/basic_astro/sphericalStateConversions.h>
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
-#include <tudat/astro/conversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/interface/spice/spiceInterface.h>
-#include <tudat/math/basic.h>
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
@@ -382,7 +383,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with Exponential map for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -411,7 +412,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with quaternion for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -440,7 +441,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Cartesian elements to Unified State Model (USM) elements with Modified Rodrigues parameters map for rotational coordinates.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -469,7 +470,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with Exponential map for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -499,7 +500,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with quaternion for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters
@@ -528,7 +529,7 @@ Enumeration describing different types of position element types (typically used
 
  Convert Unified State Model (USM) elements with Modified Rodrigues parameters for rotational coordinates to Cartesian elements.
 
- .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+ .. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`__ for details on Unified State Model elements
 
 
  Parameters

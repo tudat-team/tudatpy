@@ -13,6 +13,7 @@ from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.data.processTrk234 import converters as cnv
+from tudatpy.data.processTrk234 import OpenRampHandling
 
 
 # -----------------------------------------------------------------------------
@@ -245,6 +246,106 @@ def test_multiple_stations():
     pd.testing.assert_frame_equal(result, expected)
 
 
+def test_open_final_ramp_left_unbounded():
+    """A final ramp with no end event (no following start, no type 4/5) is returned by process() with end_time NaT."""
+    data = [
+        {
+            "station": "A",
+            "epoch": pd.Timestamp("2021-01-01 10:00:00"),
+            "type": 1,
+            "freq": 50.0,
+            "rate": 0.0,
+        },
+    ]
+    result = cnv.RampConverter().process(pd.DataFrame(data))
+    assert len(result) == 1
+    assert pd.isna(result["end_time"].iloc[0])
+
+
+def test_handle_open_ramps_raise_exception():
+    """raise_exception raises ValueError when an open ramp is present."""
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    with pytest.raises(ValueError):
+        cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.raise_exception)
+
+
+def test_handle_open_ramps_raise_exception_no_open_ramps():
+    """raise_exception does not raise when all ramps are already closed."""
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": pd.Timestamp("2021-01-01 10:05:00"),
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.raise_exception)
+    assert result["end_time"].iloc[0] == pd.Timestamp("2021-01-01 10:05:00")
+
+
+def test_handle_open_ramps_close_silently():
+    """close_silently closes an open ramp with end_time = start_time + 1 s."""
+    start = pd.Timestamp("2021-01-01 10:00:00")
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": start,
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            }
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.close_silently)
+    assert result["end_time"].iloc[0] == start + pd.Timedelta(seconds=1)
+
+
+def test_handle_open_ramps_close_silently_leaves_closed_untouched():
+    """close_silently only modifies open ramps; closed intervals are unchanged."""
+    closed_end = pd.Timestamp("2021-01-01 10:05:00")
+    open_start = pd.Timestamp("2021-01-01 10:10:00")
+    ramp_df = pd.DataFrame(
+        [
+            {
+                "start_time": pd.Timestamp("2021-01-01 10:00:00"),
+                "end_time": closed_end,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+            {
+                "start_time": open_start,
+                "end_time": pd.NaT,
+                "station": "A",
+                "type": 1,
+                "freq": 50.0,
+                "rate": 0.0,
+            },
+        ]
+    )
+    result = cnv.RampConverter().handle_open_ramps(ramp_df, OpenRampHandling.close_silently)
+    assert result["end_time"].iloc[0] == closed_end
+    assert result["end_time"].iloc[1] == open_start + pd.Timedelta(seconds=1)
+
+
 def test_reader():
     # Use the current directory as temporary path.
     tmp_dir = os.getcwd()
@@ -278,7 +379,7 @@ def test_reader():
         spacecraft_name="-202",
     )
     observationCollection = trkProcessor.process()
-    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalr type tudat::Time
+    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalar type tudat::Time
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
@@ -286,15 +387,13 @@ def test_reader():
     obs_set = single_obs_sets[0]
 
     # Check doppler integration time.
-    dopplerCount = obs_set.ancilliary_settings.get_float_settings(
+    dopplerCount = obs_set.ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
-    assert (
-        dopplerCount == 1.0
-    ), f"Expected doppler integration time 1.0, got {dopplerCount}"
+    assert dopplerCount == 1.0, f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
-    linkEndDelays = obs_set.ancilliary_settings.get_float_list_settings(
+    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]
@@ -313,18 +412,18 @@ def test_reader():
 
     # Check observation times and values.
     obsTimes = obs_set.observation_times
-    
+
     # Check observation times and values.
     obsTimes = obs_set.observation_times
-    # This requires tudatpy to be compiled with time scalr type tudat::Time
+    # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"
-    assert float( obsTimes[0] ) == pytest.approx(
+    assert float(obsTimes[0]) == pytest.approx(
         617245672.6834568
     ), f"Unexpected observation time: {obsTimes[0]}"
     obsValues = obs_set.concatenated_observations
-    assert float( obsValues[0] ) == pytest.approx(
+    assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
 

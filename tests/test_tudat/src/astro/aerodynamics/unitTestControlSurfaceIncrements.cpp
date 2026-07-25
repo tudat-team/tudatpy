@@ -25,7 +25,17 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/geometric/capsule.h"
 #include "tudat/math/geometric/sphereSegment.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
 
@@ -54,7 +64,7 @@ public:
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
 
-    ~DummyGuidanceSystem( ) { }
+    ~DummyGuidanceSystem( ) {}
 
     Eigen::Vector3d computeAndGetAerodynamicAngles( const double currentTime )
     {

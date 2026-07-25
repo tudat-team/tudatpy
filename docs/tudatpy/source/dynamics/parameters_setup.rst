@@ -136,6 +136,36 @@ Functions
    custom_numerical_partial
 
 
+
+   arcwise_drag_component_scaling
+
+   arcwise_exponential_atmosphere_base_density
+
+   arcwise_exponential_atmosphere_scale_height
+
+   arcwise_lift_component_scaling
+
+   arcwise_side_component_scaling
+
+   area_to_mass_ratio_scaling_parameter
+
+   exponential_atmosphere_base_density
+
+   exponential_atmosphere_scale_height
+
+   full_acceleration_scaling_parameter
+
+   iau_rotation_model_longitudinal_librations
+
+   iau_rotation_model_pole
+
+   iau_rotation_model_pole_librations
+
+   iau_rotation_model_pole_rate
+
+   rtg_force_vector
+
+   rtg_force_vector_magnitude
 .. autofunction:: tudatpy.dynamics.parameters_setup.create_parameter_set
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.initial_states
@@ -249,6 +279,36 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.custom_analytical_partial
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.custom_numerical_partial
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_drag_component_scaling
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_exponential_atmosphere_base_density
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_exponential_atmosphere_scale_height
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_lift_component_scaling
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.arcwise_side_component_scaling
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.area_to_mass_ratio_scaling_parameter
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.exponential_atmosphere_base_density
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.exponential_atmosphere_scale_height
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.full_acceleration_scaling_parameter
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.iau_rotation_model_longitudinal_librations
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.iau_rotation_model_pole
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.iau_rotation_model_pole_librations
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.iau_rotation_model_pole_rate
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.rtg_force_vector
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.rtg_force_vector_magnitude
 
 
 Enumerations

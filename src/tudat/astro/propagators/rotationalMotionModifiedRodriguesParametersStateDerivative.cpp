@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
+#include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat
 {

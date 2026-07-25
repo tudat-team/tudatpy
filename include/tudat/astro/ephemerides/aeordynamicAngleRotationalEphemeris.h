@@ -35,7 +35,7 @@ public:
     /*!
      * Virtual destructor.
      */
-    virtual ~AerodynamicAngleRotationalEphemeris( ) { }
+    virtual ~AerodynamicAngleRotationalEphemeris( ) {}
 
     virtual Eigen::Quaterniond getRotationToBaseFrame( const double currentTime )
     {
@@ -135,9 +135,9 @@ class FromGenericEphemerisAerodynamicAngleInterface : public BodyFixedAerodynami
 public:
     FromGenericEphemerisAerodynamicAngleInterface( const std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris ):
         BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_generic_ephemeris ), ephemeris_( ephemeris )
-    { }
+    {}
 
-    virtual ~FromGenericEphemerisAerodynamicAngleInterface( ) { }
+    virtual ~FromGenericEphemerisAerodynamicAngleInterface( ) {}
 
     Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame );
 
@@ -156,9 +156,9 @@ class FromAeroEphemerisAerodynamicAngleInterface : public BodyFixedAerodynamicAn
 public:
     FromAeroEphemerisAerodynamicAngleInterface( const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris ):
         BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_aero_based_ephemeris ), ephemeris_( ephemeris )
-    { }
+    {}
 
-    virtual ~FromAeroEphemerisAerodynamicAngleInterface( ) { }
+    virtual ~FromAeroEphemerisAerodynamicAngleInterface( ) {}
 
     Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame );
 

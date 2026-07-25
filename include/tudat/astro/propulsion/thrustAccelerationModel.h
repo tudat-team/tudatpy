@@ -75,10 +75,10 @@ public:
                                 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         AccelerationModel< Eigen::Vector3d >( ), thrustSources_( thrustSources ), thrustDirectionCalculator_( thrustDirectionWrapper ),
         bodyMassFunction_( bodyMassFunction ), requiredModelUpdates_( requiredModelUpdates ), saveThrustContributions_( false )
-    { }
+    {}
 
     //! Destructor
-    ~ThrustAcceleration( ) { }
+    ~ThrustAcceleration( ) {}
 
     //! Function to reset the current time
     /*!

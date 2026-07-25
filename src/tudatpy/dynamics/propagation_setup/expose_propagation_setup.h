@@ -11,14 +11,7 @@
 #ifndef TUDATPY_EXPOSE_PROPAGATION_SETUP_H
 #define TUDATPY_EXPOSE_PROPAGATION_SETUP_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
-#include "tudat/simulation/propagation_setup.h"
-
 
 namespace py = pybind11;
 
@@ -29,7 +22,7 @@ namespace dynamics
 namespace propagation_setup
 {
 
-void expose_propagation_setup( py::module &m );
+void expose_propagation_setup( py::module& m );
 
 }  // namespace propagation_setup
 }  // namespace dynamics

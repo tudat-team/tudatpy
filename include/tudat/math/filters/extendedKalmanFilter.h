@@ -100,7 +100,7 @@ public:
     }
 
     //! Destructor.
-    ~ExtendedKalmanFilter( ) { }
+    ~ExtendedKalmanFilter( ) {}
 
     //! Function to update the filter with the new step data.
     /*!

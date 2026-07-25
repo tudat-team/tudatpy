@@ -8,11 +8,11 @@ two-way Doppler, angular position, etc.). The functions here all create an objec
 
 Many observation models are based on the transfer of electromagnetic signals (e.g. laser ranging, radio Doppler, etc.),
 which require the solution of the light-time solution. Deviations from ideal Euclidean propagation at the speed of light
-can be modelled using light-time corrections, for which settings (as objects of type :class:`~tudatpy.estimation.light_time_correction..LightTimeCorrectionSettings`) are created in the :ref:`light_time_corrections` module and provided as input to functions here. Similarly, settings
+can be modelled using light-time corrections, for which settings (as objects of type :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`) are created in the :ref:`light_time_corrections` module and provided as input to functions here. Similarly, settings
 for observation biases (as objects of type :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`) are created
 in the :ref:`biases` module. Definition of the observation link are created through the :ref:`links` module.
 
-Details on the procedure to create observation models, and the various top-level options for their creatoon, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
+Details on the procedure to create observation models, and the various top-level options for their creation, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
 
 
 
@@ -55,7 +55,13 @@ Functions
 
    two_way_doppler_instantaneous_frequency
 
+   doppler_measured_frequency
+
+   one_way_doppler_measured_frequency
+
    angular_position
+
+   azimuth_elevation
 
    relative_angular_position
 
@@ -65,8 +71,11 @@ Functions
 
    cartesian_velocity
 
-   euler_angles_313
+   differenced_time_of_arrival
 
+   differenced_frequency_of_arrival
+
+   get_observable_size
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_range
 
@@ -100,7 +109,13 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency
 
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.doppler_measured_frequency
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_measured_frequency
+
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.angular_position
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.azimuth_elevation
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.relative_angular_position
 
@@ -110,7 +125,11 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.cartesian_velocity
 
-.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.euler_angles_313
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_time_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.differenced_frequency_of_arrival
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.get_observable_size
 
 
 Enumerations
@@ -154,4 +173,3 @@ Classes
 .. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationModelSettings
 
    :members:
-

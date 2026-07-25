@@ -21,6 +21,9 @@ set(spice_interface_HEADERS
         "spiceEphemeris.h"
         "spiceRotationalEphemeris.h"
         "spiceInterface.h"
+        "spiceError.h"
+        "spiceExceptionList.def"
+        "spiceExceptionTypes.h"
         "spiceException.h"
         )
 

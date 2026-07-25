@@ -43,17 +43,21 @@ public:
      */
     TwoWayDopplerObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                    multiLegLightTimeCalculator,
+            const std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                    fullLinkLightTimeCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                     uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                     downlinkDopplerCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const bool normalizeWithSpeedOfLight = false ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator ), uplinkDopplerCalculator_( uplinkDopplerCalculator ),
-        downlinkDopplerCalculator_( downlinkDopplerCalculator )
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                two_way_doppler,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        fullLinkLightTimeCalculator } ),
+        uplinkDopplerCalculator_( uplinkDopplerCalculator ), downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
@@ -75,23 +79,25 @@ public:
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation.
      *  \param linkEndStates List of states at each link end during observation.
-     *  \return Ideal one-way Doppler ObservationAncilliarySimulationSettings<observable.
+     *  \return Ideal one-way Doppler ObservationAncillarySimulationSettings<observable.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator =
+                getFullLinkLightTimeCalculator( );
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                time, linkEndAssociatedWithTime, fullLinkLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
-        multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+        fullLinkLightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
         std::vector< double > uplinkLinkEndTimes = { linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) };
         std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates = { linkEndStates.at( 0 ), linkEndStates.at( 1 ) };
@@ -151,6 +157,11 @@ public:
         return downlinkDopplerCalculator_;
     }
 
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculator( )
+    {
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
     void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
     {
         normalizeWithSpeedOfLight_ = normalizeWithSpeedOfLight;
@@ -168,9 +179,22 @@ public:
         return multiplicationTerm_;
     }
 
-private:
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
+        const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
+        const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
+        for( unsigned int i = 0; i < legCalculators.size( ); i++ )
+        {
+            const auto fromType = getNWayLinkEnumFromIndex( static_cast< int >( i ), numberOfLinkEnds );
+            const auto toType = getNWayLinkEnumFromIndex( static_cast< int >( i ) + 1, numberOfLinkEnds );
+            legMap[ std::make_pair( fromType, toType ) ].push_back( legCalculators.at( i ) );
+        }
+        return legMap;
+    }
 
+private:
     //! Object that computes the one-way Doppler observable for the uplink
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerCalculator_;
 

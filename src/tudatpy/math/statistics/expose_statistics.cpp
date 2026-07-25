@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_statistics.h"
 
 #include <pybind11/eigen.h>
@@ -16,6 +18,7 @@
 #include <tudat/basics/basicTypedefs.h>
 
 #include "tudat/astro/system_models/timingSystem.h"
+#include "tudat/math/statistics/allanVariance.h"
 
 namespace py = pybind11;
 
@@ -25,7 +28,7 @@ namespace tsm = tudat::system_models;
 namespace tudatpy
 {
 
-void expose_statistics( py::module &m )
+void expose_statistics( py::module& m )
 {
     m.def( "calculate_allan_variance_of_dataset",
            &ts::calculateAllanVarianceOfTimeDataSet,

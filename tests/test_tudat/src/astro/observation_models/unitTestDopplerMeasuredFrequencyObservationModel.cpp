@@ -22,10 +22,10 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -134,13 +134,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         // Ancillary Settings
         std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection;
         std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
-        std::vector< std::string > columnTypes = {
-            "scan_number",     "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz",
-            "doppler_noise_hz"
-        };
         if( testType == 0 )
         {
-            std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, columnTypes );
+            std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, FdetDateFormat::datetime_string );
             fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
             fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
             fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6 );
@@ -150,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         else
         {
             observationCollection = createFdetsObservedObservationCollectionFromFile(
-                    juiceDataFile, 8422.49E6, columnTypes, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
+                    juiceDataFile, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
         }
 
         auto observationTimes = observationCollection->getConcatenatedObservationTimes( );
@@ -162,9 +158,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
 
         Eigen::VectorXd observableVector = Eigen::VectorXd::Zero( observationTimes.size( ) );
         Eigen::VectorXd residualVector = Eigen::VectorXd::Zero( observationTimes.size( ) );
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
-        ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
+        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
         for( unsigned int i = 0; i < observationTimes.size( ); i++ )
         {
             double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(

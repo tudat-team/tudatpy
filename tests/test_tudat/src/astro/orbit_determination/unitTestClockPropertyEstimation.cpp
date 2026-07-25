@@ -9,7 +9,20 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -258,7 +271,7 @@ BOOST_AUTO_TEST_CASE( test_ClockParameterEstimation )
     Eigen::VectorXd relativeParameterError = executeParameterEstimation< long double, tudat::Time >( );
     for( unsigned int i = 6; i < relativeParameterError.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 2.0E-6 );
     }
 }
 

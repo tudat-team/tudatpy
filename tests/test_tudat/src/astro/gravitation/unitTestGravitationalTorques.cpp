@@ -17,14 +17,22 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <limits>
+#include <cmath>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
 
-#include "tudat/simulation/simulation.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/math/basic/sphericalHarmonics.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/propagation_setup/torqueSettings.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
 
 namespace tudat
 {
@@ -203,10 +211,9 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         Eigen::Vector3d currentTorque = secondDegreeGravitationalTorque->getTorque( );
         Eigen::Vector3d torqueError = ( currentTorque - manualTorque );
 
-        std::cout << "Current torques " << currentTorque.transpose( ) << std::endl << torqueError << std::endl;
-
         for( unsigned int i = 0; i < 3; i++ )
         {
+            // Verify the manually reconstructed second-degree torque matches the model component-wise.
             BOOST_CHECK_SMALL( std::fabs( torqueError( i ) ), 1.0E8 );
         }
     }

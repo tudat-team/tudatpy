@@ -18,13 +18,14 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+class SystemOfBodies;
 
 //! Class for providing settings for a mass rate model.
 /*!
@@ -40,10 +41,10 @@ public:
      * Constructor
      * \param massRateType Type of mass rate model that is to be used.
      */
-    MassRateModelSettings( const basic_astrodynamics::AvailableMassRateModels massRateType ): massRateType_( massRateType ) { }
+    MassRateModelSettings( const basic_astrodynamics::AvailableMassRateModels massRateType ): massRateType_( massRateType ) {}
 
     //! Destructor.
-    virtual ~MassRateModelSettings( ) { }
+    virtual ~MassRateModelSettings( ) {}
 
     //! Type of mass rate model that is to be used.
     basic_astrodynamics::AvailableMassRateModels massRateType_;
@@ -60,10 +61,10 @@ public:
      */
     CustomMassRateSettings( const std::function< double( const double ) > massRateFunction ):
         MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ), massRateFunction_( massRateFunction )
-    { }
+    {}
 
     //! Destructor.
-    ~CustomMassRateSettings( ) { }
+    ~CustomMassRateSettings( ) {}
 
     //! Function returning the mass rate as a function of time.
     std::function< double( const double ) > massRateFunction_;
@@ -84,15 +85,15 @@ public:
     FromThrustMassRateSettings( const bool useAllThrustModels = 1, const std::string& associatedThrustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ), associatedThrustSource_( { associatedThrustSource } ),
         useAllThrustModels_( useAllThrustModels )
-    { }
+    {}
 
     FromThrustMassRateSettings( const std::vector< std::string > associatedThrustSources ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ), associatedThrustSource_( associatedThrustSources ),
         useAllThrustModels_( false )
-    { }
+    {}
 
     //! Destructor
-    ~FromThrustMassRateSettings( ) { }
+    ~FromThrustMassRateSettings( ) {}
 
     //! Name of engine model from which thrust is to be derived
     std::vector< std::string > associatedThrustSource_;

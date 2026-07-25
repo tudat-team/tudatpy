@@ -7,12 +7,16 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_aerodynamic_coefficients.h"
 
+#include <tudat/astro/aerodynamics/atmosphereModel.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
 #include <tudat/basics/deprecationWarnings.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createAerodynamicCoefficientInterface.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -34,7 +38,7 @@ namespace simulation_setup
 {
 //! @get_docstring(customAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettingsDeprecatedPy(
-        const std::function< Eigen::Vector3d( const std::vector< double > & ) > forceCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
@@ -71,7 +75,7 @@ namespace environment_setup
 namespace aerodynamic_coefficients
 {
 
-void expose_aerodynamic_coefficient_setup( py::module &m )
+void expose_aerodynamic_coefficient_setup( py::module& m )
 {
     py::enum_< ta::AerodynamicCoefficientsIndependentVariables >( m,
                                                                   "AerodynamicCoefficientsIndependentVariables",
@@ -79,7 +83,7 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
 
 Enumeration of the independent variables that can be used to compute aerodynamic coefficients. Each aerodynamic
 coefficient model is a function of any number of independent variables (for some models: of zero independent variables, e.g. constant coefficients).
-During propagation, the value of the independent variables at the current epoch and state is automaticallt retrieved from
+During propagation, the value of the independent variables at the current epoch and state is automatically retrieved from
 the environment, and used to compute the aerodynamic coefficients. The user need not provide them manually. The user
 only needs to provide (for coefficient models that provide this freedom) the physical type of independent variables, from the present list of enums.
 
@@ -511,7 +515,7 @@ The body-fixed frame of the body itself.
  )doc" );
 
     m.def( "constant_variable_cross_section",
-           py::overload_cast< const Eigen::Vector3d &, const int, const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const Eigen::Vector3d&, const int, const ta::AerodynamicCoefficientFrames >(
                    &tss::panelledConstantAerodynamicCoefficientSettings ),
            py::arg( "constant_force_coefficient" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
@@ -524,7 +528,7 @@ The body-fixed frame of the body itself.
  :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
  The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
 
- Using this model the aerodynamic coefficients are fixed and (in contradiction of typical convections) the reference
+ Using this model the aerodynamic coefficients are fixed and (in contradiction of typical conventions) the reference
  area is varied for time step to be equal to the projected area to the flow (e.g. the spacecraft area when projecting the macromodel onto
  a plane perpendicular to the relative wind vector). The projected area computation takes into account self-shadowing, the algorithm for which is described by
  :cite:t:`maistri2025`. Setting ``maximum_number_of_pixels`` to 0 turns the self-shadowing off.
@@ -546,7 +550,7 @@ The body-fixed frame of the body itself.
  )doc" );
 
     m.def( "constant",
-           py::overload_cast< const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const double, const Eigen::Vector3d&, const ta::AerodynamicCoefficientFrames >(
                    &tss::constantAerodynamicCoefficientSettings ),
            py::arg( "reference_area" ),
            py::arg( "constant_force_coefficient" ),
@@ -666,7 +670,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_coefficients",
-           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
                               const double,
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames >( &tss::customAerodynamicCoefficientSettings ),
@@ -739,14 +743,14 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_and_moment_coefficients",
-           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
-                              const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+                              const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
                               const double,
                               const double,
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d & >( &tss::customAerodynamicCoefficientSettings ),
+                              const Eigen::Vector3d& >( &tss::customAerodynamicCoefficientSettings ),
            py::arg( "force_coefficient_function" ),
            py::arg( "moment_coefficient_function" ),
            py::arg( "reference_length" ),
@@ -812,7 +816,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const ta::AerodynamicCoefficientsIndependentVariables,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d&,
                               const std::shared_ptr< ti::InterpolatorSettings > >(
                    &tss::oneDimensionalTabulatedAerodynamicCoefficientSettings ),
            py::arg( "independent_variables" ),
@@ -1059,7 +1063,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d&,
                               const std::shared_ptr< ti::InterpolatorSettings > >( &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
            py::arg( "force_coefficient_files" ),
            py::arg( "moment_coefficient_files" ),
@@ -1411,7 +1415,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
    aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant_force_and_moment( ... )
    # Define list of independent variables that control surface coefficients depend on (Mach number
    control_surface_independent_variable_names = [mach_number_dependent, angle_of_attack_dependent, control_surface_deflection_dependent]
-   # Define function that computes the control surface coefficient increments as a function of the independet variables
+   # Define function that computes the control surface coefficient increments as a function of the independent variables
    control_surface_increment_function = ...
    # Create coefficient settings for the elevon control surface
    elevon_aero_coefficient_settings = environment_setup.aerodynamic_coefficients.custom_control_surface(

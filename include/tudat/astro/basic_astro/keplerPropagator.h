@@ -165,7 +165,7 @@ std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > getKeplerOrbitCartesianS
     std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > keplerianStateHistory = getKeplerOrbitKeplerianStateHistory(
             initialStateInKeplerianElements, initialTime, outputTimes, centralBodyGravitationalParameter, aRootFinder );
     std::map< TimeType, Eigen::Matrix< ScalarType, 6, 1 > > cartesianStateHistory;
-    for( auto kepler_iterator: keplerianStateHistory )
+    for( auto kepler_iterator : keplerianStateHistory )
     {
         cartesianStateHistory[ kepler_iterator.first ] = orbital_element_conversions::convertKeplerianToCartesianElements(
                 kepler_iterator.second, centralBodyGravitationalParameter );

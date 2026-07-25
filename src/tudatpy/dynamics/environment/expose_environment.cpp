@@ -7,7 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_environment.h"
 
 #include <pybind11/chrono.h>
@@ -17,14 +19,41 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <tudat/astro/aerodynamics.h>
-#include <tudat/astro/ephemerides.h>
-#include <tudat/astro/gravitation.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h>
+#include <tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/atmosphereModel.h>
+#include <tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
+#include <tudat/astro/aerodynamics/flightConditions.h>
+#include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
+#include <tudat/astro/basic_astro/ionosphereModel.h>
+#include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
+#include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
+#include <tudat/astro/electromagnetism/radiationSourceModel.h>
+#include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/constantEphemeris.h>
+#include <tudat/astro/ephemerides/ephemeris.h>
+#include <tudat/astro/ephemerides/itrsToGcrsRotationModel.h>
+#include <tudat/astro/ephemerides/keplerEphemeris.h>
+#include <tudat/astro/ephemerides/multiArcEphemeris.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/ephemerides/synchronousRotationalEphemeris.h>
+#include <tudat/astro/ephemerides/tabulatedEphemeris.h>
+#include <tudat/astro/ephemerides/timeEphemeris.h>
+#include <tudat/astro/ephemerides/tleEphemeris.h>
+#include <tudat/astro/gravitation/gravityFieldModel.h>
+#include <tudat/astro/gravitation/gravityFieldVariations.h>
+#include <tudat/astro/gravitation/polyhedronGravityField.h>
+#include <tudat/astro/gravitation/sphericalHarmonicsGravityField.h>
+#include <tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h>
+#include <tudat/astro/reference_frames/aerodynamicAngleCalculator.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
+#include <tudat/math/basic/linearAlgebra.h>
 
 #include "scalarTypes.h"
 
 #include "tudat/astro/ground_stations/groundStation.h"
+#include "tudat/astro/system_models/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
@@ -35,7 +64,6 @@ namespace tr = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
-namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
@@ -228,6 +256,116 @@ void expose_environment( py::module& m )
          :type: str
       )doc" );
 
+    py::class_< tudat::TimeEphemeris, std::shared_ptr< tudat::TimeEphemeris > >( m, "TimeEphemeris", R"doc(
+
+         Relativistic time-scale converter for a body (and optional reference points on bodies,
+         such as ground stations).
+
+         This object is created/populated from relativistic time propagator settings
+         after propagation of the associated proper-time differential equations.
+         Depending on the selected model, it provides either direct barycentric↔proper-time
+         conversion, or chained barycentric↔planet-centered↔proper-time conversion
+         for configured reference points.
+
+         Time-ephemeris data are generated from settings created with:
+         :func:`~tudatpy.dynamics.propagation_setup.propagator.first_order_bodycentric_relativistic_time_settings`,
+         :func:`~tudatpy.dynamics.propagation_setup.propagator.bodycentered_to_topocentric_time_settings`,
+         and :func:`~tudatpy.dynamics.propagation_setup.propagator.direct_relativistic_time_settings`.
+         These settings are then attached through
+         :func:`~tudatpy.dynamics.environment_setup.set_relativistic_time_converters`.
+
+         Two conversion structures are used in Tudat:
+
+         1. Direct-from-metric (no planet-centered coordinate time available):
+
+         .. math::
+
+             \Delta_{B\tau}^{\mathrm{direct}}(t_B)=\tau-t_B,\qquad
+             \Delta_{\tau B}^{\mathrm{direct}}(\tau)=t_B-\tau.
+
+         2. Post-Newtonian chained conversion (with planet-centered coordinate time :math:`t_P`):
+
+         .. math::
+
+             \Delta_{B\tau}(t_B)=\Delta_{BC}(t_B)+\Delta_{PT}(t_P)+\Delta_{\mathrm{direct}}(t_P),
+             \qquad t_P=t_B+\Delta_{BC}(t_B),
+
+         where :math:`\Delta_{BC}=t_P-t_B`, :math:`\Delta_{PT}=\tau-t_P`, and for first-order direct conversion
+         :math:`\Delta_{\mathrm{direct}}=-\mathbf{v}_C\cdot\mathbf{r}/c^2`.
+         For :math:`\tau\rightarrow t_B`, the inverse conversion applies the inverse/interpolated
+         :math:`\Delta_{PT}` and :math:`\Delta_{BC}` terms with the opposite-sign direct correction.
+
+         The object is typically set up via
+         :func:`~tudatpy.dynamics.environment_setup.set_relativistic_time_converters`
+         using settings created from the
+         :ref:`propagator` module.
+
+      )doc" )
+            .def( "get_time_difference",
+                  static_cast< double ( tudat::TimeEphemeris::* )( const tudat::basic_astrodynamics::TimeScales,
+                                                                   const tudat::basic_astrodynamics::TimeScales,
+                                                                   const double,
+                                                                   const std::string& ) >( &tudat::TimeEphemeris::getTimeDifference ),
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_time" ),
+                  py::arg( "point_identifier" ) = "",
+                  R"doc(
+
+         Get time difference :math:`t_{output} - t_{input}` at a given input epoch.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Input time scale.
+         output_scale : TimeScales
+             Output time scale.
+         input_time : float
+             Input time value in seconds since J2000.
+         point_identifier : str, default = ""
+             Optional reference point identifier (for topocentric/local proper time).
+
+         Returns
+         -------
+         float
+             Time difference in seconds.
+
+      )doc" )
+            .def( "get_time_difference_from_time",
+                  static_cast< tudat::Time ( tudat::TimeEphemeris::* )( const tudat::basic_astrodynamics::TimeScales,
+                                                                        const tudat::basic_astrodynamics::TimeScales,
+                                                                        const tudat::Time,
+                                                                        const std::string& ) >(
+                          &tudat::TimeEphemeris::getTimeDifference< tudat::Time > ),
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_time" ),
+                  py::arg( "point_identifier" ) = "",
+                  R"doc(
+
+         Get time difference :math:`t_{output} - t_{input}` at a given input epoch.
+
+         This overload takes and returns a :class:`~tudatpy.astro.time_representation.Time`
+         object.
+
+         Parameters
+         ----------
+         input_scale : TimeScales
+             Input time scale.
+         output_scale : TimeScales
+             Output time scale.
+         input_time : Time
+             Input time value as a :class:`~tudatpy.astro.time_representation.Time` object.
+         point_identifier : str, default = ""
+             Optional reference point identifier (for topocentric/local proper time).
+
+         Returns
+         -------
+         Time
+             Time difference as a :class:`~tudatpy.astro.time_representation.Time` object.
+
+      )doc" );
+
     py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >( m,
                                                                                                   "ConstantEphemeris",
                                                                                                   R"doc(No documentation found.)doc" )
@@ -264,16 +402,222 @@ void expose_environment( py::module& m )
                            py::overload_cast< const std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
                                    &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator ) );
 
-    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
+    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle", R"doc(
+
+ Tle object containing the SGP/SDP model parameters as derived from the element set.
+
+ .. note::
+
+        This class is typically used together with the :class:`~TleEphemeris` class, which uses the TLE data to compute the state of a satellite at a given epoch.
+
+ )doc" )
             .def( py::init<  // ctor 1
                           const std::string& >( ),
-                  py::arg( "lines" ) )
+                  py::arg( "lines" ),
+                  R"doc(
+
+                Initialize TLE object from a single string containing the TLE data, delimited by a newline character.
+
+                :type: str
+                )doc" )
             .def( py::init<  // ctor 2
                           const std::string&,
                           const std::string& >( ),
                   py::arg( "line_1" ),
-                  py::arg( "line_2" ) )
-            .def( "get_epoch", &te::Tle::getEpoch )
+                  py::arg( "line_2" ),
+                  R"doc(
+
+                Initialize TLE object from separate strings for the first and second lines of the TLE.
+
+                :type: str
+                )doc" )
+            .def_property_readonly( "reference_epoch",
+                                    &te::Tle::getEpoch,
+                                    R"doc(
+
+                **read-only**
+
+                Reference epoch of the TLE element set in TDB seconds since J2000.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "b_star",
+                                    &te::Tle::getBStar,
+                                    R"doc(
+
+                **read-only**
+
+                B*  coefficient used by the SGP4 propagator, as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "inclination",
+                                    &te::Tle::getInclination,
+                                    R"doc(
+
+                **read-only**
+
+                Orbital inclination as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "right_ascension",
+                                    &te::Tle::getRightAscension,
+                                    R"doc(
+
+                **read-only**
+
+                Right ascension of the ascending node of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "eccentricity",
+                                    &te::Tle::getEccentricity,
+                                    R"doc(
+
+                **read-only**
+
+                Orbital eccentricity as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "argument_of_perigee",
+                                    &te::Tle::getArgOfPerigee,
+                                    R"doc(
+
+                **read-only**
+
+                Argument of perigee of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_anomaly",
+                                    &te::Tle::getMeanAnomaly,
+                                    R"doc(
+
+                **read-only**
+
+                Mean anomaly of the orbit at the TLE epoch as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_motion",
+                                    &te::Tle::getMeanMotion,
+                                    R"doc(
+
+                **read-only**
+
+                Mean motion of the orbit in radians per minute, in radians per minute.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "norad_catalog_number",
+                                    &te::Tle::getNoradCatalogNumber,
+                                    R"doc(
+
+                **read-only**
+
+                NORAD catalog number identifying the space object.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "classification",
+                                    &te::Tle::getClassification,
+                                    R"doc(
+
+                **read-only**
+
+                Security classification of the TLE (e.g. ``'U'`` for unclassified).
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly( "element_set_number",
+                                    &te::Tle::getElementSetNumber,
+                                    R"doc(
+
+                **read-only**
+
+                Element set number of the TLE, indicating successive updates.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "revolution_number_at_epoch",
+                                    &te::Tle::getRevolutionNumberAtEpoch,
+                                    R"doc(
+
+                **read-only**
+
+                Revolution number of the orbit at the TLE epoch.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "mean_motion_first_derivative",
+                                    &te::Tle::getMeanMotionFirstDerivative,
+                                    R"doc(
+
+                **read-only**
+
+                First time derivative of the mean motion as given in the TLE, in radians per minute^2.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "mean_motion_second_derivative",
+                                    &te::Tle::getMeanMotionSecondDerivative,
+                                    R"doc(
+
+                **read-only**
+
+                Second time derivative of the mean motion as given in the TLE, in radians per minute^3.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly( "ephemeris_type",
+                                    &te::Tle::getEphemerisType,
+                                    R"doc(
+
+                **read-only**
+
+                Ephemeris type indicator used by the TLE (typically zero for SGP4).
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "raw_line_1",
+                                    &te::Tle::getRawLine1,
+                                    R"doc(
+
+                **read-only**
+
+                Raw first line of the two-line element set.
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly( "raw_line_2",
+                                    &te::Tle::getRawLine2,
+                                    R"doc(
+
+                **read-only**
+
+                Raw second line of the two-line element set.
+
+                :type: str
+                )doc" )
+            .def( "epoch", &te::Tle::getEpoch )
             .def( "get_b_star", &te::Tle::getBStar )
             .def( "get_epoch", &te::Tle::getEpoch )
             .def( "get_inclination", &te::Tle::getInclination )
@@ -288,7 +632,15 @@ void expose_environment( py::module& m )
                   py::arg( "frame_origin" ) = "Earth",
                   py::arg( "frame_orientation" ) = "J2000",
                   py::arg( "tle" ) = nullptr,
-                  py::arg( "use_sdp" ) = false );
+                  py::arg( "use_sdp" ) = false )
+            .def_property_readonly( "tle", &te::TleEphemeris::getTle, R"doc(
+
+                **read-only**
+
+                Tle object which holds the properties of the TLE set.
+
+                :type: Tle
+                )doc" );
 
     /*!
      **************   END EPHEMERIDES  ******************
@@ -299,10 +651,105 @@ void expose_environment( py::module& m )
                                                                                                                R"doc(
 Base class for ionospheric models.
 
-Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m²) based on geodetic position (latitude, longitude) and time.
+Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m^2) based on geodetic position
+(latitude, longitude in degrees) and time (seconds since J2000 TDB).
 
-This is the base class from which models like TabulatedIonosphereModel or GlobalIonosphereModelVtecCalculator retrieve electron content data. The model is typically stored
-inside a `Body` instance and used in observation corrections or environmental queries.
+This is the base class from which models like ``TabulatedIonosphereModel`` (IONEX-backed) retrieve electron
+content data. The model is stored inside a ``Body`` instance (via ``body.get_ionosphere_model()``) and
+used internally by ionospheric light-time corrections. It can also be queried directly for VTEC sampling
+(e.g., for plotting global ionospheric maps).
+)doc" )
+            .def( "get_vertical_total_electron_content",
+                  &tudat::environment::IonosphereModel::getVerticalTotalElectronContent,
+                  py::arg( "latitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+Get the vertical total electron content at a given location and time.
+
+Parameters
+----------
+latitude : float
+    Geodetic latitude [degrees].
+longitude : float
+    Geodetic longitude [degrees].
+time : float
+    Time [seconds since J2000 TDB].
+
+Returns
+-------
+float
+    Vertical TEC in TECU (1 TECU = 1e16 electrons/m^2).
+
+)doc" )
+            .def( "get_reference_ionosphere_height",
+                  &tudat::environment::IonosphereModel::getReferenceIonosphereHeight,
+                  R"doc(
+
+Get the reference ionosphere shell height.
+
+Returns
+-------
+float
+    Reference height [m].
+
+)doc" );
+
+    py::class_< tudat::environment::TabulatedIonosphereModel,
+                std::shared_ptr< tudat::environment::TabulatedIonosphereModel >,
+                tudat::environment::IonosphereModel >( m,
+                                                       "TabulatedIonosphereModel",
+                                                       R"doc(
+
+Ionospheric model backed by tabulated IONEX global ionosphere map data.
+
+Provides VTEC via 3D interpolation over [time, latitude, longitude]. When RMS/uncertainty
+maps are loaded (automatically from IONEX files), they can be queried via
+:func:`get_vertical_tec_rms`.
+
+Instances are created internally by
+:func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.set_ionosphere_model_from_ionex`
+and stored on the Earth body. Access via ``bodies.get_body("Earth").get_ionosphere_model()``.
+
+)doc" )
+            .def( "get_vertical_tec_rms",
+                  &tudat::environment::TabulatedIonosphereModel::getVerticalTecRms,
+                  py::arg( "latitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+Get the RMS uncertainty of the vertical TEC at a given location and time.
+
+Returns NaN if no RMS data is available (e.g., if the IONEX file did not contain RMS maps).
+
+Parameters
+----------
+latitude : float
+    Geodetic latitude [degrees].
+longitude : float
+    Geodetic longitude [degrees].
+time : float
+    Time [seconds since J2000 TDB].
+
+Returns
+-------
+float
+    Vertical TEC RMS in TECU, or NaN if unavailable.
+
+)doc" )
+            .def( "has_rms_data",
+                  &tudat::environment::TabulatedIonosphereModel::hasRmsData,
+                  R"doc(
+
+Check whether RMS/uncertainty data is available.
+
+Returns
+-------
+bool
+    True if RMS maps were loaded from the IONEX file(s).
+
 )doc" );
 
     py::class_< ta::AtmosphereModel, std::shared_ptr< ta::AtmosphereModel > >( m,
@@ -429,8 +876,37 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
 
      )doc" )
+            .def( "get_total_number_density",
+                  &ta::AtmosphereModel::getTotalNumberDensity,
+                  py::arg( "altitude" ),
+                  py::arg( "longitude" ),
+                  py::arg( "latitude" ),
+                  py::arg( "time" ),
+                  R"doc(
+
+         Function to compute the atmospheric freestream total number density at a given location.
+
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+
+         Returns
+         -------
+         float
+             Freestream total number density at the given time and location
+
+
+     )doc" )
             .def( "get_number_density",
-                  &ta::AtmosphereModel::getNumberDensity,
+                  py::overload_cast< const ta::AtmosphericCompositionSpecies, const double, const double, const double, const double >(
+                          &ta::AtmosphereModel::getNumberDensity ),
                   py::arg( "species" ),
                   py::arg( "altitude" ),
                   py::arg( "longitude" ),
@@ -928,6 +1404,24 @@ inside a `Body` instance and used in observation corrections or environmental qu
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
+            .def_property( "transponder_delay",
+                           &tsm::VehicleSystems::getTransponderDelay,
+                           &tsm::VehicleSystems::setTransponderDelay,
+                           R"doc(
+         Transponder retransmission delay for the vehicle, in seconds.
+
+         :type: float
+     )doc" )
+            .def( "is_transponder_delay_defined",
+                  &tsm::VehicleSystems::isTransponderDelayDefined,
+                  R"doc(
+         Check whether a transponder retransmission delay has been defined for the vehicle.
+
+         Returns
+         -------
+         bool
+             True if a transponder delay is defined.
+     )doc" )
             .def( "set_transmitted_frequency_calculator",
                   &tsm::VehicleSystems::setTransmittedFrequencyCalculator,
                   py::arg( "transmitted_frequency_calculator" ),
@@ -1008,7 +1502,34 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
 
      )doc" )
-            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) );
+            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) )
+            .def( "get_camera",
+                  &tsm::VehicleSystems::getCamera,
+                  py::arg( "camera_name" ),
+                  R"doc(
+
+            This function extracts a camera object from the body.
+
+            This function extracts a camera object, for a camera of a given name, from the body.
+            If no camera of this name exists, an exception is thrown.
+
+            Parameters
+            ----------
+            camera_name : str
+                Name of the camera that is to be retrieved.
+            Returns
+            -------
+            Camera
+                Camera object of the camera of requested name
+        )doc" )
+            .def_property_readonly( "camera_dict",
+                                    &tsm::VehicleSystems::getCameraMap,
+                                    R"doc(
+
+         Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
+         and the camera object the value of the dictionary.
+            :type: dict[str,Camera]
+        )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
 
@@ -1469,6 +1990,18 @@ inside a `Body` instance and used in observation corrections or environmental qu
      **************   ROTATION MODELS  ******************
      */
 
+    py::enum_< te::EarthOrientationIntermediateFrame >( m, "EarthOrientationIntermediateFrame", R"doc(
+
+         Intermediate frame in the IERS Earth-orientation rotation chain.
+
+         The ``icrs`` value denotes the GCRS-side endpoint of the IERS 2010 ITRS->TIRS->CIRS->GCRS rotation sequence used by Tudat's high-accuracy Earth rotation model.
+
+     )doc" )
+            .value( "itrs", te::EarthOrientationIntermediateFrame::itrs )
+            .value( "tirs", te::EarthOrientationIntermediateFrame::tirs )
+            .value( "cirs", te::EarthOrientationIntermediateFrame::cirs )
+            .value( "icrs", te::EarthOrientationIntermediateFrame::icrs );
+
     py::class_< te::RotationalEphemeris, std::shared_ptr< te::RotationalEphemeris > >( m, "RotationalEphemeris", R"doc(
 
          Object that stores the rotational state of the bodies.
@@ -1779,6 +2312,37 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          :type: EarthOrientationAnglesCalculator
 
+     )doc" )
+            .def(
+                    "get_rotation_between_intermediate_frames",
+                    []( te::GcrsToItrsRotationModel& self,
+                        const te::EarthOrientationIntermediateFrame originalFrame,
+                        const te::EarthOrientationIntermediateFrame targetFrame,
+                        const double epoch ) {
+                        return self.getRotationBetweenIntermediateFrames( originalFrame, targetFrame, epoch ).toRotationMatrix( );
+                    },
+                    py::arg( "original_frame" ),
+                    py::arg( "target_frame" ),
+                    py::arg( "epoch" ),
+                    R"doc(
+
+         Function to compute a rotation matrix between two IERS Earth-orientation intermediate frames.
+
+
+         Parameters
+         ----------
+         original_frame : EarthOrientationIntermediateFrame
+             Frame from which the rotation is computed.
+         target_frame : EarthOrientationIntermediateFrame
+             Frame to which the rotation is computed.
+         epoch : float
+             Seconds since J2000 at which the rotation matrix is evaluated.
+
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix from ``original_frame`` to ``target_frame``.
+
      )doc" );
 
     py::class_< te::DirectionBasedRotationalEphemeris, std::shared_ptr< te::DirectionBasedRotationalEphemeris >, te::RotationalEphemeris >(
@@ -1992,7 +2556,99 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" );
 
-    /*!
+    py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera", R"doc(
+        Object that defines a camera for use in observation models.
+
+        Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
+        and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
+     )doc" )
+            .def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
+
+         **read-only**
+
+         Identifier of the camera, used in other parts of the simulation to refer to this camera.
+
+         :type: str
+         )doc" )
+            .def_property_readonly( "optical_center", &tsm::Camera::getOpticalCenter, R"doc(
+
+         **read-only**
+
+         Optical center of the camera, typically expressed in pixel coordinates.
+
+         :type: numpy.ndarray[numpy.float64[2, 1]]
+         )doc" )
+            .def_property_readonly( "focal_lengths", &tsm::Camera::getFocalLengthsMatrix, R"doc(
+
+            **read-only**
+
+            Diagonal Matrix representing the camera's focal lengths on the x and y axis.
+
+            :type:: numpy.ndarray[numpy.float64[2, 2]]
+            )doc" )
+            .def( "calculateObservableBodyFixedPosition",
+                  &tsm::Camera::calculateObservableFromBodyFixed,
+                  py::arg( "body_fixed_observable_position" ),
+                  R"doc(
+
+         Function to compute the observable position of a point in the camera frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the body-fixed frame. The observable position is defined as the projection of the point onto the camera's sensor plane, and is typically expressed in pixel coordinates. The calculation takes into account the camera's orientation (given by :attr:`~Camera.quat`) and any other relevant properties of the camera.
+
+         Parameters
+         ----------
+         body_fixed_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the body-fixed frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def(
+                    "calculateObservableInertialPosition",
+                    []( const tsm::Camera& self,
+                        const Eigen::Vector3d& inertialObservablePosition,
+                        const Eigen::Vector4d& rotationFromInertialToBodyFixed ) {
+                        return self.calculateObservableFromInertial( inertialObservablePosition,
+                                                                     Eigen::Quaterniond( rotationFromInertialToBodyFixed( 0 ),
+                                                                                         rotationFromInertialToBodyFixed( 1 ),
+                                                                                         rotationFromInertialToBodyFixed( 2 ),
+                                                                                         rotationFromInertialToBodyFixed( 3 ) ) );
+                    },
+                    py::arg( "inertial_observable_position" ),
+                    py::arg( "rotation_from_inertial_to_body_fixed" ),
+                    R"doc(
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame.
+
+         Function to compute the observable position of a point in the camera frame, given its position in the inertial frame. This function first converts the inertial position to body-fixed frame using the provided inertial-to-body-fixed rotation quaternion, and then computes the observable position as in :func:`~Camera.calculateObservableFromBodyFixed`.
+
+         Parameters
+         ----------
+         inertial_observable_position : numpy.ndarray[numpy.float64[3, 1]]
+             Cartesian position of the point to be observed, expressed in the inertial frame.
+
+         rotation_from_inertial_to_body_fixed : numpy.ndarray[numpy.float64[4, 1]]
+             Quaternion [w, x, y, z] rotating vectors from the inertial frame to the camera host body's body-fixed frame.
+
+         Returns
+         -------
+         numpy.ndarray[numpy.float64[2, 1]]
+             Observable position of the point in the camera frame, typically expressed in pixel coordinates.
+        )doc" )
+            .def_property_readonly(
+                    "quaternion",
+                    []( const tsm::Camera& self ) -> Eigen::Vector4d {
+                        Eigen::Quaterniond q = self.getRotationFromBodyFixedToCameraFrame( );
+                        return tudat::linear_algebra::convertQuaternionToVectorFormat( q );
+                    },
+                    R"doc(
+            **read-only**
+
+            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
+            )doc" );
+    /*
      **************   GROUND STATION FUNCTIONALITY
      *******************
      */
@@ -2088,85 +2744,19 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" );
 
-    py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >( m, "GroundStation", R"doc(
-
-         Object used to define and store properties of a ground station.
-
-         Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
-
-     )doc" )
-            .def( "set_transmitting_frequency_calculator",
-                  &tgs::GroundStation::setTransmittingFrequencyCalculator,
-                  py::arg( "transmitting_frequency_calculator" ) )
-            //            .def( "set_water_vapor_partial_pressure_function",
-            //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
-            //                  py::arg( "water_vapor_partial_pressure_function" ) )
-            //            .def( "set_temperature_function",
-            //            &tgs::GroundStation::setTemperatureFunction, py::arg(
-            //            "temperature_function" ) ) .def( "set_pressure_function",
-            //            &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
-            //            .def( "set_relative_humidity_function",
-            //                  &tgs::GroundStation::setRelativeHumidityFunction,
-            //                  py::arg( "relative_humidity_function" ) )
-            .def_property( "transmitting_frequency_calculator",
-                           &tgs::GroundStation::getTransmittingFrequencyCalculator,
-                           &tgs::GroundStation::setTransmittingFrequencyCalculator,
-                           R"doc(
-
-         Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
-
-         :type: TransmittingFrequencyCalculator
-
-     )doc" )
-            .def_property_readonly( "temperature_function", &tgs::GroundStation::getTemperatureFunction, R"doc(
-
-         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
-
-         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "relative_humidity_function",
-                                    &tgs::GroundStation::getRelativeHumidityFunction,
-                                    R"doc(
-
-         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
-
-         :type: :type: callable[[float], float]
-
-     )doc" )
-            .def_property_readonly( "pointing_angles_calculator",
-                                    &tgs::GroundStation::getPointingAnglesCalculator,
-                                    R"doc(
-
-         **read-only**
-
-         Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
-
-         :type: PointingAnglesCalculator
-
-     )doc" )
-            .def_property_readonly( "station_state", &tgs::GroundStation::getNominalStationState, R"doc(
-
-         **read-only**
-
-         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
-
-         :type: GroundStationState
-
-     )doc" )
-            .def( "set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg( "timing_system" ) )
-
-            .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ) );
-
     py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
-            m, "TransmittingFrequencyCalculator", R"doc(No documentation found.)doc" );
+            m, "TransmittingFrequencyCalculator", R"doc(
+            
+            Object that computes the current transmitting frequency of a ground station.
+
+            )doc" );
+
+    py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
+            .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
+            .value( "throw_exception_at_gaps", tgs::throw_exception_at_gaps )
+            .value( "print_error_at_gaps", tgs::print_error_at_gaps )
+            .value( "print_error_once_at_gaps", tgs::print_error_once_at_gaps )
+            .export_values( );
 
     py::class_< tgs::ConstantFrequencyInterpolator,
                 std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
@@ -2175,22 +2765,98 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
                 std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
-                tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
+                tgs::StationFrequencyInterpolator >( m,
+                                                     "PiecewiseLinearFrequencyInterpolator",
+                                                     R"doc(
+                
+                Object that computes the current transmitting frequency of a ground station, using a piecewise linear interpolation of the frequency over defined intervals.
+
+                If multiple intervals are defined at the same time, the frequency of the interval with the latest start time is used. If no interval is defined at the current time, the frequency is computed using the strategy defined by ``gap_handling``.
+                )doc" )
             .def( py::init< const std::vector< tudat::Time >&,
                             const std::vector< tudat::Time >&,
                             const std::vector< double >&,
-                            const std::vector< double >& >( ),
+                            const std::vector< double >&,
+                            const tgs::FrequencyGapHandling >( ),
                   py::arg( "start_times" ),
                   py::arg( "end_times" ),
                   py::arg( "ramp_rates" ),
-                  py::arg( "start_frequency" ) )
-            .def_property_readonly( "start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
-            .def_property_readonly( "end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
-            .def_property_readonly( "ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
-            .def_property_readonly( "start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies )
+                  py::arg( "start_frequency" ),
+                  py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps,
+                  R"doc(
+                                    
+                Initialize the piecewise linear frequency interpolator.
+
+                Parameters
+                ----------
+                start_times : numpy.ndarray
+                    Start times of the piecewise linear frequency intervals.
+                end_times : numpy.ndarray
+                    End times of the piecewise linear frequency intervals.
+                ramp_rates : numpy.ndarray
+                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+                start_frequency : float
+                    Frequencies of the piecewise linear frequency interval at the start epoch.
+                gap_handling : FrequencyGapHandling, default = FrequencyGapHandling.extrapolate_at_gaps
+                    Strategy for handling frequency gaps.                          
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes,
+                                    R"doc(
+                                    
+                                    Start times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "end_times",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes,
+                                    R"doc(
+                                    
+                                    End times of the piecewise linear frequency intervals.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "ramp_rates",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates,
+                                    R"doc(
+                                    
+                                    Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
+            .def_property_readonly( "start_frequencies",
+                                    &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies,
+                                    R"doc(
+                                    
+                                    Frequencies of the piecewise linear frequency interval at the start epoch.
+
+                                    :type: numpy.ndarray
+                                    
+                                    
+                                    )doc" )
             .def( "compute_current_frequency",
                   &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
-                  py::arg( "lookup_time_original" ) );
+                  py::arg( "lookup_time_original" ) )
+            .def( "add_frequency_interpolator",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
+                  py::arg( "frequency_interpolator_to_add" ),
+                  R"doc(
+                       
+                     Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
+     
+                     Parameters
+                     ----------
+                     frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
+                         The frequency interpolator to add to the current interpolator.
+                       
+                       )doc" );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
@@ -2261,6 +2927,107 @@ inside a `Body` instance and used in observation corrections or environmental qu
                   py::arg( "interpolator" ),
                   py::arg( "vector_entries" ) );
 
+    py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >( m, "GroundStation", R"doc(
+
+         Object used to define and store properties of a ground station.
+
+         Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
+
+     )doc" )
+            .def( "set_transmitting_frequency_calculator",
+                  &tgs::GroundStation::setTransmittingFrequencyCalculator,
+                  py::arg( "transmitting_frequency_calculator" ),
+                  R"doc(
+
+         Set the transmitting frequency calculator for the ground station.
+
+         .. note::
+
+            This will override any previously set transmitting frequency calculator. To check if a frequency calculator is set, use the :meth:`~GroundStation.has_frequency_calculator` method. To merge multiple piecewise linear frequency interpolators, use the :meth:`~PiecewiseLinearFrequencyInterpolator.add_frequency_interpolator` function.
+
+         Parameters
+         ----------
+         transmitting_frequency_calculator : TransmittingFrequencyCalculator
+             The transmitting frequency calculator to set.
+
+     )doc" )
+            .def( "has_frequency_calculator", &tgs::GroundStation::hasFrequencyCalculator, R"doc(
+
+         Check if the ground station has a frequency calculator.
+
+         Returns
+         -------
+         bool
+            True if the ground station has a frequency calculator, False otherwise.
+
+     )doc" )
+            //            .def( "set_water_vapor_partial_pressure_function",
+            //                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
+            //                  py::arg( "water_vapor_partial_pressure_function" ) )
+            //            .def( "set_temperature_function",
+            //            &tgs::GroundStation::setTemperatureFunction, py::arg(
+            //            "temperature_function" ) ) .def( "set_pressure_function",
+            //            &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
+            //            .def( "set_relative_humidity_function",
+            //                  &tgs::GroundStation::setRelativeHumidityFunction,
+            //                  py::arg( "relative_humidity_function" ) )
+            .def_property( "transmitting_frequency_calculator",
+                           &tgs::GroundStation::getTransmittingFrequencyCalculator,
+                           &tgs::GroundStation::setTransmittingFrequencyCalculator,
+                           R"doc(
+
+         Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
+
+         :type: TransmittingFrequencyCalculator
+
+     )doc" )
+            .def_property_readonly( "temperature_function", &tgs::GroundStation::getTemperatureFunction, R"doc(
+
+         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
+
+         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "relative_humidity_function",
+                                    &tgs::GroundStation::getRelativeHumidityFunction,
+                                    R"doc(
+
+         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
+
+         :type: :type: callable[[float], float]
+
+     )doc" )
+            .def_property_readonly( "pointing_angles_calculator",
+                                    &tgs::GroundStation::getPointingAnglesCalculator,
+                                    R"doc(
+
+         **read-only**
+
+         Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
+
+         :type: PointingAnglesCalculator
+
+     )doc" )
+            .def_property_readonly( "station_state", &tgs::GroundStation::getNominalStationState, R"doc(
+
+         **read-only**
+
+         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+
+         :type: GroundStationState
+
+     )doc" )
+            .def( "set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg( "timing_system" ) )
+
+            .def( "set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg( "meteo_data" ) );
+
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY
      *******************
@@ -2308,9 +3075,20 @@ inside a `Body` instance and used in observation corrections or environmental qu
          dynamics or dependent variables require the body's state.
 
 
+	         :type: numpy.ndarray
+	      )doc" )
+            .def_property_readonly( "custom_state", &tss::Body::getCustomState, R"doc(
+
+         **read-only**
+
+         The custom state of the Body, as set during the current step of the numerical propagation.
+         This property is only valid during propagation, and only when exactly one custom state is
+         propagated for this body.
+
          :type: numpy.ndarray
       )doc" )
             .def( "get_ionosphere_model", &tudat::simulation_setup::Body::getIonosphereModel )
+
             .def_property_readonly( "position",
                                     &tss::Body::getPosition,
                                     R"doc(
@@ -2599,6 +3377,20 @@ inside a `Body` instance and used in observation corrections or environmental qu
         :type: list[RadiationPressureTargetModel]
 
      )doc" )
+            .def_property_readonly( "time_ephemeris",
+                                    &tss::Body::getTimeScaleConverter,
+                                    R"doc(
+
+         Object defining the relativistic time conversion model of this body, used to convert between
+         barycentric coordinate time, body-centered coordinate time and proper time.
+         Depending on the selected model, the type of this attribute is
+         :class:`~TimeEphemeris`, or a derived class thereof.
+         If no converter has been defined for this body, this attribute is ``None``.
+
+
+         :type: TimeEphemeris
+
+      )doc" )
             .def_property( "radiation_pressure_source_model",
                            &tss::Body::getRadiationSourceModel,
                            &tss::Body::setRadiationSourceModel,
@@ -2656,6 +3448,44 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
 
          :type: dict[str,GroundStation]
+      )doc" );
+
+    py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >( m, "SpaceTimeProperties", R"doc(
+
+         Space-time properties associated with a :class:`~SystemOfBodies`.
+         This container stores the PPN parameter set, the equivalence-principle
+         LPI-violation parameter, and the internally used base metric.
+
+      )doc" )
+            .def_property( "ppn_parameter_set",
+                           &tss::SpaceTimeProperties::getPpnParameterSet,
+                           &tss::SpaceTimeProperties::setPpnParameterSet,
+                           R"doc(
+
+         PPN parameter set used by models built from this environment.
+
+         :type: PPNParameterSet
+      )doc" )
+            .def_property( "equivalence_principle_lpi_violation_parameter",
+                           &tss::SpaceTimeProperties::getEquivalencePrincipleLpiViolationParameter,
+                           &tss::SpaceTimeProperties::setEquivalencePrincipleLpiViolationParameter,
+                           R"doc(
+
+         Equivalence-principle local-position-invariance violation parameter.
+
+         :type: float
+      )doc" )
+            .def_property_readonly(
+                    "has_base_metric",
+                    []( const tss::SpaceTimeProperties& properties ) { return ( properties.getBaseMetric( ) != nullptr ); },
+                    R"doc(
+
+         **read-only**
+
+         Whether a base metric is currently defined in this space-time
+         properties container.
+
+         :type: bool
       )doc" );
 
     py::class_< tss::SystemOfBodies, std::shared_ptr< tss::SystemOfBodies > >( m, "SystemOfBodies", R"doc(
@@ -2875,6 +3705,17 @@ inside a `Body` instance and used in observation corrections or environmental qu
                   R"doc(
 
          Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`__.
+
+     )doc" )
+            .def_property_readonly( "space_time_properties",
+                                    &tss::SystemOfBodies::getSpaceTimeProperties,
+                                    R"doc(
+
+         Space-time properties container used by models created from this system of bodies.
+         This is the canonical access point for PPN parameters and the
+         equivalence-principle LPI-violation parameter.
+
+         :type: SpaceTimeProperties
 
      )doc" );
 

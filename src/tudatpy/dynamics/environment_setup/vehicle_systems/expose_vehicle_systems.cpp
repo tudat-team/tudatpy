@@ -7,10 +7,12 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_vehicle_systems.h"
-
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createSystemModel.h>
+#include <tudat/simulation/environment_setup/createCameras.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -19,7 +21,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/math/basic.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -235,14 +236,20 @@ Panel surface area
         Reflection law settings of the panel.
             
         :type: BodyPanelReflectionLawSettings
-            )doc"
 
-                            )
+        )doc" )
             .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
         Optional identifier for panel type.
         This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` function.
 
         :type: str
+
+        )doc" )
+
+            .def_readwrite( "panel_material_properties", &tss::BodyPanelSettings::materialProperties_, R"doc(
+        Full material properties of the panel, both reflective and aerodynamic.
+
+        :type: MaterialProperties
         )doc" );
 
     m.def( "body_panel_settings",
@@ -253,7 +260,7 @@ Panel surface area
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "material_properties" ) = nullptr,
+           py::arg( "panel_material_properties" ) = nullptr,
            R"doc(
 
  Function for creating settings for a full panel
@@ -273,6 +280,8 @@ Panel surface area
      Reflection law settings of the panel
  panel_type_id : str, default = ""
      Optional identifier for panel type
+ panel_material_properties : MaterialProperties, default = nullptr
+     Material properties of a panel
  Returns
  -------
  BodyPanelSettings
@@ -420,23 +429,23 @@ Panel surface area
            py::arg( "input_unit" ) = "m",
            py::arg( "frame_orientation" ) = "",
            R"doc(
-Function for creating list of panel body settings
+Function for loading a DAE file containing the macromodel of a spacecraft
         
-Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
-material for the paneled surface.
+This function creates a list of :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelSettings` generated from a custom macromodel exported in the DAE (COLLADA) file format.
+
 Parameters
 ----------
 file_path : str
     Path to .dae file with geometry data.
 frame_origin : np.array
-    Frame origin of the .dae part to be loaded.
+    Frame origin of the .dae part to be loaded given as cartesian coordinates in the body-fixed frame.
 material_properties : dict[str, MaterialProperties]
     Dictionary of material properties, as they appear in the .dae file provided.
 reradiation_settings : dict[str, bool]
     Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
-input_unit : str
-    Identifier of unit of length used in input model.
-frame_orientation : str, default = " "
+input_unit : str, default = "m"
+    Identifier of unit of length used in input model (available units "mm", "m", "in").
+frame_orientation : str, default = ""
     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
     
 Returns
@@ -460,13 +469,59 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
-    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m, "MaterialProperties" )
-            .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_ )
-            .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_ )
-            .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_ )
-            .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_ )
-            .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_ )
-            .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_ );
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m,
+                                                                                       "MaterialProperties",
+
+                                                                                       R"doc( 
+        Class for providing the complete material properties of a panel.
+    
+        This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.material_properties` function.
+        The class contains a number of material properties used for computing radiation pressure acceleration and panelled aerodynamic coefficients.
+
+            
+    )doc" );
+    // .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_,
+    // R"doc(
+    // Specular reflectivity coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
+    // R"doc(
+    // Diffuse reflectivity coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
+    // R"doc(
+    // Energy accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
+    // R"doc(
+    // Normal accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
+    // R"doc(
+    // Tangential accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
+    // R"doc(
+    // Normal velocity ratio at the wall.
+
+    // :type: float
+    // )doc"
+    // );
 
     m.def( "material_properties",
            &tss::materialProperties,
@@ -476,7 +531,92 @@ list[BodyPanelSettings]
            py::arg( "normal_accomodation_coefficient" ) = -1,
            py::arg( "tangential_accomodation_coefficient" ) = -1,
            py::arg( "normal_velocity_at_wall_ratio" ) = -1,
-           R"doc(No Documentation)doc" );
+
+           R"doc(
+
+ Function for creating a set of material properties.
+
+ Parameters
+ ----------
+ specular_reflectivity : float, default = -1
+     Specular reflectivity coefficient.
+ diffuse_reflectivity : float, default = -1
+     Diffuse reflectivity coefficient.
+ energy_accomodation_coefficient : float, default = -1
+     Energy accommodation coefficient.
+ normal_accomodation_coefficient : float, default = -1
+     Normal accommodation coefficient.
+ tangential_accomodation_coefficient : float, default = -1
+     Tangential accommodation coefficient.
+ normal_velocity_at_wall_ratio : float, default = -1
+     Normal velocity ratio at the wall.
+
+ Returns
+ -------
+ MaterialProperties
+     Material properties of a panel.
+
+ )doc" );
+    py::class_< tss::CameraSettings, std::shared_ptr< tss::CameraSettings > >( m,
+                                                                               "CameraSettings",
+                                                                               R"doc(
+
+         Base class for providing settings for the creation of a camera.
+
+
+      )doc" )
+            .def_property(
+                    "boresight_euler_angles", &tss::CameraSettings::getBoresightEulerAngles, &tss::CameraSettings::setBoresightEulerAngles )
+            .def_property( "focal_lengths", &tss::CameraSettings::getFocalLengths, &tss::CameraSettings::setFocalLengths )
+            .def_property( "optical_center", &tss::CameraSettings::getOpticalCenter, &tss::CameraSettings::setOpticalCenter )
+            .def_property( "body_fixed_position",
+                           &tss::CameraSettings::getBodyFixedCameraPosition,
+                           &tss::CameraSettings::setBodyFixedCameraPosition )
+
+            .def_property_readonly( "camera_name", &tss::CameraSettings::getCameraName );
+
+    m.def(
+            "pinhole_camera",
+            []( const std::string& cameraName,
+                const Eigen::Vector3d& boresightEulerAngles,
+                const std::pair< double, double >& focalLengths,
+                const std::pair< double, double >& opticalCenter,
+                const Eigen::Vector3d& bodyFixedPosition ) {
+                return tss::cameraSettings( cameraName, boresightEulerAngles, focalLengths, opticalCenter, bodyFixedPosition );
+            },
+            py::arg( "camera_name" ),
+            py::arg( "boresight_euler_angles" ),
+            py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
+            py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+            py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
+            R"doc(
+
+ Function for creating settings for a camera
+
+ Function for creating settings for a camera, defining only its name and orientation.
+ Camera is fixed to the body and its boresight always points along the z-axis of its own frame.
+ Represents a pinhole camera model without any distortions added.
+ The orientation of the camera is defined by the Euler angles of the camera boresight (z-axis) with respect to the body-fixed frame, in a 3-2-3 rotation sequence.
+ A zero twist angle will make the body-fixed frame x-axis aligned with the pixels u direction (positive horizontal direction) when RA and DEC are zero.
+ The focal lengths, optical center, and body-fixed camera position can also be defined, but default to (1.0, 1.0), (0.0, 0.0), and (0.0, 0.0, 0.0), respectively.
+
+ Parameters
+ ----------
+ camera_name : string
+    Name (unique identifier) by which the camera is to be known.
+ boresight_euler_angles : numpy.ndarray([3,1])
+   [RA, DEC, Twist] angles in radians, following a 3-2-3 rotation sequence.
+ focal_lengths : tuple[float, float], optional
+    Tuple of the focal lengths of the camera in the x and y directions, respectively. Default is (1.0, 1.0)
+ optical_center : tuple[float, float], optional
+    Tuple of the optical center coordinates of the camera in the x and y directions, respectively. Default is (0.0, 0.0)
+ body_fixed_position : numpy.ndarray([3,1]), optional
+    Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
+ Returns
+ -------
+ CameraSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.CameraSettings` defining settings of the to be created camera
+ )doc" );
 }
 
 }  // namespace vehicle_systems

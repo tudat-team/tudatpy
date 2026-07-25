@@ -10,7 +10,6 @@
  */
 
 #include "tudat/interface/spice/spiceInterface.h"
-#include "tudat/interface/spice/spiceException.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/paths.hpp"
@@ -23,7 +22,7 @@ namespace tudat
 namespace spice_interface
 {
 
-std::string getCorrectedTargetBodyName( const std::string &targetBodyName )
+std::string getCorrectedTargetBodyName( const std::string& targetBodyName )
 {
     std::string correctedTargetBodyName;
     if( targetBodyName == "Mercury" || targetBodyName == "Venus" || targetBodyName == "MERCURY" || targetBodyName == "VENUS" ||
@@ -85,7 +84,7 @@ double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 }
 
 //! Converts a date string to ephemeris time.
-double convertDateStringToEphemerisTime( const std::string &dateString )
+double convertDateStringToEphemerisTime( const std::string& dateString )
 {
     setSpiceErrorHandling( );
 
@@ -101,10 +100,10 @@ double convertDateStringToEphemerisTime( const std::string &dateString )
 }
 
 //! Get Cartesian state of a body, as observed from another body.
-Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
-                                              const std::string &observerBodyName,
-                                              const std::string &referenceFrameName,
-                                              const std::string &aberrationCorrections,
+Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string& targetBodyName,
+                                              const std::string& observerBodyName,
+                                              const std::string& referenceFrameName,
+                                              const std::string& aberrationCorrections,
                                               const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -146,10 +145,10 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
 }
 
 //! Get Cartesian position of a body, as observed from another body.
-Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyName,
-                                                 const std::string &observerBodyName,
-                                                 const std::string &referenceFrameName,
-                                                 const std::string &aberrationCorrections,
+Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
+                                                 const std::string& observerBodyName,
+                                                 const std::string& referenceFrameName,
+                                                 const std::string& aberrationCorrections,
                                                  const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -210,8 +209,9 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
 
     // TODO: convert elements to units required by CSpice (?)
     double elements[ 10 ];
-    elements[ 0 ] = 0.0;  // This element is mandatory as input to ev2lin_ but not used internally (used to be accessed in SGP).
-    elements[ 1 ] = 0.0;  // Idem dito.
+    elements[ 0 ] = tle->getMeanMotionFirstDerivative( );  // This element is mandatory as input to ev2lin_ but not used internally (used to
+                                                           // be accessed in SGP).
+    elements[ 1 ] = tle->getMeanMotionSecondDerivative( );  // Idem dito.
     elements[ 2 ] = tle->getBStar( );
     elements[ 3 ] = tle->getInclination( );
     elements[ 4 ] = tle->getRightAscension( );
@@ -222,7 +222,7 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
     elements[ 9 ] = tle->getEpoch( );  // TLE ephemeris epoch in seconds since J2000
 
     // Call Spice function. Return value is always 0, so no need to save it.
-    ev2lin_( &epoch, physicalConstants, elements, stateAtEpoch );
+    evsgp4_( &epoch, physicalConstants, elements, stateAtEpoch );
 
     // Put result in Eigen Vector.
     Eigen::Vector6d cartesianStateVector;
@@ -244,8 +244,8 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
 }
 
 //! Compute quaternion of rotation between two frames.
-Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &originalFrame,
-                                                           const std::string &newFrame,
+Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& originalFrame,
+                                                           const std::string& newFrame,
                                                            const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -284,16 +284,16 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &or
     return Eigen::Quaterniond( rotationMatrix );
 }
 
-Eigen::Matrix3d computeRotationMatrixBetweenFrames( const std::string &originalFrame,
-                                                    const std::string &newFrame,
+Eigen::Matrix3d computeRotationMatrixBetweenFrames( const std::string& originalFrame,
+                                                    const std::string& newFrame,
                                                     const double ephemerisTime )
 {
     return Eigen::Matrix3d( computeRotationQuaternionBetweenFrames( originalFrame, newFrame, ephemerisTime ) );
 }
 
 //! Compute rotation matrix for state vector between two frames.
-Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &originalFrame,
-                                                         const std::string &newFrame,
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string& originalFrame,
+                                                         const std::string& newFrame,
                                                          const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -331,8 +331,8 @@ Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &orig
 }
 
 //! Computes time derivative of rotation matrix between two frames.
-Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string &originalFrame,
-                                                              const std::string &newFrame,
+Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string& originalFrame,
+                                                              const std::string& newFrame,
                                                               const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -370,8 +370,8 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string 
 }
 
 //! Computes the angular velocity of one frame w.r.t. to another frame.
-Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string &originalFrame,
-                                                                const std::string &newFrame,
+Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string& originalFrame,
+                                                                const std::string& newFrame,
                                                                 const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -405,8 +405,8 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
 }
 
 std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
-        const std::string &originalFrame,
-        const std::string &newFrame,
+        const std::string& originalFrame,
+        const std::string& newFrame,
         const double ephemerisTime )
 {
     setSpiceErrorHandling( );
@@ -445,12 +445,12 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
 }
 
 //! Get property of a body from Spice.
-std::vector< double > getBodyProperties( const std::string &body, const std::string &property, const int maximumNumberOfValues )
+std::vector< double > getBodyProperties( const std::string& body, const std::string& property, const int maximumNumberOfValues )
 {
     setSpiceErrorHandling( );
 
     // Delcare variable in which raw result is to be put by Spice function.
-    double *propertyArray = new double[ maximumNumberOfValues ];
+    double* propertyArray = new double[ maximumNumberOfValues ];
 
     // Call Spice function to retrieve property.
     SpiceInt numberOfReturnedParameters;
@@ -474,7 +474,7 @@ std::vector< double > getBodyProperties( const std::string &body, const std::str
 }
 
 //! Get gravitational parameter of a body.
-double getBodyGravitationalParameter( const std::string &body )
+double getBodyGravitationalParameter( const std::string& body )
 {
     setSpiceErrorHandling( );
 
@@ -496,7 +496,7 @@ double getBodyGravitationalParameter( const std::string &body )
 }
 
 //! Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
-double getAverageRadius( const std::string &body )
+double getAverageRadius( const std::string& body )
 {
     setSpiceErrorHandling( );
 
@@ -517,7 +517,7 @@ double getAverageRadius( const std::string &body )
 }
 
 //! Get the (arithmetic) mean of the two equatorial axes of the tri-axial ellipsoid shape.
-double getAverageEquatorialRadius( const std::string &body )
+double getAverageEquatorialRadius( const std::string& body )
 {
     setSpiceErrorHandling( );
 
@@ -538,7 +538,7 @@ double getAverageEquatorialRadius( const std::string &body )
 }
 
 //! Get the polar radius of the tri-axial ellipsoid shape.
-double getPolarRadius( const std::string &body )
+double getPolarRadius( const std::string& body )
 {
     setSpiceErrorHandling( );
 
@@ -559,7 +559,7 @@ double getPolarRadius( const std::string &body )
 }
 
 //! Convert a body name to its NAIF identification number.
-int convertBodyNameToNaifId( const std::string &bodyName )
+int convertBodyNameToNaifId( const std::string& bodyName )
 {
     setSpiceErrorHandling( );
 
@@ -597,7 +597,7 @@ std::string convertNaifIdToBodyName( int bodyNaifId )
 }
 
 //! Check if a certain property of a body is in the kernel pool.
-bool checkBodyPropertyInKernelPool( const std::string &bodyName, const std::string &bodyProperty )
+bool checkBodyPropertyInKernelPool( const std::string& bodyName, const std::string& bodyProperty )
 {
     setSpiceErrorHandling( );
 
@@ -616,17 +616,30 @@ bool checkBodyPropertyInKernelPool( const std::string &bodyName, const std::stri
 }
 
 //! Load a Spice kernel.
-void loadSpiceKernelInTudat( const std::string &fileName )
+void loadSpiceKernelInTudat( const std::string& fileName )
 {
     setSpiceErrorHandling( );
 
-    setSpiceErrorHandling( );
+    SpiceChar kernelType[ 33 ];
+    SpiceChar kernelSource[ 256 ];
+    SpiceInt kernelHandle = 0;
+    SpiceBoolean isKernelLoaded = SPICEFALSE;
 
-    furnsh_c( fileName.c_str( ) );
+    kinfo_c( fileName.c_str( ), 33, 256, kernelType, kernelSource, &kernelHandle, &isKernelLoaded );
 
     if( failed_c( ) )
     {
         handleSpiceException( );
+    }
+
+    if( !static_cast< bool >( isKernelLoaded ) )
+    {
+        furnsh_c( fileName.c_str( ) );
+
+        if( failed_c( ) )
+        {
+            handleSpiceException( );
+        }
     }
 }
 

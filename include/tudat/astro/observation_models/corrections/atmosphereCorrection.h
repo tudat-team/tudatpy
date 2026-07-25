@@ -25,10 +25,12 @@
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
 #define TUDAT_TABULATEDMEDIACORRECTION_H
 
+#include <array>
 #include <cmath>
 #include <vector>
 
-#include "tudat/math/interpolators.h"
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
@@ -58,10 +60,10 @@ public:
      */
     TabulatedMediaReferenceCorrection( const double startTime = TUDAT_NAN, const double endTime = TUDAT_NAN ):
         startTime_( startTime ), endTime_( endTime )
-    { }
+    {}
 
     // Destructor
-    virtual ~TabulatedMediaReferenceCorrection( ) { }
+    virtual ~TabulatedMediaReferenceCorrection( ) {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Should be implemented in the derived
@@ -117,7 +119,7 @@ public:
      */
     ConstantReferenceCorrection( const double startTime, const double endTime, const double constantCorrection ):
         TabulatedMediaReferenceCorrection( startTime, endTime ), constantCorrection_( constantCorrection )
-    { }
+    {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Returns the value of the constant
@@ -158,7 +160,7 @@ public:
      */
     PowerSeriesReferenceCorrection( const double startTime, const double endTime, const std::vector< double > coefficients ):
         TabulatedMediaReferenceCorrection( startTime, endTime ), coefficients_( coefficients )
-    { }
+    {}
 
     /*!
      * Function to compute the atmospheric correction as a function of time. Correction is computed according to
@@ -235,7 +237,7 @@ public:
     /*!
      * Constructor.
      */
-    TabulatedMediaReferenceCorrectionManager( ): isLookupSchemeUpdated_( false ) { }
+    TabulatedMediaReferenceCorrectionManager( ) {}
 
     /*!
      * Constructor.
@@ -243,7 +245,7 @@ public:
      * @param correctionVector Vector of objects computing media corrections.
      */
     TabulatedMediaReferenceCorrectionManager( std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector ):
-        correctionVector_( correctionVector ), isLookupSchemeUpdated_( false )
+        correctionVector_( correctionVector )
     {
         for( unsigned int i = 0; i < correctionVector_.size( ); ++i )
         {
@@ -259,26 +261,34 @@ public:
      */
     void pushReferenceCorrectionCalculator( std::shared_ptr< TabulatedMediaReferenceCorrection > correctionCalculator )
     {
-        if( correctionVector_.empty( ) ||
-            ( !correctionVector_.empty( ) && correctionCalculator->getStartTime( ) > startTimes_.back( ) &&
-              correctionCalculator->getEndTime( ) > endTimes_.back( ) ) )
-        {
-            startTimes_.push_back( correctionCalculator->getStartTime( ) );
-            endTimes_.push_back( correctionCalculator->getEndTime( ) );
-            correctionVector_.push_back( correctionCalculator );
-        }
-        else
-        {
-            throw std::runtime_error( "Inconsistency in times when pushing tabulated media reference correction calculator. " );
-        }
+        startTimes_.push_back( correctionCalculator->getStartTime( ) );
+        endTimes_.push_back( correctionCalculator->getEndTime( ) );
+        correctionVector_.push_back( correctionCalculator );
+    }
 
-        isLookupSchemeUpdated_ = false;
+    /*!
+     * Adds the correction calculation objects from another manager to this manager.
+     *
+     * @param other Manager from which to add the correction calculation objects.
+     */
+    void addOther( const TabulatedMediaReferenceCorrectionManager& other )
+    {
+        for( auto const& correctionCalculator : other.correctionVector_ )
+        {
+            pushReferenceCorrectionCalculator( correctionCalculator );
+        }
+    }
+
+    // Returns the correction objects held by this manager.
+    const std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > >& getCorrectionVector( ) const
+    {
+        return correctionVector_;
     }
 
     /*!
      * Function to compute the atmospheric correction as a function of time.
-     * For the specified time, the function selects the appropriate correction calculation object and the uses it
-     * to compute the time.
+     * For the specified time, the function finds the appropriate correction calculation objects and
+     * sums their contributions.
      *
      * @param time Time at which to compute the correction.
      * @return Atmospheric correction value.
@@ -294,13 +304,6 @@ private:
 
     // Vector containing the objects that compute the media corrections
     std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector_;
-
-    // Boolean indicating whether the lookup scheme is updated (it gets out of date in case the start times vector
-    // is modified)
-    bool isLookupSchemeUpdated_;
-
-    //! Lookup scheme to find the nearest correction object start time for a given time
-    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 };
 
 // Enum listing the available tropospheric mapping models.
@@ -314,10 +317,10 @@ public:
     /*!
      * Constructor.
      */
-    TroposhericElevationMapping( ) { }
+    TroposhericElevationMapping( ) {}
 
     // Destructor
-    virtual ~TroposhericElevationMapping( ) { }
+    virtual ~TroposhericElevationMapping( ) {}
 
     /*!
      * Computes the factor that maps the dry troposheric correction. The computation of this factor should be
@@ -370,7 +373,7 @@ public:
             std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
             bool isUplinkCorrection ):
         TroposhericElevationMapping( ), elevationFunction_( elevationFunction ), isUplinkCorrection_( isUplinkCorrection )
-    { }
+    {}
 
     /*!
      * Computes the factor that maps the dry troposheric correction, using the simplified Chao mapping model.
@@ -608,7 +611,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
@@ -665,11 +668,12 @@ public:
     {
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
-        dryZenithRangeCorrectionFunction_ = [ = ]( double time ) {
+        // Capture only this to stay C++17-compatible
+        dryZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
-        wetZenithRangeCorrectionFunction_ = [ = ]( double time ) {
+        wetZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
@@ -753,10 +757,9 @@ public:
     VMF3TroposphericCorrection( const std::shared_ptr< TroposhericElevationMapping > elevationMapping,
                                 const bool isUplinkCorrection,
                                 const std::shared_ptr< ground_stations::StationTroposphereData > troposphereData,
-                                const bool useGradient ):
-        MappedTroposphericCorrection( vmf3_tropospheric, elevationMapping, isUplinkCorrection ), troposphereData_( troposphereData ),
-        useGradient_( useGradient )
-    { }
+                                const bool useGradient,
+                                const LightTimeCorrectionType correctionType = vmf3_tropospheric,
+                                const double observationWavelengthNm = 532.0 );
 
     // Computes the dry atmosphere zenith range correction (in meters)
     double computeDryZenithRangeCorrection( const double stationTime )
@@ -774,14 +777,30 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
 private:
+    void loadWavelengthCorrectionParameters( );
+
+    double getWavelengthCorrectionFactor( const int parameterIndex ) const;
+
     // VMF3 data container (interpolated coefficients)
     std::shared_ptr< ground_stations::StationTroposphereData > troposphereData_;
 
     //! Whether gradient data should be used
     bool useGradient_;
+
+    //! Type of VMF correction (vmf3/vmf3o)
+    LightTimeCorrectionType correctionType_;
+
+    //! Observation wavelength in nm (used by VMF3o)
+    double observationWavelengthNm_;
+
+    //! Flag indicating whether wavelength correction coefficients are loaded
+    bool hasWavelengthCorrectionParameters_;
+
+    //! Wavelength correction parameters (A,B,C) for a_h and a_w
+    std::array< Eigen::Vector3d, 2 > wavelengthCorrectionParameters_;
 };
 
 class VMF3MappingModel : public TroposhericElevationMapping
@@ -790,12 +809,13 @@ public:
     VMF3MappingModel( std::function< double( Eigen::Vector3d, double ) > elevationFunction,
                       std::function< double( Eigen::Vector3d, double ) > azimuthFunction,
                       std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction,
-                      bool isUplinkCorrection ):
+                      bool isUplinkCorrection,
+                      const LightTimeCorrectionType correctionType = vmf3_tropospheric ):
         elevationFunction_( std::move( elevationFunction ) ), azimuthFunction_( std::move( azimuthFunction ) ),
         groundStationGeodeticPositionFunction_( std::move( groundStationGeodeticPositionFunction ) ),
         isUplinkCorrection_( isUplinkCorrection ), currentElevation_( TUDAT_NAN ), currentAzimuth_( TUDAT_NAN ),
         currentStationLatitude_( TUDAT_NAN ), currentStationLongitude_( TUDAT_NAN ), currentDayOfYear_( TUDAT_NAN ),
-        currentDryMappingCoefficient_( TUDAT_NAN ), currentWetMappingCoefficient_( TUDAT_NAN )
+        currentDryMappingCoefficient_( TUDAT_NAN ), currentWetMappingCoefficient_( TUDAT_NAN ), correctionType_( correctionType )
     {
         legendreCache_ = basic_mathematics::LegendreCache( 12, 1 );
         loadLegendreCoefficientTables( );
@@ -840,6 +860,7 @@ private:
     double currentElevation_, currentAzimuth_, currentStationLatitude_, currentStationLongitude_;
     double currentDayOfYear_;
     double currentDryMappingCoefficient_, currentWetMappingCoefficient_;
+    LightTimeCorrectionType correctionType_;
     mutable tudat::basic_mathematics::LegendreCache legendreCache_;
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
 
@@ -858,11 +879,8 @@ private:
     Vmf3SphericalHarmonicComponentSet loadCoefficientSet( const std::string& filePath );
     void loadLegendreCoefficientTables( );
 
-    double evaluateSeasonalCoefficient( const Eigen::VectorXd& A0,
-                                        const Eigen::VectorXd& A1,
-                                        const Eigen::VectorXd& B1,
-                                        const Eigen::VectorXd& A2,
-                                        const Eigen::VectorXd& B2,
+    double evaluateSeasonalCoefficient( const Vmf3SphericalHarmonicComponentSet& anmSet,
+                                        const Vmf3SphericalHarmonicComponentSet& bnmSet,
                                         const std::vector< std::vector< double > >& V,
                                         const std::vector< std::vector< double > >& W,
                                         const double dayOfYear ) const;
@@ -948,7 +966,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
@@ -973,10 +991,10 @@ public:
      *
      * @param referenceIonosphereHeight Reference height of the ionosphere layer used when computing VTEC.
      */
-    VtecCalculator( const double referenceIonosphereHeight ): referenceIonosphereHeight_( referenceIonosphereHeight ) { }
+    VtecCalculator( const double referenceIonosphereHeight ): referenceIonosphereHeight_( referenceIonosphereHeight ) {}
 
     // Destructor
-    virtual ~VtecCalculator( ) { }
+    virtual ~VtecCalculator( ) {}
 
     /*!
      * Function to calculate the VTEC in [m^-2]. (m^-2 = 1e16 TECU). Pure virtual function, should be implemented in
@@ -1103,7 +1121,7 @@ public:
             const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter = nullptr,
             const double referenceHeight = 400.0e3 ):
         VtecCalculator( referenceHeight ), ionosphereModel_( ionosphereModel ), timeScaleConverter_( timeScaleConverter )
-    { }
+    {}
 
     double calculateVtec( const double time, const Eigen::Vector3d subIonosphericPointGeodeticPosition ) override
     {
@@ -1174,7 +1192,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Class to calculate the vertical total electron content (VTEC)

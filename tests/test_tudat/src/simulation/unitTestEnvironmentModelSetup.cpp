@@ -34,6 +34,7 @@
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
+#include "tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
@@ -57,6 +58,7 @@
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createSurfacePropertyDistribution.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 
 namespace tudat
 {
@@ -580,7 +582,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
     const double l = 20.0;  // length
 
     // Define parameters
-    const double gravitationalConstant = 6.67259e-11;
+    const double gravitationalConstant = 6.67430e-11;
     const double density = 2670;
     const double volume = w * h * l;
     const double gravitationalParameter = gravitationalConstant * density * volume;

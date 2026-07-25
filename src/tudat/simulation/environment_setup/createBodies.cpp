@@ -12,15 +12,15 @@
 #include <cmath>
 #include <memory>
 
-#include <boost/lambda/lambda.hpp>
-
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"

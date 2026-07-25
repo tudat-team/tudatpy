@@ -12,6 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -20,20 +22,18 @@
 #include <functional>
 #include <cmath>
 
-#include "tudat/simulation/estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
-
 // Using declarations.
 using namespace tudat::observation_models;
-using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::interpolators;
-using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
@@ -42,7 +42,6 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_environment_exceptions )
-
 
 //! Unit test to check if desaturation deltaV values are estimated correctly
 BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
@@ -62,30 +61,35 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
     double finalEphemerisTime = initialEphemerisTime + 86400.0;
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime, finalEphemerisTime, "SSB", "ECLIPJ2000", 30.0  );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime, finalEphemerisTime, "SSB", "ECLIPJ2000", 30.0 );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     {
-      bool caughtStateException = false;
-      try
-      {
-          bodies.at("Earth")->getState( );
-      }
-      catch( std::runtime_error& exception )
-      {
-          caughtStateException = true;
-          std::cout<<exception.what( )<<std::endl;
-      }
-      BOOST_CHECK_EQUAL( caughtStateException, true );
+        bool caughtStateException = false;
+        try
+        {
+            bodies.at( "Earth" )->getState( );
+        }
+        catch( std::runtime_error& exception )
+        {
+            caughtStateException = true;
+            std::cout << exception.what( ) << std::endl;
+        }
+        BOOST_CHECK_EQUAL( caughtStateException, true );
     }
-
 
     std::shared_ptr< TabulatedCartesianEphemeris< double, double > > moonEphemeris =
             std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( bodies.at( "Moon" )->getEphemeris( ) );
-    moonEphemeris->resetInterpolator(
-            createStateInterpolatorFromSpice( "Moon", initialEphemerisTime, finalEphemerisTime, 30.0, moonEphemeris->getReferenceFrameOrigin( ),
-                                       moonEphemeris->getReferenceFrameOrientation( ), std::make_shared< LagrangeInterpolatorSettings >(
-                                               8, false, huntingAlgorithm, lagrange_cubic_spline_boundary_interpolation, throw_exception_at_boundary ) ) );
+    moonEphemeris->resetInterpolator( createStateInterpolatorFromSpice(
+            "Moon",
+            initialEphemerisTime,
+            finalEphemerisTime,
+            30.0,
+            moonEphemeris->getReferenceFrameOrigin( ),
+            moonEphemeris->getReferenceFrameOrientation( ),
+            std::make_shared< LagrangeInterpolatorSettings >(
+                    8, false, huntingAlgorithm, lagrange_cubic_spline_boundary_interpolation, throw_exception_at_boundary ) ) );
 
     for( unsigned int test = 0; test < 2; test++ )
     {
@@ -98,7 +102,6 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
                              ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
                              coordinate_conversions::geodetic_position );
 
-
         // Define link ends.
         std::vector< LinkDefinition > observationLinkEnds;
 
@@ -109,7 +112,6 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
 
         std::map< ObservableType, std::vector< LinkDefinition > > linkEndsPerObservable;
         linkEndsPerObservable[ one_way_range ].push_back( observationLinkEnds[ 0 ] );
-
 
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
         for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
@@ -125,7 +127,6 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
                         currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
             }
         }
-
 
         // Compute list of observation times.
         std::vector< double > baseTimeList;
@@ -153,21 +154,20 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
             }
         }
 
-        std::vector< std::shared_ptr< ObservationSimulatorBase< > > > observationSimulators =
-                createObservationSimulators(
-                observationSettingsList, bodies );
+        std::vector< std::shared_ptr< ObservationSimulatorBase<> > > observationSimulators =
+                createObservationSimulators( observationSettingsList, bodies );
 
         // Simulate observations.
         bool caughtException = false;
         try
         {
-            std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, observationSimulators, bodies );
+            std::shared_ptr< ObservationCollection<> > observationsAndTimes =
+                    simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
         }
         catch( std::runtime_error& exception )
         {
             caughtException = true;
-            std::cout<<exception.what( )<<std::endl;
+            std::cout << exception.what( ) << std::endl;
         }
         if( test == 0 )
         {
@@ -178,7 +178,6 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
             BOOST_CHECK_EQUAL( caughtException, false );
         }
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

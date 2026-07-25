@@ -20,9 +20,9 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 
 namespace tudat
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
         Eigen::Vector3d ringAcceleration = Eigen::Vector3d::Zero( ), pointMassAcceleration = Eigen::Vector3d::Zero( );
         double ringPotential = 0.0, pointMassPotential = 0.0;
 
-        for( unsigned int gravityModelId: { 0, 1 } )
+        for( unsigned int gravityModelId : { 0, 1 } )
         {
             std::function< void( Eigen::Vector3d& ) > positionFunction = [ = ]( Eigen::Vector3d& positionInput ) {
                 positionInput = testPosition;
@@ -234,11 +234,11 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
     // Number of point masses in discrete ring model
     int numPointMasses = 1000;
 
-    for( std::string ringCentralBody: { "Ring", "COM" } )
+    for( std::string ringCentralBody : { "Ring", "COM" } )
     {
         Eigen::Vector6d finalStateRing, finalStatePointMasses;
 
-        for( unsigned int gravityModelId: { 0, 1 } )
+        for( unsigned int gravityModelId : { 0, 1 } )
         {
             BodyListSettings bodySettings = BodyListSettings( );
 

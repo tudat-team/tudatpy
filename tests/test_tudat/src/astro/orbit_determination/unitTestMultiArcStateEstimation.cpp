@@ -20,13 +20,26 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/simulation.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
+#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
+#include "tudat/simulation/propagation_setup/accelerationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationSettings.h"
+#include "tudat/simulation/propagation_setup/propagationTerminationSettings.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
-#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+#include "tudat/simulation/estimation_setup/compareEstimationAndCovarianceResultsTestCase.h"
 
 namespace tudat
 {
@@ -266,7 +279,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 

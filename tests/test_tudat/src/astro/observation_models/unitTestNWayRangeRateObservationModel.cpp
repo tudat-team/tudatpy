@@ -12,12 +12,13 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/simulation/estimation.h"
 
 namespace tudat
 {
@@ -186,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
                                                                                              referenceLinkEnds.at( i ),
                                                                                              rangeRateTimes,
                                                                                              rangeRateStates,
-                                                                                             getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                                                                             getAveragedDopplerAncillarySettings( 60.0 ) );
 
                 double rangeRateError = ( twoWayRangeRate - ( -twoWayRangeStart + twoWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );
@@ -304,12 +305,12 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
                         observationTime - 30.0, referenceLinkEnds.at( i ), rangeStartTimes, rangeStartStates );
                 fourWayRangeEnd = fourWayRangeObservationModel->computeObservationsWithLinkEndData(
                         observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
-                fourWayRangeRate = fourWayRangeRateObservationModel->computeObservationsWithLinkEndData(
-                        observationTime,
-                        referenceLinkEnds.at( i ),
-                        rangeRateTimes,
-                        rangeRateStates,
-                        getAveragedDopplerAncilliarySettings( 60.0 ) );
+                fourWayRangeRate =
+                        fourWayRangeRateObservationModel->computeObservationsWithLinkEndData( observationTime,
+                                                                                              referenceLinkEnds.at( i ),
+                                                                                              rangeRateTimes,
+                                                                                              rangeRateStates,
+                                                                                              getAveragedDopplerAncillarySettings( 60.0 ) );
 
                 double rangeRateError = ( fourWayRangeRate - ( -fourWayRangeStart + fourWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );

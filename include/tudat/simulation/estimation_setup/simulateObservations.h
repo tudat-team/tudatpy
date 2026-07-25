@@ -21,7 +21,8 @@
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/simulation/estimation_setup/createObservationViability.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
@@ -39,7 +40,7 @@ void addNoiseAndDependentVariableToObservation(
         Eigen::VectorXd& dependentVariables,
         const std::vector< Eigen::Vector6d >& vectorOfStates,
         const std::vector< double >& vectorOfTimes,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
         const observation_models::ObservableType observableType,
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr )
@@ -47,7 +48,7 @@ void addNoiseAndDependentVariableToObservation(
     if( dependentVariableCalculator != nullptr )
     {
         dependentVariables = dependentVariableCalculator->calculateDependentVariables(
-                vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ), ancilliarySettings );
+                vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ), ancillarySettings );
     }
 
     // Add noise if needed.
@@ -88,17 +89,18 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > calculatedObservation = observationModel->computeObservationsWithLinkEndData(
-            observationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates, ancilliarySettings );
+            observationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates, ancillarySettings );
     Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
 
     // Check if observation is feasible
-    bool observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
+    bool observationFeasible = isObservationViable(
+            vectorOfStates, vectorOfTimes, linkViabilityCalculators, calculatedObservation.template cast< double >( ) );
 
     if( observationFeasible )
     {
@@ -108,7 +110,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
                 dependentVariables,
                 vectorOfStates,
                 vectorOfTimes,
-                ancilliarySettings,
+                ancillarySettings,
                 observationModel->getObservableType( ),
                 noiseFunction,
                 dependentVariableCalculator );
@@ -141,7 +143,7 @@ simulateObservationsWithCheck(
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
@@ -156,7 +158,7 @@ simulateObservationsWithCheck(
                                                                                                   linkViabilityCalculators,
                                                                                                   noiseFunction,
                                                                                                   dependentVariableCalculator,
-                                                                                                  ancilliarySettings );
+                                                                                                  ancillarySettings );
 
         // Check if receiving station can view transmitting station.
         if( std::get< 1 >( simulatedObservation ) )
@@ -194,7 +196,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
                 std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
                 std::vector< TimeType >,
@@ -206,7 +208,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
                                                                                                        linkViabilityCalculators,
                                                                                                        noiseFunction,
                                                                                                        dependentVariableCalculator,
-                                                                                                       ancilliarySettings );
+                                                                                                       ancillarySettings );
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
             observationModel->getObservableType( ),
             observationModel->getLinkEnds( ),
@@ -215,7 +217,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             referenceLinkEnd,
             std::get< 2 >( simulatedObservations ),
             ( dependentVariableCalculator == nullptr ) ? nullptr : dependentVariableCalculator->getDependentVariableBookkeeping( ),
-            ancilliarySettings );
+            ancillarySettings );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
@@ -233,9 +235,14 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                        observationsToSimulate->getObservableType( ),
                                                                        { observationsToSimulate->arcDefiningConstraint_ } );
 
-    std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
-            std::make_shared< observation_models::ObservationDependentVariableCalculator >(
-                    observationsToSimulate->getObservationDependentVariableBookkeeping( ), bodies );
+    std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator =
+            std::make_shared< ObservationDependentVariableCalculator >(
+                    observationsToSimulate->getObservationDependentVariableBookkeeping( ),
+                    bodies,
+                    observationModel != nullptr
+                            ? observationModel->getLegLightTimeCalculators( )
+                            : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                                        std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -255,8 +262,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     // Initialize observation simulation
     LinkEndType referenceLinkEnd = observationsToSimulate->getReferenceLinkEndType( );
     TimeType currentObservationTime = observationsToSimulate->startTime_;
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
-            observationsToSimulate->getAncilliarySettings( );
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
+            observationsToSimulate->getAncillarySettings( );
 
     while( currentObservationTime < observationsToSimulate->endTime_ )
     {
@@ -264,10 +271,11 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
         // Simulate observation
         currentObservation = observationModel->computeObservationsWithLinkEndData(
-                currentObservationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                currentObservationTime, referenceLinkEnd, vectorOfTimes, vectorOfStates, ancillarySettings );
 
         // If observation is feasible, add to arc. If not, check if current arc is to be terminated.
-        observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, arcDefiningViabilityCalculators );
+        observationFeasible = isObservationViable(
+                vectorOfStates, vectorOfTimes, arcDefiningViabilityCalculators, currentObservation.template cast< double >( ) );
         if( observationFeasible )
         {
             bool isMaximumArcDurationExceeded = false;
@@ -332,7 +340,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             vectorOfTimes = std::get< 2 >( singleObservation );
             currentDependentVariable = Eigen::VectorXd::Zero( 0 );
 
-            observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
+            observationFeasible = isObservationViable(
+                    vectorOfStates, vectorOfTimes, additionalViabilityCalculators, currentObservation.template cast< double >( ) );
             if( observationFeasible )
             {
                 addNoiseAndDependentVariableToObservation< ObservationSize, ObservationScalarType, TimeType >(
@@ -341,7 +350,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                         currentDependentVariable,
                         vectorOfStates,
                         vectorOfTimes,
-                        ancilliarySettings,
+                        ancillarySettings,
                         observationModel->getObservableType( ),
                         observationsToSimulate->getObservationNoiseFunction( ),
                         dependentVariableCalculator );
@@ -360,7 +369,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             referenceLinkEnd,
             observationsDependentVariables,
             observationsToSimulate->getObservationDependentVariableBookkeeping( ),
-            ancilliarySettings );
+            ancillarySettings );
 }
 
 //! Function to compute observations at times defined by settings object using a given observation model
@@ -396,9 +405,14 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                            observationsToSimulate->getObservableType( ),
                                                                            observationsToSimulate->getViabilitySettingsList( ) );
 
-        std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
-                std::make_shared< observation_models::ObservationDependentVariableCalculator >(
-                        tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ), bodies );
+        std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator =
+                std::make_shared< ObservationDependentVariableCalculator >(
+                        tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ),
+                        bodies,
+                        observationModel != nullptr
+                                ? observationModel->getLegLightTimeCalculators( )
+                                : std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >( ) );
 
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
@@ -408,7 +422,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 currentObservationViabilityCalculators,
                 noiseFunction,
                 dependentVariableCalculator,
-                tabulatedObservationSettings->getAncilliarySettings( ) );
+                tabulatedObservationSettings->getAncillarySettings( ) );
     }
     else if( std::dynamic_pointer_cast< PerArcObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
     {
@@ -545,9 +559,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                                    std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
                                               std::vector< TimeType > > > > observationsInput,
         const observation_models::LinkEndType referenceLinkEnd,
-        const std::map< observation_models::ObservableType, std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > >
-                ancilliarySettings = std::map< observation_models::ObservableType,
-                                               std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > >( ) )
+        const std::map< observation_models::ObservableType, std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >
+                ancillarySettings = std::map< observation_models::ObservableType,
+                                              std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >( ) )
 {
     // Declare return map.
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
@@ -569,10 +583,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                     "values is inconsistent." );
         }
 
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > currentAncilliarySettings = nullptr;
-        if( ancilliarySettings.count( observableType ) )
+        std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > currentAncillarySettings = nullptr;
+        if( ancillarySettings.count( observableType ) )
         {
-            currentAncilliarySettings = ancilliarySettings.at( observableType );
+            currentAncillarySettings = ancillarySettings.at( observableType );
         }
 
         std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
@@ -584,7 +598,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                         referenceLinkEnd,
                         std::vector< Eigen::VectorXd >( ),
                         nullptr,
-                        currentAncilliarySettings );
+                        currentAncillarySettings );
 
         sortedObservations[ observableType ][ linkEnds ].push_back( observationSet );
     }
@@ -688,7 +702,7 @@ getObservationSimulationSettingsFromObservations(
                                 singleObservationSets.at( i )->getReferenceLinkEnd( ),
                                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
                                 nullptr,
-                                singleObservationSets.at( i )->getAncilliarySettings( ) );
+                                singleObservationSets.at( i )->getAncillarySettings( ) );
 
                 // Add dependent variables
                 if( singleObservationSets.at( i )->getDependentVariableBookkeeping( ) != nullptr )

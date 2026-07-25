@@ -11,12 +11,7 @@
 #ifndef TUDATPY_EXPOSE_ENVIRONMENT_SETUP_H
 #define TUDATPY_EXPOSE_ENVIRONMENT_SETUP_H
 
-#include <pybind11/eigen.h>
-#include <pybind11/functional.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 
 namespace py = pybind11;
 
@@ -27,7 +22,7 @@ namespace dynamics
 namespace environment_setup
 {
 
-void expose_environment_setup( py::module &m );
+void expose_environment_setup( py::module& m );
 
 }  // namespace environment_setup
 }  // namespace dynamics

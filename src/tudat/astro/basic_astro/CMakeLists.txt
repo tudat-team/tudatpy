@@ -29,6 +29,7 @@ set(basic_astrodynamics_SOURCES
         "stateRepresentationConversions.cpp"
         "torqueModelTypes.cpp"
         "torqueModel.cpp"
+        "neQuick2Model.cpp"
         )
 
 # Set the header files.
@@ -71,6 +72,7 @@ set(basic_astrodynamics_HEADERS
         "torqueModel.h"
         "torqueModelTypes.h"
         "dissipativeTorqueModel.h"
+        "climateModel.h"
         )
 
 TUDAT_ADD_LIBRARY("basic_astrodynamics"

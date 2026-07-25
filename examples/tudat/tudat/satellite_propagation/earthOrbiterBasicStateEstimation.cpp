@@ -253,9 +253,9 @@ int main( )
 
     // Set typedefs for POD input (observation types, observation link ends, observation values, associated times with
     // reference link ends.
-    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
-            SingleObservablePodInputType;
+    //     typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
+    //     typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
+    //             SingleObservablePodInputType;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////

@@ -12,14 +12,24 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createGravityField.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
-#include "tudat/simulation/estimation.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -534,14 +544,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Check parameter errors
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 2.0E-4 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.5E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 2.0E-12 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-9 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-9 );

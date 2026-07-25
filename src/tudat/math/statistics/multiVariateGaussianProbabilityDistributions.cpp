@@ -12,6 +12,8 @@
 #include <cmath>
 #include <numeric>
 
+#include <Eigen/LU>
+
 #include <boost/math/special_functions/erf.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/lognormal.hpp>
@@ -21,6 +23,40 @@ namespace tudat
 {
 namespace statistics
 {
+
+GaussianDistributionXd::GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix ):
+    mean_( mean ), covarianceMatrix_( covarianceMatrix )
+{
+    if( covarianceMatrix.rows( ) != covarianceMatrix.cols( ) )
+    {
+        throw std::runtime_error( "Error, covarianceMatrix input to GaussianDistributionXd is not square" );
+    }
+
+    dimension_ = static_cast< double >( mean_.rows( ) );
+    determinant_ = covarianceMatrix_.determinant( );
+    inverseCovarianceMatrix_ = covarianceMatrix_.inverse( );
+}
+
+double GaussianDistributionXd::evaluatePdf( const Eigen::VectorXd& independentVariables )
+{
+    const Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ );
+    const Eigen::MatrixXd location = -0.5 * ( distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean );
+
+    return std::exp( location( 0, 0 ) ) / ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) * std::sqrt( determinant_ ) );
+}
+
+GaussianCopulaDistributionXd::GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ):
+    correlationMatrix_( correlationMatrix )
+{
+    if( correlationMatrix.rows( ) != correlationMatrix.cols( ) )
+    {
+        throw std::runtime_error( "Error, correlationMatrix input to GaussianCopulaDistributionXd is not square" );
+    }
+
+    dimension_ = correlationMatrix.rows( );
+    inverseCorrelationMatrix_ = correlationMatrix_.inverse( );
+    determinant_ = correlationMatrix_.determinant( );
+}
 
 //! Function to evaluate pdf of Gaussian cupola distribution
 double GaussianCopulaDistributionXd::evaluatePdf( const Eigen::VectorXd& independentVariables )

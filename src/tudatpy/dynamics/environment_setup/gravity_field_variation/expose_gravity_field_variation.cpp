@@ -7,11 +7,13 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#if TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#endif
 #include "expose_gravity_field_variation.h"
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
-#include <tudat/simulation/environment_setup.h>
+#include <tudat/simulation/environment_setup/createGravityFieldVariations.h>
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -177,7 +179,7 @@ Variation model due to pole tides
 
          .. math::
             \Delta \bar{C}_{lm}&=k_{l.m}F_{C,lm}(r,\theta,\phi)\\
-            \Delta \bar{S}_{lm}&k_{l.m}F_{S,lm}(r,\theta,\phi)
+            \Delta \bar{S}_{lm}&=k_{l.m}F_{S,lm}(r,\theta,\phi)
 
          (where we have added the order dependent Love number :math:`k_{l,m}` and have retained only a single tide-raising body for the sake of brevity).
 
@@ -186,7 +188,7 @@ Variation model due to pole tides
 
          .. math::
             \Delta \bar{C}_{lm}&=k_{l.m}\left(F_{C,lm}(r,\theta,\phi) - \overline{F_{C,lm}} \right)\\
-            \Delta \bar{S}_{lm}&k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
+            \Delta \bar{S}_{lm}&=k_{l.m}\left(F_{S,lm}(r,\theta,\phi) - \overline{F_{S,lm}} \right)
 
          This option can be used for any of the solid-body tide gravity field variation options.
 
@@ -682,7 +684,7 @@ GravityFieldVariationSettings
 Function for creating polynomial gravity field variations at a single variation period.
 
 Function for creating polynomial gravity field variations at a single variation period, same as :math:`~polynomial`, but with a single
-polynmial power :math:`p`.
+polynomial power :math:`p`.
 
 Parameters
 ----------
