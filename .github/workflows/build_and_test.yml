@@ -18,7 +18,7 @@ jobs:
 
     env:
         CACHE_NUMBER: 0
-        BUILD_WITH_MCD: "OFF"
+        BUILD_WITH_MCD: "ON"
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -84,7 +84,9 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Download MCD code and data
+      id: mcd_setup
       if: env.BUILD_WITH_MCD == 'ON'
+      continue-on-error: true
       env:
         GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
       shell: bash
@@ -110,6 +112,13 @@ jobs:
             raise RuntimeError("Could not locate the unique loadvar_mcd insertion point")
         path.write_text(source.replace(marker, "      ier=0\n\n" + marker))
         PY
+
+    - name: Disable MCD after setup failure
+      if: steps.mcd_setup.outcome == 'failure'
+      shell: bash
+      run: |
+        echo "::warning::MCD setup failed; continuing with MCD disabled."
+        echo "BUILD_WITH_MCD=OFF" >> "$GITHUB_ENV"
 
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
@@ -185,7 +194,7 @@ jobs:
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} \
           -DTUDAT_BUILD_WITH_TEST_PCH=ON \
           -DTUDAT_BUILD_WITH_PCH=ON \
-          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${{ env.BUILD_WITH_MCD }} \
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${BUILD_WITH_MCD} \
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
           -DCMAKE_UNITY_BUILD=ON
 
@@ -212,7 +221,7 @@ jobs:
           -DTUDAT_FORCE_DYNAMIC_RUNTIME=ON ^
           -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
           -DTUDAT_BUILD_WITH_PCH=ON ^
-          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${{ env.BUILD_WITH_MCD }} ^
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=%BUILD_WITH_MCD% ^
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
           -DCMAKE_UNITY_BUILD=ON
 
