@@ -10,7 +10,6 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 
-#include <algorithm>
 #include <cmath>
 
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
@@ -127,13 +126,13 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialP
     aerodynamics::PanelMaterialPropertyType propertyType;
     switch( parameter->getParameterName( ).first )
     {
-        case estimatable_parameters::energy_accomodation_coefficient:
+        case estimatable_parameters::energy_accommodation_coefficient:
             propertyType = aerodynamics::energy_accommodation_property;
             break;
-        case estimatable_parameters::normal_accomodation_coefficient:
+        case estimatable_parameters::normal_accommodation_coefficient:
             propertyType = aerodynamics::normal_accommodation_property;
             break;
-        case estimatable_parameters::tangential_accomodation_coefficient:
+        case estimatable_parameters::tangential_accommodation_coefficient:
             propertyType = aerodynamics::tangential_accommodation_property;
             break;
         case estimatable_parameters::normal_velocity_at_wall_ratio:
@@ -448,9 +447,9 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                 numberOfColumns = 1;
                 break;
             }
-            case estimatable_parameters::energy_accomodation_coefficient:
-            case estimatable_parameters::normal_accomodation_coefficient:
-            case estimatable_parameters::tangential_accomodation_coefficient:
+            case estimatable_parameters::energy_accommodation_coefficient:
+            case estimatable_parameters::normal_accommodation_coefficient:
+            case estimatable_parameters::tangential_accommodation_coefficient:
             case estimatable_parameters::normal_velocity_at_wall_ratio: {
                 partialFunction = std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtPanelMaterialProperty,
                                              this,

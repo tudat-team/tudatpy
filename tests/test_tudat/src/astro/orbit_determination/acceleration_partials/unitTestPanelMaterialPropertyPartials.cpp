@@ -23,6 +23,8 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include <cmath>
+#include <functional>
 #include <limits>
 #include <map>
 #include <string>
@@ -242,6 +244,77 @@ BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionCoefficientPartials )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testGasSurfaceInteractionPartialGroupSelectionAndModelOptions )
+{
+    const std::string busGroupId = "Bus";
+    const std::string solarArrayGroupId = "SolarArray";
+    const double referenceArea = 4.0;
+    const double freeStreamTemperature = 500.0;
+    const Eigen::Vector3d incomingDirection = Eigen::Vector3d( -1.0, -0.5, 0.2 ).normalized( );
+
+    std::shared_ptr< VehicleExteriorPanel > busPanel =
+            makeMaterialPanel( Eigen::Vector3d::UnitX( ), 1.2, 290.0, 0.35, 0.55, 0.65, 0.75, busGroupId );
+    std::shared_ptr< VehicleExteriorPanel > solarArrayPanel =
+            makeMaterialPanel( Eigen::Vector3d::UnitY( ), 2.1, 340.0, 0.80, 0.45, 0.60, 0.70, solarArrayGroupId );
+    std::vector< std::shared_ptr< VehicleExteriorPanel > > allPanels = { busPanel, solarArrayPanel };
+    std::vector< std::shared_ptr< VehicleExteriorPanel > > busPanels = { busPanel };
+    std::vector< std::shared_ptr< VehicleExteriorPanel > > solarArrayPanels = { solarArrayPanel };
+
+    std::shared_ptr< GasSurfaceInteractionModel > cookModel = createGasSurfaceInteractionModel( cook, allPanels, referenceArea, 0, false );
+    cookModel->setFreeStreamTemperature( freeStreamTemperature );
+    evaluateCoefficientsForPropertyValue( cookModel, busPanels, energy_accommodation_property, 0.35, incomingDirection );
+
+    const Eigen::Vector3d busAnalyticalPartial =
+            cookModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, busGroupId );
+    const Eigen::Vector3d solarArrayAnalyticalPartial =
+            cookModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, solarArrayGroupId );
+    BOOST_CHECK( busAnalyticalPartial.norm( ) > 0.0 );
+    BOOST_CHECK( solarArrayAnalyticalPartial.norm( ) > 0.0 );
+    BOOST_CHECK( ( busAnalyticalPartial - solarArrayAnalyticalPartial ).norm( ) > 1.0E-6 );
+
+    // The analytical partial must use the illumination fraction cached by the most recent forward evaluation.
+    cookModel->getIlluminatedPanelFractions( ).at( 0 ) = 0.25;
+    const Eigen::Vector3d partiallyIlluminatedBusPartial =
+            cookModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, busGroupId );
+    checkVectorClose( partiallyIlluminatedBusPartial, 0.25 * busAnalyticalPartial, 1.0E-14 );
+    cookModel->getIlluminatedPanelFractions( ).at( 0 ) = 1.0;
+
+    const double perturbation = 1.0E-6;
+    const Eigen::Vector3d busUp = evaluateCoefficientsForPropertyValue(
+            cookModel, busPanels, energy_accommodation_property, 0.35 + perturbation, incomingDirection );
+    const Eigen::Vector3d busDown = evaluateCoefficientsForPropertyValue(
+            cookModel, busPanels, energy_accommodation_property, 0.35 - perturbation, incomingDirection );
+    checkVectorClose( busAnalyticalPartial, ( busUp - busDown ) / ( 2.0 * perturbation ), 1.0E-6, 1.0E-10 );
+
+    const Eigen::Vector3d solarArrayUp = evaluateCoefficientsForPropertyValue(
+            cookModel, solarArrayPanels, energy_accommodation_property, 0.80 + perturbation, incomingDirection );
+    const Eigen::Vector3d solarArrayDown = evaluateCoefficientsForPropertyValue(
+            cookModel, solarArrayPanels, energy_accommodation_property, 0.80 - perturbation, incomingDirection );
+    checkVectorClose( solarArrayAnalyticalPartial, ( solarArrayUp - solarArrayDown ) / ( 2.0 * perturbation ), 1.0E-6, 1.0E-10 );
+
+    // Exercise the projection applied when a gas-surface interaction model is configured to return drag only.
+    std::shared_ptr< GasSurfaceInteractionModel > dragOnlyCookModel =
+            createGasSurfaceInteractionModel( cook, allPanels, referenceArea, 0, true );
+    dragOnlyCookModel->setFreeStreamTemperature( freeStreamTemperature );
+    evaluateCoefficientsForPropertyValue( dragOnlyCookModel, busPanels, energy_accommodation_property, 0.35, incomingDirection );
+    const Eigen::Vector3d dragOnlyAnalyticalPartial =
+            dragOnlyCookModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, busGroupId );
+    const Eigen::Vector3d dragOnlyUp = evaluateCoefficientsForPropertyValue(
+            dragOnlyCookModel, busPanels, energy_accommodation_property, 0.35 + perturbation, incomingDirection );
+    const Eigen::Vector3d dragOnlyDown = evaluateCoefficientsForPropertyValue(
+            dragOnlyCookModel, busPanels, energy_accommodation_property, 0.35 - perturbation, incomingDirection );
+    checkVectorClose( dragOnlyAnalyticalPartial, ( dragOnlyUp - dragOnlyDown ) / ( 2.0 * perturbation ), 1.0E-6, 1.0E-10 );
+    BOOST_CHECK_SMALL( dragOnlyAnalyticalPartial.cross( incomingDirection ).norm( ), 1.0E-14 );
+
+    // Models that do not consume panel material properties inherit an exact zero partial.
+    std::shared_ptr< GasSurfaceInteractionModel > newtonModel =
+            createGasSurfaceInteractionModel( newton, allPanels, referenceArea, 0, false );
+    newtonModel->setIncomingDirection( incomingDirection );
+    newtonModel->computeAerodynamicCoefficients( );
+    BOOST_CHECK_SMALL( newtonModel->computeAerodynamicCoefficientsPartial( energy_accommodation_property, busGroupId ).norm( ),
+                       std::numeric_limits< double >::epsilon( ) );
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Layer 2: full aerodynamic acceleration partial vs numerical finite difference.
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -262,14 +335,15 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationMaterialPropertyPartials )
 
     const std::string groupId = "Bus";
 
-    std::vector< std::pair< EstimatebleParametersEnum, double > > allMaterialParameters = { { energy_accomodation_coefficient, 1.0E-5 },
-                                                                                            { normal_accomodation_coefficient, 1.0E-5 },
-                                                                                            { tangential_accomodation_coefficient, 1.0E-5 },
+    std::vector< std::pair< EstimatebleParametersEnum, double > > allMaterialParameters = { { energy_accommodation_coefficient, 1.0E-5 },
+                                                                                            { normal_accommodation_coefficient, 1.0E-5 },
+                                                                                            { tangential_accommodation_coefficient,
+                                                                                              1.0E-5 },
                                                                                             { normal_velocity_at_wall_ratio, 1.0E-5 } };
     std::map< GasSurfaceInteractionModelType, std::vector< EstimatebleParametersEnum > > activeModelParameters = {
-        { storch, { normal_accomodation_coefficient, tangential_accomodation_coefficient, normal_velocity_at_wall_ratio } },
-        { sentman, { energy_accomodation_coefficient } },
-        { cook, { energy_accomodation_coefficient } }
+        { storch, { normal_accommodation_coefficient, tangential_accommodation_coefficient, normal_velocity_at_wall_ratio } },
+        { sentman, { energy_accommodation_coefficient } },
+        { cook, { energy_accommodation_coefficient } }
     };
     std::vector< Eigen::Vector3d > componentScalingCases = { Eigen::Vector3d::Ones( ), Eigen::Vector3d( 1.35, 0.75, 1.60 ) };
 
@@ -394,22 +468,42 @@ BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterClass )
 {
     const std::string groupId = "Bus";
 
-    // Consistent group: get/set round-trip and parameter size.
+    // Consistent group: exercise the getter/setter dispatch for every supported property.
     {
         std::vector< std::shared_ptr< VehicleExteriorPanel > > panels = {
-            makeMaterialPanel( Eigen::Vector3d::UnitX( ), 1.0, 300.0, 0.7, 0.7, 0.7, 0.7, groupId ),
-            makeMaterialPanel( Eigen::Vector3d::UnitY( ), 1.0, 300.0, 0.7, 0.7, 0.7, 0.7, groupId )
+            makeMaterialPanel( Eigen::Vector3d::UnitX( ), 1.0, 300.0, 0.1, 0.2, 0.3, 0.4, groupId ),
+            makeMaterialPanel( Eigen::Vector3d::UnitY( ), 1.0, 300.0, 0.1, 0.2, 0.3, 0.4, groupId )
+        };
+        struct PropertyTestCase {
+            EstimatebleParametersEnum parameterType;
+            double initialValue;
+            double updatedValue;
+            std::function< double( const std::shared_ptr< VehicleExteriorPanel >& ) > getter;
+        };
+        const std::vector< PropertyTestCase > propertyTestCases = {
+            { energy_accommodation_coefficient, 0.1, 0.51, []( const auto& panel ) { return panel->getEnergyAccomodationCoefficient( ); } },
+            { normal_accommodation_coefficient, 0.2, 0.52, []( const auto& panel ) { return panel->getNormalAccomodationCoefficient( ); } },
+            { tangential_accommodation_coefficient,
+              0.3,
+              0.53,
+              []( const auto& panel ) { return panel->getTangentialAccomodationCoefficient( ); } },
+            { normal_velocity_at_wall_ratio, 0.4, 0.54, []( const auto& panel ) { return panel->getNormalVelocityAtWallRatio( ); } }
         };
 
-        PanelMaterialPropertyParameter parameter( panels, "Vehicle", groupId, energy_accomodation_coefficient );
-        BOOST_CHECK_EQUAL( parameter.getParameterSize( ), 1 );
-        BOOST_CHECK_CLOSE( parameter.getParameterValue( ), 0.7, 1.0E-12 );
-
-        parameter.setParameterValue( 0.42 );
-        BOOST_CHECK_CLOSE( parameter.getParameterValue( ), 0.42, 1.0E-12 );
-        for( auto panel : panels )
+        for( const PropertyTestCase& propertyTestCase : propertyTestCases )
         {
-            BOOST_CHECK_CLOSE( panel->getEnergyAccomodationCoefficient( ), 0.42, 1.0E-12 );
+            PanelMaterialPropertyParameter parameter( panels, "Vehicle", groupId, propertyTestCase.parameterType );
+            BOOST_CHECK( isDoubleParameter( propertyTestCase.parameterType ) );
+            BOOST_CHECK_EQUAL( parameter.getParameterSize( ), 1 );
+            BOOST_CHECK( parameter.getParameterDescription( ).find( groupId ) != std::string::npos );
+            BOOST_CHECK_CLOSE( parameter.getParameterValue( ), propertyTestCase.initialValue, 1.0E-12 );
+
+            parameter.setParameterValue( propertyTestCase.updatedValue );
+            BOOST_CHECK_CLOSE( parameter.getParameterValue( ), propertyTestCase.updatedValue, 1.0E-12 );
+            for( const auto& panel : panels )
+            {
+                BOOST_CHECK_CLOSE( propertyTestCase.getter( panel ), propertyTestCase.updatedValue, 1.0E-12 );
+            }
         }
     }
 
@@ -420,7 +514,7 @@ BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterClass )
             makeMaterialPanel( Eigen::Vector3d::UnitY( ), 1.0, 300.0, 0.5, 0.8, 0.5, 0.5, groupId )
         };
 
-        PanelMaterialPropertyParameter parameter( panels, "Vehicle", groupId, normal_accomodation_coefficient );
+        PanelMaterialPropertyParameter parameter( panels, "Vehicle", groupId, normal_accommodation_coefficient );
         BOOST_CHECK_CLOSE( parameter.getParameterValue( ), 0.7, 1.0E-12 );
         for( auto panel : panels )
         {
@@ -438,9 +532,44 @@ BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterClass )
     // Constructor must reject an empty panel list.
     {
         std::vector< std::shared_ptr< VehicleExteriorPanel > > emptyPanels;
-        BOOST_CHECK_THROW( PanelMaterialPropertyParameter( emptyPanels, "Vehicle", groupId, energy_accomodation_coefficient ),
+        BOOST_CHECK_THROW( PanelMaterialPropertyParameter( emptyPanels, "Vehicle", groupId, energy_accommodation_coefficient ),
                            std::runtime_error );
     }
+}
+
+BOOST_AUTO_TEST_CASE( testPanelMaterialPropertyParameterFactoryGroupSelection )
+{
+    const std::string busGroupId = "Bus";
+    const std::string solarArrayGroupId = "SolarArray";
+    std::vector< std::shared_ptr< VehicleExteriorPanel > > busPanels = {
+        makeMaterialPanel( Eigen::Vector3d::UnitX( ), 1.0, 300.0, 0.2, 0.3, 0.4, 0.5, busGroupId ),
+        makeMaterialPanel( Eigen::Vector3d::UnitY( ), 1.0, 300.0, 0.2, 0.3, 0.4, 0.5, busGroupId )
+    };
+    std::vector< std::shared_ptr< VehicleExteriorPanel > > solarArrayPanels = { makeMaterialPanel(
+            Eigen::Vector3d::UnitZ( ), 1.0, 300.0, 0.8, 0.7, 0.6, 0.5, solarArrayGroupId ) };
+
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Vehicle" );
+    std::shared_ptr< VehicleSystems > vehicleSystems = std::make_shared< VehicleSystems >( 100.0 );
+    vehicleSystems->setVehicleExteriorPanels( { { busGroupId, busPanels }, { solarArrayGroupId, solarArrayPanels } } );
+    bodies.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
+
+    std::shared_ptr< EstimatableParameter< double > > parameter =
+            createDoubleParameterToEstimate< double, double >( energyAccommodationCoefficient( "Vehicle", busGroupId ), bodies );
+    BOOST_CHECK( parameter->getParameterName( ).first == energy_accommodation_coefficient );
+    BOOST_CHECK_EQUAL( parameter->getParameterName( ).second.first, "Vehicle" );
+    BOOST_CHECK_EQUAL( parameter->getParameterName( ).second.second, busGroupId );
+
+    parameter->setParameterValue( 0.45 );
+    for( const auto& panel : busPanels )
+    {
+        BOOST_CHECK_CLOSE( panel->getEnergyAccomodationCoefficient( ), 0.45, 1.0E-12 );
+    }
+    BOOST_CHECK_CLOSE( solarArrayPanels.front( )->getEnergyAccomodationCoefficient( ), 0.8, 1.0E-12 );
+
+    BOOST_CHECK_THROW(
+            ( createDoubleParameterToEstimate< double, double >( energyAccommodationCoefficient( "Vehicle", "MissingGroup" ), bodies ) ),
+            std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

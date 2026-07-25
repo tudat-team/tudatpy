@@ -71,8 +71,9 @@ public:
     /*!
      * Returns d(force coefficient vector)/d(material property) in the same body-fixed frame and normalization as
      * computeAerodynamicCoefficients( ), for the scalar material property shared by all panels whose panel type id equals
-     * panelGroupId. The geometry-dependent quantities (panel cosines, illuminated fractions, reference area) are reused from
-     * the most recent forward evaluation, so this must be called after computeAerodynamicCoefficients( ) at the current state.
+     * panelGroupId. Panel incidence cosines are recomputed from the current incoming direction and panel normals. Illumination
+     * fractions from the most recent forward evaluation and the configured reference area are reused, so this must be called
+     * after computeAerodynamicCoefficients( ) at the current state.
      * The base implementation returns the zero vector, which is the exact partial for models whose coefficients do not depend on
      * the material properties (constant coefficients, Newton).
      * \param propertyType Material property w.r.t. which the partial is taken.

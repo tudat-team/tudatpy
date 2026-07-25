@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-#include <Eigen/Core>
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 
@@ -26,34 +24,55 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//! Interface class for the estimation of a scalar material property per group of panels.
+//! Estimatable scalar material property shared by a group of vehicle exterior panels.
+/*!
+ * The parameter is backed by all supplied panels, which are expected to have the same panel type identifier. Setting the
+ * parameter writes the value to every panel. On construction and retrieval, inconsistent panel values are replaced by their
+ * arithmetic mean so that the group remains represented by a single scalar.
+ */
 class PanelMaterialPropertyParameter : public EstimatableParameter< double >
 {
 public:
-    PanelMaterialPropertyParameter( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
+    //! Create an estimatable material property for one panel group.
+    /*!
+     * \param vehiclePanels Non-empty collection of panels sharing the estimated property. If the initial property values differ,
+     * they are replaced by their arithmetic mean.
+     * \param associatedBody Name of the body carrying the panels.
+     * \param panelTypeId Panel type identifier of the group represented by this parameter.
+     * \param parameterType Material property to estimate; must be an accommodation coefficient or the normal velocity at wall
+     * ratio.
+     */
+    PanelMaterialPropertyParameter( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& vehiclePanels,
                                     const std::string& associatedBody,
                                     const std::string& panelTypeId,
                                     const EstimatebleParametersEnum parameterType );
 
-    ~PanelMaterialPropertyParameter( ) {}
+    ~PanelMaterialPropertyParameter( ) override = default;
 
-    double normalizeValue( );
+    //! Return the shared scalar value, first averaging and synchronizing inconsistent panel values.
+    double getParameterValue( ) override;
 
-    double getParameterValue( );
+    //! Set the material property to the supplied value on every panel in the group.
+    void setParameterValue( const double parameterValue ) override;
 
-    void setParameterValue( double parameterValue );
-
-    int getParameterSize( )
+    //! Return the scalar parameter size.
+    int getParameterSize( ) override
     {
         return 1;
     }
 
 private:
+    //! Return the common value, replacing inconsistent panel values by their arithmetic mean.
+    double normalizeValue( );
+
+    //! Retrieve the selected material property from every panel.
     std::vector< double > getPanelMaterialPropertyValues( );
 
-    double getPanelMaterialPropertyValue( const std::shared_ptr< system_models::VehicleExteriorPanel > vehiclePanel );
+    //! Retrieve the selected material property from one panel.
+    double getPanelMaterialPropertyValue( const std::shared_ptr< system_models::VehicleExteriorPanel >& vehiclePanel );
 
-    void setPanelMaterialPropertyValue( const std::shared_ptr< system_models::VehicleExteriorPanel > vehiclePanel,
+    //! Set the selected material property on one panel.
+    void setPanelMaterialPropertyValue( const std::shared_ptr< system_models::VehicleExteriorPanel >& vehiclePanel,
                                         const double parameterValue );
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels_;

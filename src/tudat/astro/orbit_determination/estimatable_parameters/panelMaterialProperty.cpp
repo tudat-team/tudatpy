@@ -22,15 +22,15 @@ namespace estimatable_parameters
 {
 
 PanelMaterialPropertyParameter::PanelMaterialPropertyParameter(
-        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
+        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& vehiclePanels,
         const std::string& associatedBody,
         const std::string& panelTypeId,
         const EstimatebleParametersEnum parameterType ):
     EstimatableParameter< double >( parameterType, associatedBody, panelTypeId ), vehiclePanels_( vehiclePanels ),
     panelTypeId_( panelTypeId )
 {
-    if( !( ( parameterType == energy_accomodation_coefficient ) || ( parameterType == normal_accomodation_coefficient ) ||
-           ( parameterType == tangential_accomodation_coefficient ) || ( parameterType == normal_velocity_at_wall_ratio ) ) )
+    if( !( ( parameterType == energy_accommodation_coefficient ) || ( parameterType == normal_accommodation_coefficient ) ||
+           ( parameterType == tangential_accommodation_coefficient ) || ( parameterType == normal_velocity_at_wall_ratio ) ) )
     {
         throw std::runtime_error( "Error when creating estimated panel material property for " + panelTypeId + " of " + associatedBody +
                                   ", input type is inconsistent" );
@@ -71,7 +71,7 @@ double PanelMaterialPropertyParameter::getParameterValue( )
     return normalizeValue( );
 }
 
-void PanelMaterialPropertyParameter::setParameterValue( double parameterValue )
+void PanelMaterialPropertyParameter::setParameterValue( const double parameterValue )
 {
     for( unsigned int i = 0; i < vehiclePanels_.size( ); i++ )
     {
@@ -90,15 +90,15 @@ std::vector< double > PanelMaterialPropertyParameter::getPanelMaterialPropertyVa
 }
 
 double PanelMaterialPropertyParameter::getPanelMaterialPropertyValue(
-        const std::shared_ptr< system_models::VehicleExteriorPanel > vehiclePanel )
+        const std::shared_ptr< system_models::VehicleExteriorPanel >& vehiclePanel )
 {
     switch( parameterName_.first )
     {
-        case energy_accomodation_coefficient:
+        case energy_accommodation_coefficient:
             return vehiclePanel->getEnergyAccomodationCoefficient( );
-        case normal_accomodation_coefficient:
+        case normal_accommodation_coefficient:
             return vehiclePanel->getNormalAccomodationCoefficient( );
-        case tangential_accomodation_coefficient:
+        case tangential_accommodation_coefficient:
             return vehiclePanel->getTangentialAccomodationCoefficient( );
         case normal_velocity_at_wall_ratio:
             return vehiclePanel->getNormalVelocityAtWallRatio( );
@@ -108,18 +108,18 @@ double PanelMaterialPropertyParameter::getPanelMaterialPropertyValue(
 }
 
 void PanelMaterialPropertyParameter::setPanelMaterialPropertyValue(
-        const std::shared_ptr< system_models::VehicleExteriorPanel > vehiclePanel,
+        const std::shared_ptr< system_models::VehicleExteriorPanel >& vehiclePanel,
         const double parameterValue )
 {
     switch( parameterName_.first )
     {
-        case energy_accomodation_coefficient:
+        case energy_accommodation_coefficient:
             vehiclePanel->setEnergyAccomodationCoefficient( parameterValue );
             break;
-        case normal_accomodation_coefficient:
+        case normal_accommodation_coefficient:
             vehiclePanel->setNormalAccomodationCoefficient( parameterValue );
             break;
-        case tangential_accomodation_coefficient:
+        case tangential_accommodation_coefficient:
             vehiclePanel->setTangentialAccomodationCoefficient( parameterValue );
             break;
         case normal_velocity_at_wall_ratio:

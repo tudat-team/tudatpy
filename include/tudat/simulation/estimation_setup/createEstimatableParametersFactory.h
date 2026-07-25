@@ -1829,7 +1829,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             case diffuse_reflectivity: {
                 if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
                 {
-                    std::string errorMessage = "Error, no vehicle panelsl found in body " + currentBodyName +
+                    std::string errorMessage = "Error, no vehicle panels found in body " + currentBodyName +
                             " when making specular/diffuse reflectivity parameter.";
                     throw std::runtime_error( errorMessage );
                 }
@@ -1857,14 +1857,14 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 break;
             }
-            case energy_accomodation_coefficient:
-            case normal_accomodation_coefficient:
-            case tangential_accomodation_coefficient:
+            case energy_accommodation_coefficient:
+            case normal_accommodation_coefficient:
+            case tangential_accommodation_coefficient:
             case normal_velocity_at_wall_ratio: {
                 if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
                 {
-                    std::string errorMessage = "Error, no vehicle panelsl found in body " + currentBodyName +
-                            " when making panel material property parameter.";
+                    std::string errorMessage =
+                            "Error, no vehicle panels found in body " + currentBodyName + " when making panel material property parameter.";
                     throw std::runtime_error( errorMessage );
                 }
                 else

@@ -154,8 +154,8 @@ Eigen::Vector3d StorchGasSurfaceInteractionModel::computeAerodynamicCoefficients
                                                                                          const std::string& panelGroupId )
 {
     // Replays the loop of computeAerodynamicCoefficients( ), accumulating the derivative of the per-panel Cp, Ct w.r.t. the
-    // selected material property for the panels belonging to panelGroupId. The geometry (cosines, illuminated fractions,
-    // reference area) is reused from the most recent forward evaluation.
+    // selected material property for the panels belonging to panelGroupId. Incidence cosines are recomputed from the current
+    // incoming direction and panel normals; cached illumination fractions and the configured reference area are reused.
     double cosineDelta, sineDelta;
     double dCp, dCt, panelArea;
     Eigen::Vector3d coefficientPartialBodyFrame = Eigen::Vector3d::Zero( );
