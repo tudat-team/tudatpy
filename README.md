@@ -117,6 +117,8 @@ python uninstall.py                   # Uninstall Tudatpy
 ````
 pytest
 ````
+Use `pytest --no-remote-data` to skip tests that require a network connection.
+
 Desired result:
 ````
 =========================================== 6 passed in 1.78s ============================================
