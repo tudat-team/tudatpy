@@ -530,6 +530,9 @@ Read a mapping from DOMES id to station name.
             .value( "doppler_averaged_frequency",
                     tudat::input_output::TrackingDataType::doppler_averaged_frequency,
                     R"doc(No documentation available.)doc" )
+            .value( "doppler_integration_time",
+                    tudat::input_output::TrackingDataType::doppler_integration_time,
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_base_frequency",
                     tudat::input_output::TrackingDataType::doppler_base_frequency,
                     R"doc(No documentation available.)doc" )
@@ -562,6 +565,15 @@ Read a mapping from DOMES id to station name.
                     R"doc(No documentation available.)doc" )
             .export_values( );
 
+    py::enum_< tudat::input_output::FdetDateFormat >( m, "FdetDateFormat", R"doc(Date format used in an Fdets file.)doc" )
+            .value( "datetime_string",
+                    tudat::input_output::FdetDateFormat::datetime_string,
+                    R"doc(Date is provided in a single UTC datetime string column.)doc" )
+            .value( "pair_of_numbers",
+                    tudat::input_output::FdetDateFormat::pair_of_numbers,
+                    R"doc(Date is provided as a pair of numeric columns. This format is not currently supported.)doc" )
+            .export_values( );
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -577,7 +589,10 @@ Read a mapping from DOMES id to station name.
            R"doc(
  Reads a space weather data file and produces a dictionary with solar activity data for a range of epochs. Data files can be obtained from http://celestrak.com/SpaceData and should follow the legacy format.
 
- :param file_path: Path to the space weather data file.
+ Parameters
+ ----------
+ file_path : str
+     Path to the space weather data file.
  )doc" );
 
     py::class_< tio::solar_activity::SolarActivityContainer, std::shared_ptr< tio::solar_activity::SolarActivityContainer > >(
@@ -654,7 +669,10 @@ Read a mapping from DOMES id to station name.
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfDataSpecificBlock, std::shared_ptr< tio::OdfDataSpecificBlock > >(
@@ -689,7 +707,10 @@ Read a mapping from DOMES id to station name.
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfRampBlock, std::shared_ptr< tio::OdfRampBlock > >(
@@ -786,11 +807,19 @@ Read a mapping from DOMES id to station name.
 
            Two of the columns of an IFMS file contain, respectively, the Doppler averaged frequency and a tropospheric correction for the station. When the `apply_tropospheric_correction` option is set to true, the content of the first column is modified by subtracting the values in the second.
 
-           :param file_name: String representing the path to the file to be loaded
-           :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
-           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           apply_tropospheric_correction : bool
+               Whether to modify the averaged Doppler frequency as described above (Default: True)
+           remove_invalid_lines : bool
+               Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
 
-           :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
+           Returns
+           -------
+           ifms_contents : TrackingTxtFileContents
+               Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
@@ -806,18 +835,13 @@ Read a mapping from DOMES id to station name.
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
 
-    // Temporary fix: Asigned default to variable to avoid compilation error
-    const std::vector< std::string > fdet_cols = {
-        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
-    };
-
     m.def( "read_fdets_file",
-           &tio::readFdetsFile,
+           py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),
            py::arg( "file_name" ),
-           py::arg( "column_types" ) = fdet_cols,
+           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string,
            R"doc(Load contents of Fdets file into object
 
-           This function loads the contents of an Fdets file into a dictionary with keys defined by the strings listed in `column_types`. If a list of columns is not specified, the following structure is assumed:
+           This function loads the contents of an Fdets file. For the currently supported `datetime_string` date format, the following structure is assumed:
 
            - UTC datetime string
            - Signal to noise ratio [-]
@@ -825,9 +849,41 @@ Read a mapping from DOMES id to station name.
            - Doppler measured frequency [Hz]
            - Doppler noise [Hz]
 
-           :param file_name: String representing the path to the file to be loaded
-           :param column_types: Identifiers of the columns present in the Fdets file
-           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           If the file contains an additional leading scan-number column, this column is detected automatically.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           date_format : FdetDateFormat
+               Date format used in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
+
+    m.def( "read_fdets_file",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tio::readFdetsFile ),
+           py::arg( "file_name" ),
+           py::arg( "column_types" ),
+           R"doc(Load contents of Fdets file into object using explicit column identifiers.
+
+           .. deprecated::
+              Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           column_types : List[str]
+               Identifiers of the columns present in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 };
 

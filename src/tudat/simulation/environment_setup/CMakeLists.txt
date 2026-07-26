@@ -37,6 +37,8 @@ set(environment_HEADERS
         createSystemModel.h
         createThrustModelGuidance.h
         thrustSettings.h
+        createClimateModel.h
+        createCameras.h
         createRelativisticTimeConverter.h
         createMetric.h
         )
@@ -69,6 +71,8 @@ set(environment_SOURCES
         createRadiationPressureTargetModel.cpp
         createOccultationModel.cpp
         createSurfacePropertyDistribution.cpp
+        createClimateModel.cpp
+        createCameras.cpp
         createRelativisticTimeConverter.cpp
         createMetric.cpp
         )
@@ -80,3 +84,15 @@ TUDAT_ADD_LIBRARY("environment_setup"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
+
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(tudat_environment_setup PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(tudat_environment_setup SYSTEM PRIVATE 
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+endif()

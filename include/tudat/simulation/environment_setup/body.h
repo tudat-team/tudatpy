@@ -33,6 +33,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
@@ -129,6 +130,14 @@ public:
      */
     Eigen::Vector6d getState( );
 
+    //! Get current custom state.
+    /*!
+     * Returns the internally stored current custom state vector. This state is only valid while
+     * it is being set during propagation.
+     * \return Current custom state.
+     */
+    Eigen::VectorXd getCustomState( );
+
     //! Set current state of body manually
     /*!
      * Set current state of body manually, which must be in the global frame. Note that this
@@ -137,6 +146,12 @@ public:
      * \param state Current state of the body that is set.
      */
     void setState( const Eigen::Vector6d& state );
+
+    //! Set current custom state of body manually.
+    /*!
+     * \param customState Current custom state of the body that is set.
+     */
+    void setCustomState( const Eigen::VectorXd& customState );
 
     //! Set current state of body manually in long double precision.
     /*!
@@ -814,6 +829,16 @@ public:
         return timeScaleConverter_;
     }
 
+    void setClimateModel( std::shared_ptr< environment::ClimateModel > climateModel )
+    {
+        climateModel_ = climateModel;
+    }
+
+    std::shared_ptr< environment::ClimateModel > getClimateModel( )
+    {
+        return climateModel_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -824,6 +849,9 @@ private:
 
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
+
+    //! Current custom state.
+    Eigen::VectorXd currentCustomState_;
 
     //! Current state.
     Eigen::Vector6d currentBarycentricState_;
@@ -915,9 +943,13 @@ private:
 
     bool isStateSet_;
 
+    bool isCustomStateSet_;
+
     bool isRotationSet_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< environment::ClimateModel > climateModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
 };

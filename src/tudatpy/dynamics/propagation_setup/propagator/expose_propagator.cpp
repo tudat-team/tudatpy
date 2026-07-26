@@ -70,7 +70,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
         const py::array_t< double, py::array::c_style | py::array::forcecast >& initial_state,
         const TIME_TYPE& initial_time,
         const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >& integrator_settings,
-        const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings )
+        const std::shared_ptr< tp::PropagationTerminationSettings >& termination_settings,
+        const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >& dependent_variables_to_save = {} )
 {
     Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > state_vector;
     const auto buffer = initial_state.request( );
@@ -109,7 +110,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
                                                                                                 state_vector,
                                                                                                 initial_time,
                                                                                                 integrator_settings,
-                                                                                                termination_settings );
+                                                                                                termination_settings,
+                                                                                                dependent_variables_to_save );
 }
 
 void expose_propagator_setup( py::module& m )
@@ -1115,6 +1117,9 @@ output_variables : list[SingleDependentVariableSaveSettings], default=[]
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
     Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+body : str, default=""
+    Name of the body for which this custom state is propagated. If left empty, the custom state is
+    not set in any :class:`~tudatpy.dynamics.environment.Body` during propagation.
 
 Returns
 -------
@@ -1177,11 +1182,14 @@ propagator : RotationalPropagatorType, default=quaternions
     Type of rotational propagator to be used (see `RotationalPropagatorType` enum).
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
-processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
-    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+	processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+	    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
+	    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+	body : str, default=""
+	    Name of the body for which this custom state is propagated. If left empty, the custom state is
+	    not set in any :class:`~tudatpy.dynamics.environment.Body` during propagation.
 
-Returns
+	Returns
 -------
 RotationalStatePropagatorSettings
     Rotational state propagator settings object.
@@ -1259,6 +1267,7 @@ SingleArcPropagatorSettings
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "processing_settings" ) = nullptr,
+           py::arg( "body" ) = "",
            R"doc(
 
 Function to create custom propagator settings.
@@ -1768,7 +1777,12 @@ HybridArcPropagatorSettings
      )doc" );
 
     // Relativistic time propagator settings
+    // NOTE: declare the SingleArcPropagatorSettings base so Python recognises
+    // these as propagator settings (matches the C++ hierarchy
+    // RelativisticTimeStatePropagatorSettings : public SingleArcPropagatorSettings);
+    // this lets create_dynamics_simulator() run the direct-from-metric propagator.
     py::class_< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m, "RelativisticTimePropagatorSettings", R"doc(
 
@@ -1811,6 +1825,7 @@ HybridArcPropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "spherical_harmonic_expansions" ) = std::map< std::string, std::pair< int, int > >( ),
+           py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            R"doc(
 
  Creates settings for first-order barycentric↔body-centered relativistic time conversion.
@@ -1873,6 +1888,12 @@ HybridArcPropagatorSettings
  spherical_harmonic_expansions : dict[str, tuple[int, int]], optional
      Optional map from body name to ``(degree, order)`` defining spherical-harmonic gravity expansions
      in the potential evaluation.
+ dependent_variables_to_save : list[SingleDependentVariableSaveSettings], default=[]
+     Dependent variables to save during the relativistic time-state propagation, for example the
+     kinematic and potential proper-time-rate terms
+     (:func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_kinematic_term`
+     and
+     :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_potential_term`).
 
  Returns
  -------
@@ -1892,6 +1913,7 @@ HybridArcPropagatorSettings
            py::arg( "initial_time" ),
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
+           py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            R"doc(
 
  Creates settings for body-centered↔topocentric relativistic time conversion.
@@ -1957,6 +1979,12 @@ HybridArcPropagatorSettings
      Numerical integrator settings used to propagate the relativistic time state.
  termination_settings : PropagationTerminationSettings
      Termination settings for the relativistic time-state propagation.
+ dependent_variables_to_save : list[SingleDependentVariableSaveSettings], default=[]
+     Dependent variables to save during the relativistic time-state propagation, for example the
+     kinematic and potential proper-time-rate terms
+     (:func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_kinematic_term`
+     and
+     :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.proper_time_rate_potential_term`).
 
  Returns
  -------

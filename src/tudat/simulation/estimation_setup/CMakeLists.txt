@@ -60,7 +60,9 @@ set(estimation_HEADERS
         createPositionPartialScaling.h
         createClockPartials.h
         processOdfFile.h
+        processPsfFile.h
         processTrackingTxtFile.h
+        compressDopplerObservationCollection.h
         )
 
 # Add header files.

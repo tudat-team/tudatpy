@@ -236,7 +236,7 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {}
 
@@ -271,7 +271,7 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -309,7 +309,7 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -349,7 +349,7 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
     {}
@@ -389,7 +389,7 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -425,7 +425,7 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -817,9 +817,9 @@ public:
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class FullDegreeTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -876,9 +876,9 @@ public:
  *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
  *  degree. The estimation will provide separate Love numbers for each order
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {

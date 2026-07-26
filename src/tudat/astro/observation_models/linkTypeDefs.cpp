@@ -42,6 +42,9 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
         case receiver:
             linkEndString = "receiver";
             break;
+        case receiver2:
+            linkEndString = "receiver_2";
+            break;
         case observed_body:
             linkEndString = "observed body";
             break;
@@ -65,13 +68,13 @@ std::string getLinkEndsString( const LinkEnds linkEnds )
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.bodyName_;
-        if( linkEndIterator->second.stationName_ == "" )
+        if( linkEndIterator->second.getReferencePointName( ) == "" )
         {
             linkEndsString += ")";
         }
         else
         {
-            linkEndsString += ", " + linkEndIterator->second.stationName_ + ")";
+            linkEndsString += ", " + linkEndIterator->second.getReferencePointName( ) + ")";
         }
 
         if( linkEndIterator != ( --linkEnds.end( ) ) )
@@ -160,7 +163,7 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         if( linkEndIterator->second == linkEndId ||
-            ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) && linkEndId.stationName_ == "" ) )
+            ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) && linkEndId.getReferencePointName( ) == "" ) )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }

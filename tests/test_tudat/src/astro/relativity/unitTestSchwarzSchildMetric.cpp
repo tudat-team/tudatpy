@@ -12,7 +12,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
+#include <vector>
 
 #include <boost/test/unit_test.hpp>
 
@@ -78,6 +80,76 @@ BOOST_AUTO_TEST_CASE( testSchwarzschildMetricPerturbation )
     const Eigen::Matrix4d identityCheck = covariantMetric * contravariantMetric;
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( identityCheck, Eigen::Matrix4d::Identity( ), 5.0E-13 );
+}
+
+// Analytic vs numeric partials: the harmonic-Schwarzschild metric provides analytic Christoffel
+// symbols. Validate them against the defining relation
+//   Gamma^lambda_{mu nu} = 1/2 g^{lambda sigma} ( d_mu g_{sigma nu} + d_nu g_{sigma mu} - d_sigma g_{mu nu} )
+// using central finite differences of the metric. The metric is static, so d_0 g = 0 and only
+// spatial derivatives appear. The perturbation h (~1e-9) is differenced rather than the full
+// metric (~1) to avoid catastrophic roundoff in the ~1e-16 derivatives.
+BOOST_AUTO_TEST_CASE( testSchwarzschildChristoffelAgainstFiniteDifferences )
+{
+    const double earthGravitationalParameter = 3.986004418E14;
+    auto ppnParameterSet = std::make_shared< PPNParameterSet >( 1.0, 1.0 );
+    auto metric = std::make_shared< HarmonicSchwarzschildMetric >(
+            [ = ]( ) { return earthGravitationalParameter; }, ppnParameterSet, "Earth", false );
+
+    // Generic (non-symmetric, off-axis) evaluation position.
+    Eigen::Vector6d state = Eigen::Vector6d::Zero( );
+    state.segment( 0, 3 ) = ( Eigen::Vector3d( ) << 7.0E6, -3.0E6, 4.0E6 ).finished( );
+
+    metric->update( state, 0.0, true, true );
+    const std::vector< Eigen::Matrix4d > analyticChristoffel = metric->getCurrentChristoffelSymbols( );
+    const Eigen::Matrix4d contravariantMetric = metric->getCurrentContravariantMetric( );
+
+    // Spatial central differences of the metric PERTURBATION (d_0 h = 0, static metric).
+    auto perturbationAt = [ & ]( const Eigen::Vector3d& position ) {
+        Eigen::Vector6d s = state;
+        s.segment( 0, 3 ) = position;
+        metric->update( s, 0.0, true, false );
+        return metric->getCurrentCovariantMetricPeturbation( );
+    };
+    const double step = 100.0;                                                       // m
+    std::vector< Eigen::Matrix4d > metricDerivative( 4, Eigen::Matrix4d::Zero( ) );  // d_sigma g (sigma=0 stays zero)
+    for( int axis = 0; axis < 3; ++axis )
+    {
+        Eigen::Vector3d plus = state.segment( 0, 3 ), minus = state.segment( 0, 3 );
+        plus( axis ) += step;
+        minus( axis ) -= step;
+        metricDerivative[ axis + 1 ] = ( perturbationAt( plus ) - perturbationAt( minus ) ) / ( 2.0 * step );
+    }
+
+    // Numeric Christoffel from the defining relation.
+    std::vector< Eigen::Matrix4d > numericChristoffel( 4, Eigen::Matrix4d::Zero( ) );
+    for( int lambda = 0; lambda < 4; ++lambda )
+    {
+        for( int mu = 0; mu < 4; ++mu )
+        {
+            for( int nu = 0; nu < 4; ++nu )
+            {
+                double value = 0.0;
+                for( int sigma = 0; sigma < 4; ++sigma )
+                {
+                    value += 0.5 * contravariantMetric( lambda, sigma ) *
+                            ( metricDerivative[ mu ]( sigma, nu ) + metricDerivative[ nu ]( sigma, mu ) -
+                              metricDerivative[ sigma ]( mu, nu ) );
+                }
+                numericChristoffel[ lambda ]( mu, nu ) = value;
+            }
+        }
+    }
+
+    // Compare against the largest analytic Christoffel magnitude (components span 0 .. ~1e-16,
+    // so a per-element fractional tolerance is ill-conditioned on the near-zero entries).
+    double maxMagnitude = 0.0, maxDifference = 0.0;
+    for( int lambda = 0; lambda < 4; ++lambda )
+    {
+        maxMagnitude = std::max( maxMagnitude, analyticChristoffel[ lambda ].cwiseAbs( ).maxCoeff( ) );
+        maxDifference = std::max( maxDifference, ( analyticChristoffel[ lambda ] - numericChristoffel[ lambda ] ).cwiseAbs( ).maxCoeff( ) );
+    }
+    BOOST_CHECK_GT( maxMagnitude, 0.0 );
+    BOOST_CHECK_SMALL( maxDifference / maxMagnitude, 1.0E-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

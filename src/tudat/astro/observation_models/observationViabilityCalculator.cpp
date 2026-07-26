@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <cmath>
+
 #include "tudat/astro/observation_models/observationViabilityCalculator.h"
 
 namespace tudat
@@ -45,13 +47,14 @@ bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEnds& linkEnds,
-        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators )
+        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators,
+        const Eigen::VectorXd& observationValue )
 {
     bool isObservationFeasible = 1;
 
     if( viabilityCalculators.count( linkEnds ) > 0 )
     {
-        isObservationFeasible = isObservationViable( states, times, viabilityCalculators.at( linkEnds ) );
+        isObservationFeasible = isObservationViable( states, times, viabilityCalculators.at( linkEnds ), observationValue );
     }
 
     return isObservationFeasible;
@@ -60,13 +63,14 @@ bool isObservationViable(
 //! Function to check whether an observation is viable
 bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
                           const std::vector< double >& times,
-                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
+                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators,
+                          const Eigen::VectorXd& observationValue )
 {
     bool isObservationFeasible = 1;
 
     for( unsigned int i = 0; i < viabilityCalculators.size( ); i++ )
     {
-        if( viabilityCalculators.at( i )->isObservationViable( states, times ) == 0 )
+        if( viabilityCalculators.at( i )->isObservationViable( states, times, observationValue ) == 0 )
         {
             isObservationFeasible = 0;
             break;
@@ -78,7 +82,8 @@ bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
 
 //! Function for determining whether the elevation angle at station is sufficient to allow observation
 bool MinimumElevationAngleCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                                           const std::vector< double >& linkEndTimes )
+                                                           const std::vector< double >& linkEndTimes,
+                                                           const Eigen::VectorXd& observationValue )
 {
     bool isObservationPossible = 1;
 
@@ -154,7 +159,8 @@ double computeCosineBodyAvoidanceAngle( const std::vector< Eigen::Vector6d >& li
 
 //! Function for determining whether the avoidance angle to a given body at station is sufficient to allow observation.
 bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                                        const std::vector< double >& linkEndTimes )
+                                                        const std::vector< double >& linkEndTimes,
+                                                        const Eigen::VectorXd& observationValue )
 {
     bool isObservationPossible = 1;
     Eigen::Vector3d positionOfBodyToAvoid;
@@ -219,7 +225,8 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
 
 //! Function for determining whether the link is occulted during the observataion.
 bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                                 const std::vector< double >& linkEndTimes )
+                                                 const std::vector< double >& linkEndTimes,
+                                                 const Eigen::VectorXd& )
 {
     bool isObservationPossible = 1;
 
@@ -243,6 +250,29 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
                                 linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ),
                                 stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
                                 radiusOfOccultingBody_ ) )
+        {
+            isObservationPossible = 0;
+            break;
+        }
+    }
+
+    return isObservationPossible;
+}
+
+bool ObservationBoundariesViabilityCalculator::isObservationViable( const std::vector< Eigen::Vector6d >&,
+                                                                    const std::vector< double >&,
+                                                                    const Eigen::VectorXd& observationValue )
+{
+    bool isObservationPossible = 1;
+
+    if( static_cast< std::size_t >( observationValue.size( ) ) != boundaries_.size( ) )
+    {
+        throw std::runtime_error( "Error in observation viability calculator, size of observation value and boundaries do not match." );
+    }
+    for( std::size_t i = 0; i < boundaries_.size( ); i++ )
+    {
+        if( observationValue( i ) > boundaries_.at( i ).second || observationValue( i ) < boundaries_.at( i ).first ||
+            std::isnan( observationValue( i ) ) )
         {
             isObservationPossible = 0;
             break;

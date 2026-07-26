@@ -191,7 +191,7 @@ double ComaModel::getDensity( const double radius, const double longitude, const
 
     // Get number density and convert to mass density
     // Convert: number_density [1/m³] × molecular_weight [kg/mol] / N_A [1/mol] = mass_density [kg/m³]
-    const double numberDensity = getNumberDensity( radius, longitude, latitude, time );
+    const double numberDensity = getTotalNumberDensity( radius, longitude, latitude, time );
     return numberDensity * molecularWeight_ / physical_constants::AVOGADRO_CONSTANT;
 }
 
@@ -205,7 +205,7 @@ double ComaModel::getDensity( const double radius, const double longitude, const
  * \param time Time at which number density is to be computed [s]
  * \return Coma number density at specified location and time [m^-3]
  */
-double ComaModel::getNumberDensity( const double radius, const double longitude, const double latitude, const double time )
+double ComaModel::getTotalNumberDensity( const double radius, const double longitude, const double latitude, const double time )
 {
     // Check if we can reuse cached final density result
     constexpr double tolerance = 1e-10;
@@ -455,7 +455,7 @@ int ComaModel::findTimeIntervalIndex( const double time )
  * \return Solar longitude angle from X-axis in XY plane [rad]
  * \throws std::runtime_error If state functions are not initialized
  */
-double ComaModel::calculateSolarLongitude( const double time )
+double ComaModel::calculateSolarLongitude( const double time ) const
 {
     constexpr double timeTolerance = 1e-10;
     constexpr double timeToleranceSq = timeTolerance * timeTolerance;

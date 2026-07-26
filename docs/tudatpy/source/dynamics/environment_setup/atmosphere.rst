@@ -63,7 +63,6 @@ Functions
    exponential_predefined
    exponential
    nrlmsise00
-   mcd
    tabulated
    us76
    mars_dtm
@@ -73,6 +72,13 @@ Functions
    scaled_by_function
    coma_model_from_poly_data
    coma_model_from_stokes_data
+
+.. ifconfig:: has_mcd_support
+
+   .. autosummary::
+
+      mars_climate_database_climate_model
+      mars_climate_database_atmosphere_model
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.empty_wind_model
@@ -89,7 +95,6 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
 
-.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
@@ -108,6 +113,15 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_stokes_data
 
+.. ifconfig:: has_mcd_support
+
+   Mars Climate Database
+   ~~~~~~~~~~~~~~~~~~~~~
+
+   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
+
+   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model
+
 
 Classes
 -------
@@ -119,6 +133,7 @@ Classes
    EmptyWindModelSettings
    ConstantWindModelSettings
    CustomWindModelSettings
+   ClimateModelSettings
    AtmosphereSettings
    ComaSettings
    ExponentialAtmosphereSettings
@@ -145,6 +160,12 @@ Wind Model Settings
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.CustomWindModelSettings
    :members:
    :show-inheritance:
+
+Climate Model Settings
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ClimateModelSettings
+   :members:
 
 
 Atmosphere Settings

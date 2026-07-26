@@ -548,6 +548,26 @@ public:
     bool normalizeAzimuth_;
 };
 
+class PixelCoordinatesObservationModelSettings : public ObservationModelSettings
+{
+public:
+    PixelCoordinatesObservationModelSettings( const LinkDefinition linkEnds,
+                                              const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                                                      std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                              const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+                                              const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                                              const bool correctForStellarAberration = false ):
+        ObservationModelSettings( pixel_coordinates, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria ),
+        correctForStellarAberration_( correctForStellarAberration )
+    {}
+
+    ~PixelCoordinatesObservationModelSettings( ) {}
+
+    //! If true, model pixel coordinates from the apparent incoming direction including stellar aberration.
+    bool correctForStellarAberration_;
+};
+
 std::vector< LinkDefinition > getObservationModelListLinkEnds(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelList );
 
@@ -1228,6 +1248,33 @@ inline std::shared_ptr< ObservationModelSettings > azimuthElevationSettings(
 {
     return std::make_shared< AzimuthElevationObservationModelSettings >(
             linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, normalizeAzimuth );
+}
+
+inline std::shared_ptr< ObservationModelSettings > pixelCoordinatesSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool correctForStellarAberration = false )
+{
+    const auto linkEndMap = linkEnds.getLinkEnds( );
+    if( linkEndMap.count( transmitter ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, transmitter link end not provided." );
+    }
+    if( linkEndMap.count( receiver ) == 0 )
+    {
+        throw std::runtime_error( "Error when creating camera pixel settings, receiver link end not provided." );
+    }
+    if( linkEndMap.at( receiver ).getReferencePointName( ).empty( ) )
+    {
+        throw std::runtime_error( "Error when creating pixel coordinates settings, receiver reference point name is empty." );
+    }
+
+    return std::make_shared< PixelCoordinatesObservationModelSettings >(
+            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, correctForStellarAberration );
 }
 
 inline std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings(

@@ -41,9 +41,10 @@ endif()
 # Get version from file
 file(STRINGS "version" VERSION_LABEL)
 list(GET VERSION_LABEL 0 VERSION_LABEL)
+string(STRIP "${VERSION_LABEL}" TUDATPY_FULL_VERSION)
 string(
     REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
-    TUDATPY_VERSION "${VERSION_LABEL}"
+    TUDATPY_VERSION "${TUDATPY_FULL_VERSION}"
 )
 
 # Project declaration.
@@ -104,7 +105,7 @@ option(
 )
 option(
     TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
-    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time of tests."
     ON
 )
 option(
@@ -170,6 +171,12 @@ option(
 option(
     TUDAT_BUILD_WITH_PAGMO
     "Build Tudat with pagmo."
+    OFF
+)
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD_INTERFACE
+    "Build Tudat with Mars Climate Database support."
     OFF
 )
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
@@ -360,7 +367,7 @@ endif ()
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
 message(STATUS "TudatResources_INCLUDE_DIRS: ${TudatResources_INCLUDE_DIRS}")
-include_directories(TudatResources_INCLUDE_DIRS)
+include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -438,32 +445,25 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# MCD dependency - add option and enable Fortran if needed
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
-
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language
     enable_language(Fortran)
-    
+
     # Find NetCDF (required for MCD)
     find_package(NetCDF REQUIRED COMPONENTS Fortran C)
-    
+
     if(NOT NetCDF_FOUND)
         message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
                            "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
     endif()
-    
+
     message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
     message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
     message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
-    
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=1)
 else()
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=0)
 endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
@@ -481,14 +481,14 @@ include(YOLOProjectAddExternalData)
 include(TudatLinkLibraries)
 
 # Build MCD library if enabled (must be AFTER TudatLinkLibraries)
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
     add_subdirectory(${MCD_SOURCE_DIR})
-    
+
     # Set MCD data directory path
     set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
     target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
-    
+
     message(STATUS "MCD: Library configured successfully")
     message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
 endif()
