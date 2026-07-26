@@ -14,9 +14,11 @@
 #include <set>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#endif
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/readSp3File.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
@@ -170,6 +172,7 @@ Eigen::Vector6d transformStateBetweenItrfFrames( const Eigen::Vector6d& state,
     return targetFrame == "ITRF2014" ? stateInItrf2014 : transformStateFromItrf2014( stateInItrf2014, epochSinceJ2000, targetFrame );
 }
 
+#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 std::pair< basic_astrodynamics::TimeScales, double > getEarthRotationTimeScaleAndOffset( const std::string& timeScale )
 {
     const std::string normalizedTimeScale = normalizeSp3FrameName( timeScale );
@@ -241,6 +244,7 @@ Eigen::Vector6d rotateStateToItrs( const Eigen::Vector6d& state,
     return ephemerides::transformStateToFrameFromRotations(
             state, rotationModel->getRotationToTargetFrame( epoch ), rotationModel->getDerivativeOfRotationToTargetFrame( epoch ) );
 }
+#endif
 
 }  // namespace
 
@@ -329,6 +333,7 @@ std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::shared_ptr
         return tabulatedEphemerisSettings( transformedStateHistory, frameOrigin, resolvedFrameOrientation );
     }
 
+#if TUDAT_BUILD_WITH_SOFA_INTERFACE
     const std::lock_guard< std::mutex > earthRotationLock( getSp3EarthRotationMutex( ) );
     const auto earthRotationTime = getEarthRotationTimeScaleAndOffset( fileContents->timeScale );
     std::shared_ptr< ephemerides::RotationalEphemeris > sourceRotationModel;
@@ -354,6 +359,10 @@ std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::shared_ptr
     }
 
     return tabulatedEphemerisSettings( transformedStateHistory, frameOrigin, resolvedFrameOrientation );
+#else
+    throw std::invalid_argument( "Cannot transform SP3 states from frame '" + fileContents->frameName + "' to frame '" +
+                                 resolvedFrameOrientation + "': this Tudat build has no SOFA/IERS Earth-orientation support." );
+#endif
 }
 
 std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::string& fileName,
