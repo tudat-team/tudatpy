@@ -211,11 +211,27 @@ class Installer:
 
             # Install tudat static libraries
             if sys.platform == "win32":
-                # On Windows, static libs are in build/lib/<build_config>
-                for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
-                    lib_dir = self.build_dir / "lib" / build_config
-                    if lib_dir.exists():
-                        self.link_content(lib_dir, self.conda_prefix / "lib", [".a", ".lib"])
+                # Multi-config generators put libraries in
+                # build/lib/<build_config>; single-config generators use
+                # build/lib directly.
+                lib_root = self.build_dir / "lib"
+                lib_dirs = [
+                    lib_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                lib_dirs.append(lib_root)
+                for lib_dir in lib_dirs:
+                    if any(lib_dir.glob("*.a")) or any(lib_dir.glob("*.lib")):
+                        self.link_content(
+                            lib_dir,
+                            self.conda_prefix / "lib",
+                            [".a", ".lib"],
+                        )
                         break
             else:
                 self.link_content(
@@ -257,11 +273,25 @@ class Installer:
 
             # Install kernel
             if sys.platform == "win32":
-                # On Windows (MSVC), kernel.pyd is in build/src/tudatpy/<build_config>
-                for build_config in ["Release", "Debug", "RelWithDebInfo", "MinSizeRel"]:
-                    kernel_dir = self.build_dir / "src/tudatpy" / build_config
-                    if kernel_dir.exists():
-                        self.link_content(kernel_dir, self.pylib_dir / "tudatpy", [".pyd"])
+                # Support both multi-config and single-config generators.
+                kernel_root = self.build_dir / "src/tudatpy"
+                kernel_dirs = [
+                    kernel_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                kernel_dirs.append(kernel_root)
+                for kernel_dir in kernel_dirs:
+                    if (kernel_dir / "kernel.pyd").is_file():
+                        self.link_content(
+                            kernel_dir,
+                            self.pylib_dir / "tudatpy",
+                            [".pyd"],
+                        )
                         break
             else:
                 # On Linux/macOS, kernel is in build/src/tudatpy/
