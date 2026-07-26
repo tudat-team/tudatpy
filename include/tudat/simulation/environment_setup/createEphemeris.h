@@ -1046,8 +1046,10 @@ inline std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings( const st
 //! Create tabulated ephemeris settings for one satellite from parsed SP3 file contents.
 /*!
  * Position-only SP3 files are supported through the second-order velocities reconstructed by readSp3File. The
- * coordinate-system name is retained as frame metadata unless frameOrientation is supplied; no frame transformation
- * is performed. Likewise, epochs remain expressed in the time system declared by the SP3 file.
+ * coordinate-system name is retained as frame metadata when frameOrientation is empty. If frameOrientation differs,
+ * supported terrestrial-realization transformations or Earth-fixed/inertial rotations are applied to both position
+ * and velocity. An exception is thrown when the requested transformation is unavailable. Epoch keys remain expressed
+ * in the time system declared by the SP3 file.
  */
 std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::shared_ptr< input_output::Sp3FileContents >& fileContents,
                                                            const std::string& satelliteId,

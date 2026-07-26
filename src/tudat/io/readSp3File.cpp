@@ -207,6 +207,7 @@ void deriveVelocitiesFromPositions( Sp3FileContents& fileContents, const std::st
 std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, const double referenceJulianDay )
 {
     std::shared_ptr< Sp3FileContents > fileContents = std::make_shared< Sp3FileContents >( );
+    fileContents->referenceJulianDay = referenceJulianDay;
 
     std::ifstream stream( fileName, std::ios_base::in );
     if( !stream.good( ) )

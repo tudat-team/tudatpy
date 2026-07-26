@@ -40,6 +40,9 @@ struct Sp3FileContents {
     //! Start epoch from SP3 header [s since referenceJulianDay].
     double startEpoch = TUDAT_NAN;
 
+    //! Julian day relative to which all epochs in satelliteStates are expressed.
+    double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000;
+
     //! Declared number of epochs from SP3 header line '#'.
     int declaredNumberOfEpochs = -1;
 
@@ -70,7 +73,7 @@ struct Sp3FileContents {
 /*!
  * The official GPS, GLO, GAL, BDT, TAI, UTC, IRN, and QZS time-system tags are accepted and retained as metadata.
  * Epoch values are not converted between time systems. Coordinate-system tags are also retained verbatim; no
- * reference-frame transformation is performed. EP/EV covariance records and clock fields are currently ignored.
+ * reference-frame transformation is performed by the reader. EP/EV covariance records and clock fields are currently ignored.
  */
 std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName,
                                                 const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );

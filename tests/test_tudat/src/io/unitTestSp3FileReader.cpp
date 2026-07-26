@@ -177,9 +177,59 @@ BOOST_AUTO_TEST_CASE( testPositionOnlyFileUsesSecondOrderFiniteDifferences )
     }
 
     const auto settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
-            simulation_setup::sp3EphemerisSettings( contents, "E11", "Earth", "ITRF2014" ) );
+            simulation_setup::sp3EphemerisSettings( contents, "E11" ) );
     BOOST_REQUIRE( settings != nullptr );
-    BOOST_CHECK_EQUAL( settings->getFrameOrientation( ), "ITRF2014" );
+    BOOST_CHECK_EQUAL( settings->getFrameOrientation( ), "WGS84" );
+    boost::filesystem::remove( path );
+}
+
+BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
+{
+    const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
+    const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
+    const Eigen::Vector6d sourceState = contents->satelliteStates.at( "G01" ).begin( )->second;
+
+    const auto itrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "ITRF2014" ) );
+    BOOST_REQUIRE( itrf2014Settings != nullptr );
+    BOOST_CHECK_EQUAL( itrf2014Settings->getFrameOrientation( ), "ITRF2014" );
+    const Eigen::Vector6d itrf2014State = itrf2014Settings->getBodyStateHistory( ).begin( )->second;
+    BOOST_CHECK_GT( ( itrf2014State - sourceState ).norm( ), 1.0e-3 );
+    BOOST_CHECK_LT( ( itrf2014State.segment< 3 >( 0 ) - sourceState.segment< 3 >( 0 ) ).norm( ), 1.0 );
+
+    const auto j2000Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "J2000" ) );
+    BOOST_REQUIRE( j2000Settings != nullptr );
+    const Eigen::Vector6d j2000State = j2000Settings->getBodyStateHistory( ).begin( )->second;
+    BOOST_CHECK_CLOSE_FRACTION( j2000State.segment< 3 >( 0 ).norm( ), sourceState.segment< 3 >( 0 ).norm( ), 1.0e-14 );
+    BOOST_CHECK_GT( ( j2000State.segment< 3 >( 3 ) - sourceState.segment< 3 >( 3 ) ).norm( ), 100.0 );
+
+    const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
+    j2000Contents->frameName = "J2000";
+    for( const auto& state : j2000Settings->getBodyStateHistory( ) )
+    {
+        j2000Contents->satelliteStates.at( "G01" ).at( state.first ) = state.second;
+    }
+    const auto roundTripSettings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( j2000Contents, "G01", "Earth", "IGS97" ) );
+    BOOST_REQUIRE( roundTripSettings != nullptr );
+    BOOST_CHECK_SMALL( ( roundTripSettings->getBodyStateHistory( ).begin( )->second - sourceState ).norm( ), 1.0e-3 );
+
+    const std::shared_ptr< input_output::Sp3FileContents > aliasContents = std::make_shared< input_output::Sp3FileContents >( *contents );
+    aliasContents->frameName = "IGb14";
+    const auto aliasSettings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( aliasContents, "G01", "Earth", "ITRF2014" ) );
+    BOOST_REQUIRE( aliasSettings != nullptr );
+    BOOST_CHECK( aliasSettings->getBodyStateHistory( ).begin( )->second.isApprox( sourceState, 0.0 ) );
+
+    const std::shared_ptr< input_output::Sp3FileContents > wgs84Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
+    wgs84Contents->frameName = "WGS84";
+    BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( wgs84Contents, "G01", "Earth", "ITRF2014" ), std::invalid_argument );
+
+    const std::shared_ptr< input_output::Sp3FileContents > unknownFrameContents =
+            std::make_shared< input_output::Sp3FileContents >( *contents );
+    unknownFrameContents->frameName = "LOCAL";
+    BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( unknownFrameContents, "G01", "Earth", "J2000" ), std::invalid_argument );
     boost::filesystem::remove( path );
 }
 

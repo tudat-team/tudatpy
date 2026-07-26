@@ -42,6 +42,8 @@ void expose_sp3( py::module& m )
                                     []( const tudat::input_output::Sp3FileContents& contents ) { return contents.velocitiesWereDerived; } )
             .def_property_readonly( "start_epoch",
                                     []( const tudat::input_output::Sp3FileContents& contents ) { return contents.startEpoch; } )
+            .def_property_readonly( "reference_julian_day",
+                                    []( const tudat::input_output::Sp3FileContents& contents ) { return contents.referenceJulianDay; } )
             .def_property_readonly( "declared_number_of_epochs",
                                     []( const tudat::input_output::Sp3FileContents& contents ) { return contents.declaredNumberOfEpochs; } )
             .def_property_readonly(
