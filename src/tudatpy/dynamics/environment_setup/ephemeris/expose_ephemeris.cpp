@@ -33,7 +33,6 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace te = tudat::ephemerides;
 namespace ti = tudat::interpolators;
-namespace tio = tudat::input_output;
 
 namespace tudat
 {
@@ -69,57 +68,6 @@ namespace environment_setup
 {
 namespace ephemeris
 {
-
-namespace
-{
-
-std::shared_ptr< tss::EphemerisSettings > createSp3EphemerisSettings( const std::shared_ptr< tio::Sp3FileContents >& fileContents,
-                                                                      const std::string& satelliteId,
-                                                                      const std::string& frameOrigin,
-                                                                      const std::string& frameOrientation )
-{
-    if( fileContents == nullptr )
-    {
-        throw std::invalid_argument( "Cannot create SP3 ephemeris settings from null file contents." );
-    }
-
-    const auto satelliteIterator = fileContents->satelliteStates.find( satelliteId );
-    if( satelliteIterator == fileContents->satelliteStates.end( ) )
-    {
-        throw std::invalid_argument( "Satellite '" + satelliteId + "' is not present in the SP3 file." );
-    }
-    if( satelliteIterator->second.empty( ) )
-    {
-        throw std::invalid_argument( "Satellite '" + satelliteId + "' has no states in the SP3 file." );
-    }
-
-    std::map< double, Eigen::Vector6d > stateHistory;
-    for( const auto& state : satelliteIterator->second )
-    {
-        if( state.second.size( ) != 6 )
-        {
-            throw std::runtime_error( "SP3 state for satellite '" + satelliteId + "' does not have six components." );
-        }
-
-        const Eigen::Vector6d fixedSizeState = state.second;
-        if( !fixedSizeState.allFinite( ) )
-        {
-            throw std::runtime_error( "SP3 ephemeris settings require finite position and velocity records for satellite '" + satelliteId +
-                                      "'. The selected SP3 file contains a missing value or does not include velocity records." );
-        }
-        stateHistory[ state.first ] = fixedSizeState;
-    }
-
-    const std::string resolvedFrameOrientation = frameOrientation.empty( ) ? fileContents->frameName : frameOrientation;
-    if( resolvedFrameOrientation.empty( ) )
-    {
-        throw std::invalid_argument( "The SP3 file does not declare a reference frame; provide frame_orientation explicitly." );
-    }
-
-    return tss::tabulatedEphemerisSettings( stateHistory, frameOrigin, resolvedFrameOrientation );
-}
-
-}  // namespace
 
 void expose_ephemeris_setup( py::module& m )
 {
@@ -868,31 +816,28 @@ void expose_ephemeris_setup( py::module& m )
 
      )doc" );
 
-    m.def(
-            "sp3",
-            []( const std::string& fileName,
-                const std::string& satelliteId,
-                const std::string& frameOrigin,
-                const std::string& frameOrientation,
-                const double referenceJulianDay ) {
-                return createSp3EphemerisSettings(
-                        tio::readSp3File( fileName, referenceJulianDay ), satelliteId, frameOrigin, frameOrientation );
-            },
-            py::arg( "file_name" ),
-            py::arg( "satellite_id" ),
-            py::arg( "frame_origin" ) = "Earth",
-            py::arg( "frame_orientation" ) = "",
-            py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
-            R"doc(
+    m.def( "sp3",
+           py::overload_cast< const std::string&, const std::string&, const std::string&, const std::string&, const double >(
+                   &tss::sp3EphemerisSettings ),
+           py::arg( "file_name" ),
+           py::arg( "satellite_id" ),
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "",
+           py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
+           R"doc(
 Create tabulated ephemeris settings from an SP3 precise-orbit file.
 
-The selected satellite must have both position and velocity records. When
-``frame_orientation`` is empty, the reference-frame name declared in the SP3
-header is used.
+For position-only files, the loader reconstructs velocities using second-order
+finite differences. When ``frame_orientation`` is empty, the reference-frame
+name declared in the SP3 header is used. The factory does not transform the
+file's epochs or reference frame.
 )doc" );
 
     m.def( "sp3",
-           &createSp3EphemerisSettings,
+           py::overload_cast< const std::shared_ptr< tudat::input_output::Sp3FileContents >&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string& >( &tss::sp3EphemerisSettings ),
            py::arg( "file_contents" ),
            py::arg( "satellite_id" ),
            py::arg( "frame_origin" ) = "Earth",
@@ -900,10 +845,11 @@ header is used.
            R"doc(
 Create tabulated ephemeris settings from parsed SP3 contents.
 
-Use :func:`tudatpy.data_input.environment_data.read_sp3_file` to load
-``file_contents``. The selected satellite must have both position and velocity
-records. When ``frame_orientation`` is empty, the reference-frame name declared
-in the SP3 header is used.
+Use :func:`tudatpy.data_input.environment_data.sp3.read_sp3_file` to load
+``file_contents``. Position-only files contain second-order finite-difference
+velocities generated by the loader. When ``frame_orientation`` is empty, the
+reference-frame name declared in the SP3 header is used. The factory does not
+transform the file's epochs or reference frame.
 )doc" );
 
     m.def( "tabulated_from_existing",
