@@ -11,7 +11,6 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "spice/expose_spice.h"
-// #include "interface/expose_json_interface.h"
 // #include "interface/expose_sofa_interface.h"
 
 #include <pybind11/pybind11.h>
@@ -29,9 +28,6 @@ void expose_interface( py::module& m )
     auto spice = m.def_submodule( "spice" );
     expose_spice( spice );
     // m.attr( "spice_interface" ) = m.attr( "spice" );
-
-    //  auto json_interface = m.def_submodule("json_interface");
-    //  expose_json_interface(sofa_interface);
 
     //  auto sofa_interface = m.def_submodule("sofa_interface");
     //  expose_sofa_interface(sofa_interface);

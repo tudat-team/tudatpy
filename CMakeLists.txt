@@ -159,11 +159,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_JSON_INTERFACE
-    "Build Tudat with json interface."
-    OFF
-)
-option(
     TUDAT_BUILD_WITH_FFTW3
     "Build Tudat with FFTW3."
     OFF
@@ -238,10 +233,6 @@ set(
 set(
     Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FFTW3=${TUDAT_BUILD_WITH_FFTW3}"
-)
-set(
-    Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}"
 )
 set(
     Tudat_DEFINITIONS
@@ -439,11 +430,6 @@ if (TUDAT_BUILD_WITH_FFTW3)
 else( )
     add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
 endif( )
-
-# JSON dependency
-if (TUDAT_BUILD_WITH_JSON_INTERFACE)
-    find_package(nlohmann_json REQUIRED 3.7.3)
-endif ()
 
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language
