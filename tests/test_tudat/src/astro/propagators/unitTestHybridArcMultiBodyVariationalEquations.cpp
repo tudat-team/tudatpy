@@ -473,7 +473,7 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
             MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
-            backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            backwardsFlybyMultiArcDynamicsSimulator.getMultiArcPropagationResults( )->getConcatenatedEquationsOfMotionResults( );
 
     for( unsigned int i = 0; i < flybyTimes.size( ); i++ )
     {
@@ -896,29 +896,40 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );
 
-        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->z( )[ 0 ];
+        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->getStateTransitionMatrixSolution( );
 
         std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( );
 
-        std::map< double, Eigen::MatrixXd > singleArcStmTest =
-                singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
+        std::map< double, Eigen::MatrixXd > singleArcStmTest = singleArcVariationalEquationsSolverTest.getStateTransitionMatrixSolution( );
         std::cout << "last element single-arc STM history: " << "\n\n";
         std::cout << singleArcSTM.rbegin( )->second << "\n\n";
         std::cout << "last element single-arc STM history TEST: " << "\n\n";
         std::cout << singleArcStmTest.rbegin( )->second << "\n\n";
 
         std::map< double, Eigen::MatrixXd > multiArcStmArc1 =
-                multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
+                multiArcVariationalEquationsSolver->getMultiArcVariationalPropagationResults( )
+                        ->getSingleArcResults( )
+                        .at( 0 )
+                        ->getStateTransitionSolution( );
         std::map< double, Eigen::MatrixXd > multiArcStmArc3 =
-                multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
+                multiArcVariationalEquationsSolver->getMultiArcVariationalPropagationResults( )
+                        ->getSingleArcResults( )
+                        .at( 2 )
+                        ->getStateTransitionSolution( );
         std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
         std::cout << multiArcStmArc1.rbegin( )->second << "\n\n";
 
         std::map< double, Eigen::MatrixXd > multiArcStmArc1Test =
-                multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
+                multiArcVariationalEquationsSolverTest.getMultiArcVariationalPropagationResults( )
+                        ->getSingleArcResults( )
+                        .at( 0 )
+                        ->getStateTransitionSolution( );
         std::map< double, Eigen::MatrixXd > multiArcStmArc3Test =
-                multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
+                multiArcVariationalEquationsSolverTest.getMultiArcVariationalPropagationResults( )
+                        ->getSingleArcResults( )
+                        .at( 2 )
+                        ->getStateTransitionSolution( );
         std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
         std::cout << multiArcStmArc1Test.rbegin( )->second << "\n\n";
 
@@ -928,34 +939,33 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::cout << multiArcStmArc3Test.rbegin( )->second << "\n\n";
 
         // Test consistency of single-arc variational equations solutions.
-        for( auto itr : singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ] )
+        for( auto itr : singleArcVariationalEquationsSolver->getStateTransitionMatrixSolution( ) )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    itr.second,
-                    singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ].at( itr.first ),
-                    1.0E-12 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ),
-                    singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ),
-                    1.0E-12 );
+                    itr.second, singleArcVariationalEquationsSolverTest.getStateTransitionMatrixSolution( ).at( itr.first ), 1.0E-12 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( singleArcVariationalEquationsSolver->getSensitivityMatrixSolution( ).at( itr.first ),
+                                               singleArcVariationalEquationsSolverTest.getSensitivityMatrixSolution( ).at( itr.first ),
+                                               1.0E-12 );
         }
 
         // Test consistency of multi-arc variational equations solutions.
         for( unsigned int k = 0; k < numberArcs; k++ )
         {
-            for( auto itr : multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ k ][ 0 ] )
+            auto multiArcResults =
+                    multiArcVariationalEquationsSolver->getMultiArcVariationalPropagationResults( )->getSingleArcResults( ).at( k );
+            auto multiArcResultsTest =
+                    multiArcVariationalEquationsSolverTest.getMultiArcVariationalPropagationResults( )->getSingleArcResults( ).at( k );
+            for( auto itr : multiArcResults->getStateTransitionSolution( ) )
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 0 ].at( itr.first ),
-                        1.0E-12 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),
+                                                   multiArcResultsTest->getStateTransitionSolution( ).at( itr.first ),
+                                                   1.0E-12 );
 
-                Eigen::MatrixXd sensitivityMatrixFromHybridSolution =
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first );
+                Eigen::MatrixXd sensitivityMatrixFromHybridSolution = multiArcResultsTest->getSensitivitySolution( ).at( itr.first );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         sensitivityMatrixFromHybridSolution.block(
                                 6, 6, sensitivityMatrixFromHybridSolution.rows( ) - 6, sensitivityMatrixFromHybridSolution.cols( ) - 6 ),
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first ),
+                        multiArcResultsTest->getSensitivitySolution( ).at( itr.first ),
                         1.0E-12 );
             }
         }

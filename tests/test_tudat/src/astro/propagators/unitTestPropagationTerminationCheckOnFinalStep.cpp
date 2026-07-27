@@ -167,13 +167,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         // Create simulation object (but do not propagate dynamics).
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-        double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).end( ) )->first;
+        double finalPropagatedEpoch =
+                ( --dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).end( ) )->first;
         BOOST_CHECK( finalPropagatedEpoch == ( assessDuringSubsteps ? 1000.0 : 1050.0 ) );
     }
 }
@@ -361,13 +359,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 
         // Create simulation object (but do not propagate dynamics).
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-        double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory( ).end( ) )->second( 0 );
+        double finalAltitude =
+                ( --dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( ).end( ) )->second( 0 );
         BOOST_CHECK( assessDuringSubsteps ? finalAltitude > 100.0E+3 : finalAltitude < 100.0E+3 );
     }
 }

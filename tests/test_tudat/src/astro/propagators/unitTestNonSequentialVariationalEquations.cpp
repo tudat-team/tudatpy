@@ -444,12 +444,17 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcVariationalEquations )
     MultiArcVariationalEquationsSolver<> nonSequentialVariationalEquationsSolver =
             MultiArcVariationalEquationsSolver<>( bodies, nonSequentialPropagatorSettings, nonSequentialParameters, true );
 
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > forwardVariationalHistory =
-            forwardVariationalEquationsSolver.getNumericalVariationalEquationsSolution( );
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > backwardVariationalHistory =
-            backwardVariationalEquationsSolver.getNumericalVariationalEquationsSolution( );
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > nonSequentialVariationalHistory =
-            nonSequentialVariationalEquationsSolver.getNumericalVariationalEquationsSolution( );
+    auto extractVariationalHistory = []( auto& solver ) {
+        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > history;
+        for( const auto& arcResults : solver.getMultiArcVariationalPropagationResults( )->getSingleArcResults( ) )
+        {
+            history.push_back( { arcResults->getStateTransitionSolution( ), arcResults->getSensitivitySolution( ) } );
+        }
+        return history;
+    };
+    auto forwardVariationalHistory = extractVariationalHistory( forwardVariationalEquationsSolver );
+    auto backwardVariationalHistory = extractVariationalHistory( backwardVariationalEquationsSolver );
+    auto nonSequentialVariationalHistory = extractVariationalHistory( nonSequentialVariationalEquationsSolver );
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
@@ -725,19 +730,29 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcVariationalEquations )
     HybridArcVariationalEquationsSolver<> nonSequentialVariationalEquationsSolver =
             HybridArcVariationalEquationsSolver<>( bodies, nonSequentialPropagatorSettings, nonSequentialParameters, true );
 
-    std::vector< std::map< double, Eigen::MatrixXd > > forwardSingleArcVariationalHistory =
-            forwardVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
-    std::vector< std::map< double, Eigen::MatrixXd > > backwardSingleArcVariationalHistory =
-            backwardVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
-    std::vector< std::map< double, Eigen::MatrixXd > > nonSequentialSingleArcVariationalHistory =
-            nonSequentialVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
+    auto extractSingleArcVariationalHistory = []( const auto& solver ) {
+        return std::vector< std::map< double, Eigen::MatrixXd > >{ solver->getStateTransitionMatrixSolution( ),
+                                                                   solver->getSensitivityMatrixSolution( ) };
+    };
+    auto extractMultiArcVariationalHistory = []( const auto& solver ) {
+        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > history;
+        for( const auto& arcResults : solver->getMultiArcVariationalPropagationResults( )->getSingleArcResults( ) )
+        {
+            history.push_back( { arcResults->getStateTransitionSolution( ), arcResults->getSensitivitySolution( ) } );
+        }
+        return history;
+    };
 
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > forwardMultiArcVariationalHistory =
-            forwardVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > backwardMultiArcVariationalHistory =
-            backwardVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
-    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > nonSequentialMultiArcVariationalHistory =
-            nonSequentialVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+    auto forwardSingleArcVariationalHistory = extractSingleArcVariationalHistory( forwardVariationalEquationsSolver.getSingleArcSolver( ) );
+    auto backwardSingleArcVariationalHistory =
+            extractSingleArcVariationalHistory( backwardVariationalEquationsSolver.getSingleArcSolver( ) );
+    auto nonSequentialSingleArcVariationalHistory =
+            extractSingleArcVariationalHistory( nonSequentialVariationalEquationsSolver.getSingleArcSolver( ) );
+
+    auto forwardMultiArcVariationalHistory = extractMultiArcVariationalHistory( forwardVariationalEquationsSolver.getMultiArcSolver( ) );
+    auto backwardMultiArcVariationalHistory = extractMultiArcVariationalHistory( backwardVariationalEquationsSolver.getMultiArcSolver( ) );
+    auto nonSequentialMultiArcVariationalHistory =
+            extractMultiArcVariationalHistory( nonSequentialVariationalEquationsSolver.getMultiArcSolver( ) );
 
     BOOST_CHECK_EQUAL( nonSequentialSingleArcVariationalHistory[ 0 ].size( ),
                        forwardSingleArcVariationalHistory[ 0 ].size( ) + backwardSingleArcVariationalHistory[ 0 ].size( ) - 1 );

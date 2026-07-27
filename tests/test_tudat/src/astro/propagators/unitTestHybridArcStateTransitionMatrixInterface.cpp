@@ -217,10 +217,13 @@ BOOST_AUTO_TEST_CASE( testHybridArcStateTransitionMatrixInterface )
                 HybridArcDynamicsSimulator<> dynamicsSimulator = HybridArcDynamicsSimulator<>( bodies, hybridArcPropagatorSettings );
 
                 // Create state history interpolators
-                std::map< double, Eigen::VectorXd > singleArcStateHistory =
-                        dynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-                std::map< double, Eigen::VectorXd > multiArcStateHistory =
-                        dynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ).at( 0 );
+                std::map< double, Eigen::VectorXd > singleArcStateHistory = dynamicsSimulator.getSingleArcDynamicsSimulator( )
+                                                                                    ->getSingleArcPropagationResults( )
+                                                                                    ->getEquationsOfMotionNumericalSolution( );
+                std::map< double, Eigen::VectorXd > multiArcStateHistory = dynamicsSimulator.getMultiArcDynamicsSimulator( )
+                                                                                   ->getMultiArcPropagationResults( )
+                                                                                   ->getConcatenatedEquationsOfMotionResults( )
+                                                                                   .at( 0 );
 
                 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > singleArcInterpolator =
                         std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > >(
@@ -369,9 +372,14 @@ BOOST_AUTO_TEST_CASE( testHybridArcStateTransitionMatrixInterface )
 
                     // Create state history interpolators
                     std::map< double, Eigen::VectorXd > perturbedSingleArcStateHistory =
-                            perturbedDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+                            perturbedDynamicsSimulator.getSingleArcDynamicsSimulator( )
+                                    ->getSingleArcPropagationResults( )
+                                    ->getEquationsOfMotionNumericalSolution( );
                     std::map< double, Eigen::VectorXd > perturbedMultiArcStateHistory =
-                            perturbedDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ).at( 0 );
+                            perturbedDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                                    ->getMultiArcPropagationResults( )
+                                    ->getConcatenatedEquationsOfMotionResults( )
+                                    .at( 0 );
 
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > perturbedSingleArcInterpolator =
                             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::VectorXd > >(

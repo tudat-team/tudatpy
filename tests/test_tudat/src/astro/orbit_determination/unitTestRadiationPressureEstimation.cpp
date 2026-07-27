@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             parametersToEstimate->resetParameterValues( perturbedParameters );
             propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 ) );
             SingleArcDynamicsSimulator< long double, Time > upperturbedDynamics( bodies, propagatorSettings );
-            auto upperturbedResults = upperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+            auto upperturbedResults = upperturbedDynamics.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             // Propagate with down-perturbed parameters
             perturbedParameters = nominalParameters;
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             parametersToEstimate->resetParameterValues( perturbedParameters );
             propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 ) );
             SingleArcDynamicsSimulator< long double, Time > downperturbedDynamics( bodies, propagatorSettings );
-            auto downperturbedResults = downperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+            auto downperturbedResults = downperturbedDynamics.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             // Reset
             parametersToEstimate->resetParameterValues( nominalParameters );

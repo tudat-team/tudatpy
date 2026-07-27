@@ -477,7 +477,7 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
             MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
-            backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            backwardsFlybyMultiArcDynamicsSimulator.getMultiArcPropagationResults( )->getConcatenatedEquationsOfMotionResults( );
 
     for( unsigned int i = 0; i < flybyTimes.size( ); i++ )
     {
@@ -852,10 +852,18 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquations =
                 MultiArcVariationalEquationsSolver< double, double >( bodies, multiArcPropagatorSettings, parametersToEstimate, true );
 
-        std::vector< std::map< double, Eigen::VectorXd > > multiArcStateHistory =
-                multiArcVariationalEquations.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > variationalEquationsSolution =
-                multiArcVariationalEquations.getNumericalVariationalEquationsSolution( );
+        std::vector< std::map< double, Eigen::VectorXd > > multiArcStateHistory = multiArcVariationalEquations.getDynamicsSimulator( )
+                                                                                          ->getMultiArcPropagationResults( )
+                                                                                          ->getConcatenatedEquationsOfMotionResults( );
+        auto extractVariationalHistory = []( auto& solver ) {
+            std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > history;
+            for( const auto& arcResults : solver.getMultiArcVariationalPropagationResults( )->getSingleArcResults( ) )
+            {
+                history.push_back( { arcResults->getStateTransitionSolution( ), arcResults->getSensitivitySolution( ) } );
+            }
+            return history;
+        };
+        auto variationalEquationsSolution = extractVariationalHistory( multiArcVariationalEquations );
 
         std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
                 multiArcVariationalEquations.getStateTransitionMatrixInterface( );
@@ -1049,12 +1057,12 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                             bodies, perArcPropagatorSettings, singleArcParametersToEstimate, true );
 
             // Comparison - state histories
-            std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory =
-                    perArcVariationalEquations.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory = perArcVariationalEquations.getDynamicsSimulator( )
+                                                                                            ->getMultiArcPropagationResults( )
+                                                                                            ->getConcatenatedEquationsOfMotionResults( );
 
             // Comparison - variational equations solutions
-            std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perArcVariationalEquationsSolution =
-                    perArcVariationalEquations.getNumericalVariationalEquationsSolution( );
+            auto perArcVariationalEquationsSolution = extractVariationalHistory( perArcVariationalEquations );
 
             std::map< double, std::vector< std::string > > bodiesToEstimatePerArc;
             std::vector< int > multiArcStateParametersSizePerArc;

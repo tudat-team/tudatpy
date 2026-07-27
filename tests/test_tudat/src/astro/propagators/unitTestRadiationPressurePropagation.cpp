@@ -249,7 +249,8 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
             // Create simulation object and propagate dynamics.
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-            std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+            std::map< double, Eigen::VectorXd > dependentVariableHistory =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
             std::shared_ptr< SingleArcDependentVariablesInterface< double > > dependentVariablesInterface =
                     dynamicsSimulator.getSingleArcPropagationResults( )->getSingleArcDependentVariablesInterface( );
             std::pair< int, int > inertialPanelNormalIndices =
@@ -396,12 +397,14 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
             }
             if( multiBodyTest == 0 )
             {
-                singleBodyNumericalResults.push_back( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ) );
-                singleBodyDependentVariableResults.push_back( dynamicsSimulator.getDependentVariableHistory( ) );
+                singleBodyNumericalResults.push_back(
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ) );
+                singleBodyDependentVariableResults.push_back(
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( ) );
             }
             else
             {
-                auto dependentVariables = dynamicsSimulator.getDependentVariableHistory( );
+                auto dependentVariables = dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
                 BOOST_CHECK_EQUAL( dependentVariables.size( ), singleBodyDependentVariableResults.at( test ).size( ) );
                 for( auto it : singleBodyDependentVariableResults.at( test ) )
@@ -426,7 +429,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
                     }
                 }
 
-                auto numericalResults = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                auto numericalResults = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
                 BOOST_CHECK_EQUAL( numericalResults.size( ), singleBodyNumericalResults.at( test ).size( ) );
                 for( auto it : singleBodyNumericalResults.at( test ) )
@@ -450,7 +453,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
             }
             //
             //    input_output::writeDataMapToTextFile(
-            //        dynamicsSimulator.getDependentVariableHistory( ),
+            //        dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( ),
             //        "radiationPressureDependentVariables.dat",
             //        "/home/dominic/Downloads/",
             //        "",

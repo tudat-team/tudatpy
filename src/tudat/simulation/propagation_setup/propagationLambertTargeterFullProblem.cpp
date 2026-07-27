@@ -405,7 +405,7 @@
 //    std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.
 //            getEquationsOfMotionNumericalSolution( );
 //    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
-//            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+//            dynamicsSimulatorIntegrationForwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
 //    // Calculate the difference between the full problem and the Lambert targeter solution along the forward propagation direction.
 //    Eigen::Vector6d cartesianStateLambertSolution;
@@ -432,9 +432,9 @@
 //                bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //    std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
-//            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+//            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 //    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
-//            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+//            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
 //    // Calculate the difference between the full problem and the Lambert targeter solution along the backward propagation direction.
 //    for( auto stateIterator : stateHistoryFullProblemBackwardPropagation )

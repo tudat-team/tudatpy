@@ -183,14 +183,11 @@ void performSimulation( const int testType )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     // Check whether propagation has stopped at given conditions
     switch( testType )
@@ -397,12 +394,10 @@ BOOST_AUTO_TEST_CASE( testPropagationStoppingConditionsWithDependentVariableUpda
                     centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, stoppingCondition );
     std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 10.0 );
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( 0.0 );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > integrationResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     // Check whether termination done correctly
     auto stateIterator = integrationResult.rbegin( );

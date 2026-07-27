@@ -522,7 +522,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce, const bool us
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-                dynamicsSimulator.getDependentVariableHistory( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris = bodies.at( "Vehicle" )->getRotationalEphemeris( );
 
@@ -809,7 +809,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
             bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
@@ -1072,11 +1072,11 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > stateOutput =
-                    dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > rawStateOutput =
-                    dynamicsSimulator.getEquationsOfMotionNumericalSolutionRaw( );
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolutionRaw( );
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-                    dynamicsSimulator.getDependentVariableHistory( );
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
             std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
@@ -1504,7 +1504,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // check dependent variables (aerodynamic coefficients)
     Eigen::Vector3d incomingDirection, bodyFixedAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;

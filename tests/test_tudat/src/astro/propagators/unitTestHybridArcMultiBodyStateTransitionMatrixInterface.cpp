@@ -481,7 +481,7 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
             MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
-            backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            backwardsFlybyMultiArcDynamicsSimulator.getMultiArcPropagationResults( )->getConcatenatedEquationsOfMotionResults( );
 
     for( unsigned int i = 0; i < flybyTimes.size( ); i++ )
     {
@@ -908,10 +908,17 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         //                    hybridArcVariationalEquationsSolver.getMultiArcSolver()->getStateTransitionMatrixInterface()->getCombinedStateTransitionAndSensitivityMatrix(
         //                            ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0 ) << "\n\n";
 
-        std::vector< std::map< double, Eigen::MatrixXd > > singleArcVariationalSolution =
-                hybridArcVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
-        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
-                hybridArcVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+        auto singleArcSolver = hybridArcVariationalEquationsSolver.getSingleArcSolver( );
+        std::vector< std::map< double, Eigen::MatrixXd > > singleArcVariationalSolution{
+            singleArcSolver->getStateTransitionMatrixSolution( ), singleArcSolver->getSensitivityMatrixSolution( )
+        };
+        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution;
+        for( const auto& arcResults :
+             hybridArcVariationalEquationsSolver.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( )->getSingleArcResults( ) )
+        {
+            fullMultiArcVariationalSolution.push_back(
+                    { arcResults->getStateTransitionSolution( ), arcResults->getSensitivitySolution( ) } );
+        }
 
         std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > > singleArcStateTransitionMatrixInterpolator =
                 std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(

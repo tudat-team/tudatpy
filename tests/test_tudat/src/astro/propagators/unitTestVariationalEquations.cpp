@@ -863,8 +863,8 @@ executePhobosRotationSimulation( const Eigen::Matrix< StateScalarType, 13, 1 > i
         }
 
         //        tudat::input_output::writeDataMapToTextFile(
-        //                    dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ),
-        //                    "rotPropTest.dat" );
+        //                    dynamicsSimulator.getDynamicsSimulator( )->getSingleArcPropagationResults(
+        //                    )->getEquationsOfMotionNumericalSolution( ), "rotPropTest.dat" );
 
         // Retrieve test data
         double testEpoch = initialEphemerisTime + 15.0 * 3600.0;
@@ -1197,8 +1197,9 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
 
         std::map< double, Eigen::MatrixXd > stateTransitionResult = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
         std::map< double, Eigen::MatrixXd > sensitivityResult = variationalEquationsSimulator.getSensitivityMatrixSolution( );
-        std::map< double, Eigen::VectorXd > integrationResult =
-                variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > integrationResult = variationalEquationsSimulator.getDynamicsSimulator( )
+                                                                        ->getSingleArcPropagationResults( )
+                                                                        ->getEquationsOfMotionNumericalSolution( );
 
         if( test == 0 )
         {
@@ -1243,12 +1244,10 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 propagatorSettings->setIntegratorSettings( integratorSettings );
-                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-                {
-                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-                }
+                propagatorSettings->resetInitialTime( 0.0 );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-                upPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+                upPerturbedInitialState =
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
 
             {
@@ -1257,12 +1256,10 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 propagatorSettings->setIntegratorSettings( integratorSettings );
-                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-                {
-                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-                }
+                propagatorSettings->resetInitialTime( 0.0 );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-                downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+                downPerturbedInitialState =
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
             Eigen::VectorXd numericalStatePartialWrtMass =
                     ( ( upPerturbedInitialState - downPerturbedInitialState ) / ( 2.0 * massPerturbation ) ).block( 0, 0, 6, 1 );

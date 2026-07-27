@@ -248,13 +248,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
                 // Propagate orbit with Cowell method
                 propagatorSettings->setIntegratorSettings( integratorSettings );
-                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-                {
-                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-                }
+                propagatorSettings->resetInitialTime( simulationStartEpoch );
                 SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
-                std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-                std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+                std::map< double, Eigen::VectorXd > stateHistory =
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+                std::map< double, Eigen::VectorXd > dependentVariableHistory =
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
                 // Sanity check: altitude limit not violated on first step
                 BOOST_CHECK_EQUAL( ( vehicleInitialState.segment( 0, 3 ).norm( ) - 8.7E6 ) < 100.0, true );

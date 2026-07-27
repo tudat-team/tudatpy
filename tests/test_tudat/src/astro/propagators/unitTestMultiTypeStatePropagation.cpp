@@ -163,7 +163,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState( const int 
     // Return propagated dynamics (if simulationCase < 3) or interpolated dynamics (else)
     if( simulationCase < 3 )
     {
-        return dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        return dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     }
     else
     {

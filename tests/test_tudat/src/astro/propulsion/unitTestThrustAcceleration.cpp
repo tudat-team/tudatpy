@@ -112,15 +112,12 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     {
         // Create simulation object and propagate dynamics.
         translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        translationalPropagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         Eigen::Vector3d constantAcceleration = thrustDirection.normalized( ) * thrustMagnitude / vehicleMass;
         for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
@@ -154,14 +151,11 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
              outputIterator != numericalSolution.end( );
@@ -344,14 +338,11 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
 
         // Propagate orbit with Cowell method
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         std::map< double, Eigen::Matrix3d > currentRotationMatrixHistory;
-        for( auto it : dynamicsSimulator.getDependentVariableHistory( ) )
+        for( auto it : dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( ) )
         {
             double currentTime = it.first;
             Eigen::Matrix3d currentRotationMatrixToBodyFixedFrame =
@@ -573,14 +564,11 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
              outputIterator != numericalSolution.end( );
@@ -713,18 +701,15 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
         // Create simulation object and propagate dynamics.
         translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        translationalPropagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
-                dynamicsSimulator.getDependentVariableHistory( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         if( i == 0 )
         {
@@ -853,15 +838,12 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     // Create simulation object and propagate dynamics.
     translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    translationalPropagatorSettings->resetInitialTime( 0.0 );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     double thrustAcceleration = thrustMagnitude1 / vehicleMass;
     Eigen::Quaterniond rotationToInertialFrame;
@@ -1018,16 +1000,14 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableSolution =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against computed values.
         Eigen::Matrix3d rotationToBodyFixedFrame1, rotationToBodyFixedFrame2;
@@ -1324,13 +1304,12 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         Eigen::Vector3d thrustDifference;
 
@@ -1669,16 +1648,14 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableSolution =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Declare test variables
         double currentDynamicPressure, currentMachNumber, currentMass;
@@ -1891,16 +1868,14 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableSolution =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
          variableIterator != dependentVariableSolution.end( );
@@ -2029,7 +2004,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
 ////        // Retrieve change in Modified Equinoctial Elements
 ////        std::map< double, Eigen::VectorXd > dependentVariableSolution =
-////                dynamicsSimulator.getDependentVariableHistory( );
+////                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 ////        Eigen::Vector6d finalModifiedEquinoctialElementsError =
 ////                dependentVariableSolution.rbegin( )->second.segment( 0, 6 ) -
 ////                dependentVariableSolution.begin( )->second.segment( 0, 6 );
@@ -2192,8 +2167,10 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     // Create simulation object and propagate dynamics.
     SingleArcVariationalEquationsSolver<> dynamicsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
-    auto stateHistory = dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-    auto dependentVariableResult = dynamicsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
+    auto stateHistory =
+            dynamicsSimulator.getDynamicsSimulator( )->getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    auto dependentVariableResult =
+            dynamicsSimulator.getDynamicsSimulator( )->getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     auto stateTransitionHistory = dynamicsSimulator.getStateTransitionMatrixSolution( );
     auto sensitivityHistory = dynamicsSimulator.getSensitivityMatrixSolution( );

@@ -128,7 +128,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation( const Sys
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        integrationResultWithDissipation = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        integrationResultWithDissipation = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         for( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = integrationResultWithDissipation.begin( );
              mapIterator != integrationResultWithDissipation.end( );

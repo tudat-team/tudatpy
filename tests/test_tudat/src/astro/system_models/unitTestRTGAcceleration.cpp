@@ -255,18 +255,15 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
 
     // Create simulation object and propagate dynamics.
     translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    translationalPropagatorSettings->resetInitialTime( 0.0 );
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     Eigen::Vector3d test_acceleration;
     double matchedEpoch = TUDAT_NAN;

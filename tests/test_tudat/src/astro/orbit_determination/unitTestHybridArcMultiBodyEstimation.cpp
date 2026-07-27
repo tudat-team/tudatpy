@@ -496,7 +496,7 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
     MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
-            backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            backwardsFlybyMultiArcDynamicsSimulator.getMultiArcPropagationResults( )->getConcatenatedEquationsOfMotionResults( );
 
     for( unsigned int i = 0; i < flybyTimes.size( ); i++ )
     {
@@ -1033,8 +1033,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                         utilities::createVectorFromMapValues< Eigen::VectorXd, double >( singleArcSolution ),
                         6 );
 
-        std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution =
-                hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+        std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution = hybridArcSolver->getMultiArcSolver( )
+                                                                                      ->getDynamicsSimulator( )
+                                                                                      ->getMultiArcPropagationResults( )
+                                                                                      ->getConcatenatedEquationsOfMotionResults( );
 
         ////////////////////////////////////////
         ///   Test reset parameters
@@ -1089,15 +1091,26 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
             std::cout << "Testing reset parameters" << "\n\n";
             std::cout << "-------------------------------" << "\n\n";
 
+            auto extractSingleArcVariationalHistory = []( const auto& solver ) {
+                return std::vector< std::map< double, Eigen::MatrixXd > >{ solver->getStateTransitionMatrixSolution( ),
+                                                                           solver->getSensitivityMatrixSolution( ) };
+            };
+            auto extractMultiArcVariationalHistory = []( const auto& solver ) {
+                std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > history;
+                for( const auto& arcResults : solver->getMultiArcVariationalPropagationResults( )->getSingleArcResults( ) )
+                {
+                    history.push_back( { arcResults->getStateTransitionSolution( ), arcResults->getSensitivitySolution( ) } );
+                }
+                return history;
+            };
+
             for( unsigned int test = 0; test < 2; test++ )
             {
                 std::cout << "test case: " << test << "\n\n";
                 std::cout << "-------------------------------" << "\n\n";
 
-                std::vector< std::map< double, Eigen::MatrixXd > > singleArcVariationalEquationsSolution =
-                        hybridArcSolver->getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
-                std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > multiArcVariationalEquationsSolution =
-                        hybridArcSolver->getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+                auto singleArcVariationalEquationsSolution = extractSingleArcVariationalHistory( hybridArcSolver->getSingleArcSolver( ) );
+                auto multiArcVariationalEquationsSolution = extractMultiArcVariationalHistory( hybridArcSolver->getMultiArcSolver( ) );
 
                 Eigen::VectorXd fullParametersValues = parametersToEstimate->getFullParameterValues< double >( );
                 std::cout << "original parameters values: " << fullParametersValues.transpose( ) << "\n\n";
@@ -1188,16 +1201,12 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                               << "\n\n";
                 }
 
-                std::vector< std::map< double, Eigen::MatrixXd > > newSingleArcVariationalEquationsSolution =
-                        std::dynamic_pointer_cast< HybridArcVariationalEquationsSolver< double, double > >(
-                                orbitDeterminationManager.getVariationalEquationsSolver( ) )
-                                ->getSingleArcSolver( )
-                                ->getNumericalVariationalEquationsSolution( );
-                std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > newMultiArcVariationalEquationsSolution =
-                        std::dynamic_pointer_cast< HybridArcVariationalEquationsSolver< double, double > >(
-                                orbitDeterminationManager.getVariationalEquationsSolver( ) )
-                                ->getMultiArcSolver( )
-                                ->getNumericalVariationalEquationsSolution( );
+                auto resetHybridArcSolver = std::dynamic_pointer_cast< HybridArcVariationalEquationsSolver< double, double > >(
+                        orbitDeterminationManager.getVariationalEquationsSolver( ) );
+                auto newSingleArcVariationalEquationsSolution =
+                        extractSingleArcVariationalHistory( resetHybridArcSolver->getSingleArcSolver( ) );
+                auto newMultiArcVariationalEquationsSolution =
+                        extractMultiArcVariationalHistory( resetHybridArcSolver->getMultiArcSolver( ) );
 
                 if( test == 0 )
                 {

@@ -122,7 +122,8 @@ std::map< double, Eigen::Vector3d > runPropagationAndRetrieveTotalAcceleration(
                     dependentVariables );
 
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    const std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd > dependentVariableHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     std::map< double, Eigen::Vector3d > accelerationHistory;
     for( const auto& dependentVariableEntry : dependentVariableHistory )
@@ -364,12 +365,10 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 
         // Compute map of Kepler elements

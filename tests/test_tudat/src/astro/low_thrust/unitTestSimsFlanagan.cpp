@@ -579,12 +579,9 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
             // Propagate current leg
             propagatorSettingsImpulsiveDeltaV->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettingsImpulsiveDeltaV->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettingsImpulsiveDeltaV->resetInitialTime( 0.0 );
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettingsImpulsiveDeltaV );
-            currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+            currentState = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 
             // Retrieve Sims-Flanagan and numerical states
             Eigen::Vector6d currentStateSimsFlanagan = simsFlanaganTrajectory[ ( i + 1 ) * segmentDurationForwardPropagation ];
@@ -633,15 +630,13 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
 
             // Propagate current leg
             propagatorSettingsImpulsiveDeltaV->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettingsImpulsiveDeltaV->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettingsImpulsiveDeltaV->resetInitialTime( 0.0 );
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettingsImpulsiveDeltaV );
-            currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).begin( )->second;
+            currentState = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).begin( )->second;
 
             // Retrieve Sims-Flanagan and numerical states
-            Eigen::Vector6d currentStateImpulsiveShots = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).begin( )->second;
+            Eigen::Vector6d currentStateImpulsiveShots =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).begin( )->second;
             Eigen::Vector6d currentStateSimsFlanagan;
             if( i < numberSegmentsBackwardPropagation - 1 )
             {
@@ -860,13 +855,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
 
         // Perform the backward propagation.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > stateHistory =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableHistory =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         double currentExpectedMass = stateHistory.rbegin( )->second[ 6 ];
         Eigen::Vector3d currentExpectedThrustAcceleration = dependentVariableHistory.rbegin( )->second.segment( 0, 3 );

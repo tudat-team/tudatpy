@@ -1344,7 +1344,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     nrlmsise_flags flags;
     nrlmsise_input input;
@@ -1562,7 +1562,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     nrlmsise_flags flags;
     nrlmsise_input input;

@@ -238,14 +238,14 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::map< double, Eigen::VectorXd > singleArcSolution;
             {
                 SingleArcDynamicsSimulator<> singleArcDynamicsSimulator( bodies, singleArcPropagatorSettings );  //, true, false, false );
-                singleArcSolution = singleArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                singleArcSolution = singleArcDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
             }
 
             // Perform separate multi-arc propagation
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution;
             {
                 MultiArcDynamicsSimulator<> multiArcDynamicsSimulator( bodies, multiArcPropagatorSettings );  //, true, false, false );
-                multiArcSolution = multiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                multiArcSolution = multiArcDynamicsSimulator.getMultiArcPropagationResults( )->getConcatenatedEquationsOfMotionResults( );
             }
 
             // Create hybrid-arc settings
@@ -278,10 +278,12 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                     BOOST_CHECK_EQUAL( arcPropagationSettingsList.at( i )->getOutputSettings( )->getSetIntegratedResult( ), false );
                 }
 
-                singleArcSolutionFromHybrid =
-                        hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-                multiArcSolutionFromHybrid =
-                        hybridArcDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+                singleArcSolutionFromHybrid = hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )
+                                                      ->getSingleArcPropagationResults( )
+                                                      ->getEquationsOfMotionNumericalSolution( );
+                multiArcSolutionFromHybrid = hybridArcDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                                                     ->getMultiArcPropagationResults( )
+                                                     ->getConcatenatedEquationsOfMotionResults( );
             }
 
             if( !clearNumericalSolution && !setIntegratedResults )

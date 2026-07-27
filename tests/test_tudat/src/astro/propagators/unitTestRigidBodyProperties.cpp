@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
                     createDynamicsSimulator< double, double >( bodies, propagatorSettings ) );
 
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
-                    dynamicsSimulator->getDependentVariableHistory( );
+                    dynamicsSimulator->getSingleArcPropagationResults( )->getDependentVariableHistory( );
             for( auto it : dependentVariableSolution )
             {
                 double currentMass = it.second( 0 );

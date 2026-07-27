@@ -171,14 +171,17 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-                 termination_condition_reached );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            termination_condition_reached );
 
     // Define parameters to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
@@ -190,17 +193,19 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     SingleArcVariationalEquationsSolver<> variationalEquationsSimulator =
             SingleArcVariationalEquationsSolver<>( bodies, propagatorSettings, parametersToEstimate, true, false );
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK(
-            variationalEquationsSimulator.getDynamicsSimulator( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-            propagation_never_run );
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )
+                         ->getSingleArcPropagationResults( )
+                         ->getPropagationTerminationReason( )
+                         ->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     variationalEquationsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), true );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK(
-            variationalEquationsSimulator.getDynamicsSimulator( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-            termination_condition_reached );
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )
+                         ->getSingleArcPropagationResults( )
+                         ->getPropagationTerminationReason( )
+                         ->getPropagationTerminationReason( ) == termination_condition_reached );
 }
 
 //! Test that after a successful propagation, the propagation termination reason is `termination_condition_reached`.
@@ -362,14 +367,17 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-                 termination_condition_reached );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            termination_condition_reached );
 }
 
 //! Test that after a propagation in which an error is caught, the propagation termination reason is
@@ -524,13 +532,17 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == nan_or_inf_detected_in_state );
+    BOOST_CHECK(
+            dynamicsSimulator.getSingleArcPropagationResults( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+            nan_or_inf_detected_in_state );
 
     // Define parameters to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
@@ -543,17 +555,19 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
             SingleArcVariationalEquationsSolver<>( bodies, propagatorSettings, parametersToEstimate, 1, 0 );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK(
-            variationalEquationsSimulator.getDynamicsSimulator( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-            propagation_never_run );
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )
+                         ->getSingleArcPropagationResults( )
+                         ->getPropagationTerminationReason( )
+                         ->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     variationalEquationsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), true );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK(
-            variationalEquationsSimulator.getDynamicsSimulator( )->getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
-            nan_or_inf_detected_in_state );
+    BOOST_CHECK( variationalEquationsSimulator.getDynamicsSimulator( )
+                         ->getSingleArcPropagationResults( )
+                         ->getPropagationTerminationReason( )
+                         ->getPropagationTerminationReason( ) == nan_or_inf_detected_in_state );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

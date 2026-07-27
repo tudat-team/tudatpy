@@ -117,7 +117,8 @@ BOOST_AUTO_TEST_CASE( testEihPropagation )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
         Eigen::Vector6d currentDifference;
         Eigen::Vector6d rmsDifference = Eigen::Vector6d::Zero( );
         Eigen::Vector6d maximumDifference = Eigen::Vector6d::Zero( );

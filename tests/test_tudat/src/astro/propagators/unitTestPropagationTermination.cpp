@@ -189,12 +189,13 @@ BOOST_AUTO_TEST_CASE( testCustomPropagationTermination )
         // Create simulation object (but do not propagate dynamics).
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-        BOOST_CHECK( ( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).size( ) > 50 ) );
+        BOOST_CHECK( ( dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).size( ) > 50 ) );
         if( test == 0 )
         {
             int checkTermination = 0;
             bool terminationReachedAtEnd = false;
-            std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            std::map< double, Eigen::VectorXd > stateHistory =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
             for( std::map< double, Eigen::VectorXd >::iterator it = stateHistory.begin( ); it != stateHistory.end( ); it++ )
             {
                 if( it->second( 0 ) < 0.0 )
@@ -214,7 +215,8 @@ BOOST_AUTO_TEST_CASE( testCustomPropagationTermination )
         {
             int checkTermination = 0;
             bool terminationReachedAtEnd = false;
-            std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+            std::map< double, Eigen::VectorXd > dependentVariableHistory =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
             for( std::map< double, Eigen::VectorXd >::iterator it = dependentVariableHistory.begin( );
                  it != dependentVariableHistory.end( );
                  it++ )

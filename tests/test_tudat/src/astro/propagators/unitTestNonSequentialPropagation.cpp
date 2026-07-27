@@ -155,10 +155,14 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
     SingleArcDynamicsSimulator<> backwardDynamicsSimulator = SingleArcDynamicsSimulator<>( bodies, backwardPropagatorSettings, true );
 
     // Save propagations outputs
-    std::map< double, Eigen::VectorXd > forwardStateHistory = forwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > forwardDependentVariablesHistory = forwardDynamicsSimulator.getDependentVariableHistory( );
-    std::map< double, Eigen::VectorXd > backwardStateHistory = backwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > backwardDependentVariablesHistory = backwardDynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > forwardStateHistory =
+            forwardDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > forwardDependentVariablesHistory =
+            forwardDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > backwardStateHistory =
+            backwardDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > backwardDependentVariablesHistory =
+            backwardDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     //! Create settings for non-sequential propagation
     std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings =
@@ -180,9 +184,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
     SingleArcDynamicsSimulator<> nonsequentialDynamicsSimulator =
             SingleArcDynamicsSimulator<>( bodies, nonsequentialPropagatorSettings, true );
 
-    std::map< double, Eigen::VectorXd > nonsequentialStateHistory = nonsequentialDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > nonsequentialStateHistory =
+            nonsequentialDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > nonsequentialDependentVariablesHistory =
-            nonsequentialDynamicsSimulator.getDependentVariableHistory( );
+            nonsequentialDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Check consistency of state history sizes
     BOOST_CHECK_EQUAL( nonsequentialStateHistory.size( ), forwardStateHistory.size( ) + backwardStateHistory.size( ) - 1 );
@@ -364,13 +369,13 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
 
     // Save propagations outputs
     std::vector< std::map< double, Eigen::VectorXd > > forwardStateHistory =
-            forwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            forwardDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > forwardDependentVariablesHistory =
-            forwardDynamicsSimulator.getDependentVariableHistory( );
+            forwardDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
     std::vector< std::map< double, Eigen::VectorXd > > backwardStateHistory =
-            backwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            backwardDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > backwardDependentVariablesHistory =
-            backwardDynamicsSimulator.getDependentVariableHistory( );
+            backwardDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Propagate dynamics (non-sequentially)
     MultiArcDynamicsSimulator<> nonSequentialDynamicsSimulator =
@@ -378,9 +383,9 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
 
     // Save non-sequential propagations outputs
     std::vector< std::map< double, Eigen::VectorXd > > nonsequentialStateHistory =
-            nonSequentialDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            nonSequentialDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > nonsequentialDependentVariablesHistory =
-            nonSequentialDynamicsSimulator.getDependentVariableHistory( );
+            nonSequentialDynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     for( unsigned int i = 0; i < nonsequentialStateHistory.size( ); i++ )
     {
@@ -607,22 +612,32 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcDynamics )
     // Propagate dynamics (forward leg)
     HybridArcDynamicsSimulator<> forwardDynamicsSimulator = HybridArcDynamicsSimulator<>( bodies, forwardPropagatorSettings, true );
 
-    std::map< double, Eigen::VectorXd > forwardSingleArcStateHistory =
-            forwardDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > forwardSingleArcStateHistory = forwardDynamicsSimulator.getSingleArcDynamicsSimulator( )
+                                                                               ->getSingleArcPropagationResults( )
+                                                                               ->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > forwardMultiArcStateHistory =
-            forwardDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            forwardDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedEquationsOfMotionResults( );
     std::vector< std::map< double, Eigen::VectorXd > > forwardMultiArcDependentVariablesHistory =
-            forwardDynamicsSimulator.getMultiArcDynamicsSimulator( )->getDependentVariableHistory( );
+            forwardDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedDependentVariableResults( );
 
     // Propagate dynamics (backward leg)
     HybridArcDynamicsSimulator<> backwardDynamicsSimulator = HybridArcDynamicsSimulator<>( bodies, backwardPropagatorSettings, true );
 
-    std::map< double, Eigen::VectorXd > backwardSingleArcStateHistory =
-            backwardDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > backwardSingleArcStateHistory = backwardDynamicsSimulator.getSingleArcDynamicsSimulator( )
+                                                                                ->getSingleArcPropagationResults( )
+                                                                                ->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > backwardMultiArcStateHistory =
-            backwardDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            backwardDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedEquationsOfMotionResults( );
     std::vector< std::map< double, Eigen::VectorXd > > backwardMultiArcDependentVariablesHistory =
-            backwardDynamicsSimulator.getMultiArcDynamicsSimulator( )->getDependentVariableHistory( );
+            backwardDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedDependentVariableResults( );
 
     // Propagate dynamics (non-sequentially)
     HybridArcDynamicsSimulator<> nonSequentialDynamicsSimulator =
@@ -630,11 +645,17 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcDynamics )
 
     // Save non-sequential propagations outputs
     std::map< double, Eigen::VectorXd > nonsequentialSingleArcStateHistory =
-            nonSequentialDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            nonSequentialDynamicsSimulator.getSingleArcDynamicsSimulator( )
+                    ->getSingleArcPropagationResults( )
+                    ->getEquationsOfMotionNumericalSolution( );
     std::vector< std::map< double, Eigen::VectorXd > > nonsequentialMultiArcStateHistory =
-            nonSequentialDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            nonSequentialDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedEquationsOfMotionResults( );
     std::vector< std::map< double, Eigen::VectorXd > > nonsequentialMultiArcDependentVariablesHistory =
-            nonSequentialDynamicsSimulator.getMultiArcDynamicsSimulator( )->getDependentVariableHistory( );
+            nonSequentialDynamicsSimulator.getMultiArcDynamicsSimulator( )
+                    ->getMultiArcPropagationResults( )
+                    ->getConcatenatedDependentVariableResults( );
 
     BOOST_CHECK_EQUAL( nonsequentialSingleArcStateHistory.size( ),
                        forwardSingleArcStateHistory.size( ) + backwardSingleArcStateHistory.size( ) - 1 );

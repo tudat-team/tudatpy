@@ -67,14 +67,12 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 
     // Create dynamics simulation object.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( 0.0 );
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings );
 
     // Test propagated solution.
-    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > integratedState =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
          stateIterator != integratedState.end( );
          stateIterator++ )
@@ -125,7 +123,8 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings );
 
     // Test propagated solution.
-    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > integratedState =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
          stateIterator != integratedState.end( );
          stateIterator++ )

@@ -198,8 +198,10 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodyAccelerationAndTorqueInCoupledOrbitRotation
 
     SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
-    const std::map< double, Eigen::VectorXd >& stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    const std::map< double, Eigen::VectorXd >& dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd >& stateHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    const std::map< double, Eigen::VectorXd >& dependentVariableHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Verify that propagation actually advanced beyond the initial state.
     BOOST_REQUIRE_GT( stateHistory.size( ), 1 );

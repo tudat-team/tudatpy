@@ -990,31 +990,11 @@ public:
 };
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            euler, initialTime, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > eulerSettings( const IndependentVariableType initialTimeStep,
                                                                                        const bool assessTerminationOnMinorSteps = false )
 {
     return std::make_shared< IntegratorSettings< IndependentVariableType > >(
             euler, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKutta4SettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< IntegratorSettings< IndependentVariableType > >(
-            rungeKutta4, initialTime, initialTimeStep, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >
@@ -1024,18 +1004,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
 {
     return std::make_shared< IntegratorSettings< IndependentVariableType > >(
             rungeKutta4, TUDAT_NAN, initialTimeStep, assessTerminationOnMinorSteps );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const numerical_integrators::CoefficientSets coefficientSet,
-        const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-        const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< RungeKuttaFixedStepSizeSettings< IndependentVariableType > >(
-            initialTime, initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >
@@ -1212,34 +1180,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
 }
 
 template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecatedNew(
-        const IndependentVariableType initialTimeStep,
-        const ExtrapolationMethodStepSequences extrapolationSequence,
-        const unsigned int maximumNumberOfSteps,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( TUDAT_NAN,
-                                                                                           initialTimeStep,
-                                                                                           extrapolationSequence,
-                                                                                           maximumNumberOfSteps,
-                                                                                           minimumStepSize,
-                                                                                           maximumStepSize,
-                                                                                           relativeErrorTolerance,
-                                                                                           absoluteErrorTolerance,
-                                                                                           assessTerminationOnMinorSteps,
-                                                                                           safetyFactorForNextStepSize,
-                                                                                           maximumFactorIncreaseForNextStepSize,
-                                                                                           minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
         const IndependentVariableType initialTimeStep,
         const ExtrapolationMethodStepSequences extrapolationSequence,
@@ -1265,60 +1205,6 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
                                                                                            safetyFactorForNextStepSize,
                                                                                            maximumFactorIncreaseForNextStepSize,
                                                                                            minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const ExtrapolationMethodStepSequences extrapolationSequence,
-        const unsigned int maximumNumberOfSteps,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >( initialTime,
-                                                                                           initialTimeStep,
-                                                                                           extrapolationSequence,
-                                                                                           maximumNumberOfSteps,
-                                                                                           minimumStepSize,
-                                                                                           maximumStepSize,
-                                                                                           relativeErrorTolerance,
-                                                                                           absoluteErrorTolerance,
-                                                                                           assessTerminationOnMinorSteps,
-                                                                                           safetyFactorForNextStepSize,
-                                                                                           maximumFactorIncreaseForNextStepSize,
-                                                                                           minimumFactorDecreaseForNextStepSize );
-}
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsDeprecated(
-        const IndependentVariableType initialTime,
-        const IndependentVariableType initialTimeStep,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const int minimumOrder = 6,
-        const int maximumOrder = 11,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType bandwidth = 200. )
-{
-    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >( initialTime,
-                                                                                         initialTimeStep,
-                                                                                         minimumStepSize,
-                                                                                         maximumStepSize,
-                                                                                         relativeErrorTolerance,
-                                                                                         absoluteErrorTolerance,
-                                                                                         minimumOrder,
-                                                                                         maximumOrder,
-                                                                                         assessTerminationOnMinorSteps,
-                                                                                         bandwidth );
 }
 
 template< typename IndependentVariableType = double >

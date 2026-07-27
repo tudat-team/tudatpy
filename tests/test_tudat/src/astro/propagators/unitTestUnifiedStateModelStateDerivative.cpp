@@ -437,10 +437,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
 
             // Propagate orbit with Cowell method
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( 0.0 );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
@@ -470,10 +467,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
 
             // Propagate orbit with USM EOM
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( 0.0 );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 

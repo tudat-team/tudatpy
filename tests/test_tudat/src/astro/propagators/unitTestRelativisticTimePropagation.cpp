@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE( testCombinedProperTimeAndStateDynamics2 )
     bodiesMulti.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
     auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-    auto integratorSettingsDirect = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, 10.0 );
-    auto integratorSettingsMulti = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, 10.0 );
+    auto integratorSettingsDirect = numerical_integrators::rungeKutta4Settings( 10.0 );
+    auto integratorSettingsMulti = numerical_integrators::rungeKutta4Settings( 10.0 );
 
     const std::vector< std::string > perturbingBodies{ "Sun", "Moon", "Mars", "Venus" };
 
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariablesPostNewtonian
     bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
     auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-    auto integratorSettings = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+    auto integratorSettings = numerical_integrators::rungeKutta4Settings( integrationStep );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
         propagators::properTimeRateKinematicTermDependentVariable( "Earth" ),
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitDependentVariablesDirectFromMet
     bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
     auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-    auto integratorSettings = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+    auto integratorSettings = numerical_integrators::rungeKutta4Settings( integrationStep );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
         propagators::properTimeRateKinematicTermDependentVariable( "ISS" ),
@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE( testProperTimeRateGrSrSplitIntegratedSumMatchesState )
     bodies.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
     auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-    auto integratorSettings = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+    auto integratorSettings = numerical_integrators::rungeKutta4Settings( integrationStep );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
         propagators::properTimeRateKinematicTermDependentVariable( "Earth" ),
@@ -654,9 +654,9 @@ BOOST_AUTO_TEST_CASE( testProgressiveComplexityDiagnostic )
         bodiesPn.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
         auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-        auto intSetD = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-        auto intSetP = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-        auto intSetT = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+        auto intSetD = numerical_integrators::rungeKutta4Settings( integrationStep );
+        auto intSetP = numerical_integrators::rungeKutta4Settings( integrationStep );
+        auto intSetT = numerical_integrators::rungeKutta4Settings( integrationStep );
 
         auto metricSet = std::make_shared< SolarSystemSpaceTimeMetricSettings >(
                 L.bodyNames, std::vector< std::string >( ), L.metricShOrders, std::vector< std::string >( ), false );
@@ -821,9 +821,9 @@ BOOST_AUTO_TEST_CASE( testDirectFromMetricVsChainedPnEquatorOneYearEarthMoonSun 
     bodiesPn.getBody( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
     auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-    auto integratorSettingsDirect = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-    auto integratorSettingsPn = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-    auto integratorSettingsPnTopo = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+    auto integratorSettingsDirect = numerical_integrators::rungeKutta4Settings( integrationStep );
+    auto integratorSettingsPn = numerical_integrators::rungeKutta4Settings( integrationStep );
+    auto integratorSettingsPnTopo = numerical_integrators::rungeKutta4Settings( integrationStep );
 
     const std::map< std::string, std::pair< int, int > > sphericalHarmonicOrders = { { "Earth", std::make_pair( 20, 20 ) },
                                                                                      { "Moon", std::make_pair( 2, 2 ) } };
@@ -1116,9 +1116,9 @@ BOOST_AUTO_TEST_CASE( testDirectVsChainComplexityLadder )
         bodiesPn.getBody( scenario.centralBody )->setCurrentRotationalStateToLocalFrameFromEphemeris( initialEphemerisTime );
 
         auto terminationSettings = std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
-        auto intSetDirect = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-        auto intSetTcb = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
-        auto intSetTopo = numerical_integrators::rungeKutta4SettingsDeprecated( initialEphemerisTime, integrationStep );
+        auto intSetDirect = numerical_integrators::rungeKutta4Settings( integrationStep );
+        auto intSetTcb = numerical_integrators::rungeKutta4Settings( integrationStep );
+        auto intSetTopo = numerical_integrators::rungeKutta4Settings( integrationStep );
 
         // --- Direct-from-metric: SolarSystemMetric over all bodies, evaluated at the station. ---
         auto metricSettings = std::make_shared< SolarSystemSpaceTimeMetricSettings >(

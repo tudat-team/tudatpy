@@ -327,8 +327,9 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableSolution =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Declare test variables.
     double currentAngleOfAttack, currentSideslipAngle, currentMachNumber, currentSurfaceDeflection, currentTime;

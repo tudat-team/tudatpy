@@ -124,14 +124,11 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
 
     // Create dynamics simulation object.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
     propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings );
 
-    return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
+    return dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }
 
 BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )

@@ -155,7 +155,8 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeModifierPropagation )
         }
     }
 
-    const std::map< double, Eigen::VectorXd >& dependentVariableHistory = dynamicsSimulator->getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd >& dependentVariableHistory =
+            dynamicsSimulator->getSingleArcPropagationResults( )->getDependentVariableHistory( );
     BOOST_REQUIRE_EQUAL( dependentVariableHistory.size( ), 4 );
 
     for( const auto& dependentVariableEntry : dependentVariableHistory )

@@ -179,7 +179,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
 
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    propagatorSettings->resetInitialTime( TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ) );
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =

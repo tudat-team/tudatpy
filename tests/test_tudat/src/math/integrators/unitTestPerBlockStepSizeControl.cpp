@@ -273,7 +273,8 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                 //                double timeOfMinimumStep = TUDAT_NAN;
                 //                double timeOfMaximumStep = TUDAT_NAN;
 
-                std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                std::map< double, Eigen::VectorXd > stateHistory =
+                        dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
                 stateSolutions.push_back( stateHistory );
 
                 auto firstIterator = stateHistory.begin( );

@@ -158,7 +158,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > solutionSet1 =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     // Define new central bodies (hierarchical system)
     centralBodies[ 0 ] = "Sun";
@@ -189,7 +190,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create new simulation object and propagate dynamics.
     SingleArcDynamicsSimulator<> dynamicsSimulator2( bodies, propagatorSettings2 );
-    std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > solutionSet2 =
+            dynamicsSimulator2.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     // Create integration and propagation settings for reverse in time propagation
     std::map< double, Eigen::VectorXd >::iterator solutionSetIterator = ( --solutionSet2.end( ) );
@@ -211,7 +213,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create new simulation object and propagate dynamics backwards in time.
     SingleArcDynamicsSimulator<> dynamicsSimulator3( bodies, propagatorSettings3 );
-    std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > solutionSet3 =
+            dynamicsSimulator3.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     // Create interpolators from three numerical solutions (first one is inertial; second and third are non-inertial)
     std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator1 =
@@ -439,10 +442,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
         // Create dynamics simulation object.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings );
 

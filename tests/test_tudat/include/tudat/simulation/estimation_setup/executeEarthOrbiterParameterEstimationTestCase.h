@@ -243,7 +243,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     }
 
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    propagatorSettings->resetInitialTime( TimeType( initialEphemerisTime ) );
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =

@@ -270,8 +270,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableSolution =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against manually retrieved values.
         std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =

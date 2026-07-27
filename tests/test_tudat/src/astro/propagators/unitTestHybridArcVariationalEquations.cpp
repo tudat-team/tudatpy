@@ -663,8 +663,10 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     //    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
     //            variationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
     auto fullMultiArcVariationalResults = variationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
-    std::vector< std::map< double, Eigen::VectorXd > > fullMultiArcStateSolution =
-            variationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    std::vector< std::map< double, Eigen::VectorXd > > fullMultiArcStateSolution = variationalEquations.getMultiArcSolver( )
+                                                                                           ->getDynamicsSimulator( )
+                                                                                           ->getMultiArcPropagationResults( )
+                                                                                           ->getConcatenatedEquationsOfMotionResults( );
 
     for( unsigned int i = 0; i < singleArcBodiesToPropagate.size( ); i++ )
     {
@@ -705,7 +707,10 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
                 perCentralBodyVariationalEquations.getMultiArcSolver( )->getMultiArcVariationalPropagationResults( );
 
         std::vector< std::map< double, Eigen::VectorXd > > perBodyMultiArcStateSolution =
-                perCentralBodyVariationalEquations.getMultiArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+                perCentralBodyVariationalEquations.getMultiArcSolver( )
+                        ->getDynamicsSimulator( )
+                        ->getMultiArcPropagationResults( )
+                        ->getConcatenatedEquationsOfMotionResults( );
 
         for( unsigned int j = 0; j < perBodyIndicesInFullPropagation.at( singleArcBodiesToPropagate.at( i ) ).size( ); j++ )
         {

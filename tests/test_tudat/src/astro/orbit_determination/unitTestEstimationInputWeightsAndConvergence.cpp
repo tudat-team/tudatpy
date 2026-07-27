@@ -169,10 +169,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
     // Create orbit determination object.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( double( initialEphemerisTime ) );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
@@ -412,10 +409,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ) );
 
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager(
             bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

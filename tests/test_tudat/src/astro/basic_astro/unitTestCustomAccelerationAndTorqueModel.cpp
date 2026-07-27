@@ -171,8 +171,10 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > stateHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
@@ -361,13 +363,12 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > stateHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );

@@ -189,10 +189,7 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
 
     // Create orbit determination object.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( double( initialEphemerisTime ) );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

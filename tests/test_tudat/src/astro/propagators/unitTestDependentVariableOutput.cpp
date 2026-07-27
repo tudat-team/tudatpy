@@ -292,20 +292,18 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
             // Create simulation object and propagate dynamics.
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( simulationStartEpoch );
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
             std::cout << "Propagation finished " << std::endl;
 
             // Retrieve numerical solutions for state and dependent variables
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-                    dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
             std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > rawNumericalSolution =
-                    dynamicsSimulator.getEquationsOfMotionNumericalSolutionRaw( );
-            std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolutionRaw( );
+            std::map< double, Eigen::VectorXd > dependentVariableSolution =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > originalDependentVariables =
                     dynamicsSimulator.getSingleArcPropagationResults( )->getOriginalDependentVariableSettings( );
@@ -706,14 +704,13 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > integrationResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > depdendentVariableResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
          variableIterator != depdendentVariableResult.end( );
@@ -831,14 +828,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > stateResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > stateResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > depdendentVariableResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
          variableIterator != depdendentVariableResult.end( );
@@ -1020,16 +1016,14 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( double( initialEphemerisTime ) );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
-            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableSolution =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
@@ -1266,7 +1260,7 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::MatrixXd > numericalSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableSolution =
-                variationalEquationsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
+                variationalEquationsSimulator.getDynamicsSimulator( )->getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against manually retrieved values.
         Eigen::Vector6d currentStateDerivative;
@@ -1477,9 +1471,10 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
     const std::map< double, Eigen::MatrixXd >& stateTransitionSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
     const std::map< double, Eigen::MatrixXd >& sensitivitySolution = variationalEquationsSimulator.getSensitivityMatrixSolution( );
     const std::map< double, Eigen::VectorXd > dependentVariableSolution =
-            variationalEquationsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
-    const std::map< double, Eigen::VectorXd >& equationsOfMotionSolution =
-            variationalEquationsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+            variationalEquationsSimulator.getDynamicsSimulator( )->getSingleArcPropagationResults( )->getDependentVariableHistory( );
+    const std::map< double, Eigen::VectorXd >& equationsOfMotionSolution = variationalEquationsSimulator.getDynamicsSimulator( )
+                                                                                   ->getSingleArcPropagationResults( )
+                                                                                   ->getEquationsOfMotionNumericalSolution( );
 
     std::shared_ptr< VariationalEquations > variationalEquationsObject = variationalEquationsSimulator.getVariationalEquationsObject( );
     const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
@@ -1748,14 +1743,13 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
 
         // Create simulation object and propagate dynamics.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > depdendentVariableResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Get gravity models
         std::shared_ptr< gravitation::GravityFieldModel > earthGravityModel = bodies.at( "Earth" )->getGravityFieldModel( );
@@ -2025,13 +2019,11 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
 
     // Create simulation object and propagate dynamics.
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
     propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-    std::map< double, Eigen::VectorXd > dependentVariableResults = dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > dependentVariableResults =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
     std::pair< int, double > testPair;
     std::tuple< int, double, double > testTuple;
     for( auto it : dependentVariableResults )

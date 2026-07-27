@@ -155,8 +155,10 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Compute multiplier used in tests
         double testMultiplier = 1.0;

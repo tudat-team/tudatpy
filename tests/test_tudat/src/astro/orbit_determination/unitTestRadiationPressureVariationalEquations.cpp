@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                     propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
                     MultiArcDynamicsSimulator< long double, Time > upperturbedDynamics( bodies, propagatorSettings );
                     std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > upperturbedResults =
-                            upperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+                            upperturbedDynamics.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
                     // Propagate with down-perturbed parameters
                     perturbedParameters = nominalParameters;
@@ -411,7 +411,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                     propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
                     MultiArcDynamicsSimulator< long double, Time > downperturbedDynamics( bodies, propagatorSettings );
                     std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > downperturbedResults =
-                            downperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+                            downperturbedDynamics.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
                     // Reset
                     parametersToEstimate->resetParameterValues( nominalParameters );

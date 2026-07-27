@@ -70,7 +70,7 @@ namespace low_thrust_trajectories
 //                bodies, integratorSettings, massPropagatorSettings, true, false, false );
 
 //    // Propagate spacecraft mass.
-//    return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second[ 0 ];
+//    return dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second[ 0 ];
 
 //}
 

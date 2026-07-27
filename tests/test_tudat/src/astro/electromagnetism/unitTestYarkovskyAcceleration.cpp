@@ -207,8 +207,10 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     // State histories
-    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > stateHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Map of Yarkokvsky Accelerations;
     std::map< double, Eigen::Vector3d > yarkovskyAccelerations;

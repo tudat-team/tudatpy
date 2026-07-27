@@ -648,9 +648,9 @@ void propagateKeplerianOrbitLegAndFullProblem(
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, propagatorSettingsForwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
-            dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulatorIntegrationForwards.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemForwardPropagation =
-            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+            dynamicsSimulatorIntegrationForwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the Keplerian orbit solution along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
@@ -676,9 +676,9 @@ void propagateKeplerianOrbitLegAndFullProblem(
     // Perform the backward propagation.
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, propagatorSettingsBackwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemBackwardsPropagation =
-            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the keplerian orbit solution along the backward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );

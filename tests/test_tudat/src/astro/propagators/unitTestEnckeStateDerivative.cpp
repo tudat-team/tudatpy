@@ -168,10 +168,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
@@ -183,7 +180,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > cowellIntegrationResults;
-        std::map< double, Eigen::VectorXd > cowellDependentVariables = dynamicsSimulator2.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > cowellDependentVariables =
+                dynamicsSimulator2.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         while( currentTestTime < finalTestTime )
         {
@@ -203,17 +201,15 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Encke method
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > enckeIntegrationResults;
-        std::map< double, Eigen::VectorXd > enckeDependentVariables = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > enckeDependentVariables =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         while( currentTestTime < finalTestTime )
         {
@@ -448,10 +444,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
 
         // Propagate orbit with Cowell method
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
@@ -463,7 +456,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 6, 1 > > cowellIntegrationResults;
-        std::map< double, Eigen::VectorXd > cowellDependentVariables = dynamicsSimulator2.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > cowellDependentVariables =
+                dynamicsSimulator2.getSingleArcPropagationResults( )->getDependentVariableHistory( );
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -483,17 +477,15 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
 
         // Propagate orbit with Encke method
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( 0.0 );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 6, 1 > > enckeIntegrationResults;
-        std::map< double, Eigen::VectorXd > enckeDependentVariables = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > enckeDependentVariables =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -621,7 +613,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > integrationResult =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
         // Check if orbit is properly propagated
         Eigen::VectorXd analyticalSolution;

@@ -202,14 +202,12 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
 
     // Propagate orbit with Cowell method
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    propagatorSettings->resetInitialTime( initialTime );
     propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > integrationResult =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     double computedFinalTime = integrationResult.rbegin( )->first;
     Eigen::Vector6d computedFinalState = integrationResult.rbegin( )->second;
 
@@ -325,14 +323,12 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
 
             // Propagate orbit with Cowell method
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( initialTime );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
-            std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            std::map< double, Eigen::VectorXd > integrationResult =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
             double computedFinalTime = integrationResult.rbegin( )->first;
             Eigen::Vector6d computedFinalState = integrationResult.rbegin( )->second;
 

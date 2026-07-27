@@ -402,13 +402,13 @@ FullTwoBodyPropagationHistory executeFullTwoBodyPhobosVariationalHistory(
         solver.integrateDynamicalEquationsOfMotionOnly( setup.propagatorSettings->getInitialStates( ) );
     }
 
+    const std::map< double, Eigen::VectorXd >& propagatedStateHistory =
+            solver.getDynamicsSimulator( )->getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+
     FullTwoBodyPropagationHistory history;
     for( double evaluationTime : evaluationTimes )
     {
-        Eigen::VectorXd state = Eigen::VectorXd::Zero( 13 );
-        state.segment( 0, 6 ) = setup.bodies.at( "Phobos" )->getEphemeris( )->getCartesianState( evaluationTime );
-        state.segment( 6, 7 ) = setup.bodies.at( "Phobos" )->getRotationalEphemeris( )->getRotationStateVector( evaluationTime );
-        history.stateHistory[ evaluationTime ] = state;
+        history.stateHistory[ evaluationTime ] = propagatedStateHistory.at( evaluationTime );
 
         if( propagateVariationalEquations )
         {

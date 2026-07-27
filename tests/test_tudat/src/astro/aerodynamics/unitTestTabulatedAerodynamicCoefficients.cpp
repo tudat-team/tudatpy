@@ -214,13 +214,10 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
 
     // Create simulation object and propagate dynamics.
     translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
+    translationalPropagatorSettings->resetInitialTime( simulationStartEpoch );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-            dynamicsSimulator.getDependentVariableHistory( );
+            dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////       CHECK DRAG COEFFICIENTS         ////////////////////////////////////////////////////////

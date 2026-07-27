@@ -293,10 +293,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 
             // Propagate dynamics
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( initialEphemerisTime );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
@@ -554,10 +551,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
         // Propagate dynamics
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
@@ -827,14 +821,13 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
 
             // Create simulation object and propagate dynamics.
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( 0.0 );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-            std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-            std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            std::map< double, Eigen::VectorXd > dependentVariableHistory =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
+            std::map< double, Eigen::VectorXd > propagationHistory =
+                    dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             // Define test variables
             double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle, currentAngleOfAttack,
@@ -1025,10 +1018,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 
             // Propagate dynamics
             propagatorSettings->setIntegratorSettings( integratorSettings );
-            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-            {
-                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-            }
+            propagatorSettings->resetInitialTime( initialEphemerisTime );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
@@ -1144,8 +1134,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     // Propagate dynamics
     SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
-    auto stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    auto stateHistory = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+    auto dependentVariableHistory = dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     Eigen::Matrix3d nominalInertiaTensor = Eigen::Matrix3d::Zero( );
     Eigen::Vector3d nominalCosineCorrection = Eigen::Vector3d::Zero( );
@@ -1270,8 +1260,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentIoJupiterRotationWithFourthDegreeAndFullTwoB
                         dependentVariablesList );
 
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
-        stateHistories.at( modelCase ) = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        dependentVariableHistories.at( modelCase ) = dynamicsSimulator.getDependentVariableHistory( );
+        stateHistories.at( modelCase ) = dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        dependentVariableHistories.at( modelCase ) = dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         BOOST_REQUIRE( stateHistories.at( modelCase ).size( ) > 1 );
         BOOST_REQUIRE_EQUAL( stateHistories.at( modelCase ).size( ), dependentVariableHistories.at( modelCase ).size( ) );

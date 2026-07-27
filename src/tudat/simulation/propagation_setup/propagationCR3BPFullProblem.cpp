@@ -223,9 +223,10 @@ void propagateCR3BPAndFullDynamicsProblem(
     propagatorSettings->resetInitialTime( initialTime );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > stateHistory =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     utilities::castDynamicToFixedSizeEigenVectorMap< double, double, 6 >( stateHistory, directPropagationResult );
-    dependentVariableValues = dynamicsSimulator.getDependentVariableHistory( );
+    dependentVariableValues = dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     double finalPropagationTime = directPropagationResult.rbegin( )->first;
 

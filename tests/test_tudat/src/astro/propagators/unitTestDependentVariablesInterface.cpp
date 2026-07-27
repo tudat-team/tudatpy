@@ -154,7 +154,8 @@ BOOST_AUTO_TEST_CASE( testSingleArcDependentVariablesInterface )
     SingleArcDynamicsSimulator<> simulator = SingleArcDynamicsSimulator<>( bodies, propagatorSettings );
 
     // Retrieve dependent variables history.
-    std::map< double, Eigen::VectorXd > dependentVariablesHistory = simulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > dependentVariablesHistory =
+            simulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Retrieve dependent variables interface.
     std::shared_ptr< SingleArcDependentVariablesInterface<> > dependentVariablesInterface =
@@ -333,7 +334,8 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
     MultiArcDynamicsSimulator<> simulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     // Retrieve dependent variables history.
-    std::vector< std::map< double, Eigen::VectorXd > > dependentVariablesHistory = simulator.getDependentVariableHistory( );
+    std::vector< std::map< double, Eigen::VectorXd > > dependentVariablesHistory =
+            simulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Retrieve dependent variables interface.
     std::shared_ptr< MultiArcDependentVariablesInterface<> > dependentVariablesInterface =
@@ -549,9 +551,9 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
 
     // Retrieve dependent variables history.
     std::map< double, Eigen::VectorXd > singleArcDependentVariablesHistory =
-            simulator.getSingleArcDynamicsSimulator( )->getDependentVariableHistory( );
+            simulator.getSingleArcDynamicsSimulator( )->getSingleArcPropagationResults( )->getDependentVariableHistory( );
     std::vector< std::map< double, Eigen::VectorXd > > multiArcDependentVariablesHistory =
-            simulator.getMultiArcDynamicsSimulator( )->getDependentVariableHistory( );
+            simulator.getMultiArcDynamicsSimulator( )->getMultiArcPropagationResults( )->getConcatenatedDependentVariableResults( );
 
     // Retrieve dependent variables interface.
     std::shared_ptr< HybridArcDependentVariablesInterface<> > dependentVariablesInterface =

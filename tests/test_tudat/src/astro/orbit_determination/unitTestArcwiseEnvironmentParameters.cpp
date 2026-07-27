@@ -210,9 +210,10 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > dependentVariableData = orbitDeterminationManager.getVariationalEquationsSolver( )
-                                                                        ->getDynamicsSimulatorBase( )
-                                                                        ->getDependentVariableNumericalSolutionBase( )[ 0 ];
+    auto variationalEquationsSolver = std::dynamic_pointer_cast< SingleArcVariationalEquationsSolver< double, double > >(
+            orbitDeterminationManager.getVariationalEquationsSolver( ) );
+    std::map< double, Eigen::VectorXd > dependentVariableData =
+            variationalEquationsSolver->getDynamicsSimulator( )->getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Test whether arc-wise coefficients are correctly used.
     double testDragCoefficient = 0.0;

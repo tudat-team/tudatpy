@@ -174,6 +174,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
                 simulationStartEpoch, 12.0 * 3600.0, CoefficientSets::rungeKuttaFehlberg78, 3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
 
         // Create settings for parameter that is to be perturbed
         std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
@@ -332,6 +333,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     // Create integrator settings.
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 1.0 );
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
 
     // Create settings for parameter that is to be perturbed
     std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;

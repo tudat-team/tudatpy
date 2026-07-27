@@ -269,10 +269,7 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
 
         // Create orbit determination object.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         OrbitDeterminationManager< double, double > orbitDeterminationManager =
                 OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

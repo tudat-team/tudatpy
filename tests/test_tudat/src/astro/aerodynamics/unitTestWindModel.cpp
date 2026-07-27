@@ -168,8 +168,10 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
-        std::map< double, Eigen::VectorXd > numericalSolution = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableOutput = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > numericalSolution =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableOutput =
+                dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
         // Get function to transform aerodynamic coefficients to inertial frame
         std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;

@@ -320,14 +320,16 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
 
             propagatorSettings->resetInitialStates( perturbedInitialState );
             SingleArcDynamicsSimulator<> upperturbedDynamicsSimulator( bodies, propagatorSettings );
-            upperturbedStateHistory = upperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            upperturbedStateHistory =
+                    upperturbedDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             perturbedInitialState = unperturbedInitialState;
             perturbedInitialState( i ) -= statePerturbation;
 
             propagatorSettings->resetInitialStates( perturbedInitialState );
             SingleArcDynamicsSimulator<> downperturbedDynamicsSimulator( bodies, propagatorSettings );
-            downperturbedStateHistory = downperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            downperturbedStateHistory =
+                    downperturbedDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             for( auto it : upperturbedStateHistory )
             {
@@ -362,14 +364,16 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
             parametersToEstimate->resetParameterValues( upperturbedParameters );
 
             SingleArcDynamicsSimulator<> upperturbedDynamicsSimulator( bodies, propagatorSettings );
-            upperturbedStateHistory = upperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            upperturbedStateHistory =
+                    upperturbedDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             Eigen::VectorXd downperturbedParameters = nominalParameters;
             downperturbedParameters( 6 ) -= paramaterPerturbation;
             parametersToEstimate->resetParameterValues( downperturbedParameters );
 
             SingleArcDynamicsSimulator<> downperturbedDynamicsSimulator( bodies, propagatorSettings );
-            downperturbedStateHistory = downperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            downperturbedStateHistory =
+                    downperturbedDynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             double maximumSensivitiyError = 0.0;
 

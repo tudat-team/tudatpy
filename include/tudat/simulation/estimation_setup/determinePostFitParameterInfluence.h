@@ -80,10 +80,6 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
             createParametersToEstimate< StateScalarType >( initialStateParameterNames, bodies );
     propagatorSettings->setIntegratorSettings( integratorSettings );
-    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-    {
-        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-    }
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =

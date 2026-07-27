@@ -96,7 +96,8 @@ Eigen::Vector6d getFinalIntegrationError( const std::shared_ptr< IntegratorSetti
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings );
 
-    return ( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second - systemInitialState );
+    return ( dynamicsSimulator.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( ).rbegin( )->second -
+             systemInitialState );
 }
 
 //! This tests the order of the fixed-step Runge-Kutta methods, for those with a scheme that only

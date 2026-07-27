@@ -150,10 +150,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
 
         // Create dynamics simulation object.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
         propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings );
@@ -179,10 +176,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
 
         // Create dynamics simulation object.
         propagatorSettings->setIntegratorSettings( integratorSettings );
-        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
-        {
-            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
-        }
+        propagatorSettings->resetInitialTime( finalEphemerisTime );
         propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings );

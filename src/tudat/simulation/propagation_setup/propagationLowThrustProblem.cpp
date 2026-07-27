@@ -29,9 +29,9 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
     // Perform the backward propagation.
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, propagatorSettings.first );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
-            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
+            dynamicsSimulatorIntegrationBackwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Declare vector of epochs at which the trajectory has to be calculated.
     std::vector< double > epochsVector;
@@ -54,9 +54,9 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, propagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
-            dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
+            dynamicsSimulatorIntegrationForwards.getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
-            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
+            dynamicsSimulatorIntegrationForwards.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
     // Compute and save full propagation and shaping method results along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
