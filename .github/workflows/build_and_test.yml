@@ -250,7 +250,7 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
-    
+
     - name: Build C++ kernel
       id: build_kernel_windows
       if: runner.os == 'Windows'
