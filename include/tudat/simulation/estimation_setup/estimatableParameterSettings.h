@@ -1691,6 +1691,62 @@ inline std::shared_ptr< EstimatableParameterSettings > specularReflectivity( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, specular_reflectivity, panel_group_id );
 }
 
+//! Create settings to estimate the energy accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Sentman and Cook gas-surface interaction models; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless energy accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > energyAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, energy_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the tangential accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless tangential accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > tangentialAccommodationCoefficient( const std::string bodyName,
+                                                                                           const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, tangential_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal velocity at wall ratio shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal velocity at wall ratio.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalVelocityAtWallRatio( const std::string bodyName,
+                                                                                  const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_velocity_at_wall_ratio, panel_group_id );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
         const std::string bodyName,
         const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,

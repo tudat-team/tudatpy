@@ -334,8 +334,9 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
-     if (WIN32 AND TUDAT_BUILD_WITH_MCD_INTERFACE)
-         # Avoid unresolved MSVC STL vectorized helper symbols on the Windows MCD CI toolchain.
+     if (WIN32 AND TUDAT_FORCE_DYNAMIC_RUNTIME)
+         # Avoid unresolved MSVC STL vectorized helper symbols when the conda
+         # toolchain's runtime does not match the Visual Studio compiler.
          add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/D_USE_STD_VECTOR_ALGORITHMS=0>")
      endif ()
      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")

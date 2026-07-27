@@ -171,6 +171,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case diffuse_reflectivity:
             parameterDescription = " diffuse reflectivity for panel group ";
             break;
+        case energy_accommodation_coefficient:
+            parameterDescription = " energy accommodation coefficient for panel group ";
+            break;
+        case normal_accommodation_coefficient:
+            parameterDescription = " normal accommodation coefficient for panel group ";
+            break;
+        case tangential_accommodation_coefficient:
+            parameterDescription = " tangential accommodation coefficient for panel group ";
+            break;
+        case normal_velocity_at_wall_ratio:
+            parameterDescription = " normal velocity at wall ratio for panel group ";
+            break;
         case mode_coupled_tidal_love_numbers:
             parameterDescription = " Mode-coupled tidal Love numbers";
             break;
@@ -406,6 +418,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = true;
             break;
         case diffuse_reflectivity:
+            isDoubleParameter = true;
+            break;
+        case energy_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case tangential_accommodation_coefficient:
+            isDoubleParameter = true;
+            break;
+        case normal_velocity_at_wall_ratio:
             isDoubleParameter = true;
             break;
         case mode_coupled_tidal_love_numbers:
