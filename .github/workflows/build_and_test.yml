@@ -275,7 +275,7 @@ jobs:
     - name: Test Python
       shell: bash -l {0}
       run: |
-        pytest -m "not remote_data"
+        pytest
 
     - name: Test C++ kernel
       if: always() && (steps.build_kernel_non_windows.outcome == 'success' || steps.build_kernel_windows.outcome == 'success')
