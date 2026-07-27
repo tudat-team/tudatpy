@@ -210,13 +210,18 @@ jobs:
         echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
-        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
+        set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
         set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
+        echo === Windows Python selection ===
+        where python
+        "%CONDA_ENV%\python.exe" -c "import sys; print(sys.executable); print(sys.version)"
         "%CONDA_ENV%\Library\bin\cmake.exe" -B "%GITHUB_WORKSPACE%\build" -S "%GITHUB_WORKSPACE%" -G Ninja ^
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
           -DCMAKE_C_COMPILER=cl ^
           -DCMAKE_CXX_COMPILER=cl ^
           -DCMAKE_Fortran_COMPILER="%CONDA_ENV%\Library\bin\flang-new.exe" ^
+          -DPYTHON_EXECUTABLE="%CONDA_ENV%\python.exe" ^
+          -DPython_EXECUTABLE="%CONDA_ENV%\python.exe" ^
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} ^
           -DTUDAT_FORCE_DYNAMIC_RUNTIME=ON ^
           -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
@@ -245,7 +250,7 @@ jobs:
         @echo off
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
-        set "PATH=%PATH%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%CONDA_ENV%"
+        set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
 
     - name: Build Python package
