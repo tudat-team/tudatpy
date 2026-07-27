@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 #include <Eigen/LU>
 
@@ -242,6 +243,29 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         const double convergenceTolerance,
         const unsigned int maximumNumberOfIterations )
 {
+    unsigned int numberOfIterations;
+    bool converged;
+    return nonLinearLeastSquaresFit( observationAndJacobianFunctions,
+                                     initialEstimate,
+                                     actualObservations,
+                                     initialScaling,
+                                     convergenceTolerance,
+                                     maximumNumberOfIterations,
+                                     numberOfIterations,
+                                     converged );
+}
+
+//! Function to perform a non-linear least squares estimation and return iteration diagnostics.
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged )
+{
     // Set current estimate to initial value
     Eigen::VectorXd currentEstimate = initialEstimate;
 
@@ -279,8 +303,13 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
                 //                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt’s
                 //                update
                 Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
-        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                                   designMatrix, offsetInObservations, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, false )
+        // The nonlinear solver handles poor conditioning through Levenberg-Marquardt damping. Disable the lower-level
+        // SVD warning here to avoid printing once per iteration; divergence is still detected by the finite-update check.
+        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                          offsetInObservations,
+                                                                                          diagonalOfWeightMatrix,
+                                                                                          inverseOfAPrioriCovarianceMatrix,
+                                                                                          std::numeric_limits< double >::infinity( ) )
                                    .first;
 
         // Check that update is real
@@ -322,6 +351,9 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
     {
         std::cerr << "Warning in non-linear least squares estimation. Maximum number of iterations exceeded." << std::endl;
     }
+
+    numberOfIterations = iteration;
+    converged = updateInEstimate.norm( ) <= convergenceTolerance;
 
     // Give out new estimate in parameters
     return currentEstimate;
