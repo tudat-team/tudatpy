@@ -8,6 +8,7 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+from sys import platform
 
 
 @dataclass
@@ -1065,9 +1066,26 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
+            ext = ".pyd" if platform == "win32" else ".so"
+            kernel_candidates = [self.extension_source_dir / f"kernel{ext}"]
+            if platform == "win32":
+                # Multi-config generators (Visual Studio) add the build
+                # configuration directory, while single-config generators
+                # (Ninja) write the extension directly to the output directory.
+                kernel_candidates.insert(
+                    0,
+                    self.extension_source_dir / self.args.build_type / f"kernel{ext}",
+                )
+            kernel_source = next(
+                (candidate for candidate in kernel_candidates if candidate.is_file()),
+                None,
+            )
+            if kernel_source is None:
+                checked_paths = ", ".join(str(path) for path in kernel_candidates)
+                raise FileNotFoundError(f"Compiled kernel not found. Checked: {checked_paths}")
             shutil.copy(
-                self.extension_source_dir / "kernel.so",
-                mock_prefix / "tudatpy/kernel.so",
+                kernel_source,
+                mock_prefix / f"tudatpy/kernel{ext}",
             )
 
             # Create mock environment with tudatpy in PYTHONPATH
