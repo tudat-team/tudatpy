@@ -35,7 +35,9 @@ enum AvailableTorque {
     radiation_pressure_torque = 3,
     inertial_torque = 4,
     dissipative_torque = 5,
-    custom_torque = 6
+    custom_torque = 6,
+    full_two_body_spherical_harmonic_gravitational_torque = 7,
+    fourth_degree_full_two_body_gravitational_torque = 8
 };
 
 // Function to identify the derived class type of a torque model.

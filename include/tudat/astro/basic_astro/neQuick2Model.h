@@ -30,20 +30,19 @@ namespace environment
 {
 
 //! NeQuick-2 ionospheric layer parameters at a specific location and time.
-struct NeQuick2LayerParameters
-{
-    double foE = 0.0;     //!< E-layer critical frequency [MHz]
-    double foF1 = 0.0;    //!< F1-layer critical frequency [MHz]
-    double foF2 = 0.0;    //!< F2-layer critical frequency [MHz]
-    double M3000 = 0.0;   //!< M(3000)F2 propagation factor
+struct NeQuick2LayerParameters {
+    double foE = 0.0;    //!< E-layer critical frequency [MHz]
+    double foF1 = 0.0;   //!< F1-layer critical frequency [MHz]
+    double foF2 = 0.0;   //!< F2-layer critical frequency [MHz]
+    double M3000 = 0.0;  //!< M(3000)F2 propagation factor
 
-    double hmE = 120.0;   //!< E-layer peak height [km]
-    double hmF1 = 0.0;    //!< F1-layer peak height [km]
-    double hmF2 = 0.0;    //!< F2-layer peak height [km]
+    double hmE = 120.0;  //!< E-layer peak height [km]
+    double hmF1 = 0.0;   //!< F1-layer peak height [km]
+    double hmF2 = 0.0;   //!< F2-layer peak height [km]
 
-    double NmE = 0.0;     //!< E-layer peak electron density [10^11 el/m^3]
-    double NmF1 = 0.0;    //!< F1-layer peak electron density [10^11 el/m^3]
-    double NmF2 = 0.0;    //!< F2-layer peak electron density [10^11 el/m^3]
+    double NmE = 0.0;   //!< E-layer peak electron density [10^11 el/m^3]
+    double NmF1 = 0.0;  //!< F1-layer peak electron density [10^11 el/m^3]
+    double NmF2 = 0.0;  //!< F2-layer peak electron density [10^11 el/m^3]
 
     //! Epstein layer amplitudes aep[0]=F2, aep[1]=F1, aep[2]=E  [10^11 el/m^3]
     double aep[ 3 ] = { 0.0, 0.0, 0.0 };
@@ -64,7 +63,6 @@ struct NeQuick2LayerParameters
 class NeQuick2Model : public IonosphereModel
 {
 public:
-
     //! Constructor.
     /*!
      * \param ccirData CCIR coefficient data (12 monthly sets of foF2 and M(3000)F2 coefficients).
@@ -72,11 +70,10 @@ public:
      * \param solarFluxFunction Function returning F10.7 solar radio flux [SFU] as a function of time [s since J2000].
      * \param inputIsEffectiveIonizationLevel If true, the function returns effective ionization level Az instead of F10.7.
      */
-    NeQuick2Model(
-        const input_output::CcirData& ccirData,
-        const Eigen::MatrixXd& modipGrid,
-        std::function< double( double ) > solarFluxFunction,
-        bool inputIsEffectiveIonizationLevel = false );
+    NeQuick2Model( const input_output::CcirData& ccirData,
+                   const Eigen::MatrixXd& modipGrid,
+                   std::function< double( double ) > solarFluxFunction,
+                   bool inputIsEffectiveIonizationLevel = false );
 
     //! Compute electron density at a point [el/m^3].
     /*!
@@ -88,24 +85,26 @@ public:
      * \param ut Universal Time [hours].
      * \return Electron density in el/m^3.
      */
-    double computeElectronDensity( double heightKm, double latitudeDeg, double longitudeDeg,
-                                   int month, double flx, double ut ) const;
+    double computeElectronDensity( double heightKm, double latitudeDeg, double longitudeDeg, int month, double flx, double ut ) const;
 
     //! Compute electron density using time in seconds since J2000 (calls internal solar flux function).
-    double computeElectronDensityAtTime( double heightKm, double latitudeDeg, double longitudeDeg,
-                                         double time ) const;
+    double computeElectronDensityAtTime( double heightKm, double latitudeDeg, double longitudeDeg, double time ) const;
 
     //! Compute layer parameters at a given location and time.
-    NeQuick2LayerParameters computeLayerParameters( double latitudeDeg, double longitudeDeg,
-                                                    int month, double flx, double ut ) const;
+    NeQuick2LayerParameters computeLayerParameters( double latitudeDeg, double longitudeDeg, int month, double flx, double ut ) const;
 
     //! Compute electron density from pre-computed layer parameters.
     static double computeElectronDensityFromParams( double heightKm, const NeQuick2LayerParameters& params );
 
     //! Compute electron density with NmF2 scaled by a factor k.
     //! This is used for IONEX-constrained rescaling.
-    double computeElectronDensityRescaled( double heightKm, double latitudeDeg, double longitudeDeg,
-                                           int month, double flx, double ut, double nmF2ScaleFactor ) const;
+    double computeElectronDensityRescaled( double heightKm,
+                                           double latitudeDeg,
+                                           double longitudeDeg,
+                                           int month,
+                                           double flx,
+                                           double ut,
+                                           double nmF2ScaleFactor ) const;
 
     // --- IonosphereModel interface ---
 
@@ -120,13 +119,15 @@ public:
     }
 
     //! Get the solar flux function.
-    std::function< double( double ) > getSolarFluxFunction( ) const { return solarFluxFunction_; }
+    std::function< double( double ) > getSolarFluxFunction( ) const
+    {
+        return solarFluxFunction_;
+    }
 
     //! Convert time [s since J2000] to month and UT [hours].
     static void timeToMonthAndUT( double time, int& month, double& ut );
 
 private:
-
     //! Compute MODIP from geographic coordinates [degrees].
     double computeModip( double latitudeDeg, double longitudeDeg ) const;
 
@@ -134,18 +135,24 @@ private:
     static double finter3( const double z[ 4 ], double x );
 
     //! Compute foF2 and M(3000)F2 from CCIR coefficients.
-    void computeFoF2AndM3000( double modip, int month, double ut, double R12,
-                              double latDeg, double lonDeg,
-                              double& foF2, double& M3000 ) const;
+    void computeFoF2AndM3000( double modip, int month, double ut, double R12, double latDeg, double lonDeg, double& foF2, double& M3000 )
+            const;
 
     //! Spherical harmonic evaluation (Fortran gamma1).
-    double gamma1( double modip, double latDeg, double lonDeg, double hour,
-                   int iharm, const int* nq, int k1, int m, int mm, int m3,
+    double gamma1( double modip,
+                   double latDeg,
+                   double lonDeg,
+                   double hour,
+                   int iharm,
+                   const int* nq,
+                   int k1,
+                   int m,
+                   int mm,
+                   int m3,
                    const double* sfe ) const;
 
     //! Compute foE and foF1 (Fortran ef1r).
-    static void computeELayerAndF1( double latDeg, int month, double flx, double chi,
-                                    double foF2, double& foE, double& foF1 );
+    static void computeELayerAndF1( double latDeg, int month, double flx, double chi, double foF2, double& foE, double& foF1 );
 
     //! Compute solar declination sine and cosine (Fortran sdec).
     static void solarDeclination( int month, double ut, double& sinDelta, double& cosDelta );
@@ -154,8 +161,8 @@ private:
     static double computeHmF2( double foE, double foF2, double M3000 );
 
     //! Prepare bottomside layer parameters (Fortran prepmdgr).
-    static void prepareLayerParameters( int month, double R12, double foF2, double foF1, double foE,
-                                        double M3000, NeQuick2LayerParameters& params );
+    static void
+    prepareLayerParameters( int month, double R12, double foF2, double foF1, double foE, double M3000, NeQuick2LayerParameters& params );
 
     //! Bottomside electron density from Epstein layers [el/m^3] (Fortran NeMdGR).
     static double bottomsideElectronDensity( const NeQuick2LayerParameters& params, double heightKm );
@@ -187,15 +194,12 @@ private:
 class IonexConstrainedNeQuick2Model
 {
 public:
-
     //! Constructor.
     /*!
      * \param neQuick2Model The underlying NeQuick-2 model.
      * \param ionexModel The IONEX-based tabulated ionosphere model providing VTEC.
      */
-    IonexConstrainedNeQuick2Model(
-        std::shared_ptr< NeQuick2Model > neQuick2Model,
-        std::shared_ptr< IonosphereModel > ionexModel );
+    IonexConstrainedNeQuick2Model( std::shared_ptr< NeQuick2Model > neQuick2Model, std::shared_ptr< IonosphereModel > ionexModel );
 
     //! Compute rescaled slant TEC along a ray [el/m^2].
     /*!
@@ -206,21 +210,25 @@ public:
      * \param quadratureOrder Number of Gauss-Legendre quadrature nodes (default 50).
      * \return Slant TEC in el/m^2.
      */
-    double computeRescaledSlantTec(
-        const Eigen::Vector3d& txPositionEarthFixed,
-        const Eigen::Vector3d& rxPositionEarthFixed,
-        double time,
-        double earthRadius,
-        int quadratureOrder = 50 ) const;
+    double computeRescaledSlantTec( const Eigen::Vector3d& txPositionEarthFixed,
+                                    const Eigen::Vector3d& rxPositionEarthFixed,
+                                    double time,
+                                    double earthRadius,
+                                    int quadratureOrder = 50 ) const;
 
     //! Get the underlying NeQuick-2 model.
-    std::shared_ptr< NeQuick2Model > getNeQuick2Model( ) const { return neQuick2Model_; }
+    std::shared_ptr< NeQuick2Model > getNeQuick2Model( ) const
+    {
+        return neQuick2Model_;
+    }
 
     //! Get the underlying IONEX model.
-    std::shared_ptr< IonosphereModel > getIonexModel( ) const { return ionexModel_; }
+    std::shared_ptr< IonosphereModel > getIonexModel( ) const
+    {
+        return ionexModel_;
+    }
 
 private:
-
     std::shared_ptr< NeQuick2Model > neQuick2Model_;
     std::shared_ptr< IonosphereModel > ionexModel_;
 };

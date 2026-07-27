@@ -56,6 +56,7 @@
 #include "tudat/simulation/propagation_setup/dynamicsSimulatorBase.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/panelMaterialProperty.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 #include <tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h>
@@ -1431,12 +1432,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                             "SystemOfBodies has no space-time properties." );
                 }
                 doubleParameterToEstimate = std::make_shared< EquivalencePrincipleLpiViolationParameter >(
-                        [ spaceTimeProperties ]( )
-                        {
-                            return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( );
-                        },
-                        [ spaceTimeProperties ]( const double parameterValue )
-                        {
+                        [ spaceTimeProperties ]( ) { return spaceTimeProperties->getEquivalencePrincipleLpiViolationParameter( ); },
+                        [ spaceTimeProperties ]( const double parameterValue ) {
                             spaceTimeProperties->setEquivalencePrincipleLpiViolationParameter( parameterValue );
                         } );
                 break;
@@ -1832,7 +1829,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             case diffuse_reflectivity: {
                 if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
                 {
-                    std::string errorMessage = "Error, no vehicle panelsl found in body " + currentBodyName +
+                    std::string errorMessage = "Error, no vehicle panels found in body " + currentBodyName +
                             " when making specular/diffuse reflectivity parameter.";
                     throw std::runtime_error( errorMessage );
                 }
@@ -1857,6 +1854,41 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                       currentBodyName,
                                                                                       doubleParameterName->parameterType_.second.second,
                                                                                       doubleParameterName->parameterType_.first );
+                }
+                break;
+            }
+            case energy_accommodation_coefficient:
+            case normal_accommodation_coefficient:
+            case tangential_accommodation_coefficient:
+            case normal_velocity_at_wall_ratio: {
+                if( currentBody->getVehicleSystems( ) == nullptr ||
+                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, no vehicle panels found in body " + currentBodyName + " when making panel material property parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+                    std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
+                            currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
+                    for( auto it : fullPanels )
+                    {
+                        for( unsigned int i = 0; i < it.second.size( ); i++ )
+                        {
+                            if( it.second.at( i )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
+                            {
+                                panelsFromId.push_back( it.second.at( i ) );
+                            }
+                        }
+                    }
+
+                    doubleParameterToEstimate =
+                            std::make_shared< PanelMaterialPropertyParameter >( panelsFromId,
+                                                                                currentBodyName,
+                                                                                doubleParameterName->parameterType_.second.second,
+                                                                                doubleParameterName->parameterType_.first );
                 }
                 break;
             }
@@ -1934,12 +1966,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< SingleArcObservationBiasParameter >(
-                                    constant_additive_observation_bias,
-                                    std::function< Eigen::VectorXd( ) >( ),
-                                    std::function< void( const Eigen::VectorXd& ) >( ),
-                                    biasSettings->linkEnds_.linkEnds_,
-                                    biasSettings->observableType_ );
+                            std::make_shared< SingleArcObservationBiasParameter >( constant_additive_observation_bias,
+                                                                                   std::function< Eigen::VectorXd( ) >( ),
+                                                                                   std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                   biasSettings->linkEnds_.linkEnds_,
+                                                                                   biasSettings->observableType_ );
                 }
                 break;
             }
@@ -1953,12 +1984,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< SingleArcObservationBiasParameter >(
-                                    constant_relative_observation_bias,
-                                    std::function< Eigen::VectorXd( ) >( ),
-                                    std::function< void( const Eigen::VectorXd& ) >( ),
-                                    biasSettings->linkEnds_.linkEnds_,
-                                    biasSettings->observableType_ );
+                            std::make_shared< SingleArcObservationBiasParameter >( constant_relative_observation_bias,
+                                                                                   std::function< Eigen::VectorXd( ) >( ),
+                                                                                   std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                   biasSettings->linkEnds_.linkEnds_,
+                                                                                   biasSettings->observableType_ );
                 }
                 break;
             }
@@ -2062,13 +2092,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 else
                 {
                     vectorParameterToEstimate =
-                            std::make_shared< SingleArcTimeBiasParameter >(
-                                    constant_time_observation_bias,
-                                    std::function< Eigen::VectorXd( ) >( ),
-                                    std::function< void( const Eigen::VectorXd& ) >( ),
-                                    biasSettings->linkEndForTime_,
-                                    biasSettings->linkEnds_,
-                                    biasSettings->observableType_ );
+                            std::make_shared< SingleArcTimeBiasParameter >( constant_time_observation_bias,
+                                                                            std::function< Eigen::VectorXd( ) >( ),
+                                                                            std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                            biasSettings->linkEndForTime_,
+                                                                            biasSettings->linkEnds_,
+                                                                            biasSettings->observableType_ );
                 }
                 break;
             }
@@ -2081,15 +2110,14 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 else
                 {
-                    vectorParameterToEstimate =
-                            std::make_shared< MultiArcTimeBiasParameter >(
-                                    arc_wise_time_observation_bias,
-                                    timeBiasSettings->arcStartTimes_,
-                                    std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                                    std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                                    timeBiasSettings->linkEndForTime_,
-                                    timeBiasSettings->linkEnds_,
-                                    timeBiasSettings->observableType_ );
+                    vectorParameterToEstimate = std::make_shared< MultiArcTimeBiasParameter >(
+                            arc_wise_time_observation_bias,
+                            timeBiasSettings->arcStartTimes_,
+                            std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            timeBiasSettings->linkEndForTime_,
+                            timeBiasSettings->linkEnds_,
+                            timeBiasSettings->observableType_ );
                 }
                 break;
             }
@@ -2627,17 +2655,29 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
+                                        tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             vectorParameterToEstimate =
-                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< FullDegreeTidalLoveNumber >( gravityFieldVariations,
                                                                                    currentBodyName,
                                                                                    tidalLoveNumberSettings->degree_,
                                                                                    tidalLoveNumberSettings->useComplexValue_ );
@@ -2678,14 +2718,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                     else
                     {
-                        // Get associated gravity field variation
-                        std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                        currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                                tidalLoveNumberSettings->deformingBodies_ ) );
+                        // Get associated gravity field variation models covering the requested deforming bodies
+                        std::vector< std::shared_ptr< gravitation::GravityFieldVariations > > selectedGravityFieldVariations =
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariationsForDegree(
+                                        tidalLoveNumberSettings->deformingBodies_, tidalLoveNumberSettings->degree_ );
+                        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > > gravityFieldVariations;
+                        for( unsigned int i = 0; i < selectedGravityFieldVariations.size( ); i++ )
+                        {
+                            std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                                    std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                            selectedGravityFieldVariations.at( i ) );
+                            if( gravityFieldVariation == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                            }
+                            gravityFieldVariations.push_back( gravityFieldVariation );
+                        }
 
                         // Create parameter object
-                        if( gravityFieldVariation != nullptr )
+                        if( gravityFieldVariations.size( ) > 0 )
                         {
                             std::vector< int > orders = tidalLoveNumberSettings->orders_;
                             if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
@@ -2696,7 +2748,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                           << std::endl;
                             }
                             vectorParameterToEstimate =
-                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariation,
+                                    std::make_shared< SingleDegreeVariableTidalLoveNumber >( gravityFieldVariations,
                                                                                              currentBodyName,
                                                                                              tidalLoveNumberSettings->degree_,
                                                                                              tidalLoveNumberSettings->orders_,

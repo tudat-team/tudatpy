@@ -105,7 +105,11 @@ enum EstimatebleParametersEnum {
     exponential_atmosphere_base_density,
     exponential_atmosphere_scale_height,
     arc_wise_exponential_atmosphere_base_density,
-    arc_wise_exponential_atmosphere_scale_height
+    arc_wise_exponential_atmosphere_scale_height,
+    energy_accommodation_coefficient,
+    normal_accommodation_coefficient,
+    tangential_accommodation_coefficient,
+    normal_velocity_at_wall_ratio
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -460,8 +464,7 @@ class EstimatableParameter : public EstimatableParameterBase
 public:
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
                           const std::string& associatedBody,
-                          const std::string& pointOnBodyId = "" ):
-        EstimatableParameterBase( parameterName, associatedBody, pointOnBodyId )
+                          const std::string& pointOnBodyId = "" ): EstimatableParameterBase( parameterName, associatedBody, pointOnBodyId )
     {}
 
     virtual ~EstimatableParameter( ) {}
@@ -477,9 +480,9 @@ public:
         Eigen::VectorXd parameterValueVector = convertEstimatableParameterToVector< ParameterType >( getParameterValue( ) );
         if( parameterValueVector.rows( ) != getParameterSize( ) )
         {
-            throw std::runtime_error(
-                    "Error when getting estimatable parameter through untemplated vector interface, expected size " +
-                    std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValueVector.rows( ) ) + "." );
+            throw std::runtime_error( "Error when getting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValueVector.rows( ) ) +
+                                      "." );
         }
         return parameterValueVector;
     }
@@ -488,9 +491,8 @@ public:
     {
         if( parameterValue.rows( ) != getParameterSize( ) )
         {
-            throw std::runtime_error(
-                    "Error when setting estimatable parameter through untemplated vector interface, expected size " +
-                    std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValue.rows( ) ) + "." );
+            throw std::runtime_error( "Error when setting estimatable parameter through untemplated vector interface, expected size " +
+                                      std::to_string( getParameterSize( ) ) + ", got " + std::to_string( parameterValue.rows( ) ) + "." );
         }
         setParameterValue( convertEstimatableParameterFromVector< ParameterType >( parameterValue ) );
     }

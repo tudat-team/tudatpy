@@ -37,7 +37,7 @@ namespace environment_setup
 namespace rigid_body
 {
 
-void expose_rigid_body_setup( py::module &m )
+void expose_rigid_body_setup( py::module& m )
 {
     //    py::enum_<tss::RigidBodyPropertiesType>(m,
     //    "RigidBodyPropertiesType",

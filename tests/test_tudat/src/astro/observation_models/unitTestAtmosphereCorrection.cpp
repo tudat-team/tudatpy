@@ -849,14 +849,12 @@ BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
 
 BOOST_AUTO_TEST_CASE( testVmf3oCorrectionType )
 {
-    std::shared_ptr< observation_models::LightTimeCorrectionSettings > settings =
-            observation_models::vmf3oTroposphericCorrectionSettings( "Earth", true, observation_models::TroposphericMappingModel::vmf3, 1064.0 );
+    std::shared_ptr< observation_models::LightTimeCorrectionSettings > settings = observation_models::vmf3oTroposphericCorrectionSettings(
+            "Earth", true, observation_models::TroposphericMappingModel::vmf3, 1064.0 );
 
     BOOST_CHECK_EQUAL( settings->getCorrectionType( ), observation_models::vmf3o_tropospheric );
-    BOOST_CHECK_EQUAL(
-            observation_models::requiresMultiLegIterations( observation_models::vmf3o_tropospheric ), false );
-    BOOST_CHECK_EQUAL( observation_models::getLightTimeCorrectionName( observation_models::vmf3o_tropospheric ),
-                       "VMF3o tropospheric" );
+    BOOST_CHECK_EQUAL( observation_models::requiresMultiLegIterations( observation_models::vmf3o_tropospheric ), false );
+    BOOST_CHECK_EQUAL( observation_models::getLightTimeCorrectionName( observation_models::vmf3o_tropospheric ), "VMF3o tropospheric" );
 
     std::shared_ptr< observation_models::VMF3TroposphericCorrectionSettings > vmf3oSettings =
             std::dynamic_pointer_cast< observation_models::VMF3TroposphericCorrectionSettings >( settings );
@@ -864,11 +862,116 @@ BOOST_AUTO_TEST_CASE( testVmf3oCorrectionType )
     BOOST_CHECK_CLOSE_FRACTION( vmf3oSettings->getObservationWavelengthNm( ), 1064.0, 1.0e-15 );
 
     BOOST_CHECK_THROW( observation_models::vmf3oTroposphericCorrectionSettings(
-                               "Earth",
-                               true,
-                               observation_models::TroposphericMappingModel::vmf3,
-                               0.0 ),
+                               "Earth", true, observation_models::TroposphericMappingModel::vmf3, 0.0 ),
                        std::runtime_error );
+}
+
+// Verify that TabulatedMediaReferenceCorrectionManager sums all active corrections,
+// and that NaN time bounds make a correction always-valid.
+BOOST_AUTO_TEST_CASE( testMultipleTabulatedCorrectionsSimultaneously )
+{
+    using namespace observation_models;
+    const double correction1 = 0.3;
+    const double correction2 = 0.5;
+    const double eps = 1e-15;
+
+    // Case 1: two overlapping constant corrections are summed
+    {
+        TabulatedMediaReferenceCorrectionManager manager;
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 1000.0, correction1 ) );
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 1000.0, correction2 ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( manager.computeMediaCorrection( 500.0 ), correction1 + correction2, eps );
+    }
+
+    // Case 2: non-overlapping corrections: only the active one contributes
+    {
+        TabulatedMediaReferenceCorrectionManager manager;
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 500.0, correction1 ) );
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 500.0, 1000.0, correction2 ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( manager.computeMediaCorrection( 100.0 ), correction1, eps );
+        BOOST_CHECK_CLOSE_FRACTION( manager.computeMediaCorrection( 600.0 ), correction2, eps );
+    }
+
+    // Case 3: addOther merges corrections from a second manager
+    {
+        TabulatedMediaReferenceCorrectionManager managerA, managerB;
+        managerA.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 1000.0, correction1 ) );
+        managerB.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 1000.0, correction2 ) );
+        managerA.addOther( managerB );
+
+        BOOST_CHECK_CLOSE_FRACTION( managerA.computeMediaCorrection( 500.0 ), correction1 + correction2, eps );
+    }
+
+    // Case 4: NaN-bounded seasonal + time-bounded adjustment
+    // Seasonal model has NaN start/end (always valid); adjustment is only valid in [0, 1000].
+    {
+        const double seasonalVal = 0.7;
+        const double adjustmentVal = 0.1;
+
+        TabulatedMediaReferenceCorrectionManager manager;
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( TUDAT_NAN, TUDAT_NAN, seasonalVal ) );
+        manager.pushReferenceCorrectionCalculator( std::make_shared< ConstantReferenceCorrection >( 0.0, 1000.0, adjustmentVal ) );
+
+        // Inside adjustment range: both contribute
+        BOOST_CHECK_CLOSE_FRACTION( manager.computeMediaCorrection( 500.0 ), seasonalVal + adjustmentVal, eps );
+
+        // Outside adjustment range: only seasonal contributes
+        BOOST_CHECK_CLOSE_FRACTION( manager.computeMediaCorrection( 2000.0 ), seasonalVal, eps );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testSeasonalPlusAdjustmentTroposphericCorrections )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( { "Earth", "Mars" } );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+    bodySettings.addSettings( "MRO" );
+    bodySettings.at( "MRO" )->ephemerisSettings = std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    auto seasonalCspFile =
+            std::make_shared< input_output::CspRawFile >( tudat::paths::getTudatTestDataPath( ) + "1972_001_2048_001_tro.csp" );
+    auto adjustmentCspFile =
+            std::make_shared< input_output::CspRawFile >( tudat::paths::getTudatTestDataPath( ) + "mromagr2017_091_2017_121.tro.txt" );
+
+    auto dryAdjustment = extractTroposphericDryCorrectionAdjustment( { adjustmentCspFile } );
+    auto wetAdjustment = extractTroposphericWetCorrectionAdjustment( { adjustmentCspFile } );
+    auto drySeasonal = extractTroposphericDryCorrectionAdjustment( { seasonalCspFile } );
+    auto wetSeasonal = extractTroposphericWetCorrectionAdjustment( { seasonalCspFile } );
+
+    auto stationKey = std::make_pair( std::string( "DSS-26" ), std::string( "" ) );
+    auto seasonalManager = drySeasonal.at( stationKey ).at( one_way_doppler );
+    auto adjustmentManager = dryAdjustment.at( stationKey ).at( one_way_doppler );
+
+    // the seasonal manager should have two corrections per complex and observation, one trigonometric and one constant
+    BOOST_CHECK_EQUAL( seasonalManager->getCorrectionVector( ).size( ), 2u );
+
+    auto correctionSettings = std::make_shared< TabulatedTroposphericCorrectionSettings >(
+            dryAdjustment, wetAdjustment, "Earth", TroposphericMappingModel::niell, drySeasonal, wetSeasonal );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "MRO" );
+    linkEnds[ receiver ] = LinkEndId( "Earth", "DSS-26" );
+
+    auto correctionBase = createLightTimeCorrections( correctionSettings, bodies, linkEnds, transmitter, receiver, one_way_doppler );
+    auto tabulatedCorrection = std::dynamic_pointer_cast< MappedTroposphericCorrection >( correctionBase );
+    BOOST_REQUIRE( tabulatedCorrection != nullptr );
+
+    // Within adjustment window: correction object must equal seasonal + adjustment computed directly
+    double tInWindow = 544795200.0;
+    BOOST_CHECK_CLOSE_FRACTION(
+            tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tInWindow ),
+            seasonalManager->computeMediaCorrection( tInWindow ) + adjustmentManager->computeMediaCorrection( tInWindow ),
+            1e-15 );
+
+    // Outside adjustment window: adjustment contributes 0, only seasonal active
+    double tOutside = 0.0;
+    BOOST_CHECK_CLOSE_FRACTION( tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( tOutside ),
+                                seasonalManager->computeMediaCorrection( tOutside ),
+                                1e-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -11,6 +11,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <sstream>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -115,6 +117,95 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
     //        errorThrown = true;
     //    }
     //    BOOST_CHECK( errorThrown );
+}
+
+BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorOverlappingRampTables )
+{
+    std::vector< Time > startTimes = { 0.0, 90.0 };
+    std::vector< Time > endTimes = { 100.0, 200.0 };
+    std::vector< double > rampRates = { 1.0, 10.0 };
+    std::vector< double > startFrequencies = { 0.0, 1000.0 };
+
+    PiecewiseLinearFrequencyInterpolator frequencyInterpolator =
+            PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies );
+
+    // Later ramp tables should take precedence in overlap regions by truncating the previous interval.
+    BOOST_CHECK_EQUAL( static_cast< double >( frequencyInterpolator.getEndTimes( ).at( 0 ) ), 90.0 );
+
+    double expectedIntegral = 10.0 * ( 80.0 + 90.0 ) / 2.0 + 5.0 * ( 1000.0 + 1050.0 ) / 2.0;
+    double computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral<>( 80.0, 95.0 );
+    BOOST_CHECK_CLOSE_FRACTION( computedIntegral, expectedIntegral, 1.0E-14 );
+}
+
+BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorGapExtrapolation )
+{
+    std::vector< Time > startTimes = { 0.0, 20.0 };
+    std::vector< Time > endTimes = { 10.0, 30.0 };
+    std::vector< double > rampRates = { 1.0, 10.0 };
+    std::vector< double > startFrequencies = { 0.0, 1000.0 };
+
+    PiecewiseLinearFrequencyInterpolator frequencyInterpolator =
+            PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies );
+
+    BOOST_CHECK_EQUAL( frequencyInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), 15.0 );
+    BOOST_CHECK_EQUAL( frequencyInterpolator.template getTemplatedCurrentFrequency<>( -5.0 ), -5.0 );
+    BOOST_CHECK_EQUAL( frequencyInterpolator.template getTemplatedCurrentFrequency<>( 35.0 ), 1150.0 );
+
+    double expectedIntegral = 15.0 * ( 5.0 + 20.0 ) / 2.0 + 5.0 * ( 1000.0 + 1050.0 ) / 2.0;
+    double computedIntegral = frequencyInterpolator.template getTemplatedFrequencyIntegral<>( 5.0, 25.0 );
+    BOOST_CHECK_CLOSE_FRACTION( computedIntegral, expectedIntegral, 1.0E-14 );
+}
+
+BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorInvalidGapOption )
+{
+    std::vector< Time > startTimes = { 0.0, 20.0 };
+    std::vector< Time > endTimes = { 10.0, 30.0 };
+    std::vector< double > rampRates = { 1.0, 10.0 };
+    std::vector< double > startFrequencies = { 0.0, 1000.0 };
+
+    PiecewiseLinearFrequencyInterpolator frequencyInterpolator =
+            PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies, throw_exception_at_gaps );
+
+    BOOST_CHECK_THROW( frequencyInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), std::runtime_error );
+    BOOST_CHECK_THROW( frequencyInterpolator.template getTemplatedFrequencyIntegral<>( 5.0, 25.0 ), std::runtime_error );
+    BOOST_CHECK_EQUAL( frequencyInterpolator.template getTemplatedCurrentFrequency<>( -5.0 ), -5.0 );
+    BOOST_CHECK_EQUAL( frequencyInterpolator.template getTemplatedCurrentFrequency<>( 35.0 ), 1150.0 );
+}
+
+BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorGapWarningOptions )
+{
+    std::vector< Time > startTimes = { 0.0, 20.0 };
+    std::vector< Time > endTimes = { 10.0, 30.0 };
+    std::vector< double > rampRates = { 1.0, 10.0 };
+    std::vector< double > startFrequencies = { 0.0, 1000.0 };
+
+    std::ostringstream warningStream;
+    std::streambuf* originalBuffer = std::cerr.rdbuf( warningStream.rdbuf( ) );
+
+    PiecewiseLinearFrequencyInterpolator warningEveryTimeInterpolator =
+            PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies, print_error_at_gaps );
+    BOOST_CHECK_EQUAL( warningEveryTimeInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), 15.0 );
+    BOOST_CHECK_CLOSE_FRACTION( warningEveryTimeInterpolator.template getTemplatedFrequencyIntegral<>( 5.0, 25.0 ),
+                                15.0 * ( 5.0 + 20.0 ) / 2.0 + 5.0 * ( 1000.0 + 1050.0 ) / 2.0,
+                                1.0E-14 );
+    BOOST_CHECK( warningStream.str( ).find( "without transmitted frequency" ) != std::string::npos );
+    std::size_t firstWarningOutputSize = warningStream.str( ).size( );
+    BOOST_CHECK_GT( firstWarningOutputSize, 0 );
+
+    warningEveryTimeInterpolator.template getTemplatedCurrentFrequency<>( 15.0 );
+    BOOST_CHECK_GT( warningStream.str( ).size( ), firstWarningOutputSize );
+
+    warningStream.str( "" );
+    warningStream.clear( );
+    PiecewiseLinearFrequencyInterpolator warningOnceInterpolator =
+            PiecewiseLinearFrequencyInterpolator( startTimes, endTimes, rampRates, startFrequencies, print_error_once_at_gaps );
+    BOOST_CHECK_EQUAL( warningOnceInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), 15.0 );
+    firstWarningOutputSize = warningStream.str( ).size( );
+    BOOST_CHECK_GT( firstWarningOutputSize, 0 );
+    BOOST_CHECK_EQUAL( warningOnceInterpolator.template getTemplatedCurrentFrequency<>( 15.0 ), 15.0 );
+    BOOST_CHECK_EQUAL( warningStream.str( ).size( ), firstWarningOutputSize );
+
+    std::cerr.rdbuf( originalBuffer );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

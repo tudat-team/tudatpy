@@ -58,7 +58,7 @@ public:
     }
 
     //! Destructor.
-    ~FirstOrderRelativisticLightTimeCorrectionPartial( ) { }
+    ~FirstOrderRelativisticLightTimeCorrectionPartial( ) {}
 
     //! Function to compute partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
     /*!

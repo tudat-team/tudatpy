@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -25,7 +24,7 @@ namespace observations
 namespace observations_geometry
 {
 
-void expose_observations_geometry( py::module &m );
+void expose_observations_geometry( py::module& m );
 
 }  // namespace observations_geometry
 }  // namespace observations

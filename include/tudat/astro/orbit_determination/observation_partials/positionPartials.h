@@ -60,10 +60,10 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition( const 
 class CartesianStatePartial
 {
 public:
-    CartesianStatePartial( ) { }
+    CartesianStatePartial( ) {}
 
     //! Destructor.
-    virtual ~CartesianStatePartial( ) { }
+    virtual ~CartesianStatePartial( ) {}
 
     //! Pure virtual base class function for determining partial at current time and body state.
     /*!
@@ -96,7 +96,7 @@ public:
     }
 
     //! Destructor
-    ~CartesianStatePartialWrtCartesianState( ) { }
+    ~CartesianStatePartialWrtCartesianState( ) {}
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -144,10 +144,10 @@ public:
     CartesianStatePartialWrtRotationMatrixParameter( const std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
                                                      const std::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
         rotationMatrixPartialObject_( rotationMatrixPartialObject ), positionFunctionInLocalFrame_( positionFunctionInLocalFrame )
-    { }
+    {}
 
     //! Destructor
-    ~CartesianStatePartialWrtRotationMatrixParameter( ) { }
+    ~CartesianStatePartialWrtRotationMatrixParameter( ) {}
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -193,10 +193,10 @@ public:
      */
     CartesianPartialWrtBodyFixedPosition( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
         bodyRotationModel_( bodyRotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~CartesianPartialWrtBodyFixedPosition( ) { }
+    ~CartesianPartialWrtBodyFixedPosition( ) {}
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -236,10 +236,10 @@ private:
 class PositionObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-    PositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::position_observable ) { }
+    PositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::position_observable ) {}
 
     //! Destructor
-    ~PositionObservationScaling( ) { }
+    ~PositionObservationScaling( ) {}
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -254,7 +254,7 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation )
-    { }
+    {}
 
     //! Function to retrieve the scaling factor for specific link end
     /*!
@@ -294,10 +294,10 @@ private:
 class RelativePositionObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-    RelativePositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::relative_position_observable ) { }
+    RelativePositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::relative_position_observable ) {}
 
     //! Destructor
-    ~RelativePositionObservationScaling( ) { }
+    ~RelativePositionObservationScaling( ) {}
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -368,10 +368,10 @@ private:
 class VelocityObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-    VelocityObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::velocity_observable ) { }
+    VelocityObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::velocity_observable ) {}
 
     //! Destructor
-    ~VelocityObservationScaling( ) { }
+    ~VelocityObservationScaling( ) {}
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -386,7 +386,7 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation )
-    { }
+    {}
 
     //! Function to retrieve the scaling factor for specific link end
     /*!

@@ -52,10 +52,10 @@ public:
                    const basic_astrodynamics::AvailableTorque torqueType ):
         StateDerivativePartial( propagators::translational_state, std::make_pair( bodyUndergoingTorque, "" ) ),
         bodyUndergoingTorque_( bodyUndergoingTorque ), bodyExertingTorque_( bodyExertingTorque ), torqueType_( torqueType )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~TorquePartial( ) { }
+    virtual ~TorquePartial( ) {}
 
     //! Function for determining if the torque is dependent on a non-rotational integrated state.
     /*!
@@ -176,7 +176,7 @@ public:
                                                          const bool addContribution = 1,
                                                          const int startRow = 0,
                                                          const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the rotational state of the body undergoing torque.
     /*!
@@ -205,7 +205,7 @@ public:
                                                    const bool addContribution = 1,
                                                    const int startRow = 0,
                                                    const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting torque.
     /*!
@@ -221,7 +221,7 @@ public:
                                                           const bool addContribution = 1,
                                                           const int startRow = 0,
                                                           const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the Cartesian state of the body exerting torque.
     /*!
@@ -252,7 +252,7 @@ public:
                                                  const bool addContribution = 1,
                                                  const int startRow = 0,
                                                  const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the third body.
     /*!
@@ -271,7 +271,7 @@ public:
                                                         const bool addContribution = 1,
                                                         const int startRow = 0,
                                                         const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the Cartesian state of the third body.
     /*!
@@ -299,7 +299,7 @@ public:
     virtual void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                                         const std::pair< std::string, std::string >& stateReferencePoint,
                                                         const propagators::IntegratedStateType integratedStateType )
-    { }
+    {}
 
     //! Function to check whether the partial derivative w.r.t. the rotational state of a third body is non-zero.
     /*!

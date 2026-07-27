@@ -125,7 +125,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative( ) { }
+    ~NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with modified rodrigues parameters (USM6).

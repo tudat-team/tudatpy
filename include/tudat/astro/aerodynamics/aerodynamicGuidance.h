@@ -33,7 +33,7 @@ public:
                                           "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
     }
 
-    virtual ~AerodynamicGuidance( ) { }
+    virtual ~AerodynamicGuidance( ) {}
 
     virtual void updateGuidance( const double currentTime ) = 0;
 

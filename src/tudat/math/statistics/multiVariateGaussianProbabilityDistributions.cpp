@@ -24,8 +24,8 @@ namespace tudat
 namespace statistics
 {
 
-GaussianDistributionXd::GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix )
-    : mean_( mean ), covarianceMatrix_( covarianceMatrix )
+GaussianDistributionXd::GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix ):
+    mean_( mean ), covarianceMatrix_( covarianceMatrix )
 {
     if( covarianceMatrix.rows( ) != covarianceMatrix.cols( ) )
     {
@@ -42,12 +42,11 @@ double GaussianDistributionXd::evaluatePdf( const Eigen::VectorXd& independentVa
     const Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ );
     const Eigen::MatrixXd location = -0.5 * ( distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean );
 
-    return std::exp( location( 0, 0 ) ) /
-            ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) * std::sqrt( determinant_ ) );
+    return std::exp( location( 0, 0 ) ) / ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) * std::sqrt( determinant_ ) );
 }
 
-GaussianCopulaDistributionXd::GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix )
-    : correlationMatrix_( correlationMatrix )
+GaussianCopulaDistributionXd::GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ):
+    correlationMatrix_( correlationMatrix )
 {
     if( correlationMatrix.rows( ) != correlationMatrix.cols( ) )
     {

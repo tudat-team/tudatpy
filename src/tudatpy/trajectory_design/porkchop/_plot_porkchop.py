@@ -135,9 +135,7 @@ def plot_porkchop_of_single_field(
         departure_epochs = np.linspace(
             departure_epochs.min(), departure_epochs.max(), delta_v.shape[1]
         )
-        arrival_epochs = np.linspace(
-            arrival_epochs.min(), arrival_epochs.max(), delta_v.shape[0]
-        )
+        arrival_epochs = np.linspace(arrival_epochs.min(), arrival_epochs.max(), delta_v.shape[0])
 
     # Transform ΔV to characteristic energy (C3) if needed
     field = delta_v**2 if C3 else delta_v
@@ -169,9 +167,7 @@ def plot_porkchop_of_single_field(
         )
 
     # Layout
-    plt.subplots_adjust(
-        top=0.92, bottom=0.155, left=0.145, right=0.885, hspace=0.2, wspace=0.2
-    )
+    plt.subplots_adjust(top=0.92, bottom=0.155, left=0.145, right=0.885, hspace=0.2, wspace=0.2)
 
     # Determine contour levels
     levels = np.logspace(
@@ -183,9 +179,7 @@ def plot_porkchop_of_single_field(
     # Filled contour
     if filled_contours:
         # Define custom colormap
-        cmap = LinearSegmentedColormap.from_list(
-            "TudatMap", ["#d1edff", "#0076C2"], N=256
-        )
+        cmap = LinearSegmentedColormap.from_list("TudatMap", ["#d1edff", "#0076C2"], N=256)
         contour = plt.contourf(
             departure_epochs,
             arrival_epochs,
@@ -226,9 +220,7 @@ def plot_porkchop_of_single_field(
 
     # Global optimum
     if plot_global_optimum:
-        coordinates = np.unravel_index(
-            np.argmin(field_within_range), field_within_range.shape
-        )
+        coordinates = np.unravel_index(np.argmin(field_within_range), field_within_range.shape)
         contour = plt.scatter(
             departure_epochs[coordinates[1]],
             arrival_epochs[coordinates[0]],
@@ -292,32 +284,24 @@ def plot_porkchop_of_single_field(
     # Axis limits
     ax.set_xlim(
         [
-            departure_epochs.min()
-            - departure_epoch_span * percent_margin / 2 / 100,
-            departure_epochs.max()
-            + departure_epoch_span * percent_margin / 2 / 100,
+            departure_epochs.min() - departure_epoch_span * percent_margin / 2 / 100,
+            departure_epochs.max() + departure_epoch_span * percent_margin / 2 / 100,
         ]
     )
     ax.set_ylim(
         [
-            arrival_epochs.min()
-            - arrival_epoch_span * percent_margin / 2 / 100,
-            arrival_epochs.max()
-            + arrival_epoch_span * percent_margin / 2 / 100,
+            arrival_epochs.min() - arrival_epoch_span * percent_margin / 2 / 100,
+            arrival_epochs.max() + arrival_epoch_span * percent_margin / 2 / 100,
         ]
     )
 
     # Tick labels
     dt = 40
-    tick_formatter = lambda epoch: time_representation.date_time_from_epoch(
-        epoch
-    ).iso_string()[:10]
+    tick_formatter = lambda epoch: time_representation.date_time_from_epoch(epoch).iso_string()[:10]
     # X axis
     nx = int(np.floor(departure_epoch_span / (dt * constants.JULIAN_DAY)))
     x_ticks = np.linspace(departure_epochs.min(), departure_epochs.max(), nx)
-    ax.xaxis.set_ticks(
-        x_ticks, [f"{tick_formatter(t)}" for t in x_ticks], rotation=90
-    )
+    ax.xaxis.set_ticks(x_ticks, [f"{tick_formatter(t)}" for t in x_ticks], rotation=90)
     # Y axis
     ny = int(np.floor(arrival_epoch_span / (dt * constants.JULIAN_DAY)))
     y_ticks = np.linspace(arrival_epochs.min(), arrival_epochs.max(), ny)
@@ -330,17 +314,11 @@ def plot_porkchop_of_single_field(
     if plot_minor_ticks:
         # X axis
         ax.xaxis.set_minor_locator(AutoMinorLocator())
-        ax.xaxis.set_minor_formatter(
-            FuncFormatter(lambda value, index: tick_formatter(value))
-        )
-        plt.setp(
-            ax.xaxis.get_minorticklabels(), fontsize=font_size - 1, rotation=90
-        )
+        ax.xaxis.set_minor_formatter(FuncFormatter(lambda value, index: tick_formatter(value)))
+        plt.setp(ax.xaxis.get_minorticklabels(), fontsize=font_size - 1, rotation=90)
         # Y axis
         ax.yaxis.set_minor_locator(AutoMinorLocator())
-        ax.yaxis.set_minor_formatter(
-            FuncFormatter(lambda value, index: tick_formatter(value))
-        )
+        ax.yaxis.set_minor_formatter(FuncFormatter(lambda value, index: tick_formatter(value)))
         plt.setp(ax.yaxis.get_minorticklabels(), fontsize=font_size - 1)
         # Minor tick grid
         plt.grid(

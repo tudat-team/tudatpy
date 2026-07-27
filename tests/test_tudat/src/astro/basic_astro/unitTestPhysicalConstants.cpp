@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
     using namespace physical_constants;
 
     // Test for gravitational constant.
-    BOOST_CHECK_CLOSE_FRACTION( GRAVITATIONAL_CONSTANT, 6.67259e-11, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( GRAVITATIONAL_CONSTANT, 6.67430e-11, std::numeric_limits< double >::epsilon( ) );
 
     // Test for speed of light.
     BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT, 299792458.0, std::numeric_limits< double >::epsilon( ) );

@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,7 @@ namespace observations_setup
 namespace viability
 {
 
-void expose_viability( py::module &m );
+void expose_viability( py::module& m );
 
 }  // namespace viability
 }  // namespace observations_setup

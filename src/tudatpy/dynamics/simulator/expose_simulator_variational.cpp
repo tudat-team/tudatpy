@@ -399,7 +399,8 @@ void expose_simulator_variational_bindings( py::module& m )
      )doc" )
             .def( "integrate_equations_of_motion_only",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
-                      &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateDynamicalEquationsOfMotionOnly ),
+                          &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
+                                                                   TIME_TYPE >::integrateDynamicalEquationsOfMotionOnly ),
                   py::arg( "initial_states" ),
                   R"doc(
          Function to trigger the integration of the (regular) equations of motion.
@@ -418,7 +419,8 @@ void expose_simulator_variational_bindings( py::module& m )
      )doc" )
             .def( "integrate_full_equations",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&, const bool >(
-                      &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateVariationalAndDynamicalEquations ),
+                          &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
+                                                                   TIME_TYPE >::integrateVariationalAndDynamicalEquations ),
                   py::arg( "initial_states" ),
                   py::arg( "integrate_equations_concurrently" ) = true,
                   R"doc(
@@ -533,7 +535,6 @@ void expose_simulator_variational_bindings( py::module& m )
   Object that propagates the dynamics, and processes the results.
 
   )doc" );
-
 }
 
 }  // namespace simulator

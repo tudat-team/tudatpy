@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Test whether arc-wise coefficients are correctly used.
     double testDragCoefficient = 0.0;
     double testRadiationPressureCoefficient = 0.0;
-    for( auto variableIterator: dependentVariableData )
+    for( auto variableIterator : dependentVariableData )
     {
         double currentTime = variableIterator.first;
 

@@ -21,8 +21,10 @@
 #include "scalarTypes.h"
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processPsfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
@@ -36,7 +38,7 @@ namespace observations_setup
 namespace observations_wrapper
 {
 
-void expose_observations_wrapper_io_bindings( py::module &m )
+void expose_observations_wrapper_io_bindings( py::module& m )
 {
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
@@ -106,7 +108,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
-                  py::overload_cast< const std::string &, const std::string & >(
+                  py::overload_cast< const std::string&, const std::string& >(
                           &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "antenna_name" ),
@@ -114,11 +116,71 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         Define the antenna ID for a given spacecraft.
         )doc" );
 
+    py::class_< tom::PsfFileObservationConversionSettings >( m, "PsfFileObservationConversionSettings", R"doc(
+        Settings for converting a PSF optical imaging file to Tudat pixel-coordinate observations and camera models.
+        )doc" )
+            .def( py::init< const std::string&, const std::map< std::string, std::string >& >( ),
+                  py::arg( "receiver_body_name" ),
+                  py::arg( "image_name_to_body_name" ) = std::map< std::string, std::string >( ) )
+            .def_readwrite( "receiver_body_name", &tom::PsfFileObservationConversionSettings::receiverBodyName_ )
+            .def_readwrite( "image_name_to_body_name", &tom::PsfFileObservationConversionSettings::imageNameToBodyName_ )
+            .def_readwrite( "use_raw_image_name_as_body_name_if_unmapped",
+                            &tom::PsfFileObservationConversionSettings::useRawImageNameAsBodyNameIfUnmapped_ )
+            .def_readwrite( "use_corrected_pixel_line", &tom::PsfFileObservationConversionSettings::useCorrectedPixelLine_ )
+            .def_readwrite( "use_mid_exposure_time", &tom::PsfFileObservationConversionSettings::useMidExposureTime_ )
+            .def_readwrite( "include_deleted_pictures", &tom::PsfFileObservationConversionSettings::includeDeletedPictures_ )
+            .def_readwrite( "include_end_marker_records", &tom::PsfFileObservationConversionSettings::includeEndMarkerRecords_ )
+            .def_readwrite( "filter_by_use_flag", &tom::PsfFileObservationConversionSettings::filterByUseFlag_ )
+            .def_readwrite( "required_use_flag", &tom::PsfFileObservationConversionSettings::requiredUseFlag_ )
+            .def_readwrite( "body_fixed_camera_position", &tom::PsfFileObservationConversionSettings::bodyFixedCameraPosition_ )
+            .def_readwrite( "use_picture_pointing", &tom::PsfFileObservationConversionSettings::usePicturePointing_ );
+
+    m.def( "add_psf_cameras_to_bodies",
+           py::overload_cast< const std::string&, const tss::SystemOfBodies&, const tom::PsfFileObservationConversionSettings& >(
+                   &tom::addPsfCamerasToBodies ),
+           py::arg( "psf_file" ),
+           py::arg( "bodies" ),
+           py::arg( "conversion_settings" ),
+           R"doc(
+        Add PSF-calibrated camera models to the receiver body in a system of bodies.
+
+        One camera is added for each $CAM block in the PSF file. If enabled in the conversion settings, the camera model uses the picture-specific RA/DEC/TWIST values as a direct inertial-to-camera pointing source.
+        )doc" );
+
+    m.def( "create_psf_file_observation_collection",
+           py::overload_cast< const std::string&, const tom::PsfFileObservationConversionSettings& >(
+                   &tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "psf_file" ),
+           py::arg( "conversion_settings" ),
+           R"doc(
+        Create a pixel-coordinate observation collection from a PSF optical imaging file.
+
+        Observations are grouped by target body and receiver camera. By default, the observed pixel/line value is Z - ZC, TOB is converted to mid-exposure TDB seconds since J2000, and PSF SIG values are stored as inverse-variance weights.
+        )doc" );
+
+    m.def(
+            "observations_from_psf_file",
+            []( const std::string& psfFile,
+                tss::SystemOfBodies& bodies,
+                const tom::PsfFileObservationConversionSettings& conversionSettings ) {
+                const tudat::input_output::psf::RawPsfFileContents psfFileContents = tudat::input_output::psf::readPsfFile( psfFile );
+                tom::addPsfCamerasToBodies( psfFileContents, bodies, conversionSettings );
+                return tom::createPsfFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( psfFileContents, conversionSettings );
+            },
+            py::arg( "psf_file" ),
+            py::arg( "bodies" ),
+            py::arg( "conversion_settings" ),
+            R"doc(
+        Add PSF cameras to bodies and create a pixel-coordinate observation collection from a PSF file.
+
+        This convenience function reads the PSF file once, adds its camera calibration and picture-pointing models to the receiver body, and returns the converted pixel-coordinate observations.
+        )doc" );
+
     m.def( "process_odf_data_multiple_files",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::string &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::string&,
                               const bool,
-                              const std::map< std::string, Eigen::Vector3d > & >( &tom::processOdfData< TIME_TYPE > ),
+                              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "verbose" ) = true,
@@ -146,7 +208,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         )doc" );
 
     m.def( "process_odf_data_single_file",
-           py::overload_cast< const std::string &, const std::string &, const bool, const std::map< std::string, Eigen::Vector3d > & >(
+           py::overload_cast< const std::string&, const std::string&, const bool, const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_name" ),
            py::arg( "spacecraft_name" ),
@@ -354,10 +416,19 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         )doc" );
 
     m.def( "observations_from_fdets_files",
-           &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "ifms_file_name" ),
+           py::overload_cast< const std::string&,
+                              const double&,
+                              tudat::input_output::FdetDateFormat,
+                              const std::string&,
+                              const std::string&,
+                              const std::string&,
+                              const tom::FrequencyBands&,
+                              const tom::FrequencyBands&,
+                              const std::map< std::string, Eigen::Vector3d >& >(
+                   &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "fdets_file_name" ),
            py::arg( "base_frequency" ),
-           py::arg( "column_types" ),
+           py::arg( "date_format" ),
            py::arg( "target_name" ),
            py::arg( "transmitting_station_name" ),
            py::arg( "receiving_station_name" ),
@@ -373,12 +444,12 @@ void expose_observations_wrapper_io_bindings( py::module &m )
 
         Parameters
         ----------
-        ifms_file_name : str
+        fdets_file_name : str
             FDETS file name.
         base_frequency : float
             Base frequency for Doppler observables.
-        column_types : list[str]
-            List of column types in the FDETS file.
+        date_format : tudatpy.data.FdetDateFormat
+            Date format used in the FDETS file.
         target_name : str
             Name of the target spacecraft.
         transmitting_station_name : str
@@ -392,10 +463,36 @@ void expose_observations_wrapper_io_bindings( py::module &m )
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions` will be used.
 
-        Returns
-        -------
-        tudatpy.estimation.observations.ObservationCollection
-            Observation collection.
+        )doc" );
+
+    m.def( "observations_from_fdets_files",
+           py::overload_cast< const std::string&,
+                              const double&,
+                              const std::vector< std::string >&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string&,
+                              const tom::FrequencyBands&,
+                              const tom::FrequencyBands&,
+                              const std::map< std::string, Eigen::Vector3d >& >(
+                   &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "fdets_file_name" ),
+           py::arg( "base_frequency" ),
+           py::arg( "column_types" ),
+           py::arg( "target_name" ),
+           py::arg( "transmitting_station_name" ),
+           py::arg( "receiving_station_name" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg_v( "earth_fixed_station_positions",
+                      tss::getCombinedApproximateGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_radio_telescope_positions()" ),
+           R"doc(
+        Create an observation collection from an FDETS file using explicit column identifiers.
+
+        .. deprecated::
+            Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
+
         )doc" );
 
     m.def( "create_compressed_doppler_collection",
@@ -404,6 +501,9 @@ void expose_observations_wrapper_io_bindings( py::module &m )
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
            py::arg( "max_arc_gap" ) = 300.0,
+           py::arg_v( "earth_fixed_ground_station_positions",
+                      tss::getApproximateDsnGroundStationPositions( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
            R"doc(
         Create a compressed Doppler observation collection.
 
@@ -431,7 +531,7 @@ void expose_observations_wrapper_io_bindings( py::module &m )
                               const std::string,
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
-                              const tom::ObservationAncillarySimulationSettings & >(
+                              const tom::ObservationAncillarySimulationSettings& >(
                    &tom::createTrackingTxtFileObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),

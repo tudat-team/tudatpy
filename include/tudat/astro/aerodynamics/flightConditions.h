@@ -74,7 +74,7 @@ public:
                               std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
     //! Destructor
-    virtual ~FlightConditions( ) { }
+    virtual ~FlightConditions( ) {}
 
     std::string getCentralBody( )
     {
@@ -287,8 +287,7 @@ protected:
     //! Function to compute and set the current radius
     void computeRadius( )
     {
-        scalarFlightConditions_[ radius_flight_condition ] =
-                currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ).norm( );
+        scalarFlightConditions_[ radius_flight_condition ] = currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ).norm( );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ radius_flight_condition ] = true;
@@ -492,6 +491,16 @@ public:
                                                         getAtmosphereTimeInput( ) );
         }
         return currentNumberDensities_.at( species );
+    }
+
+    //! Function to retrieve the current freestream total number density.
+    double getCurrentTotalNumberDensity( )
+    {
+        updateAtmosphereInput( );
+        return atmosphereModel_->getTotalNumberDensity( getAtmosphereAltitudeInput( ),
+                                                        scalarFlightConditions_.at( longitude_flight_condition ),
+                                                        getAtmosphereLatitudeInput( ),
+                                                        getAtmosphereTimeInput( ) );
     }
 
     //! Function to return atmosphere model object

@@ -117,7 +117,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyGaussKeplerStateDerivative( ) { }
+    ~NBodyGaussKeplerStateDerivative( ) {}
 
     //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for Kepler elememts
     /*!

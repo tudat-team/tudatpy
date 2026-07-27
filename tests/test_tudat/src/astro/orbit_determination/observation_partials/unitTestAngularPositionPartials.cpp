@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_SUITE( test_angular_position_partials )
 //! Test partial derivatives of angular position observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 {
-    for( int normalizeRightAscension = 0; normalizeRightAscension < 2; normalizeRightAscension++)
+    for( int normalizeRightAscension = 0; normalizeRightAscension < 2; normalizeRightAscension++ )
     {
         // Define and create ground stations.
         std::vector< std::pair< std::string, std::string > > groundStations;
@@ -79,7 +79,9 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
                                     observation_models::angular_position,
                                     linkEnds,
                                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-                                    nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), static_cast< bool >( normalizeRightAscension ) ),
+                                    nullptr,
+                                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                                    static_cast< bool >( normalizeRightAscension ) ),
                             bodies );
 
             // Create parameter objects.

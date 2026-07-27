@@ -132,8 +132,10 @@ void expose_observations( py::module& m )
                   py::arg( "observation_epochs" ),
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                  py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ).none( true ),
-                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ).none( true ) )
+                  py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" )
+                          .none( true ),
+                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" )
+                          .none( true ) )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -1591,7 +1593,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "transponder_delay" ),
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   R"doc(
-         Set the transponder delay for a subset of observations.
+         Deprecated: set the transponder delay for a subset of observations by modifying the
+         retransmission delay in their ancillary settings.
+
+         For new simulations, set the default transponder delay on the spacecraft vehicle systems
+         before creating the observation model:
+         ``bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay``.
 
          Parameters
          ----------

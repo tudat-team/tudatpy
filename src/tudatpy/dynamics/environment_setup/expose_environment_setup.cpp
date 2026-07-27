@@ -25,6 +25,7 @@
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 #include <tudat/simulation/environment_setup/createFlightConditions.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
+#include <tudat/simulation/environment_setup/createCameras.h>
 #include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createSystemModel.h>
 #include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
@@ -63,24 +64,26 @@ namespace dynamics
 namespace environment_setup
 {
 
-std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >
-directRelativisticTimeConverterSettings(
-        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >& barycentric_to_bodycentric_settings,
+std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
+        const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >&
+                barycentric_to_bodycentric_settings,
         const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >& integrator_settings,
-        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& bodycentric_to_topocentric_settings )
+        const std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                bodycentric_to_topocentric_settings )
 {
     return std::make_shared< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-                barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
+            barycentric_to_bodycentric_settings, integrator_settings, bodycentric_to_topocentric_settings );
 }
 
 void setRelativisticTimeConverters(
         const tss::SystemOfBodies& bodies,
-        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >& settings )
+        const std::map< std::string, std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >&
+                settings )
 {
     tss::setRelativisticTimeConverters< STATE_SCALAR_TYPE, TIME_TYPE >( bodies, settings );
 }
 
-void expose_environment_setup( py::module &m )
+void expose_environment_setup( py::module& m )
 {
     auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
@@ -223,6 +226,12 @@ void expose_environment_setup( py::module &m )
 
          :type: list[BodyDeformationSettings]
       )doc" )
+            .def_readwrite( "camera_settings",
+                            &tss::BodySettings::cameraSettings,
+                            R"doc(
+            List of objects that define the settings of the cameras on the body, which are used as link ends of observations
+            Entries in this list are  typically assigned by using a function from the :ref:`cameras` module.
+            )doc" )
             .def_readwrite( "ground_station_settings",
                             &tss::BodySettings::groundStationSettings,
                             R"doc(
@@ -272,6 +281,17 @@ void expose_environment_setup( py::module &m )
 
 
          :type: FullPanelledBodySettings
+      )doc" )
+            .def_readwrite( "climate_model_settings",
+                            &tss::BodySettings::climateModelSettings,
+                            R"doc(
+
+         Object that defines the settings of the climate model that is to be created. Currently it only supports
+         the Mars Climate Database (MCD; only available when users have a local copy and have built tudatpy locally), configured with
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
+
+
+         :type: ClimateModelSettings
       )doc" );
 
     py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
@@ -370,11 +390,10 @@ void expose_environment_setup( py::module &m )
 
 
      )doc" )
-            .def_property(
-                    "space_time_settings",
-                    &tss::BodyListSettings::getSpaceTimeSettings,
-                    &tss::BodyListSettings::setSpaceTimeSettings,
-                    R"doc(
+            .def_property( "space_time_settings",
+                           &tss::BodyListSettings::getSpaceTimeSettings,
+                           &tss::BodyListSettings::setSpaceTimeSettings,
+                           R"doc(
 
          Settings used to initialize :attr:`SystemOfBodies.space_time_properties`
          when calling :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`.
@@ -401,7 +420,7 @@ void expose_environment_setup( py::module &m )
       )doc" );
 
     m.def( "get_default_body_settings",
-           py::overload_cast< const std::vector< std::string > &, const std::string, const std::string >( &tss::getDefaultBodySettings ),
+           py::overload_cast< const std::vector< std::string >&, const std::string, const std::string >( &tss::getDefaultBodySettings ),
            py::arg( "bodies" ),
            py::arg( "base_frame_origin" ) = "SSB",
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
@@ -438,7 +457,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_body_settings_time_limited",
-           py::overload_cast< const std::vector< std::string > &,
+           py::overload_cast< const std::vector< std::string >&,
                               const double,
                               const double,
                               const std::string,
@@ -486,7 +505,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings",
-           py::overload_cast< const std::string &, const std::string & >( &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string&, const std::string& >( &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
            R"doc(
@@ -515,7 +534,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings_time_limited",
-           py::overload_cast< const std::string &, const double, const double, const std::string &, const double >(
+           py::overload_cast< const std::string&, const double, const double, const std::string&, const double >(
                    &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "initial_time" ),
@@ -554,7 +573,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings",
-           py::overload_cast< const std::string &, const std::string &, const std::string & >(
+           py::overload_cast< const std::string&, const std::string&, const std::string& >(
                    &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
@@ -590,7 +609,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings_time_limited",
-           py::overload_cast< const std::string &, const std::string &, const double, const double, const std::string &, const double >(
+           py::overload_cast< const std::string&, const std::string&, const double, const double, const std::string&, const double >(
                    &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
@@ -737,7 +756,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string &, const tss::SystemOfBodies & >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string&, const tss::SystemOfBodies& >(
                    &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
            "body_with_ground_station",
            "station_name" );
@@ -760,7 +779,7 @@ Returns
 ---------
 Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
-    )doc");
+    )doc" );
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,
@@ -1048,6 +1067,81 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
     //                                                                                bodies.get_body("Earth"),
     //                                                                                ground_station_settings )
 
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::CameraSettings > >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_settings" ),
+           R"doc(
+           Function to add a camera to an existing body.
+
+           This function creates a camera from settings, and adds it to an existing body. It requires settings for the camera, created using one of the functions from the :ref:`camera` module. This function creates the actual camera from these settings, and assigns it to the
+           selected body.
+
+            Parameters
+            ----------
+            body : Body
+                Body to which the camera is added. The camera is added to the vehicle systems of this body.
+            camera_settings : CameraSettings
+                Settings defining the camera that is to be created and added to the body.
+            
+            Examples
+            --------
+            In this example, we create a basic camera settings aligned with y axis:
+
+                .. code-block:: python
+
+                    from tudatpy.dynamics.environment_setup import add_camera
+                    from tudatpy.dynamics.environment_setup.vehicle_systems import pinhole_camera
+                    camera_settings = pinhole_camera("Camera", [np.pi/2.0, 0.0, 0.0])
+                    add_camera(body, camera_settings)
+           )doc" );
+
+    m.def( "add_camera",
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string&,
+                              const Eigen::Vector3d&,
+                              const std::pair< double, double >,
+                              const std::pair< double, double >,
+                              const Eigen::Vector3d& >( &tss::createCamera ),
+           py::arg( "body" ),
+           py::arg( "camera_name" ),
+           py::arg( "boresight_euler_angles" ),
+           py::arg( "focal_lengths" ) = std::make_pair( 1.0, 1.0 ),
+           py::arg( "optical_center" ) = std::make_pair( 0.0, 0.0 ),
+           py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
+           R"doc(
+           Function to add a camera to an existing body.
+           
+           This function creates a camera with the provided properties, and adds it to the provided body.
+           The camera is defined by its name, its boresight direction (defined by Euler angles), and its focal lengths
+           optical center (defining the mapping from boresight to pixel coordinates), and body-fixed position.
+           The camera is added to body's vehicle systems.
+
+           Parameters
+           ----------
+           body : Body
+               Body to which the camera is added. The camera is added to the vehicle systems of this body.
+           camera_name : str
+               Name of the camera to be created.
+           boresight_euler_angles : numpy.ndarray[numpy.float64[3, 1]]
+               Euler angles (in radians) defining the camera boresight direction. The rotation sequence RA, DEC, Twist. A zero twist angle will result in the x-axis being aligned with the horizontal direction in the focal plane.
+           focal_lengths : tuple[float, float], optional
+               Focal lengths of the camera in the x and y directions, in pixels. To obtain this value from focal lenght in meters and pixel size, do f_px = f_m / pixel_size. Default is (1.0, 1.0).
+           optical_center : tuple[float, float], optional
+               Optical center of the camera in the x and y directions, in pixels. Default is (0.0, 0.0).
+           body_fixed_position : numpy.ndarray[numpy.float64[3, 1]], optional
+               Position of the camera in the body-fixed frame, in meters. Default is (0.0, 0.0, 0.0).
+
+            Examples
+            --------
+            In this example, we create a basic camera settings aligned with y axis:
+
+                .. code-block:: python
+
+                    from tudapy.dynamics.environment_setup import add_camera
+                    add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
+           )doc" );
+
     m.def( "create_radiation_pressure_interface",
            &tss::createRadiationPressureInterface,
            py::arg( "radiationPressureInterfaceSettings" ),
@@ -1065,14 +1159,13 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
      )doc" );
 
-    m.def(
-        "direct_relativistic_time_converter_settings",
-        &directRelativisticTimeConverterSettings,
-        py::arg( "barycentric_to_bodycentric_settings" ),
-        py::arg( "integrator_settings" ),
-        py::arg( "bodycentric_to_topocentric_settings" ) =
-                std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
-        R"doc(
+    m.def( "direct_relativistic_time_converter_settings",
+           &directRelativisticTimeConverterSettings,
+           py::arg( "barycentric_to_bodycentric_settings" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "bodycentric_to_topocentric_settings" ) =
+                   std::vector< std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< double, double > > >( ),
+           R"doc(
 
  Create settings for a direct relativistic time converter.
 
@@ -1111,12 +1204,11 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
 
         )doc" );
 
-    m.def(
-        "set_relativistic_time_converters",
-        &setRelativisticTimeConverters,
-        py::arg( "bodies" ),
-        py::arg( "converter_settings" ),
-        R"doc(
+    m.def( "set_relativistic_time_converters",
+           &setRelativisticTimeConverters,
+           py::arg( "bodies" ),
+           py::arg( "converter_settings" ),
+           R"doc(
 
  Attach relativistic time converters to bodies.
 

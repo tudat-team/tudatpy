@@ -14,6 +14,8 @@
 #ifndef TUDAT_PROCESSODFFILE_H
 #define TUDAT_PROCESSODFFILE_H
 
+#include <cmath>
+
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
@@ -371,11 +373,11 @@ public:
                 for( auto const& [ linkEndType, linkEndId ] : linkEnd )
                 {
                     // Check if linkEndId is a ground station
-                    if( linkEndId.stationName_ != "" && linkEndId.bodyName_ != spacecraftName_ )
+                    if( linkEndId.getReferencePointName( ) != "" && linkEndId.bodyName_ != spacecraftName_ )
                     {
-                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.stationName_ ) )
+                        if( !std::count( groundStations.begin( ), groundStations.end( ), linkEndId.getReferencePointName( ) ) )
                         {
-                            groundStations.push_back( linkEndId.stationName_ );
+                            groundStations.push_back( linkEndId.getReferencePointName( ) );
                         }
                     }
                 }
@@ -594,7 +596,7 @@ private:
 
         if( requiresTransmittingStation( currentObservableType ) )
         {
-            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_;
+            transmittingStation = linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( );
 
             // Check if transmitting station is in ramp tables
             if( rampInterpolators_.count( transmittingStation ) == 0 )
@@ -627,7 +629,7 @@ private:
         }
         if( requiresFirstReceivingStation( currentObservableType ) )
         {
-            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).stationName_;
+            receivingStation = linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( );
 
             // Check if receiving station is in ramp tables
             if( rampInterpolators_.count( receivingStation ) == 0 )
@@ -727,16 +729,16 @@ private:
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileDopplerData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         case observation_models::ObservableType::dsn_n_way_range: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared< ProcessedOdfFileSequentialRangeData< TimeType > >(
                                             currentObservableType,
-                                            linkEnds.at( observation_models::LinkEndType::receiver ).stationName_,
-                                            linkEnds.at( observation_models::LinkEndType::transmitter ).stationName_ );
+                                            linkEnds.at( observation_models::LinkEndType::receiver ).getReferencePointName( ),
+                                            linkEnds.at( observation_models::LinkEndType::transmitter ).getReferencePointName( ) );
                             break;
                         }
                         default: {
@@ -857,15 +859,18 @@ private:
                         continue;
                     }
 
-                    // Check if adding ramp block vector to previously existing vector: add
-                    // connection point
+                    // Add a connection interval only when consecutive ODF files leave a real gap.
                     if( j == 0 && !unprocessedRampStartTimesPerStation_[ stationName ].empty( ) )
                     {
-                        unprocessedRampStartTimesPerStation_[ stationName ].push_back(
-                                unprocessedRampEndTimesPerStation_[ stationName ].back( ) );
-                        unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
-                        rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
-                        startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        Time previousRampEndTime = unprocessedRampEndTimesPerStation_[ stationName ].back( );
+                        Time currentRampStartTime = rampBlocks.at( j )->getRampStartTime( );
+                        if( previousRampEndTime < currentRampStartTime )
+                        {
+                            unprocessedRampStartTimesPerStation_[ stationName ].push_back( previousRampEndTime );
+                            unprocessedRampEndTimesPerStation_[ stationName ].push_back( currentRampStartTime );
+                            rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
+                            startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                        }
                     }
 
                     unprocessedRampStartTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
@@ -1330,178 +1335,6 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     }
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( sortedObservationSets );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
-        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio )
-{
-    ObservationScalarType floatingCompressionRatio =
-            mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
-
-    double currentCompressionTime = originalDopplerData->getAncillarySettings( )->getAncillaryDoubleData(
-            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations =
-            originalDopplerData->getObservationsReference( );
-    std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesReference( );
-
-    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
-    Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-            originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_ );
-
-    std::vector< TimeType > originalObservationTimesUtc =
-            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
-                                                                              basic_astrodynamics::TimeScales::utc_scale,
-                                                                              originalObservationTimesTdb,
-                                                                              stationPosition );
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
-    std::vector< TimeType > compressedObservationTimesUtc;
-
-    for( unsigned int i = 0; i < originalObservations.size( ); i += compressionRatio )
-    {
-        if( originalObservations.size( ) - i >= compressionRatio )
-        {
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( i );
-            TimeType newTime = originalObservationTimesUtc.at( i );
-
-            bool skipObservation = false;
-            for( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
-            {
-                if( std::fabs(
-                            static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) -
-                            currentCompressionTime ) < 0.01 )
-                {
-                    newObservable += originalObservations.at( i + j );
-                    newTime += originalObservationTimesUtc.at( i + j );
-                }
-                else
-                {
-                    skipObservation = true;
-                }
-            }
-            if( !skipObservation )
-            {
-                newObservable /= floatingCompressionRatio;
-                newTime = newTime / floatingCompressionRatio;
-
-                compressedObservations.push_back( newObservable );
-                compressedObservationTimesUtc.push_back( newTime );
-            }
-        }
-    }
-
-    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).stationName_;
-    if( simulation_setup::getCombinedApproximateGroundStationPositions( ).count( stationName ) == 0 )
-    {
-        throw std::runtime_error(
-                "Error in Doppler data compression, could not retrieve approximate station "
-                "position for " +
-                stationName );
-    }
-
-    std::vector< Eigen::Vector3d > compressedEarthFixedPositions;
-    for( unsigned int i = 0; i < compressedObservationTimesUtc.size( ); ++i )
-    {
-        compressedEarthFixedPositions.push_back( stationPosition );
-    }
-    std::vector< TimeType > compressedObservationTimesTdb =
-            timeScaleConverter.getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
-                                                            basic_astrodynamics::TimeScales::tdb_scale,
-                                                            compressedObservationTimesUtc,
-                                                            compressedEarthFixedPositions );
-
-    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySimulationSettings =
-            std::make_shared< ObservationAncillarySimulationSettings >( *( originalDopplerData->getAncillarySettings( ) ) );
-    double originalIntegrationTime = ancillarySimulationSettings->getAncillaryDoubleData(
-            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
-    ancillarySimulationSettings->setAncillaryDoubleData(
-            observation_models::ObservationAncillarySimulationVariable::doppler_integration_time,
-            originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
-    return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-            originalDopplerData->getObservableType( ),
-            originalDopplerData->getLinkEnds( ),
-            compressedObservations,
-            compressedObservationTimesTdb,
-            originalDopplerData->getReferenceLinkEnd( ),
-            std::vector< Eigen::VectorXd >( ),
-            originalDopplerData->getDependentVariableBookkeeping( ),
-            ancillarySimulationSettings );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
-        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
-        const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10,
-        const double maxArcGap = 300.0 )
-{
-    // Split Doppler observation sets into arcs
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
-            splitObservationSets( originalDopplerData,
-                                  observationSetSplitter( time_interval_splitter, maxArcGap, minNumberObservations ),
-                                  observationParser( observation_models::ObservableType::dsn_n_way_averaged_doppler ) );
-
-    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > >
-            uncompressedObservationSets =
-                    compressedData->getObservationsSets( ).at( observation_models::ObservableType::dsn_n_way_averaged_doppler );
-
-    std::map< LinkEnds, std::vector< unsigned int > > indicesSetsToRemove;
-    for( auto const& [ linkEnds, observationSets ] : uncompressedObservationSets )
-    {
-        for( unsigned int index = 0; index < observationSets.size( ); index++ )
-        {
-            std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
-                    compressDopplerData< ObservationScalarType, TimeType >( observationSets.at( index ), compressionRatio );
-
-            if( compressedDataSet->getObservationTimes( ).size( ) )
-            {
-                compressedData->replaceSingleObservationSet( compressedDataSet, index );
-            }
-            else
-            {
-                indicesSetsToRemove[ linkEnds ].push_back( index );
-            }
-        }
-    }
-
-    // Remove empty compressed sets if any
-    compressedData->removeSingleObservationSets(
-            { { observation_models::ObservableType::dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
-
-    return compressedData;
-}
-
-/*!
- * Function modifies the observable types used in the provided observation simulation settings.
- * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler)
- * with an idealized observable (e.g. n-way differenced range), since the latter might allows an
- * easier physical interpretation of the problem. This setup only works if the real and idealized
- * observables require the same ancillary settings (or if the ancillary settings required by the
- * latter are a subset of the ones required by the former). If that is not the case, the user should
- * manually modify the observation simulation settigns as needed.
- *
- * @param observationSimulationSettings Observation simulation settings for which the observable types should be modified.
- * @param replacementObservableTypes Map having as keys the observable types to replace and as values the replacement observable types.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-void changeObservableTypesOfObservationSimulationSettings(
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
-        const std::map< ObservableType, ObservableType >& replacementObservableTypes = {
-                { dsn_n_way_averaged_doppler, n_way_differenced_range },
-                { dsn_one_way_averaged_doppler, one_way_differenced_range } } )
-{
-    for( unsigned int i = 0; i < observationSimulationSettings.size( ); ++i )
-    {
-        ObservableType currentObservableType = observationSimulationSettings.at( i )->getObservableType( );
-
-        if( replacementObservableTypes.count( currentObservableType ) )
-        {
-            observationSimulationSettings.at( i )->setObservableType( replacementObservableTypes.at( currentObservableType ) );
-        }
-    }
 }
 
 /*!

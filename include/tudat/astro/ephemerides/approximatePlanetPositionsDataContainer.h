@@ -42,7 +42,7 @@ public:
         rateOfChangeOfInclination_( -0.0 ), rateOfChangeOfMeanLongitude_( -0.0 ), rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
         rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ), additionalTermB_( -0.0 ), additionalTermC_( -0.0 ), additionalTermS_( -0.0 ),
         additionalTermF_( -0.0 )
-    { }
+    {}
 
     //! Overload ostream to print class information.
     /*!

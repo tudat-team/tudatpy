@@ -53,8 +53,10 @@ std::size_t findGridIndex( const std::vector< double >& grid, const double value
 //! Parse a single map block (TEC or RMS) from the current file position.
 //! Expects the file stream to be positioned just after the START OF ... MAP line.
 //! Also extracts the epoch from the EPOCH OF CURRENT MAP line within the block.
-Eigen::MatrixXd parseMapBlock( std::ifstream& file, const IonexTecMap& data,
-                               const std::string& endMarker, const int exponent,
+Eigen::MatrixXd parseMapBlock( std::ifstream& file,
+                               const IonexTecMap& data,
+                               const std::string& endMarker,
+                               const int exponent,
                                double& epoch )
 {
     Eigen::MatrixXd mapData = Eigen::MatrixXd::Zero( data.latitudes.size( ), data.longitudes.size( ) );
@@ -196,11 +198,11 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data, const bool l
 
     // Reverse latitudes to ascending order (required by Tudat interpolators)
     std::reverse( data.latitudes.begin( ), data.latitudes.end( ) );
-    for( Eigen::MatrixXd& mat: tecMapQueue )
+    for( Eigen::MatrixXd& mat : tecMapQueue )
     {
         mat = mat.colwise( ).reverse( ).eval( );
     }
-    for( Eigen::MatrixXd& mat: rmsMapQueue )
+    for( Eigen::MatrixXd& mat : rmsMapQueue )
     {
         mat = mat.colwise( ).reverse( ).eval( );
     }
@@ -235,13 +237,13 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data, const bool l
 
 void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& data, const bool loadRmsMaps )
 {
-    for( const auto& path: filePaths )
+    for( const auto& path : filePaths )
     {
         readIonexFile( path, data, loadRmsMaps );
     }
 
     std::set< double > uniqueHeights;
-    for( const auto& it: data.tecMaps )
+    for( const auto& it : data.tecMaps )
     {
         uniqueHeights.insert( data.referenceIonosphereHeight_ );
     }
@@ -249,7 +251,7 @@ void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& d
     if( uniqueHeights.size( ) > 1 )
     {
         std::cerr << "Warning: IONEX files use multiple reference heights for the ionospheric shell:\n";
-        for( const auto& h: uniqueHeights )
+        for( const auto& h : uniqueHeights )
         {
             std::cerr << "    - " << h << " m\n";
         }

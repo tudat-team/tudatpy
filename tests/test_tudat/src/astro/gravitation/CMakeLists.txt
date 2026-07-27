@@ -83,7 +83,22 @@ TUDAT_ADD_TEST_CASE(MutualSphericalHarmonicAcceleration
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(MutualExtendedBodySphericalHarmonicAcceleration
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(MutualForcePotential
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(GravitationalTorques
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_TEST_CASE(FullTwoBodyGravitationalTorques
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )

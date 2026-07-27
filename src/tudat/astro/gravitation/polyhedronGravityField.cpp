@@ -93,7 +93,7 @@ void PolyhedronGravityField::computeVerticesAndFacetsDefiningEachEdge( )
     }
     for( unsigned int i = 0; i < numberOfEdges; ++i )
     {
-        for( unsigned int j: { 0, 1 } )
+        for( unsigned int j : { 0, 1 } )
         {
             if( verticesDefiningEachEdge_( i, j ) < 0 )
             {

@@ -88,6 +88,14 @@ Functions
 
    total_acceleration
 
+   acceleration_partial_wrt_body_translational_state
+
+   total_acceleration_partial_wrt_body_translational_state
+
+   acceleration_derivative_partial_wrt_parameter
+
+   total_acceleration_derivative_partial_wrt_parameter
+
    single_torque_norm
 
    single_torque
@@ -258,6 +266,14 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration_norm
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.acceleration_partial_wrt_body_translational_state
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration_partial_wrt_body_translational_state
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.acceleration_derivative_partial_wrt_parameter
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.total_acceleration_derivative_partial_wrt_parameter
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.dependent_variable.single_torque_norm
 

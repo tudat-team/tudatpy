@@ -38,9 +38,9 @@ namespace observations_wrapper
 void expose_observations_wrapper_simulation_bindings( py::module& m )
 {
     m.def( "create_pseudo_observations_and_models",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > &,
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
                               const TIME_TYPE,
                               const TIME_TYPE,
                               const TIME_TYPE >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
@@ -53,9 +53,9 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
            R"doc(No documentation found.)doc" );
 
     m.def( "create_pseudo_observations_and_models_from_observation_times",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > &,
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
                               const std::vector< TIME_TYPE > >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
@@ -108,8 +108,8 @@ void expose_observations_wrapper_simulation_bindings( py::module& m )
 
     m.def( "single_type_observation_collection",
            py::overload_cast< const tom::ObservableType,
-                              const tom::LinkDefinition &,
-                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > &,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
                               const std::vector< TIME_TYPE >,
                               const tom::LinkEndType,
                               const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(

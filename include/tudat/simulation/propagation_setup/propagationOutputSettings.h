@@ -17,8 +17,9 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
+#include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #endif
 
 namespace tudat
@@ -52,10 +53,10 @@ public:
      *  Constructor.
      *  \param variableType Type of variable.
      */
-    VariableSettings( const VariableType variableType ): variableType_( variableType ) { }
+    VariableSettings( const VariableType variableType ): variableType_( variableType ) {}
 
     // Destructor.
-    virtual ~VariableSettings( ) { }
+    virtual ~VariableSettings( ) {}
 
     // Type of dependent variable that is to be saved.
     VariableType variableType_;
@@ -147,7 +148,9 @@ enum PropagationDependentVariables {
     proper_time_rate_potential_term = 80,
     vehicle_part_rotation_matrix_dependent_variable = 81,
     number_density = 82,
-    local_wind_velocity_dependent_variable = 83
+    local_wind_velocity_dependent_variable = 83,
+    acceleration_derivative_partial_wrt_parameter = 84,
+    total_acceleration_derivative_partial_wrt_parameter = 85
 
 };
 
@@ -177,7 +180,7 @@ public:
                                          const int componentIndex = -1 ):
         VariableSettings( dependentVariable ), dependentVariableType_( dependentVariableType ), associatedBody_( associatedBody ),
         secondaryBody_( secondaryBody ), componentIndex_( componentIndex )
-    { }
+    {}
 
     PropagationDependentVariables getDependentVariableType( )
     {
@@ -245,7 +248,7 @@ public:
                 bodyExertingAcceleration,
                 componentIndex ),
         accelerationModelType_( accelerationModelType )
-    { }
+    {}
 
     basic_astrodynamics::AvailableAcceleration getAccelerationModelType( )
     {
@@ -280,7 +283,7 @@ public:
                                              bodyExertingAcceleration,
                                              componentIndex ),
         componentIndices_( componentIndices )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -342,7 +345,7 @@ public:
                 bodyExertingTorque,
                 componentIndex ),
         torqueModelType_( torqueModelType )
-    { }
+    {}
 
     // Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
     basic_astrodynamics::AvailableTorque torqueModelType_;
@@ -371,7 +374,7 @@ public:
                                              centralBody,
                                              componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame )
-    { }
+    {}
 
     // Frame from which rotation is to take place.
     reference_frames::AerodynamicsReferenceFrames baseFrame_;
@@ -397,7 +400,7 @@ public:
                                               const std::string& centralBody = "" ):
         SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle )
-    { }
+    {}
 
     // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
@@ -416,16 +419,14 @@ public:
      *  \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
      *  By default -1, i.e. all the components are saved.
      */
-    LocalWindVelocityDependentVariableSaveSettings( const std::string& associatedBody,
-                                                    const std::string& bodyWithAtmosphere,
-                                                    const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame,
-                                                    const int componentIndex = -1 ):
-        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable,
-                                            associatedBody,
-                                            bodyWithAtmosphere,
-                                            componentIndex ),
+    LocalWindVelocityDependentVariableSaveSettings(
+            const std::string& associatedBody,
+            const std::string& bodyWithAtmosphere,
+            const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable, associatedBody, bodyWithAtmosphere, componentIndex ),
         targetFrame_( targetFrame )
-    { }
+    {}
 
     // Frame in which the wind velocity is to be expressed.
     reference_frames::AerodynamicsReferenceFrames targetFrame_;
@@ -472,7 +473,7 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         deformationType_( deformationType ), identifier_( identifier )
-    { }
+    {}
 
     // Type of gravity field variation.
     gravitation::BodyDeformationTypes deformationType_;
@@ -503,7 +504,7 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier )
-    { }
+    {}
 
     // Constructor.
     /*
@@ -567,7 +568,7 @@ public:
                                              bodyUndergoingAcceleration,
                                              bodyExertingAcceleration ),
         accelerationModelType_( accelerationModelType ), derivativeWrtBody_( derivativeWrtBody )
-    { }
+    {}
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
@@ -593,11 +594,58 @@ public:
     TotalAccelerationPartialWrtStateSaveSettings( const std::string& bodyUndergoingAcceleration, const std::string& derivativeWrtBody ):
         SingleDependentVariableSaveSettings( total_acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration ),
         derivativeWrtBody_( derivativeWrtBody )
-    { }
+    {}
 
     //! String denoting w.r.t. which body the derivative needs to be taken.
     std::string derivativeWrtBody_;
 };
+
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+//! Class to define partial of a single acceleration derivative model w.r.t. an estimatable parameter.
+class AccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    AccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( acceleration_derivative_partial_wrt_parameter,
+                                             bodyUndergoingAcceleration,
+                                             bodyExertingAcceleration ),
+        accelerationModelType_( accelerationModelType ), parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Type of acceleration for which the partial is to be saved.
+    basic_astrodynamics::AvailableAcceleration accelerationModelType_;
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+
+//! Class to define partial of the total acceleration derivative of a given body w.r.t. an estimatable parameter.
+class TotalAccelerationDerivativePartialWrtParameterSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    //! Constructor.
+    TotalAccelerationDerivativePartialWrtParameterSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings ):
+        SingleDependentVariableSaveSettings( total_acceleration_derivative_partial_wrt_parameter, bodyUndergoingAcceleration ),
+        parameterSettings_( parameterSettings ), dependentVariableSize_( -1 )
+    {}
+
+    //! Settings identifying the parameter w.r.t. which the partial is to be saved.
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings_;
+
+    //! Dependent variable size, resolved from the estimatable parameter set during output setup.
+    int dependentVariableSize_;
+};
+#endif
 
 //! Class to define partial of the total acceleration of a given body w.r.t. translational state.
 class MinimumConstellationDistanceDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
@@ -606,7 +654,7 @@ public:
     MinimumConstellationDistanceDependentVariableSaveSettings( const std::string& mainBody,
                                                                const std::vector< std::string >& bodiesToCheck ):
         SingleDependentVariableSaveSettings( minimum_constellation_distance, mainBody ), bodiesToCheck_( bodiesToCheck )
-    { }
+    {}
 
     std::vector< std::string > bodiesToCheck_;
 };
@@ -620,7 +668,7 @@ public:
                                                                       const double elevationAngleLimit ):
         SingleDependentVariableSaveSettings( minimum_constellation_ground_station_distance, bodyName, stationName ),
         bodiesToCheck_( bodiesToCheck ), elevationAngleLimit_( elevationAngleLimit )
-    { }
+    {}
 
     std::vector< std::string > bodiesToCheck_;
 
@@ -634,7 +682,7 @@ public:
                                          const int dependentVariableSize ):
         SingleDependentVariableSaveSettings( custom_dependent_variable, "", "" ),
         customDependentVariableFunction_( customDependentVariableFunction ), dependentVariableSize_( dependentVariableSize )
-    { }
+    {}
 
     const std::function< Eigen::VectorXd( ) > customDependentVariableFunction_;
 
@@ -697,7 +745,7 @@ public:
                                                            const std::string& sourceName,
                                                            const std::string& panelTypeId = "" ):
         SingleDependentVariableSaveSettings( illuminated_panel_fraction, bodyName, sourceName ), panelTypeId_( panelTypeId )
-    { }
+    {}
 
     std::string panelTypeId_;
 };
@@ -710,7 +758,7 @@ public:
                                                const std::string& sourceName,
                                                const std::string& accelerationType ):
         SingleDependentVariableSaveSettings( type, bodyName, sourceName ), accelerationType_( accelerationType )
-    { }
+    {}
 
     std::string accelerationType_;
 };
@@ -1057,8 +1105,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > localWindVelocityV
         const std::string& bodyWithAtmosphere,
         const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame )
 {
-    return std::make_shared< LocalWindVelocityDependentVariableSaveSettings >(
-            associatedBody, bodyWithAtmosphere, targetFrame );
+    return std::make_shared< LocalWindVelocityDependentVariableSaveSettings >( associatedBody, bodyWithAtmosphere, targetFrame );
 }
 
 //! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
@@ -1298,6 +1345,26 @@ inline std::shared_ptr< TotalAccelerationPartialWrtStateSaveSettings > totalAcce
     return std::make_shared< TotalAccelerationPartialWrtStateSaveSettings >( bodyUndergoingAcceleration, derivativeWrtBody );
 }
 
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+inline std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > accelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< AccelerationDerivativePartialWrtParameterSaveSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelType, parameterSettings );
+}
+
+inline std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings >
+totalAccelerationDerivativePartialWrtParameterDependentVariable(
+        const std::string& bodyUndergoingAcceleration,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
+{
+    return std::make_shared< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( bodyUndergoingAcceleration, parameterSettings );
+}
+#endif
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalSphericalHarmonicSineCoefficientVariation( const std::string& bodyName,
                                                                                                               const int minimumDegree,
                                                                                                               const int maximumDegree,
@@ -1438,7 +1505,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSection
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotationMatrixVariable( const std::string& bodyName,
-                                                                                                  const std::string& partName = "" )
+                                                                                                 const std::string& partName = "" )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( vehicle_part_rotation_matrix_dependent_variable, bodyName, partName );
 }
@@ -1451,7 +1518,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > solarLongitudeDepe
 
 //! @get_docstring(numberDensityDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > numberDensityDependentVariable( const std::string& associatedBody,
-                                                                                               const std::string& bodyWithAtmosphere )
+                                                                                              const std::string& bodyWithAtmosphere )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( number_density, associatedBody, bodyWithAtmosphere );
 }
@@ -1482,8 +1549,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRateKine
         const std::string& bodyName,
         const std::string& referencePoint = "" )
 {
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-            proper_time_rate_kinematic_term, bodyName, referencePoint );
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_kinematic_term, bodyName, referencePoint );
 }
 
 //! Build a SingleDependentVariableSaveSettings for the potential (general-relativistic,
@@ -1512,8 +1578,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > properTimeRatePote
         const std::string& bodyName,
         const std::string& referencePoint = "" )
 {
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-            proper_time_rate_potential_term, bodyName, referencePoint );
+    return std::make_shared< SingleDependentVariableSaveSettings >( proper_time_rate_potential_term, bodyName, referencePoint );
 }
 
 }  // namespace propagators

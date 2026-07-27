@@ -66,6 +66,8 @@ public:
                     ( std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ) ):
         bodyList_( bodyList ), integratedStates_( integratedStates )
     {
+        initializeCustomStateBodyCounts( );
+
         // Set update function to be evaluated as dependent variables of state and time during each
         // integration time step.
         setUpdateFunctions( updateSettings );
@@ -171,11 +173,52 @@ private:
                 case proper_time:
                     break;
                 case custom_state: {
+                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedCustomStates =
+                            integratedStates_.at( custom_state );
+                    int currentStartIndex = 0;
+                    for( unsigned int i = 0; i < bodiesWithIntegratedCustomStates.size( ); i++ )
+                    {
+                        const std::string& bodyName = std::get< 0 >( bodiesWithIntegratedCustomStates.at( i ) );
+                        const int stateSize = std::get< 2 >( bodiesWithIntegratedCustomStates.at( i ) ).customStateSize_;
+                        if( bodyName != "" && customStateCountsPerBody_.at( bodyName ) == 1 )
+                        {
+                            bodyList_.at( bodyName )
+                                    ->setCustomState( integratedStateIterator_->second.segment( currentStartIndex, stateSize )
+                                                              .template cast< double >( ) );
+                        }
+                        currentStartIndex += stateSize;
+                    }
                     break;
                 }
                 default:
                     throw std::runtime_error( "Error, could not find integrated state settings for " +
                                               std::to_string( integratedStateIterator_->first ) );
+            }
+        }
+    }
+
+    void initializeCustomStateBodyCounts( )
+    {
+        if( integratedStates_.count( custom_state ) == 0 )
+        {
+            return;
+        }
+
+        for( const auto& customStateEntry : integratedStates_.at( custom_state ) )
+        {
+            const std::string& bodyName = std::get< 0 >( customStateEntry );
+            if( bodyName != "" )
+            {
+                customStateCountsPerBody_[ bodyName ]++;
+            }
+        }
+
+        for( const auto& customStateCount : customStateCountsPerBody_ )
+        {
+            if( customStateCount.second > 1 )
+            {
+                std::cerr << "Warning when setting propagated custom states in Body " << customStateCount.first
+                          << ": multiple custom states of this body are propagated, so they cannot be set in the Body." << std::endl;
             }
         }
     }
@@ -766,6 +809,17 @@ private:
                                                                std::placeholders::_1 ) ) );
                             break;
                         }
+                        case climate_model_update: {
+                            std::shared_ptr< environment::ClimateModel > climateModel =
+                                    bodyList_.at( currentBodies.at( i ) )->getClimateModel( );
+                            // Check if current body has climate model set
+                            if( climateModel == nullptr )
+                            {
+                                throw std::runtime_error( "Request climate model update of " + currentBodies.at( i ) +
+                                                          ", but body has no climate model" );
+                            }
+                            break;
+                        }
                         case space_time_metric_update: {
                             // Reserved for future metric model updates.
                             break;
@@ -804,6 +858,8 @@ private:
      * the body that is integrated.
      */
     std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStates_;
+
+    std::map< std::string, int > customStateCountsPerBody_;
 
     //! List of time-dependent functions to call to update the environment.
     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, std::function< void( const double ) > > > updateFunctionVector_;

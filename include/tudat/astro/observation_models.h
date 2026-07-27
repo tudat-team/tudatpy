@@ -12,6 +12,8 @@
 #define TUDAT_OBSERVATION_MODELS_H
 
 #include "observation_models/angularPositionObservationModel.h"
+#include "observation_models/pixelCoordinatesObservationModel.h"
+#include "observation_models/azimuthElevationObservationModel.h"
 #include "observation_models/dsnNWayAveragedDopplerObservationModel.h"
 #include "observation_models/eulerAngleObservationModel.h"
 #include "observation_models/lightTimeSolution.h"

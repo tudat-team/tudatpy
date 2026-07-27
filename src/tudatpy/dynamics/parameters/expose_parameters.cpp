@@ -34,10 +34,9 @@ namespace parameters
 
 void expose_parameters( py::module& m )
 {
-    py::class_< tep::EstimatableParameterBase, std::shared_ptr< tep::EstimatableParameterBase > >(
-            m,
-            "EstimatableParameter",
-            R"doc(
+    py::class_< tep::EstimatableParameterBase, std::shared_ptr< tep::EstimatableParameterBase > >( m,
+                                                                                                   "EstimatableParameter",
+                                                                                                   R"doc(
 
          Estimatable parameter exposed through an untemplated vector-valued interface.
 

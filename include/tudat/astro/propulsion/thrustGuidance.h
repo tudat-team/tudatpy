@@ -70,9 +70,9 @@ Eigen::Vector3d getForceDirectionFromTimeOnlyFunction( const double currentTime,
 class ThrustDirectionCalculator
 {
 public:
-    ThrustDirectionCalculator( ): currentTime_( TUDAT_NAN ) { }
+    ThrustDirectionCalculator( ): currentTime_( TUDAT_NAN ) {}
 
-    virtual ~ThrustDirectionCalculator( ) { }
+    virtual ~ThrustDirectionCalculator( ) {}
 
     void resetCurrentTime( )
     {
@@ -80,7 +80,7 @@ public:
         resetDerivedClassCurrentTime( );
     }
 
-    virtual void resetDerivedClassCurrentTime( ) { }
+    virtual void resetDerivedClassCurrentTime( ) {}
 
     virtual void update( const double time ) = 0;
 
@@ -95,9 +95,9 @@ class DirectThrustDirectionCalculator : public ThrustDirectionCalculator
 public:
     DirectThrustDirectionCalculator( const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
         directionBasedRotationModel_( directionBasedRotationModel ), currentQuaterionTime_( TUDAT_NAN )
-    { }
+    {}
 
-    virtual ~DirectThrustDirectionCalculator( ) { }
+    virtual ~DirectThrustDirectionCalculator( ) {}
 
     void resetDerivedClassCurrentTime( )
     {
@@ -133,9 +133,9 @@ class OrientationBasedThrustDirectionCalculator : public ThrustDirectionCalculat
 public:
     OrientationBasedThrustDirectionCalculator( const std::function< Eigen::Quaterniond( ) > rotationFunction ):
         ThrustDirectionCalculator( ), rotationFunction_( rotationFunction )
-    { }
+    {}
 
-    virtual ~OrientationBasedThrustDirectionCalculator( ) { }
+    virtual ~OrientationBasedThrustDirectionCalculator( ) {}
 
     virtual void update( const double time )
     {

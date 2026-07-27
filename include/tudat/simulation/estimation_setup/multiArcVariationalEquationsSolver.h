@@ -61,7 +61,7 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
                     if( counterArcPerBody.count( bodiesToIntegrate.at( i ) ) == 0 )
                     {
                         counterArcPerBody[ bodiesToIntegrate.at( i ) ] = 0;
-                        arcInitialTranslationalStatesVector[ bodiesToIntegrate.at( i ) ] = { };
+                        arcInitialTranslationalStatesVector[ bodiesToIntegrate.at( i ) ] = {};
                     }
                     else
                     {
@@ -231,12 +231,11 @@ public:
         }
         else
         {
-            stateTransitionInterface_ =
-                    std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
-                            propagatorSettings_->getArcStartTimes( ),
-                            parametersToEstimate_,
-                            propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
-                            parametersToEstimate_->getParameterSetSize( ) );
+            stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
+                    propagatorSettings_->getArcStartTimes( ),
+                    parametersToEstimate_,
+                    propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
+                    parametersToEstimate_->getParameterSetSize( ) );
         }
     }
 

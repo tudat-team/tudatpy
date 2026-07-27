@@ -33,6 +33,20 @@ std::pair< observation_models::LinkEndType, observation_models::LinkEndType > ge
 std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes(
         const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
 
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType >
+getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
+
+inline double getDifferencedFrequencyOfArrivalScalingFactor(
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& linkEndTimes,
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+        const bool isFirstPartial )
+{
+    return -1.0;
+}
+
 //! Derived class for scaling three-dimensional position partial to one-way range-rate (differenced) observable partial
 class DifferencedObservablePartialScaling : public PositionPartialScaling
 {
