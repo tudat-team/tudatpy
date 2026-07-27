@@ -105,6 +105,23 @@ void expose_observations_dependent_variables( py::module& m )
 
       )doc" );
 
+    py::class_< tss::ObservationDependentVariableBookkeeping, std::shared_ptr< tss::ObservationDependentVariableBookkeeping > >(
+            m,
+            "ObservationDependentVariableBookkeeping",
+            R"doc(
+
+         Class containing the layout and settings of observation dependent variables.
+
+         Instances of this class are created as part of observation simulation
+         settings and can be reused when constructing a SingleObservationSet.
+      )doc" )
+            .def_property_readonly( "observable_type", &tss::ObservationDependentVariableBookkeeping::getObservableType )
+            .def_property_readonly( "link_ends", &tss::ObservationDependentVariableBookkeeping::getLinkEnds )
+            .def_property_readonly( "dependent_variable_settings",
+                                    &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings )
+            .def_property_readonly( "total_dependent_variable_size",
+                                    &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize );
+
     m.def( "add_dependent_variables_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,

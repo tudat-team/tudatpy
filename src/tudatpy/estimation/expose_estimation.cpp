@@ -47,9 +47,20 @@ void expose_estimation( py::module& m )
     observable_models::expose_observable_models( observable_models_submodule );
 
     auto observations_submodule = m.def_submodule( "observations" );
-    observations::expose_observations( observations_submodule );
 
     auto observations_setup_submodule = m.def_submodule( "observations_setup" );
+
+    // Register types used by typed defaults in observations before exposing
+    // the functions and classes that define those defaults.
+    auto ancillary_settings_submodule = observations_setup_submodule.def_submodule( "ancillary_settings" );
+    observations_setup::ancillary_settings::expose_ancillary_settings( ancillary_settings_submodule );
+
+    auto observations_dependent_variables_submodule = observations_setup_submodule.def_submodule( "observations_dependent_variables" );
+    observations_setup::observations_dependent_variables::expose_observations_dependent_variables(
+            observations_dependent_variables_submodule );
+
+    observations::expose_observations( observations_submodule );
+
     observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
