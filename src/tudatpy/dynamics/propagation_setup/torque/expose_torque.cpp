@@ -499,13 +499,13 @@ void expose_torque_setup( py::module& m )
     m.def( "custom_torque",
            &tss::customTorqueSettings,
            py::arg( "torque_function" ),
-           py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ),
            R"doc(No documentation found.)doc" );
 
     m.def( "custom",
            &tss::customTorqueSettingsDeprecated,
            py::arg( "torque_function" ),
-           py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ).none( true ) );
+           py::arg_v( "scaling_function", std::function< double( const double ) >( ), "None" ) );
 
     // NOTE: the only unexposed torque model is
     // dissipativeTorque, but it is probably obsolete

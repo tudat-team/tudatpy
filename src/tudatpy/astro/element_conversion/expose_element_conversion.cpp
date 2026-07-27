@@ -557,10 +557,7 @@ Enumeration describing different types of position element types (typically used
            py::arg( "mean_anomaly" ),
            py::arg( "use_default_initial_guess" ) = true,
            py::arg( "non_default_initial_guess" ) = TUDAT_NAN,
-           py::arg_v( "root_finder",
-                      std::shared_ptr< trf::RootFinder< double > >( ),
-                      "None" )
-                   .none( true ),
+           py::arg_v( "root_finder", std::shared_ptr< trf::RootFinder< double > >( ), "None" ),
            R"doc(
 
  Convert mean to true anomaly.
@@ -711,10 +708,7 @@ Enumeration describing different types of position element types (typically used
            py::arg( "mean_anomaly" ),
            py::arg( "use_default_initial_guess" ) = true,
            py::arg( "non_default_initial_guess" ) = TUDAT_NAN,
-           py::arg_v( "root_finder",
-                      std::shared_ptr< trf::RootFinder< double > >( ),
-                      "None" )
-                   .none( true ),
+           py::arg_v( "root_finder", std::shared_ptr< trf::RootFinder< double > >( ), "None" ),
            R"doc(
 
  Convert mean to eccentric anomaly.

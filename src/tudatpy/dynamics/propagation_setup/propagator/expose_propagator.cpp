@@ -1079,7 +1079,7 @@ Enumeration of available integrated state types.
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::cowell,
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create translational state propagator settings with stopping condition at given final time.
@@ -1143,7 +1143,7 @@ TranslationalStatePropagatorSettings
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::quaternions,
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create rotational state propagator settings.
@@ -1210,7 +1210,7 @@ RotationalStatePropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create mass propagator settings
@@ -1266,7 +1266,7 @@ SingleArcPropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            py::arg( "body" ) = "",
            R"doc(
 
@@ -1314,7 +1314,7 @@ SingleArcPropagatorSettings
            py::arg( "initial_time" ),
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create multitype propagator settings.
@@ -1362,7 +1362,7 @@ MultiTypePropagatorSettings
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "transfer_state_to_next_arc" ) = false,
-           py::arg_v( "processing_settings", std::shared_ptr< tp::MultiArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::MultiArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create multi-arc propagator settings.
@@ -1393,7 +1393,7 @@ MultiArcPropagatorSettings
            &tp::hybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "multi_arc_settings" ),
-           py::arg_v( "processing_settings", std::shared_ptr< tp::HybridArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::HybridArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
 Function to create hybrid-arc propagator settings.
@@ -1533,7 +1533,7 @@ HybridArcPropagatorSettings
            py::arg( "limit_value" ),
            py::arg( "use_as_lower_limit" ),
            py::arg( "terminate_exactly_on_final_condition" ) = false,
-           py::arg_v( "termination_root_finder_settings", std::shared_ptr< tmrf::RootFinderSettings >( ), "None" ).none( true ),
+           py::arg_v( "termination_root_finder_settings", std::shared_ptr< tmrf::RootFinderSettings >( ), "None" ),
            R"doc(
 
  Function to create termination settings for the propagation based on a dependent variable.
@@ -2001,7 +2001,7 @@ HybridArcPropagatorSettings
            py::arg( "termination_settings" ),
            py::arg( "distance_scaling_factor" ) = 1.0,
            py::arg( "dependent_variables_to_save" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg_v( "output_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ).none( true ),
+           py::arg_v( "output_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
            R"doc(
 
  Creates settings for direct metric-based relativistic time conversion.

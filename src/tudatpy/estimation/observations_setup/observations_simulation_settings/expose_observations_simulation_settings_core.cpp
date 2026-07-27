@@ -156,8 +156,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
            py::arg( "simulation_times" ),
            py::arg( "reference_link_end_type" ) = tom::receiver,
            py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ).none( true ),
-           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ).none( true ),
+           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ),
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
            R"doc(
 
  Function for creating settings object for observation simulation, using a predefined list of observation times.
@@ -250,7 +250,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
            py::arg( "minimum_time_between_arcs" ),
            py::arg( "reference_link_end_type" ) = tom::receiver,
            py::arg( "additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.

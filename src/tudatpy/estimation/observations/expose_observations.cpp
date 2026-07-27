@@ -132,10 +132,8 @@ void expose_observations( py::module& m )
                   py::arg( "observation_epochs" ),
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                  py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" )
-                          .none( true ),
-                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" )
-                          .none( true ) )
+                  py::arg_v( "dependent_variable_bookkeeping", std::shared_ptr< tss::ObservationDependentVariableBookkeeping >( ), "None" ),
+                  py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ) )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -557,7 +555,7 @@ numpy.ndarray
            py::arg( "observations" ),
            py::arg( "observation_times" ),
            py::arg( "reference_link_end" ),
-           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ).none( true ),
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
            R"doc(
 
         Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
@@ -577,7 +575,7 @@ numpy.ndarray
            py::arg( "observations" ),
            py::arg( "observation_times" ),
            py::arg( "reference_link_end" ),
-           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ).none( true ),
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
            R"doc(
         Factory function to create a `SingleObservationSet` object.
 

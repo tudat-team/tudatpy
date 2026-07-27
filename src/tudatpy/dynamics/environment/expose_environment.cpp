@@ -631,7 +631,7 @@ void expose_environment( py::module& m )
             .def( py::init< const std::string&, const std::string&, const std::shared_ptr< te::Tle >, const bool >( ),
                   py::arg( "frame_origin" ) = "Earth",
                   py::arg( "frame_orientation" ) = "J2000",
-                  py::arg_v( "tle", std::shared_ptr< te::Tle >( ), "None" ).none( true ),
+                  py::arg_v( "tle", std::shared_ptr< te::Tle >( ), "None" ),
                   py::arg( "use_sdp" ) = false )
             .def_property_readonly( "tle", &te::TleEphemeris::getTle, R"doc(
 
@@ -1591,8 +1591,7 @@ bool
                     py::arg( "all_arcs_polynomial_drift_coefficients" ) = std::vector< double >( ),
                     py::arg_v( "clock_noise_generation_function",
                                std::function< std::function< double( const double ) >( const double, const double, const double ) >( ),
-                               "None" )
-                            .none( true ),
+                               "None" ),
                     py::arg( "clock_noise_time_step" ) = 1.0E-3 )
             .def(  // ctor 2
                     py::init< const std::vector< tudat::Time >,
@@ -1603,8 +1602,7 @@ bool
                     py::arg( "polynomial_drift_coefficients" ),
                     py::arg_v( "clock_noise_generation_function",
                                std::function< std::function< double( const double ) >( const double, const double, const double ) >( ),
-                               "None" )
-                            .none( true ),
+                               "None" ),
                     py::arg( "clock_noise_time_step" ) = 1.0E-3 )
             .def(  // ctor 3
                     py::init< const std::vector< std::vector< double > >,

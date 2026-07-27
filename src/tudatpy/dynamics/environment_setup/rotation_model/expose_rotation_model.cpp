@@ -401,9 +401,15 @@ void expose_rotation_model_setup( py::module& m )
            &tss::gcrsToItrsRotationModelSettings,
            py::arg( "precession_nutation_theory" ) = tba::iau_2006,
            py::arg( "base_frame" ) = "GCRS",
-           py::arg_v( "cio_interpolation_settings", std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ), "None" ).none( true ),
-           py::arg_v( "tdb_to_tt_interpolation_settings", std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ), "None" ).none( true ),
-           py::arg_v( "short_term_eop_interpolation_settings", std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ), "None" ).none( true ),
+           py::arg_v( "cio_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
+           py::arg_v( "tdb_to_tt_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
+           py::arg_v( "short_term_eop_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
            R"doc(
 
  Function for creating high-accuracy Earth rotation model settings.
@@ -479,7 +485,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "central_body" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg_v( "angle_funcion", std::function< Eigen::Vector3d( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "angle_funcion", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
@@ -528,7 +534,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "central_body" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg_v( "angle_funcion", std::function< Eigen::Vector2d( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "angle_funcion", std::function< Eigen::Vector2d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
@@ -566,7 +572,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "inertial_body_axis_direction" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
@@ -614,7 +620,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "direction_is_opposite_to_vector" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ) = "",
-           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ).none( true ),
+           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
