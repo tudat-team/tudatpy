@@ -13,9 +13,11 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 #include <Eigen/Core>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/system_models/selfShadowing.h"
 #include "tudat/astro/aerodynamics/aerodynamicUtilities.h"
 
@@ -25,6 +27,18 @@ namespace aerodynamics
 {
 
 enum GasSurfaceInteractionModelType { constantCoefficients, newton, storch, sentman, cook };
+
+//! Identifier for the four estimable scalar panel material properties of the gas-surface interaction models.
+/*!
+ * Local enum (defined in the aerodynamics namespace to avoid a dependency on the orbit_determination
+ * EstimatebleParametersEnum) used to select which material property an analytical coefficient partial is taken w.r.t.
+ */
+enum PanelMaterialPropertyType {
+    energy_accommodation_property,
+    normal_accommodation_property,
+    tangential_accommodation_property,
+    normal_velocity_ratio_property
+};
 
 class GasSurfaceInteractionModel
 {
@@ -48,9 +62,29 @@ public:
             aerodynamicSelfShadowing_ = nullptr;
         }
         unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
+        specificGasConstant_ = physical_constants::SPECIFIC_GAS_CONSTANT_AIR;
     }
 
     virtual Eigen::Vector3d computeAerodynamicCoefficients( ) = 0;
+
+    //! Compute the analytical partial derivative of the body-frame force coefficient vector w.r.t. a panel material property.
+    /*!
+     * Returns d(force coefficient vector)/d(material property) in the same body-fixed frame and normalization as
+     * computeAerodynamicCoefficients( ), for the scalar material property shared by all panels whose panel type id equals
+     * panelGroupId. Panel incidence cosines are recomputed from the current incoming direction and panel normals. Illumination
+     * fractions from the most recent forward evaluation and the configured reference area are reused, so this must be called
+     * after computeAerodynamicCoefficients( ) at the current state.
+     * The base implementation returns the zero vector, which is the exact partial for models whose coefficients do not depend on
+     * the material properties (constant coefficients, Newton).
+     * \param propertyType Material property w.r.t. which the partial is taken.
+     * \param panelGroupId Panel type id selecting the group of panels carrying the estimated property.
+     * \return Partial derivative of the body-frame force coefficient vector w.r.t. the material property.
+     */
+    virtual Eigen::Vector3d computeAerodynamicCoefficientsPartial( const PanelMaterialPropertyType propertyType,
+                                                                   const std::string& panelGroupId )
+    {
+        return Eigen::Vector3d::Zero( );
+    }
 
     virtual ~GasSurfaceInteractionModel( ) = default;
 
@@ -148,7 +182,7 @@ public:
         GasSurfaceInteractionModel( constantCoefficients, allPanels, referenceArea, maximumNumberOfPixels, onlyDrag )
     {}
 
-    Eigen::Vector3d computeAerodynamicCoefficients( );
+    Eigen::Vector3d computeAerodynamicCoefficients( ) override;
 };
 
 class NewtonGasSurfaceInteractionModel : public GasSurfaceInteractionModel
@@ -161,7 +195,7 @@ public:
         GasSurfaceInteractionModel( newton, allPanels, referenceArea, maximumNumberOfPixels, onlyDrag )
     {}
 
-    Eigen::Vector3d computeAerodynamicCoefficients( );
+    Eigen::Vector3d computeAerodynamicCoefficients( ) override;
 };
 
 class StorchGasSurfaceInteractionModel : public GasSurfaceInteractionModel
@@ -174,7 +208,10 @@ public:
         GasSurfaceInteractionModel( storch, allPanels, referenceArea, maximumNumberOfPixels, onlyDrag )
     {}
 
-    Eigen::Vector3d computeAerodynamicCoefficients( );
+    Eigen::Vector3d computeAerodynamicCoefficients( ) override;
+
+    Eigen::Vector3d computeAerodynamicCoefficientsPartial( const PanelMaterialPropertyType propertyType,
+                                                           const std::string& panelGroupId ) override;
 };
 
 class SentmanGasSurfaceInteractionModel : public GasSurfaceInteractionModel
@@ -187,7 +224,10 @@ public:
         GasSurfaceInteractionModel( sentman, allPanels, referenceArea, maximumNumberOfPixels, onlyDrag )
     {}
 
-    Eigen::Vector3d computeAerodynamicCoefficients( );
+    Eigen::Vector3d computeAerodynamicCoefficients( ) override;
+
+    Eigen::Vector3d computeAerodynamicCoefficientsPartial( const PanelMaterialPropertyType propertyType,
+                                                           const std::string& panelGroupId ) override;
 };
 
 class CookGasSurfaceInteractionModel : public GasSurfaceInteractionModel
@@ -200,7 +240,10 @@ public:
         GasSurfaceInteractionModel( cook, allPanels, referenceArea, maximumNumberOfPixels, onlyDrag )
     {}
 
-    Eigen::Vector3d computeAerodynamicCoefficients( );
+    Eigen::Vector3d computeAerodynamicCoefficients( ) override;
+
+    Eigen::Vector3d computeAerodynamicCoefficientsPartial( const PanelMaterialPropertyType propertyType,
+                                                           const std::string& panelGroupId ) override;
 };
 
 inline std::vector< AerodynamicCoefficientsIndependentVariables > createIndependentVariablesNamesForGasSurfaceInteractionModel(
