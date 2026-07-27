@@ -201,8 +201,13 @@ int main( )
         }
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         std::vector< double > baseTimeList;
         double observationInterval = 600.0;

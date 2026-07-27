@@ -291,7 +291,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
             // Create simulation object and propagate dynamics.
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
             std::cout << "Propagation finished " << std::endl;
 
@@ -700,7 +705,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
             std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
@@ -820,7 +830,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
             std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 3600.0 );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > stateResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
@@ -1004,7 +1019,12 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
             double( initialEphemerisTime ), 300.0, CoefficientSets::rungeKuttaFehlberg78, 300.0, 300.0, 1.0, 1.0 );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -1235,16 +1255,13 @@ BOOST_AUTO_TEST_CASE( test_AccelerationPartialSaving )
         ///////////////////////             PROPAGATE ORBIT AND VARIATIONAL EQUATIONS         /////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
         // Create simulation object and propagate dynamics.
-        SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
-                bodies,
-                integratorSettings,
-                propagatorSettings,
-                parametersToEstimate,
-                true,
-                std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                false,
-                true );
+        SingleArcVariationalEquationsSolver<> variationalEquationsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::MatrixXd > numericalSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
@@ -1450,15 +1467,12 @@ BOOST_AUTO_TEST_CASE( test_AccelerationParameterPartialSaving )
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodies );
 
-    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
-            bodies,
-            integratorSettings,
-            propagatorSettings,
-            parametersToEstimate,
-            true,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            false,
-            true );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
+    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
     const std::map< double, Eigen::MatrixXd >& stateTransitionSolution = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
     const std::map< double, Eigen::MatrixXd >& sensitivitySolution = variationalEquationsSimulator.getSensitivityMatrixSolution( );
@@ -1733,7 +1747,12 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                 std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
@@ -2005,7 +2024,13 @@ BOOST_AUTO_TEST_CASE( test_ConstellationVariables )
                                                                                 dependentVariables );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > dependentVariableResults = dynamicsSimulator.getDependentVariableHistory( );
     std::pair< int, double > testPair;
     std::tuple< int, double, double > testTuple;

@@ -77,11 +77,7 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustForce(
         std::function< double( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings )
 {
-    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings =
-            hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
-
-    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
-            simulation_setup::getBodyFixedThrustDirection( thrustMagnitudeSettings, bodies_, bodyToPropagate_ );
+    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ = ]( ) { return Eigen::Vector3d::UnitX( ); };
 
     std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ]( ) { return computeCurrentStateVector( time ); };
 
@@ -123,11 +119,7 @@ void HybridMethod::getThrustForceProfile( std::vector< double >& epochsVector,
 {
     thrustProfile.clear( );
 
-    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustMagnitudeSettings =
-            hybridMethodModel_->getMEEcostatesBasedThrustMagnitudeSettings( );
-
-    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
-            simulation_setup::getBodyFixedThrustDirection( thrustMagnitudeSettings, bodies_, bodyToPropagate_ );
+    std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection = [ = ]( ) { return Eigen::Vector3d::UnitX( ); };
 
     std::map< double, Eigen::Vector6d > trajectory;
     getTrajectory( epochsVector, trajectory );

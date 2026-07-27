@@ -22,6 +22,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
@@ -102,8 +103,13 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
             customAccelerationInterpolator,
             std::placeholders::_1 );
 
-    std::function< double( const double ) > customAccelerationScalingFunction =
-            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
+    std::shared_ptr< electromagnetism::OccultationModel > occultationModel =
+            tudat::simulation_setup::createOccultationModel( { "Earth" }, bodies );
+    std::function< double( const double ) > customAccelerationScalingFunction = [ =, &bodies ]( const double currentTime ) {
+        occultationModel->updateMembers( currentTime );
+        return occultationModel->evaluateReceivedFractionFromExtendedSource(
+                bodies.at( "Sun" )->getPosition( ), bodies.at( "Sun" )->getShapeModel( ), bodies.at( "Vehicle" )->getPosition( ) );
+    };
 
     accelerationsOfVehicle[ "Earth" ].push_back(
             std::make_shared< CustomAccelerationSettings >( customAccelerationFunction, customAccelerationScalingFunction ) );
@@ -311,8 +317,13 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
             customTorqueInterpolator,
             std::placeholders::_1 );
 
-    std::function< double( const double ) > customTorqueScalingFunction =
-            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
+    std::shared_ptr< electromagnetism::OccultationModel > occultationModel =
+            tudat::simulation_setup::createOccultationModel( { "Earth" }, bodies );
+    std::function< double( const double ) > customTorqueScalingFunction = [ =, &bodies ]( const double currentTime ) {
+        occultationModel->updateMembers( currentTime );
+        return occultationModel->evaluateReceivedFractionFromExtendedSource(
+                bodies.at( "Sun" )->getPosition( ), bodies.at( "Sun" )->getShapeModel( ), bodies.at( "Vehicle" )->getPosition( ) );
+    };
 
     torqueMap[ "Vehicle" ][ "Earth" ].push_back(
             std::make_shared< CustomTorqueSettings >( customTorqueFunction, customTorqueScalingFunction ) );
@@ -341,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
             propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -349,7 +360,12 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

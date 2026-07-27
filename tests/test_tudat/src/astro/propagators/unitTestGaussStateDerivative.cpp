@@ -161,7 +161,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
                         centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime;
@@ -206,7 +212,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
                                                                                                  translationalPropagatorType );
 
         // Propagate orbit with Gauss method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Get resutls of Gauss integration at given times.
         currentTestTime = initialTestTime;
@@ -369,12 +381,10 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             // Create spacecraft object.
             bodies.createEmptyBody( "Vehicle" );
             bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-            std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                            "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
-            bodies.at( "Vehicle" )
-                    ->setRadiationPressureInterface(
-                            "Sun", createRadiationPressureInterface( vehicleRadiationPressureSettings, "Vehicle", bodies ) );
+            addRadiationPressureTargetModel( bodies,
+                                             "Vehicle",
+                                             cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                                     4.0, 1.2, { { "Sun", std::vector< std::string >{ "Earth" } } } ) );
 
             // Define propagator settings variables.
             SelectedAccelerationMap accelerationMap;
@@ -445,7 +455,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
             // Define ephemeris interrogation settings.
             double initialTestTime = simulationStartEpoch;
@@ -472,7 +488,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                                                                                                      translationalPropagatorType );
 
             // Propagate orbit with Gauss method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
             // Get resutls of Gauss integration at given times.
             currentTestTime = initialTestTime;

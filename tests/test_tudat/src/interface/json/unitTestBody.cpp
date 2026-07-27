@@ -52,8 +52,6 @@ BOOST_AUTO_TEST_CASE( test_json_body_settings )
     const double referenceRadius = 5e6;
     manualSettings->gravityFieldVariationSettings = { std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
             deformingBodies, loveNumbers, referenceRadius ) };
-    manualSettings->radiationPressureSettings = { { "Sun",
-                                                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", 5.0, 1.3 ) } };
     manualSettings->rotationModelSettings = std::make_shared< RotationModelSettings >( spice_rotation_model, "A", "B" );
     manualSettings->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( 5.0e6 );
 

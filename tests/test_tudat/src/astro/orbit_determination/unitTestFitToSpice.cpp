@@ -72,13 +72,10 @@ BOOST_AUTO_TEST_CASE( test_FitToSpice )
         double radiationPressureCoefficient = 1.5;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Mars" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "MGS" )->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "MGS", bodies ) );
+        addRadiationPressureTargetModel( bodies,
+                                         "MGS",
+                                         cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                                 referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
         bodies.at( "MGS" )->setConstantBodyMass( 2000.0 );
 
         // Set accelerations between bodies that are to be taken into account.

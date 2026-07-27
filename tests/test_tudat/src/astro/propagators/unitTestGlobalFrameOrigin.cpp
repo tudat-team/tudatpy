@@ -123,8 +123,13 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
                     centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-            bodies, integratorSettings, propagatorSettings, true, false, true );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }

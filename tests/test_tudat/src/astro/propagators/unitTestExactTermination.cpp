@@ -247,8 +247,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 }
 
                 // Propagate orbit with Cowell method
-                SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                        bodies, integratorSettings, propagatorSettings, true, false, false );
+                propagatorSettings->setIntegratorSettings( integratorSettings );
+                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+                {
+                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+                }
+                SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
                 std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

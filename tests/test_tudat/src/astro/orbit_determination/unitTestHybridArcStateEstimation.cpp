@@ -102,12 +102,10 @@ Eigen::VectorXd executeParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    bodies.at( "Orbiter" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "Orbiter",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
@@ -267,10 +265,18 @@ Eigen::VectorXd executeParameterEstimation(
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds2[ i ] ) );
     }
 
+    singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
+    singleArcPropagatorSettings->resetInitialTime( initialEphemerisTime );
+    for( unsigned int i = 0; i < integrationArcStarts.size( ); i++ )
+    {
+        multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+        multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( integrationArcStarts.at( i ) );
+    }
+
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

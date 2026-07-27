@@ -239,30 +239,6 @@ public:
         }
     }
 
-    MultiArcVariationalEquationsSolver(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const std::vector< double > propagationStartTimes,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
-                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            const bool clearNumericalSolution = true,
-            const bool integrateEquationsOnCreation = false,
-            const bool resetMultiArcDynamicsAfterPropagation = true,
-            const bool setDependentVariablesInterface = false ):
-        MultiArcVariationalEquationsSolver( bodies,
-                                            validateDeprecatedMultiArcSettings( integratorSettings,
-                                                                                propagatorSettings,
-                                                                                propagationStartTimes,
-                                                                                clearNumericalSolution,
-                                                                                resetMultiArcDynamicsAfterPropagation,
-                                                                                setDependentVariablesInterface ),
-                                            parametersToEstimate,
-                                            integrateEquationsOnCreation )
-    {}
-
     //! Destructor
     /*!
      *  Destructor

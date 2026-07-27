@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         basic_astrodynamics::AccelerationMap accelerationModelMap =
                 createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
 
@@ -325,8 +325,9 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
             std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariable, 25.0E3, true );
 
     // Create propagation settings.
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-            centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings, cowell );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings, cowell );
 
     // Create integrator settings.
     std::shared_ptr< IntegratorSettings<> > integratorSettings =

@@ -70,26 +70,15 @@ void expose_simulator_variational_bindings( py::module& m )
 
       )doc" )
             .def( py::init< const tudat::simulation_setup::SystemOfBodies&,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
-                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                            const bool,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
-                            const bool,
-                            const bool,
                             const bool,
                             const bool >( ),
                   py::arg( "bodies" ),
-                  py::arg( "integrator_settings" ),
                   py::arg( "propagator_settings" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "integrate_equations_concurrently" ) = true,
-                  py::arg( "variational_only_integrator_settings" ) =
-                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
-                  py::arg( "clear_numerical_solutions" ) = false,
                   py::arg( "integrate_on_creation" ) = true,
-                  py::arg( "set_integrated_result" ) = false,
-                  py::arg( "print_dependent_variable_data" ) = true,
                   R"doc(
 
          Class constructor.
@@ -212,73 +201,6 @@ void expose_simulator_variational_bindings( py::module& m )
          :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
       )doc" )
             .def_property_readonly(
-                    "variational_equations_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
-                    R"doc(
-
-         **read-only**
-
-         List containing the solution of the variational equations, i.e. the
-         state transition matrix history (first entry) and sensitivity matrix history (second vector entry).
-
-         .. warning::
-
-           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history``
-           and ``sensitivity_matrix_history`` attributes of
-           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
-
-
-         :type: list[ dict[float, numpy.ndarray] ]
-      )doc" )
-            .def_property_readonly(
-                    "state_transition_matrix_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixSolution,
-                    R"doc(
-
-         **read-only**
-
-         State transition matrix history, given as epoch with propagation epochs as keys.
-
-         .. warning::
-
-           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history`` attribute of
-           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
-
-         :type: dict[float, numpy.ndarray]
-      )doc" )
-            .def_property_readonly( "sensitivity_matrix_history",
-                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getSensitivityMatrixSolution,
-                                    R"doc(
-
-         **read-only**
-
-         Sensitivity matrix history, given as epoch with propagation epochs as keys.
-
-         .. warning::
-
-            This function is deprecated and will be removed in a future version of Tudat. Use ``sensitivity_matrix_history`` attribute of
-            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
-
-
-         :type: dict[float, numpy.ndarray]
-      )doc" )
-            .def_property_readonly(
-                    "state_history",
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionSolutionDouble,
-                    R"doc(
-
-         **read-only**
-
-         State history, given as epoch with propagation epochs as keys.
-
-         .. warning::
-
-            This function is deprecated and will be removed in a future version of Tudat. Use ``dynamics_results.state_history`` attribute of
-            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
-
-         :type: dict[float, numpy.ndarray]
-      )doc" )
-            .def_property_readonly(
                     "variational_propagation_results",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalPropagationResults,
                     R"doc(
@@ -334,28 +256,13 @@ void expose_simulator_variational_bindings( py::module& m )
          Class for multi-arc variational equations propagation.
       )doc" )
             .def( py::init< const tudat::simulation_setup::SystemOfBodies&,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
-                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                            const std::vector< double >,
-                            const bool,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
-                            const bool,
-                            const bool,
-                            const bool,
                             const bool >( ),
                   py::arg( "bodies" ),
-                  py::arg( "integrator_settings" ),
                   py::arg( "propagator_settings" ),
                   py::arg( "estimated_parameters" ),
-                  py::arg( "propagation_start_times" ),
-                  py::arg( "integrate_equations_concurrently" ) = true,
-                  py::arg( "variational_only_integrator_settings" ) =
-                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
-                  py::arg( "clear_numerical_solutions" ) = true,
                   py::arg( "integrate_on_creation" ) = false,
-                  py::arg( "reset_multi_arc_dynamics_after_propagation" ) = true,
-                  py::arg( "set_dependent_variables_interface" ) = false,
                   R"doc(
          Class constructor.
          Constructor through which the user can create instances of this class.
@@ -448,20 +355,6 @@ void expose_simulator_variational_bindings( py::module& m )
          List of objects, one per arc, each containing the set of (estimatable) parameters
          w.r.t. which the variational dynamics in that arc are estimated.
          :type: list[ :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet` ]
-      )doc" )
-            .def_property_readonly(
-                    "variational_equations_history",
-                    &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
-                    R"doc(
-         **read-only**
-         List containing the solution of the variational equations per arc, i.e. the
-         state transition matrix history (first entry per arc) and sensitivity matrix history (second entry per arc).
-         .. warning::
-           This function is deprecated and will be removed in a future version of Tudat. Use the
-           ``state_transition_matrix_history`` and ``sensitivity_matrix_history`` attributes of each arc's results,
-           accessible via
-           :attr:`~tudatpy.dynamics.simulator.MultiArcVariationalSimulator.variational_propagation_results` instead.
-         :type: list[ list[ dict[float, numpy.ndarray] ] ]
       )doc" )
             .def_property_readonly(
                     "variational_propagation_results",

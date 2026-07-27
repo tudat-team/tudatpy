@@ -130,6 +130,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     const double fixedStepSize = 10.0;
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( 0.0 );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
@@ -146,13 +148,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
 
     // Create simulation object and propagate dynamics.
     const std::shared_ptr< SingleArcVariationalEquationsSolver<> > variationalEquationsSolver =
-            std::make_shared< SingleArcVariationalEquationsSolver<> >(
-                    bodies, integratorSettings, propagatorSettings, parametersToEstimate, true, nullptr, false, true, false );
+            std::make_shared< SingleArcVariationalEquationsSolver<> >( bodies, propagatorSettings, parametersToEstimate, true, true );
 
     const std::map< double, Eigen::VectorXd > states =
             variationalEquationsSolver->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-    const std::map< double, Eigen::MatrixXd > stateTransition =
-            variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
+    const std::map< double, Eigen::MatrixXd > stateTransition = variationalEquationsSolver->getStateTransitionMatrixSolution( );
     const std::map< double, Eigen::MatrixXd > sensitivity = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ];
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -105,14 +105,10 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "Asterix" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+        addRadiationPressureTargetModel( bodies,
+                                         "Asterix",
+                                         cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                                 referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          ///////////////////////////////////////////
@@ -170,7 +166,12 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).end( ) )->first;
         BOOST_CHECK( finalPropagatedEpoch == ( assessDuringSubsteps ? 1000.0 : 1050.0 ) );
@@ -256,14 +257,10 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "Asterix" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+        addRadiationPressureTargetModel( bodies,
+                                         "Asterix",
+                                         cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                                 referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -363,7 +360,12 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
         double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory( ).end( ) )->second( 0 );
         BOOST_CHECK( assessDuringSubsteps ? finalAltitude > 100.0E+3 : finalAltitude < 100.0E+3 );

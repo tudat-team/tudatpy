@@ -474,10 +474,16 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEndsList[ i ] ) );
     }
 
+    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
+    {
+        propagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+        propagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( integrationArcStartTimes.at( i ) );
+    }
+
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

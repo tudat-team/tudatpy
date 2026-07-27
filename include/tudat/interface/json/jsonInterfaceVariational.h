@@ -65,15 +65,7 @@ public:
     void resetVariationalEquationsSolver( )
     {
         variationalEquationsSolver_ = std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                bodies_,
-                integratorSettings_,
-                propagatorSettings_,
-                parametersToEstimate_,
-                true,
-                std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                false,
-                false,
-                false );
+                bodies_, propagatorSettings_, parametersToEstimate_, true, false );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
 
         if( profiling )

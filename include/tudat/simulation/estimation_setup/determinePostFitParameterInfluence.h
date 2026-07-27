@@ -35,7 +35,7 @@ namespace simulation_setup
  *  bodies initial conditions.
  *  \param bodies List of body objects that comprises the environment
  *  \param integratorSettings Settings for numerical integrator.
- *  \param propagatorSettings Settings for propagator.
+ *  \param propagatorSettings Settings for the single-arc translational propagator.
  *  \param perturbedParameterSettings Type of parameter that is to be adjusted in analysis.
  *  \param simulatedObservationInterval Time interval between consecutive simulated 3-dimensional position observations
  *  \param parameterPerturbations Perturbations in the parameter vector that are to be used
@@ -48,7 +48,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
         const double simulatedObservationInterval,
         const std::vector< double > parameterPerturbations,
@@ -58,18 +58,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     using namespace observation_models;
     using namespace estimatable_parameters;
 
-    // Check input consistency
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > > translationalPropagatorSettings =
-            std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    propagatorSettings );
-    if( translationalPropagatorSettings == nullptr )
-    {
-        throw std::runtime_error(
-                "Error in determinePostfitParameterInfluence, only single-arc translational dynamics currently supported" );
-    }
-
     // Getlist of bodies for which the dynamics is to be fit
-    std::vector< std::string > observedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
+    std::vector< std::string > observedBodies = propagatorSettings->bodiesToIntegrate_;
 
     // Create list of ideal observation settings and initial states to estimate
     std::vector< LinkEnds > linkEndsList;
@@ -89,11 +79,16 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Create initial state estimation objects
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
             createParametersToEstimate< StateScalarType >( initialStateParameterNames, bodies );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, initialStateParametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, initialStateParametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
     Eigen::VectorXd nominalBodyStates = initialStateParametersToEstimate->template getFullParameterValues< double >( );

@@ -219,7 +219,9 @@ void propagateCR3BPAndFullDynamicsProblem(
         std::map< double, Eigen::VectorXd >& dependentVariableValues )
 {
     // Propagate the full problem
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( initialTime );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     utilities::castDynamicToFixedSizeEigenVectorMap< double, double, 6 >( stateHistory, directPropagationResult );

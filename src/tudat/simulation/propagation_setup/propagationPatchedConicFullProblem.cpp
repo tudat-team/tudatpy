@@ -633,22 +633,20 @@ void propagateKeplerianOrbitLegAndFullProblem(
 
     Eigen::Vector6d cartesianStateKeplerianOrbit;
 
-    // Define forward propagator settings variables.
-    integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
-
     // Define forward propagation settings
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
 
     propagatorSettingsForwardPropagation = propagatorSettings.second;
     propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagation );
+    propagatorSettingsForwardPropagation->setIntegratorSettings( integratorSettings );
+    propagatorSettingsForwardPropagation->resetInitialTime( initialTime + halvedTimeOfFlight );
 
     propagatorSettingsBackwardPropagation = propagatorSettings.first;
     propagatorSettingsBackwardPropagation->resetInitialStates( initialStatePropagation );
 
     // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards(
-            bodies, integratorSettings, propagatorSettingsForwardPropagation );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, propagatorSettingsForwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
             dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemForwardPropagation =
@@ -672,11 +670,11 @@ void propagateKeplerianOrbitLegAndFullProblem(
 
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
-    integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
+    propagatorSettingsBackwardPropagation->setIntegratorSettings( integratorSettings );
+    propagatorSettingsBackwardPropagation->resetInitialTime( initialTime + halvedTimeOfFlight );
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards(
-            bodies, integratorSettings, propagatorSettingsBackwardPropagation );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, propagatorSettingsBackwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemBackwardsPropagation =

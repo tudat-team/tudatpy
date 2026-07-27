@@ -58,7 +58,8 @@ static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { ful
                                                                              third_body_point_mass_gravity,
                                                                              third_body_spherical_harmonic_gravity,
                                                                              third_body_mutual_spherical_harmonic_gravity,
-                                                                             third_body_full_two_body_spherical_harmonic_gravity };
+                                                                             third_body_full_two_body_spherical_harmonic_gravity,
+                                                                             thrust_acceleration };
 
 static std::map< EmpiricalAccelerationComponents, std::string > empiricalAccelerationComponentTypes = {
     { radial_empirical_acceleration_component, "radial" },

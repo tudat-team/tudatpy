@@ -159,7 +159,6 @@ protected:
                 bodies_,
                 parametersToEstimate_,
                 observation_models::convertUnsortedToSortedObservationSettingsMap( observationSettingsMap_ ),
-                integratorSettings_,
                 propagatorSettings_,
                 false );
         variationalEquationsSolver_ =

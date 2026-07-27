@@ -178,7 +178,8 @@ public:
     int convertTimeToLegSegment( double currentTime );
 
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg(
-            const simulation_setup::SystemOfBodies& bodies );
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::string& bodyToPropagate );
 
     double getMassAtSegment( const int segment )
     {
@@ -187,7 +188,9 @@ public:
 
 protected:
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
-            unsigned int indexSegment );
+            unsigned int indexSegment,
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::string& bodyToPropagate );
 
     basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( const unsigned int indexSegment,
                                                                          const simulation_setup::SystemOfBodies& bodies,

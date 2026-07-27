@@ -875,10 +875,18 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
         printEstimatableParameterEntries( multiArcParametersToEstimate );
 
-        //                    integratorSettings->initialTime_ = initialEpoch;
+        singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
+        singleArcPropagatorSettings->resetInitialTime( initialEpoch );
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
+        }
+        hybridArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
         HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
-                HybridArcVariationalEquationsSolver< double, double >(
-                        bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate, arcStartTimes, true, false, true );
+                HybridArcVariationalEquationsSolver< double, double >( bodies, hybridArcPropagatorSettings, parametersToEstimate, true );
 
         std::cout << "full parameter vector size from hybrid arc state transition matrix interface: " << "\n\n";
         std::cout << hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getFullParameterVectorSize( ) << "\n\n";

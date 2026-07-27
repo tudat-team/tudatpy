@@ -135,9 +135,12 @@ std::pair< std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface
     std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > variationalEquationSolver;
     if( !performIntegrationsSequentially )
     {
+        propagatorSettings->setIntegratorSettings( matrixTypeIntegratorSettings );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+
         // Propagate
         variationalEquationSolver = std::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
-                bodies, matrixTypeIntegratorSettings, propagatorSettings, parametersToEstimate );
+                bodies, propagatorSettings, parametersToEstimate );
     }
     else
     {
@@ -145,9 +148,12 @@ std::pair< std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface
         std::shared_ptr< IntegratorSettings<> > vectorTypeIntegratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
                 initialEphemerisTime, 10.0, rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
 
+        propagatorSettings->setIntegratorSettings( vectorTypeIntegratorSettings );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+
         // Propagate
         variationalEquationSolver = std::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
-                bodies, vectorTypeIntegratorSettings, propagatorSettings, parametersToEstimate, 0, matrixTypeIntegratorSettings );
+                bodies, propagatorSettings, parametersToEstimate, 0 );
     }
 
     return std::make_pair( variationalEquationSolver->getStateTransitionMatrixInterface( ), bodies.at( "LAGEOS" )->getEphemeris( ) );

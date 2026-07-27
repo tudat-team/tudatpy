@@ -52,11 +52,6 @@
       "bodyDeformationType": "basicSolidBody"
     }
   ],
-  "radiationPressure": {
-    "Sun": {
-      "radiationPressureCoefficient": 1.3
-    }
-  },
   "rotationModel": {
     "type": "spice",
     "originalFrame": "A",

@@ -67,12 +67,6 @@ public:
     //! Default destructor.
     ~HybridMethodModel( ) {}
 
-    //! Retrieve MEE costates-based thrust acceleration.
-    std::shared_ptr< simulation_setup::AccelerationSettings > getMEEcostatesBasedThrustAccelerationSettings( );
-
-    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > getMEEcostatesBasedThrustMagnitudeSettings( );
-    std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > getMEEcostatesBasedThrustDirectionSettings( );
-
     //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
     basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( );
 

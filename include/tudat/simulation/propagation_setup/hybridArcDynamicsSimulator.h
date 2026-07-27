@@ -18,24 +18,6 @@ namespace tudat
 
 namespace propagators
 {
-template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedHybridArcSettings(
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const std::vector< double > arcStartTimes,
-        const bool clearNumericalSolutions = true,
-        const bool setIntegratedResult = true,
-        const bool updateDependentVariableInterpolator = false )
-{
-    return validateDeprecatedHybridArcSettings( integratorSettings,
-                                                utilities::deepcopyPointer( integratorSettings ),
-                                                propagatorSettings,
-                                                arcStartTimes,
-                                                clearNumericalSolutions,
-                                                setIntegratedResult,
-                                                updateDependentVariableInterpolator );
-}
-
 //! Class for performing full numerical integration of a dynamical system, with a compbination of single and multi-arc propagations
 /*!
  *  Class for performing full numerical integration of a dynamical system, with a compbination of single and multi-arc
@@ -91,60 +73,6 @@ public:
         }
     }
 
-    //! Constructor of multi-arc simulator for same integration settings per arc.
-    /*!
-     *  Constructor of multi-arc simulator for same integration settings per arc.
-     *  \param bodies Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Integrator settings for numerical integrator, used for all arcs.
-     *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
-     *  \param arcStartTimes Times at which the separate arcs start, for the multi-arc case
-     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
-     *  the end of the contructor or not.//extern template class MultiArcDynamicsSimulator< double, double >;
-
-
-     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides (default true).
-     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides (default true).
-     *  \param addSingleArcBodiesToMultiArcDynamics Boolean denoting whether to add single arc bodies to multi-arc
-     *  dynamics (default false).
-     */
-    HybridArcDynamicsSimulator( const simulation_setup::SystemOfBodies& bodies,
-                                const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-                                const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-                                const std::vector< double > arcStartTimes,
-                                const bool areEquationsOfMotionToBeIntegrated = true,
-                                const bool clearNumericalSolutions = true,
-                                const bool setIntegratedResult = true,
-                                const bool addSingleArcBodiesToMultiArcDynamics = false,
-                                const bool updateDependentVariableInterpolator = false ):
-        HybridArcDynamicsSimulator( bodies,
-                                    validateDeprecatedHybridArcSettings( integratorSettings,
-                                                                         propagatorSettings,
-                                                                         arcStartTimes,
-                                                                         clearNumericalSolutions,
-                                                                         setIntegratedResult,
-                                                                         updateDependentVariableInterpolator ),
-                                    areEquationsOfMotionToBeIntegrated,
-                                    addSingleArcBodiesToMultiArcDynamics )
-    {}
-
-    //    HybridArcDynamicsSimulator(
-    //            const simulation_setup::SystemOfBodies& bodies,
-    //            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
-    //            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
-    //            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-    //            const std::vector< double > arcStartTimes,
-    //            const bool areEquationsOfMotionToBeIntegrated = true,
-    //            const bool clearNumericalSolutions = true,
-    //            const bool setIntegratedResult = true,
-    //            const bool addSingleArcBodiesToMultiArcDynamics = false,
-    //            const bool updateDependentVariableInterpolator = false ):
-    //        HybridArcDynamicsSimulator( bodies, validateDeprecatedHybridArcSettings(
-    //                                        singleArcIntegratorSettings, multiArcIntegratorSettings, propagatorSettings, arcStartTimes,
-    //                                        clearNumericalSolutions, setIntegratedResult ),
-    //                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics,
-    //                                    updateDependentVariableInterpolator ){ }
     //! Destructor
     ~HybridArcDynamicsSimulator( ) {}
 
@@ -296,51 +224,6 @@ protected:
 
     std::shared_ptr< HybridArcResults > propagationResults_;
 };
-
-template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropagatorSettings(
-        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings,
-        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
-{
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
-        nullptr )
-    {
-        if( integratorSettings.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when validating deprecated propagator settings; did not find integrator settings for single-arc propagation" );
-            ;
-        }
-        return validateDeprecatedSingleArcSettings( integratorSettings.at( 0 ), propagatorSettings );
-    }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
-             nullptr )
-    {
-        return validateDeprecatedMultiArcSettings( integratorSettings, propagatorSettings );
-    }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
-    {
-        std::shared_ptr< propagators::HybridArcPropagatorSettings< StateScalarType > > hybridArcSettings =
-                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-
-        if( integratorSettings.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when validating deprecated propagator settings; did not find integrator settings for hybrid-arc propagation" );
-            ;
-        }
-        validateDeprecatedSingleArcSettings< StateScalarType, TimeType >( integratorSettings.at( 0 ),
-                                                                          hybridArcSettings->getSingleArcPropagatorSettings( ) );
-        validateDeprecatedMultiArcSettings< StateScalarType, TimeType >( { integratorSettings.begin( ) + 1, integratorSettings.end( ) },
-                                                                         hybridArcSettings->getMultiArcPropagatorSettings( ) );
-        return hybridArcSettings;
-    }
-    else
-    {
-        throw std::runtime_error( "Error when validating deprecated propagator settings" );
-        return nullptr;
-    }
-}
 
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template class HybridArcDynamicsSimulator< double, double >;

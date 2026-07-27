@@ -88,14 +88,10 @@ BOOST_AUTO_TEST_CASE( testSingleArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "AlienSpaceship",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -251,14 +247,10 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "AlienSpaceship",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -436,14 +428,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Mars" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "AlienSpaceship" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( radiationPressureSettings, "AlienSpaceship", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "AlienSpaceship",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap phobosAccelerationMap;

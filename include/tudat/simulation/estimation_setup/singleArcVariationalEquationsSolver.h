@@ -140,33 +140,6 @@ public:
         }
     }
 
-    SingleArcVariationalEquationsSolver(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
-                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            const bool clearNumericalSolution = true,
-            const bool integrateEquationsOnCreation = true,
-            const bool setIntegratedResult = true,
-            const bool printDependentVariableData = true,
-            const bool setDependentVariablesInterface = false ):
-        SingleArcVariationalEquationsSolver( bodies,
-                                             validateDeprecatedSingleArcSettings( integratorSettings,
-                                                                                  propagatorSettings,
-                                                                                  clearNumericalSolution,
-                                                                                  setIntegratedResult,
-                                                                                  false,
-                                                                                  printDependentVariableData,
-                                                                                  false,
-                                                                                  setDependentVariablesInterface ),
-                                             parametersToEstimate,
-                                             integrateDynamicalAndVariationalEquationsConcurrently,
-                                             integrateEquationsOnCreation )
-    {}
-
     //! Destructor
     ~SingleArcVariationalEquationsSolver( ) {}
 

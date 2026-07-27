@@ -21,61 +21,12 @@ namespace low_thrust_trajectories
 
 using namespace orbital_element_conversions;
 
-//! Retrieve MEE costates-based thrust acceleration.
-std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodModel::getMEEcostatesBasedThrustAccelerationSettings( )
-{
-    // Define thrust direction settings from the MEE costates.
-    std::shared_ptr< simulation_setup::MeeCostateBasedThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >(
-                    bodyToPropagate_, centralBody_, costatesFunction_ );
-
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime ) { return specificImpulse_; };
-
-    // Define bang-bang thrust magnitude settings based on MEE co-states.
-    std::shared_ptr< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings > thrustMagnitudeSettings =
-            std::make_shared< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings >(
-                    maximumThrust_, specificImpulseFunction, costatesFunction_, bodyToPropagate_, centralBody_ );
-
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >( thrustDirectionSettings, thrustMagnitudeSettings );
-
-    return thrustAccelerationSettings;
-}
-
-std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > HybridMethodModel::getMEEcostatesBasedThrustMagnitudeSettings( )
-{
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime ) { return specificImpulse_; };
-
-    // Return bang-bang thrust magnitude settings based on MEE co-states.
-    return std::make_shared< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings >(
-            maximumThrust_, specificImpulseFunction, costatesFunction_, bodyToPropagate_, centralBody_ );
-}
-
-std::shared_ptr< simulation_setup::ThrustDirectionGuidanceSettings > HybridMethodModel::getMEEcostatesBasedThrustDirectionSettings( )
-{
-    // Return thrust direction settings from the MEE costates.
-    return std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >(
-            bodyToPropagate_, centralBody_, costatesFunction_ );
-}
-
 //! Retrieve hybrid method acceleration model (including thrust and central gravity acceleration)
 basic_astrodynamics::AccelerationMap HybridMethodModel::getLowThrustTrajectoryAccelerationMap( )
 {
-    // Acceleration from the central body.
-    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ centralBody_ ].push_back(
-            std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
-
-    simulation_setup::SelectedAccelerationMap accelerationMap;
-    accelerationMap[ bodyToPropagate_ ] = bodyToPropagateAccelerations;
-
-    // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-            bodies_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
-
-    return accelerationModelMap;
+    throw std::runtime_error(
+            "HybridMethodModel::getLowThrustTrajectoryAccelerationMap used the removed deprecated thrust direction/magnitude "
+            "settings interface. Configure thrust with an engine model and body-fixed-direction rotation model instead." );
 }
 
 //! Propagate the spacecraft trajectory to time-of-flight.
@@ -91,74 +42,9 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime,
                                                         Eigen::Vector6d initialState,
                                                         double initialMass )
 {
-    // Re-initialise integrator settings.
-    integratorSettings_->initialTime_ = initialTime;
-
-    bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
-
-    // Acceleration from the central body.
-    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    bodyToPropagateAccelerations[ centralBody_ ].push_back(
-            std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    bodyToPropagateAccelerations[ bodyToPropagate_ ].push_back( getMEEcostatesBasedThrustAccelerationSettings( ) );
-
-    simulation_setup::SelectedAccelerationMap accelerationMap;
-    accelerationMap[ bodyToPropagate_ ] = bodyToPropagateAccelerations;
-
-    // Create the acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-            bodies_, accelerationMap, std::vector< std::string >{ bodyToPropagate_ }, std::vector< std::string >{ centralBody_ } );
-
-    // Create mass rate models
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModel;
-    massRateModel[ bodyToPropagate_ ] = createMassRateModel(
-            bodyToPropagate_, std::make_shared< simulation_setup::FromThrustMassModelSettings >( 1 ), bodies_, accelerationModelMap );
-
-    // Ensure that the propagation stops when the required time of flight is required.
-    std::shared_ptr< propagators::PropagationTimeTerminationSettings > terminationSettings =
-            std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTime, true );
-
-    // Define propagator settings.
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalStatePropagatorSettings =
-            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >( std::vector< std::string >{ centralBody_ },
-                                                                                             accelerationModelMap,
-                                                                                             std::vector< std::string >{ bodyToPropagate_ },
-                                                                                             initialState,
-                                                                                             terminationSettings,
-                                                                                             propagators::gauss_modified_equinoctial );
-
-    // Create settings for propagating the mass of the vehicle.
-    std::shared_ptr< propagators::MassPropagatorSettings< double > > massPropagatorSettings =
-            std::make_shared< propagators::MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ bodyToPropagate_ },
-                    massRateModel,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << bodies_[ bodyToPropagate_ ]->getBodyMass( ) ).finished( ),
-                    terminationSettings );
-
-    // Create list of propagation settings.
-    std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
-    propagatorSettingsVector.push_back( translationalStatePropagatorSettings );
-    propagatorSettingsVector.push_back( massPropagatorSettings );
-
-    // Hybrid propagation settings.
-    std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings =
-            std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
-
-    integratorSettings_->initialTime_ = initialTime;
-
-    // Propagate the trajectory.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, integratorSettings_, propagatorSettings );
-    Eigen::VectorXd propagationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
-
-    // Retrieve state and mass of the spacecraft at the end of the propagation.
-    Eigen::Vector6d propagatedState = propagationResult.segment( 0, 6 );
-
-    if( finalTime == timeOfFlight_ )
-    {
-        massAtTimeOfFlight_ = propagationResult[ 6 ];
-    }
-
-    return propagatedState;
+    throw std::runtime_error(
+            "HybridMethodModel propagation used the removed deprecated thrust direction/magnitude settings interface. Configure thrust "
+            "with an engine model and body-fixed-direction rotation model instead." );
 }
 
 //! Propagate the trajectory to set of epochs.

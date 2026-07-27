@@ -648,16 +648,17 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     std::shared_ptr< IntegratorSettings<> > multiArcIntegratorSettings =
             std::make_shared< IntegratorSettings<> >( rungeKutta4, TUDAT_NAN, 15.0 );
 
+    singleArcPropagatorSettings->setIntegratorSettings( singleArcIntegratorSettings );
+    singleArcPropagatorSettings->resetInitialTime( initialTime );
+    for( unsigned int i = 0; i < multiArcPropagationSettings->getSingleArcSettings( ).size( ); i++ )
+    {
+        multiArcPropagationSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( multiArcIntegratorSettings->clone( ) );
+        multiArcPropagationSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
+    }
+
     // Create dynamics simulator
-    HybridArcVariationalEquationsSolver<> variationalEquations = HybridArcVariationalEquationsSolver<>( bodies,
-                                                                                                        singleArcIntegratorSettings,
-                                                                                                        multiArcIntegratorSettings,
-                                                                                                        hybridArcPropagatorSettings,
-                                                                                                        parametersToEstimate,
-                                                                                                        arcStartTimes,
-                                                                                                        true,
-                                                                                                        false,
-                                                                                                        true );
+    HybridArcVariationalEquationsSolver<> variationalEquations =
+            HybridArcVariationalEquationsSolver<>( bodies, hybridArcPropagatorSettings, parametersToEstimate, true );
 
     //    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
     //            variationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
@@ -672,6 +673,13 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
                         multiArcPropagationSettingsListPerCentralBody.at( singleArcBodiesToPropagate.at( i ) ) );
         std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPerBodyPropagatorSettings =
                 std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPerBodyPropagationSettings );
+        for( unsigned int j = 0; j < multiArcPerBodyPropagationSettings->getSingleArcSettings( ).size( ); j++ )
+        {
+            multiArcPerBodyPropagationSettings->getSingleArcSettings( ).at( j )->setIntegratorSettings(
+                    multiArcIntegratorSettings->clone( ) );
+            multiArcPerBodyPropagationSettings->getSingleArcSettings( ).at( j )->resetInitialTime(
+                    arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ).at( j ) );
+        }
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNamesPerBody;
 
@@ -689,15 +697,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         printEstimatableParameterEntries( parametersToEstimatePerBody );
 
         HybridArcVariationalEquationsSolver<> perCentralBodyVariationalEquations =
-                HybridArcVariationalEquationsSolver<>( bodies,
-                                                       singleArcIntegratorSettings,
-                                                       multiArcIntegratorSettings,
-                                                       hybridArcPerBodyPropagatorSettings,
-                                                       parametersToEstimatePerBody,
-                                                       arcStartTimesPerBody.at( singleArcBodiesToPropagate.at( i ) ),
-                                                       true,
-                                                       false,
-                                                       true );
+                HybridArcVariationalEquationsSolver<>( bodies, hybridArcPerBodyPropagatorSettings, parametersToEstimatePerBody, true );
 
         //        std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perBodyMultiArcVariationalSolution =
         //                perCentralBodyVariationalEquations.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );

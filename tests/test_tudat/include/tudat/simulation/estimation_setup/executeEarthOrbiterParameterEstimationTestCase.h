@@ -88,14 +88,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "Vehicle",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     bodies.at( "Vehicle" )
             ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
@@ -246,10 +242,13 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         }
     }
 
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< TimeType > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;

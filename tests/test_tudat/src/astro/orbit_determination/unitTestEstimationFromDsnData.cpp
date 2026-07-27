@@ -145,8 +145,9 @@ void runSimulation( std::vector< std::string > odfFiles,
     double referenceAreaRadiation = 20.0;
     double radiationPressureCoefficient = 1.0;
     std::vector< std::string > occultingBodies = { "Mars" };
-    bodySettings.at( spacecraftName )->radiationPressureSettings[ "Sun" ] =
-            cannonBallRadiationPressureSettings( "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+    bodySettings.at( spacecraftName )->radiationPressureTargetModelSettings =
+            cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                    referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 17.5;

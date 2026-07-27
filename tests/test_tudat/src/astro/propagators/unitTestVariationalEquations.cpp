@@ -174,17 +174,12 @@ executeEarthMoonSimulation(
             results;
 
     {
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->resetInitialTime( initialIntegrationTime );
+
         // Create dynamics simulator
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
-                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies,
-                        integratorSettings,
-                        propagatorSettings,
-                        parametersToEstimate,
-                        1,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        1,
-                        0 );
+                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >( bodies, propagatorSettings, parametersToEstimate, 1, 0 );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -403,14 +398,10 @@ executeOrbiterSimulation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel( bodies,
+                                     "Vehicle",
+                                     cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                             referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -493,17 +484,12 @@ executeOrbiterSimulation(
             results;
 
     {
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+
         // Create dynamics simulator
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
-                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies,
-                        integratorSettings,
-                        propagatorSettings,
-                        parametersToEstimate,
-                        1,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        0,
-                        0 );
+                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >( bodies, propagatorSettings, parametersToEstimate, 1, 0 );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -858,17 +844,13 @@ executePhobosRotationSimulation( const Eigen::Matrix< StateScalarType, 13, 1 > i
             results;
 
     {
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+
         // Create dynamics simulator
         propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies,
-                        integratorSettings,
-                        propagatorSettings,
-                        parametersToEstimate,
-                        1,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        0,
-                        0 );
+                        bodies, propagatorSettings, parametersToEstimate, 1, 0 );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -1205,16 +1187,13 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         ///////////////////////             PROPAGATE ORBIT AND VARIATIONAL EQUATIONS         /////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->resetInitialTime( 0.0 );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+
         // Create simulation object and propagate dynamics.
-        SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
-                bodies,
-                integratorSettings,
-                propagatorSettings,
-                parametersToEstimate,
-                true,
-                std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                false,
-                true );
+        SingleArcVariationalEquationsSolver<> variationalEquationsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
         std::map< double, Eigen::MatrixXd > stateTransitionResult = variationalEquationsSimulator.getStateTransitionMatrixSolution( );
         std::map< double, Eigen::MatrixXd > sensitivityResult = variationalEquationsSimulator.getSensitivityMatrixSolution( );
@@ -1263,7 +1242,12 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
-                SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+                propagatorSettings->setIntegratorSettings( integratorSettings );
+                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+                {
+                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+                }
+                SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
                 upPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
 
@@ -1272,7 +1256,12 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
-                SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+                propagatorSettings->setIntegratorSettings( integratorSettings );
+                if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+                {
+                    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+                }
+                SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
                 downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
             Eigen::VectorXd numericalStatePartialWrtMass =

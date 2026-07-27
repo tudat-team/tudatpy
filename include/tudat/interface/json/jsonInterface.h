@@ -531,6 +531,9 @@ protected:
 
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
+        propagatorSettings_->setIntegratorSettings( integratorSettings_ );
+        propagatorSettings_->resetInitialTime( getStartEpoch( ) );
+
         if( profiling )
         {
             std::cout << "resetExportSettings: "
@@ -611,7 +614,7 @@ protected:
     virtual void resetDynamicsSimulator( )
     {
         dynamicsSimulator_ = std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodies_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
+                bodies_, propagatorSettings_, false );
 
         if( profiling )
         {

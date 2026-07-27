@@ -12,11 +12,59 @@
 #include <iostream>
 #include "tudat/astro/low_thrust/simsFlanaganModel.h"
 #include "tudat/math/quadrature/createNumericalQuadrature.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
 namespace low_thrust_trajectories
 {
+
+namespace
+{
+
+void createSimsFlanaganEngineModel( const std::string& bodyName,
+                                    const std::function< Eigen::Vector3d( const double ) > thrustFunction,
+                                    const std::string& engineName,
+                                    const simulation_setup::SystemOfBodies& bodies )
+{
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double time ) -> Eigen::Vector3d {
+        if( time == time )
+        {
+            const Eigen::Vector3d thrustVector = thrustFunction( time );
+            if( thrustVector.norm( ) > 0.0 )
+            {
+                return thrustVector.normalized( );
+            }
+            return Eigen::Vector3d::UnitX( );
+        }
+        return Eigen::Vector3d::Constant( TUDAT_NAN );
+    };
+
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double time ) {
+        if( time == time )
+        {
+            return thrustFunction( time ).norm( );
+        }
+        return TUDAT_NAN;
+    };
+
+    const std::string bodyFixedDirectionName = bodyName + "_Fixed";
+    bodies.at( bodyName )
+            ->setRotationalEphemeris( simulation_setup::createRotationModel(
+                    std::make_shared< simulation_setup::BodyFixedDirectionBasedRotationSettings >(
+                            thrustDirectionFunction, bodies.getFrameOrientation( ), bodyFixedDirectionName ),
+                    bodyName,
+                    bodies ) );
+
+    std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings =
+            std::make_shared< simulation_setup::CustomThrustMagnitudeSettings >( thrustMagnitudeFunction,
+                                                                                 [ = ]( const double ) { return TUDAT_NAN; } );
+
+    simulation_setup::addEngineModel( bodyName, engineName, thrustSettings, bodies );
+}
+
+}  // namespace
 
 int SimsFlanaganModel::convertTimeToLegSegment( double currentTime )
 {
@@ -42,31 +90,17 @@ int SimsFlanaganModel::convertTimeToLegSegment( double currentTime )
 }
 
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganModel::getConstantThrustAccelerationSettingsPerSegment(
-        unsigned int indexSegment )
+        unsigned int indexSegment,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyToPropagate )
 {
-    // Define (constant) thrust magnitude function.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime ) {
-        return maximumThrust_ * throttles_[ indexSegment ].norm( );
+    const std::string engineName = "SimsFlanaganSegmentEngine" + std::to_string( indexSegment );
+    std::function< Eigen::Vector3d( const double ) > thrustFunction = [ = ]( const double currentTime ) {
+        return maximumThrust_ * throttles_[ indexSegment ];
     };
 
-    // Define thrust magnitude settings from thrust magnitude function.
-    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings =
-            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >( thrustMagnitudeFunction, specificImpulseFunction_ );
-
-    // Define thrust direction function (constant over one leg segment).
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime ) {
-        return throttles_[ indexSegment ].normalized( );
-    };
-
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
-
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >( thrustDirectionSettings, thrustMagnitudeSettings );
-
-    return thrustAccelerationSettings;
+    createSimsFlanaganEngineModel( bodyToPropagate, thrustFunction, engineName, bodies );
+    return std::make_shared< simulation_setup::ThrustAccelerationSettings >( engineName );
 }
 
 basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerSegment( const unsigned int indexSegment,
@@ -82,7 +116,8 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerS
             std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 
     // Retrieve thrust acceleration settings.
-    accelerationsSettings[ bodyToPropagate ].push_back( getConstantThrustAccelerationSettingsPerSegment( indexSegment ) );
+    accelerationsSettings[ bodyToPropagate ].push_back(
+            getConstantThrustAccelerationSettingsPerSegment( indexSegment, bodies, bodyToPropagate ) );
 
     // Create acceleration map.
     simulation_setup::SelectedAccelerationMap accelerationMap;
@@ -96,33 +131,17 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getAccelerationModelPerS
 }
 
 std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganModel::getThrustAccelerationSettingsFullLeg(
-        const simulation_setup::SystemOfBodies& bodies )
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyToPropagate )
 {
-    // Define thrust magnitude function.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime ) {
+    const std::string engineName = "SimsFlanaganFullLegEngine";
+    std::function< Eigen::Vector3d( const double ) > thrustFunction = [ = ]( const double currentTime ) {
         int indexSegment = convertTimeToLegSegment( currentTime );
-        return maximumThrust_ * throttles_[ indexSegment ].norm( );
+        return maximumThrust_ * throttles_[ indexSegment ];
     };
 
-    // Define thrust magnitude settings from thrust magnitude function.
-    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings =
-            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >( thrustMagnitudeFunction, specificImpulseFunction_ );
-
-    // Define thrust direction function.
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime ) {
-        int indexSegment = convertTimeToLegSegment( currentTime );
-        return throttles_[ indexSegment ].normalized( );
-    };
-
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
-
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >( thrustDirectionSettings, thrustMagnitudeSettings );
-
-    return thrustAccelerationSettings;
+    createSimsFlanaganEngineModel( bodyToPropagate, thrustFunction, engineName, bodies );
+    return std::make_shared< simulation_setup::ThrustAccelerationSettings >( engineName );
 }
 
 basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAccelerationMap(
@@ -138,7 +157,7 @@ basic_astrodynamics::AccelerationMap SimsFlanaganModel::getLowThrustTrajectoryAc
             std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 
     // Retrieve thrust acceleration settings.
-    accelerationsSettings[ bodyToPropagate ].push_back( getThrustAccelerationSettingsFullLeg( bodies ) );
+    accelerationsSettings[ bodyToPropagate ].push_back( getThrustAccelerationSettingsFullLeg( bodies, bodyToPropagate ) );
 
     // Create acceleration map.
     simulation_setup::SelectedAccelerationMap accelerationMap;

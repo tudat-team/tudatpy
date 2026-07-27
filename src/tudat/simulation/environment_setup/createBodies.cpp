@@ -51,36 +51,22 @@ void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
-// RP-OLD
-void addRadiationPressureInterface( const SystemOfBodies& bodies,
-                                    const std::string bodyName,
-                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
-{
-    if( bodies.count( bodyName ) == 0 )
-    {
-        throw std::runtime_error( "Error when setting radiation pressure interface for body " + bodyName +
-                                  ", body is not found in system of bodies" );
-    }
-    bodies.at( bodyName )
-            ->setRadiationPressureInterface( radiationPressureSettings->getSourceBody( ),
-                                             createRadiationPressureInterface( radiationPressureSettings, bodyName, bodies ) );
-}
-
 void addRadiationPressureTargetModel( const SystemOfBodies& bodies,
                                       const std::string bodyName,
-                                      const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings )
+                                      const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureTargetSettings )
 {
     if( bodies.count( bodyName ) == 0 )
     {
         throw std::runtime_error( "Error when setting radiation pressure target model for body " + bodyName +
                                   ", body is not found in system of bodies" );
     }
-    if( radiationPressureSettings->getRadiationPressureTargetModelType( ) == multi_type_target )
+    if( radiationPressureTargetSettings->getRadiationPressureTargetModelType( ) == multi_type_target )
     {
         throw std::runtime_error( "Error, cannot add multi-type radiation pressure targer models (add them separately)" );
     }
     bodies.at( bodyName )
-            ->addRadiationPressureTargetModel( createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ).at( 0 ) );
+            ->addRadiationPressureTargetModel(
+                    createRadiationPressureTargetModel( radiationPressureTargetSettings, bodyName, bodies ).at( 0 ) );
 }
 
 void addRotationModel( const SystemOfBodies& bodies,

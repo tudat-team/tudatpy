@@ -97,12 +97,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             double radiationPressureCoefficient = 1.2;
             std::vector< std::string > occultingBodies;
             //        occultingBodies.push_back( "Earth" );
-            std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                            "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-            bodies.at( "Orbiter" )
-                    ->setRadiationPressureInterface(
-                            "Sun", createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+            addRadiationPressureTargetModel(
+                    bodies,
+                    "Orbiter",
+                    cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                            referenceAreaRadiation, radiationPressureCoefficient, { { "Sun", occultingBodies } } ) );
 
             std::shared_ptr< IntegratorSettings<> > singleArcIntegratorSettings;
             std::shared_ptr< IntegratorSettings<> > multiArcIntegratorSettings;

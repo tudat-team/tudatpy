@@ -589,16 +589,6 @@ public:
     std::vector< std::string > engineIds_;
 
     bool useAllEngines_;
-
-    template< typename ReturnType >
-    ReturnType printDeprecationError( )
-    {
-        utilities::printDeprecationError(
-                "tudatpy.numerical_simulation.propagation_setup.acceleration.direction_settings/magnitude_settings",
-                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-                "thrust_refactor.html#thrust-acceleration" );
-        return nullptr;
-    }
 };
 
 inline Eigen::Vector3d applyAccelerationScalingFunction( const std::function< Eigen::Vector3d( const double ) > accelerationFunction,
@@ -623,60 +613,6 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromAllEngines(
 {
     return std::make_shared< ThrustAccelerationSettings >( );
 }
-
-//// TODO: not exposed
-//// Retrieve acceleration model (thrust).
-// inline std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustLegAccelerationSettings(
-//         const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
-//         const simulation_setup::SystemOfBodies& bodies,
-//         const std::string& bodyToPropagate,
-//         const std::function< double( const double ) > specificImpulseFunction,
-//         const double lowThrustLegInitialTime )
-//{
-//     using namespace low_thrust_trajectories;
-
-//    std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
-
-//    // Define thrust magnitude function from the shaped trajectory.
-//    std::function< double( const double ) > thrustForceMagnitudeFunction;
-//    if( lowThrustLeg->getLegModelIsForceBased( ) )
-//    {
-//        thrustForceMagnitudeFunction =
-//                std::bind( &LowThrustLeg::getForceBasedThrustMagnitude, lowThrustLeg,
-//                           std::placeholders::_1, lowThrustLegInitialTime );
-//    }
-//    else
-//    {
-//        std::function< double( const double, const double ) > thrustAccelerationMagnitudeFunction =
-//                std::bind( &LowThrustLeg::getAccelerationBasedThrustMagnitude, lowThrustLeg,
-//                           std::placeholders::_1, lowThrustLegInitialTime, std::placeholders::_2 );
-//        std::function< double( ) > bodyMassFunction =
-//                std::bind( &Body::getBodyMass, vehicle );
-//        thrustForceMagnitudeFunction = [=](const double currentTime ){
-//            return thrustAccelerationMagnitudeFunction( currentTime, bodyMassFunction( ) ); };
-//    }
-
-//    // Define thrust magnitude settings from thrust magnitude function.
-//    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings =
-//            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
-//                thrustForceMagnitudeFunction, specificImpulseFunction );
-
-//    // Define thrust direction function from the shaped trajectory.
-//    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-//            std::bind( &LowThrustLeg::getThrustDirection, lowThrustLeg,
-//                       std::placeholders::_1, lowThrustLegInitialTime );
-
-//    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-//    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-//            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
-
-//    // Define thrust acceleration settings.
-//    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-//            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
-//                thrustDirectionSettings, thrustMagnitudeSettings );
-
-//    return thrustAccelerationSettings;
-//}
 
 //! @get_docstring(CustomAccelerationSettings.__docstring__)
 class CustomAccelerationSettings : public AccelerationSettings

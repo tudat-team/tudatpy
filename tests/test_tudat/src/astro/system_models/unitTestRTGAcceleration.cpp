@@ -254,8 +254,12 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
             std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.0, 0.1 );
 
     // Create simulation object and propagate dynamics.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator(
-            bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+    translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        translationalPropagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =

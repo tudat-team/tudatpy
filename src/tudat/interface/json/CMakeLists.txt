@@ -25,7 +25,6 @@ set(json_interface_SOURCES
         "environment/gravityField.cpp"
         "environment/rotationModel.cpp"
         "environment/shapeModel.cpp"
-        "environment/radiationPressure.cpp"
         "environment/gravityFieldVariation.cpp"
         "environment/groundStations.cpp"
         # propagation
@@ -33,7 +32,6 @@ set(json_interface_SOURCES
         "propagation/termination.cpp"
         "propagation/acceleration.cpp"
         "propagation/massRateModel.cpp"
-        "propagation/thrust.cpp"
         "propagation/torque.cpp"
         "propagation/export.cpp"
         # math
@@ -62,7 +60,6 @@ set(json_interface_HEADERS
         "environment/gravityField.h"
         "environment/rotationModel.h"
         "environment/shapeModel.h"
-        "environment/radiationPressure.h"
         "environment/gravityFieldVariation.h"
         "environment/groundStations.h"
         # propagation
@@ -72,7 +69,6 @@ set(json_interface_HEADERS
         "propagation/termination.h"
         "propagation/referenceFrames.h"
         "propagation/acceleration.h"
-        "propagation/thrust.h"
         "propagation/massRateModel.h"
         "propagation/torque.h"
         "propagation/export.h"

@@ -10,7 +10,6 @@
  */
 
 #include "tudat/interface/json/propagation/acceleration.h"
-#include "tudat/interface/json/propagation/thrust.h"
 
 namespace tudat
 {
@@ -70,13 +69,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AccelerationSet
                     mutualSphericalHarmonicAccelerationSettings->maximumOrderOfBodyUndergoingAcceleration_;
             jsonObject[ K::maximumDegreeOfCentralBody ] = mutualSphericalHarmonicAccelerationSettings->maximumDegreeOfCentralBody_;
             jsonObject[ K::maximumOrderOfCentralBody ] = mutualSphericalHarmonicAccelerationSettings->maximumOrderOfCentralBody_;
-            return;
-        }
-        case thrust_acceleration: {
-            std::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings =
-                    std::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
-            assertNonnullptrPointer( thrustAccelerationSettings );
-            jsonObject = thrustAccelerationSettings;
             return;
         }
         case relativistic_correction_acceleration: {
@@ -142,10 +134,6 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationS
                     getValue< int >( jsonObject, K::maximumOrderOfBodyUndergoingAcceleration ),
                     getValue( jsonObject, K::maximumDegreeOfCentralBody, defaults.maximumDegreeOfCentralBody_ ),
                     getValue( jsonObject, K::maximumOrderOfCentralBody, defaults.maximumOrderOfCentralBody_ ) );
-            return;
-        }
-        case thrust_acceleration: {
-            accelerationSettings = getAs< std::shared_ptr< ThrustAccelerationSettings > >( jsonObject );
             return;
         }
         case relativistic_correction_acceleration: {

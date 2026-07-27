@@ -178,10 +178,13 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
         }
     }
 
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Define observation times.
     double observationTimeStep = 1000.0;

@@ -25,7 +25,6 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
@@ -42,14 +41,9 @@ void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
                                          const std::string bodyName,
                                          const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
 
-// RP-OLD
-void addRadiationPressureInterface( const SystemOfBodies& bodies,
-                                    const std::string bodyName,
-                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
-
 void addRadiationPressureTargetModel( const SystemOfBodies& bodies,
                                       const std::string bodyName,
-                                      const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings );
+                                      const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureTargetSettings );
 
 void addRotationModel( const SystemOfBodies& bodies,
                        const std::string bodyName,
@@ -236,25 +230,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
                             createAerodynamicCoefficientInterface( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
                                                                    orderedBodySettings.at( i ).first,
                                                                    bodyList ) );
-        }
-    }
-
-    // Create radiation pressure coefficient objects for each body (if required).
-    // RP-OLD
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
-    {
-        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings =
-                orderedBodySettings.at( i ).second->radiationPressureSettings;
-        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator radiationPressureSettingsIterator =
-                     radiationPressureSettings.begin( );
-             radiationPressureSettingsIterator != radiationPressureSettings.end( );
-             radiationPressureSettingsIterator++ )
-        {
-            bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setRadiationPressureInterface(
-                            radiationPressureSettingsIterator->first,
-                            createRadiationPressureInterface(
-                                    radiationPressureSettingsIterator->second, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

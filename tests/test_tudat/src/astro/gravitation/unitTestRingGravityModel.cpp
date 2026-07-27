@@ -201,7 +201,13 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
                                                                                 propagationTimeTerminationSettings( finalTime, true ) );
 
     // Propagate orbit with Cowell method
-    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     double computedFinalTime = integrationResult.rbegin( )->first;
@@ -318,7 +324,13 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
                             propagationTimeTerminationSettings( finalTime, true ) );
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             double computedFinalTime = integrationResult.rbegin( )->first;

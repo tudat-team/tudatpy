@@ -17,7 +17,6 @@
 #include "tudat/interface/json/environment/gravityField.h"
 #include "tudat/interface/json/environment/rotationModel.h"
 #include "tudat/interface/json/environment/shapeModel.h"
-#include "tudat/interface/json/environment/radiationPressure.h"
 #include "tudat/interface/json/environment/aerodynamics.h"
 #include "tudat/interface/json/environment/gravityFieldVariation.h"
 
@@ -43,7 +42,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >&
     assignIfNotnullptr( jsonObject, K::gravityField, bodySettings->gravityFieldSettings );
     assignIfNotnullptr( jsonObject, K::rotationModel, bodySettings->rotationModelSettings );
     assignIfNotnullptr( jsonObject, K::shapeModel, bodySettings->shapeModelSettings );
-    assignIfNotEmpty( jsonObject, K::radiationPressure, bodySettings->radiationPressureSettings );
     assignIfNotnullptr( jsonObject, K::aerodynamics, bodySettings->aerodynamicCoefficientSettings );
     assignIfNotEmpty( jsonObject, K::gravityFieldVariation, bodySettings->gravityFieldVariationSettings );
     assignIfNotEmpty( jsonObject, K::groundStation, bodySettings->groundStationSettings );
@@ -80,7 +78,6 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
     updateFromJSONIfDefined( bodySettings->gravityFieldSettings, jsonObject, K::gravityField );
     updateFromJSONIfDefined( bodySettings->rotationModelSettings, jsonObject, K::rotationModel );
     updateFromJSONIfDefined( bodySettings->shapeModelSettings, jsonObject, K::shapeModel );
-    updateFromJSONIfDefined( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure );
     updateFromJSONIfDefined( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics );
     updateFromJSONIfDefined( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariation );
     updateFromJSONIfDefined( bodySettings->groundStationSettings, jsonObject, K::groundStation );

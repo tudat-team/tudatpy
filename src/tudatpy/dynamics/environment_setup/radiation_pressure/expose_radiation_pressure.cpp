@@ -14,7 +14,6 @@
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup/createOccultationModel.h>
-#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createRadiationPressureTargetModel.h>
 #include <tudat/simulation/environment_setup/createRadiationSourceModel.h>
 #include <tudat/simulation/environment_setup/createSurfacePropertyDistribution.h>
@@ -41,15 +40,6 @@ namespace radiation_pressure
 
 void expose_radiation_pressure_setup( py::module& m )
 {
-    /////////////////////////////////////////////////////////////////////////////
-    // createRadiationPressureInterface.h
-    /////////////////////////////////////////////////////////////////////////////
-
-    // DEPRECATED //
-    py::enum_< tss::RadiationPressureType >( m, "RadiationPressureType" )
-            .value( "cannonball_radiation_pressure_interface", tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
-            .export_values( );
-
     py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
                 Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
                 in other parts of the code to identify a specific type of target
@@ -59,24 +49,6 @@ void expose_radiation_pressure_setup( py::module& m )
             .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
             .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
             .export_values( );
-
-    // DEPRECATED //
-    py::class_< tss::RadiationPressureInterfaceSettings, std::shared_ptr< tss::RadiationPressureInterfaceSettings > >(
-            m, "RadiationPressureInterfaceSettings" );
-
-    // DEPRECATED //
-    py::class_< tss::CannonBallRadiationPressureInterfaceSettings,
-                std::shared_ptr< tss::CannonBallRadiationPressureInterfaceSettings >,
-                tss::RadiationPressureInterfaceSettings >( m, "CannonBallRadiationPressureInterfaceSettings" );
-
-    // DEPRECATED //
-    m.def( "cannonball",
-           py::overload_cast< const std::string&, const double, const double, const std::vector< std::string >& >(
-                   &tss::cannonBallRadiationPressureSettings ),
-           py::arg( "source_body" ),
-           py::arg( "reference_area" ),
-           py::arg( "radiation_pressure_coefficient" ),
-           py::arg( "occulting_bodies" ) = std::vector< std::string >( ) );
 
     ///////////////////////////////////////////////////////////
     ///////////   ENUMS

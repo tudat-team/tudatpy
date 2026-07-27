@@ -37,8 +37,6 @@ TUDAT_ADD_TEST_CASE(MassRateModel PRIVATE_LINKS tudat_json_interface_library ${T
 
 TUDAT_ADD_TEST_CASE(Propagator PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(RadiationPressure PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
-
 TUDAT_ADD_TEST_CASE(ReferenceFrames PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(RotationModel PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
@@ -47,23 +45,15 @@ TUDAT_ADD_TEST_CASE(ShapeModel PRIVATE_LINKS tudat_json_interface_library ${Tuda
 
 TUDAT_ADD_TEST_CASE(SimulationSingleSatellite PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(SimulationSinglePerturbedSatellite PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
-
 TUDAT_ADD_TEST_CASE(SimulationInnerSolarSystem PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(SimulationGalileoConstellation PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
-
-TUDAT_ADD_TEST_CASE(SimulationThrustAlongVelocityVector PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
-
-TUDAT_ADD_TEST_CASE(SimulationThrustAccelerationFromFile PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(Spice PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(State PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(Termination PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
-
-TUDAT_ADD_TEST_CASE(Thrust PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(Torque PRIVATE_LINKS tudat_json_interface_library ${Tudat_PROPAGATION_LIBRARIES})
 
@@ -76,7 +66,4 @@ if (BUILD_WITH_ESTIMATION_TOOLS)
 
     TUDAT_ADD_TEST_CASE(SimulationSingleSatelliteVariational PRIVATE_LINKS tudat_json_interface_library ${Tudat_ESTIMATION_LIBRARIES})
 
-    TUDAT_ADD_TEST_CASE(SimulationSingleSatelliteEstimation PRIVATE_LINKS tudat_json_interface_library ${Tudat_ESTIMATION_LIBRARIES})
 endif ()
-
-

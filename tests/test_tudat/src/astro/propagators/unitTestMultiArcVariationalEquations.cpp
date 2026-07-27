@@ -215,10 +215,15 @@ executeMultiArcEarthMoonSimulation(
                std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
             results;
     {
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
+        }
+
         // Create dynamics simulator
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
-                MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
+                MultiArcVariationalEquationsSolver< StateScalarType, TimeType >( bodies, multiArcPropagatorSettings, parametersToEstimate );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )

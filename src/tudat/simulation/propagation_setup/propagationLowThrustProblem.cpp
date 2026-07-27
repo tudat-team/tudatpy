@@ -23,10 +23,11 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
 
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -std::fabs( integratorSettings->initialTimeStep_ );
-    integratorSettings->initialTime_ = lowThrustLeg->getTimeOfFlight( ) / 2.0;
+    propagatorSettings.first->setIntegratorSettings( integratorSettings );
+    propagatorSettings.first->resetInitialTime( lowThrustLeg->getTimeOfFlight( ) / 2.0 );
 
     // Perform the backward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, integratorSettings, propagatorSettings.first );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationBackwards( bodies, propagatorSettings.first );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
@@ -47,10 +48,11 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
 
     // Define forward propagator settings variables.
     integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
-    integratorSettings->initialTime_ = lowThrustLeg->getTimeOfFlight( ) / 2.0;
+    propagatorSettings.second->setIntegratorSettings( integratorSettings );
+    propagatorSettings.second->resetInitialTime( lowThrustLeg->getTimeOfFlight( ) / 2.0 );
 
     // Perform forward propagation.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, integratorSettings, propagatorSettings.second );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulatorIntegrationForwards( bodies, propagatorSettings.second );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation =
             dynamicsSimulatorIntegrationForwards.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =

@@ -133,12 +133,14 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 120.0 );
             std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
-                    validateDeprecatedMultiArcSettings< double, double >(
-                            integratorSettings,
-                            std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList ),
-                            integrationArcStarts,
-                            true,
-                            true );
+                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
+            for( unsigned int i = 0; i < integrationArcStarts.size( ); i++ )
+            {
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( integrationArcStarts.at( i ) );
+            }
+            multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
             std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings = std::make_shared< PropagationPrintSettings >( );
             multiArcPrintSettings->reset( true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
@@ -156,10 +158,14 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                 integratorSettingsList.push_back(
                         std::make_shared< IntegratorSettings<> >( rungeKutta4, integrationArcStarts.at( i ), 120.0 ) );
             }
-            MultiArcDynamicsSimulator<> dynamicsSimulator(
-                    bodies,
-                    integratorSettingsList,
-                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList ) );
+            std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
+                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
+            for( unsigned int i = 0; i < integrationArcStarts.size( ); i++ )
+            {
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettingsList.at( i ) );
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( integrationArcStarts.at( i ) );
+            }
+            MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }
         // For case 0: test multi-arc estimation with same integration settings for each arc, and arc initial state interpolated
         // from previous state
@@ -167,11 +173,14 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         {
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 120.0 );
-            MultiArcDynamicsSimulator<> dynamicsSimulator(
-                    bodies,
-                    integratorSettings,
-                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList, true ),
-                    integrationArcStarts );
+            std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
+                    std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList, true );
+            for( unsigned int i = 0; i < integrationArcStarts.size( ); i++ )
+            {
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+                multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( integrationArcStarts.at( i ) );
+            }
+            MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }
 
         std::shared_ptr< Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );

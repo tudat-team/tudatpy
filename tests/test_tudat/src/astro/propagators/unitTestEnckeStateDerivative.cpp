@@ -167,7 +167,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
                                                                                     dependentVariables );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -196,7 +202,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
                 centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, encke, dependentVariables );
 
         // Propagate orbit with Encke method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -324,12 +336,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
-        std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
-        bodies.at( "Vehicle" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( vehicleRadiationPressureSettings, "Vehicle", bodies ) );
+        addRadiationPressureTargetModel( bodies,
+                                         "Vehicle",
+                                         cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+                                                 4.0, 1.2, { { "Sun", std::vector< std::string >{ "Earth", "Moon" } } } ) );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -437,7 +447,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
                 std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -466,7 +482,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
                                                                                                  dependentVariables );
 
         // Propagate orbit with Encke method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;

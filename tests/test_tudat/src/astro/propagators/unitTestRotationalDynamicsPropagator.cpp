@@ -292,7 +292,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                             initialEphemerisTime, 10.0, rungeKuttaFehlberg78, 2.0, 30.0, 1.0E-13, 1.0E-13 );
 
             // Propagate dynamics
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
             // Retrieve Phobos rotation model with reset rotational state
             std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );
@@ -547,7 +553,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                         getRotationalPropagator( propagatorType ) );
 
         // Propagate dynamics
-        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
         // Retrieve Phobos rotation model with reset rotational state
         std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );
@@ -805,15 +817,22 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             propagatorSettingsList.push_back( translationalPropagatorSettings );
             propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
-            std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList, terminationSettings, dependentVariablesList );
+            std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< MultiTypePropagatorSettings< double > >(
+                            propagatorSettingsList, terminationSettings, dependentVariablesList );
 
             // Create integrator settings for rotation.
             std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
                     0.0, 0.02, rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
 
             // Create simulation object and propagate dynamics.
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
             std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
             std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
@@ -1005,7 +1024,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
                             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
             // Propagate dynamics
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings );
 
             // Retrieve Phobos rotation model with reset rotational state
             std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodies.at( "Phobos" )->getRotationalEphemeris( );

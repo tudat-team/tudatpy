@@ -267,13 +267,21 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
                 2, 1, maximumEstimatedGravityDegree, maximumEstimatedGravityDegree, "Mars", spherical_harmonics_sine_coefficient_block ) );
     }
 
-    return PhobosRotationSetup{ bodies,
-                                propagatorSettings,
-                                createParametersToEstimate( parameterNames, bodies ),
-                                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, integratorStep ),
-                                accelerationModelMap,
-                                torqueModelMap,
-                                appliedInitialStateDifference };
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, integratorStep );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
+
+    return PhobosRotationSetup{
+        bodies,
+        propagatorSettings,
+        createParametersToEstimate(
+                parameterNames, bodies, std::static_pointer_cast< PropagatorSettings< double > >( propagatorSettings ) ),
+        integratorSettings,
+        accelerationModelMap,
+        torqueModelMap,
+        appliedInitialStateDifference
+    };
 }
 
 PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityModel, const double finalEphemerisTime )
@@ -304,8 +312,6 @@ struct InitialAccelerationPartialData {
 InitialAccelerationPartialData evaluateInitialAccelerationPartialData( const PhobosGravityModel gravityModel )
 {
     PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, 15.0 );
-    setup.propagatorSettings->resetInitialTime( setup.integratorSettings->initialTimeDeprecated_ );
-    setup.propagatorSettings->setIntegratorSettings( setup.integratorSettings );
     setup.propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
     setup.propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
     setup.propagatorSettings->getOutputSettings( )->setIntegratedVariationalResult( false );
@@ -386,7 +392,7 @@ FullTwoBodyPropagationHistory executeFullTwoBodyPhobosVariationalHistory(
     }
 
     SingleArcVariationalEquationsSolver< double, double > solver(
-            setup.bodies, setup.integratorSettings, setup.propagatorSettings, setup.parametersToEstimate, true, nullptr, false, false );
+            setup.bodies, setup.propagatorSettings, setup.parametersToEstimate, true, false );
     if( propagateVariationalEquations )
     {
         solver.integrateVariationalAndDynamicalEquations( setup.propagatorSettings->getInitialStates( ), true );

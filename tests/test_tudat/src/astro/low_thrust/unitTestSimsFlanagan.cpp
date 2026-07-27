@@ -578,7 +578,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
             propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
 
             // Propagate current leg
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            propagatorSettingsImpulsiveDeltaV->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettingsImpulsiveDeltaV->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettingsImpulsiveDeltaV );
             currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 
             // Retrieve Sims-Flanagan and numerical states
@@ -627,7 +632,12 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_impulsive_shots )
             propagatorSettingsImpulsiveDeltaV->resetInitialStates( currentState );
 
             // Propagate current leg
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettingsImpulsiveDeltaV );
+            propagatorSettingsImpulsiveDeltaV->setIntegratorSettings( integratorSettings );
+            if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+            {
+                propagatorSettingsImpulsiveDeltaV->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+            }
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettingsImpulsiveDeltaV );
             currentState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).begin( )->second;
 
             // Retrieve Sims-Flanagan and numerical states
@@ -842,13 +852,19 @@ BOOST_AUTO_TEST_CASE( test_Sims_Flanagan_full_propagation )
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         // Define propagator settings.
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
+        std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
+                std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
         bodies.at( bodyToPropagate )->setConstantBodyMass( vehicleInitialMass );
 
         // Perform the backward propagation.
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

@@ -840,18 +840,17 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         //                    bodies, integratorSettings, std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< > >(
         //                    propagatorSettingsList.at( 0 ) ), singleArcParametersToEstimate/*, true, nullptr, false, true, false*/ );
 
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
+        }
+        multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        multiArcPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( true );
+
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquations =
-                MultiArcVariationalEquationsSolver< double, double >(
-                        bodies,
-                        integratorSettings,
-                        multiArcPropagatorSettings,
-                        parametersToEstimate,
-                        arcStartTimes,
-                        true,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                        false,
-                        true,
-                        true );
+                MultiArcVariationalEquationsSolver< double, double >( bodies, multiArcPropagatorSettings, parametersToEstimate, true );
 
         std::vector< std::map< double, Eigen::VectorXd > > multiArcStateHistory =
                 multiArcVariationalEquations.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -929,7 +928,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 one_way_range, linkEndsGanymede, lightTimeCorrections /*std::shared_ptr< LightTimeCorrectionSettings >( )*/ ) );
 
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, multiArcPropagatorSettings );
+                bodies, parametersToEstimate, observationSettingsList, multiArcPropagatorSettings );
 
         // Compute observation times
         std::vector< double > observationTimes;
@@ -1039,18 +1038,15 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                             centralBodiesPerArc.at( arc ),
                             multiArcCentralBodies.at( arc ) );
 
+            perArcPropagatorSettings->getSingleArcSettings( ).at( 0 )->setIntegratorSettings( integratorSettings->clone( ) );
+            perArcPropagatorSettings->getSingleArcSettings( ).at( 0 )->resetInitialTime( arcStartTimes.at( arc ) );
+            perArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+            perArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            perArcPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( true );
+
             MultiArcVariationalEquationsSolver< double, double > perArcVariationalEquations =
                     MultiArcVariationalEquationsSolver< double, double >(
-                            bodies,
-                            integratorSettings,
-                            perArcPropagatorSettings,
-                            singleArcParametersToEstimate,
-                            { arcStartTimes.at( arc ) },
-                            true,
-                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                            false,
-                            true,
-                            true );
+                            bodies, perArcPropagatorSettings, singleArcParametersToEstimate, true );
 
             // Comparison - state histories
             std::vector< std::map< double, Eigen::VectorXd > > perArcStateHistory =

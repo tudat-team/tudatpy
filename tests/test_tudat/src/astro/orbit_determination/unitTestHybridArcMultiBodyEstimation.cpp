@@ -485,8 +485,15 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
     std::shared_ptr< propagators::MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
-    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator =
-            MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
+    for( unsigned int i = 0; i < flybyTimes.size( ); i++ )
+    {
+        multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( multiArcIntegratorSettings->clone( ) );
+        multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( flybyTimes.at( i ) );
+    }
+    multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+
+    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
             backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -942,9 +949,16 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
         std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
 
-        //        integratorSettings->initialTime_ = initialEpoch;
+        singleArcPropagatorSettings->setIntegratorSettings( integratorSettings );
+        singleArcPropagatorSettings->resetInitialTime( initialEpoch );
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings->clone( ) );
+            multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
+        }
+
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
+                bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );
 
         // Compute observation times
         std::vector< double > observationTimes;

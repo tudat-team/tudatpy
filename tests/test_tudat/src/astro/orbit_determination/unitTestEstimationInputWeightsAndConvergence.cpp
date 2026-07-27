@@ -168,8 +168,13 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
@@ -406,8 +411,13 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, linkEnds ) );
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( angular_position, linkEnds ) );
 
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+    {
+        propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+    }
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+            bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     std::vector< TimeType > observationTimes;
     observationTimes.reserve( numberOfDaysOfData );

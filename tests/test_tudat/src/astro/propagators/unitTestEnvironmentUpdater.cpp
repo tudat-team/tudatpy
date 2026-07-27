@@ -442,8 +442,8 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     double area = 2.34;
     double coefficient = 1.2;
     bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings.at( "Vehicle" )->radiationPressureTargetModelSettings =
+            cannonballRadiationPressureTargetModelSettingsWithOccultationMap( area, coefficient, { { "Sun", {} } } );
     bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >( ( Eigen::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                                                          0.0,

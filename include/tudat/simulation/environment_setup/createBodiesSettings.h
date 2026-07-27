@@ -29,7 +29,6 @@
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
-#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
@@ -67,10 +66,6 @@ struct BodySettings {
 
     //! Settings for the shape model that the body is to contain.
     std::shared_ptr< BodyShapeSettings > shapeModelSettings;
-
-    //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    // RP-OLD
-    std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 
     //! Settings for the radiation source model that the body is to contain.
     std::shared_ptr< RadiationSourceModelSettings > radiationSourceModelSettings;

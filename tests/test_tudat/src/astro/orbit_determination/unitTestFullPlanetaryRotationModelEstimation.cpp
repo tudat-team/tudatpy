@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         Eigen::VectorXd initialState =
                 getInitialStateOfBody< double, double >( bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, initialEphemerisTime );
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalEphemerisTime );
 
@@ -176,8 +176,13 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         printEstimatableParameterEntries( parametersToEstimate );
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        if( integratorSettings->initialTimeDeprecated_ == integratorSettings->initialTimeDeprecated_ )
+        {
+            propagatorSettings->resetInitialTime( integratorSettings->initialTimeDeprecated_ );
+        }
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
