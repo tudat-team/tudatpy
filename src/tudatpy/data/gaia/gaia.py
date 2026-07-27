@@ -183,6 +183,9 @@ class GaiaAstrometry:
         if not bodies.does_body_exist('Gaia') or bodies.get('Gaia').ephemeris is None:
             raise ValueError('Gaia satellite and associated ephemeris must be loaded in SystemOfBodies')
 
+        # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
+        force_symmetric = lambda mat: (mat + mat.T) / 2
+
         observation_set_list = []
         for mpc_number in self.mpc_numbers:
 
@@ -212,7 +215,7 @@ class GaiaAstrometry:
             measurement_covariance_matrix = self.get_observation_covariance_matrix(mpc_number)
             weight_matrix = np.linalg.inv(measurement_covariance_matrix)
 
-            observation_set.set_full_weight_matrix(weight_matrix)
+            observation_set.set_full_weight_matrix(force_symmetric(weight_matrix))
 
             # Add SingleObservationSet to list
             observation_set_list.append(observation_set)
