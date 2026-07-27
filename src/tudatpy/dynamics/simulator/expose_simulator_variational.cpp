@@ -201,6 +201,50 @@ void expose_simulator_variational_bindings( py::module& m )
          :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
       )doc" )
             .def_property_readonly(
+                    "variational_equations_history",
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
+                    R"doc(
+
+         **read-only**
+
+         Deprecated shorthand for the state-transition and sensitivity-matrix histories. Prefer the corresponding
+         attributes of :attr:`variational_propagation_results`.
+
+         :type: list[dict[float, numpy.ndarray]]
+      )doc" )
+            .def_property_readonly(
+                    "state_transition_matrix_history",
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixSolution,
+                    R"doc(
+
+         **read-only**
+
+         Deprecated shorthand for ``variational_propagation_results.state_transition_matrix_history``.
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+            .def_property_readonly( "sensitivity_matrix_history",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getSensitivityMatrixSolution,
+                                    R"doc(
+
+         **read-only**
+
+         Deprecated shorthand for ``variational_propagation_results.sensitivity_matrix_history``.
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+            .def_property_readonly(
+                    "state_history",
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionSolutionDouble,
+                    R"doc(
+
+         **read-only**
+
+         Deprecated shorthand for ``variational_propagation_results.dynamics_results.state_history``.
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+            .def_property_readonly(
                     "variational_propagation_results",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalPropagationResults,
                     R"doc(
@@ -355,6 +399,18 @@ void expose_simulator_variational_bindings( py::module& m )
          List of objects, one per arc, each containing the set of (estimatable) parameters
          w.r.t. which the variational dynamics in that arc are estimated.
          :type: list[ :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet` ]
+      )doc" )
+            .def_property_readonly(
+                    "variational_equations_history",
+                    &tp::MultiArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
+                    R"doc(
+
+         **read-only**
+
+         Deprecated shorthand for the variational-equation histories of all arcs. Prefer the individual results in
+         :attr:`variational_propagation_results`.
+
+         :type: list[list[dict[float, numpy.ndarray]]]
       )doc" )
             .def_property_readonly(
                     "variational_propagation_results",

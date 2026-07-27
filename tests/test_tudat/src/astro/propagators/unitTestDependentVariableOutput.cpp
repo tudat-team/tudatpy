@@ -306,13 +306,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableHistory( );
 
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > originalDependentVariables =
-                    dynamicsSimulator.getSingleArcPropagationResults( )->getOriginalDependentVariableSettings( );
+                    std::dynamic_pointer_cast< SingleArcSimulationResults< double, double > >(
+                            dynamicsSimulator.getPropagationResults( ) )
+                            ->getOriginalDependentVariableSettings( );
 
             std::map< std::pair< int, int >, std::string > dependentVariableId =
                     dynamicsSimulator.getSingleArcPropagationResults( )->getDependentVariableId( );
 
             std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings =
-                    dynamicsSimulator.getSingleArcPropagationResults( )->getOrderedDependentVariableSettings( );
+                    std::dynamic_pointer_cast< SingleArcSimulationResults< double, double > >(
+                            dynamicsSimulator.getPropagationResults( ) )
+                            ->getOrderedDependentVariableSettings( );
 
             BOOST_CHECK_EQUAL( originalDependentVariables.size( ), propagatorSettings->getDependentVariablesToSave( ).size( ) );
             for( unsigned int k = 0; k < originalDependentVariables.size( ); k++ )
