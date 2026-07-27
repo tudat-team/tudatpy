@@ -1,10 +1,11 @@
 """Resource installer module for downloading and extracting files."""
 
 import argparse
+import csv
 import os
 import tarfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 import hashlib
 import json
 from urllib.parse import urlparse
@@ -21,22 +22,123 @@ try:
 except ImportError:  # pragma: no cover
     tqdm = None
 
-from resource_data_registry import DATA_REGISTRY
-
 DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat_resources")).expanduser()
 DEFAULT_CACHE = Path(
     os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
 ).expanduser()
+RESOURCE_CATALOG = Path(__file__).with_name("resource_catalog.csv")
+MANIFEST_URLS = (
+    "https://zenodo.org/api/records/21277280/files/manifest.txt/content",
+    "https://zenodo.org/api/records/21261530/files/manifest.txt/content",
+)
+
+
+def load_resource_catalog(catalog_path: Path = RESOURCE_CATALOG) -> Dict[str, str]:
+    """Load the local, offline resource catalog.
+
+    The catalog contains the manifest path, timestamp and source URL, plus the
+    Zenodo tarball URL used for installation. The latter avoids relying on
+    upstream source URLs that may no longer be available.
+    """
+    try:
+        with catalog_path.open(newline="", encoding="utf-8") as catalog_file:
+            rows = csv.DictReader(catalog_file)
+            if rows.fieldnames is None or not {"path", "modified", "url"}.issubset(rows.fieldnames):
+                raise ValueError(
+                    f"Resource catalog {catalog_path} must contain path, modified and url columns."
+                )
+            registry = {}
+            for row in rows:
+                path = row["path"].strip()
+                url = row["url"].strip()
+                if not path or not url:
+                    raise ValueError(f"Invalid resource catalog row in {catalog_path}: {row}")
+                if path in registry:
+                    raise ValueError(f"Duplicate resource path '{path}' in {catalog_path}")
+                registry[path] = url
+            return registry
+    except FileNotFoundError as error:
+        raise FileNotFoundError(f"Resource catalog not found: {catalog_path}") from error
+
+
+def _parse_manifest(manifest: str, source: str) -> Iterable[Dict[str, str]]:
+    """Yield file rows from a Zenodo ``manifest.txt`` file.
+
+    The first line is the record DOI. Tarball descriptor rows determine the
+    download URL for the file rows that follow them.
+    """
+    rows = csv.reader(manifest.splitlines())
+    try:
+        doi = next(rows)[0]
+    except StopIteration:
+        raise ValueError(f"Manifest from {source} is empty.")
+
+    record_id = doi.rsplit(".", 1)[-1]
+    if not record_id.isdecimal():
+        raise ValueError(f"Invalid record DOI in manifest from {source}: {doi}")
+    archive = None
+
+    for line_number, row in enumerate(rows, start=2):
+        if len(row) != 3:
+            raise ValueError(f"Invalid manifest row {line_number} from {source}: {row}")
+        path, modified, url = (value.strip() for value in row)
+        if not url:
+            # The static manifest currently has a malformed star-catalog
+            # archive descriptor. The record itself exposes the canonical name.
+            archive = "star_catalog_biases.tar.gz" if path == ".tar.gz_catalog_biases.tar" else path
+            continue
+        if not path or not modified:
+            raise ValueError(f"Invalid manifest row {line_number} from {source}: {row}")
+        if not archive:
+            raise ValueError(f"File row {line_number} from {source} has no preceding archive.")
+        # The resource repository URL is authoritative when the manifest path
+        # is malformed (currently the star-catalog-biases entries have this
+        # issue). This avoids preserving a bad install path in the catalog.
+        resource_marker = "/resource/"
+        if (
+            "raw.githubusercontent.com/tudat-team/tudat-resources/" in url
+            and resource_marker in url
+        ):
+            path = url.split(resource_marker, 1)[1].lstrip("/")
+        yield {
+            "path": path,
+            "modified": modified,
+            "source_url": url,
+            "url": f"https://zenodo.org/api/records/{record_id}/files/{archive}/content",
+        }
+
+
+def update_resource_catalog(catalog_path: Path = RESOURCE_CATALOG) -> int:
+    """Fetch both authoritative Zenodo manifests and replace the local catalog."""
+    catalog_rows: Dict[str, Dict[str, str]] = {}
+    for manifest_url in MANIFEST_URLS:
+        response = requests.get(manifest_url, timeout=30)
+        response.raise_for_status()
+        for row in _parse_manifest(response.text, manifest_url):
+            path = row["path"]
+            if path in catalog_rows:
+                raise ValueError(f"Duplicate resource path '{path}' in Zenodo manifests.")
+            catalog_rows[path] = row
+
+    catalog_path.parent.mkdir(parents=True, exist_ok=True)
+    with catalog_path.open("w", newline="", encoding="utf-8") as catalog_file:
+        writer = csv.DictWriter(
+            catalog_file,
+            fieldnames=["path", "modified", "source_url", "url"],
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(catalog_rows[path] for path in sorted(catalog_rows))
+    return len(catalog_rows)
+
+
+# Keep module import usable before the catalog has been created for the first
+# time. All normal CLI modes load it explicitly in ``main``.
+DATA_REGISTRY = load_resource_catalog() if RESOURCE_CATALOG.exists() else {}
 
 
 def _has_progressbar() -> bool:
     return tqdm is not None
-
-
-def _progress_bar(iterable, total: Optional[int], description: str):
-    if _has_progressbar():
-        return tqdm(iterable, total=total, unit="B", unit_scale=True, desc=description)
-    return iterable
 
 
 def find_in_registry(search_string: str) -> Dict[str, str]:
@@ -124,18 +226,29 @@ def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[st
 
 
 def _download_with_requests(url: str, dest_path: Path) -> None:
+    print(f"Downloading {dest_path.name}")
     response = requests.get(url, stream=True, timeout=30)
     response.raise_for_status()
     total = int(response.headers.get("Content-Length", 0))
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    with dest_path.open("wb") as fd:
-        for chunk in _progress_bar(
-            response.iter_content(chunk_size=32_768),
+    progress = None
+    if _has_progressbar():
+        progress = tqdm(
             total=total or None,
-            description=dest_path.name,
-        ):
-            if chunk:
-                fd.write(chunk)
+            unit="B",
+            unit_scale=True,
+            desc=f"Downloading {dest_path.name}",
+        )
+    try:
+        with dest_path.open("wb") as fd:
+            for chunk in response.iter_content(chunk_size=32_768):
+                if chunk:
+                    fd.write(chunk)
+                    if progress is not None:
+                        progress.update(len(chunk))
+    finally:
+        if progress is not None:
+            progress.close()
 
 
 def _sha256_file(path: Path) -> str:
@@ -145,6 +258,13 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _verify_sha256(path: Path, expected_hash: str) -> None:
+    """Verify a file against an expected SHA256 digest."""
+    got = _sha256_file(path)
+    if got.lower() != expected_hash.lower():
+        raise RuntimeError(f"SHA256 mismatch for {path}: expected {expected_hash}, got {got}")
 
 
 def _download_file(
@@ -162,12 +282,12 @@ def _download_file(
         _download_with_requests(url, dest_path)
 
     if expected_hash:
-        got = _sha256_file(dest_path)
-        if got.lower() != expected_hash.lower():
+        try:
+            _verify_sha256(dest_path, expected_hash)
+        except RuntimeError:
             dest_path.unlink(missing_ok=True)
-            raise RuntimeError(
-                (f"SHA256 mismatch for {dest_path}: " f" expected {expected_hash}, got {got}")
-            )
+            raise
+        print(f"Verified SHA256 for {dest_path}")
     return True
 
 
@@ -177,6 +297,7 @@ def _download_tarball(
     cache_dir.mkdir(parents=True, exist_ok=True)
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
+        print(f"Using cached archive {tar_path.name}")
         return tar_path
     if tar_path.exists():
         tar_path.unlink()
@@ -187,15 +308,12 @@ def _download_tarball(
         _download_with_requests(url, tar_path)
 
     if expected_hash:
-        got = _sha256_file(tar_path)
-        if got.lower() != expected_hash.lower():
+        try:
+            _verify_sha256(tar_path, expected_hash)
+        except RuntimeError:
             tar_path.unlink(missing_ok=True)
-            raise RuntimeError(
-                (
-                    f"SHA256 mismatch for tarball {tar_path}: "
-                    f" expected {expected_hash}, got {got}"
-                )
-            )
+            raise
+        print(f"Verified SHA256 for archive {tar_path.name}")
     return tar_path
 
 
@@ -216,13 +334,22 @@ def _find_tar_member(tar: tarfile.TarFile, target: str) -> tarfile.TarInfo:
 
 
 def _extract_tarball_members(
-    tar_path: Path, targets: List[str], dest_root: Path, force: bool = False
+    tar_path: Path,
+    targets: List[str],
+    dest_root: Path,
+    force: bool = False,
+    hashes: Optional[Dict[str, str]] = None,
 ) -> int:
     installed = 0
+    verified = 0
+    print(f"Extracting {len(targets)} resources from {tar_path.name}")
     with tarfile.open(tar_path, mode="r:*") as tar:
         for target in targets:
             dest_path = dest_root / target
             if dest_path.exists() and not force:
+                if hashes and (expected_hash := hashes.get(target)):
+                    _verify_sha256(dest_path, expected_hash)
+                    verified += 1
                 continue
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             member = _find_tar_member(tar, target)
@@ -230,7 +357,16 @@ def _extract_tarball_members(
             if extracted is None:
                 raise RuntimeError(f"Cannot extract '{member.name}' from {tar_path}")
             dest_path.write_bytes(extracted.read())
+            if hashes and (expected_hash := hashes.get(target)):
+                try:
+                    _verify_sha256(dest_path, expected_hash)
+                except RuntimeError:
+                    dest_path.unlink(missing_ok=True)
+                    raise
+                verified += 1
             installed += 1
+    if verified:
+        print(f"Verified SHA256 for {verified} resources from {tar_path.name}")
     return installed
 
 
@@ -263,7 +399,9 @@ def install_files(
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
         tar_path = _download_tarball(tarball_url, cache_dir, force=force, expected_hash=expected)
-        installed += _extract_tarball_members(tar_path, targets, dest_path, force=force)
+        installed += _extract_tarball_members(
+            tar_path, targets, dest_path, force=force, hashes=hashes
+        )
 
     return installed
 
@@ -308,9 +446,13 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode",
-        choices=["scratch", "missing", "update", "extra", "list"],
+        choices=["scratch", "missing", "update", "extra", "list", "manifest"],
         default="missing",
-        help="scratch=overwrite all; missing=download only missing; update=selected subset; extra=download one extra URL; list=show registry entries.",
+        help=(
+            "scratch=overwrite all; missing=download only missing; update=selected subset; "
+            "extra=download one extra URL; list=show the local catalog; "
+            "manifest=refresh the local catalog from Zenodo manifests."
+        ),
     )
     parser.add_argument(
         "--dest", default=str(DEFAULT_DEST), help="Destination root for resource files."
@@ -343,7 +485,15 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> None:
     """Run the resource installer command-line interface."""
+    global DATA_REGISTRY
     args = parse_arguments()
+
+    if args.mode == "manifest":
+        updated = update_resource_catalog()
+        print(f"Updated {RESOURCE_CATALOG} with {updated} resources from Zenodo manifests")
+        return
+
+    DATA_REGISTRY = load_resource_catalog()
     dest_path = Path(args.dest).expanduser()
     cache_dir = Path(args.cache_dir).expanduser()
     hash_map: Optional[Dict[str, str]] = None
@@ -352,6 +502,7 @@ def main() -> None:
         if not p.exists():
             raise FileNotFoundError(f"Hash file not found: {p}")
         hash_map = json.loads(p.read_text())
+        print(f"Loaded {len(hash_map)} SHA256 hashes from {p}")
 
     if args.mode == "list":
         list_registry(args.list_search or args.search)
