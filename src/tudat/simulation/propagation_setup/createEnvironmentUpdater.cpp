@@ -13,6 +13,7 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
@@ -170,6 +171,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         {
                             throw std::runtime_error(
                                     "Error when making environment model update settings, could not find vehicle systems of body " +
+                                    updateIterator->second.at( i ) );
+                        }
+                        break;
+                    }
+                    case climate_model_update: {
+                        std::shared_ptr< environment::ClimateModel > climateModel =
+                                bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
+                        if( climateModel == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when making environment model update settings, could not find climate model of body " +
                                     updateIterator->second.at( i ) );
                         }
                         break;

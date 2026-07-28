@@ -110,6 +110,10 @@ void expose_parameters_setup( py::module& m )
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
             .value( "specular_reflectivity_type", tep::EstimatebleParametersEnum::specular_reflectivity )
             .value( "diffuse_reflectivity_type", tep::EstimatebleParametersEnum::diffuse_reflectivity )
+            .value( "energy_accommodation_coefficient_type", tep::EstimatebleParametersEnum::energy_accommodation_coefficient )
+            .value( "normal_accommodation_coefficient_type", tep::EstimatebleParametersEnum::normal_accommodation_coefficient )
+            .value( "tangential_accommodation_coefficient_type", tep::EstimatebleParametersEnum::tangential_accommodation_coefficient )
+            .value( "normal_velocity_at_wall_ratio_type", tep::EstimatebleParametersEnum::normal_velocity_at_wall_ratio )
 
             .export_values( );
 
@@ -649,6 +653,114 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for specular reflectivity estimation.
+
+     )doc" );
+
+    m.def( "energy_accommodation_coefficient",
+           &tep::energyAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the energy accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Sentman and Cook gas-surface
+ interaction models. Its aerodynamic-coefficient partial is zero for the Storch,
+ Newton, and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel energy accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for energy accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_accommodation_coefficient",
+           &tep::normalAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "tangential_accommodation_coefficient",
+           &tep::tangentialAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the tangential accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel tangential accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for tangential accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_velocity_at_wall_ratio",
+           &tep::normalVelocityAtWallRatio,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal velocity at wall ratio of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal velocity at wall ratio is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless ratio is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal velocity at wall ratio estimation.
 
      )doc" );
 
@@ -1683,7 +1795,11 @@ deformed_body : str
 degree : int
     Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used.
+    The bodies may belong to one or more separate ``solid_body_tide`` variation models.
+    If the list is left empty, all compatible basic solid-body tide-raising bodies/models of ``deformed_body`` will be used.
+    By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once
+    parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 

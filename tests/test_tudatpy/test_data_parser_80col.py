@@ -290,6 +290,7 @@ def test_identify_object_missing_ids():
 # This ensures that our unpacking logic matches Tudat/BatchMPC's expectations.
 
 
+@pytest.mark.remote_data
 def test_batch_mpc_vs_parser_consistency():
     """Checks consistency between Parser output and BatchMPC expectations."""
     batch = BatchMPC()

@@ -20,6 +20,7 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -130,6 +131,17 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setEphemeris( createBodyEphemeris< StateScalarType, TimeType >( orderedBodySettings.at( i ).second->ephemerisSettings,
                                                                                       orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create climate model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->climateModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setClimateModel( createClimateModel( orderedBodySettings.at( i ).second->climateModelSettings,
+                                                           bodyList.at( orderedBodySettings.at( i ).first ) ) );
         }
     }
 

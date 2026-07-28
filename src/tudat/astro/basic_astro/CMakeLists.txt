@@ -74,6 +74,7 @@ set(basic_astrodynamics_HEADERS
         "torqueModel.h"
         "torqueModelTypes.h"
         "dissipativeTorqueModel.h"
+        "climateModel.h"
         )
 
 TUDAT_ADD_LIBRARY("basic_astrodynamics"
