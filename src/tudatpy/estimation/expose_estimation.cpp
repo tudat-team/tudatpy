@@ -57,7 +57,6 @@ void expose_estimation( py::module& m )
     observable_models::expose_observable_models( observable_models_submodule );
 
     auto observations_setup_submodule = py::module_::import( "tudatpy.kernel.estimation.observations_setup" );
-    observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto ancillary_settings_submodule = py::module_::import( "tudatpy.kernel.estimation.observations_setup.ancillary_settings" );
     observations_setup::ancillary_settings::expose_ancillary_settings( ancillary_settings_submodule );
@@ -67,6 +66,8 @@ void expose_estimation( py::module& m )
 
     auto observations_submodule = m.def_submodule( "observations" );
     observations::expose_observations( observations_submodule );
+
+    observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
