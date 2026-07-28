@@ -262,29 +262,7 @@ def _photocenter_correction_ellispoidal(
     e_z_pp = np.cross(n_sun, n_observer) / np.linalg.norm(np.cross(n_sun, n_observer))
     e_y_pp = np.cross(e_z_pp, e_x_pp)
 
-    e_x = np.array([1, 0, 0])
-    e_y = np.array([0, 1, 0])
-    e_z = np.array([0, 0, 1])
-
-    cos_beta = np.dot(e_z, e_z_pp)
-    sin_beta = np.sqrt(1 - cos_beta ** 2)
-    beta = np.arctan2(sin_beta, cos_beta)
-
-    cos_gamma = np.dot(e_x, e_z_pp) / sin_beta
-    sin_gamma = np.dot(e_y, e_z_pp) / sin_beta
-    gamma = np.arctan2(sin_gamma, cos_gamma)
-
-    e_y_p = - sin_gamma * e_x + cos_gamma * e_y
-    e_z_p = e_z_pp
-    e_x_p = np.cross(e_y_p, e_z_p)
-
-    cos_alpha = np.dot(e_x_p, n_sun)
-    sin_alpha = np.dot(e_y_p, n_sun)
-    alpha = np.arctan2(sin_alpha, cos_alpha)
-
-    rot_z = lambda x: np.array([[np.cos(x), np.sin(x), 0], [-np.sin(x), np.cos(x), 0], [0, 0, 1]])
-    rot_y = lambda x: np.array([[np.cos(x), 0, -np.sin(x)], [0, 1, 0], [np.sin(x), 0, np.cos(x)]])
-    euler_mat = rot_z(alpha) @ rot_y(beta) @ rot_z(gamma)
+    euler_mat = np.vstack((e_x_pp, e_y_pp, e_z_pp))
 
     cot = lambda x: np.cos(x) / np.sin(x)
     fac = (
