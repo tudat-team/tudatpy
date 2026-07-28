@@ -48,7 +48,10 @@ if bool(os.getenv("READTHEDOCS")) is True:
 
 else:
     # when building locally, use the binaries generated with tudat-bundle
-    sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+    local_build_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../..", "build", "src")
+    )
+    sys.path.insert(0, local_build_path)
 
 
 def module_has_members(module_name, member_names):
