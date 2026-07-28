@@ -203,4 +203,171 @@ def apply_photocenter_correction_to_observation_collection(
         return new_observation_collection
 
 
+def _photocenter_correction_ellispoidal(
+        body_extent: list | np.ndarray,
+        e_sun: np.ndarray,
+        e_observer : np.ndarray,
+) -> np.ndarray:
+    """Compute the photocenter-barycenter offset at a single epoch according to Muinonen & Lumme (2015)
+
+    Parameters
+    ----------
+    body_extent : list | np.ndarray
+        axial parameters of the ellipsoid
+    e_sun : np.ndarray
+        Unit vector pointing in the direction of the sun, in the principle axis system of the ellipsoid
+    e_observer : np.ndarray
+        Unit vector pointing in the direction of the observer, in the principle axis system of the ellipsoid
+    """
+    a, b, c = body_extent
+    c_mat = np.diag((a ** -2, b ** -2, c ** -2))
+
+    # Auxiliary scalar units
+    s_sun = np.sqrt(
+        e_sun.T @ c_mat @ e_sun
+    )
+    s_observer = np.sqrt(
+        e_observer.T @ c_mat @ e_observer
+    )
+
+    cos_alpha_p = e_sun.T @ c_mat @ e_observer / (s_sun * s_observer)
+    sin_alpha_p = np.sqrt(1 - cos_alpha_p ** 2)
+
+    s = np.sqrt(s_sun ** 2 + s_observer ** 2 + 2 * s_sun * s_observer * cos_alpha_p)
+
+    cos_lambda_p = (s_sun + s_observer * cos_alpha_p) / s
+    sin_lambda_p = s_observer * sin_alpha_p / s
+
+    alpha_p = np.arctan2(sin_alpha_p, cos_alpha_p)
+    lambda_p = np.arctan2(sin_lambda_p, cos_lambda_p)
+
+    # Compute dyadic components
+    i1 = (
+        1/2 * (np.pi - alpha_p) * (np.cos(lambda_p - alpha_p) + np.sin(2*lambda_p) * np.sin(lambda_p - alpha_p)) +
+        1/2 * np.cos(lambda_p) * np.sin(alpha_p) - np.log(- np.sin(lambda_p - alpha_p) / np.sin(lambda_p)) *
+        np.sin(lambda_p) ** 2 * np.sin(lambda_p - alpha_p)
+    )
+    i2 = (
+        1/2 * (np.pi - alpha_p) * - np.cos(2 * lambda_p) * np.sin(lambda_p - alpha_p) +
+        1/2 * np.sin(lambda_p) * np.sin(alpha_p) + np.log(- np.sin(lambda_p - alpha_p) / np.sin(lambda_p)) *
+        np.cos(lambda_p) * np.sin(lambda_p) * np.sin(lambda_p - alpha_p)
+    )
+    i_vec = np.array([i1, i2, 0])
+
+    # Compute Euler rotation matrix
+    n_sun = np.sqrt(c_mat) @ e_sun / (np.sqrt(e_sun.T @ c_mat @ e_sun))
+    n_observer = np.sqrt(c_mat) @ e_observer / (np.sqrt(e_observer.T @ c_mat @ e_observer))
+
+    e_x_pp = n_sun
+    e_z_pp = np.cross(n_sun, n_observer) / np.linalg.norm(np.cross(n_sun, n_observer))
+    e_y_pp = np.cross(e_z_pp, e_x_pp)
+
+    e_x = np.array([1, 0, 0])
+    e_y = np.array([0, 1, 0])
+    e_z = np.array([0, 0, 1])
+
+    cos_beta = np.dot(e_z, e_z_pp)
+    sin_beta = np.sqrt(1 - cos_beta ** 2)
+    beta = np.arctan2(sin_beta, cos_beta)
+
+    cos_gamma = np.dot(e_x, e_z_pp) / sin_beta
+    sin_gamma = np.dot(e_y, e_z_pp) / sin_beta
+    gamma = np.arctan2(sin_gamma, cos_gamma)
+
+    e_y_p = - sin_gamma * e_x + cos_gamma * e_y
+    e_z_p = e_y_pp
+    e_x_p = np.cross(e_y_p, e_z_p)
+
+    cos_alpha = np.dot(e_x_p, n_sun)
+    sin_alpha = np.dot(e_y_p, n_sun)
+    alpha = np.arctan2(sin_alpha, cos_alpha)
+
+    rot_z = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
+    rot_y = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
+    euler_mat = rot_z(alpha) @ rot_y(beta) @ rot_z(gamma)
+
+    cot = lambda x: np.cos(x) / np.sin(x)
+    fac = (
+        np.cos(lambda_p - alpha_p) + np.cos(lambda_p) + np.sin(lambda_p) * np.sin(lambda_p - alpha_p) *
+        np.log(cot(lambda_p / 2) * cot((alpha_p - lambda_p) / 2))
+    )
+    # Offset in ellipsoid axes frame
+    offset = 8 / (3*np.pi * fac) * np.sqrt(np.linalg.inv(c_mat)) @ euler_mat.T @ i_vec
+
+    return offset
+
+
+
+
+def photocenter_correction_ellipsoidal(
+        observations: np.ndarray ,
+        body_extent: list | np.ndarray,
+        bodies: SystemOfBodies,
+        body_name: str,
+        observer_body_name: str,
+        observer_reference_name: str | None = None
+) -> np.ndarray:
+    """
+    Compute photocenter-barycenter offset correction, assuming an ellipsoidal shape of the observed body.
+
+    Requires a rotational ephemeris to be loaded for body with body_name. The rotation is towards the principle axis
+    reference frame of the ellipsoidal body, meaning that x, y and z are aligned with the a, b, c ellipsoid axes.
+
+    Parameters
+    ----------
+    observations
+    body_extent
+    bodies
+    body_name
+    observer_body_name
+    observer_reference_name
+
+    Returns
+    -------
+
+    """
+    # Input validation
+    if observations.shape[1] != 1:
+        raise ValueError('Observations must be shaped N x 3')
+
+    if len(body_extent) != 3:
+        raise ValueError('Body extent must be of length 3')
+
+    corrections = []
+
+    for epoch, ra, dec in observations:
+
+        # Get unit directions to sun and observer in axes of ellipsoid
+        observer_inertial = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        sun_inertial = bodies.get('Sun').state_in_base_frame_from_ephemeris(epoch)[:3]
+        body_inertial = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+
+        e_sun_inertial = _unit(sun_inertial - body_inertial) # Direction of sun from observed body
+        e_observer_inertial = _unit(observer_inertial - body_inertial) # Direction of observer from observed body
+
+        rot_matrix = bodies.get(body_name).rotation_model.inertial_to_body_fixed_rotation(epoch)
+        e_sun = rot_matrix @ e_sun_inertial
+        e_observer = rot_matrix @ e_observer_inertial
+
+        # Get offset in axes of ellipsoid
+        offset = _photocenter_correction_ellispoidal(
+            body_extent,
+            e_sun,
+            e_observer,
+        )
+
+        # Rotate offset to inertial direction
+        offset_inertial = rot_matrix.T @ offset
+
+        # Translate into corrections
+        corrections.append(
+            _offset_vector_to_corrections(offset_inertial, ra, dec)
+        )
+
+    return np.array(corrections)
+
+
+
+
+
 
