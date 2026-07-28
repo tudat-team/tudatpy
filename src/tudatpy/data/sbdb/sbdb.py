@@ -49,13 +49,13 @@ class SBDBquery:
 
     @property
     def moid(self):
-        """Returns the Small-Body's Minimum Orbital Intersection Distance with the Earth, if available"""
-        return self.query["orbit"]["moid"]
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with the Earth [m], if available"""
+        return self.query["orbit"]["moid"].to(u.meter).value
 
     @property
     def moid_jup(self):
-        """Returns the Small-Body's Minimum Orbital Intersection Distance with Jupiter, if available"""
-        return self.query["orbit"]["moid_jup"]
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with Jupiter [m], if available"""
+        return self.query["orbit"]["moid_jup"].to(u.meter).value
 
     @property
     def codes_300_spkid(self):
