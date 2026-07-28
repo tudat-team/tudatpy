@@ -630,9 +630,9 @@ void expose_gravitation( py::module& m )
 
  Function to rotate spherical harmonic coefficients with precomputed Wigner D-matrices
 
-	 Function to rotate real-valued spherical harmonic coefficients using precomputed Wigner D-matrices.
-	 The transformation follows the Wigner-D coefficient rotation formalism used by :cite:t:`boue2017`; see
-	 :class:`~tudatpy.astro.gravitation.WignerDMatricesCache` for the algorithm used to compute the Wigner D-matrices.
+ Function to rotate real-valued spherical harmonic coefficients using precomputed Wigner D-matrices.
+ The transformation follows the Wigner-D coefficient rotation formalism used by :cite:t:`boue2017`; see
+ :class:`~tudatpy.astro.gravitation.WignerDMatricesCache` for the algorithm used to compute the Wigner D-matrices.
  For each degree :math:`l`, input coefficients :math:`C_{lk},S_{lk}` are mapped to
  :math:`C'_{lm},S'_{lm}` using the Wigner-D entries :math:`D^l_{m,k}` as
 

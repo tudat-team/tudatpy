@@ -32,16 +32,18 @@ namespace observations_setup
 
 void expose_observations_setup( py::module& m )
 {
-    auto observations_simulation_settings = m.def_submodule( "observations_simulation_settings" );
+    auto observations_simulation_settings =
+            py::module_::import( "tudatpy.kernel.estimation.observations_setup.observations_simulation_settings" );
+    auto observations_wrapper = m.def_submodule( "observations_wrapper" );
+    auto random_noise = m.def_submodule( "random_noise" );
+    auto viability = py::module_::import( "tudatpy.kernel.estimation.observations_setup.viability" );
+
     observations_simulation_settings::expose_observations_simulation_settings( observations_simulation_settings );
 
-    auto observations_wrapper = m.def_submodule( "observations_wrapper" );
     observations_wrapper::expose_observations_wrapper( observations_wrapper );
 
-    auto random_noise = m.def_submodule( "random_noise" );
     random_noise::expose_random_noise( random_noise );
 
-    auto viability = m.def_submodule( "viability" );
     viability::expose_viability( viability );
 }
 

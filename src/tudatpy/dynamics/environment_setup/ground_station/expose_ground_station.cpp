@@ -507,6 +507,17 @@ reference_epoch:
 
         )doc" );
 
+    m.def( "get_default_dsn_station_names_per_complex", &tss::getDefaultDsnStationNamesPerComplex, R"doc(
+
+    Return the default station names for each DSN complex.
+
+    Returns
+    -------
+    dict[int, list[str]]
+        Dictionary mapping each DSN complex identifier to its station names.
+
+        )doc" );
+
     m.def( "get_radio_telescope_positions", &tss::getCombinedApproximateGroundStationPositions, R"doc(
 
     This function returns the positions of DSN ground stations and VLBI stations.

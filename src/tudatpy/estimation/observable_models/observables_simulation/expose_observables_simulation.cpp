@@ -13,6 +13,7 @@
 #include "expose_observables_simulation.h"
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tom = tudat::observation_models;
@@ -29,6 +30,9 @@ namespace observables_simulation
 
 void expose_observables_simulation( py::module& m )
 {
+    py::class_< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" );
+
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
             "ObservationViabilityCalculator",

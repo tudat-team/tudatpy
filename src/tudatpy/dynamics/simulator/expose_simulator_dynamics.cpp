@@ -21,6 +21,7 @@
 
 #include "scalarTypes.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 
 namespace py = pybind11;
@@ -36,6 +37,9 @@ namespace simulator
 
 void expose_simulator_dynamics_bindings( py::module& m )
 {
+    py::class_< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::EnvironmentUpdater< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "EnvironmentUpdater" );
+
     py::class_< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,

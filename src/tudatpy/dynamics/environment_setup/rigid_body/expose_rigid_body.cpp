@@ -39,23 +39,12 @@ namespace rigid_body
 
 void expose_rigid_body_setup( py::module& m )
 {
-    //    py::enum_<tss::RigidBodyPropertiesType>(m,
-    //    "RigidBodyPropertiesType",
-    //                                     get_docstring("RigidBodyPropertiesType").c_str())
-    //        .value("from_function_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_function_rigid_body_properties").c_str())
-    //        .value("constant_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::constant_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.constant_rigid_body_properties").c_str())
-    //        .value("from_gravity_field_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_gravity_field_rigid_body_properties").c_str())
-    //        .value("mass_dependent_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
-    //        .export_values();
-    //
+    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType" )
+            .value( "from_function_rigid_body_properties", tss::RigidBodyPropertiesType::from_function_rigid_body_properties )
+            .value( "constant_rigid_body_properties", tss::RigidBodyPropertiesType::constant_rigid_body_properties )
+            .value( "from_gravity_field_rigid_body_properties", tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties )
+            .value( "mass_dependent_rigid_body_properties", tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties );
+
     py::class_< tss::RigidBodyPropertiesSettings, std::shared_ptr< tss::RigidBodyPropertiesSettings > >( m,
                                                                                                          "RigidBodyPropertiesSettings",
                                                                                                          R"doc(

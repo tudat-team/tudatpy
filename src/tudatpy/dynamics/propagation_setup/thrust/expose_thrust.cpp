@@ -371,7 +371,11 @@ void expose_thrust_setup( py::module& m )
     py::class_< tss::CustomThrustOrientationSettings,
                 std::shared_ptr< tss::CustomThrustOrientationSettings >,
                 tss::ThrustDirectionSettings >( m, "CustomThrustOrientationSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_ );
+            .def_property_readonly( "thrust_orientation_function", []( const tss::CustomThrustOrientationSettings& settings ) {
+                const auto quaternion_function = settings.thrustOrientationFunction_;
+                return std::function< Eigen::Matrix3d( const double ) >(
+                        [ quaternion_function ]( const double time ) { return quaternion_function( time ).toRotationMatrix( ); } );
+            } );
 
     m.def( "thrust_direction_from_state_guidance",
            &tss::thrustDirectionFromStateGuidanceSettings,

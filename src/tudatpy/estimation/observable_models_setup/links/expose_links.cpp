@@ -98,6 +98,8 @@ Examples
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
+    auto link_end_id = py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m, "LinkEndId" );
+
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
            py::arg( "transmitter" ),
@@ -244,9 +246,7 @@ Examples
     // ###########      Observation Model Settings
     // ################
 
-    py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m,
-                                                                     "LinkEndId",
-                                                                     R"doc(
+    link_end_id.doc( ) = R"doc(
 
          Base class serving as identifier of a specific link end.
 
@@ -278,7 +278,8 @@ Examples
          print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
 
 
-      )doc" )
+      )doc";
+    link_end_id
             .def_property_readonly( "body_name",
                                     &tom::LinkEndId::getBodyName,
                                     R"doc(

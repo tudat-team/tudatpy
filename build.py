@@ -177,6 +177,50 @@ class StubGenerator:
     # Default indentation length in pybind11-stubgen
     indentation: str = " " * 4
 
+    # Locations used to resolve the abbreviated ``<Enum.member: value>``
+    # representations emitted by pybind11 for default argument values.
+    enum_class_locations: dict[str, str] = {
+        "AerodynamicCoefficientFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AerodynamicsReferenceFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AvailableLookupScheme": "tudatpy.kernel.math.interpolators",
+        "BoundaryInterpolationType": "tudatpy.kernel.math.interpolators",
+        "FdetDateFormat": "tudatpy.kernel.data",
+        "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
+        "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
+        "IntegratedObservationPropertyHandling": (
+            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+        ),
+        "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
+        "LightTimeFailureHandling": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
+        "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
+        "MinimumIntegrationTimeStepHandling": (
+            "tudatpy.kernel.dynamics.propagation_setup.integrator"
+        ),
+        "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
+        "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "RadiationPressureTargetModelType": (
+            "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
+        ),
+        "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
+        "TimeScales": "tudatpy.kernel.astro.time_representation",
+        "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
+        "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "TroposphericMappingModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "WaterVaporPartialPressureModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+    }
+
     # Ignored modules and methods
     ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py"]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
@@ -594,8 +638,12 @@ class StubGenerator:
 
         for item in self.python_source_dir.rglob("*"):
 
-            # Skip if not a directory or if it is a cache directory
-            if not item.is_dir() or item.name == "__pycache__":
+            # Only Python packages require a stub directory.
+            if (
+                not item.is_dir()
+                or item.name == "__pycache__"
+                or not (item / "__init__.py").is_file()
+            ):
                 continue
 
             # Make path relative to source directory
@@ -611,15 +659,24 @@ class StubGenerator:
 
         print("Generating stubs for tudatpy.kernel...")
 
+        stubgen_command = [
+            "pybind11-stubgen",
+            "tudatpy.kernel",
+            "-o",
+            str(self.mock_env.tmp),
+            "--numpy-array-wrap-with-annotated",
+        ]
+        for enum_name, module_path in self.enum_class_locations.items():
+            stubgen_command.extend(
+                [
+                    "--enum-class-locations",
+                    f"^{enum_name}$:{module_path}",
+                ]
+            )
+
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
-            [
-                "pybind11-stubgen",
-                "tudatpy.kernel",
-                "-o",
-                str(self.mock_env.tmp),
-                "--numpy-array-wrap-with-annotated",
-            ],
+            stubgen_command,
             env=self.mock_env.variables,
         )
         if outcome.returncode:

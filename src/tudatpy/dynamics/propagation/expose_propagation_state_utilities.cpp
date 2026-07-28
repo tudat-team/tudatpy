@@ -69,6 +69,16 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_state_utility_types( py::module& m )
+{
+    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
+
+    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
+            m, "AccelerationModel" );
+
+    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+}
+
 void expose_propagation_state_utility_bindings( py::module& m )
 {
     py::class_< ta::AerodynamicGuidance, ta::PyAerodynamicGuidance, std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
@@ -79,8 +89,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
             .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
             .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
             .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
-
-    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
 
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
@@ -304,11 +312,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
 
      )doc" );
-
-    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
-            m, "AccelerationModel" );
-
-    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
 }
 
 }  // namespace propagation
