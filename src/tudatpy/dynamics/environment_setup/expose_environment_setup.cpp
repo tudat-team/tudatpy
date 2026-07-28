@@ -756,7 +756,7 @@ observer_name : str
     Name of the SPICE observer.
 reference_frame_name : str
     Name of the SPICE reference frame.
-interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(8)
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(8, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
     Settings used to interpolate the tabulated ephemeris.
 )doc" );
 

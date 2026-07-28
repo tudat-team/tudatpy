@@ -904,7 +904,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observable_types",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableTypes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observable types for a subset of observation sets.
 
@@ -920,7 +920,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_bodies_in_link_ends",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getBodiesInLinkEnds,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the names of bodies present in the link ends of a subset of observation sets.
 
@@ -936,7 +936,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_reference_points_in_link_ends",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getReferencePointsInLinkEnds,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the names of reference points (e.g., ground stations) in the link ends of a subset of observation sets.
 
@@ -952,7 +952,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_time_bounds_list",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsListDouble,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the time bounds for a subset of observation sets.
 
@@ -968,7 +968,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_time_bounds_list_time_object",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsList,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the time bounds for a subset of observation sets as Time objects.
 
@@ -984,7 +984,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_time_bounds_per_set",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSetDouble,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the time bounds for each set in a subset of observation sets.
 
@@ -1000,7 +1000,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_time_bounds_per_set_time_object",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSet,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the time bounds for each set in a subset of observation sets as Time objects.
 
@@ -1016,7 +1016,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observations",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observations for a subset of observation sets.
 
@@ -1032,7 +1032,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_observations",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservations,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated observations for a subset of observation sets.
 
@@ -1048,7 +1048,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observation_times",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimesDouble,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observation times for a subset of observation sets.
 
@@ -1064,7 +1064,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observation_times_objects",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observation times for a subset of observation sets as Time objects.
 
@@ -1080,7 +1080,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_observation_times_objects",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationTimes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated observation times for a subset of observation sets as Time objects.
 
@@ -1096,7 +1096,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_observation_times",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDoubleObservationTimes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated observation times for a subset of observation sets.
 
@@ -1112,7 +1112,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observations_and_times",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsAndTimesDouble,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observations and times for a subset of observation sets.
 
@@ -1128,7 +1128,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_observations_and_times_objects",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsAndTimes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the observations and times for a subset of observation sets, with times as Time objects.
 
@@ -1144,7 +1144,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_observations_and_times",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationsAndTimesDouble,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated observations and times for a subset of observation sets.
 
@@ -1160,7 +1160,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_observations_and_times_objects",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationsAndTimes,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated observations and times for a subset of observation sets, with times as Time objects.
 
@@ -1193,7 +1193,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_weights",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the weights for a subset of observation sets.
 
@@ -1209,7 +1209,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_weights",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedWeights,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated weights for a subset of observation sets.
 
@@ -1225,7 +1225,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_residuals",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the residuals for a subset of observation sets.
 
@@ -1241,7 +1241,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_residuals",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedResiduals,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated residuals for a subset of observation sets.
 
@@ -1257,7 +1257,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_rms_residuals",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the RMS of residuals for a subset of observation sets.
 
@@ -1273,7 +1273,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_mean_residuals",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the mean of residuals for a subset of observation sets.
 
@@ -1289,7 +1289,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_computed_observations",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservations,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the computed observations for a subset of observation sets.
 
@@ -1305,7 +1305,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_concatenated_computed_observations",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedComputedObservations,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get the concatenated computed observations for a subset of observation sets.
 
@@ -1323,7 +1323,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::overload_cast< const double, const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                   py::arg( "weight" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set a constant weight for a subset of observation sets.
 
@@ -1338,7 +1338,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::overload_cast< const Eigen::VectorXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                   py::arg( "weight" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set a constant weight vector for a subset of observation sets.
 
@@ -1377,7 +1377,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::overload_cast< const Eigen::VectorXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights ),
                   py::arg( "tabulated_weights" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set tabulated weights for a subset of observation sets.
 
@@ -1426,7 +1426,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                                      std::shared_ptr< tom::ObservationCollectionParser >,
                                      const bool >( &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::filterObservations ),
                   py::arg( "observation_filters" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   py::arg( "save_filtered_observations" ) = true,
                   R"doc(
          Filter observations using a single filter.
@@ -1447,7 +1447,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                                      std::shared_ptr< tom::ObservationCollectionParser > >(
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::splitObservationSets ),
                   py::arg( "observation_set_splitter" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Split observation sets based on a splitter.
 
@@ -1462,7 +1462,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
             .def( "get_single_observation_sets",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleObservationSets,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get a subset of single observation sets.
 
@@ -1506,7 +1506,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "antenna_name" ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "link_end_type" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set a fixed reference point for a subset of observations.
 
@@ -1536,7 +1536,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "antenna_switch_history" ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "link_end_type" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set multiple reference points based on an antenna switch history.
 
@@ -1566,7 +1566,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   py::arg( "antenna_name" ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "link_end_type" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Set a time-varying reference point for a subset of observations.
 
@@ -1589,7 +1589,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelay,
                   py::arg( "spacecraft_name" ),
                   py::arg( "transponder_delay" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Deprecated: set the transponder delay for a subset of observations by modifying the
          retransmission delay in their ancillary settings.
@@ -1613,7 +1613,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             .def( "add_dependent_variable",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariable,
                   py::arg( "dependent_variable_settings" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Add an observation dependent variable to a subset of the single observation sets.
 
@@ -1635,7 +1635,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the values of a given dependent variable, sorted per single observation set.
 
@@ -1657,7 +1657,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDependentVariables,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the concatenated values of a given dependent variable.
 
@@ -1678,7 +1678,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             .def( "compatible_dependent_variable_settings",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariablesSettingsList,
                   py::arg( "dependent_variable_settings" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get a list of all dependent variable settings compatible with the input settings.
 
@@ -1697,7 +1697,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             .def( "compatible_dependent_variables_list",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariables,
                   py::arg( "dependent_variable_settings" ),
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Get all dependent variables compatible with the input settings.
 
@@ -1717,7 +1717,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryPerObservationSetDouble,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the time history of a given dependent variable, sorted per observation set.
 
@@ -1739,7 +1739,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryPerObservationSet,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the time history of a given dependent variable, sorted per observation set, with times as Time objects.
 
@@ -1761,7 +1761,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the concatenated time history of a given dependent variable.
 
@@ -1783,7 +1783,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "first_compatible_settings" ) = false,
-                  py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                   R"doc(
          Retrieve the concatenated time history of a given dependent variable, with times as Time objects.
 
@@ -1938,7 +1938,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
                    &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "original_observation_collection" ),
            py::arg( "observation_filter" ),
-           py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+           py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
            R"doc(
 
         Creates a new, filtered observation collection from an existing one using a single filter.
@@ -1966,7 +1966,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
            &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "original_observation_collection" ),
            py::arg( "observation_set_splitter" ),
-           py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+           py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
            R"doc(
         Creates a new observation collection by splitting sets from an existing collection.
 
@@ -1991,7 +1991,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
     m.def( "create_new_observation_collection",
            &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "original_observation_collection" ),
-           py::arg_v( "observation_parser", std::make_shared< tom::ObservationCollectionParser >( ), "..." ),
+           py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
            R"doc(
 
         Creates a new observation collection containing a subset of an existing collection.

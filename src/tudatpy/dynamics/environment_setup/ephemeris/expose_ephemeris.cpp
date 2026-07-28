@@ -721,7 +721,7 @@ void expose_ephemeris_setup( py::module& m )
      Origin of frame in which ephemeris data is defined.
  frame_orientation : str, default="ECLIPJ2000"
      Orientation of frame in which ephemeris data is defined.
- interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(6)
+ interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(6, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
      Settings to be used for the state interpolation.
  body_name_to_use : str, default = ""
      Body from which Spice ephemeris is to be created.
@@ -848,7 +848,7 @@ void expose_ephemeris_setup( py::module& m )
      Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
  time_step : float
      Time step to use to tabulate the existing ephemeris.
- interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default=tudatpy.math.interpolators.lagrange_interpolation(8)
+ interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(8, boundary_interpolation=tudatpy.math.interpolators.extrapolate_at_boundary)
      Interpolator settings to use when interpolating between two tabulated ephemeris.
  Returns
  -------

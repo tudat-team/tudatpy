@@ -293,6 +293,20 @@ void expose_ancillary_settings_types( py::module& m )
 
 void expose_ancillary_settings( py::module& m )
 {
+    m.def(
+            "empty_ancillary_settings",
+            []( ) { return tom::ObservationAncillarySimulationSettings( ); },
+            R"doc(
+
+ Create an empty observation ancillary-settings object.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Empty ancillary settings.
+
+     )doc" );
+
     m.def( "doppler_ancillary_settings",
            &tom::getAveragedDopplerAncillarySettings,
            py::arg( "integration_time" ) = 60.0,

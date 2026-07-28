@@ -213,7 +213,7 @@ void expose_estimation_analysis( py::module& m )
            &tss::estimationConvergenceChecker,
            py::arg( "maximum_iterations" ) = 5,
            py::arg( "minimum_residual_change" ) = 0.0,
-           py::arg( "minimum_residual" ) = 0.0,
+           py::arg( "minimum_residual" ) = 1.0E-20,
            py::arg( "number_of_iterations_without_improvement" ) = 2,
            R"doc(
 
@@ -228,7 +228,7 @@ void expose_estimation_analysis( py::module& m )
      Maximum number of allowed iterations for estimation.
  minimum_residual_change : float, default = 0.0
      Minimum required change in residual between two iterations.
- minimum_residual : float, default = 0.0
+ minimum_residual : float, default = 1.0e-20
      Minimum value of observation residual below which estimation is converged.
  number_of_iterations_without_improvement : int, default = 2
      Number of iterations without reduction of residual.
@@ -569,7 +569,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                  py::arg_v( "convergence_checker", std::make_shared< tss::EstimationConvergenceChecker >( ), "..." ),
+                  py::arg_v( "convergence_checker",
+                             tss::estimationConvergenceChecker( ),
+                             "tudatpy.estimation.estimation_analysis.estimation_convergence_checker()" ),
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,

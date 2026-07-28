@@ -204,7 +204,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
@@ -290,7 +290,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
@@ -419,7 +419,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
@@ -559,7 +559,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalize_right_ascension" ) = false,
            R"doc(
 
@@ -613,7 +613,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalize_azimuth" ) = false,
            R"doc(
 
@@ -666,7 +666,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
  Function for creating settings for a relative angular position observable.
@@ -711,7 +711,7 @@ void expose_model_settings( py::module& m )
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "correct_for_stellar_aberration" ) = false,
            R"doc(
 
@@ -887,7 +887,7 @@ void expose_model_settings( py::module& m )
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
            py::arg_v( "transmitter_proper_time_rate_settings", std::shared_ptr< tom::DopplerProperTimeRateSettings >( ), "None" ),
            py::arg_v( "receiver_proper_time_rate_settings", std::shared_ptr< tom::DopplerProperTimeRateSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalized_with_speed_of_light" ) = false,
            R"doc(
 
@@ -1055,7 +1055,7 @@ from a concatenation of a one-way Doppler uplink observation
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalized_with_speed_of_light" ) = false,
            R"doc(
 
@@ -1104,7 +1104,7 @@ normalized_with_speed_of_light : bool, default = false
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
  Function for creating settings for a one-way averaged Doppler observable.
@@ -1164,7 +1164,7 @@ normalized_with_speed_of_light : bool, default = false
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
  Function for creating settings for an n-way averaged Doppler observable.
@@ -1252,7 +1252,7 @@ normalized_with_speed_of_light : bool, default = false
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
  Function for creating settings for an n-way averaged Doppler observable.
@@ -1295,7 +1295,7 @@ normalized_with_speed_of_light : bool, default = false
                               const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::nWayDifferencedRangeObservationSettings ),
            py::arg( "one_way_range_settings" ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
  Function for creating settings for an n-way averaged Doppler observable.
@@ -1339,7 +1339,7 @@ normalized_with_speed_of_light : bool, default = false
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "subtract_doppler_signature" ) = true,
            R"doc(
 
@@ -1416,7 +1416,7 @@ Returns
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 
 Function for creating settings for a two-way instantaneous Doppler frequency observable.
@@ -1457,7 +1457,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 Function for creating settings for a two-way range observation model, as generated by DSN/ESTRACK.
 
@@ -1533,7 +1533,7 @@ Returns
                         std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
                 const std::shared_ptr< tom::ObservationBiasSettings > bias_settings = nullptr,
                 const std::shared_ptr< tom::LightTimeConvergenceCriteria > light_time_convergence_settings =
-                        std::make_shared< tom::LightTimeConvergenceCriteria >( ) ) {
+                        tom::lightTimeConvergenceCriteria( ) ) {
                 return tom::differencedTimeOfArrivalObservationSettings( link_ends,
                                                                          light_time_correction_settings,
                                                                          time_difference_time_scale,
@@ -1544,7 +1544,7 @@ Returns
             py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
             py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
             py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-            py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+            py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
             R"doc(
 
  Function for creating settings for a time difference of arrival observation model
@@ -1602,7 +1602,7 @@ Returns
                         std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
                 const std::shared_ptr< tom::ObservationBiasSettings > bias_settings = nullptr,
                 const std::shared_ptr< tom::LightTimeConvergenceCriteria > light_time_convergence_settings =
-                        std::make_shared< tom::LightTimeConvergenceCriteria >( ) ) {
+                        tom::lightTimeConvergenceCriteria( ) ) {
                 return tom::differencedFrequencyOfArrivalObservationSettings( link_ends,
                                                                               light_time_correction_settings,
                                                                               time_difference_time_scale,
@@ -1613,7 +1613,7 @@ Returns
             py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
             py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
             py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-            py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+            py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
             R"doc(
 
  Function for creating settings for a differenced frequency of arrival observation model.
@@ -1656,7 +1656,7 @@ Returns
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
            Function for creating settings for a Doppler measured frequency observable.
 
@@ -1692,7 +1692,7 @@ Returns
             py::arg( "link_ends" ),
             py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
             py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-            py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+            py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
             R"doc(
            Function for creating settings for a one-way Doppler measured frequency observable.
 
@@ -1748,7 +1748,7 @@ Returns
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
            py::arg_v( "transmitter_proper_time_rate_settings", std::shared_ptr< tom::DopplerProperTimeRateSettings >( ), "None" ),
            py::arg_v( "receiver_proper_time_rate_settings", std::shared_ptr< tom::DopplerProperTimeRateSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalized_with_speed_of_light" ) = false,
            R"doc(
 Deprecated one-way open-loop Doppler settings factory.
@@ -1788,7 +1788,7 @@ normalized_with_speed_of_light : bool, default = False
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            py::arg( "normalized_with_speed_of_light" ) = false,
            R"doc(
 Deprecated two-way open-loop Doppler settings factory.
@@ -1815,7 +1815,7 @@ normalized_with_speed_of_light : bool, default = False
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 Deprecated one-way closed-loop Doppler settings factory.
 
@@ -1839,7 +1839,7 @@ light_time_convergence_settings : LightTimeConvergenceCriteria, default = light_
            py::arg( "link_ends" ),
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg_v( "bias_settings", std::shared_ptr< tom::ObservationBiasSettings >( ), "None" ),
-           py::arg_v( "light_time_convergence_settings", std::make_shared< tom::LightTimeConvergenceCriteria >( ), "..." ),
+           py::arg_v( "light_time_convergence_settings", tom::lightTimeConvergenceCriteria( ), "..." ),
            R"doc(
 Deprecated one-way closed-loop Doppler settings factory.
 

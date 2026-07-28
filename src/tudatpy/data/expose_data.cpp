@@ -758,7 +758,9 @@ Read a mapping from DOMES id to station name.
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
            py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
-           py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+           py::arg_v( "ground_stations_per_complex",
+                      tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(
 Set DSN weather data in the requested ground stations.
@@ -771,7 +773,7 @@ weather_file_names : list[str]
     DSN weather data files to read.
 interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.linear_interpolation()
     Settings used to interpolate the weather data.
-ground_stations_per_complex : dict[int, list[str]], default = default DSN station names per complex
+ground_stations_per_complex : dict[int, list[str]], default = dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()
     Ground-station names grouped by DSN complex.
 body_with_ground_stations_name : str, default = "Earth"
     Name of the body containing the ground stations.

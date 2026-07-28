@@ -536,7 +536,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg_v( "earth_fixed_ground_station_positions",
                       tss::getApproximateDsnGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-           py::arg_v( "ancillary_settings", tom::ObservationAncillarySimulationSettings( ), "..." ),
+           py::arg_v( "ancillary_settings",
+                      tom::ObservationAncillarySimulationSettings( ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()" ),
            R"doc(
         Create an observation collection from raw tracking file data.
 
@@ -550,7 +552,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = empty ancillary settings
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()
             Ancillary settings for the observations.
 
         Returns
