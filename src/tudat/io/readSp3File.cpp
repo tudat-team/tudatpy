@@ -10,7 +10,9 @@
 
 #include "tudat/io/readSp3File.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <fstream>
 #include <set>
 #include <stdexcept>
@@ -27,15 +29,13 @@ namespace tudat
 namespace input_output
 {
 
-namespace
-{
-
 struct EpochRecordFlags {
     bool hasPosition = false;
     bool hasVelocity = false;
 };
 
-std::string getFixedWidthField( const std::string& line, const unsigned int startIndex, const unsigned int length )
+//! Extract and trim one fixed-width field from an SP3 record.
+static std::string getFixedWidthField( const std::string& line, const unsigned int startIndex, const unsigned int length )
 {
     if( startIndex >= line.size( ) )
     {
@@ -46,12 +46,14 @@ std::string getFixedWidthField( const std::string& line, const unsigned int star
     return field;
 }
 
-bool tryParseInt( const std::string& value, int& output )
+//! Attempt to parse an integer field without propagating conversion exceptions.
+static bool tryParseInt( const std::string& value, int& output )
 {
     try
     {
-        output = std::stoi( value );
-        return true;
+        std::size_t parsedCharacterCount = 0;
+        output = std::stoi( value, &parsedCharacterCount );
+        return parsedCharacterCount == value.size( );
     }
     catch( ... )
     {
@@ -59,12 +61,14 @@ bool tryParseInt( const std::string& value, int& output )
     }
 }
 
-bool tryParseDouble( const std::string& value, double& output )
+//! Attempt to parse a floating-point field without propagating conversion exceptions.
+static bool tryParseDouble( const std::string& value, double& output )
 {
     try
     {
-        output = std::stod( value );
-        return true;
+        std::size_t parsedCharacterCount = 0;
+        output = std::stod( value, &parsedCharacterCount );
+        return parsedCharacterCount == value.size( ) && std::isfinite( output );
     }
     catch( ... )
     {
@@ -72,31 +76,36 @@ bool tryParseDouble( const std::string& value, double& output )
     }
 }
 
-bool tryParseFixedWidthInt( const std::string& line, const unsigned int startIndex, const unsigned int length, int& output )
+//! Attempt to parse an integer from a fixed-width SP3 field.
+static bool tryParseFixedWidthInt( const std::string& line, const unsigned int startIndex, const unsigned int length, int& output )
 {
     return tryParseInt( getFixedWidthField( line, startIndex, length ), output );
 }
 
-bool tryParseFixedWidthDouble( const std::string& line, const unsigned int startIndex, const unsigned int length, double& output )
+//! Attempt to parse a floating-point value from a fixed-width SP3 field.
+static bool tryParseFixedWidthDouble( const std::string& line, const unsigned int startIndex, const unsigned int length, double& output )
 {
     return tryParseDouble( getFixedWidthField( line, startIndex, length ), output );
 }
 
-bool isMissingSp3State( const double x, const double y, const double z )
+//! Check whether an SP3 position or velocity record contains the missing-state marker.
+static bool isMissingSp3State( const double x, const double y, const double z )
 {
     // SP3 uses an all-zero position or velocity vector for a bad or absent state.
     return x == 0.0 && y == 0.0 && z == 0.0;
 }
 
-bool isSupportedSp3TimeSystem( const std::string& timeSystem )
+//! Check whether a time-system tag is supported by the SP3 reader.
+static bool isSupportedSp3TimeSystem( const std::string& timeSystem )
 {
     static const std::set< std::string > supportedTimeSystems = { "GPS", "GLO", "GAL", "BDT", "TAI", "UTC", "IRN", "QZS" };
     return supportedTimeSystems.count( timeSystem ) > 0;
 }
 
-void addSatelliteIdToStateMap( const std::string& rawSatelliteId,
-                               Sp3FileContents& fileContents,
-                               std::vector< std::string >& knownSatelliteIds )
+//! Register a non-placeholder satellite identifier encountered in the file.
+static void addSatelliteIdToStateMap( const std::string& rawSatelliteId,
+                                      Sp3FileContents& fileContents,
+                                      std::vector< std::string >& knownSatelliteIds )
 {
     const std::string trimmedSatelliteId = boost::algorithm::trim_copy( rawSatelliteId );
     if( trimmedSatelliteId.empty( ) || trimmedSatelliteId == "0" || trimmedSatelliteId == "00" || trimmedSatelliteId == "000" )
@@ -106,18 +115,19 @@ void addSatelliteIdToStateMap( const std::string& rawSatelliteId,
 
     if( fileContents.satelliteStates.count( trimmedSatelliteId ) == 0 )
     {
-        fileContents.satelliteStates[ trimmedSatelliteId ] = std::map< double, Eigen::VectorXd >( );
+        fileContents.satelliteStates[ trimmedSatelliteId ] = std::map< double, Eigen::Vector6d >( );
         knownSatelliteIds.push_back( trimmedSatelliteId );
     }
 }
 
-void validateAndFlushCurrentEpoch( const double currentTime,
-                                   const std::string& fileName,
-                                   const std::vector< std::string >& knownSatelliteIds,
-                                   const bool velocityRecordsExpected,
-                                   const std::map< std::string, Eigen::VectorXd >& currentStates,
-                                   const std::map< std::string, EpochRecordFlags >& currentRecordFlags,
-                                   Sp3FileContents& fileContents )
+//! Validate the records for one epoch and append them to the parsed state histories.
+static void validateAndFlushCurrentEpoch( const double currentTime,
+                                          const std::string& fileName,
+                                          const std::vector< std::string >& knownSatelliteIds,
+                                          const bool velocityRecordsExpected,
+                                          const std::map< std::string, Eigen::Vector6d >& currentStates,
+                                          const std::map< std::string, EpochRecordFlags >& currentRecordFlags,
+                                          Sp3FileContents& fileContents )
 {
     for( const std::string& satelliteId : knownSatelliteIds )
     {
@@ -145,9 +155,10 @@ void validateAndFlushCurrentEpoch( const double currentTime,
     }
 }
 
-Eigen::Vector3d calculateThreePointDerivative( const std::array< double, 3 >& times,
-                                               const std::array< Eigen::Vector3d, 3 >& positions,
-                                               const double evaluationTime )
+//! Evaluate the derivative of the quadratic interpolant through three position samples.
+static Eigen::Vector3d calculateThreePointDerivative( const std::array< double, 3 >& times,
+                                                      const std::array< Eigen::Vector3d, 3 >& positions,
+                                                      const double evaluationTime )
 {
     Eigen::Vector3d derivative = Eigen::Vector3d::Zero( );
     for( unsigned int i = 0; i < 3; ++i )
@@ -164,7 +175,8 @@ Eigen::Vector3d calculateThreePointDerivative( const std::array< double, 3 >& ti
     return derivative;
 }
 
-void deriveVelocitiesFromPositions( Sp3FileContents& fileContents, const std::string& fileName )
+//! Reconstruct velocities for a position-only SP3 file using three-point finite differences.
+static void deriveVelocitiesFromPositions( Sp3FileContents& fileContents, const std::string& fileName )
 {
     for( auto& satellite : fileContents.satelliteStates )
     {
@@ -176,7 +188,7 @@ void deriveVelocitiesFromPositions( Sp3FileContents& fileContents, const std::st
                     satellite.first + " in " + fileName );
         }
 
-        std::vector< std::map< double, Eigen::VectorXd >::iterator > states;
+        std::vector< std::map< double, Eigen::Vector6d >::iterator > states;
         states.reserve( satellite.second.size( ) );
         for( auto stateIterator = satellite.second.begin( ); stateIterator != satellite.second.end( ); ++stateIterator )
         {
@@ -202,8 +214,30 @@ void deriveVelocitiesFromPositions( Sp3FileContents& fileContents, const std::st
     fileContents.velocitiesWereDerived = true;
 }
 
-}  // namespace
+//! Retrieve and validate one satellite state history from parsed SP3 contents.
+std::map< double, Eigen::Vector6d > Sp3FileContents::getSatelliteStateHistory( const std::string& satelliteId ) const
+{
+    const auto satelliteIterator = satelliteStates.find( satelliteId );
+    if( satelliteIterator == satelliteStates.end( ) )
+    {
+        throw std::invalid_argument( "Satellite '" + satelliteId + "' is not present in the SP3 file." );
+    }
+    if( satelliteIterator->second.empty( ) )
+    {
+        throw std::invalid_argument( "Satellite '" + satelliteId + "' has no states in the SP3 file." );
+    }
+    for( const auto& state : satelliteIterator->second )
+    {
+        if( !state.second.allFinite( ) )
+        {
+            throw std::runtime_error( "SP3 state history requires finite position and velocity records for satellite '" + satelliteId +
+                                      "'. The selected SP3 file contains a missing value." );
+        }
+    }
+    return satelliteIterator->second;
+}
 
+//! Read and validate an SP3 file, converting its position and velocity records to SI units.
 std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, const double referenceJulianDay )
 {
     std::shared_ptr< Sp3FileContents > fileContents = std::make_shared< Sp3FileContents >( );
@@ -218,7 +252,7 @@ std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, con
     std::string currentLine;
 
     std::vector< std::string > knownSatelliteIds;
-    std::map< std::string, Eigen::VectorXd > currentStates;
+    std::map< std::string, Eigen::Vector6d > currentStates;
     std::map< std::string, EpochRecordFlags > currentRecordFlags;
 
     double currentTime = TUDAT_NAN;
@@ -279,10 +313,11 @@ std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, con
                     static_cast< double >( hour ) * 3600.0 + static_cast< double >( minute ) * 60.0 + second;
 
             int declaredEpochCount;
-            if( tryParseFixedWidthInt( currentLine, 32, 7, declaredEpochCount ) )
+            if( !tryParseFixedWidthInt( currentLine, 32, 7, declaredEpochCount ) )
             {
-                fileContents->declaredNumberOfEpochs = declaredEpochCount;
+                throw std::runtime_error( "Error when reading SP3 file: invalid declared epoch count in " + fileName );
             }
+            fileContents->declaredNumberOfEpochs = declaredEpochCount;
 
             const std::string frameName = getFixedWidthField( currentLine, 46, 5 );
             if( !frameName.empty( ) )
@@ -303,10 +338,11 @@ std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, con
         if( currentLine.rfind( "##", 0 ) == 0 )
         {
             double declaredEpochInterval;
-            if( tryParseFixedWidthDouble( currentLine, 24, 14, declaredEpochInterval ) )
+            if( !tryParseFixedWidthDouble( currentLine, 24, 14, declaredEpochInterval ) )
             {
-                fileContents->declaredEpochInterval = declaredEpochInterval;
+                throw std::runtime_error( "Error when reading SP3 file: invalid declared epoch interval in " + fileName );
             }
+            fileContents->declaredEpochInterval = declaredEpochInterval;
             continue;
         }
 
@@ -384,7 +420,7 @@ std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, con
 
             for( const std::string& satelliteId : knownSatelliteIds )
             {
-                currentStates[ satelliteId ] = Eigen::VectorXd::Constant( 6, TUDAT_NAN );
+                currentStates[ satelliteId ] = Eigen::Vector6d::Constant( TUDAT_NAN );
                 currentRecordFlags[ satelliteId ] = EpochRecordFlags( );
             }
 
@@ -408,7 +444,7 @@ std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName, con
             addSatelliteIdToStateMap( satelliteId, *fileContents, knownSatelliteIds );
             if( currentStates.count( satelliteId ) == 0 )
             {
-                currentStates[ satelliteId ] = Eigen::VectorXd::Constant( 6, TUDAT_NAN );
+                currentStates[ satelliteId ] = Eigen::Vector6d::Constant( TUDAT_NAN );
                 currentRecordFlags[ satelliteId ] = EpochRecordFlags( );
             }
 

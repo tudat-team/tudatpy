@@ -24,14 +24,11 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/io/readSp3File.h"
-#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createSp3Ephemeris.h"
 
 namespace tudat
 {
 namespace unit_tests
-{
-
-namespace
 {
 
 const std::string velocitySp3Contents = R"sp3(#dV2001  8  8  0  0  0.00000000       2 ORBIT IGS97 HLM MGEX
@@ -66,6 +63,7 @@ PE11    511.000000    223.000000   -117.000000 999999.999999
 EOF
 )sp3";
 
+//! Write SP3 text to a uniquely named temporary file.
 boost::filesystem::path writeTemporarySp3File( const std::string& contents )
 {
     const boost::filesystem::path path =
@@ -75,6 +73,7 @@ boost::filesystem::path writeTemporarySp3File( const std::string& contents )
     return path;
 }
 
+//! Format one fixed-width SP3 position or velocity record.
 std::string makeStateRecord( const char recordType, const std::string& satelliteId, const double x, const double y, const double z )
 {
     std::ostringstream stream;
@@ -83,6 +82,7 @@ std::string makeStateRecord( const char recordType, const std::string& satellite
     return stream.str( );
 }
 
+//! Create an SP3 file that exercises continuation lines in the satellite list.
 std::string makeMultiConstellationSp3Contents( )
 {
     const std::vector< std::string > satelliteIds = { "G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09",
@@ -108,6 +108,7 @@ std::string makeMultiConstellationSp3Contents( )
     return stream.str( );
 }
 
+//! Verify that parsing the supplied SP3 text raises a runtime error.
 void checkReadThrows( const std::string& contents )
 {
     const boost::filesystem::path path = writeTemporarySp3File( contents );
@@ -115,11 +116,9 @@ void checkReadThrows( const std::string& contents )
     boost::filesystem::remove( path );
 }
 
-}  // namespace
-
 BOOST_AUTO_TEST_SUITE( test_sp3_file_reader )
 
-BOOST_AUTO_TEST_CASE( testVelocityFileMetadataStateAndLegacyAlias )
+BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
 {
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataStateAndLegacyAlias )
             physical_constants::JULIAN_DAY;
     BOOST_CHECK_SMALL( contents->startEpoch - expectedStartEpoch, 1.0e-9 );
 
-    const Eigen::VectorXd& firstState = contents->satelliteStates.at( "G01" ).begin( )->second;
+    const Eigen::Vector6d& firstState = contents->satelliteStates.at( "G01" ).begin( )->second;
     BOOST_CHECK_CLOSE_FRACTION( firstState( 0 ), -11044805.8, 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( firstState( 1 ), -10475672.35, 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( firstState( 2 ), 21929418.2, 1.0e-15 );
@@ -149,9 +148,6 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataStateAndLegacyAlias )
     BOOST_CHECK_CLOSE_FRACTION( firstState( 4 ), -1846.2044804, 1.0e-15 );
     BOOST_CHECK_CLOSE_FRACTION( firstState( 5 ), 138.1387685, 1.0e-15 );
 
-    const std::shared_ptr< input_output::SP3cFileContents > legacyContents = input_output::readSp3cFile( path.string( ) );
-    BOOST_REQUIRE_EQUAL( legacyContents->satelliteStates.at( "G01" ).size( ), contents->satelliteStates.at( "G01" ).size( ) );
-    BOOST_CHECK( legacyContents->satelliteStates.at( "G01" ).begin( )->second.isApprox( firstState ) );
     boost::filesystem::remove( path );
 }
 
@@ -201,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
             simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "J2000" ) );
     BOOST_REQUIRE( j2000Settings != nullptr );
     const Eigen::Vector6d j2000State = j2000Settings->getBodyStateHistory( ).begin( )->second;
-    BOOST_CHECK_CLOSE_FRACTION( j2000State.segment< 3 >( 0 ).norm( ), sourceState.segment< 3 >( 0 ).norm( ), 1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( j2000State.segment< 3 >( 0 ).norm( ), itrf2014State.segment< 3 >( 0 ).norm( ), 1.0e-14 );
     BOOST_CHECK_GT( ( j2000State.segment< 3 >( 3 ) - sourceState.segment< 3 >( 3 ) ).norm( ), 100.0 );
 
     const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
@@ -221,6 +217,11 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
             simulation_setup::sp3EphemerisSettings( aliasContents, "G01", "Earth", "ITRF2014" ) );
     BOOST_REQUIRE( aliasSettings != nullptr );
     BOOST_CHECK( aliasSettings->getBodyStateHistory( ).begin( )->second.isApprox( sourceState, 0.0 ) );
+
+    const std::shared_ptr< input_output::Sp3FileContents > genericItrsContents =
+            std::make_shared< input_output::Sp3FileContents >( *contents );
+    genericItrsContents->frameName = "ITRS";
+    BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( genericItrsContents, "G01", "Earth", "ITRF2014" ), std::invalid_argument );
 
     const std::shared_ptr< input_output::Sp3FileContents > wgs84Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
     wgs84Contents->frameName = "WGS84";
@@ -327,7 +328,7 @@ BOOST_AUTO_TEST_CASE( testBadOrAbsentStateValuesAreMarkedNonFinite )
 
         const boost::filesystem::path path = writeTemporarySp3File( contents );
         const auto parsed = input_output::readSp3File( path.string( ) );
-        const Eigen::VectorXd& firstState = parsed->satelliteStates.at( "G01" ).begin( )->second;
+        const Eigen::Vector6d& firstState = parsed->satelliteStates.at( "G01" ).begin( )->second;
         const int missingSegmentStart = missingRecordType == 'P' ? 0 : 3;
         BOOST_CHECK( !firstState.segment< 3 >( missingSegmentStart ).allFinite( ) );
         BOOST_CHECK_THROW( simulation_setup::sp3EphemerisSettings( parsed, "G01" ), std::runtime_error );
@@ -347,6 +348,14 @@ BOOST_AUTO_TEST_CASE( testMalformedAndIncompleteFilesAreRejected )
 
     contents = velocitySp3Contents;
     contents.at( 2 ) = 'X';
+    checkReadThrows( contents );
+
+    contents = velocitySp3Contents;
+    contents.replace( contents.find( "       2 ORBIT" ), 8, "      2X" );
+    checkReadThrows( contents );
+
+    contents = velocitySp3Contents;
+    contents.replace( contents.find( " -11044.805800" ), 14, " -11044.80580X" );
     checkReadThrows( contents );
 
     contents = velocitySp3Contents;

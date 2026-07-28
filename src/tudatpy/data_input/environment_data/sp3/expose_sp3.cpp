@@ -58,7 +58,16 @@ void expose_sp3( py::module& m )
             .def_property_readonly( "time_scale",
                                     []( const tudat::input_output::Sp3FileContents& contents ) { return contents.timeScale; } )
             .def_property_readonly( "satellite_states",
-                                    []( const tudat::input_output::Sp3FileContents& contents ) { return contents.satelliteStates; } );
+                                    []( const tudat::input_output::Sp3FileContents& contents ) { return contents.satelliteStates; } )
+            .def( "get_satellite_state_history",
+                  &tudat::input_output::Sp3FileContents::getSatelliteStateHistory,
+                  py::arg( "satellite_id" ),
+                  R"doc(
+Return the state history for one satellite.
+
+States are returned in the reference frame and time system declared by the SP3
+file. No frame or time conversion is performed by the data-input module.
+)doc" );
 
     m.def( "read_sp3_file",
            &tudat::input_output::readSp3File,
@@ -75,12 +84,6 @@ SP3-d and the GPS, GLO, GAL, BDT, TAI, UTC, IRN, and QZS time-system tags are
 supported. Reference-frame and time-system tags are retained as metadata; the
 loader does not transform either one.
 )doc" );
-
-    m.def( "read_sp3c_file",
-           &tudat::input_output::readSp3cFile,
-           py::arg( "file_name" ),
-           py::arg( "reference_julian_day" ) = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000,
-           R"doc(Deprecated spelling retained as an alias of :func:`read_sp3_file`.)doc" );
 }
 
 }  // namespace sp3

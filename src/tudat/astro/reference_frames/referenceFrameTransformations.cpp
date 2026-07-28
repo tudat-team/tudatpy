@@ -826,23 +826,62 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
     return ( Eigen::Vector6d( ) << t1, t2, t3, t1_d, t2_d, t3_d ).finished( );
 }
 
+Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpoch,
+                                               const double epoch,
+                                               const std::string& baseFrame,
+                                               const std::string& targetFrame )
+{
+    if( baseFrame == targetFrame )
+    {
+        return stateAtEpoch;
+    }
+
+    const double timeFromReferenceEpoch = epoch - 10.0 * physical_constants::JULIAN_YEAR;
+    Eigen::Vector6d stateInItrf2014 = stateAtEpoch;
+    if( baseFrame != "ITRF2014" )
+    {
+        const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame );
+        const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame );
+        const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( baseFrame );
+        const Eigen::Matrix3d rotationAtEpoch = rotationAtReferenceEpoch + rotationDerivative * timeFromReferenceEpoch;
+        const Eigen::Matrix3d inverseRotationAtEpoch = rotationAtEpoch.inverse( );
+
+        stateInItrf2014.segment< 3 >( 0 ) = inverseRotationAtEpoch *
+                ( stateAtEpoch.segment< 3 >( 0 ) - translation.segment< 3 >( 0 ) - translation.segment< 3 >( 3 ) * timeFromReferenceEpoch );
+        stateInItrf2014.segment< 3 >( 3 ) = inverseRotationAtEpoch *
+                ( stateAtEpoch.segment< 3 >( 3 ) - translation.segment< 3 >( 3 ) - rotationDerivative * stateInItrf2014.segment< 3 >( 0 ) );
+    }
+
+    if( targetFrame == "ITRF2014" )
+    {
+        return stateInItrf2014;
+    }
+
+    const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
+    const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
+    const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( targetFrame );
+    const Eigen::Matrix3d rotationAtEpoch = rotationAtReferenceEpoch + rotationDerivative * timeFromReferenceEpoch;
+
+    Eigen::Vector6d transformedState;
+    transformedState.segment< 3 >( 0 ) = translation.segment< 3 >( 0 ) + translation.segment< 3 >( 3 ) * timeFromReferenceEpoch +
+            rotationAtEpoch * stateInItrf2014.segment< 3 >( 0 );
+    transformedState.segment< 3 >( 3 ) = translation.segment< 3 >( 3 ) + rotationDerivative * stateInItrf2014.segment< 3 >( 0 ) +
+            rotationAtEpoch * stateInItrf2014.segment< 3 >( 3 );
+    return transformedState;
+}
+
 Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& groundStationStateAtEpoch,
                                                                   double epoch,
                                                                   const std::string& targetFrame )
 {
-    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+    const double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
 
     Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
     groundStationStateAtReferenceEpoch.segment( 0, 3 ) +=
             groundStationStateAtReferenceEpoch.segment( 3, 3 ) * ( itrf2014ReferenceEpoch - epoch );
 
-    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
-    rotationMatrix.block( 0, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
-    rotationMatrix.block( 3, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
-    rotationMatrix.block( 3, 3, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
-
     Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch =
-            getItrf2014ToArbitraryItrfTranslation( targetFrame ) + rotationMatrix * groundStationStateAtReferenceEpoch;
+            convertStateBetweenItrfFrames( groundStationStateAtReferenceEpoch, itrf2014ReferenceEpoch, "ITRF2014", targetFrame );
 
     Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
     groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -=
@@ -855,26 +894,14 @@ Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::V
                                                                   double epoch,
                                                                   const std::string& baseFrame )
 {
-    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+    const double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
 
     Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
     groundStationStateAtReferenceEpoch.segment( 0, 3 ) +=
             groundStationStateAtReferenceEpoch.segment( 3, 3 ) * ( itrf2014ReferenceEpoch - epoch );
 
-    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
-    Eigen::Matrix3d itrf2014ToArbitraryItrfRotationMatrixInverse = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame ).inverse( );
-    rotationMatrix.block( 0, 0, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
-    rotationMatrix.block( 3, 0, 3, 3 ) = -itrf2014ToArbitraryItrfRotationMatrixInverse *
-            getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) * itrf2014ToArbitraryItrfRotationMatrixInverse;
-    rotationMatrix.block( 3, 3, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
-
     Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch =
-            rotationMatrix * ( groundStationStateAtReferenceEpoch - getItrf2014ToArbitraryItrfTranslation( baseFrame ) );
-
-    groundStationItrf2014StateAtReferenceEpoch.segment( 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse *
-            ( groundStationStateAtReferenceEpoch.segment( 3, 3 ) - getItrf2014ToArbitraryItrfTranslation( baseFrame ).segment( 3, 3 ) -
-              getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) *
-                      groundStationItrf2014StateAtReferenceEpoch.segment( 0, 3 ) );
+            convertStateBetweenItrfFrames( groundStationStateAtReferenceEpoch, itrf2014ReferenceEpoch, baseFrame, "ITRF2014" );
 
     Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
     groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -=

@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -66,7 +67,14 @@ struct Sp3FileContents {
      * Position-only files receive second-order finite-difference velocities. Three epochs are therefore required
      * for a position-only file. Missing position values propagate to the affected reconstructed velocities.
      */
-    std::map< std::string, std::map< double, Eigen::VectorXd > > satelliteStates;
+    std::map< std::string, std::map< double, Eigen::Vector6d > > satelliteStates;
+
+    //! Retrieve the state history for one satellite.
+    /*!
+     * \param satelliteId Identifier of the satellite whose states are to be returned.
+     * \return Satellite state history in the frame declared by the SP3 file.
+     */
+    std::map< double, Eigen::Vector6d > getSatelliteStateHistory( const std::string& satelliteId ) const;
 };
 
 //! Read an SP3-a, SP3-b, SP3-c, or SP3-d file and convert states to SI units.
@@ -77,15 +85,6 @@ struct Sp3FileContents {
  */
 std::shared_ptr< Sp3FileContents > readSp3File( const std::string& fileName,
                                                 const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-//! Legacy aliases kept for backwards compatibility with older code.
-using SP3cFileContents = Sp3FileContents;
-
-inline std::shared_ptr< SP3cFileContents > readSp3cFile( const std::string& fileName,
-                                                         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-{
-    return readSp3File( fileName, referenceJulianDay );
-}
 
 }  // namespace input_output
 

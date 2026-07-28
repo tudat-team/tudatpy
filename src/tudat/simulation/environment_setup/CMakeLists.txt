@@ -13,6 +13,7 @@ set(environment_HEADERS
         createAerodynamicCoefficientInterface.h
         createBodyShapeModel.h
         createEphemeris.h
+        createSp3Ephemeris.h
         createGravityField.h
         createAerodynamicControlSurfaces.h
         createRotationModel.h
@@ -46,6 +47,7 @@ set(environment_HEADERS
 set(environment_SOURCES
         createRadiationPressureInterface.cpp
         createEphemeris.cpp
+        createSp3Ephemeris.cpp
         createRotationModel.cpp
         createRotationModelEarthOrientation.cpp
         createGravityFieldVariations.cpp
@@ -79,8 +81,6 @@ set(environment_SOURCES
 TUDAT_ADD_LIBRARY("environment_setup"
         "${environment_SOURCES}"
         "${environment_HEADERS}"
-        PUBLIC_LINKS
-        tudat_input_output
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
