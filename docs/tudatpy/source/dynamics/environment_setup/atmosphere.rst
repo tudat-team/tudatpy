@@ -73,14 +73,6 @@ Functions
    coma_model_from_poly_data
    coma_model_from_stokes_data
 
-.. ifconfig:: has_mcd_support
-
-   .. autosummary::
-
-      mars_climate_database_climate_model
-      mars_climate_database_atmosphere_model
-
-
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.empty_wind_model
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.constant_wind_model
@@ -113,14 +105,7 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.coma_model_from_stokes_data
 
-.. ifconfig:: has_mcd_support
-
-   Mars Climate Database
-   ~~~~~~~~~~~~~~~~~~~~~
-
-   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model
-
-   .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_atmosphere_model
+.. tudatpy-mcd-documentation
 
 
 Classes

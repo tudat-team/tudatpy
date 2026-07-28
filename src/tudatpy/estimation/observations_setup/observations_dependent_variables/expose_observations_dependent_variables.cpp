@@ -268,11 +268,11 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the elevation angle is computed.
-        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the link end for which the elevation angle is computed.
         originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -300,11 +300,11 @@ void expose_observations_dependent_variables( py::module& m )
         ----------
         link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the link end for which the azimuth angle is computed.
-        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the link end for which the azimuth angle is computed.
         originating_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the other link end.
-        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        originating_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the other link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -335,9 +335,9 @@ void expose_observations_dependent_variables( py::module& m )
             Type of the starting link end.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the starting link end.
-        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -371,9 +371,9 @@ void expose_observations_dependent_variables( py::module& m )
             Type of the starting link end.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the starting link end.
-        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -407,9 +407,9 @@ void expose_observations_dependent_variables( py::module& m )
             Type of the starting link end.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the starting link end.
-        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -443,9 +443,9 @@ void expose_observations_dependent_variables( py::module& m )
             Type of the starting link end.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the starting link end.
-        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -479,9 +479,9 @@ void expose_observations_dependent_variables( py::module& m )
             Type of the starting link end.
         end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Type of the ending link end.
-        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the starting link end.
-        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             ID of the ending link end.
         integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
             Specifies how to handle the variable for integrated observations.
@@ -586,9 +586,9 @@ void expose_observations_dependent_variables( py::module& m )
             Link-end type on the transmitting side of the leg (e.g. ``transmitter``, ``retransmitter``).
         receiver_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
             Link-end type on the receiving side of the leg.
-        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        transmitter_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             Optional specific link-end ID for the transmitting side (body/station).
-        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id`("")
+        receiver_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
             Optional specific link-end ID for the receiving side.
         correction_type_filter : list[tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionType], optional
             Subset of correction types to save. Empty list = save all registered corrections.

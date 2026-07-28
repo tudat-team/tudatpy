@@ -245,7 +245,8 @@ void expose_environment_setup( py::module& m )
                             &tss::BodySettings::cameraSettings,
                             R"doc(
             List of objects that define the settings of the cameras on the body, which are used as link ends of observations
-            Entries in this list are  typically assigned by using a function from the :ref:`cameras` module.
+            Entries in this list are typically created with
+            :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.pinhole_camera`.
             )doc" )
             .def_readwrite( "ground_station_settings",
                             &tss::BodySettings::groundStationSettings,

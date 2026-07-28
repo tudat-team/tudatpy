@@ -1541,7 +1541,8 @@ bool
 
          Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
          and the camera object the value of the dictionary.
-            :type: dict[str,Camera]
+
+         :type: dict[str, Camera]
         )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
