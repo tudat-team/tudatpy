@@ -275,15 +275,15 @@ def _photocenter_correction_ellispoidal(
     gamma = np.arctan2(sin_gamma, cos_gamma)
 
     e_y_p = - sin_gamma * e_x + cos_gamma * e_y
-    e_z_p = e_y_pp
+    e_z_p = e_z_pp
     e_x_p = np.cross(e_y_p, e_z_p)
 
     cos_alpha = np.dot(e_x_p, n_sun)
     sin_alpha = np.dot(e_y_p, n_sun)
     alpha = np.arctan2(sin_alpha, cos_alpha)
 
-    rot_z = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
-    rot_y = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
+    rot_z = lambda x: np.array([[np.cos(x), np.sin(x), 0], [-np.sin(x), np.cos(x), 0], [0, 0, 1]])
+    rot_y = lambda x: np.array([[np.cos(x), 0, -np.sin(x)], [0, 1, 0], [np.sin(x), 0, np.cos(x)]])
     euler_mat = rot_z(alpha) @ rot_y(beta) @ rot_z(gamma)
 
     cot = lambda x: np.cos(x) / np.sin(x)
@@ -327,7 +327,7 @@ def photocenter_correction_ellipsoidal(
 
     """
     # Input validation
-    if observations.shape[1] != 1:
+    if observations.shape[1] != 3:
         raise ValueError('Observations must be shaped N x 3')
 
     if len(body_extent) != 3:
@@ -357,7 +357,8 @@ def photocenter_correction_ellipsoidal(
         )
 
         # Rotate offset to inertial direction
-        offset_inertial = rot_matrix.T @ offset
+        observer_body_distance = np.linalg.norm(observer_inertial - body_inertial)
+        offset_inertial = rot_matrix.T @ offset / observer_body_distance
 
         # Translate into corrections
         corrections.append(
