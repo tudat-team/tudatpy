@@ -637,8 +637,12 @@ class StubGenerator:
 
         for item in self.python_source_dir.rglob("*"):
 
-            # Skip if not a directory or if it is a cache directory
-            if not item.is_dir() or item.name == "__pycache__":
+            # Only Python packages require a stub directory.
+            if (
+                not item.is_dir()
+                or item.name == "__pycache__"
+                or not (item / "__init__.py").is_file()
+            ):
                 continue
 
             # Make path relative to source directory

@@ -61,10 +61,10 @@ void expose_dynamics( py::module& m )
     environment_setup::expose_environment_setup( environment_setup_submodule );
     propagation::expose_propagation( propagation_submodule );
 
-    parameters_setup::expose_parameters_setup( parameters_setup_submodule );
-
     auto parameters_submodule = m.def_submodule( "parameters" );
     parameters::expose_parameters( parameters_submodule );
+
+    parameters_setup::expose_parameters_setup( parameters_setup_submodule );
 
     auto simulator_submodule = m.def_submodule( "simulator" );
     simulator::expose_simulator( simulator_submodule );

@@ -2083,7 +2083,7 @@ HybridArcPropagatorSettings
         )doc" );
 
     m.def( "add_dependent_variable_settings",
-           &tp::addDepedentVariableSettings< double >,
+           &tp::addDepedentVariableSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "dependent_variable_settings" ),
            py::arg( "propagator_settings" ),
            R"doc(

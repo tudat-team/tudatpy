@@ -72,6 +72,9 @@ void expose_environment_setup_types( py::module& m )
     auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
     radiation_pressure::expose_radiation_pressure_types( radiation_pressure_setup );
 
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_types( gravity_variation_setup );
+
     auto space_time_setup = m.def_submodule( "space_time" );
     space_time::expose_space_time_types( space_time_setup );
 }
@@ -118,7 +121,7 @@ void expose_environment_setup( py::module& m )
     auto shape_setup = m.def_submodule( "shape" );
     shape::expose_shape_setup( shape_setup );
 
-    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    auto gravity_variation_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.gravity_field_variation" );
     gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
 
     auto shape_deformation_setup = m.def_submodule( "shape_deformation" );

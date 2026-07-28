@@ -74,7 +74,7 @@ namespace observations_setup
 namespace observations_dependent_variables
 {
 
-void expose_observations_dependent_variables( py::module& m )
+void expose_observations_dependent_variable_types( py::module& m )
 {
     py::class_< tss::ObservationDependentVariableSettings, std::shared_ptr< tss::ObservationDependentVariableSettings > >(
             m,
@@ -121,7 +121,10 @@ void expose_observations_dependent_variables( py::module& m )
                                     &tss::ObservationDependentVariableBookkeeping::getDependentVariableSettings )
             .def_property_readonly( "total_dependent_variable_size",
                                     &tss::ObservationDependentVariableBookkeeping::getTotalDependentVariableSize );
+}
 
+void expose_observations_dependent_variables( py::module& m )
+{
     m.def( "add_dependent_variables_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,

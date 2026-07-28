@@ -46,6 +46,17 @@ void expose_estimation_types( py::module& m )
     auto observations_setup_submodule = m.def_submodule( "observations_setup" );
     auto ancillary_settings_submodule = observations_setup_submodule.def_submodule( "ancillary_settings" );
     observations_setup::ancillary_settings::expose_ancillary_settings_types( ancillary_settings_submodule );
+
+    auto observations_dependent_variables_submodule = observations_setup_submodule.def_submodule( "observations_dependent_variables" );
+    observations_setup::observations_dependent_variables::expose_observations_dependent_variable_types(
+            observations_dependent_variables_submodule );
+
+    auto viability_submodule = observations_setup_submodule.def_submodule( "viability" );
+    observations_setup::viability::expose_observation_viability_settings_type( viability_submodule );
+
+    auto observations_simulation_settings_submodule = observations_setup_submodule.def_submodule( "observations_simulation_settings" );
+    observations_setup::observations_simulation_settings::expose_observation_simulation_settings_types(
+            observations_simulation_settings_submodule );
 }
 
 void expose_estimation( py::module& m )
@@ -60,7 +71,8 @@ void expose_estimation( py::module& m )
 
     auto ancillary_settings_submodule = py::module_::import( "tudatpy.kernel.estimation.observations_setup.ancillary_settings" );
     observations_setup::ancillary_settings::expose_ancillary_settings( ancillary_settings_submodule );
-    auto observations_dependent_variables_submodule = observations_setup_submodule.def_submodule( "observations_dependent_variables" );
+    auto observations_dependent_variables_submodule =
+            py::module_::import( "tudatpy.kernel.estimation.observations_setup.observations_dependent_variables" );
     observations_setup::observations_dependent_variables::expose_observations_dependent_variables(
             observations_dependent_variables_submodule );
 
