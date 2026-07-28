@@ -24,6 +24,7 @@ namespace environment_data
 namespace sp3
 {
 
+//! Expose the SP3 file reader and parsed-file container in the data-input SP3 submodule.
 void expose_sp3( py::module& m );
 
 }  // namespace sp3

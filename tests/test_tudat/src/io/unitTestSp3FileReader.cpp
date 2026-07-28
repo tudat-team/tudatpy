@@ -125,9 +125,9 @@ void checkReadThrows( const std::string& contents )
 
 BOOST_AUTO_TEST_SUITE( test_sp3_file_reader )
 
+//! Verify metadata, epoch conversion, and SI-unit states read from an SP3-d velocity product.
 BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
 {
-    // This test reads an SP3-d velocity product and verifies its header metadata, epoch conversion, and SI-unit Cartesian state.
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
@@ -177,10 +177,9 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
     boost::filesystem::remove( path );
 }
 
+//! Verify quadratic finite-difference velocity reconstruction for an SP3-c position-only product.
 BOOST_AUTO_TEST_CASE( testPositionOnlyFileUsesSecondOrderFiniteDifferences )
 {
-    // This test reads an SP3-c position-only product and verifies that complete states are formed with quadratic finite-difference
-    // velocities.
     const boost::filesystem::path path = writeTemporarySp3File( positionOnlySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
@@ -215,9 +214,9 @@ BOOST_AUTO_TEST_CASE( testPositionOnlyFileUsesSecondOrderFiniteDifferences )
     boost::filesystem::remove( path );
 }
 
+//! Verify terrestrial-realization and terrestrial/inertial transformations during SP3 ephemeris creation.
 BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
 {
-    // This test exercises terrestrial-realization and terrestrial/inertial transformations performed during SP3 ephemeris creation.
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
     const Eigen::Vector6d sourceState = contents->satelliteStates.at( "G01" ).begin( )->second;
@@ -285,9 +284,9 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     boost::filesystem::remove( path );
 }
 
+//! Verify the parsed-contents and filename SP3 factory overloads and their input validation.
 BOOST_AUTO_TEST_CASE( testTudatEphemerisFactories )
 {
-    // This test compares the parsed-contents and filename factory overloads and verifies their input validation.
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
 
@@ -319,9 +318,9 @@ BOOST_AUTO_TEST_CASE( testTudatEphemerisFactories )
     boost::filesystem::remove( path );
 }
 
+//! Verify supported SP3 versions and time systems and preservation of frame metadata.
 BOOST_AUTO_TEST_CASE( testSupportedVersionsTimeSystemsAndFrameMetadata )
 {
-    // This test varies independent header fields to verify all supported versions/time systems and opaque frame metadata are parsed.
     for( const char version : { 'a', 'b', 'c', 'd' } )
     {
         // Adapt identifiers and the legacy placeholder time tag to the grammar used by SP3-a/b fixtures.
@@ -372,9 +371,9 @@ BOOST_AUTO_TEST_CASE( testSupportedVersionsTimeSystemsAndFrameMetadata )
     }
 }
 
+//! Verify satellite-list continuation records and mixed-constellation identifiers.
 BOOST_AUTO_TEST_CASE( testMultipleSatelliteListLinesAndConstellations )
 {
-    // This test uses an 18-satellite mixed GPS/Galileo product to exercise '+' continuation records and constellation identifiers.
     const boost::filesystem::path path = writeTemporarySp3File( makeMultiConstellationSp3Contents( ) );
     const auto contents = input_output::readSp3File( path.string( ) );
     // Confirm the declared count is read from the first satellite-list record.
@@ -388,9 +387,9 @@ BOOST_AUTO_TEST_CASE( testMultipleSatelliteListLinesAndConstellations )
     boost::filesystem::remove( path );
 }
 
+//! Verify SP3 missing-value markers become non-finite states that ephemeris creation rejects.
 BOOST_AUTO_TEST_CASE( testBadOrAbsentStateValuesAreMarkedNonFinite )
 {
-    // This test replaces either a P or V record with SP3's all-zero missing-value marker and checks downstream rejection.
     for( const char missingRecordType : { 'P', 'V' } )
     {
         std::string contents = velocitySp3Contents;
@@ -411,9 +410,9 @@ BOOST_AUTO_TEST_CASE( testBadOrAbsentStateValuesAreMarkedNonFinite )
     }
 }
 
+//! Verify malformed numeric fields and incomplete SP3 record sets are rejected.
 BOOST_AUTO_TEST_CASE( testMalformedAndIncompleteFilesAreRejected )
 {
-    // This test corrupts one structural or numeric requirement at a time and verifies strict whole-file validation.
     std::string contents = velocitySp3Contents;
     contents.replace( contents.find( "       2 ORBIT" ), 8, "       3" );
     // Confirm a declared epoch count that exceeds the parsed count is rejected.

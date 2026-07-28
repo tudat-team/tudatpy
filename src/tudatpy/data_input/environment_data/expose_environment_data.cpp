@@ -28,6 +28,7 @@ namespace data_input
 namespace environment_data
 {
 
+//! Expose the environment-data submodules, including the SP3 data-input interface.
 void expose_environment_data( py::module& m )
 {
     auto coma_submodule = m.def_submodule( "coma" );

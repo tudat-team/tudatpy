@@ -827,6 +827,7 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
     return ( Eigen::Vector6d( ) << t1, t2, t3, t1_d, t2_d, t3_d ).finished( );
 }
 
+//! Check whether the Helmert transformation tables contain parameters for an ITRF realization.
 bool isItrfFrameSupported( const std::string& frameName )
 {
     // Keep this registry beside the Helmert tables so every caller uses the same supported-frame definition.
@@ -835,6 +836,7 @@ bool isItrfFrameSupported( const std::string& frameName )
     return supportedFrames.count( frameName ) > 0;
 }
 
+//! Convert a Cartesian state between ITRF realizations through the common ITRF2014 realization.
 Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpoch,
                                                const double epoch,
                                                const std::string& baseFrame,
@@ -883,6 +885,7 @@ Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpo
     return transformedState;
 }
 
+//! Convert a ground-station state from ITRF2014 to another ITRF realization at the requested epoch.
 Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& groundStationStateAtEpoch,
                                                                   double epoch,
                                                                   const std::string& targetFrame )
@@ -903,6 +906,7 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
     return groundStationItrf2014StateAtEpoch;
 }
 
+//! Convert a ground-station state from an arbitrary supported ITRF realization to ITRF2014.
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& groundStationStateAtEpoch,
                                                                   double epoch,
                                                                   const std::string& baseFrame )
