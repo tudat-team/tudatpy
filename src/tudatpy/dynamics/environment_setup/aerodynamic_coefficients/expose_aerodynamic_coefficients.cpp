@@ -828,7 +828,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
@@ -999,7 +999,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_names" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated force coefficients from files.
@@ -1073,7 +1073,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated coefficients from files.

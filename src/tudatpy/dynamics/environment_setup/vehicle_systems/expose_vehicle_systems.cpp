@@ -211,6 +211,18 @@ Panel surface area
 
      )doc" );
 
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m,
+                                                                                       "MaterialProperties",
+
+                                                                                       R"doc(
+        Class for providing the complete material properties of a panel.
+
+        This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.material_properties` function.
+        The class contains a number of material properties used for computing radiation pressure acceleration and panelled aerodynamic coefficients.
+
+
+    )doc" );
+
     py::class_< tss::BodyPanelSettings, std::shared_ptr< tss::BodyPanelSettings > >( m,
                                                                                      "BodyPanelSettings",
                                                                                      R"doc(
@@ -260,7 +272,7 @@ Panel surface area
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "panel_material_properties" ) = nullptr,
+           py::arg_v( "panel_material_properties", std::shared_ptr< tss::MaterialProperties >( ), "None" ),
            R"doc(
 
  Function for creating settings for a full panel
@@ -469,17 +481,6 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
-    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m,
-                                                                                       "MaterialProperties",
-
-                                                                                       R"doc( 
-        Class for providing the complete material properties of a panel.
-    
-        This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.material_properties` function.
-        The class contains a number of material properties used for computing radiation pressure acceleration and panelled aerodynamic coefficients.
-
-            
-    )doc" );
     // .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_,
     // R"doc(
     // Specular reflectivity coefficient.

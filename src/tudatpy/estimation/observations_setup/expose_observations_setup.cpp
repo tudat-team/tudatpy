@@ -32,12 +32,6 @@ namespace observations_setup
 
 void expose_observations_setup( py::module& m )
 {
-    auto ancillary_settings = m.def_submodule( "ancillary_settings" );
-    ancillary_settings::expose_ancillary_settings( ancillary_settings );
-
-    auto observations_dependent_variables = m.def_submodule( "observations_dependent_variables" );
-    observations_dependent_variables::expose_observations_dependent_variables( observations_dependent_variables );
-
     auto observations_simulation_settings = m.def_submodule( "observations_simulation_settings" );
     observations_simulation_settings::expose_observations_simulation_settings( observations_simulation_settings );
 
