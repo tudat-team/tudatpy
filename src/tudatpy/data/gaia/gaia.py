@@ -12,7 +12,8 @@ from tudatpy.constants import ASTRONOMICAL_UNIT,JULIAN_DAY
 from tudatpy.dynamics.environment_setup import ephemeris
 from scipy.linalg import block_diag
 from scipy.constants import arcsec
-from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import photocenter_corrections_from_observations
+from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import \
+    photocenter_corrections_from_observations, photocenter_corrections_from_observations_ellipsoidal
 from tudatpy.estimation.observable_models_setup.biases.light_deflection_correction import relativistic_light_deflection_from_observations
 import copy
 from pathlib import Path
@@ -228,9 +229,10 @@ class GaiaAstrometry:
 
     def correct_observations(self,
                              bodies: SystemOfBodies,
-                             diameters: dict = None,
-                             light_deflection_bodies: Iterable = ('Sun',),
-                             correct_photocenter: bool = True) -> None:
+                             light_deflection_bodies: Iterable | None = ('Sun',),
+                             photocenter_correction_model: str | None = None,
+                             diameters: dict | None = None,
+                             ellipsoid_semi_axes: dict | None = None,) -> None:
         """Apply photocenter and/or light-deflection corrections to the observations.
 
         Applies corrections to the loaded asteroid astrometry for:
@@ -246,22 +248,28 @@ class GaiaAstrometry:
             Bodies object. Must have the Gaia body and its ephemeris loaded, and a
             reference ephemeris loaded for the asteroids over the complete timespan of
             observations.
-        diameters : dict, optional
-            Diameters of the asteroids as dict with keys the MPC numbers and values the diameters in meter.
         light_deflection_bodies : list, optional
             Names of perturber bodies involved in light bending, by default 'Sun'.
-        correct_photocenter : bool, optional
-            Whether photocenter-barycenter corrections should be applied, by default True.
+        photocenter_correction_model : str | None, optional
+            Correction model to use for photocenter-barycenter correction. Options: 'spherical', 'ellipsoidal' or None
+            to skip the corrections. If 'spherical', diameters must be provided, if 'ellipsoidal' semi-axes must be provided.
+        diameters : dict, optional
+            Diameters of the asteroids as dict with keys the MPC numbers and values the diameters in meter.
+        ellipsoid_semi_axes : dict, optional
+            Ellipsoid semi-axes as dict with keys the MPC numbers and values the semi-axes in meter.
         """
         # Input validation
-        if correct_photocenter and diameters is None:
-            raise ValueError('Diameters must be specified when photocenter correction is applied.')
+        if photocenter_correction_model == 'spherical' and diameters is None:
+            raise ValueError('Spherical photocenter model was chosen but diameters are empty')
+
+        if photocenter_correction_model == 'ellipsoidal' and ellipsoid_semi_axes is None:
+            raise ValueError('Ellipsoidal photocenter model was chosen but semi-axes are empty')
 
         photocenter_columns = ['photocenter_corr_ra', 'photocenter_corr_dec']
         light_deflection_columns = ['light_deflection_corr_ra', 'light_deflection_corr_dec']
 
         # Prevent applying the same correction twice (nonzero correction columns indicate it was already applied)
-        if correct_photocenter and (self._table[photocenter_columns] != 0).any(axis=None):
+        if photocenter_correction_model in ['spherical','ellipsoidal'] and (self._table[photocenter_columns] != 0).any(axis=None):
             raise RuntimeError('correct_observations was called, but photocenter corrections were already applied on this instance')
         if light_deflection_bodies and (self._table[light_deflection_columns] != 0).any(axis=None):
             raise RuntimeError('correct_observations was called, but light-deflection corrections were already applied on this instance')
@@ -273,14 +281,26 @@ class GaiaAstrometry:
             observations_array = self.table.loc[mask, ['epoch', 'ra', 'dec']].to_numpy()
 
             # Photocenter
-            if correct_photocenter:
-                photocenter_corrections = photocenter_corrections_from_observations(
-                    observations=observations_array,
-                    diameter=diameters[mpc_number],
-                    bodies=bodies,
-                    body_name=str(mpc_number),
-                    observer_body_name='Gaia'
-                )
+            if photocenter_correction_model:
+                if photocenter_correction_model.lower() == 'spherical':
+                    photocenter_corrections = photocenter_corrections_from_observations(
+                        observations=observations_array,
+                        diameter=diameters[mpc_number],
+                        bodies=bodies,
+                        body_name=str(mpc_number),
+                        observer_body_name='Gaia'
+                    )
+                elif photocenter_correction_model.lower() == 'ellipsoidal':
+                    photocenter_corrections = photocenter_corrections_from_observations_ellipsoidal(
+                        observations=observations_array,
+                        semi_axes=ellipsoid_semi_axes[mpc_number],
+                        bodies=bodies,
+                        body_name=str(mpc_number),
+                        observer_body_name='Gaia'
+                    )
+                else:
+                    raise ValueError('Photocenter correction model not recognized. Options are: "spherical", "ellipsoidal" or None')
+
                 self._table.loc[mask, photocenter_columns] = photocenter_corrections
                 self._table.loc[mask, ['ra', 'dec']] += photocenter_corrections
 
