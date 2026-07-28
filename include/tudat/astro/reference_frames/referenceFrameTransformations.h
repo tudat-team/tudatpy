@@ -672,6 +672,13 @@ Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::s
  */
 Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame );
 
+/*! Check whether Helmert transformation parameters are available for an ITRF realization.
+ *
+ * @param frameName Name of the ITRF realization using Tudat's canonical naming convention.
+ * @return True if Tudat provides Helmert transformation parameters for the requested realization.
+ */
+bool isItrfFrameSupported( const std::string& frameName );
+
 /*! Convert an instantaneous Cartesian state between two supported ITRF realizations.
  *
  * Convert a Cartesian position and velocity between two ITRF realizations using the time-dependent Helmert

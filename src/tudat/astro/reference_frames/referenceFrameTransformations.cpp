@@ -20,6 +20,7 @@
  */
 
 #include <iostream>
+#include <set>
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -826,20 +827,31 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
     return ( Eigen::Vector6d( ) << t1, t2, t3, t1_d, t2_d, t3_d ).finished( );
 }
 
+bool isItrfFrameSupported( const std::string& frameName )
+{
+    // Keep this registry beside the Helmert tables so every caller uses the same supported-frame definition.
+    static const std::set< std::string > supportedFrames = { "ITRF88", "ITRF89", "ITRF90",   "ITRF91",   "ITRF92",   "ITRF93",  "ITRF94",
+                                                             "ITRF96", "ITRF97", "ITRF2000", "ITRF2005", "ITRF2008", "ITRF2014" };
+    return supportedFrames.count( frameName ) > 0;
+}
+
 Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpoch,
                                                const double epoch,
                                                const std::string& baseFrame,
                                                const std::string& targetFrame )
 {
+    // Avoid applying and undoing the same Helmert transformation for an identity conversion.
     if( baseFrame == targetFrame )
     {
         return stateAtEpoch;
     }
 
+    // Tudat's Helmert parameters are defined at epoch 2010.0 and provide constant parameter rates.
     const double timeFromReferenceEpoch = epoch - 10.0 * physical_constants::JULIAN_YEAR;
     Eigen::Vector6d stateInItrf2014 = stateAtEpoch;
     if( baseFrame != "ITRF2014" )
     {
+        // Invert the base-frame transformation to use ITRF2014 as the common intermediate frame.
         const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame );
         const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame );
         const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( baseFrame );
@@ -857,6 +869,7 @@ Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpo
         return stateInItrf2014;
     }
 
+    // Apply the target-frame transformation, including translation and rotation rates.
     const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
     const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
     const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( targetFrame );

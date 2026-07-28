@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <set>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
@@ -31,9 +30,13 @@ namespace simulation_setup
 
 enum class Sp3FrameFamily { terrestrial, gcrs, j2000, eclipj2000, unknown };
 
+// These helpers interpret SP3 metadata only for environment construction. They remain
+// translation-unit local so data_input stays independent of frame- and time-conversion modules.
+
 //! Normalize an SP3 coordinate-system or time-system tag for comparison.
 static std::string normalizeSp3FrameName( std::string frameName )
 {
+    // SP3 tags are fixed-width and producer capitalization is not always consistent.
     frameName.erase(
             std::remove_if(
                     frameName.begin( ), frameName.end( ), []( const unsigned char character ) { return std::isspace( character ); } ),
@@ -54,6 +57,7 @@ static std::string getCanonicalItrfNameFromTwoDigitYear( const std::string& year
 //! Resolve an SP3 coordinate-system tag to a supported frame family and canonical Tudat name.
 static std::pair< Sp3FrameFamily, std::string > identifySp3Frame( const std::string& rawFrameName )
 {
+    // Resolve common inertial aliases before interpreting terrestrial realization names.
     const std::string frameName = normalizeSp3FrameName( rawFrameName );
     if( frameName == "GCRF" || frameName == "GCRS" )
     {
@@ -77,6 +81,7 @@ static std::pair< Sp3FrameFamily, std::string > identifySp3Frame( const std::str
     }
     if( frameName.rfind( "ITRF", 0 ) == 0 )
     {
+        // Accept two- and four-digit realization years and normalize them to Tudat's names.
         const std::string year = frameName.substr( 4 );
         if( std::all_of( year.begin( ), year.end( ), []( const unsigned char character ) { return std::isdigit( character ); } ) )
         {
@@ -93,6 +98,7 @@ static std::pair< Sp3FrameFamily, std::string > identifySp3Frame( const std::str
     if( frameName.size( ) == 5 && std::isdigit( static_cast< unsigned char >( frameName.at( 3 ) ) ) &&
         std::isdigit( static_cast< unsigned char >( frameName.at( 4 ) ) ) )
     {
+        // Analysis products encode their underlying ITRF realization in the final two digits.
         const std::string prefix = frameName.substr( 0, 3 );
         if( prefix == "IER" || prefix == "ITR" || prefix == "IGS" || prefix == "IGB" || prefix == "IGC" || prefix == "SLR" )
         {
@@ -102,18 +108,11 @@ static std::pair< Sp3FrameFamily, std::string > identifySp3Frame( const std::str
     return { Sp3FrameFamily::unknown, frameName };
 }
 
-//! Check whether Tudat has Helmert parameters for an ITRF realization.
-static bool isSupportedItrfHelmertFrame( const std::string& frameName )
-{
-    static const std::set< std::string > supportedFrames = { "ITRF88", "ITRF89", "ITRF90",   "ITRF91",   "ITRF92",   "ITRF93",  "ITRF94",
-                                                             "ITRF96", "ITRF97", "ITRF2000", "ITRF2005", "ITRF2008", "ITRF2014" };
-    return supportedFrames.count( frameName ) > 0;
-}
-
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Map an SP3 time-system tag to the time scale and epoch offset required by Tudat's Earth-rotation model.
 static std::pair< basic_astrodynamics::TimeScales, double > getSp3EarthRotationTimeScaleAndOffset( const std::string& timeScale )
 {
+    // Map continuous GNSS scales onto TAI; retain UTC where leap-second handling is required.
     const std::string normalizedTimeScale = normalizeSp3FrameName( timeScale );
     if( normalizedTimeScale == "TAI" )
     {
@@ -160,6 +159,7 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
                                                                           const std::string& satelliteId,
                                                                           const std::string& targetFrameOrientation )
 {
+    // Retrieve a complete SI-unit history before performing any environment-level conversion.
     const std::map< double, Eigen::Vector6d > sourceStateHistory = fileContents.getSatelliteStateHistory( satelliteId );
     if( fileContents.frameName.empty( ) )
     {
@@ -167,9 +167,11 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
     }
     if( normalizeSp3FrameName( targetFrameOrientation ) == normalizeSp3FrameName( fileContents.frameName ) )
     {
+        // Preserve parsed samples exactly when no coordinate conversion is requested.
         return sourceStateHistory;
     }
 
+    // Canonicalize both tags once so subsequent branches operate on Tudat frame names.
     const std::pair< Sp3FrameFamily, std::string > sourceFrame = identifySp3Frame( fileContents.frameName );
     const std::pair< Sp3FrameFamily, std::string > targetFrame = identifySp3Frame( targetFrameOrientation );
     if( sourceFrame.first == Sp3FrameFamily::unknown || targetFrame.first == Sp3FrameFamily::unknown )
@@ -182,22 +184,25 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
         return sourceStateHistory;
     }
 
+    // Specific terrestrial realizations must be backed by the shared Helmert parameter registry.
     const bool sourceIsSupportedTerrestrial = sourceFrame.first != Sp3FrameFamily::terrestrial || sourceFrame.second == "ITRS" ||
-            isSupportedItrfHelmertFrame( sourceFrame.second );
+            reference_frames::isItrfFrameSupported( sourceFrame.second );
     const bool targetIsSupportedTerrestrial = targetFrame.first != Sp3FrameFamily::terrestrial || targetFrame.second == "ITRS" ||
-            isSupportedItrfHelmertFrame( targetFrame.second );
+            reference_frames::isItrfFrameSupported( targetFrame.second );
     if( !sourceIsSupportedTerrestrial || !targetIsSupportedTerrestrial )
     {
         throw std::invalid_argument( "Cannot transform SP3 states from frame '" + fileContents.frameName + "' to frame '" +
                                      targetFrameOrientation + "': no unambiguous Tudat frame-realization transformation is available." );
     }
 
+    // Parsed epochs use the reader's configurable reference; frame models use seconds since J2000.
     const double referenceEpochOffset =
             ( fileContents.referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
     std::map< double, Eigen::Vector6d > transformedStateHistory;
 
     if( sourceFrame.first == Sp3FrameFamily::terrestrial && targetFrame.first == Sp3FrameFamily::terrestrial )
     {
+        // Generic ITRS identifies no realization, so only specific-to-specific conversion is unambiguous.
         if( sourceFrame.second == "ITRS" || targetFrame.second == "ITRS" )
         {
             throw std::invalid_argument( "Cannot transform between generic ITRS and a specific ITRF realization." );
@@ -211,6 +216,7 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
     }
 
 #if TUDAT_BUILD_WITH_SOFA_INTERFACE
+    // Construct Tudat's Earth-orientation models only for an inertial/terrestrial rotation.
     const std::pair< basic_astrodynamics::TimeScales, double > earthRotationTime =
             getSp3EarthRotationTimeScaleAndOffset( fileContents.timeScale );
     const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
@@ -230,6 +236,7 @@ static std::map< double, Eigen::Vector6d > getTransformedSp3StateHistory( const 
 
     for( const auto& state : sourceStateHistory )
     {
+        // Route each conversion through ITRS, using ITRF2014 as Tudat's Helmert reference realization.
         const double epochSinceJ2000 = state.first + referenceEpochOffset;
         const double earthRotationEpoch = epochSinceJ2000 + earthRotationTime.second;
         Eigen::Vector6d stateInItrs;
@@ -269,6 +276,7 @@ std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::shared_ptr
                                                            const std::string& frameOrigin,
                                                            const std::string& frameOrientation )
 {
+    // Resolve the output frame from the explicit request first and otherwise retain the SP3-declared frame.
     if( fileContents == nullptr )
     {
         throw std::invalid_argument( "Cannot create SP3 ephemeris settings from null file contents." );
@@ -290,6 +298,7 @@ std::shared_ptr< EphemerisSettings > sp3EphemerisSettings( const std::string& fi
                                                            const std::string& frameOrientation,
                                                            const double referenceJulianDay )
 {
+    // Keep parsing in data_input, then delegate environment-level conversion to the contents overload.
     return sp3EphemerisSettings( input_output::readSp3File( fileName, referenceJulianDay ), satelliteId, frameOrigin, frameOrientation );
 }
 
