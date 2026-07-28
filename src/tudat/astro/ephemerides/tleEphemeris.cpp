@@ -45,6 +45,25 @@ Eigen::Matrix3d getRotationMatrixFromJ2000ToTeme( const double epochSinceJ2000 )
     return getRotationMatrixFromTemeToJ2000( epochSinceJ2000 ).transpose( );
 }
 
+Eigen::Matrix3d getRotationMatrixFromTemeToFrame( const double epochSinceJ2000, const std::string& frameOrientation )
+{
+    const Eigen::Matrix3d temeToJ2000 = getRotationMatrixFromTemeToJ2000( epochSinceJ2000 );
+    if( frameOrientation == "J2000" )
+    {
+        return temeToJ2000;
+    }
+    if( frameOrientation == "ECLIPJ2000" )
+    {
+        return spice_interface::getRotationFromJ2000ToEclipJ2000( ) * temeToJ2000;
+    }
+    throw std::runtime_error( "TLE state conversion to target frame " + frameOrientation + " is currently unsupported." );
+}
+
+Eigen::Matrix3d getRotationMatrixFromFrameToTeme( const double epochSinceJ2000, const std::string& frameOrientation )
+{
+    return getRotationMatrixFromTemeToFrame( epochSinceJ2000, frameOrientation ).transpose( );
+}
+
 TleEphemeris::TleEphemeris( const std::string& referenceFrameOrigin,
                             const std::string& referenceFrameOrientation,
                             const std::shared_ptr< Tle > tle_ptr,
@@ -77,26 +96,11 @@ Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
     // Compute TEME state
     Eigen::Vector6d cartesianStateAtEpochTEME = getCartesianStateInTemeFrame( secondsSinceEpoch );
 
-    // Compute rotation to J2000
-    Eigen::Matrix3d rotationToJ2000 = getRotationMatrixFromTemeToJ2000( secondsSinceEpoch );
-
+    // Apply the same centralized TEME-to-output-frame rotation to position and velocity.
+    const Eigen::Matrix3d rotationToOutputFrame = getRotationMatrixFromTemeToFrame( secondsSinceEpoch, referenceFrameOrientation_ );
     Eigen::Vector6d cartesianStateOutput = Eigen::Vector6d::Zero( );
-    if( referenceFrameOrientation_ == "J2000" )
-    {
-        cartesianStateOutput.segment( 0, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
-        cartesianStateOutput.segment( 3, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
-    }
-    else if( referenceFrameOrientation_ == "ECLIPJ2000" )
-    {
-        Eigen::Matrix3d itrsToEclipticQuaternion = spice_interface::getRotationFromJ2000ToEclipJ2000( );
-
-        cartesianStateOutput.segment( 0, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
-        cartesianStateOutput.segment( 3, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
-    }
-    else
-    {
-        throw std::runtime_error( "TLE state conversion to target frame " + referenceFrameOrientation_ + " is currently unsupported." );
-    }
+    cartesianStateOutput.segment( 0, 3 ) = rotationToOutputFrame * cartesianStateAtEpochTEME.segment( 0, 3 );
+    cartesianStateOutput.segment( 3, 3 ) = rotationToOutputFrame * cartesianStateAtEpochTEME.segment( 3, 3 );
 
     return cartesianStateOutput;
 }

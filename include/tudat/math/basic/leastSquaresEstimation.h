@@ -230,6 +230,21 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         const double convergenceTolerance = 1.0e-8,
         const unsigned int maximumNumberOfIterations = 25 );
 
+//! Perform a non-linear least-squares estimation and return iteration diagnostics by reference.
+/*!
+ * This overload uses the same Levenberg-Marquardt implementation as nonLinearLeastSquaresFit, while additionally
+ * returning the number of iterations and whether the update-norm convergence criterion was met.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged );
+
 }  // namespace linear_algebra
 
 }  // namespace tudat

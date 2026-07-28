@@ -24,6 +24,12 @@ Eigen::Matrix3d getRotationMatrixFromTemeToJ2000( const double epochSinceJ2000 )
 
 Eigen::Matrix3d getRotationMatrixFromJ2000ToTeme( const double epochSinceJ2000 );
 
+//! Return the rotation from TEME to a frame supported by TleEphemeris.
+Eigen::Matrix3d getRotationMatrixFromTemeToFrame( const double epochSinceJ2000, const std::string& frameOrientation );
+
+//! Return the rotation from a frame supported by TleEphemeris to TEME.
+Eigen::Matrix3d getRotationMatrixFromFrameToTeme( const double epochSinceJ2000, const std::string& frameOrientation );
+
 //! Class holding data for one set of two-line elements (TLE) for a specific Earth-orbiting satellite.
 /*!
  * Class holding data for one set of two-line elements (TLE) for a specific Earth-orbiting satellite. It is valid at its epoch plus/minus
@@ -82,7 +88,10 @@ public:
          const double meanAnomaly,
          const double meanMotion ):
         epoch_( epoch ), bStar_( bStar ), inclination_( inclination ), rightAscension_( rightAscension ), eccentricity_( eccentricity ),
-        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ) {};
+        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ), noradCatalogNumber_( 0 ),
+        classification_( 'U' ), internationalDesignatorLaunchYear_( 0 ), internationalDesignatorLaunchNumber_( 0 ),
+        internationalDesignatorPiece_( "" ), meanMotionFirstDerivative_( 0.0 ), meanMotionSecondDerivative_( 0.0 ), ephemerisType_( 0 ),
+        elementSetNumber_( 0 ), revolutionNumberAtEpoch_( 0 ) {};
 
     double getEpoch( ) const
     {
