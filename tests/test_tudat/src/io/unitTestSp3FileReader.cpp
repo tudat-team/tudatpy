@@ -166,18 +166,12 @@ BOOST_AUTO_TEST_CASE( testVelocityFileMetadataAndState )
     BOOST_CHECK_SMALL( contents->startEpoch - expectedStartEpoch, 1.0e-9 );
 
     const Eigen::Vector6d& firstState = contents->satelliteStates.at( "G01" ).begin( )->second;
-    // Confirm the x position is converted from the SP3 kilometre field to metres.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 0 ), -11044805.8, 1.0e-15 );
-    // Confirm the y position is converted from the SP3 kilometre field to metres.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 1 ), -10475672.35, 1.0e-15 );
-    // Confirm the z position is converted from the SP3 kilometre field to metres.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 2 ), 21929418.2, 1.0e-15 );
-    // Confirm the x velocity is converted from the SP3 decimetre-per-second field to metres per second.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 3 ), 2029.8880364, 1.0e-15 );
-    // Confirm the y velocity is converted from the SP3 decimetre-per-second field to metres per second.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 4 ), -1846.2044804, 1.0e-15 );
-    // Confirm the z velocity is converted from the SP3 decimetre-per-second field to metres per second.
-    BOOST_CHECK_CLOSE_FRACTION( firstState( 5 ), 138.1387685, 1.0e-15 );
+    Eigen::Vector6d expectedFirstState;
+    expectedFirstState << -11044805.8, -10475672.35, 21929418.2, 2029.8880364, -1846.2044804, 138.1387685;
+    // Confirm all position components are converted from SP3 kilometres to metres.
+    BOOST_CHECK_SMALL( ( firstState.segment< 3 >( 0 ) - expectedFirstState.segment< 3 >( 0 ) ).norm( ), 5.0e-9 );
+    // Confirm all velocity components are converted from SP3 decimetres per second to metres per second.
+    BOOST_CHECK_SMALL( ( firstState.segment< 3 >( 3 ) - expectedFirstState.segment< 3 >( 3 ) ).norm( ), 1.0e-12 );
 
     boost::filesystem::remove( path );
 }
@@ -225,8 +219,22 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
     const Eigen::Vector6d sourceState = contents->satelliteStates.at( "G01" ).begin( )->second;
+    const double referenceEpoch = contents->satelliteStates.at( "G01" ).begin( )->first;
     const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             earth_orientation::createStandardEarthOrientationCalculator( );
+
+    // These reference states were generated independently of sp3EphemerisSettings for the first fixture epoch. The ITRF state
+    // uses the IERS 2010 ITRF97-to-ITRF2014 Helmert parameters; the inertial states use Tudat's standard Earth-orientation model
+    // evaluated in TAI at the GPS epoch plus 19 seconds.
+    Eigen::Vector6d fixedExpectedItrf2014State;
+    fixedExpectedItrf2014State << -11044805.788927315, -10475672.310529293, 21929418.173853248, 2029.8880284053553, -1846.2044778039863,
+            138.13876811433317;
+    Eigen::Vector6d fixedExpectedJ2000State;
+    fixedExpectedJ2000State << -15219863.539428337, 4842.2730458551086, 21931314.532193668, 201.08363442850714, -3846.5335686132912,
+            138.1089163548755;
+    Eigen::Vector6d fixedExpectedReverseItrf2014State;
+    fixedExpectedReverseItrf2014State << -11044805.788927311, -10475672.310529295, 21929418.173853248, 2029.8878616091658,
+            -1846.2046360045942, 138.13876811435853;
 
     const auto itrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
             simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "ITRF2014" ) );
@@ -235,20 +243,37 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     // Confirm the factory labels the result with the requested ITRF realization.
     BOOST_CHECK_EQUAL( itrf2014Settings->getFrameOrientation( ), "ITRF2014" );
     const Eigen::Vector6d itrf2014State = itrf2014Settings->getBodyStateHistory( ).begin( )->second;
-    // Confirm the IGS97-to-ITRF2014 Helmert parameters actually alter the Cartesian state.
-    BOOST_CHECK_GT( ( itrf2014State - sourceState ).norm( ), 1.0e-3 );
-    // Confirm the realization change remains at the expected sub-metre position scale.
-    BOOST_CHECK_LT( ( itrf2014State.segment< 3 >( 0 ) - sourceState.segment< 3 >( 0 ) ).norm( ), 1.0 );
+    // Confirm the IGS97/ITRF97-to-ITRF2014 position matches the independently generated Helmert reference.
+    BOOST_CHECK_SMALL( ( itrf2014State.segment< 3 >( 0 ) - fixedExpectedItrf2014State.segment< 3 >( 0 ) ).norm( ), 1.0e-8 );
+    // Confirm the IGS97/ITRF97-to-ITRF2014 velocity includes the independently generated Helmert rate corrections.
+    BOOST_CHECK_SMALL( ( itrf2014State.segment< 3 >( 3 ) - fixedExpectedItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-11 );
 
+    const std::shared_ptr< input_output::Sp3FileContents > itrf2014Contents =
+            std::make_shared< input_output::Sp3FileContents >( *contents );
+    itrf2014Contents->frameName = "ITRF2014";
+    itrf2014Contents->satelliteStates.at( "G01" ) = { { referenceEpoch, fixedExpectedItrf2014State } };
     const auto j2000Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
-            simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "J2000" ) );
+            simulation_setup::sp3EphemerisSettings( itrf2014Contents, "G01", "Earth", "J2000" ) );
     // Require tabulated output before checking the Earth-orientation state transformation.
     BOOST_REQUIRE( j2000Settings != nullptr );
     const Eigen::Vector6d j2000State = j2000Settings->getBodyStateHistory( ).begin( )->second;
-    // Confirm a pure frame rotation preserves position magnitude.
-    BOOST_CHECK_CLOSE_FRACTION( j2000State.segment< 3 >( 0 ).norm( ), itrf2014State.segment< 3 >( 0 ).norm( ), 1.0e-14 );
-    // Confirm the rotating-frame velocity term is included, rather than rotating position and velocity independently.
-    BOOST_CHECK_GT( ( j2000State.segment< 3 >( 3 ) - sourceState.segment< 3 >( 3 ) ).norm( ), 100.0 );
+    // Confirm the ITRF2014-to-J2000 position matches the independently generated Earth-orientation reference.
+    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 0 ) - fixedExpectedJ2000State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
+    // Confirm the ITRF2014-to-J2000 velocity includes the independently generated Earth-rotation-rate contribution.
+    BOOST_CHECK_SMALL( ( j2000State.segment< 3 >( 3 ) - fixedExpectedJ2000State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
+
+    const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
+    j2000Contents->frameName = "J2000";
+    j2000Contents->satelliteStates.at( "G01" ) = { { referenceEpoch, fixedExpectedJ2000State } };
+    const auto reverseItrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( j2000Contents, "G01", "Earth", "ITRF2014" ) );
+    // Require tabulated output before checking the reverse Earth-orientation state transformation.
+    BOOST_REQUIRE( reverseItrf2014Settings != nullptr );
+    const Eigen::Vector6d reverseItrf2014State = reverseItrf2014Settings->getBodyStateHistory( ).begin( )->second;
+    // Confirm the J2000-to-ITRF2014 position matches the independently generated reverse-rotation reference.
+    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 0 ) - fixedExpectedReverseItrf2014State.segment< 3 >( 0 ) ).norm( ), 1.0e-7 );
+    // Confirm the J2000-to-ITRF2014 velocity includes the independently generated reverse rotation-rate contribution.
+    BOOST_CHECK_SMALL( ( reverseItrf2014State.segment< 3 >( 3 ) - fixedExpectedReverseItrf2014State.segment< 3 >( 3 ) ).norm( ), 1.0e-10 );
 
     // Reuse the parsed file while changing only its time-system metadata to exercise every supported conversion mapping.
     const std::vector< std::tuple< std::string, basic_astrodynamics::TimeScales, double > > timeSystemCases = {
@@ -284,8 +309,6 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
             // Evaluate an independently constructed Earth-rotation model at the explicitly adjusted time-system epoch.
             const Eigen::Vector6d expectedJ2000State = ephemerides::transformStateToInertialOrientation(
                     expectedItrf2014State, state.first + expectedEpochOffset, expectedRotationModel );
-            // Confirm the factory preserves the tabulated epoch key for this time system.
-            BOOST_CHECK_EQUAL( transformedHistory.count( state.first ), 1 );
             // Confirm the selected time scale and explicit epoch offset produce the expected inertial position.
             BOOST_CHECK_SMALL( ( transformedHistory.at( state.first ).segment< 3 >( 0 ) - expectedJ2000State.segment< 3 >( 0 ) ).norm( ),
                                1.0e-8 );
@@ -334,19 +357,6 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
         BOOST_CHECK_SMALL( ( shiftedOutputIterator->second.segment< 3 >( 3 ) - expectedShiftedJ2000State.segment< 3 >( 3 ) ).norm( ),
                            1.0e-11 );
     }
-
-    const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
-    j2000Contents->frameName = "J2000";
-    for( const auto& state : j2000Settings->getBodyStateHistory( ) )
-    {
-        j2000Contents->satelliteStates.at( "G01" ).at( state.first ) = state.second;
-    }
-    const auto roundTripSettings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
-            simulation_setup::sp3EphemerisSettings( j2000Contents, "G01", "Earth", "IGS97" ) );
-    // Require the reverse conversion to produce inspectable tabulated settings.
-    BOOST_REQUIRE( roundTripSettings != nullptr );
-    // Confirm terrestrial-to-inertial-to-terrestrial conversion recovers the original state within numerical tolerance.
-    BOOST_CHECK_SMALL( ( roundTripSettings->getBodyStateHistory( ).begin( )->second - sourceState ).norm( ), 1.0e-3 );
 
     const std::shared_ptr< input_output::Sp3FileContents > aliasContents = std::make_shared< input_output::Sp3FileContents >( *contents );
     aliasContents->frameName = "IGb14";
