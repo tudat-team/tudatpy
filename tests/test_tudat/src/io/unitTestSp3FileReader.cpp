@@ -16,6 +16,7 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
@@ -23,6 +24,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/io/readSp3File.h"
 #include "tudat/simulation/environment_setup/createSp3Ephemeris.h"
 
@@ -220,6 +225,8 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     const boost::filesystem::path path = writeTemporarySp3File( velocitySp3Contents );
     const std::shared_ptr< input_output::Sp3FileContents > contents = input_output::readSp3File( path.string( ) );
     const Eigen::Vector6d sourceState = contents->satelliteStates.at( "G01" ).begin( )->second;
+    const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
+            earth_orientation::createStandardEarthOrientationCalculator( );
 
     const auto itrf2014Settings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
             simulation_setup::sp3EphemerisSettings( contents, "G01", "Earth", "ITRF2014" ) );
@@ -242,6 +249,91 @@ BOOST_AUTO_TEST_CASE( testEphemerisFactoryFrameTransformations )
     BOOST_CHECK_CLOSE_FRACTION( j2000State.segment< 3 >( 0 ).norm( ), itrf2014State.segment< 3 >( 0 ).norm( ), 1.0e-14 );
     // Confirm the rotating-frame velocity term is included, rather than rotating position and velocity independently.
     BOOST_CHECK_GT( ( j2000State.segment< 3 >( 3 ) - sourceState.segment< 3 >( 3 ) ).norm( ), 100.0 );
+
+    // Reuse the parsed file while changing only its time-system metadata to exercise every supported conversion mapping.
+    const std::vector< std::tuple< std::string, basic_astrodynamics::TimeScales, double > > timeSystemCases = {
+        { "TAI", basic_astrodynamics::tai_scale, 0.0 },  { "GPS", basic_astrodynamics::tai_scale, 19.0 },
+        { "GAL", basic_astrodynamics::tai_scale, 19.0 }, { "QZS", basic_astrodynamics::tai_scale, 19.0 },
+        { "IRN", basic_astrodynamics::tai_scale, 19.0 }, { "BDT", basic_astrodynamics::tai_scale, 33.0 },
+        { "UTC", basic_astrodynamics::utc_scale, 0.0 },  { "GLO", basic_astrodynamics::utc_scale, -3.0 * 3600.0 }
+    };
+    for( const auto& timeSystemCase : timeSystemCases )
+    {
+        const std::string& timeSystem = std::get< 0 >( timeSystemCase );
+        const basic_astrodynamics::TimeScales expectedTimeScale = std::get< 1 >( timeSystemCase );
+        const double expectedEpochOffset = std::get< 2 >( timeSystemCase );
+
+        const std::shared_ptr< input_output::Sp3FileContents > timeSystemContents =
+                std::make_shared< input_output::Sp3FileContents >( *contents );
+        timeSystemContents->timeScale = timeSystem;
+        const auto timeSystemSettings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+                simulation_setup::sp3EphemerisSettings( timeSystemContents, "G01", "Earth", "J2000" ) );
+        // Require tabulated output for each supported time system before comparing every transformed sample.
+        BOOST_REQUIRE( timeSystemSettings != nullptr );
+
+        const std::shared_ptr< ephemerides::RotationalEphemeris > expectedRotationModel =
+                std::make_shared< ephemerides::GcrsToItrsRotationModel >( earthOrientationCalculator, expectedTimeScale, "J2000" );
+        const std::map< double, Eigen::Vector6d >& transformedHistory = timeSystemSettings->getBodyStateHistory( );
+        // Require the time-system mapping to preserve all input samples.
+        BOOST_REQUIRE_EQUAL( transformedHistory.size( ), timeSystemContents->satelliteStates.at( "G01" ).size( ) );
+        for( const auto& state : timeSystemContents->satelliteStates.at( "G01" ) )
+        {
+            // Construct the terrestrial realization change at the physical SP3 epoch, before applying Earth rotation.
+            const Eigen::Vector6d expectedItrf2014State =
+                    reference_frames::convertStateBetweenItrfFrames( state.second, state.first, "ITRF97", "ITRF2014" );
+            // Evaluate an independently constructed Earth-rotation model at the explicitly adjusted time-system epoch.
+            const Eigen::Vector6d expectedJ2000State = ephemerides::transformStateToInertialOrientation(
+                    expectedItrf2014State, state.first + expectedEpochOffset, expectedRotationModel );
+            // Confirm the factory preserves the tabulated epoch key for this time system.
+            BOOST_CHECK_EQUAL( transformedHistory.count( state.first ), 1 );
+            // Confirm the selected time scale and explicit epoch offset produce the expected inertial position.
+            BOOST_CHECK_SMALL( ( transformedHistory.at( state.first ).segment< 3 >( 0 ) - expectedJ2000State.segment< 3 >( 0 ) ).norm( ),
+                               1.0e-8 );
+            // Confirm the same Earth-rotation model produces the expected inertial velocity, including the rotation-rate term.
+            BOOST_CHECK_SMALL( ( transformedHistory.at( state.first ).segment< 3 >( 3 ) - expectedJ2000State.segment< 3 >( 3 ) ).norm( ),
+                               1.0e-11 );
+        }
+    }
+
+    // Read the same file relative to a deliberately different epoch origin to separate map keys from physical epochs.
+    const double nonDefaultReferenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 + 1000.0;
+    const std::shared_ptr< input_output::Sp3FileContents > shiftedEpochContents =
+            input_output::readSp3File( path.string( ), nonDefaultReferenceJulianDay );
+    const auto shiftedEpochSettings = std::dynamic_pointer_cast< simulation_setup::TabulatedEphemerisSettings >(
+            simulation_setup::sp3EphemerisSettings( shiftedEpochContents, "G01", "Earth", "J2000" ) );
+    // Require tabulated output before checking the non-default epoch origin.
+    BOOST_REQUIRE( shiftedEpochSettings != nullptr );
+    const std::shared_ptr< ephemerides::RotationalEphemeris > expectedGpsRotationModel =
+            std::make_shared< ephemerides::GcrsToItrsRotationModel >( earthOrientationCalculator, basic_astrodynamics::tai_scale, "J2000" );
+    const double shiftedReferenceOffset =
+            ( nonDefaultReferenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+    const std::map< double, Eigen::Vector6d > shiftedOutputHistory = shiftedEpochSettings->getBodyStateHistory( );
+    // Require both reads and the transformed output to contain corresponding samples before advancing their iterators together.
+    BOOST_REQUIRE_EQUAL( shiftedEpochContents->satelliteStates.at( "G01" ).size( ), contents->satelliteStates.at( "G01" ).size( ) );
+    BOOST_REQUIRE_EQUAL( shiftedOutputHistory.size( ), shiftedEpochContents->satelliteStates.at( "G01" ).size( ) );
+    auto defaultEpochIterator = contents->satelliteStates.at( "G01" ).begin( );
+    auto shiftedOutputIterator = shiftedOutputHistory.begin( );
+    for( auto shiftedInputIterator = shiftedEpochContents->satelliteStates.at( "G01" ).begin( );
+         shiftedInputIterator != shiftedEpochContents->satelliteStates.at( "G01" ).end( );
+         ++shiftedInputIterator, ++defaultEpochIterator, ++shiftedOutputIterator )
+    {
+        // Confirm the shifted key plus its declared reference recovers the same physical epoch as the default J2000-relative read.
+        BOOST_CHECK_SMALL( shiftedInputIterator->first + shiftedReferenceOffset - defaultEpochIterator->first, 1.0e-8 );
+        // Confirm ephemeris conversion leaves each tabulated key relative to the caller-selected reference epoch unchanged.
+        BOOST_CHECK_EQUAL( shiftedOutputIterator->first, shiftedInputIterator->first );
+
+        const Eigen::Vector6d expectedItrf2014State = reference_frames::convertStateBetweenItrfFrames(
+                shiftedInputIterator->second, defaultEpochIterator->first, "ITRF97", "ITRF2014" );
+        // Evaluate GPS as TAI at the explicitly expected physical epoch plus the GPS-to-TAI offset.
+        const Eigen::Vector6d expectedShiftedJ2000State = ephemerides::transformStateToInertialOrientation(
+                expectedItrf2014State, defaultEpochIterator->first + 19.0, expectedGpsRotationModel );
+        // Confirm the recovered physical rotation epoch produces the expected inertial position.
+        BOOST_CHECK_SMALL( ( shiftedOutputIterator->second.segment< 3 >( 0 ) - expectedShiftedJ2000State.segment< 3 >( 0 ) ).norm( ),
+                           1.0e-8 );
+        // Confirm the recovered physical rotation epoch produces the expected inertial velocity.
+        BOOST_CHECK_SMALL( ( shiftedOutputIterator->second.segment< 3 >( 3 ) - expectedShiftedJ2000State.segment< 3 >( 3 ) ).norm( ),
+                           1.0e-11 );
+    }
 
     const std::shared_ptr< input_output::Sp3FileContents > j2000Contents = std::make_shared< input_output::Sp3FileContents >( *contents );
     j2000Contents->frameName = "J2000";
