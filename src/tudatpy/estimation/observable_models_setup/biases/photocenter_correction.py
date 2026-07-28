@@ -9,7 +9,7 @@ from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
 from numpy.linalg import norm
 from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections, _unit
-
+from tudatpy.constants import SPEED_OF_LIGHT
 
 def _photocenter_offset(diameter : float,
                         body_wrt_observer : np.ndarray,
@@ -204,7 +204,7 @@ def apply_photocenter_correction_to_observation_collection(
 
 
 def _photocenter_correction_ellispoidal(
-        body_extent: list | np.ndarray,
+        semi_axes: list | np.ndarray,
         e_sun: np.ndarray,
         e_observer : np.ndarray,
 ) -> np.ndarray:
@@ -212,14 +212,14 @@ def _photocenter_correction_ellispoidal(
 
     Parameters
     ----------
-    body_extent : list | np.ndarray
+    semi_axes : list | np.ndarray
         axial parameters of the ellipsoid
     e_sun : np.ndarray
         Unit vector pointing in the direction of the sun, in the principle axis system of the ellipsoid
     e_observer : np.ndarray
         Unit vector pointing in the direction of the observer, in the principle axis system of the ellipsoid
     """
-    a, b, c = body_extent
+    a, b, c = semi_axes
     c_mat = np.diag((a ** -2, b ** -2, c ** -2))
 
     # Auxiliary scalar units
@@ -275,11 +275,9 @@ def _photocenter_correction_ellispoidal(
     return offset
 
 
-
-
-def photocenter_correction_ellipsoidal(
+def photocenter_corrections_from_observations_ellipsoidal(
         observations: np.ndarray ,
-        body_extent: list | np.ndarray,
+        semi_axes: list | np.ndarray,
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
@@ -293,49 +291,77 @@ def photocenter_correction_ellipsoidal(
 
     Parameters
     ----------
-    observations
-    body_extent
-    bodies
-    body_name
-    observer_body_name
-    observer_reference_name
+    observations : np.ndarray
+        Observations with columns [time, RA, DEC]
+    semi_axes : list | np.ndarray
+        Ellipsoid semi-axes ordered from largest to smallest. It is assumed that the body-fixed frames axes x,y,z are
+        aligned with the a,b,c directions in order.
+    bodies : SystemOfBodies
+        System of Bodies object
+    body_name : str
+        Name of body being observed
+    observer_body_name : str
+        Name of the (base) body acting as observer
+    observer_reference_name : str | None
+        If applicable, the name of the reference point on the observer body
 
     Returns
     -------
-
+    np.ndarray
+        Corrections to RA, DEC
     """
     # Input validation
     if observations.shape[1] != 3:
         raise ValueError('Observations must be shaped N x 3')
 
-    if len(body_extent) != 3:
+    if len(semi_axes) != 3:
         raise ValueError('Body extent must be of length 3')
+
+    if not list(sorted(semi_axes, reverse=True)) == list(semi_axes):
+        raise ValueError('Semi-axes must be ordered from highest to lowest')
+
+    # Create ephemeris for the reference point if it is given
+    if observer_reference_name is not None:
+        observer_ephemeris = create_ground_station_ephemeris(
+            bodies.get(observer_body_name),
+            observer_reference_name,
+            bodies
+        )  # -> In global frame origin/orientation
+    else:
+        observer_ephemeris = None
 
     corrections = []
 
     for epoch, ra, dec in observations:
 
-        # Get unit directions to sun and observer in axes of ellipsoid
-        observer_inertial = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        # Get inertial positions of sun, body and observer
+        if observer_ephemeris is not None:
+            observer_inertial = observer_ephemeris.cartesian_position(epoch)
+        else:
+            observer_inertial = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
         sun_inertial = bodies.get('Sun').state_in_base_frame_from_ephemeris(epoch)[:3]
         body_inertial = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        observer_body_distance = np.linalg.norm(observer_inertial - body_inertial)
 
-        e_sun_inertial = _unit(sun_inertial - body_inertial) # Direction of sun from observed body
-        e_observer_inertial = _unit(observer_inertial - body_inertial) # Direction of observer from observed body
+        # Inertial directions of sun and observer from observed body
+        e_sun_inertial = _unit(sun_inertial - body_inertial)
+        e_observer_inertial = _unit(observer_inertial - body_inertial)
 
-        rot_matrix = bodies.get(body_name).rotation_model.inertial_to_body_fixed_rotation(epoch)
+        # Retrieve rotational state of ellipsoid body at time of emission
+        light_time = observer_body_distance / SPEED_OF_LIGHT
+        rot_matrix = bodies.get(body_name).rotation_model.inertial_to_body_fixed_rotation(epoch - light_time)
+
         e_sun = rot_matrix @ e_sun_inertial
         e_observer = rot_matrix @ e_observer_inertial
 
         # Get offset in axes of ellipsoid
         offset = _photocenter_correction_ellispoidal(
-            body_extent,
+            semi_axes,
             e_sun,
             e_observer,
         )
 
         # Rotate offset to inertial direction
-        observer_body_distance = np.linalg.norm(observer_inertial - body_inertial)
         offset_inertial = rot_matrix.T @ offset / observer_body_distance
 
         # Translate into corrections
