@@ -19,6 +19,7 @@
 #include <pybind11/stl_bind.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/io/basicInputOutput.h>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -662,10 +663,14 @@ Read a mapping from DOMES id to station name.
             .def_readonly( "uplink_band_id", &tio::OdfCommonDataBlock::uplinkBandId_ )
             .def_readonly( "reference_band_id", &tio::OdfCommonDataBlock::referenceBandId_ )
             .def_readonly( "is_invalid", &tio::OdfCommonDataBlock::validity_ )
-            .def( "print_data_block",
-                  &tio::OdfCommonDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfCommonDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(Write the contents of the data block to a text file
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
@@ -700,10 +705,14 @@ Read a mapping from DOMES id to station name.
             m, "OdfDataBlock", R"doc(Contents of a line of the data section of an ODF)doc" )
             .def_property_readonly( "observable_specific_data_block", &tio::OdfDataBlock::getObservableSpecificDataBlock )
             .def_property_readonly( "common_data_block", &tio::OdfDataBlock::getCommonDataBlock )
-            .def( "print_data_block",
-                  &tio::OdfDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(Write the contents of the data block to a text file
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
@@ -720,6 +729,11 @@ Read a mapping from DOMES id to station name.
             .def_property_readonly( "ramp_start_epoch", &tio::OdfRampBlock::getRampStartTime )
             .def_property_readonly( "ramp_end_epoch", &tio::OdfRampBlock::getRampEndTime )
             .def_property_readonly( "transmitting_station_id", &tio::OdfRampBlock::getTransmittingStationId );
+
+    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >( m, "OdfClockOffsetBlock" )
+            .def_property_readonly( "start_time", &tio::OdfClockOffsetBlock::getStartTime )
+            .def_property_readonly( "end_time", &tio::OdfClockOffsetBlock::getEndTime )
+            .def_property_readonly( "clock_offset", &tio::OdfClockOffsetBlock::getClockOffset );
 
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "OdfRawFileContents", R"doc(No documentation available.)doc" )
@@ -743,10 +757,25 @@ Read a mapping from DOMES id to station name.
                               const std::string& >( &tio::setDsnWeatherDataInGroundStations ),
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
            py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           R"doc(No documentation available.)doc" );
+           R"doc(
+Set DSN weather data in the requested ground stations.
+
+Parameters
+----------
+bodies : dynamics.environment.SystemOfBodies
+    Bodies containing the ground stations to update.
+weather_file_names : list[str]
+    DSN weather data files to read.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.linear_interpolation()
+    Settings used to interpolate the weather data.
+ground_stations_per_complex : dict[int, list[str]], default = default DSN station names per complex
+    Ground-station names grouped by DSN complex.
+body_with_ground_stations_name : str, default = "Earth"
+    Name of the body containing the ground stations.
+)doc" );
 
     py::class_< tudat::input_output::TrackingTxtFileContents, std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
             m, "TrackingTxtFileContents", R"doc(No documentation available.)doc" )
@@ -831,9 +860,24 @@ Read a mapping from DOMES id to station name.
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::cubicSplineInterpolation( ), "..." ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           R"doc(No documentation available.)doc" );
+           R"doc(
+Set ESTRACK weather data in a ground station.
+
+Parameters
+----------
+bodies : dynamics.environment.SystemOfBodies
+    Bodies containing the ground station to update.
+weather_file_names : list[str]
+    ESTRACK weather data files to read.
+ground_station_name : str
+    Name of the ground station to update.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.cubic_spline_interpolation()
+    Settings used to interpolate the weather data.
+body_with_ground_stations_name : str, default = "Earth"
+    Name of the body containing the ground station.
+)doc" );
 
     m.def( "read_fdets_file",
            py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),

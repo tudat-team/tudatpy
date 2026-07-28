@@ -116,6 +116,8 @@ bodycenteredToTopocentricTimePropagatorSettingsFromArray(
 
 void expose_propagator_setup( py::module& m )
 {
+    py::class_< tp::PropagatorType >( m, "PropagatorType" );
+
     ///////////////////////////////////////////////////////////////////////////////////////
 
     // ENUMS
@@ -777,6 +779,14 @@ Enumeration of available integrated state types.
             :type: np.array
 )doc" );
 
+    auto propagation_termination_settings =
+            py::class_< tp::PropagationTerminationSettings, std::shared_ptr< tp::PropagationTerminationSettings > >(
+                    m, "PropagationTerminationSettings" );
+
+    auto single_arc_propagator_settings = py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                                                      std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                                                      tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m, "SingleArcPropagatorSettings" );
+
     py::class_< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m,
@@ -849,17 +859,14 @@ Enumeration of available integrated state types.
 
 .)doc" );
 
-    py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m,
-                                                               "SingleArcPropagatorSettings",
-                                                               R"doc(
+    single_arc_propagator_settings.doc( ) = R"doc(
 
             Class derived from :class:`PropagatorSettings` to define settings for single-arc dynamics (of any type, including translational, rotational, etc.)
             An object of this type is typically created using the specific propagator settings creation function, such as :func:`~translational`,
             :func:`~rotational` of :func:`~multitype`
 
-      )doc" )
+      )doc";
+    single_arc_propagator_settings
             .def_property( "termination_settings",
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getTerminationSettings,
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetTerminationSettings,
@@ -978,10 +985,7 @@ Enumeration of available integrated state types.
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    py::class_< tp::PropagationTerminationSettings, std::shared_ptr< tp::PropagationTerminationSettings > >(
-            m,
-            "PropagationTerminationSettings",
-            R"doc(
+    propagation_termination_settings.doc( ) = R"doc(
 
          Functional base class to define termination settings for the propagation.
 
@@ -989,7 +993,7 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc";
 
     py::class_< tp::PropagationDependentVariableTerminationSettings,
                 std::shared_ptr< tp::PropagationDependentVariableTerminationSettings >,

@@ -348,6 +348,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" );
+    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,

@@ -34,8 +34,25 @@ namespace dynamics
 namespace parameters_setup
 {
 
-void expose_parameters_setup( py::module& m )
+void expose_parameters_setup_types( py::module& m )
 {
+    py::enum_< tp::EnvironmentModelsToUpdate >( m, "EnvironmentModelsToUpdate" )
+            .value( "body_translational_state_update", tp::EnvironmentModelsToUpdate::body_translational_state_update )
+            .value( "body_rotational_state_update", tp::EnvironmentModelsToUpdate::body_rotational_state_update )
+            .value( "spherical_harmonic_gravity_field_update", tp::EnvironmentModelsToUpdate::spherical_harmonic_gravity_field_update )
+            .value( "body_mass_update", tp::EnvironmentModelsToUpdate::body_mass_update )
+            .value( "body_mass_distribution_update", tp::EnvironmentModelsToUpdate::body_mass_distribution_update )
+            .value( "body_segment_orientation_update", tp::EnvironmentModelsToUpdate::body_segment_orientation_update )
+            .value( "vehicle_flight_conditions_update", tp::EnvironmentModelsToUpdate::vehicle_flight_conditions_update )
+            .value( "radiation_source_model_update", tp::EnvironmentModelsToUpdate::radiation_source_model_update )
+            .value( "cannonball_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::cannonball_radiation_pressure_target_model_update )
+            .value( "panelled_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::panelled_radiation_pressure_target_model_update )
+            .value( "climate_model_update", tp::EnvironmentModelsToUpdate::climate_model_update )
+            .value( "space_time_metric_update", tp::EnvironmentModelsToUpdate::space_time_metric_update )
+            .export_values( );
+
     py::enum_< tep::EstimatebleParametersEnum >( m, "EstimatableParameterTypes", R"doc(
 
          Enumeration of model parameters that are available for estimation.
@@ -144,6 +161,9 @@ void expose_parameters_setup( py::module& m )
             .value( "cosine_empirical", tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical )
             .export_values( );
 
+    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
+            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
+
     py::class_< tep::EstimatableParameterSettings, std::shared_ptr< tep::EstimatableParameterSettings > >( m,
                                                                                                            "EstimatableParameterSettings",
                                                                                                            R"doc(
@@ -172,7 +192,10 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
                             
                             )doc" );
+}
 
+void expose_parameters_setup( py::module& m )
+{
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def( "create_parameter_set",
            &tss::createParametersToEstimate< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -2214,9 +2237,6 @@ Returns
      )doc" );
 
     // CUSTOM AND ANALYTICAL ACCELERATION PARTIALS
-
-    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
-            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
 
     m.def( "custom_analytical_partial",
            &tep::analyticalAccelerationPartialSettings,

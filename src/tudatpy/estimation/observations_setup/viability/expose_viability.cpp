@@ -72,7 +72,7 @@ namespace observations_setup
 namespace viability
 {
 
-void expose_viability( py::module& m )
+void expose_observation_viability_settings_type( py::module& m )
 {
     py::class_< tom::ObservationViabilitySettings, std::shared_ptr< tom::ObservationViabilitySettings > >( m,
                                                                                                            "ObservationViabilitySettings",
@@ -104,7 +104,10 @@ void expose_viability( py::module& m )
 
 
       )doc" );
+}
 
+void expose_viability( py::module& m )
+{
     py::class_< tom::ObservationBoundariesViabilitySettings,
                 std::shared_ptr< tom::ObservationBoundariesViabilitySettings >,
                 tom::ObservationViabilitySettings >( m,

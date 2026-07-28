@@ -359,6 +359,10 @@ void expose_dependent_variable_setup( py::module& m )
 
     )doc" );
 
+    auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
+                                                               std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
+                                                               tp::VariableSettings >( m, "SingleDependentVariableSaveSettings" );
+
     m.def( "local_wind_velocity",
            &tp::localWindVelocityVariable,
            py::arg( "body" ),
@@ -397,10 +401,7 @@ Variable Size
 
     )doc" );
 
-    py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
-            m,
-            "SingleDependentVariableSaveSettings",
-            R"doc(
+    single_dependent_variable_save_settings.doc( ) = R"doc(
 
          `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
 
@@ -412,7 +413,8 @@ Variable Size
 
 
 
-      )doc" )
+      )doc";
+    single_dependent_variable_save_settings
             .def_property_readonly( "dependent_variable_type",
                                     &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
                                     R"doc(

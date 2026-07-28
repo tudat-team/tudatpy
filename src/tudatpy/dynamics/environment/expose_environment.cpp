@@ -27,6 +27,7 @@
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
+#include <tudat/astro/electromagnetism/radiationPressureInterface.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
 #include <tudat/astro/electromagnetism/radiationSourceModel.h>
 #include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
@@ -144,6 +145,21 @@ namespace environment
 
 void expose_environment( py::module& m )
 {
+    // Register types that occur in signatures before their detailed binding
+    // sections below. Keep a class handle only when members are added later.
+    py::class_< ta::ControlSurfaceIncrementAerodynamicInterface, std::shared_ptr< ta::ControlSurfaceIncrementAerodynamicInterface > >(
+            m, "ControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>" );
+    py::class_< te::InertialBodyFixedDirectionCalculator, std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
+            m, "InertialBodyFixedDirectionCalculator" );
+    auto timing_system = py::class_< tsm::TimingSystem, std::shared_ptr< tsm::TimingSystem > >( m, "TimingSystem" );
+    auto engine_model = py::class_< tsm::EngineModel, std::shared_ptr< tsm::EngineModel > >( m, "EngineModel" );
+    auto gravity_field_variations =
+            py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel" );
+    auto camera = py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera" );
+    auto station_frequency_interpolator =
+            py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
+                    m, "TransmittingFrequencyCalculator" );
+
     /*!
      **************   EPHEMERIDES  ******************
      */
@@ -1296,9 +1312,6 @@ bool
      )doc" )
             .def( "clear_data", &ta::HypersonicLocalInclinationAnalysis::clearData );
 
-    py::class_< ta::ControlSurfaceIncrementAerodynamicInterface, std::shared_ptr< ta::ControlSurfaceIncrementAerodynamicInterface > >(
-            m, "ControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>" );
-
     py::class_< ta::CustomControlSurfaceIncrementAerodynamicInterface,
                 std::shared_ptr< ta::CustomControlSurfaceIncrementAerodynamicInterface >,
                 ta::ControlSurfaceIncrementAerodynamicInterface >(
@@ -1578,10 +1591,8 @@ bool
 
       )doc" );
 
-    py::class_< tsm::TimingSystem, std::shared_ptr< tsm::TimingSystem > >( m,
-                                                                           "TimingSystem",
-                                                                           R"doc(No documentation found.)doc" )
-
+    timing_system.doc( ) = R"doc(No documentation found.)doc";
+    timing_system
             .def(  // ctor 1
                     py::init< const std::vector< tudat::Time >,
                               const std::vector< double >,
@@ -1612,8 +1623,7 @@ bool
                     py::arg( "stochastic_clock_noise_functions" ),
                     py::arg( "arc_times" ) );
 
-    py::class_< tsm::EngineModel, std::shared_ptr< tsm::EngineModel > >( m, "EngineModel" )
-            .def_property_readonly( "thrust_magnitude_calculator", &tsm::EngineModel::getThrustMagnitudeWrapper );
+    engine_model.def_property_readonly( "thrust_magnitude_calculator", &tsm::EngineModel::getThrustMagnitudeWrapper );
 
     /*!
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY
@@ -2354,9 +2364,6 @@ bool
             .def_property_readonly( "inertial_body_axis_calculator",
                                     &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator );
 
-    py::class_< te::InertialBodyFixedDirectionCalculator, std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
-            m, "InertialBodyFixedDirectionCalculator" );
-
     py::class_< te::CustomBodyFixedDirectionCalculator,
                 std::shared_ptr< te::CustomBodyFixedDirectionCalculator >,
                 te::InertialBodyFixedDirectionCalculator >( m, "CustomBodyFixedDirectionCalculator" )
@@ -2513,12 +2520,12 @@ bool
             .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
             .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
 
-    py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel", R"doc(
+    gravity_field_variations.doc( ) = R"doc(
 
         Object that computes a single type of gravity field variation.
 
         Object that computes a single type of gravity field variation. This object is typically not used directly, but internally by the :class:`~TimeDependentSphericalHarmonicsGravityField` class.
-    )doc" );
+    )doc";
 
     /*!
      **************   RADIATION MODELS  ******************
@@ -2534,6 +2541,7 @@ bool
                            &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
 
     py::class_< tem::RadiationSourceModel, std::shared_ptr< tem::RadiationSourceModel > >( m, "RadiationSourceModel" );
+    py::class_< tem::RadiationPressureInterface, std::shared_ptr< tem::RadiationPressureInterface > >( m, "RadiationPressureInterface" );
     /*!
      **************   SHAPE MODELS  ******************
      */
@@ -2560,13 +2568,13 @@ bool
 
      )doc" );
 
-    py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera", R"doc(
+    camera.doc( ) = R"doc(
         Object that defines a camera for use in observation models.
 
         Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
         and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
-     )doc" )
-            .def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
+     )doc";
+    camera.def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
 
          **read-only**
 
@@ -2748,12 +2756,7 @@ bool
 
      )doc" );
 
-    py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
-            m, "TransmittingFrequencyCalculator", R"doc(
-            
-            Object that computes the current transmitting frequency of a ground station.
-
-            )doc" );
+    station_frequency_interpolator.doc( ) = "Object that computes the current transmitting frequency of a ground station.";
 
     py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
             .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )

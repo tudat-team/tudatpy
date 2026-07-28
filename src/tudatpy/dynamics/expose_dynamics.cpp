@@ -36,28 +36,38 @@ namespace tudatpy
 namespace dynamics
 {
 
-void expose_dynamics( py::module& m )
+void expose_dynamics_types( py::module& m )
 {
     auto environment_submodule = m.def_submodule( "environment" );
-    environment::expose_environment( environment_submodule );
-
     auto environment_setup_submodule = m.def_submodule( "environment_setup" );
-    environment_setup::expose_environment_setup( environment_setup_submodule );
+    auto propagation_submodule = m.def_submodule( "propagation" );
+    auto parameters_setup_submodule = m.def_submodule( "parameters_setup" );
+
+    environment_setup::expose_environment_setup_types( environment_setup_submodule );
+    propagation::expose_propagation_types( propagation_submodule );
+    parameters_setup::expose_parameters_setup_types( parameters_setup_submodule );
+    environment::expose_environment( environment_submodule );
+}
+
+void expose_dynamics( py::module& m )
+{
+    auto environment_setup_submodule = py::module_::import( "tudatpy.kernel.dynamics.environment_setup" );
+    auto propagation_submodule = py::module_::import( "tudatpy.kernel.dynamics.propagation" );
+    auto parameters_setup_submodule = py::module_::import( "tudatpy.kernel.dynamics.parameters_setup" );
 
     auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
     propagation_setup::expose_propagation_setup( propagation_setup_submodule );
 
-    auto propagation_submodule = m.def_submodule( "propagation" );
+    environment_setup::expose_environment_setup( environment_setup_submodule );
     propagation::expose_propagation( propagation_submodule );
 
-    auto simulator_submodule = m.def_submodule( "simulator" );
-    simulator::expose_simulator( simulator_submodule );
-
-    auto parameters_setup_submodule = m.def_submodule( "parameters_setup" );
     parameters_setup::expose_parameters_setup( parameters_setup_submodule );
 
     auto parameters_submodule = m.def_submodule( "parameters" );
     parameters::expose_parameters( parameters_submodule );
+
+    auto simulator_submodule = m.def_submodule( "simulator" );
+    simulator::expose_simulator( simulator_submodule );
 };
 
 }  // namespace dynamics

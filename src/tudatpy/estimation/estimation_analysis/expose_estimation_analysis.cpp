@@ -569,7 +569,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
+                  py::arg_v( "convergence_checker", std::make_shared< tss::EstimationConvergenceChecker >( ), "..." ),
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
@@ -588,6 +588,12 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
              A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
          convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
              Object defining when the estimation is converged.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider parameters), or a square matrix with the same size as the number of consider parameters.
+         consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
+             Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
+         apply_final_parameter_correction : bool, default = True
+             Whether to apply the final estimated parameter correction to the simulation models after convergence.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
@@ -1096,6 +1102,17 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
            py::arg( "state_transition_interface" ),
            py::arg( "output_times" ) );
 
+    m.def( "propagate_formal_errors_split_output",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ) );
+}
+
+void expose_estimation_analysis_orbit_determination_helpers( py::module& m )
+{
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
            py::arg( "initial_covariance" ),
@@ -1106,14 +1123,6 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
            &tp::propagateFormalErrorVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_formal_errors_split_output",
-           py::overload_cast< const Eigen::MatrixXd,
-                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
-                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
-           py::arg( "initial_covariance" ),
-           py::arg( "state_transition_interface" ),
            py::arg( "output_times" ) );
 
     m.def( "propagate_covariance_rsw_split_output",

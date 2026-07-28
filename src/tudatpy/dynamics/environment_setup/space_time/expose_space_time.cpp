@@ -30,7 +30,7 @@ namespace environment_setup
 namespace space_time
 {
 
-void expose_space_time_setup( py::module& m )
+void expose_space_time_types( py::module& m )
 {
     py::class_< tr::PPNParameterSet, std::shared_ptr< tr::PPNParameterSet > >( m, "PPNParameterSet", R"doc(
 
@@ -62,7 +62,10 @@ void expose_space_time_setup( py::module& m )
                            &tr::PPNParameterSet::getParameterEpsilon,
                            &tr::PPNParameterSet::setParameterEpsilon,
                            R"doc(Second-order post-Newtonian parameter :math:`\epsilon`.)doc" );
+}
 
+void expose_space_time_setup( py::module& m )
+{
     py::enum_< tss::SpaceTimeMetricTypes >( m, "SpaceTimeMetricType" )
             .value( "schwarzschild_metric", tss::schwarzschild_metric )
             .value( "solar_system_metric", tss::solar_system_metric );

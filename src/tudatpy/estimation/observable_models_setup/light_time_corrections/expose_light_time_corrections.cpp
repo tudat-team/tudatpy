@@ -42,6 +42,8 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
+    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >( m, "LightTimeCorrection" );
+
     py::enum_< tom::LightTimeCorrectionType >( m,
                                                "LightTimeCorrectionType",
                                                R"doc(Enum identifying each type of light-time correction registered on a link.
@@ -779,7 +781,7 @@ float
            py::arg( "bodies" ),
            py::arg( "set_troposphere_data" ) = true,
            py::arg( "set_meteo_data" ) = true,
-           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ),
+           py::arg_v( "interpolator_settings", ti::cubicSplineInterpolation( ), "..." ),
            py::arg( "retrieve_mapping_internally" ) = false,
            R"doc(
 Set VMF/VMF3/VMF3o troposphere (and optional meteo) data in Earth ground stations.
@@ -816,7 +818,7 @@ data_files : list[str]
     (COD, EMR, ESA, IGS, JPL, UPC) and any temporal resolution (15 min to 2 hours) are supported.
 bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
     System of bodies. The ionosphere model will be set on the ``"Earth"`` body.
-interpolator_settings : InterpolatorSettings, optional
+interpolator_settings : InterpolatorSettings, default = math.interpolators.cubic_spline_interpolation()
     Settings for the 3D multi-linear interpolator. If not provided, defaults to multi-linear
     interpolation with hunting algorithm and boundary value extrapolation.
 station_subset : list[tuple[str, str]], default = []

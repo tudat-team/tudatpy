@@ -644,10 +644,27 @@ using the NRLMSISE-00 global reference model:
     m.def( "tabulated",
            &tss::tabulatedAtmosphereSettings,
            py::arg( "atmosphere_data_file" ),
-           py::arg( "dependent_variable_names" ) = std::vector< ta::AtmosphereDependentVariables >(
-                   { tss::density_dependent_atmosphere, tss::pressure_dependent_atmosphere, tss::temperature_dependent_atmosphere } ),
+           py::arg_v( "dependent_variable_names",
+                      std::vector< ta::AtmosphereDependentVariables >( { tss::density_dependent_atmosphere,
+                                                                         tss::pressure_dependent_atmosphere,
+                                                                         tss::temperature_dependent_atmosphere } ),
+                      "..." ),
            py::arg( "specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
-           py::arg( "ratio_of_specific_heats" ) = 1.4 );
+           py::arg( "ratio_of_specific_heats" ) = 1.4,
+           R"doc(
+Create atmosphere settings from tabulated data.
+
+Parameters
+----------
+atmosphere_data_file : str
+    Path to the file containing the tabulated atmosphere data.
+dependent_variable_names : list[AtmosphereDependentVariables], default = [tabulated_density, tabulated_pressure, tabulated_temperature]
+    Atmosphere variables contained in the data file, in column order.
+specific_gas_constant : float, default = SPECIFIC_GAS_CONSTANT_AIR
+    Specific gas constant used by the atmosphere model.
+ratio_of_specific_heats : float, default = 1.4
+    Ratio of specific heats used by the atmosphere model.
+)doc" );
 
     m.def( "us76",
            &tss::us76AtmosphereSettings,

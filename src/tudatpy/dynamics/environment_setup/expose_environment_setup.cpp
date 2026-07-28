@@ -64,6 +64,18 @@ namespace dynamics
 namespace environment_setup
 {
 
+void expose_environment_setup_types( py::module& m )
+{
+    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_types( aerodynamic_coefficient_setup );
+
+    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_types( radiation_pressure_setup );
+
+    auto space_time_setup = m.def_submodule( "space_time" );
+    space_time::expose_space_time_types( space_time_setup );
+}
+
 std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
         const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >&
                 barycentric_to_bodycentric_settings,
@@ -85,10 +97,10 @@ void setRelativisticTimeConverters(
 
 void expose_environment_setup( py::module& m )
 {
-    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    auto aerodynamic_coefficient_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
-    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    auto radiation_pressure_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.radiation_pressure" );
     radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
 
     auto rotation_model_setup = m.def_submodule( "rotation_model" );
@@ -121,7 +133,7 @@ void expose_environment_setup( py::module& m )
     auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
     vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
-    auto space_time_setup = m.def_submodule( "space_time" );
+    auto space_time_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.space_time" );
     space_time::expose_space_time_setup( space_time_setup );
 
     //        m.def("get_body_gravitational_parameter",
@@ -723,7 +735,27 @@ void expose_environment_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "observer_name" ),
            py::arg( "reference_frame_name" ),
-           py::arg( "interpolator_settings" ) = std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
+           py::arg_v( "interpolator_settings", std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ), "..." ),
+           R"doc(
+Create a tabulated ephemeris from SPICE data.
+
+Parameters
+----------
+body : dynamics.environment.Body
+    Body for which the tabulated ephemeris is created.
+initial_time : float
+    Start epoch of the tabulation.
+end_time : float
+    End epoch of the tabulation.
+time_step : float
+    Time interval between consecutive tabulated states.
+observer_name : str
+    Name of the SPICE observer.
+reference_frame_name : str
+    Name of the SPICE reference frame.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(8)
+    Settings used to interpolate the tabulated ephemeris.
+)doc" );
 
     m.def( "create_body_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,

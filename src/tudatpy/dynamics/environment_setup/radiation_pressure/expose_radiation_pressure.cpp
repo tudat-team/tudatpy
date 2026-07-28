@@ -39,6 +39,19 @@ namespace environment_setup
 namespace radiation_pressure
 {
 
+void expose_radiation_pressure_types( py::module& m )
+{
+    py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
+                Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
+                in other parts of the code to identify a specific type of target
+)doc" )
+            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target )
+            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target )
+            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
+            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
+            .export_values( );
+}
+
 void expose_radiation_pressure_setup( py::module& m )
 {
     /////////////////////////////////////////////////////////////////////////////
@@ -48,16 +61,6 @@ void expose_radiation_pressure_setup( py::module& m )
     // DEPRECATED //
     py::enum_< tss::RadiationPressureType >( m, "RadiationPressureType" )
             .value( "cannonball_radiation_pressure_interface", tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
-            .export_values( );
-
-    py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
-                Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
-                in other parts of the code to identify a specific type of target
-)doc" )
-            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target )
-            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target )
-            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
-            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
             .export_values( );
 
     // DEPRECATED //
@@ -276,6 +279,9 @@ void expose_radiation_pressure_setup( py::module& m )
 
 
       )doc" );
+    py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
+                std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" );
 
     m.def( "constant_surface_property_distribution",
            &tss::constantSurfacePropertyDistributionSettings,
