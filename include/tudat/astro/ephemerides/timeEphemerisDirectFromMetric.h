@@ -103,8 +103,7 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric< TimeType, Sta
                 {
                     timeDifferenceFunction = [ = ]( const Time currentTime ) {
                         const TimeType interpolationTime = detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
-                        return Time( static_cast< long double >(
-                                getGlobalCoordinateToProperTimeDifference( pointIdentifier, interpolationTime ) ) );
+                        return Time( getGlobalCoordinateToProperTimeDifference( pointIdentifier, interpolationTime ) );
                     };
                 }
             }
@@ -125,8 +124,7 @@ std::function< Time( const Time ) > TimeEphemerisDirectFromMetric< TimeType, Sta
                 {
                     timeDifferenceFunction = [ = ]( const Time currentTime ) {
                         const TimeType interpolationTime = detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime );
-                        return Time( static_cast< long double >(
-                                getProperToGlobalCoordinateTimeDifference( pointIdentifier, interpolationTime ) ) );
+                        return Time( getProperToGlobalCoordinateTimeDifference( pointIdentifier, interpolationTime ) );
                     };
                 }
             }

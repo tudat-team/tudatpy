@@ -233,23 +233,23 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
         }
 
         auto getBarycentricToBodycentricDifference = [ = ]( const Time currentTime ) {
-            return Time( static_cast< long double >( barycenterToPlanetCenterCoordinateTimeInterpolator_->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) ) );
+            return Time( barycenterToPlanetCenterCoordinateTimeInterpolator_->interpolate(
+                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getBodycentricToBarycentricDifference = [ = ]( const Time currentTime ) {
-            return Time( static_cast< long double >( planetCenterToBarycenterCoordinateTimeInterpolator_->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) ) );
+            return Time( planetCenterToBarycenterCoordinateTimeInterpolator_->interpolate(
+                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getPlanetCoordinateToProperDifference = [ = ]( const std::string& point, const Time currentTime ) {
-            return Time( static_cast< long double >( planetCoordinateToProperTimeInterpolators_.at( point )->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) ) );
+            return Time( planetCoordinateToProperTimeInterpolators_.at( point )->interpolate(
+                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getProperToPlanetCoordinateDifference = [ = ]( const std::string& point, const Time currentTime ) {
-            return Time( static_cast< long double >( properTimeToPlanetCoordinateInterpolators_.at( point )->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) ) );
+            return Time( properTimeToPlanetCoordinateInterpolators_.at( point )->interpolate(
+                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         switch( inputScale )
@@ -277,10 +277,10 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
                                 groundStationPositionFunctions_.at( pointIdentifier );
 
                         timeDifferenceFunctions.push_back( [ = ]( const Time currentTime ) {
-                            return Time( static_cast< long double >( this->calculateDirectTimeDifferenceTermFromFunction(
+                            return Time( this->calculateDirectTimeDifferenceTermFromFunction(
                                     stationPositionFunction,
                                     detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
-                                    1.0 ) ) );
+                                    1.0 ) );
                         } );
 
                         timeDifferenceFunctions.push_back( [ = ]( const Time currentTime ) {
@@ -346,10 +346,10 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
                                 groundStationPositionFunctions_.at( pointIdentifier );
 
                         timeDifferenceFunctions.push_back( [ = ]( const Time currentTime ) {
-                            return Time( static_cast< long double >( this->calculateDirectTimeDifferenceTermFromFunction(
+                            return Time( this->calculateDirectTimeDifferenceTermFromFunction(
                                     stationPositionFunction,
                                     detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
-                                    -1.0 ) ) );
+                                    -1.0 ) );
                         } );
 
                         timeDifferenceFunctions.push_back( getBodycentricToBarycentricDifference );

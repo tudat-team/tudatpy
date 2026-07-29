@@ -11,6 +11,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <type_traits>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -79,6 +81,40 @@ BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
         }
     }
 }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+//! Test construction from the configured quad-precision state scalar.
+BOOST_AUTO_TEST_CASE( testTimeQuadPrecisionConstruction )
+{
+    static_assert( std::is_constructible_v< Time, const HighPrecisionStateScalar& > );
+    static_assert( !std::is_convertible_v< HighPrecisionStateScalar, Time > );
+    static_assert( std::is_constructible_v< Time, int > );
+    static_assert( std::is_constructible_v< Time, double > );
+    static_assert( std::is_constructible_v< Time, long double > );
+
+    const int numberOfFullPeriods = 1000000000;
+    const HighPrecisionStateScalar normalizationTerm = static_cast< HighPrecisionStateScalar >( TIME_NORMALIZATION_INTEGER_TERM );
+    const HighPrecisionStateScalar remainder( "1234.5678901234567890123456789" );
+    const HighPrecisionStateScalar absoluteEpoch =
+            static_cast< HighPrecisionStateScalar >( numberOfFullPeriods ) * normalizationTerm + remainder;
+
+    const Time quadTime( absoluteEpoch );
+    BOOST_CHECK_EQUAL( quadTime.getFullPeriods( ), numberOfFullPeriods );
+    BOOST_CHECK_EQUAL( quadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( remainder ) );
+
+    const Time quadExpressionTime( absoluteEpoch + HighPrecisionStateScalar( "0.125" ) );
+    BOOST_CHECK_EQUAL( quadExpressionTime.getFullPeriods( ), numberOfFullPeriods );
+    BOOST_CHECK_EQUAL( quadExpressionTime.getSecondsIntoFullPeriod( ),
+                       static_cast< long double >( remainder + HighPrecisionStateScalar( "0.125" ) ) );
+
+    const Time prematurelyNarrowedTime( static_cast< long double >( absoluteEpoch ) );
+    BOOST_CHECK_NE( prematurelyNarrowedTime.getSecondsIntoFullPeriod( ), quadTime.getSecondsIntoFullPeriod( ) );
+
+    const Time negativeQuadTime( -absoluteEpoch );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getFullPeriods( ), -numberOfFullPeriods - 1 );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( normalizationTerm - remainder ) );
+}
+#endif
 
 //! Test if time saves/retrieves entries at the expected level of precision.
 BOOST_AUTO_TEST_CASE( testTimeContentsPrecision )

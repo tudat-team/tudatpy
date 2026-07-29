@@ -19,6 +19,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/config.hpp"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -83,6 +84,41 @@ public:
 
         normalizeMembers( );
     }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    //! Constructor, sets number of seconds since epoch from the configured quad-precision scalar.
+    /*!
+     * Constructor, sets number of seconds since epoch from the configured quad-precision scalar. The input is split into
+     * full normalization periods and a remainder before the remainder is converted to long double. This avoids losing the
+     * precision of a small remainder by first converting a potentially large absolute epoch to long double.
+     * \param numberOfSeconds Number of seconds since epoch.
+     */
+    explicit Time( const HighPrecisionStateScalar& numberOfSeconds ): fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 )
+    {
+        const HighPrecisionStateScalar normalizationTerm = static_cast< HighPrecisionStateScalar >( TIME_NORMALIZATION_INTEGER_TERM );
+        const HighPrecisionStateScalar maxSeconds =
+                static_cast< HighPrecisionStateScalar >( std::numeric_limits< int >::max( ) ) * normalizationTerm;
+        const HighPrecisionStateScalar minSeconds =
+                static_cast< HighPrecisionStateScalar >( std::numeric_limits< int >::min( ) ) * normalizationTerm;
+
+        if( numberOfSeconds >= maxSeconds || numberOfSeconds <= minSeconds )
+        {
+            throw std::overflow_error( "Error when creating Time class, input in seconds is outside valid limits." );
+        }
+
+        if( numberOfSeconds != numberOfSeconds )
+        {
+            secondsIntoFullPeriod_ = std::numeric_limits< long double >::quiet_NaN( );
+            return;
+        }
+
+        using std::floor;
+        const HighPrecisionStateScalar fullPeriods = floor( numberOfSeconds / normalizationTerm );
+        fullPeriods_ = static_cast< int >( fullPeriods );
+        secondsIntoFullPeriod_ = static_cast< long double >( numberOfSeconds - fullPeriods * normalizationTerm );
+        normalizeMembers( );
+    }
+#endif
 
     //! Constructor, sets number of seconds since epoch (with double representation as input)
     /*!
