@@ -31,5 +31,14 @@ long double getDefaultLightTimeTolerance< long double >( )
     return 1.0E-15L;
 }
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+//! Quad-precision light-time iterations must converge well below picosecond effects.
+template<>
+HighPrecisionStateScalar getDefaultLightTimeTolerance< HighPrecisionStateScalar >( )
+{
+    return HighPrecisionStateScalar( "1.0e-30" );
+}
+#endif
+
 }  // namespace observation_models
 }  // namespace tudat

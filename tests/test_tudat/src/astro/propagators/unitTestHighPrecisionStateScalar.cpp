@@ -30,6 +30,7 @@
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/root_finders/newtonRaphson.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
@@ -238,6 +239,97 @@ Eigen::Matrix< ValueType, 3, 1 > getPointMassOrbitDynamicsSimulatorError( const 
     errorMetrics << ( normalizedPositionError > normalizedVelocityError ? normalizedPositionError : normalizedVelocityError ),
             positionError, velocityError;
     return errorMetrics;
+}
+
+struct PropagatedObservationEnvironment {
+    simulation_setup::SystemOfBodies bodies;
+    std::shared_ptr< propagators::SingleArcSimulationResults< Scalar, Time > > propagationResults;
+};
+
+PropagatedObservationEnvironment createPropagatedObservationEnvironment( )
+{
+    const double gravitationalParameterAsDouble = 1.32712440018e20;
+    const Scalar gravitationalParameter = static_cast< Scalar >( gravitationalParameterAsDouble );
+    const Scalar pi = mathematical_constants::getPi< Scalar >( );
+
+    FixedState initialKeplerianState;
+    initialKeplerianState << scalarFromDecimalString< Scalar >( "778500000000" ), scalarFromDecimalString< Scalar >( "0.0489" ),
+            pi * scalarFromDecimalString< Scalar >( "1.3" ) / static_cast< Scalar >( 180 ), pi / static_cast< Scalar >( 5 ),
+            pi / static_cast< Scalar >( 7 ),
+            pi / static_cast< Scalar >( 9 );
+    const FixedState initialCartesianState =
+            orbital_element_conversions::convertKeplerianToCartesianElements< Scalar >( initialKeplerianState, gravitationalParameter );
+
+    simulation_setup::SystemOfBodies bodies( "SSB", "J2000" );
+    bodies.createEmptyBody< Scalar, Time >( "Sun", false );
+    bodies.createEmptyBody< Scalar, Time >( "Earth", false );
+    bodies.createEmptyBody< Scalar, Time >( "Jupiter", false );
+    bodies.at( "Sun" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "J2000" ) );
+    bodies.at( "Sun" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( gravitationalParameterAsDouble ) );
+    Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
+    earthState( 0 ) = 149597870700.0;
+    bodies.at( "Earth" )->setEphemeris(
+            std::make_shared< ephemerides::ConstantEphemeris >( earthState, "SSB", "J2000" ) );
+    bodies.processBodyFrameDefinitions< Scalar, Time >( );
+
+    simulation_setup::SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Jupiter" ][ "Sun" ].push_back(
+            std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    const std::vector< std::string > bodiesToPropagate{ "Jupiter" };
+    const std::vector< std::string > centralBodies{ "Sun" };
+    const basic_astrodynamics::AccelerationMap accelerationModels =
+            simulation_setup::createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
+
+    const Time initialTime( 0.0L );
+    const Time stepSize( 60.0L );
+    const auto integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings< Time > >(
+            numerical_integrators::rungeKutta4, initialTime, stepSize );
+    const auto outputSettings = std::make_shared< propagators::SingleArcPropagatorProcessingSettings >(
+            false, true, 1, TUDAT_NAN, std::make_shared< propagators::PropagationPrintSettings >( ) );
+    const auto propagatorSettings = std::make_shared< propagators::TranslationalStatePropagatorSettings< Scalar, Time > >(
+            centralBodies,
+            accelerationModels,
+            bodiesToPropagate,
+            initialCartesianState,
+            initialTime,
+            integratorSettings,
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( 86400.0, true ),
+            propagators::cowell,
+            std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > >( ),
+            outputSettings );
+
+    propagators::SingleArcDynamicsSimulator< Scalar, Time > dynamicsSimulator( bodies, propagatorSettings );
+    return { bodies, dynamicsSimulator.getSingleArcPropagationResults( ) };
+}
+
+Scalar computeEarthJupiterRange( const std::shared_ptr< ephemerides::Ephemeris >& earthEphemeris,
+                                 const std::shared_ptr< ephemerides::Ephemeris >& jupiterEphemeris,
+                                 const Time& time )
+{
+    return ( jupiterEphemeris->getTemplatedStateFromEphemeris< Scalar, Time >( time ) -
+             earthEphemeris->getTemplatedStateFromEphemeris< Scalar, Time >( time ) )
+            .template segment< 3 >( 0 )
+            .norm( );
+}
+
+Scalar computeTwoWayRangeReference( const std::shared_ptr< ephemerides::Ephemeris >& earthEphemeris,
+                                    const std::shared_ptr< ephemerides::Ephemeris >& jupiterEphemeris,
+                                    const Time& receptionTime )
+{
+    const Scalar speedOfLight = physical_constants::getSpeedOfLight< Scalar >( );
+    Time reflectionTime = receptionTime;
+    for( int i = 0; i < 50; ++i )
+    {
+        const Scalar range = computeEarthJupiterRange( earthEphemeris, jupiterEphemeris, reflectionTime );
+        const Time updatedReflectionTime = receptionTime - static_cast< long double >( range / speedOfLight );
+        if( updatedReflectionTime == reflectionTime )
+        {
+            break;
+        }
+        reflectionTime = updatedReflectionTime;
+    }
+
+    return static_cast< Scalar >( 2 ) * computeEarthJupiterRange( earthEphemeris, jupiterEphemeris, reflectionTime );
 }
 
 BOOST_AUTO_TEST_SUITE( test_high_precision_state_scalar )
@@ -458,6 +550,107 @@ BOOST_AUTO_TEST_CASE( testPointMassOrbitDynamicsSimulatorNoiseFloor )
                                                                << ", quad velocity error [m/s]: " << quadErrors.back( )( 2 )
                                                                << ", double position error [m]: " << doubleErrors.back( )( 1 )
                                                                << ", double velocity error [m/s]: " << doubleErrors.back( )( 2 ) );
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
+{
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    PropagatedObservationEnvironment environment = createPropagatedObservationEnvironment( );
+    const auto& stateHistory = environment.propagationResults->getEquationsOfMotionNumericalSolution( );
+    BOOST_REQUIRE( !stateHistory.empty( ) );
+
+    const auto jupiterEphemeris = std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< Scalar, Time > >(
+            environment.bodies.at( "Jupiter" )->getEphemeris( ) );
+    BOOST_REQUIRE( jupiterEphemeris != nullptr );
+    const auto earthEphemeris = environment.bodies.at( "Earth" )->getEphemeris( );
+
+    // Verify that the simulator, rather than this test, reset Jupiter's
+    // ephemeris from the quad propagation results.
+    const FixedState finalStoredState = jupiterEphemeris->getCartesianLongStateFromExtendedTime( stateHistory.rbegin( )->first );
+    BOOST_CHECK( ( finalStoredState - stateHistory.rbegin( )->second ).norm( ) == static_cast< Scalar >( 0 ) );
+
+    const auto convergenceCriteria = std::make_shared< observation_models::LightTimeConvergenceCriteria >( );
+    BOOST_CHECK( observation_models::getDefaultLightTimeTolerance< Scalar >( ) < scalarFromDecimalString< Scalar >( "1e-25" ) );
+
+    observation_models::LinkEnds oneWayLinkEnds;
+    oneWayLinkEnds[ observation_models::transmitter ] = observation_models::linkEndId( "Earth" );
+    oneWayLinkEnds[ observation_models::receiver ] = observation_models::linkEndId( "Jupiter" );
+    const auto oneWaySettings = std::make_shared< observation_models::ObservationModelSettings >(
+            observation_models::one_way_range,
+            observation_models::LinkDefinition( oneWayLinkEnds ),
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > >( ),
+            nullptr,
+            convergenceCriteria );
+    const auto oneWayRangeModel =
+            observation_models::ObservationModelCreator< 1, Scalar, Time >::createObservationModel( oneWaySettings, environment.bodies );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel< Scalar, Time > >( oneWayRangeModel ) !=
+                     nullptr ) );
+
+    observation_models::LinkEnds nWayLinkEnds;
+    nWayLinkEnds[ observation_models::transmitter ] = observation_models::linkEndId( "Earth" );
+    nWayLinkEnds[ observation_models::reflector1 ] = observation_models::linkEndId( "Jupiter" );
+    nWayLinkEnds[ observation_models::receiver ] = observation_models::linkEndId( "Earth" );
+    const auto nWaySettings = std::make_shared< observation_models::NWayRangeObservationModelSettings >(
+            observation_models::LinkDefinition( nWayLinkEnds ),
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > >( ),
+            nullptr,
+            convergenceCriteria );
+    const auto nWayRangeModel =
+            observation_models::ObservationModelCreator< 1, Scalar, Time >::createObservationModel( nWaySettings, environment.bodies );
+    BOOST_REQUIRE(
+            ( std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< Scalar, Time > >( nWayRangeModel ) != nullptr ) );
+
+    const Time observationTime( 43200.125L );
+    const Time offsetObservationTime = observationTime + 1.0e-12L;
+    const Scalar representedTimeIncrement = static_cast< Scalar >( static_cast< long double >( offsetObservationTime - observationTime ) );
+    BOOST_REQUIRE( representedTimeIncrement > static_cast< Scalar >( 0 ) );
+
+    const auto computeRange = []( const auto& observationModel, const Time& time, const observation_models::LinkEndType referenceLinkEnd ) {
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Vector6d > linkEndStates;
+        return observationModel->computeIdealObservationsWithLinkEndData(
+                time, referenceLinkEnd, linkEndTimes, linkEndStates, nullptr )( 0 );
+    };
+
+    const Scalar oneWayRange = computeRange( oneWayRangeModel, observationTime, observation_models::receiver );
+    const Scalar offsetOneWayRange = computeRange( oneWayRangeModel, offsetObservationTime, observation_models::receiver );
+    const Scalar oneWayReference = computeEarthJupiterRange( earthEphemeris, jupiterEphemeris, observationTime );
+    const Scalar offsetOneWayReference = computeEarthJupiterRange( earthEphemeris, jupiterEphemeris, offsetObservationTime );
+
+    const Scalar nWayRange = computeRange( nWayRangeModel, observationTime, observation_models::receiver );
+    const Scalar offsetNWayRange = computeRange( nWayRangeModel, offsetObservationTime, observation_models::receiver );
+    const Scalar nWayReference = computeTwoWayRangeReference( earthEphemeris, jupiterEphemeris, observationTime );
+    const Scalar offsetNWayReference =
+            computeTwoWayRangeReference( earthEphemeris, jupiterEphemeris, offsetObservationTime );
+
+    const Scalar oneWayRangeChange = offsetOneWayRange - oneWayRange;
+    const Scalar expectedOneWayRangeChange = offsetOneWayReference - oneWayReference;
+    const Scalar nWayRangeChange = offsetNWayRange - nWayRange;
+    const Scalar expectedNWayRangeChange = offsetNWayReference - nWayReference;
+
+    BOOST_CHECK( getAbsoluteValue( oneWayRange - oneWayReference ) < scalarFromDecimalString< Scalar >( "1e-18" ) );
+    BOOST_CHECK( getAbsoluteValue( nWayRange - nWayReference ) < scalarFromDecimalString< Scalar >( "1e-11" ) );
+    BOOST_CHECK( oneWayRangeChange != static_cast< Scalar >( 0 ) );
+    BOOST_CHECK( nWayRangeChange != static_cast< Scalar >( 0 ) );
+    BOOST_CHECK( getAbsoluteValue( oneWayRangeChange - expectedOneWayRangeChange ) < scalarFromDecimalString< Scalar >( "1e-18" ) );
+    BOOST_CHECK( getAbsoluteValue( nWayRangeChange - expectedNWayRangeChange ) < scalarFromDecimalString< Scalar >( "1e-11" ) );
+
+    // The test remains entirely quad precision. Double spacing is used only as
+    // a benchmark for the resolution unavailable at Jupiter range.
+    const double oneWayDoubleSpacing = std::nextafter( static_cast< double >( oneWayRange ), std::numeric_limits< double >::infinity( ) ) -
+            static_cast< double >( oneWayRange );
+    const double nWayDoubleSpacing = std::nextafter( static_cast< double >( nWayRange ), std::numeric_limits< double >::infinity( ) ) -
+            static_cast< double >( nWayRange );
+    BOOST_CHECK( getAbsoluteValue( oneWayRangeChange ) * static_cast< Scalar >( 1000 ) <
+                 static_cast< Scalar >( oneWayDoubleSpacing ) );
+    BOOST_CHECK( getAbsoluteValue( nWayRangeChange ) * static_cast< Scalar >( 1000 ) <
+                 static_cast< Scalar >( nWayDoubleSpacing ) );
+
+    BOOST_TEST_MESSAGE( "Represented epoch increment [s]: " << representedTimeIncrement << ", one-way range change [m]: "
+                                                            << oneWayRangeChange << ", one-way double spacing [m]: " << oneWayDoubleSpacing
+                                                            << ", n-way range change [m]: " << nWayRangeChange
+                                                            << ", n-way double spacing [m]: " << nWayDoubleSpacing );
 #endif
 }
 
