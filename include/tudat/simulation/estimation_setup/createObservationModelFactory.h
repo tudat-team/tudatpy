@@ -680,6 +680,141 @@ template< typename ObservationScalarType, typename TimeType >
 class ObservationModelCreator< 1, ObservationScalarType, TimeType >
 {
 public:
+    static std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > >
+    createHighPrecisionRangeObservationModel(
+            const std::shared_ptr< ObservationModelSettings > observationSettings,
+            const simulation_setup::SystemOfBodies& bodies,
+            const ObservableType topLevelObservableType )
+    {
+        using namespace observation_models;
+
+        const LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
+        std::shared_ptr< ObservationBias< 1 > > observationBias;
+        if( observationSettings->biasSettings_ != nullptr )
+        {
+            observationBias = createObservationBiasCalculator(
+                    linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+        }
+
+        if( observationSettings->observableType_ == one_way_range )
+        {
+            if( linkEnds.size( ) != 2 || linkEnds.count( transmitter ) == 0 ||
+                linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error(
+                        "Error when making quad-precision one-way range model: invalid link ends." );
+            }
+
+            const auto lightTimeCalculator =
+                    createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds, transmitter, receiver, bodies, topLevelObservableType,
+                            observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ );
+            auto rangeModel = std::make_shared<
+                    OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            linkEnds, lightTimeCalculator, observationBias,
+                            observationSettings->observableTimeScale_ );
+            if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+            {
+                rangeModel->setTimeScaleConverter( );
+            }
+            if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+            {
+                throw std::runtime_error(
+                        "Frequency-dependent corrections are not supported by the "
+                        "quad-precision range factory path." );
+            }
+
+            std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > >
+                    observationModel = rangeModel;
+            setDefaultTransponderDelayFunctions( observationModel, bodies );
+            return observationModel;
+        }
+        else if( observationSettings->observableType_ == n_way_range )
+        {
+            if( linkEnds.size( ) < 2 )
+            {
+                throw std::runtime_error(
+                        "Error when making quad-precision n-way range model: invalid link ends." );
+            }
+
+            std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >
+                    singleLegConvergenceCriteria;
+            std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >
+                    lightTimeCorrections;
+            std::shared_ptr< LightTimeConvergenceCriteria > multiLegConvergenceCriteria =
+                    observationSettings->lightTimeConvergenceCriteria_;
+            const auto nWaySettings =
+                    std::dynamic_pointer_cast< NWayRangeObservationModelSettings >(
+                            observationSettings );
+            if( nWaySettings != nullptr )
+            {
+                if( nWaySettings->oneWayRangeObservationSettings_.size( ) !=
+                    linkEnds.size( ) - 1 )
+                {
+                    throw std::runtime_error(
+                            "Error when making quad-precision n-way range model: "
+                            "inconsistent leg settings." );
+                }
+                multiLegConvergenceCriteria =
+                        nWaySettings->multiLegLightTimeConvergenceCriteria_;
+                for( const auto& legSettings :
+                     nWaySettings->oneWayRangeObservationSettings_ )
+                {
+                    if( legSettings->observableType_ != one_way_range ||
+                        legSettings->biasSettings_ != nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Quad-precision n-way range requires unbiased one-way "
+                                "range settings for every leg." );
+                    }
+                    lightTimeCorrections.push_back(
+                            legSettings->lightTimeCorrectionsList_ );
+                    singleLegConvergenceCriteria.push_back(
+                            legSettings->lightTimeConvergenceCriteria_ );
+                }
+            }
+            else
+            {
+                for( unsigned int i = 0; i < linkEnds.size( ) - 1; ++i )
+                {
+                    lightTimeCorrections.push_back(
+                            observationSettings->lightTimeCorrectionsList_ );
+                    singleLegConvergenceCriteria.push_back(
+                            observationSettings->lightTimeConvergenceCriteria_ );
+                }
+            }
+
+            const auto lightTimeCalculator =
+                    createFullLinkLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds, bodies, topLevelObservableType, lightTimeCorrections,
+                            singleLegConvergenceCriteria, multiLegConvergenceCriteria );
+            if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+            {
+                throw std::runtime_error(
+                        "Frequency-dependent corrections are not supported by the "
+                        "quad-precision range factory path." );
+            }
+            auto rangeModel = std::make_shared<
+                    NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                            linkEnds, lightTimeCalculator, observationBias,
+                            observationSettings->observableTimeScale_ );
+            if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+            {
+                rangeModel->setTimeScaleConverter( );
+            }
+
+            std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > >
+                    observationModel = rangeModel;
+            setDefaultTransponderDelayFunctions( observationModel, bodies );
+            return observationModel;
+        }
+
+        throw std::runtime_error(
+                "The quad-precision observation-model factory currently supports only "
+                "one-way and n-way range." );
+    }
+
     //! Function to create an observation model of size 1.
     /*!
      * Function to create an observation model of size 1.
@@ -693,6 +828,19 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             ObservableType topLevelObservableType = undefined_observation_model )
     {
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+        if constexpr( std::is_same_v< ObservationScalarType, HighPrecisionStateScalar > )
+        {
+            if( topLevelObservableType == undefined_observation_model )
+            {
+                topLevelObservableType = observationSettings->observableType_;
+            }
+            return createHighPrecisionRangeObservationModel(
+                    observationSettings, bodies, topLevelObservableType );
+        }
+        else
+#endif
+        {
         using namespace observation_models;
 
         std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > observationModel;
@@ -1734,6 +1882,7 @@ public:
         setDefaultTransponderDelayFunctions( observationModel, bodies );
 
         return observationModel;
+        }
     }
 };
 

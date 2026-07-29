@@ -72,11 +72,11 @@ public:
     virtual ~LightTimeConvergenceCriteria( ) {}
 
     template< typename ScalarType = double >
-    double getFractionOfLightTimeTolerance( )
+    ScalarType getFractionOfLightTimeTolerance( )
     {
         if( fractionOfLightTimeTolerance_ == fractionOfLightTimeTolerance_ )
         {
-            return fractionOfLightTimeTolerance_;
+            return static_cast< ScalarType >( fractionOfLightTimeTolerance_ );
         }
         else
         {
@@ -98,13 +98,15 @@ bool isSingleLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConv
                                             const ObservationScalarType previousLightTimeCalculation,
                                             const ObservationScalarType newLightTimeCalculation,
                                             const int numberOfIterations,
-                                            const double currentCorrection,
+                                            const ObservationScalarType currentCorrection,
                                             const TimeType& currentTime,
                                             bool& updateLightTimeCorrections )
 {
+    using std::abs;
+
     bool isToleranceReached = false;
     // Check for convergence.
-    if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
+    if( abs( newLightTimeCalculation - previousLightTimeCalculation ) <
         convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
     {
         // If convergence reached, but light-time corrections not iterated,
@@ -125,9 +127,9 @@ bool isSingleLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConv
         if( numberOfIterations == convergenceCriteria->maximumNumberOfIterations_ )
         {
             std::string errorMessage = "light time unconverged at level " +
-                    std::to_string( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
-                    "; current light-time corrections are: " + std::to_string( currentCorrection ) + " and current time was " +
-                    std::to_string( static_cast< double >( currentTime ) );
+                    std::to_string( static_cast< long double >( abs( newLightTimeCalculation - previousLightTimeCalculation ) ) ) +
+                    "; current light-time corrections are: " + std::to_string( static_cast< long double >( currentCorrection ) ) +
+                    " and current time was " + std::to_string( static_cast< double >( currentTime ) );
             switch( convergenceCriteria->failureHandling_ )
             {
                 case accept_without_warning:
@@ -154,9 +156,11 @@ bool isMultiLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConve
                                            const int numberOfIterations,
                                            const TimeType& currentTime )
 {
+    using std::abs;
+
     bool isToleranceReached = false;
     // Check for convergence.
-    if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
+    if( abs( newLightTimeCalculation - previousLightTimeCalculation ) <
         convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
     {
         isToleranceReached = true;
@@ -168,7 +172,7 @@ bool isMultiLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConve
         if( numberOfIterations == convergenceCriteria->maximumNumberOfIterations_ )
         {
             std::string errorMessage = "multi-leg light time unconverged at level " +
-                    std::to_string( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+                    std::to_string( static_cast< long double >( abs( newLightTimeCalculation - previousLightTimeCalculation ) ) ) +
                     " seconds. Current reference time was " + std::to_string( static_cast< double >( currentTime ) );
             switch( convergenceCriteria->failureHandling_ )
             {
@@ -187,6 +191,34 @@ bool isMultiLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConve
         }
     }
     return isToleranceReached;
+}
+
+//! Add a scalar time interval to a light-time calculator epoch.
+template< typename TimeType, typename ScalarType >
+TimeType addLightTimeToEpoch( const TimeType& epoch, const ScalarType& lightTime )
+{
+    if constexpr( std::is_same_v< TimeType, Time > )
+    {
+        return epoch + static_cast< long double >( lightTime );
+    }
+    else
+    {
+        return epoch + static_cast< TimeType >( lightTime );
+    }
+}
+
+//! Subtract a scalar time interval from a light-time calculator epoch.
+template< typename TimeType, typename ScalarType >
+TimeType subtractLightTimeFromEpoch( const TimeType& epoch, const ScalarType& lightTime )
+{
+    if constexpr( std::is_same_v< TimeType, Time > )
+    {
+        return epoch - static_cast< long double >( lightTime );
+    }
+    else
+    {
+        return epoch - static_cast< TimeType >( lightTime );
+    }
 }
 
 //! Class for wrapping a custom light-time correction function
@@ -483,11 +515,11 @@ public:
             // Set value of transmission and reception times based on initial guess for light time
             if( isTimeAtReception )  // reference time is at reception
             {
-                transmissionTime = receptionTime - previousLightTimeCalculation;
+                transmissionTime = subtractLightTimeFromEpoch( receptionTime, previousLightTimeCalculation );
             }
             else  // reference time is at transmission
             {
-                receptionTime = transmissionTime + previousLightTimeCalculation;
+                receptionTime = addLightTimeToEpoch( transmissionTime, previousLightTimeCalculation );
             }
             // Set receiver and transmitter states to initial guess
             receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
@@ -556,13 +588,13 @@ public:
                 if( isTimeAtReception )
                 {
                     receptionTime = time;
-                    transmissionTime = time - previousLightTimeCalculation;
+                    transmissionTime = subtractLightTimeFromEpoch( time, previousLightTimeCalculation );
                     transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >(
                             transmissionTime );
                 }
                 else
                 {
-                    receptionTime = time + previousLightTimeCalculation;
+                    receptionTime = addLightTimeToEpoch( time, previousLightTimeCalculation );
                     transmissionTime = time;
                     receiverState =
                             ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
@@ -1033,13 +1065,13 @@ public:
             linkEndsStatesOutput.clear( );
             if( isTimeAtReception )
             {
-                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime - lightTime ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( subtractLightTimeFromEpoch( linkEndTime, lightTime ) ) );
                 linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
             }
             else
             {
                 linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
-                linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime + lightTime ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( addLightTimeToEpoch( linkEndTime, lightTime ) ) );
             }
             linkEndsStatesOutput.push_back( transmitterState.template cast< double >( ) );
             linkEndsStatesOutput.push_back( receiverState.template cast< double >( ) );
@@ -1224,7 +1256,7 @@ private:
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentDownIndex - 1 );
-            currentLinkEndReceptionTime -= currentLightTime;
+            currentLinkEndReceptionTime = subtractLightTimeFromEpoch( currentLinkEndReceptionTime, currentLightTime );
 
             // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;
@@ -1249,7 +1281,7 @@ private:
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentUpIndex + 1 );
 
-            currentLinkEndTransmissionTime += currentLightTime;
+            currentLinkEndTransmissionTime = addLightTimeToEpoch( currentLinkEndTransmissionTime, currentLightTime );
 
             // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;
