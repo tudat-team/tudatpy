@@ -120,7 +120,7 @@ public:
             ObservationScalarType lightTimeForFirstReceiver =
                     this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
                             time, receiver, firstLinkEndTimes, firstLinkEndStates, ancillarySetings );
-            TimeType fullPrecisionTransmissionTime = time - static_cast< TimeType >( lightTimeForFirstReceiver );
+            TimeType fullPrecisionTransmissionTime = subtractTimeIntervalFromEpoch( time, lightTimeForFirstReceiver );
 
             linkEndTimes[ 0 ] = firstLinkEndTimes.at( 0 );
             linkEndTimes[ 1 ] = firstLinkEndTimes.at( 1 );
@@ -129,7 +129,7 @@ public:
             ObservationScalarType lightTimeForSecondReceiver =
                     this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
                             fullPrecisionTransmissionTime, transmitter, secondLinkEndTimes, secondLinkEndStates, ancillarySetings );
-            fullPrecisionTimeAtReceiver2 = fullPrecisionTransmissionTime + static_cast< TimeType >( lightTimeForSecondReceiver );
+            fullPrecisionTimeAtReceiver2 = addTimeIntervalToEpoch( fullPrecisionTransmissionTime, lightTimeForSecondReceiver );
             linkEndTimes[ 2 ] = secondLinkEndTimes.at( 1 );
 
             linkEndStates[ 0 ] = firstLinkEndStates.at( 0 );

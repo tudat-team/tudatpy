@@ -39,7 +39,7 @@ void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< Obser
     TimeType approximateTransmissionTime;
     if( linkEndAssociatedWithTime == receiver )
     {
-        approximateTransmissionTime = subtractLightTimeFromEpoch(
+        approximateTransmissionTime = subtractTimeIntervalFromEpoch(
                 observationTime, lightTimeCalculator->calculateFirstIterationLightTime( observationTime, true ) );
     }
     else if( linkEndAssociatedWithTime == transmitter )
@@ -74,7 +74,7 @@ void setTransmissionReceptionFrequencies(
     {
         throw std::runtime_error( "Error when getting n-way transmission frequency, reference link end is incompatible. " );
     }
-    TimeType approximateTdbTransmissionTime = subtractLightTimeFromEpoch(
+    TimeType approximateTdbTransmissionTime = subtractTimeIntervalFromEpoch(
             receptionTdbTime, fullLinkLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver ) );
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(

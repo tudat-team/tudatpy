@@ -37,6 +37,7 @@ namespace orbital_element_conversions
 {
 
 using std::atan;
+using std::atan2;
 using std::cos;
 using std::fabs;
 using std::pow;
@@ -255,7 +256,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
     // Compute longitude of ascending node.
 
     // Compute solution in [-PI,PI] interval with atan2.
-    ScalarType longitudeOfAscendingNode = std::atan2( kElement, hElement );
+    ScalarType longitudeOfAscendingNode = atan2( kElement, hElement );
 
     // Store longitude of ascending node.
     convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
@@ -293,7 +294,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
     // Argument of periapsis can be found from composite argument.
     {
         // Compute composite argument.
-        argumentOfPeriapsisAndLongitude = std::atan2( gElement, fElement );
+        argumentOfPeriapsisAndLongitude = atan2( gElement, fElement );
 
         // Compute argument of periapsis.
         convertedKeplerianElements( argumentOfPeriapsisIndex ) =

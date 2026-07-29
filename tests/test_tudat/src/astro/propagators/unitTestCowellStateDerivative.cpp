@@ -473,9 +473,9 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     testCowellPropagationOfKeplerOrbit< double, double >( );
 
 #if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-    testCowellPropagationOfKeplerOrbit< double, long double >( );
+    testCowellPropagationOfKeplerOrbit< double, HighPrecisionStateScalar >( );
     testCowellPropagationOfKeplerOrbit< Time, double >( );
-    testCowellPropagationOfKeplerOrbit< Time, long double >( );
+    testCowellPropagationOfKeplerOrbit< Time, HighPrecisionStateScalar >( );
 #endif
 }
 
