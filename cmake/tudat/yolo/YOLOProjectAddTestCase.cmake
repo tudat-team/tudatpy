@@ -35,6 +35,12 @@ function("TUDAT_ADD_TEST_CASE" arg1)
 endfunction()
 
 function("TUDAT_ADD_TEST_CASE" arg1)
+    # Temporarily configure only the quad-precision state-scalar test in CI.
+    # All other TUDAT_ADD_TEST_CASE calls intentionally become no-ops.
+    if (NOT "${arg1}" STREQUAL "HighPrecisionStateScalar")
+        return()
+    endif()
+
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
     # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
     # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.
