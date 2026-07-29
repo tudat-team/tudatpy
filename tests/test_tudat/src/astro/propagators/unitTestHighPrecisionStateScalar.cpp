@@ -21,15 +21,21 @@
 #include <tudat/config.hpp>
 
 #include "tudat/astro/basic_astro/keplerPropagator.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/root_finders/newtonRaphson.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
@@ -255,8 +261,7 @@ PropagatedObservationEnvironment createPropagatedObservationEnvironment( )
     FixedState initialKeplerianState;
     initialKeplerianState << scalarFromDecimalString< Scalar >( "778500000000" ), scalarFromDecimalString< Scalar >( "0.0489" ),
             pi * scalarFromDecimalString< Scalar >( "1.3" ) / static_cast< Scalar >( 180 ), pi / static_cast< Scalar >( 5 ),
-            pi / static_cast< Scalar >( 7 ),
-            pi / static_cast< Scalar >( 9 );
+            pi / static_cast< Scalar >( 7 ), pi / static_cast< Scalar >( 9 );
     const FixedState initialCartesianState =
             orbital_element_conversions::convertKeplerianToCartesianElements< Scalar >( initialKeplerianState, gravitationalParameter );
 
@@ -268,9 +273,25 @@ PropagatedObservationEnvironment createPropagatedObservationEnvironment( )
     bodies.at( "Sun" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >( gravitationalParameterAsDouble ) );
     Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
     earthState( 0 ) = 149597870700.0;
-    bodies.at( "Earth" )->setEphemeris(
-            std::make_shared< ephemerides::ConstantEphemeris >( earthState, "SSB", "J2000" ) );
+    bodies.at( "Earth" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( earthState, "SSB", "J2000" ) );
+    bodies.at( "Earth" )->setRotationalEphemeris(
+            std::make_shared< ephemerides::ConstantRotationalEphemeris >( Eigen::Quaterniond::Identity( ), "J2000", "IAU_Earth" ) );
+    const auto jupiterVehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+    jupiterVehicleSystems->setDefaultTransponderTurnaroundRatio( );
+    bodies.at( "Jupiter" )->setVehicleSystems( jupiterVehicleSystems );
     bodies.processBodyFrameDefinitions< Scalar, Time >( );
+
+    const std::string stationName = "QuadDsnStation";
+    simulation_setup::createGroundStation( bodies.at( "Earth" ),
+                                           stationName,
+                                           ( Eigen::Vector3d( ) << 6378137.0, 0.0, 0.0 ).finished( ),
+                                           coordinate_conversions::cartesian_position );
+    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > rampedFrequencyInterpolator =
+            std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >( std::vector< Time >{ Time( -10000.0L ) },
+                                                                                       std::vector< Time >{ Time( 100000.0L ) },
+                                                                                       std::vector< double >{ 0.25 },
+                                                                                       std::vector< double >{ 7.2e9 } );
+    bodies.at( "Earth" )->getGroundStation( stationName )->setTransmittingFrequencyCalculator( rampedFrequencyInterpolator );
 
     simulation_setup::SelectedAccelerationMap accelerationSettings;
     accelerationSettings[ "Jupiter" ][ "Sun" ].push_back(
@@ -621,8 +642,7 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
     const Scalar nWayRange = computeRange( nWayRangeModel, observationTime, observation_models::receiver );
     const Scalar offsetNWayRange = computeRange( nWayRangeModel, offsetObservationTime, observation_models::receiver );
     const Scalar nWayReference = computeTwoWayRangeReference( earthEphemeris, jupiterEphemeris, observationTime );
-    const Scalar offsetNWayReference =
-            computeTwoWayRangeReference( earthEphemeris, jupiterEphemeris, offsetObservationTime );
+    const Scalar offsetNWayReference = computeTwoWayRangeReference( earthEphemeris, jupiterEphemeris, offsetObservationTime );
 
     const Scalar oneWayRangeChange = offsetOneWayRange - oneWayRange;
     const Scalar expectedOneWayRangeChange = offsetOneWayReference - oneWayReference;
@@ -642,15 +662,177 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
             static_cast< double >( oneWayRange );
     const double nWayDoubleSpacing = std::nextafter( static_cast< double >( nWayRange ), std::numeric_limits< double >::infinity( ) ) -
             static_cast< double >( nWayRange );
-    BOOST_CHECK( getAbsoluteValue( oneWayRangeChange ) * static_cast< Scalar >( 1000 ) <
-                 static_cast< Scalar >( oneWayDoubleSpacing ) );
-    BOOST_CHECK( getAbsoluteValue( nWayRangeChange ) * static_cast< Scalar >( 1000 ) <
-                 static_cast< Scalar >( nWayDoubleSpacing ) );
+    BOOST_CHECK( getAbsoluteValue( oneWayRangeChange ) * static_cast< Scalar >( 1000 ) < static_cast< Scalar >( oneWayDoubleSpacing ) );
+    BOOST_CHECK( getAbsoluteValue( nWayRangeChange ) * static_cast< Scalar >( 1000 ) < static_cast< Scalar >( nWayDoubleSpacing ) );
 
     BOOST_TEST_MESSAGE( "Represented epoch increment [s]: " << representedTimeIncrement << ", one-way range change [m]: "
                                                             << oneWayRangeChange << ", one-way double spacing [m]: " << oneWayDoubleSpacing
                                                             << ", n-way range change [m]: " << nWayRangeChange
                                                             << ", n-way double spacing [m]: " << nWayDoubleSpacing );
+
+    const std::string stationName = "QuadDsnStation";
+    const Eigen::Vector3d stationPosition =
+            environment.bodies.at( "Earth" )->getGroundStation( stationName )->getNominalStationState( )->getNominalCartesianPosition( );
+    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( nullptr, false );
+    const Time utcTime = timeScaleConverter->getCurrentTime< Time >(
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, stationPosition );
+    const Time offsetUtcTime = timeScaleConverter->getCurrentTime< Time >(
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, offsetObservationTime, stationPosition );
+    const Scalar utcTimeIncrement = convertIndependentVariableToScalar< Scalar >( offsetUtcTime - utcTime );
+    const Time roundTripTdbTime = timeScaleConverter->getCurrentTime< Time >(
+            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, stationPosition );
+    const Time offsetRoundTripTdbTime = timeScaleConverter->getCurrentTime< Time >(
+            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, offsetUtcTime, stationPosition );
+    const Scalar roundTripTdbTimeIncrement = convertIndependentVariableToScalar< Scalar >( offsetRoundTripTdbTime - roundTripTdbTime );
+    const Scalar tdbToUtcCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, offsetObservationTime, stationPosition );
+    const Scalar utcToTdbCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
+            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, offsetUtcTime, stationPosition );
+
+    // The SOFA TDB-TT model is evaluated in double, but it is added to a Time.
+    // At epochs away from a leap-second boundary, the common correction must
+    // therefore not erase a picosecond separation in either direction.
+    BOOST_CHECK( getAbsoluteValue( utcTimeIncrement - representedTimeIncrement ) < scalarFromDecimalString< Scalar >( "2e-16" ) );
+    BOOST_CHECK( getAbsoluteValue( roundTripTdbTimeIncrement - representedTimeIncrement ) < scalarFromDecimalString< Scalar >( "2e-16" ) );
+    BOOST_CHECK( getAbsoluteValue( tdbToUtcCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
+    BOOST_CHECK( getAbsoluteValue( utcToTdbCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
+
+    observation_models::LinkEnds dsnLinkEnds;
+    dsnLinkEnds[ observation_models::transmitter ] = observation_models::linkEndId( "Earth", stationName );
+    dsnLinkEnds[ observation_models::retransmitter ] = observation_models::linkEndId( "Jupiter" );
+    dsnLinkEnds[ observation_models::receiver ] = observation_models::linkEndId( "Earth", stationName );
+    const auto dsnSettings = std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
+            observation_models::LinkDefinition( dsnLinkEnds ),
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > >( ),
+            nullptr,
+            convergenceCriteria );
+    const auto quadDsnModel =
+            observation_models::ObservationModelCreator< 1, Scalar, Time >::createObservationModel( dsnSettings, environment.bodies );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< Scalar, Time > >(
+                             quadDsnModel ) != nullptr ) );
+
+    const double integrationTime = 0.1;
+    const double referenceFrequency = 7.2e9;
+    const auto ancillarySettings = observation_models::getDsnNWayAveragedDopplerAncillarySettings(
+            { observation_models::x_band, observation_models::x_band }, observation_models::x_band, referenceFrequency, integrationTime );
+    const auto computeDsnDoppler = [ & ]( const auto& model, const Time& epoch ) {
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Vector6d > linkEndStates;
+        return model->computeIdealObservationsWithLinkEndData(
+                epoch, observation_models::receiver, linkEndTimes, linkEndStates, ancillarySettings )( 0 );
+    };
+
+    const Scalar quadDoppler = computeDsnDoppler( quadDsnModel, observationTime );
+    const Scalar offsetQuadDoppler = computeDsnDoppler( quadDsnModel, offsetObservationTime );
+    const Scalar quadDopplerChange = offsetQuadDoppler - quadDoppler;
+    BOOST_CHECK( quadDopplerChange != static_cast< Scalar >( 0 ) );
+    BOOST_CHECK( getAbsoluteValue( quadDopplerChange ) < scalarFromDecimalString< Scalar >( "1e-6" ) );
+
+    const Time localSlopeEndTime = observationTime + 1.0e-3L;
+    const Scalar localSlopeTimeInterval = convertIndependentVariableToScalar< Scalar >( localSlopeEndTime - observationTime );
+    const Scalar localDopplerSlope = ( computeDsnDoppler( quadDsnModel, localSlopeEndTime ) - quadDoppler ) / localSlopeTimeInterval;
+
+    const auto computeDopplerSequence = [ & ]( const Time& startTime, const long double stepSize, const unsigned int numberOfSteps ) {
+        std::vector< Time > epochs;
+        std::vector< Scalar > observations;
+        epochs.reserve( numberOfSteps + 1 );
+        observations.reserve( numberOfSteps + 1 );
+        for( unsigned int i = 0; i <= numberOfSteps; ++i )
+        {
+            const Time epoch = startTime + static_cast< long double >( i ) * stepSize;
+            epochs.push_back( epoch );
+            observations.push_back( computeDsnDoppler( quadDsnModel, epoch ) );
+        }
+        return std::make_pair( epochs, observations );
+    };
+
+    const auto picosecondSequence = computeDopplerSequence( observationTime, 1.0e-12L, 100 );
+    const Time nanosecondSequenceStart = observationTime + 100.0e-12L;
+    const auto nanosecondSequence = computeDopplerSequence( nanosecondSequenceStart, 1.0e-9L, 100 );
+    BOOST_REQUIRE( picosecondSequence.first.back( ) == nanosecondSequence.first.front( ) );
+    BOOST_CHECK( picosecondSequence.second.back( ) == nanosecondSequence.second.front( ) );
+
+    struct DopplerSequenceMetrics {
+        Scalar minimumIncrement;
+        Scalar maximumIncrement;
+        Scalar maximumAbsoluteIncrement;
+        Scalar maximumIncrementResidual;
+        Scalar maximumTrendResidual;
+        unsigned int directionReversals;
+    };
+    const auto getDopplerSequenceMetrics = [ & ]( const std::pair< std::vector< Time >, std::vector< Scalar > >& sequence ) {
+        const Scalar firstIncrement = sequence.second.at( 1 ) - sequence.second.at( 0 );
+        DopplerSequenceMetrics metrics{
+            firstIncrement, firstIncrement, getAbsoluteValue( firstIncrement ), static_cast< Scalar >( 0 ), static_cast< Scalar >( 0 ), 0
+        };
+        for( std::size_t i = 1; i < sequence.first.size( ); ++i )
+        {
+            const Scalar representedIncrement =
+                    convertIndependentVariableToScalar< Scalar >( sequence.first.at( i ) - sequence.first.at( i - 1 ) );
+            const Scalar observationIncrement = sequence.second.at( i ) - sequence.second.at( i - 1 );
+            const Scalar expectedIncrement = localDopplerSlope * representedIncrement;
+            const Scalar absoluteIncrement = getAbsoluteValue( observationIncrement );
+            const Scalar incrementResidual = getAbsoluteValue( observationIncrement - expectedIncrement );
+            const Scalar representedOffset = convertIndependentVariableToScalar< Scalar >( sequence.first.at( i ) - observationTime );
+            const Scalar trendResidual = getAbsoluteValue( sequence.second.at( i ) - quadDoppler - localDopplerSlope * representedOffset );
+
+            metrics.minimumIncrement = observationIncrement < metrics.minimumIncrement ? observationIncrement : metrics.minimumIncrement;
+            metrics.maximumIncrement = observationIncrement > metrics.maximumIncrement ? observationIncrement : metrics.maximumIncrement;
+            metrics.maximumAbsoluteIncrement =
+                    absoluteIncrement > metrics.maximumAbsoluteIncrement ? absoluteIncrement : metrics.maximumAbsoluteIncrement;
+            metrics.maximumIncrementResidual =
+                    incrementResidual > metrics.maximumIncrementResidual ? incrementResidual : metrics.maximumIncrementResidual;
+            metrics.maximumTrendResidual = trendResidual > metrics.maximumTrendResidual ? trendResidual : metrics.maximumTrendResidual;
+            if( observationIncrement * localDopplerSlope <= static_cast< Scalar >( 0 ) )
+            {
+                ++metrics.directionReversals;
+            }
+        }
+        return metrics;
+    };
+
+    const DopplerSequenceMetrics picosecondMetrics = getDopplerSequenceMetrics( picosecondSequence );
+    const DopplerSequenceMetrics nanosecondMetrics = getDopplerSequenceMetrics( nanosecondSequence );
+    const Scalar oneNanohertz = scalarFromDecimalString< Scalar >( "1e-9" );
+    BOOST_CHECK( picosecondMetrics.maximumAbsoluteIncrement < oneNanohertz );
+    BOOST_CHECK( nanosecondMetrics.maximumAbsoluteIncrement < oneNanohertz );
+    BOOST_CHECK( picosecondMetrics.maximumTrendResidual < oneNanohertz );
+    BOOST_CHECK( nanosecondMetrics.maximumTrendResidual < oneNanohertz );
+    BOOST_CHECK( picosecondMetrics.maximumIncrementResidual < oneNanohertz );
+    BOOST_CHECK( nanosecondMetrics.maximumIncrementResidual < oneNanohertz );
+
+    const Scalar nanosecondSweepDuration =
+            convertIndependentVariableToScalar< Scalar >( nanosecondSequence.first.back( ) - nanosecondSequence.first.front( ) );
+    const Scalar nanosecondSweepChange = nanosecondSequence.second.back( ) - nanosecondSequence.second.front( );
+    const Scalar expectedNanosecondSweepChange = localDopplerSlope * nanosecondSweepDuration;
+    BOOST_CHECK( nanosecondSweepChange * expectedNanosecondSweepChange > static_cast< Scalar >( 0 ) );
+    BOOST_CHECK( getAbsoluteValue( nanosecondSweepChange - expectedNanosecondSweepChange ) <
+                 getAbsoluteValue( expectedNanosecondSweepChange ) * scalarFromDecimalString< Scalar >( "0.02" ) );
+
+    const double dopplerDoubleSpacing = std::nextafter( static_cast< double >( quadDoppler ), std::numeric_limits< double >::infinity( ) ) -
+            static_cast< double >( quadDoppler );
+    const auto doubleDsnModel =
+            observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel( dsnSettings, environment.bodies );
+    const double doubleDoppler = computeDsnDoppler( doubleDsnModel, observationTime );
+    const double offsetDoubleDoppler = computeDsnDoppler( doubleDsnModel, offsetObservationTime );
+    const double doubleDopplerChange = offsetDoubleDoppler - doubleDoppler;
+    const Scalar doubleObservableError = getAbsoluteValue( static_cast< Scalar >( doubleDoppler ) - quadDoppler );
+    BOOST_CHECK_EQUAL( doubleDopplerChange, 0.0 );
+    BOOST_CHECK( doubleObservableError > getAbsoluteValue( quadDopplerChange ) * scalarFromDecimalString< Scalar >( "1e5" ) );
+
+    BOOST_TEST_MESSAGE( "TDB->UTC picosecond increment [s]: "
+                        << utcTimeIncrement << ", UTC->TDB round-trip increment [s]: " << roundTripTdbTimeIncrement
+                        << ", 0.1 s quad DSN Doppler [Hz]: " << quadDoppler << ", picosecond Doppler change [Hz]: " << quadDopplerChange
+                        << ", double Doppler change [Hz]: " << doubleDopplerChange << ", double-vs-quad observable error [Hz]: "
+                        << doubleObservableError << ", double spacing at observable [Hz]: " << dopplerDoubleSpacing
+                        << ", local quad Doppler slope [Hz/s]: " << localDopplerSlope << ", 1 ps increment range [Hz]: ["
+                        << picosecondMetrics.minimumIncrement << ", " << picosecondMetrics.maximumIncrement
+                        << "], 1 ps maximum trend residual [Hz]: " << picosecondMetrics.maximumTrendResidual
+                        << ", 1 ps direction reversals: " << picosecondMetrics.directionReversals << ", 1 ns increment range [Hz]: ["
+                        << nanosecondMetrics.minimumIncrement << ", " << nanosecondMetrics.maximumIncrement
+                        << "], 1 ns maximum trend residual [Hz]: " << nanosecondMetrics.maximumTrendResidual
+                        << ", 1 ns direction reversals: " << nanosecondMetrics.directionReversals << ", 100 ns sweep change [Hz]: "
+                        << nanosecondSweepChange << ", expected 100 ns sweep change [Hz]: " << expectedNanosecondSweepChange );
 #endif
 }
 

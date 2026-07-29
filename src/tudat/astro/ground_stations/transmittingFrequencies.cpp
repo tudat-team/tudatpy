@@ -29,13 +29,13 @@ double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& l
 }
 
 template<>
-long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
+HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
     return getCurrentLongFrequency( lookupTime );
 }
 
 template<>
-long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
+HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
 {
     return getCurrentLongFrequency( lookupTime );
 }
@@ -53,14 +53,15 @@ double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& 
 }
 
 template<>
-long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime,
-                                                                         const double& quadratureEndTime )
+HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime,
+                                                                                      const double& quadratureEndTime )
 {
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
 template<>
-long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& quadratureStartTime,
+                                                                                      const Time& quadratureEndTime )
 {
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
