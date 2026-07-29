@@ -194,6 +194,30 @@ else()
     )
 endif()
 
+set(
+    TUDAT_HIGH_PRECISION_STATE_SCALAR
+    "LONG_DOUBLE"
+    CACHE STRING
+    "Scalar used by Tudat's high-precision C++ state interfaces (LONG_DOUBLE or CPP_BIN_FLOAT_QUAD)."
+)
+set_property(
+    CACHE TUDAT_HIGH_PRECISION_STATE_SCALAR
+    PROPERTY STRINGS LONG_DOUBLE CPP_BIN_FLOAT_QUAD
+)
+if(TUDAT_HIGH_PRECISION_STATE_SCALAR STREQUAL "LONG_DOUBLE")
+    set(TUDAT_HIGH_PRECISION_STATE_SCALAR_CPP_TYPE "long double")
+    set(TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD 0)
+elseif(TUDAT_HIGH_PRECISION_STATE_SCALAR STREQUAL "CPP_BIN_FLOAT_QUAD")
+    set(TUDAT_HIGH_PRECISION_STATE_SCALAR_CPP_TYPE "boost::multiprecision::cpp_bin_float_quad")
+    set(TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD 1)
+else()
+    message(
+        FATAL_ERROR
+        "Unsupported TUDAT_HIGH_PRECISION_STATE_SCALAR='${TUDAT_HIGH_PRECISION_STATE_SCALAR}'. "
+        "Choose LONG_DOUBLE or CPP_BIN_FLOAT_QUAD."
+    )
+endif()
+
 # Build as part of a GitHub Actions workflow
 # Option enables the use of ccache by MSVC
 # see https://github.com/ccache/ccache/wiki/MS-Visual-Studio

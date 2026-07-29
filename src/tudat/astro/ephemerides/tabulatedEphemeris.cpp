@@ -33,9 +33,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
+//! Get cartesian state using the configured high-precision scalar, for double StateScalarType
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongState( const double secondsSinceEpoch )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongState(
+        const double secondsSinceEpoch )
 {
     if( interpolator_ == nullptr )
     {
@@ -43,7 +44,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     }
     try
     {
-        return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
+        return interpolator_->interpolate( secondsSinceEpoch ).cast< HighPrecisionStateScalar >( );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -69,9 +70,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
+//! Get cartesian state using the configured high-precision scalar from Time input, for double StateScalarType
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongStateFromExtendedTime( const Time& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -79,7 +81,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     }
     try
     {
-        return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
+        return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< HighPrecisionStateScalar >( );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -87,9 +89,9 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     }
 }
 
-//! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
+//! Get cartesian state in double precision, for HighPrecisionStateScalar StateScalarType
 template<>
-Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianState( const double ephemerisTime )
+Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianState( const double ephemerisTime )
 {
     if( interpolator_ == nullptr )
     {
@@ -105,9 +107,9 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
+//! Get cartesian state using the configured high-precision scalar
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongState(
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianLongState(
         const double secondsSinceEpoch )
 {
     if( interpolator_ == nullptr )
@@ -126,7 +128,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
 template<>
-Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianStateFromExtendedTime( const Time& time )
+Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianStateFromExtendedTime( const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -142,10 +144,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
+//! Get cartesian state using the configured high-precision scalar from Time input
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongStateFromExtendedTime(
-        const Time& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >
+TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianLongStateFromExtendedTime( const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -179,9 +181,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState( 
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
+//! Get cartesian state using the configured high-precision scalar, for double StateScalarType
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongState( const double secondsSinceEpoch )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongState(
+        const double secondsSinceEpoch )
 {
     if( interpolator_ == nullptr )
     {
@@ -189,7 +192,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     }
     try
     {
-        return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
+        return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< HighPrecisionStateScalar >( );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -215,9 +218,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFr
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision from Time input).
+//! Get cartesian state using the configured high-precision scalar from Time input.
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongStateFromExtendedTime( const Time& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -225,7 +229,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     }
     try
     {
-        return interpolator_->interpolate( time ).cast< long double >( );
+        return interpolator_->interpolate( time ).cast< HighPrecisionStateScalar >( );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -233,9 +237,9 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     }
 }
 
-//! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
+//! Get cartesian state in double precision, for HighPrecisionStateScalar StateScalarType
 template<>
-Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianState( const double ephemerisTime )
+Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianState( const double ephemerisTime )
 {
     if( interpolator_ == nullptr )
     {
@@ -251,9 +255,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
+//! Get cartesian state using the configured high-precision scalar
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongState( const double secondsSinceEpoch )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianLongState(
+        const double secondsSinceEpoch )
 {
     if( interpolator_ == nullptr )
     {
@@ -271,7 +276,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
 
 //! Get cartesian state from ephemeris (in double precision from Time input).
 template<>
-Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianStateFromExtendedTime( const Time& time )
+Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianStateFromExtendedTime( const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -287,10 +292,10 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     }
 }
 
-//! Get cartesian state from ephemeris (in long double precision from Time input).
+//! Get cartesian state using the configured high-precision scalar from Time input.
 template<>
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongStateFromExtendedTime(
-        const Time& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >
+TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianLongStateFromExtendedTime( const Time& time )
 {
     if( interpolator_ == nullptr )
     {
@@ -311,8 +316,8 @@ bool isTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemeris )
 {
     bool objectIsTabulated = 0;
     if( ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != nullptr ) ||
-        ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr ) ||
-        ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr ) ||
+        ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) != nullptr ) ||
+        ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris ) != nullptr ) ||
         ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr ) )
     {
         objectIsTabulated = 1;
@@ -338,14 +343,14 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
         safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )
                                ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
-    else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr )
+    else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) != nullptr )
     {
-        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris )
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris )
                                ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
-    else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr )
+    else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris ) != nullptr )
     {
-        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris )
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris )
                                ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
