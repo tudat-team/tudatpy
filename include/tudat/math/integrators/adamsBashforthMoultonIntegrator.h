@@ -162,16 +162,19 @@ public:
                                      const typename StateType::Scalar relativeErrorTolerance,
                                      const typename StateType::Scalar absoluteErrorTolerance,
                                      const TimeStepType bandwidth = 200. ):
-        AdamsBashforthMoultonIntegrator(
-                stateDerivativeFunction,
-                intervalStart,
-                initialState,
-                minimumStepSize,
-                maximumStepSize,
-                initialStepSize,
-                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
-                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
-                bandwidth )
+        AdamsBashforthMoultonIntegrator( stateDerivativeFunction,
+                                         intervalStart,
+                                         initialState,
+                                         minimumStepSize,
+                                         maximumStepSize,
+                                         initialStepSize,
+                                         StateType::Constant( initialState.rows( ),
+                                                              initialState.cols( ),
+                                                              integrator_detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                                         StateType::Constant( initialState.rows( ),
+                                                              initialState.cols( ),
+                                                              integrator_detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
+                                         bandwidth )
     {}
 
     ~AdamsBashforthMoultonIntegrator( ) {}

@@ -193,7 +193,7 @@ bool isMultiLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConve
     return isToleranceReached;
 }
 
-namespace detail
+namespace light_time_solution_detail
 {
 template< typename TimeType >
 struct EpochIntervalArithmetic {
@@ -224,20 +224,20 @@ struct EpochIntervalArithmetic< Time > {
         return epoch - static_cast< long double >( timeInterval );
     }
 };
-}  // namespace detail
+}  // namespace light_time_solution_detail
 
 //! Add a scalar time interval to an epoch.
 template< typename TimeType, typename ScalarType >
 TimeType addTimeIntervalToEpoch( const TimeType& epoch, const ScalarType& timeInterval )
 {
-    return detail::EpochIntervalArithmetic< TimeType >::add( epoch, timeInterval );
+    return light_time_solution_detail::EpochIntervalArithmetic< TimeType >::add( epoch, timeInterval );
 }
 
 //! Subtract a scalar time interval from an epoch.
 template< typename TimeType, typename ScalarType >
 TimeType subtractTimeIntervalFromEpoch( const TimeType& epoch, const ScalarType& timeInterval )
 {
-    return detail::EpochIntervalArithmetic< TimeType >::subtract( epoch, timeInterval );
+    return light_time_solution_detail::EpochIntervalArithmetic< TimeType >::subtract( epoch, timeInterval );
 }
 
 //! Class for wrapping a custom light-time correction function

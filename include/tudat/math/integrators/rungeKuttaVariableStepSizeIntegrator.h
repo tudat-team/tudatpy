@@ -36,7 +36,7 @@ namespace tudat
 namespace numerical_integrators
 {
 
-namespace detail
+namespace integrator_detail
 {
 
 template< typename ScalarType >
@@ -46,7 +46,7 @@ ScalarType getAbsoluteTolerance( const ScalarType& tolerance )
     return abs( tolerance );
 }
 
-}  // namespace detail
+}  // namespace integrator_detail
 
 //! Class that implements the Runge-Kutta variable stepsize integrator.
 /*!
@@ -211,8 +211,10 @@ public:
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ), stepSize_( initialStepSize ), useStepSizeControl_( true )
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
-                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
+                StateType::Constant(
+                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                StateType::Constant(
+                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
                 static_cast< double >( safetyFactorForNextStepSize ),
                 coefficients_.lowerOrder + 1,
                 static_cast< double >( minimumFactorDecreaseForNextStepSize ),

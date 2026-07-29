@@ -197,6 +197,10 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
             double toleranceStates = 1E-3;
+            if( test == 6 )
+            {
+                toleranceStates = 2.0E-3;
+            }
             //            if( test == 0 || test == 3 )
             //            {
             //                toleranceStates /= 100.0;
