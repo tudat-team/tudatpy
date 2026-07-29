@@ -39,16 +39,16 @@ def load_resource_catalog(catalog_path: Optional[CatalogPath] = None) -> Dict[st
             raise ValueError(
                 f"Resource catalog {catalog_path} must contain path, modified and url columns."
             )
-        registry = {}
+        catalog = {}
         for row in rows:
             path = row["path"].strip()
             url = row["url"].strip()
             if not path or not url:
                 raise ValueError(f"Invalid resource catalog row in {catalog_path}: {row}")
-            if path in registry:
+            if path in catalog:
                 raise ValueError(f"Duplicate resource path '{path}' in {catalog_path}")
-            registry[path] = url
-        return registry
+            catalog[path] = url
+        return catalog
 
 
 def _parse_manifest(manifest: str, source: str) -> Iterable[Dict[str, str]]:

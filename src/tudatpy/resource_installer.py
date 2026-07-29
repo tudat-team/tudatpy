@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 
 import requests
 
-from tudatpy.resource_data_registry import (
+from tudatpy.resource_catalog import (
     USER_RESOURCE_CATALOG,
     load_resource_catalog,
     update_resource_catalog,
@@ -32,63 +32,66 @@ DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat_resources")
 DEFAULT_CACHE = Path(
     os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
 ).expanduser()
-# The registry is loaded in ``main`` so importing the module never requires
-# accessing user configuration or making a network request.
-DATA_REGISTRY: Dict[str, str] = {}
+# Loading the local catalog never makes a network request, so the catalog API
+# remains usable when this module is imported outside the command-line entry
+# point. ``main`` reloads it to honor an explicit ``--catalog`` option.
+RESOURCE_CATALOG: Dict[str, str] = load_resource_catalog()
 
 
 def _has_progressbar() -> bool:
     return tqdm is not None
 
 
-def find_in_registry(search_string: str) -> Dict[str, str]:
-    """Return registry entries whose keys contain ``search_string``.
+def find_in_catalog(search_string: str) -> Dict[str, str]:
+    """Return catalog entries whose keys contain ``search_string``.
 
     Parameters
     ----------
     search_string:
-        Substring to search for in registry keys.
+        Substring to search for in catalog keys.
 
     Returns
     -------
     Dict[str, str]
-        Mapping of matching registry keys to their URLs.
+        Mapping of matching catalog keys to their URLs.
     """
-    return {key: url for key, url in DATA_REGISTRY.items() if search_string in key}
+    return {key: url for key, url in RESOURCE_CATALOG.items() if search_string in key}
 
 
-def resolve_keys(keys: Optional[List[str]] = None, search: Optional[str] = None) -> Dict[str, str]:
-    """Resolve registry keys using search string or key matching.
+def resolve_catalog_keys(
+    keys: Optional[List[str]] = None, search: Optional[str] = None
+) -> Dict[str, str]:
+    """Resolve catalog keys using search string or key matching.
 
     Parameters
     ----------
     keys:
-        List of registry keys or partial key strings to match.
+        List of catalog keys or partial key strings to match.
     search:
-        Substring to search for in registry keys.
+        Substring to search for in catalog keys.
 
     Returns
     -------
     Dict[str, str]
-        Mapping of matched registry keys to their URLs.
+        Mapping of matched catalog keys to their URLs.
     """
     resolved: Dict[str, str] = {}
     if search:
-        resolved.update(find_in_registry(search))
+        resolved.update(find_in_catalog(search))
 
     if keys:
         for key in keys:
-            if key in DATA_REGISTRY:
-                resolved[key] = DATA_REGISTRY[key]
+            if key in RESOURCE_CATALOG:
+                resolved[key] = RESOURCE_CATALOG[key]
                 continue
 
             matches = {
-                registry_key: url
-                for registry_key, url in DATA_REGISTRY.items()
-                if registry_key.startswith(key) or key in registry_key
+                catalog_key: url
+                for catalog_key, url in RESOURCE_CATALOG.items()
+                if catalog_key.startswith(key) or key in catalog_key
             }
             if not matches:
-                raise ValueError(f"No registry entries match '{key}'")
+                raise ValueError(f"No catalog entries match '{key}'")
             resolved.update(matches)
 
     return resolved
@@ -330,11 +333,11 @@ def download_extra_file(
     return dest_path
 
 
-def list_registry(search: Optional[str] = None) -> None:
-    """Print registry entries, optionally filtered by search string."""
-    entries = DATA_REGISTRY
+def list_catalog(search: Optional[str] = None) -> None:
+    """Print catalog entries, optionally filtered by search string."""
+    entries = RESOURCE_CATALOG
     if search:
-        entries = find_in_registry(search)
+        entries = find_in_catalog(search)
     for key in sorted(entries):
         print(key)
 
@@ -378,10 +381,10 @@ def parse_arguments() -> argparse.Namespace:
         help="Cache directory for downloads and tarballs.",
     )
     parser.add_argument(
-        "--files", nargs="+", help="Exact registry keys or prefixes for update mode."
+        "--files", nargs="+", help="Exact catalog keys or prefixes for update mode."
     )
     parser.add_argument(
-        "--search", help="Substring search to select registry files for update or list."
+        "--search", help="Substring search to select catalog files for update or list."
     )
     parser.add_argument("--extra-url", help="URL of an extra file to download in extra mode.")
     parser.add_argument(
@@ -389,11 +392,11 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument(
-        "--list-search", help="Search string to filter registry output in list mode."
+        "--list-search", help="Search string to filter catalog output in list mode."
     )
     parser.add_argument(
         "--hash-file",
-        help="Path to a JSON file mapping registry keys or URLs to SHA256 hex digests.",
+        help="Path to a JSON file mapping catalog keys or URLs to SHA256 hex digests.",
     )
     parser.add_argument(
         "--catalog",
@@ -407,7 +410,7 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> None:
     """Run the resource installer command-line interface."""
-    global DATA_REGISTRY
+    global RESOURCE_CATALOG
     args = parse_arguments()
     catalog_path = Path(args.catalog).expanduser() if args.catalog else None
 
@@ -417,7 +420,7 @@ def main() -> None:
         print(f"Updated {output_path} with {updated} resources from Zenodo manifests")
         return
 
-    DATA_REGISTRY = load_resource_catalog(catalog_path)
+    RESOURCE_CATALOG = load_resource_catalog(catalog_path)
     dest_path = Path(args.dest).expanduser()
     cache_dir = Path(args.cache_dir).expanduser()
     hash_map: Optional[Dict[str, str]] = None
@@ -426,23 +429,27 @@ def main() -> None:
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
-        list_registry(args.list_search or args.search)
+        list_catalog(args.list_search or args.search)
         return
 
     if args.mode == "scratch":
-        installed = install_files(DATA_REGISTRY, dest_path, cache_dir, force=True, hashes=hash_map)
+        installed = install_files(
+            RESOURCE_CATALOG, dest_path, cache_dir, force=True, hashes=hash_map
+        )
         print(f"Installed {installed} resources to {dest_path}")
         return
 
     if args.mode == "missing":
-        installed = install_files(DATA_REGISTRY, dest_path, cache_dir, force=False, hashes=hash_map)
+        installed = install_files(
+            RESOURCE_CATALOG, dest_path, cache_dir, force=False, hashes=hash_map
+        )
         print(f"Installed {installed} missing resources to {dest_path}")
         return
 
     if args.mode == "update":
         if not args.files and not args.search:
             raise ValueError("Update mode requires --files or --search.")
-        files = resolve_keys(args.files, args.search)
+        files = resolve_catalog_keys(args.files, args.search)
         installed = install_files(files, dest_path, cache_dir, force=True, hashes=hash_map)
         print(f"Updated {installed} selected resources to {dest_path}")
         return
