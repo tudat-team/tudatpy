@@ -106,9 +106,7 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
     double frequency = receivedFrequencyFunction( frequencyBands, transmissionTime );
 
     // Moyer (2000), eq. 13-59
-    return ( subtractDopplerSignature ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1.0 )
-                                      : mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) ) *
-            frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
+    return ( subtractDopplerSignature ? 1.0 : -1.0 ) * frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >

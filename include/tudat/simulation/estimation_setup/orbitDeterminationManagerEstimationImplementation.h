@@ -293,7 +293,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
             if( estimationInput->getPrintOutput( ) )
             {
-                std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
+                std::cout << "Parameter update" << parameterAddition.template cast< double >( ).transpose( ) << std::endl;
             }
         }
 

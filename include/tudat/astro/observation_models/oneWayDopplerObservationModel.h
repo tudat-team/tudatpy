@@ -211,9 +211,13 @@ public:
      * \param computationPointLinkEndType Variable that denotes for which link end this object computes the proper time rate
      * \param properTimeRateFunction Function that is used to compute proper time rate
      */
+    template< typename ProperTimeScalarType, typename ProperTimeType >
     CustomDopplerProperTimeRateInterface( const LinkEndType computationPointLinkEndType,
-                                          const std::function< double( const double ) > properTimeRateFunction ):
-        DopplerProperTimeRateInterface( computationPointLinkEndType ), properTimeRateFunction_( properTimeRateFunction )
+                                          const std::function< ProperTimeScalarType( const ProperTimeType ) > properTimeRateFunction ):
+        DopplerProperTimeRateInterface( computationPointLinkEndType ),
+        properTimeRateFunction_( [ properTimeRateFunction ]( const double time ) {
+            return static_cast< double >( properTimeRateFunction( static_cast< ProperTimeType >( time ) ) );
+        } )
     {}
 
     //! Destructor

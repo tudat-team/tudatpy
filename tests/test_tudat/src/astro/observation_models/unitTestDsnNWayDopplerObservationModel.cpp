@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                     continue;
                 }
 
-                double residual = observedObservations.at( j )( 0 ) - simulatedObservations.at( j )( 0 );
+                double residual = static_cast< double >( observedObservations.at( j )( 0 ) - simulatedObservations.at( j )( 0 ) );
 
                 if( testType == 0 )
                 {

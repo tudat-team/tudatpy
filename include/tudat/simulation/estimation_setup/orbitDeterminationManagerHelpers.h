@@ -38,7 +38,9 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
                 residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
         for( int i = 1; i < residualsBlock.rows( ); i++ )
         {
-            if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 6.0 )
+            using std::abs;
+            const ObservationScalarType residualJump = abs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) );
+            if( residualJump > 6.0 )
             {
                 if( residualsBlock( i, 0 ) > 0 )
                 {
@@ -49,11 +51,10 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
                     residualsBlock( i, 0 ) = residualsBlock( i, 0 ) + 2.0 * mathematical_constants::PI;
                 }
             }
-            else if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 3.0 )
+            else if( residualJump > 3.0 )
             {
-                std::cerr << "Warning, detected jump in observation residual of size "
-                          << std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) << " for observable type " << observableType
-                          << std::endl;
+                std::cerr << "Warning, detected jump in observation residual of size " << residualJump << " for observable type "
+                          << observableType << std::endl;
             }
         }
         residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
