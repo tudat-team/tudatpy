@@ -447,7 +447,9 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     // fact that the position changed.
     BOOST_CHECK( getAbsoluteValue( interpolatedPositionChange - expectedPositionChange ) < scalarFromDecimalString< Scalar >( "1e-18" ) );
 
-    // The same state magnitude and change cannot be distinguished in double.
+    // At this state magnitude, double cannot resolve the expected change
+    // accurately. Depending on the platform and interpolation rounding, it
+    // may remain unchanged or jump by one double-precision spacing.
     std::map< Time, Eigen::Vector6d > doubleStateHistory;
     for( const auto& stateEntry : stateHistory )
     {
@@ -457,7 +459,13 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     ephemerides::TabulatedCartesianEphemeris< double, Time > doubleEphemeris( doubleInterpolator, "SSB", "J2000" );
     const double doublePositionChange = doubleEphemeris.getCartesianStateFromExtendedTime( queryTime )( 0 ) -
             doubleEphemeris.getCartesianStateFromExtendedTime( nodeTime )( 0 );
-    BOOST_CHECK_EQUAL( doublePositionChange, 0.0 );
+    const Scalar doublePositionError = getAbsoluteValue( static_cast< Scalar >( doublePositionChange ) - expectedPositionChange );
+    BOOST_CHECK( doublePositionError > expectedPositionChange / scalarFromDecimalString< Scalar >( "2" ) );
+    BOOST_CHECK( getAbsoluteValue( interpolatedPositionChange - expectedPositionChange ) * scalarFromDecimalString< Scalar >( "1e9" ) <
+                 doublePositionError );
+    std::cout << "Expected 1 ps position change [m]: " << expectedPositionChange
+              << ", quad position change [m]: " << interpolatedPositionChange << ", double position change [m]: " << doublePositionChange
+              << ", double position-change error [m]: " << doublePositionError << std::endl;
 #endif
 }
 
@@ -543,7 +551,13 @@ BOOST_AUTO_TEST_CASE( testRk4FourthOrderConvergence )
 BOOST_AUTO_TEST_CASE( testPointMassOrbitDynamicsSimulatorNoiseFloor )
 {
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
-    const std::vector< int > stepCounts = { 256, 512, 1024, 2048, 4096, 8192, 16384, 32768 };
+    // On platforms with a 53-bit long double, this end-to-end comparison
+    // enters its platform-dependent time/reference cancellation regime one
+    // halving earlier. Stop before that regime and retain the same
+    // fourth-order checks for every step that is run.
+    const std::vector< int > stepCounts = timeHasExtendedLongDoublePrecision
+            ? std::vector< int >{ 256, 512, 1024, 2048, 4096, 8192, 16384, 32768 }
+            : std::vector< int >{ 256, 512, 1024, 2048, 4096, 8192, 16384 };
 
     std::vector< Eigen::Matrix< Scalar, 3, 1 > > quadErrors;
     std::vector< Eigen::Matrix< double, 3, 1 > > doubleErrors;
@@ -560,8 +574,9 @@ BOOST_AUTO_TEST_CASE( testPointMassOrbitDynamicsSimulatorNoiseFloor )
         BOOST_CHECK( quadErrorReduction > scalarFromDecimalString< Scalar >( "12" ) );
         BOOST_CHECK( quadErrorReduction < scalarFromDecimalString< Scalar >( "20" ) );
 
-        BOOST_TEST_MESSAGE( "Point-mass orbit step count: " << stepCounts.at( i ) << ", quad RK4 reduction: " << quadErrorReduction
-                                                            << ", double RK4 reduction: " << doubleErrorReduction );
+        std::cout << "Point-mass orbit step count: " << stepCounts.at( i ) << ", quad normalized error: " << quadErrors.at( i )( 0 )
+                  << ", double normalized error: " << doubleErrors.at( i )( 0 ) << ", quad RK4 reduction: " << quadErrorReduction
+                  << ", double RK4 reduction: " << doubleErrorReduction << std::endl;
     }
 
     const double finalDoubleErrorReduction = doubleErrors.at( doubleErrors.size( ) - 2 )( 0 ) / doubleErrors.back( )( 0 );
