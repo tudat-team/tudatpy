@@ -190,7 +190,7 @@ endif()
 
 set(
     TUDAT_HIGH_PRECISION_STATE_SCALAR
-    "LONG_DOUBLE"
+    "CPP_BIN_FLOAT_QUAD"
     CACHE STRING
     "Scalar used by Tudat's high-precision C++ state interfaces (LONG_DOUBLE or CPP_BIN_FLOAT_QUAD)."
 )
