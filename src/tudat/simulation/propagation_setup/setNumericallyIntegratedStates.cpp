@@ -30,10 +30,11 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 
 //! Function to create an interpolator for the new translational state of a body.
 template<>
-std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 6, 1 > > > createStateInterpolator(
-        const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
+std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > > >
+createStateInterpolator( const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >(
+    return std::make_shared<
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >, HighPrecisionStateScalar > >(
             stateMap,
             6,
             interpolators::huntingAlgorithm,
@@ -43,10 +44,11 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 
 //! Function to create an interpolator for the new translational state of a body.
 template<>
-std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 6, 1 > > > createStateInterpolator(
-        const std::map< Time, Eigen::Matrix< long double, 6, 1 > >& stateMap )
+std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > > >
+createStateInterpolator( const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >(
+    return std::make_shared<
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >, HighPrecisionStateScalar > >(
             stateMap,
             6,
             interpolators::huntingAlgorithm,
@@ -80,10 +82,11 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 }
 
 template<>
-std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >
-createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< long double, 7, 1 > >& stateMap )
+std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
+createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >(
+    return std::make_shared<
+            interpolators::LagrangeInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 >, HighPrecisionStateScalar > >(
             stateMap,
             6,
             interpolators::huntingAlgorithm,
@@ -104,10 +107,11 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 }
 
 template<>
-std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 7, 1 > > > createRotationalStateInterpolator(
-        const std::map< Time, Eigen::Matrix< long double, 7, 1 > >& stateMap )
+std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
+createRotationalStateInterpolator( const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap )
 {
-    return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 7, 1 >, long double > >(
+    return std::make_shared<
+            interpolators::LagrangeInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 >, HighPrecisionStateScalar > >(
             stateMap,
             6,
             interpolators::huntingAlgorithm,

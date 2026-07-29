@@ -189,7 +189,7 @@ private:
             }
 
             // Normalize quaternion and set current rotation quaternion
-            double quaternionNorm = ( currentRotationalState_.block( 0, 0, 4, 1 ) ).norm( );
+            const StateScalarType quaternionNorm = currentRotationalState_.block( 0, 0, 4, 1 ).norm( );
             currentRotationalState_.block( 0, 0, 4, 1 ) = currentRotationalState_.block( 0, 0, 4, 1 ) / quaternionNorm;
             currentRotationToBaseFrame_ = Eigen::Quaternion< StateScalarType >( currentRotationalState_( 0 ),
                                                                                 currentRotationalState_( 1 ),

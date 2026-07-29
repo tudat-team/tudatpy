@@ -13,8 +13,9 @@ bool isTabulatedRotationalEphemeris( const std::shared_ptr< RotationalEphemeris 
 {
     bool objectIsTabulated = 0;
     if( ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, double > >( rotationalEphemeris ) != nullptr ) ||
-        ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, double > >( rotationalEphemeris ) != nullptr ) ||
-        ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) != nullptr ) ||
+        ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< HighPrecisionStateScalar, double > >( rotationalEphemeris ) !=
+          nullptr ) ||
+        ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< HighPrecisionStateScalar, Time > >( rotationalEphemeris ) != nullptr ) ||
         ( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ) != nullptr ) )
     {
         objectIsTabulated = 1;

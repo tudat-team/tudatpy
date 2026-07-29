@@ -19,6 +19,7 @@
 #define TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
 
 #include <memory>
+#include <type_traits>
 
 #include <Eigen/Core>
 
@@ -205,8 +206,27 @@ public:
             if( this->butcherTableau_.bCoefficients( 0, stage ) !=
                 mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
             {
-                // Update the estimate.
-                stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
+                // The classic RK4 weights contain 1/6 and 1/3.  Recover those
+                // fractions in the state scalar instead of first rounding them
+                // to the double storage type of the shared Butcher tableau.
+                if constexpr( std::is_same_v< typename StateType::Scalar, HighPrecisionStateScalar > )
+                {
+                    if( coefficientsSet_ == rungeKutta4Classic )
+                    {
+                        const int denominator = ( stage == 0 || stage == 3 ) ? 6 : 3;
+                        stateUpdate += currentScaledStateDerivatives_[ stage ] /
+                                mathematical_constants::getFloatingInteger< typename StateType::Scalar >( denominator );
+                    }
+                    else
+                    {
+                        stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
+                    }
+                }
+                else
+                {
+                    // Update the estimate.
+                    stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
+                }
             }
         }
 

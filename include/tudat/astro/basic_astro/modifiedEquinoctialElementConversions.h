@@ -20,6 +20,8 @@
 #ifndef TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 
+#include <boost/lexical_cast.hpp>
+
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -33,6 +35,14 @@ namespace tudat
 
 namespace orbital_element_conversions
 {
+
+using std::atan;
+using std::cos;
+using std::fabs;
+using std::pow;
+using std::sin;
+using std::sqrt;
+using std::tan;
 
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
 /*!
@@ -77,7 +87,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
 
     // If e is (very near) one, then semi-major axis is undefined and thus the first kepler
     // element is the semi-latus rectum.
-    if( std::fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < singularityTolerance )
+    if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < singularityTolerance )
     {
         modifiedEquinoctialState( semiLatusRectumIndex ) = keplerianElements( semiLatusRectumIndex );
     }
@@ -94,8 +104,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
     if( ( inclination < getFloatingInteger< ScalarType >( 0 ) ) || ( inclination > getPi< ScalarType >( ) ) )
     {
         // Define the error message.
-        throw std::runtime_error( "Inclination is expected in range [0," + std::to_string( getPi< ScalarType >( ) ) + "]\n" +
-                                  "Specified inclination: " + std::to_string( inclination ) + " rad." );
+        throw std::runtime_error( "Inclination is expected in range [0," + boost::lexical_cast< std::string >( getPi< ScalarType >( ) ) +
+                                  "]\nSpecified inclination: " + boost::lexical_cast< std::string >( inclination ) + " rad." );
     }
     // Else, nothing wrong and continue.
 
@@ -111,7 +121,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
                 keplerianElements( argumentOfPeriapsisIndex ) + keplerianElements( longitudeOfAscendingNodeIndex );
 
         // Take the tangent of half the inclination.
-        tangentOfHalfInclination = std::tan( inclination / getFloatingInteger< ScalarType >( 2 ) );
+        tangentOfHalfInclination = tan( inclination / getFloatingInteger< ScalarType >( 2 ) );
     }
     else  // the orbit is retrograde.
     {
@@ -121,20 +131,20 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
 
         // Take the inverse of the tangent of half the inclination to avoid singularity at tan
         // PI/2.
-        tangentOfHalfInclination = getFloatingInteger< ScalarType >( 1 ) / std::tan( inclination / getFloatingInteger< ScalarType >( 2 ) );
+        tangentOfHalfInclination = getFloatingInteger< ScalarType >( 1 ) / tan( inclination / getFloatingInteger< ScalarType >( 2 ) );
     }
 
     // Compute f-element.
-    modifiedEquinoctialState( fElementIndex ) = eccentricity * std::cos( argumentOfPeriapsisAndAscendingNode );
+    modifiedEquinoctialState( fElementIndex ) = eccentricity * cos( argumentOfPeriapsisAndAscendingNode );
 
     // Compute g-element.
-    modifiedEquinoctialState( gElementIndex ) = eccentricity * std::sin( argumentOfPeriapsisAndAscendingNode );
+    modifiedEquinoctialState( gElementIndex ) = eccentricity * sin( argumentOfPeriapsisAndAscendingNode );
 
     // Compute h-element.
-    modifiedEquinoctialState( hElementIndex ) = tangentOfHalfInclination * std::cos( keplerianElements( longitudeOfAscendingNodeIndex ) );
+    modifiedEquinoctialState( hElementIndex ) = tangentOfHalfInclination * cos( keplerianElements( longitudeOfAscendingNodeIndex ) );
 
     // Compute k-element.
-    modifiedEquinoctialState( kElementIndex ) = tangentOfHalfInclination * std::sin( keplerianElements( longitudeOfAscendingNodeIndex ) );
+    modifiedEquinoctialState( kElementIndex ) = tangentOfHalfInclination * sin( keplerianElements( longitudeOfAscendingNodeIndex ) );
 
     // Compute true longitude (modulo 2 PI to keep within interval -2PI to 2PI).
     modifiedEquinoctialState( trueLongitudeIndex ) =
@@ -224,12 +234,12 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
     ScalarType singularityTolerance = 5.0 * std::numeric_limits< ScalarType >::epsilon( );
 
     // Compute eccentricity.0
-    ScalarType eccentricity = std::sqrt( fElement * fElement + gElement * gElement );
+    ScalarType eccentricity = sqrt( fElement * fElement + gElement * gElement );
     convertedKeplerianElements( eccentricityIndex ) = eccentricity;
 
     // Compute semi-major axis.
     // If eccentricity is not near-parabolic.
-    if( std::fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) > singularityTolerance )
+    if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) > singularityTolerance )
     {
         // Use semi-latus rectum and eccentricity to calculate semi-major axis with a=p/(1-e^2).
         convertedKeplerianElements( semiMajorAxisIndex ) = modifiedEquinoctialElements( semiLatusRectumIndex ) /
@@ -258,9 +268,9 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
             flipSingularityToZeroInclination ? -getFloatingInteger< ScalarType >( 1 ) : getFloatingInteger< ScalarType >( 1 );
 
     // Calculate magnitude of inclination with retrogradeFactor (derived based on Hintz, 2008).
-    ScalarType hSquaredPlusKSquared = std::pow( hElement * hElement + kElement * kElement, retrogradeFactor );
+    ScalarType hSquaredPlusKSquared = pow( hElement * hElement + kElement * kElement, retrogradeFactor );
 
-    convertedKeplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 2 ) * std::atan( std::sqrt( hSquaredPlusKSquared ) );
+    convertedKeplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 2 ) * atan( sqrt( hSquaredPlusKSquared ) );
     // Was: std::atan2(2 * std::sqrt(hSquaredPlusKSquared) , (1.0 - hSquaredPlusKSquared));
 
     // Compute argument of periapsis.
@@ -432,11 +442,11 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElementsV
         // Computing helper parameters.
 
         // Square-root
-        ScalarType squareRootOfGravitationalParameterOverSemiLatusRectum = std::sqrt( centralBodyGravitationalParameter / semiLatusRectum );
+        ScalarType squareRootOfGravitationalParameterOverSemiLatusRectum = sqrt( centralBodyGravitationalParameter / semiLatusRectum );
 
         // Cosines and sine.
-        ScalarType cosineTrueLongitude = std::cos( trueLongitude );
-        ScalarType sineTrueLongitude = std::sin( trueLongitude );
+        ScalarType cosineTrueLongitude = cos( trueLongitude );
+        ScalarType sineTrueLongitude = sin( trueLongitude );
 
         // s, a, w, r from references.
         ScalarType sSquaredParameter = getFloatingInteger< ScalarType >( 1 ) + hElement * hElement + kElement * kElement;
@@ -524,10 +534,10 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElements(
 
     // Retrieve MEE components and compute intermediate quantities
     ScalarType semiLatusRectrum = modifiedEquinoctialElements( semiParameterIndex );
-    ScalarType angularMomentumPerUnitGravitationalParameter = std::sqrt( semiLatusRectrum / centralBodyGravitationalParameter );
+    ScalarType angularMomentumPerUnitGravitationalParameter = sqrt( semiLatusRectrum / centralBodyGravitationalParameter );
 
-    ScalarType sineTrueLongitude = std::sin( modifiedEquinoctialElements( trueLongitudeIndex ) );
-    ScalarType cosineTrueLongitude = std::cos( modifiedEquinoctialElements( trueLongitudeIndex ) );
+    ScalarType sineTrueLongitude = sin( modifiedEquinoctialElements( trueLongitudeIndex ) );
+    ScalarType cosineTrueLongitude = cos( modifiedEquinoctialElements( trueLongitudeIndex ) );
 
     ScalarType parameterF = modifiedEquinoctialElements( fElementIndex );
     ScalarType parameterG = modifiedEquinoctialElements( gElementIndex );

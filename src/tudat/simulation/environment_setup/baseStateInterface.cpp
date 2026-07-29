@@ -25,7 +25,7 @@ Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const doubl
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template<>
-Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameLongDoubleState( time );
 }
@@ -39,7 +39,7 @@ Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time 
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template<>
-Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
     return getBaseFrameLongDoubleState( time );
 }

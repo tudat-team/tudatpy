@@ -87,6 +87,24 @@ python build.py -j <number-of-cores>  # Compile Tudatpy
 This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 
+### Configuring the high-precision C++ state scalar
+
+Tudat's high-precision state interfaces use `tudat::HighPrecisionStateScalar`,
+declared in the generated `tudat/config.hpp` header. It is `long double` by
+default. A separate build can select Boost's quad-precision binary float:
+
+```sh
+cmake -S . -B build-quad \
+    -DTUDAT_HIGH_PRECISION_STATE_SCALAR=CPP_BIN_FLOAT_QUAD
+cmake --build build-quad
+```
+
+The supported CMake values are `LONG_DOUBLE` (the default) and
+`CPP_BIN_FLOAT_QUAD`. This selection affects the C++ state API and its binary
+interface, so all libraries and C++ consumers must use the same configuration.
+The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
+limited to their supported scalar types.
+
 7. Install
 
 ```

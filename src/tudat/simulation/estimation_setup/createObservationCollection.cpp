@@ -121,20 +121,24 @@ void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::ma
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
                 stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, double > >( ephemeris ) );
     }
-    else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr )
+    else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) !=
+             nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, double > >( ephemeris ) );
+                stateHistory,
+                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) );
     }
     else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
                 stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< double, Time > >( ephemeris ) );
     }
-    else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr )
+    else if( std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris ) !=
+             nullptr )
     {
         resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
-                stateHistory, std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) );
+                stateHistory,
+                std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris ) );
     }
     else
     {
@@ -154,12 +158,13 @@ void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
                 rotationalStateHistory,
                 std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< double, double > >( rotationalEphemeris ) );
     }
-    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, double > >( rotationalEphemeris ) !=
-             nullptr )
+    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< HighPrecisionStateScalar, double > >(
+                     rotationalEphemeris ) != nullptr )
     {
         resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
                 rotationalStateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, double > >( rotationalEphemeris ) );
+                std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< HighPrecisionStateScalar, double > >(
+                        rotationalEphemeris ) );
     }
     else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ) != nullptr )
     {
@@ -167,11 +172,13 @@ void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
                 rotationalStateHistory,
                 std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< double, Time > >( rotationalEphemeris ) );
     }
-    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) != nullptr )
+    else if( std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< HighPrecisionStateScalar, Time > >(
+                     rotationalEphemeris ) != nullptr )
     {
         resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
                 rotationalStateHistory,
-                std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< long double, Time > >( rotationalEphemeris ) );
+                std::dynamic_pointer_cast< ephemerides::TabulatedRotationalEphemeris< HighPrecisionStateScalar, Time > >(
+                        rotationalEphemeris ) );
     }
     else
     {

@@ -57,7 +57,8 @@ GlobalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
 template< typename ScalarType = double >
 ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
 {
-    return dividend - divisor * std::floor( dividend / divisor );
+    using std::floor;
+    return dividend - divisor * floor( dividend / divisor );
 }
 
 //! Compute modulo of floating-point number (default double).

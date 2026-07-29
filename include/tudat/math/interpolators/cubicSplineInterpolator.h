@@ -311,8 +311,10 @@ public:
         upperValue = independentValues_[ lowerEntry_ + 1 ];
 
         // Calculate coefficients A,B,C,D (see Numerical (Press W.H., et al., 2002))
-        squareDifference = static_cast< ScalarType >( upperValue - lowerValue ) * static_cast< ScalarType >( upperValue - lowerValue );
-        ScalarType coefficientA_ = ( upperValue - targetIndependentVariableValue ) / static_cast< ScalarType >( upperValue - lowerValue );
+        const ScalarType interval = convertIndependentVariableToScalar< ScalarType >( upperValue - lowerValue );
+        squareDifference = interval * interval;
+        ScalarType coefficientA_ =
+                convertIndependentVariableToScalar< ScalarType >( upperValue - targetIndependentVariableValue ) / interval;
         ScalarType coefficientB_ = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA_;
         ScalarType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ - coefficientA_ ) /
                 mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
@@ -370,7 +372,7 @@ private:
         // Compute the vectors h (temporary values),a,c,b,r.
         for( unsigned int i = 0; i < ( numberOfDataPoints_ - 1 ); i++ )
         {
-            hCoefficients_[ i ] = independentValues_[ i + 1 ] - independentValues_[ i ];
+            hCoefficients_[ i ] = convertIndependentVariableToScalar< ScalarType >( independentValues_[ i + 1 ] - independentValues_[ i ] );
         }
 
         // Set tridiagonal matrix equation input.

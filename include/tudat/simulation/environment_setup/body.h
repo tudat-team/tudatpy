@@ -152,14 +152,14 @@ public:
      */
     void setCustomState( const Eigen::VectorXd& customState );
 
-    //! Set current state of body manually in long double precision.
+    //! Set current state of body manually using the configured high-precision scalar.
     /*!
-     * Set current state of body manually in long double precision. State must be in the global
+     * Set current state of body manually using the configured high-precision scalar. State must be in the global
      * frame.  Note that this function sets both the currentState_ and currentLongState_ variables
      * (currentLongState_ directly and currentState_ by casting the input to double entries).
-     * \param longState Current state of the body that is set, in long double precision.
+     * \param longState Current high-precision state of the body that is set.
      */
-    void setLongState( const Eigen::Matrix< long double, 6, 1 >& longState );
+    void setLongState( const Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >& longState );
 
     //! Templated function to set the state manually.
     /*!
@@ -197,13 +197,13 @@ public:
                         currentState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
                                           ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) )
                                                 .template cast< double >( );
-                        currentLongState_ = currentState_.template cast< long double >( );
+                        currentLongState_ = currentState_.template cast< HighPrecisionStateScalar >( );
                     }
                     else
                     {
                         currentLongState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
                                               ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) )
-                                                    .template cast< long double >( );
+                                                    .template cast< HighPrecisionStateScalar >( );
                         currentState_ = currentLongState_.template cast< double >( );
                     }
                 }
@@ -217,12 +217,12 @@ public:
                     {
                         currentBarycentricState_ = ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time )
                                                            .template cast< double >( );
-                        currentBarycentricLongState_ = currentBarycentricState_.template cast< long double >( );
+                        currentBarycentricLongState_ = currentBarycentricState_.template cast< HighPrecisionStateScalar >( );
                     }
                     else
                     {
                         currentBarycentricLongState_ = ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time )
-                                                               .template cast< long double >( );
+                                                               .template cast< HighPrecisionStateScalar >( );
                         currentBarycentricState_ = currentBarycentricLongState_.template cast< double >( );
                     }
                 }
@@ -327,26 +327,26 @@ public:
      */
     Eigen::Vector3d getVelocity( );
 
-    //! Get current state, in long double precision
+    //! Get current state using the configured high-precision scalar.
     /*!
-     * Returns the internally stored current state vector, in long double precision
-     * \return Current state, in long double precisio
+     * Returns the internally stored high-precision current state vector.
+     * \return Current high-precision state
      */
-    Eigen::Matrix< long double, 6, 1 > getLongState( );
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getLongState( );
 
-    //! Get current position, in long double precision
+    //! Get current position using the configured high-precision scalar.
     /*!
-     * Returns the internally stored current position vector, in long double precision
-     * \return Current position, in long double precision
+     * Returns the internally stored high-precision current position vector.
+     * \return Current high-precision position
      */
-    Eigen::Matrix< long double, 3, 1 > getLongPosition( );
+    Eigen::Matrix< HighPrecisionStateScalar, 3, 1 > getLongPosition( );
 
-    //! Get current velocity, in long double precision.
+    //! Get current velocity using the configured high-precision scalar.
     /*!
      * Returns the internally stored current velocity vector.
-     * \return Current velocity, in long double precision
+     * \return Current high-precision velocity
      */
-    Eigen::Matrix< long double, 3, 1 > getLongVelocity( );
+    Eigen::Matrix< HighPrecisionStateScalar, 3, 1 > getLongVelocity( );
 
     //! Templated function to retrieve the state.
     /*!
@@ -836,8 +836,8 @@ private:
     //! Current state.
     Eigen::Vector6d currentState_;
 
-    //! Current state with long double precision.
-    Eigen::Matrix< long double, 6, 1 > currentLongState_;
+    //! Current state with the configured high-precision scalar.
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > currentLongState_;
 
     //! Current custom state.
     Eigen::VectorXd currentCustomState_;
@@ -845,8 +845,8 @@ private:
     //! Current state.
     Eigen::Vector6d currentBarycentricState_;
 
-    //! Current state with long double precision.
-    Eigen::Matrix< long double, 6, 1 > currentBarycentricLongState_;
+    //! Current state with the configured high-precision scalar.
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > currentBarycentricLongState_;
 
     //! Time at which state was last set from ephemeris
     Time timeOfCurrentState_;

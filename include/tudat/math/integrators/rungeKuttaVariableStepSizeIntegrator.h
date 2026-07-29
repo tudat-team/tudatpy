@@ -16,6 +16,7 @@
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
+#include <cmath>
 #include <functional>
 #include <memory>
 
@@ -34,6 +35,18 @@ namespace tudat
 
 namespace numerical_integrators
 {
+
+namespace detail
+{
+
+template< typename ScalarType >
+ScalarType getAbsoluteTolerance( const ScalarType& tolerance )
+{
+    using std::abs;
+    return abs( tolerance );
+}
+
+}  // namespace detail
 
 //! Class that implements the Runge-Kutta variable stepsize integrator.
 /*!
@@ -198,8 +211,8 @@ public:
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ), stepSize_( initialStepSize ), useStepSizeControl_( true )
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( relativeErrorTolerance ) ),
-                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
+                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
                 static_cast< double >( safetyFactorForNextStepSize ),
                 coefficients_.lowerOrder + 1,
                 static_cast< double >( minimumFactorDecreaseForNextStepSize ),

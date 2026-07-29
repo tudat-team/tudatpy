@@ -37,7 +37,7 @@ Body::Body( const Eigen::Vector6d& state ):
     currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
     currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ), bodyName_( "unnamed_body" )
 {
-    currentLongState_ = currentState_.cast< long double >( );
+    currentLongState_ = currentState_.cast< HighPrecisionStateScalar >( );
     isStateSet_ = false;
     isCustomStateSet_ = false;
     isRotationSet_ = false;
@@ -83,7 +83,7 @@ void Body::setCustomState( const Eigen::VectorXd& customState )
     isCustomStateSet_ = true;
 }
 
-void Body::setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
+void Body::setLongState( const Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >& longState )
 {
     currentLongState_ = longState;
     currentState_ = longState.cast< double >( );
@@ -117,7 +117,7 @@ Eigen::Vector3d Body::getVelocity( )
     return currentState_.segment( 3, 3 );
 }
 
-Eigen::Matrix< long double, 6, 1 > Body::getLongState( )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Body::getLongState( )
 {
     if( !isStateSet_ )
     {
@@ -126,7 +126,7 @@ Eigen::Matrix< long double, 6, 1 > Body::getLongState( )
     return currentLongState_;
 }
 
-Eigen::Matrix< long double, 3, 1 > Body::getLongPosition( )
+Eigen::Matrix< HighPrecisionStateScalar, 3, 1 > Body::getLongPosition( )
 {
     if( !isStateSet_ )
     {
@@ -135,7 +135,7 @@ Eigen::Matrix< long double, 3, 1 > Body::getLongPosition( )
     return currentLongState_.segment( 0, 3 );
 }
 
-Eigen::Matrix< long double, 3, 1 > Body::getLongVelocity( )
+Eigen::Matrix< HighPrecisionStateScalar, 3, 1 > Body::getLongVelocity( )
 {
     if( !isStateSet_ )
     {
@@ -698,7 +698,7 @@ Eigen::Matrix< double, 6, 1 > Body::getTemplatedState( )
 }
 
 template<>
-Eigen::Matrix< long double, 6, 1 > Body::getTemplatedState( )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Body::getTemplatedState( )
 {
     return getLongState( );
 }
@@ -712,7 +712,7 @@ void Body::setTemplatedState( const Eigen::Matrix< double, 6, 1 >& state )
 
 //! Templated function to set the state manually.
 template<>
-void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
+void Body::setTemplatedState( const Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >& state )
 {
     setLongState( state );
 }

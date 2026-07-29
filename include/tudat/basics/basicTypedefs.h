@@ -12,6 +12,8 @@
 #ifndef TUDAT_BASIC_TYPEDEFS_H
 #define TUDAT_BASIC_TYPEDEFS_H
 
+#include <tudat/config.hpp>
+
 #include <Eigen/Core>
 
 namespace Eigen
@@ -32,17 +34,17 @@ typedef Eigen::Matrix< float, 6, 1 > Vector6f;
 //! Typedef for Vector6d.
 typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 
-//! Typedef for Vector3ld.
-typedef Eigen::Matrix< long double, 3, 1 > Vector3ld;
+//! Typedef for a configured high-precision 3-vector (legacy name).
+typedef Eigen::Matrix< tudat::HighPrecisionStateScalar, 3, 1 > Vector3ld;
 
-//! Typedef for Vector6ld.
-typedef Eigen::Matrix< long double, 6, 1 > Vector6ld;
+//! Typedef for a configured high-precision 6-vector (legacy name).
+typedef Eigen::Matrix< tudat::HighPrecisionStateScalar, 6, 1 > Vector6ld;
 
 //! Typedef for Vector7d.
 typedef Eigen::Matrix< double, 7, 1 > Vector7d;
 
-//! Typedef for Vector7ld.
-typedef Eigen::Matrix< long double, 7, 1 > Vector7ld;
+//! Typedef for a configured high-precision 7-vector (legacy name).
+typedef Eigen::Matrix< tudat::HighPrecisionStateScalar, 7, 1 > Vector7ld;
 
 //! Typedef for Matrix6i.
 typedef Eigen::Matrix< int, 6, 6 > Matrix6i;
@@ -68,11 +70,11 @@ typedef Eigen::Matrix< long long, Eigen::Dynamic, Eigen::Dynamic > MatrixXll;
 //! Typedef for MatrixXf.
 typedef Eigen::Matrix< float, Eigen::Dynamic, Eigen::Dynamic > MatrixXf;
 
-//! Typedef for MatrixXld.
-typedef Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > MatrixXld;
+//! Typedef for a configured high-precision dynamic matrix (legacy name).
+typedef Eigen::Matrix< tudat::HighPrecisionStateScalar, Eigen::Dynamic, Eigen::Dynamic > MatrixXld;
 
-//! Typedef for VectorXld.
-typedef Eigen::Matrix< long double, Eigen::Dynamic, 1 > VectorXld;
+//! Typedef for a configured high-precision dynamic vector (legacy name).
+typedef Eigen::Matrix< tudat::HighPrecisionStateScalar, Eigen::Dynamic, 1 > VectorXld;
 
 }  // namespace Eigen
 

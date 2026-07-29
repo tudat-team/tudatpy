@@ -32,6 +32,7 @@
 
 #include <memory>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/math/special_functions/asinh.hpp>
 
 #include <cmath>
@@ -46,6 +47,15 @@ namespace tudat
 
 namespace orbital_element_conversions
 {
+
+using std::abs;
+using std::cos;
+using std::cosh;
+using std::fabs;
+using std::log;
+using std::sin;
+using std::sinh;
+using std::sqrt;
 
 //! Compute Kepler's function for elliptical orbits.
 /*!
@@ -65,7 +75,7 @@ ScalarType computeKeplersFunctionForEllipticalOrbits( const ScalarType eccentric
                                                       const ScalarType eccentricity,
                                                       const ScalarType meanAnomaly )
 {
-    return eccentricAnomaly - eccentricity * std::sin( eccentricAnomaly ) - meanAnomaly;
+    return eccentricAnomaly - eccentricity * sin( eccentricAnomaly ) - meanAnomaly;
 }
 
 //! Compute first-derivative of Kepler's function for elliptical orbits.
@@ -83,7 +93,7 @@ ScalarType computeKeplersFunctionForEllipticalOrbits( const ScalarType eccentric
 template< typename ScalarType = double >
 ScalarType computeFirstDerivativeKeplersFunctionForEllipticalOrbits( const ScalarType eccentricAnomaly, const ScalarType eccentricity )
 {
-    return mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - eccentricity * std::cos( eccentricAnomaly );
+    return mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - eccentricity * cos( eccentricAnomaly );
 }
 
 //! Compute Kepler's function for hyperbolic orbits.
@@ -104,7 +114,7 @@ ScalarType computeKeplersFunctionForHyperbolicOrbits( const ScalarType hyperboli
                                                       const ScalarType eccentricity,
                                                       const ScalarType hyperbolicMeanAnomaly )
 {
-    return eccentricity * std::sinh( hyperbolicEccentricAnomaly ) - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly;
+    return eccentricity * sinh( hyperbolicEccentricAnomaly ) - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly;
 }
 
 //! Compute first-derivative of Kepler's function for hyperbolic orbits.
@@ -123,7 +133,7 @@ template< typename ScalarType = double >
 ScalarType computeFirstDerivativeKeplersFunctionForHyperbolicOrbits( const ScalarType hyperbolicEccentricAnomaly,
                                                                      const ScalarType eccentricity )
 {
-    return eccentricity * std::cosh( hyperbolicEccentricAnomaly ) - 1.0;
+    return eccentricity * cosh( hyperbolicEccentricAnomaly ) - mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 }
 
 //! Convert mean anomaly to eccentric anomaly.
@@ -166,13 +176,14 @@ ScalarType convertMeanAnomalyToEccentricAnomaly( const ScalarType eccentricity,
         ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
 
         // Loosen tolerance for near-parabolic orbits
-        if( std::fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < 1.0E5 * std::numeric_limits< ScalarType >::epsilon( ) )
+        if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) <
+            getFloatingInteger< ScalarType >( 100000 ) * std::numeric_limits< ScalarType >::epsilon( ) )
         {
             tolerance *= 2.5;
         }
 
-        rootFinder = root_finders::createRootFinder< ScalarType >(
-                root_finders::newtonRaphsonRootFinderSettings( TUDAT_NAN, tolerance, TUDAT_NAN, 20, root_finders::throw_exception ) );
+        rootFinder = root_finders::createRootFinder< ScalarType >( root_finders::newtonRaphsonRootFinderSettings(
+                TUDAT_NAN, static_cast< double >( tolerance ), TUDAT_NAN, 20, root_finders::throw_exception ) );
     }
 
     // Declare eccentric anomaly.
@@ -243,7 +254,8 @@ ScalarType convertMeanAnomalyToEccentricAnomaly( const ScalarType eccentricity,
 
             // Create root finder
             std::shared_ptr< RootFinder< ScalarType > > bisectionRootfinder = rootFinder = root_finders::createRootFinder< ScalarType >(
-                    root_finders::bisectionRootFinderSettings( TUDAT_NAN, tolerance, TUDAT_NAN, 100, root_finders::accept_result ),
+                    root_finders::bisectionRootFinderSettings(
+                            TUDAT_NAN, static_cast< double >( tolerance ), TUDAT_NAN, 100, root_finders::accept_result ),
                     lowerBound,
                     upperBound );
 
@@ -255,7 +267,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly( const ScalarType eccentricity,
     else
     {
         throw std::runtime_error( "Invalid eccentricity. Valid range is 0.0 <= e < 1.0. Eccentricity was: " +
-                                  std::to_string( eccentricity ) );
+                                  boost::lexical_cast< std::string >( eccentricity ) );
     }
 
     // Return eccentric anomaly.
@@ -295,10 +307,14 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly( const ScalarType ecce
     // Required because the make_shared in the function definition gives problems for MSVC.
     if( !rootFinder.get( ) )
     {
-        double toleranceMultiplier = ( eccentricity - 1.0 ) < 1.0E-3 ? 10.0 : 1.0;
+        const ScalarType toleranceMultiplier =
+                ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < getFloatingFraction< ScalarType >( 1, 1000 )
+                ? getFloatingInteger< ScalarType >( 10 )
+                : getFloatingInteger< ScalarType >( 1 );
         rootFinder = createRootFinder< ScalarType >(
                 newtonRaphsonRootFinderSettings( TUDAT_NAN,
-                                                 toleranceMultiplier * 25.0 * std::numeric_limits< ScalarType >::epsilon( ),
+                                                 static_cast< double >( toleranceMultiplier * getFloatingInteger< ScalarType >( 25 ) *
+                                                                        std::numeric_limits< ScalarType >::epsilon( ) ),
                                                  TUDAT_NAN,
                                                  1000,
                                                  root_finders::throw_exception ) );
@@ -336,24 +352,23 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly( const ScalarType ecce
         // functionality of this one. [Musegaas,2012]
         if( useDefaultInitialGuess )
         {
-            if( std::abs( hyperbolicMeanAnomaly ) < getFloatingInteger< ScalarType >( 6 ) * eccentricity )
+            if( abs( hyperbolicMeanAnomaly ) < getFloatingInteger< ScalarType >( 6 ) * eccentricity )
             {
-                initialGuess = std::sqrt( getFloatingInteger< ScalarType >( 8 ) * ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) /
-                                          eccentricity ) *
-                        std::sinh( getFloatingFraction< ScalarType >( 1, 3 ) *
-                                   boost::math::asinh(
-                                           getFloatingInteger< ScalarType >( 3 ) * hyperbolicMeanAnomaly /
-                                           ( std::sqrt( getFloatingInteger< ScalarType >( 8 ) *
-                                                        ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) / eccentricity ) *
-                                             ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) ) ) );
+                initialGuess = sqrt( getFloatingInteger< ScalarType >( 8 ) * ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) /
+                                     eccentricity ) *
+                        sinh( getFloatingFraction< ScalarType >( 1, 3 ) *
+                              boost::math::asinh( getFloatingInteger< ScalarType >( 3 ) * hyperbolicMeanAnomaly /
+                                                  ( sqrt( getFloatingInteger< ScalarType >( 8 ) *
+                                                          ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) / eccentricity ) *
+                                                    ( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) ) ) );
             }
             else if( hyperbolicMeanAnomaly > getFloatingInteger< ScalarType >( 6 ) * eccentricity )
             {
-                initialGuess = ( std::log( getFloatingInteger< ScalarType >( 2 ) * hyperbolicMeanAnomaly / eccentricity ) );
+                initialGuess = log( getFloatingInteger< ScalarType >( 2 ) * hyperbolicMeanAnomaly / eccentricity );
             }
             else
             {
-                initialGuess = ( -std::log( -getFloatingInteger< ScalarType >( 2 ) * hyperbolicMeanAnomaly / eccentricity ) );
+                initialGuess = -log( -getFloatingInteger< ScalarType >( 2 ) * hyperbolicMeanAnomaly / eccentricity );
             }
         }
         else
@@ -370,7 +385,11 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly( const ScalarType ecce
         catch( std::runtime_error const& )
         {
             rootFinder = createRootFinder< ScalarType >(
-                    bisectionRootFinderSettings( TUDAT_NAN, 20.0 * std::numeric_limits< ScalarType >::epsilon( ), TUDAT_NAN, 100 ),
+                    bisectionRootFinderSettings(
+                            TUDAT_NAN,
+                            static_cast< double >( getFloatingInteger< ScalarType >( 20 ) * std::numeric_limits< ScalarType >::epsilon( ) ),
+                            TUDAT_NAN,
+                            100 ),
                     getFloatingInteger< ScalarType >( 0 ),
                     getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ),
                     root_finders::accept_result );
@@ -382,7 +401,8 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly( const ScalarType ecce
     // In this case the orbit is not hyperbolic.
     else
     {
-        throw std::runtime_error( "Invalid eccentricity. Valid range is e > 1.0. Eccentricity was: " + std::to_string( eccentricity ) );
+        throw std::runtime_error( "Invalid eccentricity. Valid range is e > 1.0. Eccentricity was: " +
+                                  boost::lexical_cast< std::string >( eccentricity ) );
     }
 
     // Return hyperbolic eccentric anomaly.

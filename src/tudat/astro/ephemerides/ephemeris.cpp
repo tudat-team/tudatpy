@@ -39,9 +39,9 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const d
     }
 }
 
-//! Get state from ephemeris, with state scalar as template type (long double specialization).
+//! Get state from ephemeris, with state scalar as template type (configured high-precision specialization).
 template<>
-Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
     try
     {
@@ -67,9 +67,9 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const T
     }
 }
 
-//! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
+//! Get state from ephemeris, with state scalar as template type (configured high-precision specialization with Time input).
 template<>
-Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
 {
     try
     {

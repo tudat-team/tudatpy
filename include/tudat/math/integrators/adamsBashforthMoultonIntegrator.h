@@ -169,8 +169,8 @@ public:
                 minimumStepSize,
                 maximumStepSize,
                 initialStepSize,
-                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( relativeErrorTolerance ) ),
-                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
+                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                StateType::Constant( initialState.rows( ), initialState.cols( ), detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
                 bandwidth )
     {}
 

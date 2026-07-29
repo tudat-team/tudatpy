@@ -16,9 +16,27 @@
 #define TUDAT_VERSION_MINOR "@Tudat_VERSION_MINOR@"
 #define TUDAT_VERSION_PATCH "@Tudat_VERSION_PATCH@"
 
+// Configured high-precision scalar for Cartesian and propagated state data.
+#define TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD \
+    @TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD@
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+#include <boost/multiprecision/cpp_bin_float.hpp>
+#include <boost/multiprecision/eigen.hpp>
+#endif
+
+#define TUDAT_HIGH_PRECISION_STATE_SCALAR @TUDAT_HIGH_PRECISION_STATE_SCALAR_CPP_TYPE@
+
+namespace tudat
+{
+
+using HighPrecisionStateScalar = TUDAT_HIGH_PRECISION_STATE_SCALAR;
+
+}  // namespace tudat
+
 // TODO: This need to be moved somewhere else eventually.
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"
 
 //@TUDAT_BUILD_TESTS@
 
-#endif
+#endif  // TUDAT_CONFIG_HPP
