@@ -667,7 +667,8 @@ file(
 
 # Include tudatpy CMake configuration
 include_directories(include/tudatpy)
-add_subdirectory(src/tudatpy)
+# Temporarily disabled while CI builds only test_propagators_HighPrecisionStateScalar.
+# add_subdirectory(src/tudatpy)
 
 # +============================================================================
 # CLEAN UP (Project name independent)
