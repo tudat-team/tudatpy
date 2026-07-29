@@ -90,18 +90,17 @@ Once the project is built, all the build output is dumped by default in a direct
 ### Configuring the high-precision C++ state scalar
 
 Tudat's high-precision state interfaces use `tudat::HighPrecisionStateScalar`,
-declared in the generated `tudat/config.hpp` header. It is `long double` by
-default. A separate build can select Boost's quad-precision binary float:
+declared in the generated `tudat/config.hpp` header. It is Boost's
+quad-precision binary float by default:
 
 ```sh
-cmake -S . -B build-quad \
-    -DTUDAT_HIGH_PRECISION_STATE_SCALAR=CPP_BIN_FLOAT_QUAD
-cmake --build build-quad
+cmake -S . -B build
+cmake --build build
 ```
 
-The supported CMake values are `LONG_DOUBLE` (the default) and
-`CPP_BIN_FLOAT_QUAD`. This selection affects the C++ state API and its binary
-interface, so all libraries and C++ consumers must use the same configuration.
+The supported CMake values are `CPP_BIN_FLOAT_QUAD` (the default) and
+`LONG_DOUBLE`. This selection affects the C++ state API and its binary interface,
+so all libraries and C++ consumers must use the same configuration.
 The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
 limited to their supported scalar types.
 

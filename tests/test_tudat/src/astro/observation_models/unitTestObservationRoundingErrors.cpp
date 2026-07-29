@@ -130,27 +130,27 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
                                         const std::vector< int > timeExponents = { 0, -6, -7, -8, -9, -10, -11, -12 } )
 {
     // Compute nominal state at test time
-    Eigen::Vector6ld nominalState =
+    Eigen::Matrix< long double, 6, 1 > nominalState =
             ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime ).template cast< long double >( );
 
     // Time steps at which the relative numerical error will be around 1
-    Eigen::Vector3ld stateRatio =
+    Eigen::Matrix< long double, 3, 1 > stateRatio =
             ( nominalState.segment< 3 >( 0 ).cwiseQuotient( nominalState.segment< 3 >( 3 ) ) ).template cast< long double >( );
-    Eigen::Vector3ld limitTimes = std::numeric_limits< StateScalarType >::epsilon( ) * stateRatio;
+    Eigen::Matrix< long double, 3, 1 > limitTimes = std::numeric_limits< StateScalarType >::epsilon( ) * stateRatio;
 
     // Compute numerical position partial, and compute error w.r.t. computation for Delta t = 1 s
-    Eigen::Vector3ld nominalPartial = Eigen::Vector3ld::Zero( );
+    Eigen::Matrix< long double, 3, 1 > nominalPartial = Eigen::Matrix< long double, 3, 1 >::Zero( );
     for( unsigned int i = 0; i < timeExponents.size( ); i++ )
     {
         // Define time step
         long double perturbationStep = std::pow( 10, timeExponents.at( i ) );
 
         // Calculate numerical partial
-        Eigen::Vector3ld upperturbedState =
+        Eigen::Matrix< long double, 3, 1 > upperturbedState =
                 ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime + perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld downperturbedState =
+        Eigen::Matrix< long double, 3, 1 > downperturbedState =
                 ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime - perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
+        Eigen::Matrix< long double, 3, 1 > currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
 
         if( i == 0 )
         {
@@ -161,8 +161,8 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
         {
             // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 2 to account for randomness in
             // rounding error)
-            Eigen::Vector3ld expectedRelativeErrorLevel = limitTimes / perturbationStep;
-            Eigen::Vector3ld realRelativeErrorLevels =
+            Eigen::Matrix< long double, 3, 1 > expectedRelativeErrorLevel = limitTimes / perturbationStep;
+            Eigen::Matrix< long double, 3, 1 > realRelativeErrorLevels =
                     ( ( currentPartial - nominalPartial ).cwiseQuotient( nominalPartial ) ).segment( 0, 3 );
             std::cout << timeExponents.at( i ) << " " << expectedRelativeErrorLevel.transpose( ) << std::endl;
             std::cout << timeExponents.at( i ) << " " << realRelativeErrorLevels.transpose( ) << std::endl << std::endl;

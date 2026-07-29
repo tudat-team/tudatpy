@@ -95,10 +95,12 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
 
     // Manually compute long double state
     Eigen::Matrix< long double, 6, 1 > longDoubleStateFromDoubleTime;
-    longDoubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianLongState( testTime ).segment( 0, 3 ) +
+    longDoubleStateFromDoubleTime.segment( 0, 3 ) =
+            earthEphemeris->getCartesianLongState( testTime ).segment( 0, 3 ).cast< long double >( ) +
             ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 ) )
                     .cast< long double >( );
-    longDoubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianLongState( testTime ).segment( 3, 3 ) +
+    longDoubleStateFromDoubleTime.segment( 3, 3 ) =
+            earthEphemeris->getCartesianLongState( testTime ).segment( 3, 3 ).cast< long double >( ) +
             ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 3, 3 ) )
                     .cast< long double >( ) +
             ( rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 ) )
@@ -111,23 +113,24 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
 
     // Test double composte ephemeris
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris1->getCartesianState( testTime ), doubleStateFromDoubleTime, doubleTolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            ephemeris1->getCartesianLongState( testTime ), doubleStateFromDoubleTime.cast< long double >( ), doubleTolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris1->getCartesianLongState( testTime ).cast< long double >( ),
+                                       doubleStateFromDoubleTime.cast< long double >( ),
+                                       doubleTolerance );
 
     // Test long double composte ephemeris, tolerances are not fully met as longDoubleTolerance because rotation is only
     // defined using double state scalars. This is especially influential for the z-components, where the nominal value
     // is much smaller.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianState( testTime ), doubleStateFromDoubleTime, doubleTolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 0, 2 ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 0, 2 ).cast< long double >( ),
                                        longDoubleStateFromDoubleTime.segment( 0, 2 ),
                                        longDoubleTolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 2, 1 ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 2, 1 ).cast< long double >( ),
                                        longDoubleStateFromDoubleTime.segment( 2, 1 ),
                                        ( 1000.0 * longDoubleTolerance ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 3, 2 ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 3, 2 ).cast< long double >( ),
                                        longDoubleStateFromDoubleTime.segment( 3, 2 ),
                                        ( 10.0 * longDoubleTolerance ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 5, 1 ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 5, 1 ).cast< long double >( ),
                                        longDoubleStateFromDoubleTime.segment( 5, 1 ),
                                        ( 10000.0 * longDoubleTolerance ) );
 }
