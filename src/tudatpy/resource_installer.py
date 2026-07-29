@@ -1,16 +1,22 @@
 """Resource installer module for downloading and extracting files."""
 
 import argparse
-import csv
 import os
 import tarfile
+from importlib import resources
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import hashlib
 import json
 from urllib.parse import urlparse
 
 import requests
+
+from tudatpy.resource_data_registry import (
+    USER_RESOURCE_CATALOG,
+    load_resource_catalog,
+    update_resource_catalog,
+)
 
 try:
     import pooch
@@ -26,115 +32,9 @@ DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat_resources")
 DEFAULT_CACHE = Path(
     os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
 ).expanduser()
-RESOURCE_CATALOG = Path(__file__).with_name("resource_catalog.csv")
-MANIFEST_URLS = (
-    "https://zenodo.org/api/records/21277280/files/manifest.txt/content",
-    "https://zenodo.org/api/records/21261530/files/manifest.txt/content",
-)
-
-
-def load_resource_catalog(catalog_path: Path = RESOURCE_CATALOG) -> Dict[str, str]:
-    """Load the local, offline resource catalog.
-
-    The catalog contains the manifest path, timestamp and source URL, plus the
-    Zenodo tarball URL used for installation. The latter avoids relying on
-    upstream source URLs that may no longer be available.
-    """
-    try:
-        with catalog_path.open(newline="", encoding="utf-8") as catalog_file:
-            rows = csv.DictReader(catalog_file)
-            if rows.fieldnames is None or not {"path", "modified", "url"}.issubset(rows.fieldnames):
-                raise ValueError(
-                    f"Resource catalog {catalog_path} must contain path, modified and url columns."
-                )
-            registry = {}
-            for row in rows:
-                path = row["path"].strip()
-                url = row["url"].strip()
-                if not path or not url:
-                    raise ValueError(f"Invalid resource catalog row in {catalog_path}: {row}")
-                if path in registry:
-                    raise ValueError(f"Duplicate resource path '{path}' in {catalog_path}")
-                registry[path] = url
-            return registry
-    except FileNotFoundError as error:
-        raise FileNotFoundError(f"Resource catalog not found: {catalog_path}") from error
-
-
-def _parse_manifest(manifest: str, source: str) -> Iterable[Dict[str, str]]:
-    """Yield file rows from a Zenodo ``manifest.txt`` file.
-
-    The first line is the record DOI. Tarball descriptor rows determine the
-    download URL for the file rows that follow them.
-    """
-    rows = csv.reader(manifest.splitlines())
-    try:
-        doi = next(rows)[0]
-    except StopIteration:
-        raise ValueError(f"Manifest from {source} is empty.")
-
-    record_id = doi.rsplit(".", 1)[-1]
-    if not record_id.isdecimal():
-        raise ValueError(f"Invalid record DOI in manifest from {source}: {doi}")
-    archive = None
-
-    for line_number, row in enumerate(rows, start=2):
-        if len(row) != 3:
-            raise ValueError(f"Invalid manifest row {line_number} from {source}: {row}")
-        path, modified, url = (value.strip() for value in row)
-        if not url:
-            # The static manifest currently has a malformed star-catalog
-            # archive descriptor. The record itself exposes the canonical name.
-            archive = "star_catalog_biases.tar.gz" if path == ".tar.gz_catalog_biases.tar" else path
-            continue
-        if not path or not modified:
-            raise ValueError(f"Invalid manifest row {line_number} from {source}: {row}")
-        if not archive:
-            raise ValueError(f"File row {line_number} from {source} has no preceding archive.")
-        # The resource repository URL is authoritative when the manifest path
-        # is malformed (currently the star-catalog-biases entries have this
-        # issue). This avoids preserving a bad install path in the catalog.
-        resource_marker = "/resource/"
-        if (
-            "raw.githubusercontent.com/tudat-team/tudat-resources/" in url
-            and resource_marker in url
-        ):
-            path = url.split(resource_marker, 1)[1].lstrip("/")
-        yield {
-            "path": path,
-            "modified": modified,
-            "source_url": url,
-            "url": f"https://zenodo.org/api/records/{record_id}/files/{archive}/content",
-        }
-
-
-def update_resource_catalog(catalog_path: Path = RESOURCE_CATALOG) -> int:
-    """Fetch both authoritative Zenodo manifests and replace the local catalog."""
-    catalog_rows: Dict[str, Dict[str, str]] = {}
-    for manifest_url in MANIFEST_URLS:
-        response = requests.get(manifest_url, timeout=30)
-        response.raise_for_status()
-        for row in _parse_manifest(response.text, manifest_url):
-            path = row["path"]
-            if path in catalog_rows:
-                raise ValueError(f"Duplicate resource path '{path}' in Zenodo manifests.")
-            catalog_rows[path] = row
-
-    catalog_path.parent.mkdir(parents=True, exist_ok=True)
-    with catalog_path.open("w", newline="", encoding="utf-8") as catalog_file:
-        writer = csv.DictWriter(
-            catalog_file,
-            fieldnames=["path", "modified", "source_url", "url"],
-            lineterminator="\n",
-        )
-        writer.writeheader()
-        writer.writerows(catalog_rows[path] for path in sorted(catalog_rows))
-    return len(catalog_rows)
-
-
-# Keep module import usable before the catalog has been created for the first
-# time. All normal CLI modes load it explicitly in ``main``.
-DATA_REGISTRY = load_resource_catalog() if RESOURCE_CATALOG.exists() else {}
+# The registry is loaded in ``main`` so importing the module never requires
+# accessing user configuration or making a network request.
+DATA_REGISTRY: Dict[str, str] = {}
 
 
 def _has_progressbar() -> bool:
@@ -439,6 +339,21 @@ def list_registry(search: Optional[str] = None) -> None:
         print(key)
 
 
+def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
+    """Load a user-supplied hash file or the hash file bundled with TudatPy."""
+    path = Path(hash_file).expanduser()
+    if path.exists():
+        return json.loads(path.read_text()), str(path)
+
+    if path.name == hash_file:
+        packaged_hashes = resources.files("tudatpy").joinpath(hash_file)
+        if packaged_hashes.is_file():
+            with packaged_hashes.open(encoding="utf-8") as hash_stream:
+                return json.load(hash_stream), f"package resource {hash_file}"
+
+    raise FileNotFoundError(f"Hash file not found: {path}")
+
+
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments for the resource installer."""
     parser = argparse.ArgumentParser(
@@ -480,6 +395,13 @@ def parse_arguments() -> argparse.Namespace:
         "--hash-file",
         help="Path to a JSON file mapping registry keys or URLs to SHA256 hex digests.",
     )
+    parser.add_argument(
+        "--catalog",
+        help=(
+            "Path to a resource catalog. With --mode manifest, this is the output path; "
+            "otherwise it overrides the user or packaged catalog."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -487,22 +409,21 @@ def main() -> None:
     """Run the resource installer command-line interface."""
     global DATA_REGISTRY
     args = parse_arguments()
+    catalog_path = Path(args.catalog).expanduser() if args.catalog else None
 
     if args.mode == "manifest":
-        updated = update_resource_catalog()
-        print(f"Updated {RESOURCE_CATALOG} with {updated} resources from Zenodo manifests")
+        output_path = catalog_path or USER_RESOURCE_CATALOG
+        updated = update_resource_catalog(output_path)
+        print(f"Updated {output_path} with {updated} resources from Zenodo manifests")
         return
 
-    DATA_REGISTRY = load_resource_catalog()
+    DATA_REGISTRY = load_resource_catalog(catalog_path)
     dest_path = Path(args.dest).expanduser()
     cache_dir = Path(args.cache_dir).expanduser()
     hash_map: Optional[Dict[str, str]] = None
     if getattr(args, "hash_file", None):
-        p = Path(args.hash_file).expanduser()
-        if not p.exists():
-            raise FileNotFoundError(f"Hash file not found: {p}")
-        hash_map = json.loads(p.read_text())
-        print(f"Loaded {len(hash_map)} SHA256 hashes from {p}")
+        hash_map, hash_source = _load_hash_file(args.hash_file)
+        print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
         list_registry(args.list_search or args.search)
