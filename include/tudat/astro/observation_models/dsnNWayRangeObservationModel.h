@@ -110,6 +110,8 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
+        using std::pow;
+
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
         {
@@ -173,7 +175,7 @@ public:
         }
 
         // Set approximate up- and down-link frequencies.
-        double currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+        double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
 
         std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
                 getLightTimeCalculator( );
@@ -188,7 +190,7 @@ public:
                                                  currentTurnAroundRatio );
         }
 
-        TimeType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+        ObservationScalarType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
@@ -196,13 +198,17 @@ public:
                 : stationStates_.at( receiver )->getNominalCartesianPosition( );
         TimeType utcReceptionTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
-        TimeType utcTransmissionTime = timeScaleConverter_->template getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
+        TimeType utcTransmissionTime =
+                timeScaleConverter_->template getCurrentTime< TimeType >( basic_astrodynamics::tdb_scale,
+                                                                          basic_astrodynamics::utc_scale,
+                                                                          subtractTimeIntervalFromEpoch( time, lightTime ),
+                                                                          nominalReceivingStationState );
 
         ObservationScalarType uplinkFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
-        ancillarySettings->setAncillaryDoubleData( observation_models::range_conversion_factor,
-                                                   physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
+        ancillarySettings->setAncillaryDoubleData(
+                observation_models::range_conversion_factor,
+                static_cast< double >( physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
                 frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( utcTransmissionTime,
@@ -210,9 +216,11 @@ public:
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54
+        const ObservationScalarType rangeModulo =
+                pow( mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ),
+                     lowestRangingComponent + mathematical_constants::getFloatingInteger< ObservationScalarType >( 6 ) );
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << static_cast< ObservationScalarType >(
-                          basic_mathematics::computeModulo( rangeUnitIntegral, std::pow( 2.0, lowestRangingComponent + 6.0 ) ) ) )
+                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << basic_mathematics::computeModulo( rangeUnitIntegral, rangeModulo ) )
                         .finished( );
 
         return observation;

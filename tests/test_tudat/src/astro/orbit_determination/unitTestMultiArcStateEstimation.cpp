@@ -280,7 +280,8 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
 #if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-        Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( testCase );
+        Eigen::VectorXd parameterError =
+                executeParameterEstimation< HighPrecisionStateScalar, tudat::Time, HighPrecisionStateScalar >( testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << "Estimation error: " << parameterError.transpose( ) << std::endl;

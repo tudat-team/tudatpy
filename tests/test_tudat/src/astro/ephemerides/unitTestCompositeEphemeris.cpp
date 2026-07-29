@@ -78,11 +78,11 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     std::shared_ptr< Ephemeris > earthEphemeris = bodies.at( "Earth" )->getEphemeris( );
     std::shared_ptr< RotationalEphemeris > rotationModel = bodies.at( "Earth" )->getRotationalEphemeris( );
 
-    // Create reference point CompositeEphemeris objects (double and long double state scalars).
+    // Create reference point CompositeEphemeris objects (double and configured high-precision state scalars).
     std::shared_ptr< Ephemeris > ephemeris1 =
             createReferencePointCompositeEphemeris< double, double >( earthEphemeris, rotationModel, &getGroundStationPosition );
-    std::shared_ptr< Ephemeris > ephemeris2 =
-            createReferencePointCompositeEphemeris< double, long double >( earthEphemeris, rotationModel, &getGroundStationPosition );
+    std::shared_ptr< Ephemeris > ephemeris2 = createReferencePointCompositeEphemeris< double, HighPrecisionStateScalar >(
+            earthEphemeris, rotationModel, &getGroundStationPosition );
     double testTime = 1.05E7;
 
     // Manually compute double state
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
             rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 3, 3 ) +
             rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 );
 
-    // Manually compute long double state
+    // Manually compute the long-double reference state used by the existing tolerances.
     Eigen::Matrix< long double, 6, 1 > longDoubleStateFromDoubleTime;
     longDoubleStateFromDoubleTime.segment( 0, 3 ) =
             earthEphemeris->getCartesianLongState( testTime ).segment( 0, 3 ).cast< long double >( ) +
@@ -117,9 +117,9 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
                                        doubleStateFromDoubleTime.cast< long double >( ),
                                        doubleTolerance );
 
-    // Test long double composte ephemeris, tolerances are not fully met as longDoubleTolerance because rotation is only
-    // defined using double state scalars. This is especially influential for the z-components, where the nominal value
-    // is much smaller.
+    // Test the configured high-precision composite ephemeris against the long-double reference. Tolerances are not fully
+    // met at longDoubleTolerance because rotation is only defined using double state scalars. This is especially
+    // influential for the z-components, where the nominal value is much smaller.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianState( testTime ), doubleStateFromDoubleTime, doubleTolerance );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ephemeris2->getCartesianLongState( testTime ).segment( 0, 2 ).cast< long double >( ),
                                        longDoubleStateFromDoubleTime.segment( 0, 2 ),

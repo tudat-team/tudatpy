@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayRangeModel )
     // The MRO DSN range fixture is generated from mromagr2012_076_0840xmmmv1.tnf over the same
     // one-hour interval as the Doppler fixture, at the Tudat trk234 converter boundary. The CSV
     // stores the exact values that are otherwise passed directly to SingleObservationSet creation.
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection =
             createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "range_single_observation_set_inputs.csv",
                                                       observation_models::dsn_n_way_range );
 

@@ -207,7 +207,7 @@ public:
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        TimeType integrationTime;
+        double integrationTime;
         ObservationScalarType referenceFrequency;
         std::vector< FrequencyBands > frequencyBands;
         FrequencyBands referenceUplinkBand;
@@ -248,8 +248,8 @@ public:
         TimeType utcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
 
-        TimeType receptionUtcStartTime = utcTime - integrationTime / 2.0;
-        TimeType receptionUtcEndTime = utcTime + integrationTime / 2.0;
+        TimeType receptionUtcStartTime = subtractTimeIntervalFromEpoch( utcTime, integrationTime / 2.0 );
+        TimeType receptionUtcEndTime = addTimeIntervalToEpoch( utcTime, integrationTime / 2.0 );
 
         TimeType receptionTdbStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcStartTime, nominalReceivingStationState );
@@ -296,8 +296,8 @@ public:
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Moyer (2000), eqs. 13-52 and 13-53
-        TimeType transmissionTdbStartTime = subtractLightTimeFromEpoch( receptionTdbStartTime, startLightTime );
-        TimeType transmissionTdbEndTime = subtractLightTimeFromEpoch( receptionTdbEndTime, endLightTime );
+        TimeType transmissionTdbStartTime = subtractTimeIntervalFromEpoch( receptionTdbStartTime, startLightTime );
+        TimeType transmissionTdbEndTime = subtractTimeIntervalFromEpoch( receptionTdbEndTime, endLightTime );
 
         TimeType transmissionUtcStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
