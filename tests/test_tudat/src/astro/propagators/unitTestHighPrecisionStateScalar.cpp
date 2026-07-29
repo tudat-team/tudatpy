@@ -699,7 +699,7 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
     const std::string stationName = "QuadDsnStation";
     const Eigen::Vector3d stationPosition =
             environment.bodies.at( "Earth" )->getGroundStation( stationName )->getNominalStationState( )->getNominalCartesianPosition( );
-    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( nullptr, false );
+    const auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
     const Time utcTime = timeScaleConverter->getCurrentTime< Time >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, stationPosition );
     const Time offsetUtcTime = timeScaleConverter->getCurrentTime< Time >(
