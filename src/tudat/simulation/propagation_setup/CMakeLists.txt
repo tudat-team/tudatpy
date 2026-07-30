@@ -56,6 +56,9 @@ set(PUBLIC_LINKS_LIST)
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     list(APPEND PUBLIC_LINKS_LIST tudat_mcd_interface)
 endif()
+if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    list(APPEND PUBLIC_LINKS_LIST tudat_estimatable_parameters)
+endif()
 
 if (TUDAT_BUILD_EXPLICIT_INSTANTIATIONS)
     list(APPEND propagation_SOURCES

@@ -196,15 +196,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
 
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
-            double toleranceStates = 1E-3;
-            if( test == 6 )
-            {
-                toleranceStates = 2.0E-3;
-            }
-            //            if( test == 0 || test == 3 )
-            //            {
-            //                toleranceStates /= 100.0;
-            //            }
+            double toleranceStates = 2E-3;
             double toleranceParameter = 1E-12;
             if( test % 3 > 0 || test == 6 )
             {
@@ -274,7 +266,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
                 // Modify tolernace for geometrically poor term
                 if( ( test == 1 && parameterIndex == 3 ) || ( test == 3 && parameterIndex == 4 ) )
                 {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 20.0 ) );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 10.0 ) );
                 }
                 else
                 {
