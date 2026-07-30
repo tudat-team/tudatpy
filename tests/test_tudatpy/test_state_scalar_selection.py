@@ -772,6 +772,9 @@ def test_quad_dsn_closed_loop_doppler_resolves_closely_spaced_observations():
     quad_increments = np.diff(quad_observations)
     epoch_spacing = quad_result["epoch_spacing"]
     local_slope_interval = quad_result["local_slope_interval"]
+    time_has_extended_long_double_precision = (
+        np.finfo(np.longdouble).nmant > np.finfo(np.float64).nmant
+    )
 
     # As in the C++ high-precision test, use a wider 1 ms interval to
     # establish the local physical trend, then check the 1 ns sequence
@@ -809,6 +812,10 @@ def test_quad_dsn_closed_loop_doppler_resolves_closely_spaced_observations():
         np.max(np.abs(double_trend_residuals)),
         double_sweep,
     )
+    print(
+        "extended long-double Time precision:",
+        time_has_extended_long_double_precision,
+    )
 
     assert double_result["mode"] == "double"
     assert quad_result["mode"] == "quad"
@@ -825,14 +832,24 @@ def test_quad_dsn_closed_loop_doppler_resolves_closely_spaced_observations():
     assert np.all(np.isfinite(double_observations))
     assert np.all(np.isfinite(quad_observations))
 
-    # Quad must retain the small trend: its 100 ns sweep has the sign and
-    # magnitude predicted by the independently sampled 1 ms local slope.
     assert expected_sweep != 0.0
-    assert quad_sweep * expected_sweep > 0.0
-    assert abs(quad_sweep - expected_sweep) < 0.02 * abs(expected_sweep)
-    assert np.max(np.abs(quad_increments)) < 1.0e-9
-    assert np.max(np.abs(quad_increment_residuals)) < 1.0e-9
-    assert np.max(np.abs(quad_trend_residuals)) < 1.0e-9
+    if time_has_extended_long_double_precision:
+        # With an extended-precision Time remainder, quad must retain the
+        # small trend: its 100 ns sweep has the sign and magnitude predicted
+        # by the independently sampled 1 ms local slope.
+        assert quad_sweep * expected_sweep > 0.0
+        assert abs(quad_sweep - expected_sweep) < 0.02 * abs(expected_sweep)
+        assert np.max(np.abs(quad_increments)) < 1.0e-9
+        assert np.max(np.abs(quad_increment_residuals)) < 1.0e-9
+        assert np.max(np.abs(quad_trend_residuals)) < 1.0e-9
+    else:
+        # MSVC and Apple ARM64 use binary64 for long double, including the
+        # fractional remainder in Tudat's Time class. Mirror the C++ test's
+        # platform-specific limits for the resulting averaged-Doppler floor.
+        assert np.max(np.abs(quad_increments)) < 2.0e-6
+        assert np.max(np.abs(quad_increment_residuals)) < 2.0e-6
+        assert np.max(np.abs(quad_trend_residuals)) < 1.0e-6
+        assert abs(quad_sweep - expected_sweep) < 1.0e-6
 
     # The same model instantiated with double state scalars must not pass
     # the quad behavior accidentally: cancellation in the 0.1 s averaged
