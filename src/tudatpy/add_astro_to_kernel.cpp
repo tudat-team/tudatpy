@@ -3,7 +3,12 @@
 
 namespace py = pybind11;
 
-void add_astro_to_kernel(py::module_& m)
+void add_astro_types_to_kernel( py::module_& m )
 {
-    tudatpy::astro::expose_astro(m);
+    tudatpy::astro::expose_astro_types( m );
+}
+
+void add_astro_to_kernel( py::module_& m )
+{
+    tudatpy::astro::expose_astro( m );
 }

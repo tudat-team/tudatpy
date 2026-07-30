@@ -157,7 +157,7 @@ public:
      * \param conicalFrustum Conical frustum of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator<<( std::ostream &stream, ConicalFrustum &conicalFrustum );
+    friend std::ostream& operator<<( std::ostream& stream, ConicalFrustum& conicalFrustum );
 
 protected:
 private:

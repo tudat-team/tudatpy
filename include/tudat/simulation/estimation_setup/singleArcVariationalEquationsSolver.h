@@ -101,7 +101,8 @@ public:
                 bodies,
                 propagatorSettings_,
                 false,
-                PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( stateDerivativeModels, stateDerivativePartials ) );
+                PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >(
+                        stateDerivativeModels, stateDerivativePartials, parametersToEstimate_ ) );
 
         // Create variational equations evaluation objects.
         variationalEquationsObject_ =

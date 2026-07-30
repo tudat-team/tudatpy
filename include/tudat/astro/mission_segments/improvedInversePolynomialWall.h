@@ -85,13 +85,13 @@ public:
     ImprovedInversePolynomialWall( const std::function< double( ) > aTimeDependentParameter,
                                    const std::function< std::pair< Eigen::Vector3d, Eigen::Vector3d >( ) > aSetOfBoundaryParameters ):
         timeDependentParameter_( aTimeDependentParameter ), boundaryParameters_( aSetOfBoundaryParameters )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ImprovedInversePolynomialWall( ) { }
+    ~ImprovedInversePolynomialWall( ) {}
 
     //! Evaluate the function value for a given (in-plane) azimuthal angle.
     /*!

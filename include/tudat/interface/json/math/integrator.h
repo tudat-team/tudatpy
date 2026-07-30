@@ -32,7 +32,7 @@ static std::map< AvailableIntegrators, std::string > integratorTypes = {
 };
 
 //! `AvailableIntegrators` not supported by `json_interface`.
-static std::vector< AvailableIntegrators > unsupportedIntegratorTypes = { };
+static std::vector< AvailableIntegrators > unsupportedIntegratorTypes = {};
 
 //! Convert `AvailableIntegrators` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableIntegrators& availableIntegrator )
@@ -55,7 +55,7 @@ static std::map< CoefficientSets, std::string > rungeKuttaCoefficientSets = { { 
                                                                               { rungeKutta87DormandPrince, "rungeKutta87DormandPrince" } };
 
 //! `CoefficientSets` not supported by `json_interface`.
-static std::vector< CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
+static std::vector< CoefficientSets > unsupportedRungeKuttaCoefficientSets = {};
 
 //! Convert `CoefficientSets` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const CoefficientSets& rungeKuttaCoefficientSet )

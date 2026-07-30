@@ -44,7 +44,7 @@ public:
                                           const EstimatebleParametersEnum parameterType );
 
     //! Destructor.
-    ~SpecularDiffuseReflectivityParameter( ) { }
+    ~SpecularDiffuseReflectivityParameter( ) {}
 
     double normalizeValue( );
 

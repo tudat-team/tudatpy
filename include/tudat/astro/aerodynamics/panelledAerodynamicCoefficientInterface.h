@@ -20,55 +20,50 @@ namespace aerodynamics
 class PanelledAerodynamicCoefficientInterface : public AerodynamicCoefficientInterface
 {
 public:
-
-PanelledAerodynamicCoefficientInterface( const std::shared_ptr< GasSurfaceInteractionModel > gasSurfaceInteractionModel,
-                                         const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-                                         const double referenceArea, 
-                                         const AerodynamicCoefficientFrames coefficientFrame ):
-                                         AerodynamicCoefficientInterface( TUDAT_NAN, referenceArea, Eigen::Vector3d::Zero( ), independentVariableNames, coefficientFrame ),
-                                         gasSurfaceInteractionModel_( gasSurfaceInteractionModel )
-{ 
-    numberOfIndependentVariables_ = independentVariableNames_.size( );
-    gasSurfaceInteractionModelType_ = gasSurfaceInteractionModel_->getGasSurfaceInteractionModelType( );
-}
-
-void updateCurrentCoefficients( const std::vector<double>& independentVariables, 
-        const double currentTime = TUDAT_NAN) override
-{   
-    gasSurfaceInteractionModel_->setIncomingDirection( 
-        Eigen::Vector3d(
-            -std::cos(independentVariables[0]) * std::cos(independentVariables[1]),
-            -std::sin(independentVariables[1]),
-            -std::sin(independentVariables[0]) * std::cos(independentVariables[1])
-    ));
-    if ( gasSurfaceInteractionModelType_ == sentman || gasSurfaceInteractionModelType_ == cook )
+    PanelledAerodynamicCoefficientInterface( const std::shared_ptr< GasSurfaceInteractionModel > gasSurfaceInteractionModel,
+                                             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+                                             const double referenceArea,
+                                             const AerodynamicCoefficientFrames coefficientFrame ):
+        AerodynamicCoefficientInterface( TUDAT_NAN, referenceArea, Eigen::Vector3d::Zero( ), independentVariableNames, coefficientFrame ),
+        gasSurfaceInteractionModel_( gasSurfaceInteractionModel )
     {
-        gasSurfaceInteractionModel_->setFreeStreamTemperature( independentVariables[ 2 ] );
+        numberOfIndependentVariables_ = independentVariableNames_.size( );
+        gasSurfaceInteractionModelType_ = gasSurfaceInteractionModel_->getGasSurfaceInteractionModelType( );
     }
-    if ( gasSurfaceInteractionModelType_ == sentman )
+
+    void updateCurrentCoefficients( const std::vector< double >& independentVariables, const double currentTime = TUDAT_NAN ) override
     {
-        gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 3 ] );
+        gasSurfaceInteractionModel_->setIncomingDirection(
+                Eigen::Vector3d( -std::cos( independentVariables[ 0 ] ) * std::cos( independentVariables[ 1 ] ),
+                                 -std::sin( independentVariables[ 1 ] ),
+                                 -std::sin( independentVariables[ 0 ] ) * std::cos( independentVariables[ 1 ] ) ) );
+        if( gasSurfaceInteractionModelType_ == sentman || gasSurfaceInteractionModelType_ == cook )
+        {
+            gasSurfaceInteractionModel_->setFreeStreamTemperature( independentVariables[ 2 ] );
+        }
+        if( gasSurfaceInteractionModelType_ == sentman )
+        {
+            gasSurfaceInteractionModel_->setAirSpeed( independentVariables[ 3 ] );
+        }
+        currentForceCoefficients_ = gasSurfaceInteractionModel_->computeAerodynamicCoefficients( );
+
+        referenceArea_ = gasSurfaceInteractionModel_->getReferenceArea( );
     }
-    currentForceCoefficients_ = gasSurfaceInteractionModel_->computeAerodynamicCoefficients( );
 
-    referenceArea_ = gasSurfaceInteractionModel_->getReferenceArea( );
-}
+    GasSurfaceInteractionModelType getGasSurfaceInteractionModelType( ) const
+    {
+        return gasSurfaceInteractionModelType_;
+    }
 
-GasSurfaceInteractionModelType getGasSurfaceInteractionModelType( ) const
-{
-    return gasSurfaceInteractionModelType_;
-}
+    std::shared_ptr< GasSurfaceInteractionModel > getGasSurfaceInteractionModel( )
+    {
+        return gasSurfaceInteractionModel_;
+    }
 
-std::shared_ptr< GasSurfaceInteractionModel > getGasSurfaceInteractionModel( ) 
-{
-    return gasSurfaceInteractionModel_;
-}
 private:
+    GasSurfaceInteractionModelType gasSurfaceInteractionModelType_;
 
-GasSurfaceInteractionModelType gasSurfaceInteractionModelType_;
-
-std::shared_ptr< GasSurfaceInteractionModel > gasSurfaceInteractionModel_;
-
+    std::shared_ptr< GasSurfaceInteractionModel > gasSurfaceInteractionModel_;
 };
 
 }  // namespace aerodynamics

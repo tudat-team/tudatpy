@@ -73,7 +73,7 @@ public:
     }
 
     //! Default destructor.
-    ~SimsFlanaganModel( ) { }
+    ~SimsFlanaganModel( ) {}
 
     //! Propagate the spacecraft trajectory from departure to match point (forward propagation).
     void propagateForwardFromDepartureToMatchPoint( );

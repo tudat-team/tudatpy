@@ -31,7 +31,7 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~SurfaceGeometry( ) { }
+    virtual ~SurfaceGeometry( ) {}
 
 protected:
 private:

@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
             {
                 BOOST_CHECK( meanOrder > expectedHigherOrders.at( j ) - 0.5 );
                 BOOST_CHECK( meanOrder < expectedHigherOrders.at( j ) + 1.0 );
-                BOOST_CHECK( standardDeviationOrder < ( j == 6 ) ? 1.0 : 0.4 );
+                BOOST_CHECK( standardDeviationOrder < ( ( j == 6 ) ? 1.0 : 0.4 ) );
             }
         }
     }

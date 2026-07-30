@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,8 @@ namespace observations_setup
 namespace ancillary_settings
 {
 
-void expose_ancillary_settings( py::module &m );
+void expose_ancillary_settings_types( py::module& m );
+void expose_ancillary_settings( py::module& m );
 
 }  // namespace ancillary_settings
 }  // namespace observations_setup

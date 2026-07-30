@@ -22,7 +22,8 @@ namespace dynamics
 namespace parameters_setup
 {
 
-void expose_parameters_setup( py::module &m );
+void expose_parameters_setup_types( py::module& m );
+void expose_parameters_setup( py::module& m );
 
 }  // namespace parameters_setup
 }  // namespace dynamics

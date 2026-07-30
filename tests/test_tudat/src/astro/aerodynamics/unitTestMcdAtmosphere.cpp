@@ -22,78 +22,48 @@
  *
  * REFERENCE TEST CASES:
  * ---------------------
- * The test cases are based on the MCD v6.1 test suite provided in:
- *   third_parties/mcd/testcase/
+ * The test cases are based on the MCD v6.1 INPUT_K and REF_OUTPUT_K test suite.
+ * Those reference files are upstream test data and are not bundled here.
  *
- * Each test case corresponds to one of the INPUT_K*.txt files and compares
- * results against the corresponding REF_OUTPUT_K* reference files.
+ * Each numbered reference case is based on an INPUT_K file and compares
+ * results against the corresponding REF_OUTPUT_K file. Any deliberate
+ * deviation from the reference input is documented with that case.
  *
- * IMPORTANT NOTES ON COORDINATE SYSTEMS:
- * ---------------------------------------
- * The MCD Fortran code supports multiple vertical coordinate systems (zkey):
- *   zkey = 1: Radial distance from planet center (m)
- *   zkey = 2: Height above areoid (MOLA zero datum) (m)
- *   zkey = 3: Height above local surface (m)
- *   zkey = 4: Pressure level (Pa)
- *   zkey = 5: Altitude above mean Mars radius (3396000 m) (m)
+ * VERTICAL COORDINATES:
+ * ---------------------
+ * The reference INPUT_K files express their locations using zkey=1 (radial
+ * distance from the planet center). The production McdAtmosphereModel expects
+ * altitude above the local surface and therefore requires its shared climate
+ * model to use zkey=3.
  *
- * COORDINATE CONVERSION CHALLENGE:
- * --------------------------------
- * The reference test files (INPUT_K*.txt) use zkey=1 format, specifying
- * positions as radial distances from Mars center (e.g., 3416200 m for 20km
- * altitude above the mean radius of 3396200 m).
- *
- * However, Tudat's flight conditions module computes altitude as height above
- * the local surface (matching zkey=3), accounting for:
- *   - Local topography from MOLA (Mars Orbiter Laser Altimeter) data
- *   - Local areoid variations (Mars geoid from gravity field harmonics)
- *
- * CURRENT IMPLEMENTATION:
- * -----------------------
- * The McdAtmosphereModel class uses zkey=2 (height above areoid):
- *   1. Input: altitude above local surface (from Tudat's shape model)
- *   2. MCD call: Uses zkey=2 with this altitude directly
- *   3. MCD internally handles the conversion using its areoid model
- *
- * COORDINATE SYSTEM COMPATIBILITY:
- * ---------------------------------
- * Tudat's default Mars shape model is an Oblate Spheroid (approximation of areoid).
- * MCD's zkey=2 expects "height above areoid" (MOLA zero datum).
- * These are nearly identical for most purposes, so the conversion is appropriate.
- *
- * If high-resolution topography is enabled (highResolutionMode=1), MCD will
- * internally account for local MOLA topography when computing atmospheric properties.
- *
- * LIMITATIONS:
- * ------------
- * 1. Small differences (~0.1%) may exist between Tudat's oblate spheroid model
- *    and MCD's precise areoid definition from gravity harmonics
- * 2. These differences are negligible compared to atmospheric variability
+ * The direct reference regressions are a deliberate exception: they disable
+ * that production validation and query the climate model with zkey=2 (height
+ * above the areoid) at the altitude listed for each reference location. They
+ * consequently validate the MCD scenario and atmospheric output near the
+ * reference location; they do not test literal parsing of the INPUT_K radial
+ * coordinate.
  *
  * TEST TOLERANCES:
  * ----------------
- * The following tolerances account for:
- *   - Small areoid definition differences between Tudat and MCD
- *   - Temporal interpolation in MCD climatology
- *   - Numerical precision differences
+ * The following tolerances account for coordinate-convention, interpolation,
+ * MCD-version, and perturbation differences:
  *
- *   - Low altitude (20 km): 15% - good agreement expected
- *   - Medium altitude (50 km): 35% - more sensitive to interpolation
- *   - High altitude (150 km): 15-20% - topography effects minimal
- *   - Perturbed cases: 15-20% - additional variability from perturbations
+ *   - Cases 1, 2, 4, 5, and 9: at most 0.3%
+ *   - Case 3: 0.3% for pressure and 16% for density and temperature
+ *   - Case 6: 0.1% for pressure, 90% for density, and 50% for temperature
  *
  * These tolerances validate that:
  *   1. The MCD Fortran interface works correctly
  *   2. The returned values are physically reasonable
- *   3. The coordinate system conversion (zkey=2) is appropriate
+ *   3. The selected atmosphere vertical-coordinate convention is appropriate
  *
  * EXPECTED BEHAVIOR:
  * ------------------
- * All active tests should PASS with the specified tolerances. Failures may indicate:
+ * All active tests should pass with the specified tolerances. Failures may indicate:
  *   1. MCD data files not properly installed or path incorrect
  *   2. MCD Fortran library not properly linked
  *   3. Actual coordinate conversion errors beyond expected differences
- *   4. Issues with the MCD Fortran code itself (rare)
+ *   4. Issues with the MCD Fortran code itself
  *
  * REFERENCE:
  * ----------
@@ -105,27 +75,17 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <limits>
 #include <boost/test/unit_test.hpp>
-#include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
-
-#include "tudat/basics/testMacros.h"
-
-#if TUDAT_BUILD_WITH_MCD
 
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
-#include "tudat/astro/aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
-#include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
-#include "tudat/interface/spice/spiceEphemeris.h"
-#include "tudat/interface/spice/spiceRotationalEphemeris.h"
-#include "tudat/io/basicInputOutput.h"
+#include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
 
 using namespace tudat::aerodynamics;
 
@@ -133,14 +93,6 @@ namespace tudat
 {
 namespace unit_tests
 {
-
-using namespace tudat;
-using namespace aerodynamics;
-using namespace simulation_setup;
-using namespace numerical_integrators;
-using namespace basic_astrodynamics;
-using namespace propagators;
-using namespace basic_mathematics;
 
 BOOST_AUTO_TEST_SUITE( test_mcd_atmosphere )
 
@@ -152,35 +104,61 @@ double convertDateToJ2000( int day, int month, int year, int hour, int min, int 
     return daysSinceJ2000 * physical_constants::JULIAN_DAY;
 }
 
-// Test Case 1: INPUT_K1.txt - clim scenario 1, 20km, high-res, no perturbation
+std::shared_ptr< aerodynamics::McdAtmosphereModel > createReferenceMcdAtmosphereModel( const int dustScenario,
+                                                                                       const int perturbationKey,
+                                                                                       const double perturbationSeed,
+                                                                                       const double gravityWaveLength,
+                                                                                       const int highResolutionMode )
+{
+    auto climateModel = std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >(
+            "", dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
+    auto atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( climateModel );
+
+    // The MCD reference cases use altitude above the areoid (zkey=2), whereas
+    // McdAtmosphereModel normally enforces height above the local surface.
+    atmosphereModel->setValidateVerticalCoordinateKey( false );
+    climateModel->setZkey( 2 );
+    return atmosphereModel;
+}
+
+// Reference cases 1-6 and 9 exercise the scenarios and locations defined by
+// the MCD INPUT_K*.txt files and compare against their REF_OUTPUT_K* results.
+// As described above, the wrapper queries these locations using zkey=2 rather
+// than reproducing the files' zkey=1 radial coordinates literally. Cases 7,
+// 8, and 10 require the warm-scenario data set, which is not distributed with
+// the MCD data used by this project, and are therefore not registered.
+
+// INPUT_K1 reference scenario: scenario 1, a corresponding altitude of 20 km
+// above the areoid, high resolution, and no perturbations.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
 {
     double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
     double altitude = 20000.0;  // meters
-
     double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
     double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 0, 0.0, 0.0, 1 );
+    std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > mcdClimateModel =
+            std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( "", 1, 0, 5.0, 0.0, 1 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel = std::make_shared< McdAtmosphereModel >( mcdClimateModel );
+
+    atmosphereModel->setValidateVerticalCoordinateKey( false );
+    mcdClimateModel->setZkey( 2 );
 
     double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
     double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
     double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-    double zonalWind = atmosphereModel->getZonalWind( );
-    double meridionalWind = atmosphereModel->getMeridionalWind( );
+    double zonalWind = atmosphereModel->getZonalWind( altitude, longitude, latitude, time );
+    double meridionalWind = atmosphereModel->getMeridionalWind( altitude, longitude, latitude, time );
 
-    // REF_OUTPUT_K1 values (from MCD with zkey=1)
-    // Note: Using fixed mean radius instead of proper shape model causes ~10% differences
+    // REF_OUTPUT_K1 values.
     double expectedPressure = 75.7;
     double expectedDensity = 2.23e-3;
     double expectedTemperature = 177.0;
     double expectedZonalWind = -34.2;
     double expectedMeridionalWind = -7.82;
 
-    // Use 15% tolerance due to simplified coordinate conversion
-    double tolerance = 15.0;
-
+    double tolerance = 0.3;
     BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
     BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
     BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
@@ -188,301 +166,117 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
     BOOST_CHECK_CLOSE( std::abs( meridionalWind ), std::abs( expectedMeridionalWind ), tolerance );
 }
 
-// Test Case 2: INPUT_K2.txt
+// INPUT_K2: scenario 1, 20 km above the areoid, high resolution, and a
+// large-scale perturbation with seed 5.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 20000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 20000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 2, 5.0, 0.0, 1 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 2, 5.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    double expectedPressure = 77.8;
-    double expectedDensity = 2.29e-3;
-    double expectedTemperature = 178.0;
-
-    double tolerance = 15.0;  // Increased from 10% due to coordinate system differences
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    const double tolerance = 0.2;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 77.8, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 2.29e-3, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 178.0, tolerance );
 }
 
-// Test Case 3: INPUT_K3.txt
+// INPUT_K3 reference location: scenario 1, 50 km above the areoid, high
+// resolution. This regression deliberately disables the INPUT_K3
+// small-scale perturbation (perturbationKey=3), which has historically
+// caused Fortran memory failures. It therefore validates the mean
+// atmosphere at the reference location. The 16% density and temperature
+// tolerances reflect comparison against the perturbed reference values.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 50000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 50000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 1 );
 
-    // Use perturbationKey=0 instead of 3 to avoid Fortran memory issues
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 0, 0.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    double expectedPressure = 1.80;
-    double expectedDensity = 7.31e-5;
-    double expectedTemperature = 129.0;
-
-    double tolerance = 35.0;  // Higher altitude = more sensitive to altitude differences
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 1.80, 0.3 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 7.31e-5, 16.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 129.0, 16.0 );
 }
 
-// Test Case 4: INPUT_K4.txt
+// INPUT_K4: scenario 1, 150 km above the areoid, high resolution, and no
+// perturbations. At this altitude the influence of topography is small.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 150000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 150000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 1 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 0, 0.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    double expectedPressure = 4.79e-6;
-    double expectedDensity = 1.21e-10;
-    double expectedTemperature = 193.0;
-
-    double tolerance = 15.0;  // Very high altitude: topography effects minimal
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    const double tolerance = 0.3;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, tolerance );
 }
 
-// Test Case 5: INPUT_K5.txt
+// INPUT_K5: scenario 1, 150 km above the areoid, high resolution, and a
+// large-scale perturbation with seed 5. The expected values are the
+// perturbed REF_OUTPUT_K5 pressure, density, and temperature.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase5 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 150000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 150000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 2, 5.0, 0.0, 1 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 2, 5.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    double expectedPressure = 4.63e-6;
-    double expectedDensity = 1.19e-10;
-    double expectedTemperature = 190.0;
-
-    double tolerance = 15.0;
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    const double tolerance = 0.2;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.63e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.19e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 190.0, tolerance );
 }
 
-// Test Case 6: INPUT_K6.txt - Small-scale perturbations at high altitude
-// NOTE: This test has INCREASED TOLERANCE (150%) due to known inconsistencies
-// -------------------------------------------------------------------------
-// The perturbation model behavior differs significantly between:
-//   1. MCD's reference implementation (REF_OUTPUT_K6)
-//   2. Our C++ wrapper with low-resolution mode (hireskey=0)
+// INPUT_K6: scenario 1, 150 km above the areoid, low resolution, and
+// small-scale gravity-wave perturbations with seed 5 and a 16 km wavelength.
 //
-// OBSERVED DISCREPANCY:
-// - Reference (REF_OUTPUT_K6): density = 9.47e-11 kg/m³, T = 226 K (perturbed)
-//                              density = 1.21e-10 kg/m³, T = 193 K (mean)
-// - Our implementation:         density = 2.04e-10 kg/m³, T = 157 K
-//
-// ROOT CAUSES:
-// 1. Small-scale perturbations at low resolution may use different algorithms
-// 2. Stochastic perturbations are seed-dependent and may vary between versions
-// 3. Low-resolution mode (hireskey=0) may handle gravity waves differently
-// 4. Potential MCD version differences (v6.1 reference vs actual library)
-//
-// VALIDATION APPROACH:
-// Instead of exact matching, we use 150% tolerance to verify:
-//   - The MCD library is being called successfully
-//   - Returned values are within physically reasonable bounds for 150km altitude
-//   - No runtime errors or crashes occur with perturbations enabled
-//
-// FUTURE WORK:
-// If exact perturbation matching is required, consider:
-//   - Disabling perturbations (perturbationKey=0) and comparing mean values
-//   - Using high-resolution mode (hireskey=1) which may be more consistent
-//   - Generating new reference files with the exact MCD version in use
+// The result depends on earlier perturbation calls in the same process. MCD
+// retains its seed and random state in Fortran SAVE variables and reseeds only
+// when the numeric seed changes. Case 6 agrees with REF_OUTPUT_K6 to within
+// 0.1% in isolation, but after case 2 or 5 uses seed 5 for a large-scale
+// perturbation, the density and temperature differences rise to 84.4% and
+// 44.2%. The corresponding tolerances therefore make this an order-dependent
+// perturbation-path regression until the Fortran state is reset or isolated.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 150000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 150000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 3, 5.0, 16000.0, 0 );
 
-    // INPUT_K6: scenario=1, perturbationKey=3 (small), seedin=5.0, gwlength=16000.0, hireskey=0
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 3, 5.0, 16000.0, 0 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    // Reference values from REF_OUTPUT_K6 (perturbed output with small-scale perturbations)
-    double expectedPressure = 4.79e-6;
-    double expectedDensity = 9.47e-11;   // Perturbed density from reference
-    double expectedTemperature = 226.0;  // Perturbed temperature from reference
-
-    // INCREASED TOLERANCE: 150% due to perturbation model inconsistencies described above
-    // Observed actual density ~2.04e-10 vs expected 9.47e-11 (116% difference)
-    // This validates that MCD runs successfully and returns physically plausible values,
-    // rather than requiring exact numerical agreement with reference files
-    double tolerance = 150.0;
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    // Perturbed REF_OUTPUT_K6 values.
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, 0.1 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 9.47e-11, 90.0 );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 226.0, 50.0 );
 }
 
-// NOTE: Test Cases 7, 8, and 10 are commented out because they require "warm" scenario (scenario 7) data files
-// which are not currently available in the MCD data directory.
-//
-// To enable these tests:
-// 1. Add the warm scenario data files to: third_parties/mcd/data/warm/
-//    Required files: warm_03_me.nc, warm_03_sd.nc, warm_04_me.nc, warm_04_sd.nc, etc.
-// 2. Uncomment the test cases below
-// 3. Verify that scenario 7 is properly supported in your MCD installation
-
-/*
-// Test Case 7: INPUT_K7.txt - warm scenario 7, 20km, high-res, no perturbation
-// DISABLED: Requires warm scenario data files (warm_03_me.nc, etc.) in third_parties/mcd/data/warm/
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase7 )
-{
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 20000.0;
-
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
-
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 0, 0.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    // REF_OUTPUT_K7 expected values
-    double expectedPressure = 78.3;
-    double expectedDensity = 2.25e-3;
-    double expectedTemperature = 182.0;
-
-    double tolerance = 15.0;
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
-}
-*/
-
-/*
-// Test Case 8: INPUT_K8.txt - warm scenario 7, 20km, high-res, large scale perturbation
-// DISABLED: Requires warm scenario data files (warm_03_me.nc, etc.) in third_parties/mcd/data/warm/
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase8 )
-{
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 20000.0;
-
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
-
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 2, 5.0, 0.0, 1 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    // REF_OUTPUT_K8 expected values
-    double expectedPressure = 79.8;
-    double expectedDensity = 2.29e-3;
-    double expectedTemperature = 182.0;
-
-    double tolerance = 15.0;
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-}
-*/
-
-// Test Case 9: INPUT_K9.txt
+// INPUT_K9: scenario 1, 150 km above the areoid, low resolution, and no
+// perturbations.
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase9 )
 {
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 150000.0;
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    const double altitude = 150000.0;
+    const double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    const double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+    const auto atmosphereModel = createReferenceMcdAtmosphereModel( 1, 0, 0.0, 0.0, 0 );
 
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 0, 0.0, 0.0, 0 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    double expectedPressure = 4.79e-6;
-    double expectedDensity = 1.21e-10;
-    double expectedTemperature = 193.0;
-
-    double tolerance = 20.0;  // Low-res + high altitude
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-    BOOST_CHECK_CLOSE( temperature, expectedTemperature, tolerance );
+    const double tolerance = 0.3;
+    BOOST_CHECK_CLOSE( atmosphereModel->getPressure( altitude, longitude, latitude, time ), 4.79e-6, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getDensity( altitude, longitude, latitude, time ), 1.21e-10, tolerance );
+    BOOST_CHECK_CLOSE( atmosphereModel->getTemperature( altitude, longitude, latitude, time ), 193.0, tolerance );
 }
-
-/*
-// Test Case 10: INPUT_K10.txt - warm scenario 7, 150km, low-res, large scale perturbation
-// DISABLED: Requires warm scenario data files (warm_03_me.nc, etc.) in third_parties/mcd/data/warm/
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase10 )
-{
-    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
-    double altitude = 150000.0;
-
-    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
-
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 2, 5.0, 0.0, 0 );
-
-    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
-    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
-    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
-
-    // REF_OUTPUT_K10 expected values
-    double expectedPressure = 8.26e-6;
-    double expectedDensity = 1.71e-10;
-    double expectedTemperature = 238.0;
-
-    double tolerance = 15.0;
-
-    BOOST_CHECK_CLOSE( pressure, expectedPressure, tolerance );
-    BOOST_CHECK_CLOSE( density, expectedDensity, tolerance );
-}
-*/
 
 // Test MCD atmosphere in propagation
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 {
-    using namespace tudat;
     using namespace aerodynamics;
     using namespace simulation_setup;
     using namespace numerical_integrators;
@@ -494,7 +288,12 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 
     // Create Mars with MCD atmosphere
     BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Mars" } );
-    defaultBodySettings.at( "Mars" )->atmosphereSettings = mcdAtmosphereSettings( );
+
+    defaultBodySettings.at( "Mars" )->climateModelSettings =
+            std::make_shared< simulation_setup::MarsClimateDatabaseClimateModelSettings >( "", 1, 0, 0.0, 0.0, 0 );
+
+    defaultBodySettings.at( "Mars" )->atmosphereSettings = std::make_shared< simulation_setup::McdAtmosphereSettings >( );
+
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     // Create vehicle
@@ -531,7 +330,7 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
     // Set initial state
     Eigen::Vector6d systemInitialState;
     systemInitialState << 3500.0E3, 0.0, 0.0, 0.0, 3500.0, 0.0;
-
+    double initialTime = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
     // Create acceleration models
     basic_astrodynamics::AccelerationMap accelerationModelMap =
             createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
@@ -545,16 +344,16 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 
     // Set propagation settings
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-            std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + 1000.0 );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 10.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = rungeKuttaFixedStepSettings( 10.0, CoefficientSets::rungeKutta4Classic );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 systemInitialState,
-                                                                                0.0,
+                                                                                initialTime,
                                                                                 integratorSettings,
                                                                                 terminationSettings,
                                                                                 cowell,
@@ -567,217 +366,95 @@ BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
     BOOST_CHECK_EQUAL( dynamicsSimulator.getSingleArcPropagationResults( )->integrationCompletedSuccessfully( ), true );
 }
 
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCaching )
+BOOST_AUTO_TEST_CASE( testMcdClimateModelCaching )
 {
-    // Test that caching works correctly and avoids redundant MCD calls
+    // The current cache uses the complete query tuple as an exact key.
+    // Repeating that tuple must return the retained result, while changing
+    // one coordinate must create a separate result.
+    mcd_interface::MarsClimateDatabaseClimateModel climateModel;
+    const double altitude = 5000.0;
+    const double longitude = 0.5;
+    const double latitude = 0.3;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
-    // Create MCD atmosphere model
-    std::string mcdDataPath = "";  // Use default path
-    int dustScenario = 1;
-    int perturbationKey = 0;
-    double perturbationSeed = 0.0;
-    double gravityWaveLength = 0.0;
-    int highResolutionMode = 0;
+    const auto firstResult = climateModel.getCache( altitude, longitude, latitude, time );
+    const auto repeatedResult = climateModel.getCache( altitude, longitude, latitude, time );
+    BOOST_CHECK( firstResult == repeatedResult );
 
-    tudat::aerodynamics::McdAtmosphereModel mcdModel(
-            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
-
-    // Define test conditions
-    double altitude = 5000.0;  // m
-    double longitude = 0.5;    // rad
-    double latitude = 0.3;     // rad
-    double time = 1000.0;      // seconds since J2000
-
-    // First call - should compute
-    double density1 = mcdModel.getDensity( altitude, longitude, latitude, time );
-    double pressure1 = mcdModel.getPressure( altitude, longitude, latitude, time );
-    double temperature1 = mcdModel.getTemperature( altitude, longitude, latitude, time );
-
-    // Second call with same parameters - should use cache
-    double density2 = mcdModel.getDensity( altitude, longitude, latitude, time );
-    double pressure2 = mcdModel.getPressure( altitude, longitude, latitude, time );
-    double temperature2 = mcdModel.getTemperature( altitude, longitude, latitude, time );
-
-    // Results should be identical (cache hit)
-    BOOST_CHECK_EQUAL( density1, density2 );
-    BOOST_CHECK_EQUAL( pressure1, pressure2 );
-    BOOST_CHECK_EQUAL( temperature1, temperature2 );
-
-    // Change altitude - should recompute
-    double altitude2 = 10000.0;
-    double density3 = mcdModel.getDensity( altitude2, longitude, latitude, time );
-
-    // Result should be different (cache miss, new computation)
-    BOOST_CHECK( std::abs( density1 - density3 ) > 1e-10 );
+    const auto changedAltitudeResult = climateModel.getCache( altitude + 1000.0, longitude, latitude, time );
+    BOOST_CHECK( firstResult != changedAltitudeResult );
+    BOOST_CHECK( std::abs( firstResult->density_ - changedAltitudeResult->density_ ) > 1.0e-10 );
 }
 
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCachingWithExtraVariables )
+BOOST_AUTO_TEST_CASE( testMcdClimateModelExtraVariableCaching )
 {
-    // Test that caching correctly handles extra variables flag
+    // Adding a requested MCD extra variable changes the contents required
+    // from each cache entry. Existing entries must consequently be
+    // invalidated, after which identical queries should again be reused.
+    mcd_interface::MarsClimateDatabaseClimateModel climateModel;
+    const double altitude = 5000.0;
+    const double longitude = 0.5;
+    const double latitude = 0.3;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
-    tudat::aerodynamics::McdAtmosphereModel mcdModel;
+    const auto resultWithoutExtraVariables = climateModel.getCache( altitude, longitude, latitude, time );
+    climateModel.addExtraVariableKeys( { mcd_interface::ExtVar::ratio_of_specific_heats } );
+    const auto resultWithExtraVariables = climateModel.getCache( altitude, longitude, latitude, time );
 
-    double altitude = 5000.0;
-    double longitude = 0.5;
-    double latitude = 0.3;
-    double time = 1000.0;
+    BOOST_CHECK( resultWithoutExtraVariables != resultWithExtraVariables );
+    BOOST_CHECK( resultWithExtraVariables == climateModel.getCache( altitude, longitude, latitude, time ) );
 
-    // First call without extra variables (basic properties only)
-    double density1 = mcdModel.getDensity( altitude, longitude, latitude, time );
-    double temperature1 = mcdModel.getTemperature( altitude, longitude, latitude, time );
-
-    // Call getSpeedOfSound - requires extra variables, should recompute
-    double speedOfSound1 = mcdModel.getSpeedOfSound( altitude, longitude, latitude, time );
-
-    // Verify speed of sound is reasonable for Mars
-    BOOST_CHECK( speedOfSound1 > 200.0 && speedOfSound1 < 300.0 );
-
-    // Another call to basic properties - should use cache now (with extras computed)
-    double density2 = mcdModel.getDensity( altitude, longitude, latitude, time );
-    double temperature2 = mcdModel.getTemperature( altitude, longitude, latitude, time );
-
-    BOOST_CHECK_EQUAL( density1, density2 );
-    BOOST_CHECK_EQUAL( temperature1, temperature2 );
-
-    // Another call to speed of sound - should use cache
-    double speedOfSound2 = mcdModel.getSpeedOfSound( altitude, longitude, latitude, time );
-    BOOST_CHECK_EQUAL( speedOfSound1, speedOfSound2 );
+    const double specificHeatRatio =
+            climateModel.getExtraVariable( mcd_interface::ExtVar::ratio_of_specific_heats, altitude, longitude, latitude, time );
+    BOOST_CHECK( specificHeatRatio > 1.0 );
+    BOOST_CHECK( specificHeatRatio < 2.0 );
 }
 
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCacheInvalidation )
+BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheKeys )
 {
-    // Test that cache is properly invalidated when parameters change
+    // All query coordinates, including the vertical-coordinate
+    // interpretation (zkey), contribute to cache identity. Unlike the
+    // former atmosphere-model cache, the current cache has no tolerance
+    // within which nearby queries are treated as identical.
+    mcd_interface::MarsClimateDatabaseClimateModel climateModel;
+    const double altitude = 5000.0;
+    const double longitude = 0.5;
+    const double latitude = 0.3;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
-    tudat::aerodynamics::McdAtmosphereModel mcdModel;
+    const auto baseline = climateModel.getCache( altitude, longitude, latitude, time );
+    BOOST_CHECK( baseline != climateModel.getCache( altitude + 1.0, longitude, latitude, time ) );
+    BOOST_CHECK( baseline != climateModel.getCache( altitude, longitude + 1.0e-6, latitude, time ) );
+    BOOST_CHECK( baseline != climateModel.getCache( altitude, longitude, latitude + 1.0e-6, time ) );
+    BOOST_CHECK( baseline != climateModel.getCache( altitude, longitude, latitude, time + 1.0 ) );
 
-    double altitude = 5000.0;
-    double longitude = 0.5;
-    double latitude = 0.3;
-    double time = 1000.0;
-
-    // Initial computation
-    double density1 = mcdModel.getDensity( altitude, longitude, latitude, time );
-
-    // Change each parameter one at a time and verify cache invalidation
-
-    // Change altitude
-    double density2 = mcdModel.getDensity( altitude + 1000.0, longitude, latitude, time );
-    BOOST_CHECK( std::abs( density1 - density2 ) > 1e-10 );
-
-    // Change longitude
-    double density3 = mcdModel.getDensity( altitude, longitude + 0.1, latitude, time );
-    BOOST_CHECK( std::abs( density1 - density3 ) > 1e-10 );
-
-    // Change latitude
-    double density4 = mcdModel.getDensity( altitude, longitude, latitude + 0.1, time );
-    BOOST_CHECK( std::abs( density1 - density4 ) > 1e-10 );
-
-    // Change time
-    double density5 = mcdModel.getDensity( altitude, longitude, latitude, time + 3600.0 );
-    BOOST_CHECK( std::abs( density1 - density5 ) > 1e-10 );
+    climateModel.setZkey( 2 );
+    BOOST_CHECK( baseline != climateModel.getCache( altitude, longitude, latitude, time ) );
 }
 
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereCacheInvalidationWithTolerances )
+BOOST_AUTO_TEST_CASE( testMcdClimateModelCacheEviction )
 {
-    // Test that cache is properly invalidated when parameters change beyond tolerance
-    // Using the physically-motivated tolerances from the implementation
+    // Limit the cache to two entries and insert three distinct queries.
+    // Reloading the oldest query must recompute an equivalent result,
+    // demonstrating bounded first-in-first-out eviction.
+    mcd_interface::MarsClimateDatabaseClimateModel climateModel( "", 1, 0, 0.0, 0.0, 0, 2 );
+    const double longitude = 0.5;
+    const double latitude = 0.3;
+    const double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
 
-    tudat::aerodynamics::McdAtmosphereModel mcdModel;
+    const auto firstResult = climateModel.getCache( 5000.0, longitude, latitude, time );
+    const auto secondResult = climateModel.getCache( 6000.0, longitude, latitude, time );
+    const auto thirdResult = climateModel.getCache( 7000.0, longitude, latitude, time );
+    BOOST_CHECK( firstResult != secondResult );
+    BOOST_CHECK( secondResult != thirdResult );
 
-    double altitude = 5000.0;
-    double longitude = 0.5;
-    double latitude = 0.3;
-    double time = 1000.0;
-
-    // Initial computation
-    double density1 = mcdModel.getDensity( altitude, longitude, latitude, time );
-
-    // Test each parameter one at a time with changes exceeding tolerance
-
-    // Change altitude by 150 m (> 100 m tolerance)
-    double density2 = mcdModel.getDensity( altitude + 150.0, longitude, latitude, time );
-    BOOST_CHECK( std::abs( density1 - density2 ) > 1e-10 );
-
-    // Change longitude by 0.002 rad (> 0.001 rad tolerance ≈ 6.8 km)
-    double density3 = mcdModel.getDensity( altitude, longitude + 0.002, latitude, time );
-    BOOST_CHECK( std::abs( density1 - density3 ) > 1e-10 );
-
-    // Change latitude by 0.002 rad (> 0.001 rad tolerance ≈ 6.8 km)
-    double density4 = mcdModel.getDensity( altitude, longitude, latitude + 0.002, time );
-    BOOST_CHECK( std::abs( density1 - density4 ) > 1e-10 );
-
-    // Change time by 100 seconds (> 74 s tolerance)
-    double density5 = mcdModel.getDensity( altitude, longitude, latitude, time + 100.0 );
-    BOOST_CHECK( std::abs( density1 - density5 ) > 1e-10 );
-
-    // Test combined changes all within tolerance
-    // NOTE: Even if each parameter is within tolerance, the combined effect may still
-    // trigger recomputation depending on cache implementation details.
-    // We test that the results are very close (relative difference < 0.1%)
-    double density6 = mcdModel.getDensity( altitude + 90.0,     // < 100 m tolerance
-                                           longitude + 0.0009,  // < 0.001 rad tolerance
-                                           latitude + 0.0009,   // < 0.001 rad tolerance
-                                           time + 70.0          // < 74 s tolerance
-    );
-
-    // Check that results are very close (either from cache or negligible atmospheric change)
-    double relativeDiff = std::abs( density6 - density1 ) / density1;
-    BOOST_CHECK( relativeDiff < 0.001 );  // Less than 0.1% difference
-
-    // Test combined changes exceeding tolerance in one dimension
-    double density7 = mcdModel.getDensity( altitude + 90.0,     // Within tolerance
-                                           longitude + 0.0009,  // Within tolerance
-                                           latitude + 0.0009,   // Within tolerance
-                                           time + 80.0          // EXCEEDS 74 s tolerance
-    );
-    BOOST_CHECK( density7 != density1 );  // Should be different (cache miss)
-}
-
-// Test MCD atmosphere tolerances - verify physical relevance
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereTolerancePhysicalRelevance )
-{
-    // Test that the tolerances are physically meaningful
-    // i.e., changes within tolerance produce negligible atmospheric variation
-
-    tudat::aerodynamics::McdAtmosphereModel mcdModel;
-
-    double altitude = 20000.0;  // Mid-altitude for clearer effects
-    double longitude = 0.5;
-    double latitude = 0.3;
-    double time = 1000.0;
-
-    // Get baseline density
-    double density1 = mcdModel.getDensity( altitude, longitude, latitude, time );
-
-    // Test that maximum changes within all tolerances simultaneously
-    // still produce acceptable atmospheric variation
-    double density2 = mcdModel.getDensity( altitude + 99.0,      // Max within 100 m tolerance
-                                           longitude + 0.00099,  // Max within 0.001 rad tolerance
-                                           latitude + 0.00099,   // Max within 0.001 rad tolerance
-                                           time + 73.0           // Max within 74 s tolerance
-    );
-
-    // These should be identical due to caching
-    BOOST_CHECK_EQUAL( density1, density2 );
-
-    // Now force recomputation by exceeding one tolerance
-    // and verify the difference is small enough to justify the tolerance
-    double density3 = mcdModel.getDensity( altitude + 101.0,  // Slightly exceed vertical tolerance
-                                           longitude,
-                                           latitude,
-                                           time );
-
-    // For 101m at H≈10km: expect ≈1% density change
-    double relativeDiff = std::abs( density3 - density1 ) / density1;
-
-    // Verify the change is reasonable (between 0.5% and 2%)
-    // This validates that the 100m tolerance is appropriate
-    BOOST_CHECK( relativeDiff > 0.005 && relativeDiff < 0.02 );
+    // Inserting the third distinct key evicts the oldest entry.
+    const auto reloadedFirstResult = climateModel.getCache( 5000.0, longitude, latitude, time );
+    BOOST_CHECK( firstResult != reloadedFirstResult );
+    BOOST_CHECK_EQUAL( firstResult->density_, reloadedFirstResult->density_ );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
 }  // namespace tudat
-
-#endif  // TUDAT_BUILD_WITH_MCD

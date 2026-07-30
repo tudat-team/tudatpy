@@ -85,7 +85,7 @@ public:
     }
 
     //! Default destructor.
-    ~ControlSystem( ) { }
+    ~ControlSystem( ) {}
 
     //! Function to retireve the current control vector.
     /*!

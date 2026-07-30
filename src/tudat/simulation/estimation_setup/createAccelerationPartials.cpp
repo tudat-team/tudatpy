@@ -55,7 +55,8 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                     {
                         deformingBodyStateFunctions.push_back( std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ) ) ) );
                     }
-                    // Create partial object
+                    // Create partial object. Keep one interface per distinct variation model (pointer identity), so that
+                    // independent per-degree models for the same deforming body remain available to Love-number partials.
                     auto newLoveNumberInterface = std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
                             variationObjectList.at( i ),
                             deformedBodyPositionFunction,
@@ -66,13 +67,11 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                     bool addInterface = true;
                     for( unsigned int j = 0; j < loveNumberInterfaces.size( ); j++ )
                     {
-                        if( acceleratingBodyName == loveNumberInterfaces.at( j )->getDeformedBody( ) )
+                        if( newLoveNumberInterface->getGravityFieldVariations( ) ==
+                            loveNumberInterfaces.at( j )->getGravityFieldVariations( ) )
                         {
-                            if( utilities::compareStlVectors< std::string >( newLoveNumberInterface->getDeformingBodies( ),
-                                                                             loveNumberInterfaces.at( j )->getDeformingBodies( ) ) )
-                            {
-                                addInterface = false;
-                            }
+                            addInterface = false;
+                            break;
                         }
                     }
 
@@ -95,7 +94,7 @@ std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationParti
     {
         std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations = eihAccelerations.begin( )->second->getEihEquations( );
 
-        for( auto it: eihAccelerations )
+        for( auto it : eihAccelerations )
         {
             if( it.second->getEihEquations( ) != eihEquations )
             {
@@ -106,7 +105,7 @@ std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationParti
         std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartials =
                 std::make_shared< acceleration_partials::EihEquationsPartials >( eihEquations );
 
-        for( auto it: eihAccelerations )
+        for( auto it : eihAccelerations )
         {
             partialsList[ it.first ] = std::make_shared< acceleration_partials::EihAccelerationPartial >( eihPartials, it.first );
         }

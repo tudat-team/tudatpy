@@ -609,10 +609,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithCorrections );
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
                 std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
-                                                                      oneWayObservableDownlinkSettingsWithoutCorrections );
+                                                                           oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =
@@ -682,6 +682,41 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ), 1.0E-6 );
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testTwoWayDopplerVehicleSystemTransponderDelay )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ retransmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
+
+    const double vehicleSystemDelay = 5.0E-6;
+    const double ancillaryDelay = 3.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( vehicleSystemDelay );
+
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel(
+                    std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds ), bodies );
+
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    const double observationTime = 2.0E5;
+
+    observationModel->computeIdealObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

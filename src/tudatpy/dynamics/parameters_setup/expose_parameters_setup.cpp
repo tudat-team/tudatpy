@@ -34,8 +34,25 @@ namespace dynamics
 namespace parameters_setup
 {
 
-void expose_parameters_setup( py::module& m )
+void expose_parameters_setup_types( py::module& m )
 {
+    py::enum_< tp::EnvironmentModelsToUpdate >( m, "EnvironmentModelsToUpdate" )
+            .value( "body_translational_state_update", tp::EnvironmentModelsToUpdate::body_translational_state_update )
+            .value( "body_rotational_state_update", tp::EnvironmentModelsToUpdate::body_rotational_state_update )
+            .value( "spherical_harmonic_gravity_field_update", tp::EnvironmentModelsToUpdate::spherical_harmonic_gravity_field_update )
+            .value( "body_mass_update", tp::EnvironmentModelsToUpdate::body_mass_update )
+            .value( "body_mass_distribution_update", tp::EnvironmentModelsToUpdate::body_mass_distribution_update )
+            .value( "body_segment_orientation_update", tp::EnvironmentModelsToUpdate::body_segment_orientation_update )
+            .value( "vehicle_flight_conditions_update", tp::EnvironmentModelsToUpdate::vehicle_flight_conditions_update )
+            .value( "radiation_source_model_update", tp::EnvironmentModelsToUpdate::radiation_source_model_update )
+            .value( "cannonball_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::cannonball_radiation_pressure_target_model_update )
+            .value( "panelled_radiation_pressure_target_model_update",
+                    tp::EnvironmentModelsToUpdate::panelled_radiation_pressure_target_model_update )
+            .value( "climate_model_update", tp::EnvironmentModelsToUpdate::climate_model_update )
+            .value( "space_time_metric_update", tp::EnvironmentModelsToUpdate::space_time_metric_update )
+            .export_values( );
+
     py::enum_< tep::EstimatebleParametersEnum >( m, "EstimatableParameterTypes", R"doc(
 
          Enumeration of model parameters that are available for estimation.
@@ -108,6 +125,12 @@ void expose_parameters_setup( py::module& m )
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
             .value( "arc_wise_exponential_atmosphere_scale_height_type",
                     tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
+            .value( "specular_reflectivity_type", tep::EstimatebleParametersEnum::specular_reflectivity )
+            .value( "diffuse_reflectivity_type", tep::EstimatebleParametersEnum::diffuse_reflectivity )
+            .value( "energy_accommodation_coefficient_type", tep::EstimatebleParametersEnum::energy_accommodation_coefficient )
+            .value( "normal_accommodation_coefficient_type", tep::EstimatebleParametersEnum::normal_accommodation_coefficient )
+            .value( "tangential_accommodation_coefficient_type", tep::EstimatebleParametersEnum::tangential_accommodation_coefficient )
+            .value( "normal_velocity_at_wall_ratio_type", tep::EstimatebleParametersEnum::normal_velocity_at_wall_ratio )
 
             .export_values( );
 
@@ -138,6 +161,9 @@ void expose_parameters_setup( py::module& m )
             .value( "cosine_empirical", tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical )
             .export_values( );
 
+    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
+            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
+
     py::class_< tep::EstimatableParameterSettings, std::shared_ptr< tep::EstimatableParameterSettings > >( m,
                                                                                                            "EstimatableParameterSettings",
                                                                                                            R"doc(
@@ -166,13 +192,16 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 :type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
                             
                             )doc" );
+}
 
+void expose_parameters_setup( py::module& m )
+{
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def( "create_parameter_set",
            &tss::createParametersToEstimate< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "parameter_settings" ),
            py::arg( "bodies" ),
-           py::arg( "propagator_settings" ) = nullptr,
+           py::arg_v( "propagator_settings", std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >( ), "None" ),
            py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
            py::arg( "print_parameter_order_warning" ) = true,
            R"doc(
@@ -626,6 +655,156 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class defining parallel radiation pressure scaling
+
+     )doc" );
+
+    m.def( "specular_reflectivity",
+           &tep::specularReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the specular reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel specular reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for specular reflectivity estimation.
+
+     )doc" );
+
+    m.def( "energy_accommodation_coefficient",
+           &tep::energyAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the energy accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Sentman and Cook gas-surface
+ interaction models. Its aerodynamic-coefficient partial is zero for the Storch,
+ Newton, and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel energy accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for energy accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_accommodation_coefficient",
+           &tep::normalAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "tangential_accommodation_coefficient",
+           &tep::tangentialAccommodationCoefficient,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the tangential accommodation coefficient of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel tangential accommodation coefficient is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless coefficient is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for tangential accommodation coefficient estimation.
+
+     )doc" );
+
+    m.def( "normal_velocity_at_wall_ratio",
+           &tep::normalVelocityAtWallRatio,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the normal velocity at wall ratio of a panel group.
+
+ The panels selected by ``panel_group_id`` share one scalar estimated value. If their
+ initial values differ, construction of the estimatable parameter replaces them by
+ their arithmetic mean. This parameter affects the Storch gas-surface interaction
+ model. Its aerodynamic-coefficient partial is zero for the Sentman, Cook, Newton,
+ and constant-coefficient models.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel normal velocity at wall ratio is to be estimated.
+ panel_group_id : str
+     Panel type identifier selecting the group whose dimensionless ratio is estimated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for normal velocity at wall ratio estimation.
+
+     )doc" );
+
+    m.def( "diffuse_reflectivity",
+           &tep::diffuseReflectivity,
+           py::arg( "body" ),
+           py::arg( "panel_group_id" ),
+           R"doc(
+ Function for creating parameter settings for the diffuse reflectivity of a panel group.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose panel diffuse reflectivity is to be estimated.
+ panel_group_id : str
+     Identifier of the panel group.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` for diffuse reflectivity estimation.
 
      )doc" );
 
@@ -1639,7 +1818,11 @@ deformed_body : str
 degree : int
     Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
 deforming_bodies : list[str]
-    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used.
+    The bodies may belong to one or more separate ``solid_body_tide`` variation models.
+    If the list is left empty, all compatible basic solid-body tide-raising bodies/models of ``deformed_body`` will be used.
+    By using this parameter, the value of :math:`k_{l}` will be identical for the tides raised by each body in this list once
+    parameter values are reset, even if they were different upon environment initialization
 use_complex_love_number: bool
     Boolean defining whether the estimated Love number is real or imaginary
 
@@ -2054,9 +2237,6 @@ Returns
      )doc" );
 
     // CUSTOM AND ANALYTICAL ACCELERATION PARTIALS
-
-    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
-            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
 
     m.def( "custom_analytical_partial",
            &tep::analyticalAccelerationPartialSettings,

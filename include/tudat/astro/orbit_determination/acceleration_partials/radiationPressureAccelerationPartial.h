@@ -54,10 +54,10 @@ public:
         accelerationUpdateFunction_(
                 std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
         cannonballTargetModel_( cannonballTargetModel ), accelerationModel_( accelerationModel )
-    { }
+    {}
 
     //! Destructor.
-    ~CannonBallRadiationPressurePartial( ) { }
+    ~CannonBallRadiationPressurePartial( ) {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

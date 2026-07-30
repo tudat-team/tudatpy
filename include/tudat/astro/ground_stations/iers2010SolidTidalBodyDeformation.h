@@ -142,7 +142,7 @@ public:
                 return sofa_interface::calculateDoodsonFundamentalArguments( time );
             } );
 
-    ~Iers2010EarthDeformation( ) { }
+    ~Iers2010EarthDeformation( ) {}
 
     //! Function to calculate the site displacement at a given time and site position.
     /*!

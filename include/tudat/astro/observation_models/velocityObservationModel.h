@@ -63,7 +63,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr ) override
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
@@ -82,6 +82,12 @@ public:
 
         // Retrieve velocity
         return currentState_.segment( 3, 3 );
+    }
+
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        return {};
     }
 
 private:

@@ -61,7 +61,7 @@ public:
     TestBody( const StateVectorType& aState, const TimeDataType aTime ):
         currentPosition( aState.segment( 0, SpatialDimensions ) ),
         currentVelocity( aState.segment( SpatialDimensions, SpatialDimensions ) ), currentTime( aTime )
-    { }
+    {}
 
     //! Set current time and state.
     /*!
@@ -154,7 +154,7 @@ public:
      */
     TestBody( const StateVectorType& aState, const TimeDataType aTime ):
         currentPosition( aState( 0 ) ), currentVelocity( aState( 1 ) ), currentTime( aTime )
-    { }
+    {}
 
     //! Set current time and state.
     /*!

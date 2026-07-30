@@ -51,7 +51,6 @@ namespace propagation_setup
 
 void expose_propagation_setup( py::module& m )
 {
-
     auto thrust_setup = m.def_submodule( "thrust" );
     thrust::expose_thrust_setup( thrust_setup );
 
@@ -73,13 +72,11 @@ void expose_propagation_setup( py::module& m )
     auto mass_setup = m.def_submodule( "mass_rate" );
     mass_rate::expose_mass_rate_setup( mass_setup );
 
-
     m.def( "create_acceleration_models",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const tss::SelectedAccelerationMap &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > & >(
-                   &tss::createAccelerationModelsMap ),
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const tss::SelectedAccelerationMap&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >& >( &tss::createAccelerationModelsMap ),
            py::arg( "body_system" ),
            py::arg( "selected_acceleration_per_body" ),
            py::arg( "bodies_to_propagate" ),
@@ -212,7 +209,7 @@ void expose_propagation_setup( py::module& m )
            &tss::createMassRateModelsMap,
            py::arg( "body_system" ),
            py::arg( "selected_mass_rates_per_body" ),
-           py::arg( "acceleration_models" ) = nullptr,
+           py::arg( "acceleration_models" ) = tba::AccelerationMap( ),
            R"doc(
 
  Function to create a set of mass-rate models from associated settings.
@@ -241,7 +238,6 @@ void expose_propagation_setup( py::module& m )
 
 
      )doc" );
-
 }
 
 }  // namespace propagation_setup

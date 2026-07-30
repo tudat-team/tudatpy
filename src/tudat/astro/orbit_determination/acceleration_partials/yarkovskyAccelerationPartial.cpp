@@ -19,25 +19,44 @@ namespace acceleration_partials
 Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody( const Eigen::Vector6d& relativeState,
                                                                                      const double yarkovskyParameter )
 {
-    const double currentDistance = relativeState.segment( 0, 3 ).norm( );
-    const Eigen::Vector3d positionUnitVector = relativeState.segment( 0, 3 ).normalized( );
-    const Eigen::Vector3d velocityUnitVector = relativeState.segment( 3, 3 ).normalized( );
+    const Eigen::Vector3d currentPosition = relativeState.segment( 0, 3 );
+    const Eigen::Vector3d currentVelocity = relativeState.segment( 3, 3 );
 
-    return -2.0 * yarkovskyParameter * physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT *
-            ( velocityUnitVector * positionUnitVector.transpose( ) ) / ( currentDistance * currentDistance * currentDistance );
+    const double currentDistance = currentPosition.norm( );
+    const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
+    const Eigen::Matrix3d radialProjectionMatrix = Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
+
+    const double radialVelocity = currentVelocity.dot( radialUnitVector );
+    const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
+    const double transverseSpeed = transverseVelocity.norm( );
+    const Eigen::Vector3d transverseUnitVector = transverseVelocity / transverseSpeed;
+
+    const double yarkovskyMagnitude = yarkovskyParameter * physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT /
+            ( currentDistance * currentDistance );
+
+    return -yarkovskyMagnitude / currentDistance *
+            ( 2.0 * transverseUnitVector * radialUnitVector.transpose( ) + radialUnitVector * transverseUnitVector.transpose( ) +
+              radialVelocity / transverseSpeed * ( radialProjectionMatrix - transverseUnitVector * transverseUnitVector.transpose( ) ) );
 }
 
 Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody( const Eigen::Vector6d& relativeState,
                                                                                      const double yarkovskyParameter )
 {
-    const double currentDistance = relativeState.segment( 0, 3 ).norm( );
-    const double currentSpeed = relativeState.segment( 3, 3 ).norm( );
+    const Eigen::Vector3d currentPosition = relativeState.segment( 0, 3 );
+    const Eigen::Vector3d currentVelocity = relativeState.segment( 3, 3 );
 
-    const Eigen::Vector3d velocityUnitVector = relativeState.segment( 3, 3 ).normalized( );
+    const double currentDistance = currentPosition.norm( );
+    const Eigen::Vector3d radialUnitVector = currentPosition / currentDistance;
+    const Eigen::Matrix3d radialProjectionMatrix = Eigen::Matrix3d::Identity( ) - radialUnitVector * radialUnitVector.transpose( );
+
+    const Eigen::Vector3d transverseVelocity = radialProjectionMatrix * currentVelocity;
+    const double transverseSpeed = transverseVelocity.norm( );
+    const Eigen::Vector3d transverseUnitVector = transverseVelocity / transverseSpeed;
 
     return yarkovskyParameter * ( physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT ) /
             ( currentDistance * currentDistance ) *
-            ( Eigen::Matrix3d::Identity( ) - velocityUnitVector * velocityUnitVector.transpose( ) ) / currentSpeed;
+            ( Eigen::Matrix3d::Identity( ) - transverseUnitVector * transverseUnitVector.transpose( ) ) * radialProjectionMatrix /
+            transverseSpeed;
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -51,8 +70,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > YarkovskyAcceleratio
     if( parameter->getParameterName( ).first == estimatable_parameters::yarkovsky_parameter &&
         parameter->getParameterName( ).second.first == this->getAcceleratedBody( ) )
     {
-        // If parameter is gravitational parameter, check and create dependency function .
-        std::cout << "In" << std::endl;
+        // If parameter is Yarkovsky parameter, check and create dependency function.
         partialFunctionPair =
                 std::make_pair( std::bind( &YarkovskyAccelerationPartial::wrtYarkovskyParameter, this, std::placeholders::_1 ), 1 );
     }

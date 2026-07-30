@@ -88,7 +88,7 @@ public:
     }
 
     //! Default destructor.
-    ~HybridMethod( ) { }
+    ~HybridMethod( ) {}
 
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time )

@@ -52,7 +52,7 @@ nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, con
 //! Access a key path of a `json` object or array.
 nlohmann::json valueAt( nlohmann::json jsonObject, const KeyPath& keyPath )
 {
-    for( const std::string key: keyPath )
+    for( const std::string key : keyPath )
     {
         jsonObject = valueAt( jsonObject, key );
     }
@@ -115,11 +115,11 @@ ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject,
             rootObject = valueAt( jsonObject, SpecialKeys::rootObject );
         }
         catch( ... )
-        { }
+        {}
         response = valueAt( rootObject, Keys::options / eventName );
     }
     catch( ... )
-    { }
+    {}
     return response;
 }
 
@@ -127,7 +127,7 @@ ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject,
 
 //! Global variable containing all the key paths that were accessed since clearAccessHistory() was called for the
 //! last time (or since this variable was initialized).
-std::set< KeyPath > accessedKeyPaths = { };
+std::set< KeyPath > accessedKeyPaths = {};
 
 //! Get all the key paths defined for \p jsonObject.
 /*!
@@ -150,7 +150,7 @@ std::set< KeyPath > getKeyPaths( const nlohmann::json& jsonObject, const KeyPath
         if( subObject.is_object( ) )
         {
             const std::set< KeyPath > subkeyPaths = getKeyPaths( subObject, keyPath );
-            for( const KeyPath subkey: subkeyPaths )
+            for( const KeyPath subkey : subkeyPaths )
             {
                 keyPaths.insert( subkey );
             }
@@ -166,7 +166,7 @@ void checkUnusedKeys( const nlohmann::json& jsonObject, const ExceptionResponseT
     {
         bool unusedKeys = false;
         const std::set< KeyPath > definedKeyPaths = getKeyPaths( jsonObject );
-        for( const KeyPath keyPath: definedKeyPaths )
+        for( const KeyPath keyPath : definedKeyPaths )
         {
             if( accessedKeyPaths.count( keyPath ) == 0 )
             {

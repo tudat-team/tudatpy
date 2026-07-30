@@ -29,7 +29,7 @@ public:
                                   const int minimumDegree,
                                   const int minimumOrder ):
         GravityFieldVariations( minimumDegree, minimumOrder, -1, -1 ), customCorrectionFunction_( customCorrectionFunction )
-    { }
+    {}
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time )
     {

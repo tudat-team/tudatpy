@@ -108,6 +108,8 @@ TUDAT_ADD_TEST_CASE(PropagationTermination PRIVATE_LINKS ${Tudat_ESTIMATION_LIBR
 
 TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(FullTwoBodyCoupledDynamicsPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(CR3BPPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(PropagationTerminationCheckOnFinalStep PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
@@ -124,7 +126,11 @@ TUDAT_ADD_TEST_CASE(PropagationResultsSaving PRIVATE_LINKS ${Tudat_PROPAGATION_L
 
 TUDAT_ADD_TEST_CASE(IntegratorSteps PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(StateDerivativeModifier PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(RelativisticTimePropagation PRIVATE_LINKS  ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_basic_mathematics tudat_statistics tudat_input_output)
 
@@ -139,6 +145,8 @@ if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #TUDAT_ADD_TEST_CASE(SequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(FullTwoBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(MultiArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
