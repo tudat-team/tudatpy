@@ -11,11 +11,20 @@
 #ifndef TUDATPY_SCALAR_TYPES_H
 #define TUDATPY_SCALAR_TYPES_H
 
+#include "tudat/config.hpp"
 #include "tudat/basics/timeType.h"
+#include "quadPrecisionTypeCasters.h"
 
 using tudat::Time;
 
-#define STATE_SCALAR_TYPE double  // long double
+#ifndef STATE_SCALAR_TYPE
+#define STATE_SCALAR_TYPE double
+#endif
+
+#ifndef TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+#define TUDATPY_STATE_SCALAR_BINDING_NAMESPACE double_precision
+#endif
+
 #define TIME_TYPE Time
 #define INTERPOLATOR_TIME_TYPE Time
 

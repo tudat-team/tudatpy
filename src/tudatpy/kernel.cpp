@@ -5,6 +5,8 @@
 #include <pybind11/pybind11.h>
 #include <tudat/config.hpp>
 
+#include "pythonStateScalar.h"
+
 namespace py = pybind11;
 
 // Declarations from each binding .cpp file
@@ -23,6 +25,12 @@ void add_exceptions_to_kernel( py::module_& m );
 
 PYBIND11_MODULE( kernel, m )
 {
+    py::module_ tudatpyModule = py::module_::import( "tudatpy" );
+    const std::string requestedStateScalarType = tudatpyModule.attr( "_requested_state_scalar_type" ).cast< std::string >( );
+    tudatpy::setPythonStateScalarType( requestedStateScalarType );
+    m.attr( "_state_scalar_type" ) = tudatpy::getPythonStateScalarTypeName( );
+    m.attr( "_state_scalar_bits" ) = tudatpy::getPythonStateScalarType( ) == tudatpy::PythonStateScalarType::quad_precision ? 113 : 53;
+
     auto math = m.def_submodule( "math" );
     auto astro = m.def_submodule( "astro" );
     auto trajectory_design = m.def_submodule( "trajectory_design" );
@@ -48,4 +56,6 @@ PYBIND11_MODULE( kernel, m )
     add_dynamics_to_kernel( dynamics );
     add_estimation_to_kernel( estimation );
     add_exceptions_to_kernel( exceptions );
+
+    tudatpyModule.attr( "_lock_state_scalar_type" )( tudatpy::getPythonStateScalarTypeName( ) );
 }

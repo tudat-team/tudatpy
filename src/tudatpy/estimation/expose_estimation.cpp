@@ -27,7 +27,6 @@
 #include "estimation_analysis/expose_estimation_analysis_estimator.h"
 #include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
 
-#include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/basics/timeType.h"
 

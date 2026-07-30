@@ -218,6 +218,22 @@ else()
     )
 endif()
 
+option(
+    TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE
+    "Compile the optional quad-precision TudatPy state-scalar bindings."
+    ON
+)
+if(
+    TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE
+    AND NOT TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+)
+    message(
+        FATAL_ERROR
+        "TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE requires "
+        "TUDAT_HIGH_PRECISION_STATE_SCALAR=CPP_BIN_FLOAT_QUAD."
+    )
+endif()
+
 # Build as part of a GitHub Actions workflow
 # Option enables the use of ccache by MSVC
 # see https://github.com/ccache/ccache/wiki/MS-Visual-Studio

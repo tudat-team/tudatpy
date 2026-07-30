@@ -38,7 +38,7 @@ namespace tudat
 namespace propagators
 {
 
-std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
+inline std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -109,7 +109,7 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
     return propagatedRswCovariance;
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
+inline std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -121,7 +121,7 @@ std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCova
                            utilities::createVectorFromMapValues( propagatedRswCovariance ) );
 }
 
-std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
+inline std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -135,7 +135,7 @@ std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
     return propagatedFormalErrors;
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
+inline std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -149,7 +149,7 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateForm
                            utilities::createVectorFromMapValues( propagatedFormalErrors ) );
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
+inline std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
@@ -161,7 +161,7 @@ std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCova
                            utilities::createVectorFromMapValues( propagatedCovariance ) );
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectors(
+inline std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectors(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
@@ -184,6 +184,9 @@ namespace tudatpy
 namespace estimation
 {
 namespace estimation_analysis
+{
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 {
 
 void expose_estimation_analysis( py::module& m )
@@ -1140,6 +1143,7 @@ void expose_estimation_analysis_orbit_determination_helpers( py::module& m )
            py::arg( "output_times" ) );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace estimation_analysis
 }  // namespace estimation
 }  // namespace tudatpy

@@ -35,6 +35,9 @@ namespace dynamics
 {
 namespace propagation
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 void expose_propagation_results_bindings( py::module& m )
 {
@@ -672,6 +675,7 @@ The results of the constituent arcs are accessed through the ``single_arc_result
 )doc" );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace propagation
 }  // namespace dynamics
 }  // namespace tudatpy

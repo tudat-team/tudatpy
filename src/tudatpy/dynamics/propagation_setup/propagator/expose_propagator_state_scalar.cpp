@@ -54,6 +54,9 @@ namespace propagation_setup
 {
 namespace propagator
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > multiArcProcessingSettings( )
 {
@@ -2123,6 +2126,7 @@ HybridArcPropagatorSettings
     m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace propagator
 }  // namespace propagation_setup
 }  // namespace dynamics
