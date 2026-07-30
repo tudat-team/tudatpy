@@ -218,6 +218,12 @@ def _photocenter_correction_ellispoidal(
         Unit vector pointing in the direction of the sun, in the principle axis system of the ellipsoid
     e_observer : np.ndarray
         Unit vector pointing in the direction of the observer, in the principle axis system of the ellipsoid
+
+    Returns
+    -------
+    np.ndarray
+        Position of the photocenter w.r.t. the body center, in the principle axis system. Note that this is a full 3D
+        vector, so it is not restricted to the plane of sky.
     """
     a, b, c = semi_axes
     c_mat = np.diag((a ** -2, b ** -2, c ** -2))
@@ -286,8 +292,8 @@ def photocenter_corrections_from_observations_ellipsoidal(
     """
     Compute photocenter-barycenter offset correction, assuming an ellipsoidal shape of the observed body.
 
-    Requires a rotational ephemeris to be loaded for body with body_name. The rotation is towards the principle axis
-    reference frame of the ellipsoidal body, meaning that x, y and z are aligned with the a, b, c ellipsoid axes.
+    Requires a rotational ephemeris to be loaded for body with body_name. The x, y, and z-axes of the body-fixed frame
+    must be aligned with the semi-axes in order a, b, c.
 
     Parameters
     ----------
@@ -316,9 +322,6 @@ def photocenter_corrections_from_observations_ellipsoidal(
 
     if len(semi_axes) != 3:
         raise ValueError('Body extent must be of length 3')
-
-    if not list(sorted(semi_axes, reverse=True)) == list(semi_axes):
-        raise ValueError('Semi-axes must be ordered from highest to lowest')
 
     # Create ephemeris for the reference point if it is given
     if observer_reference_name is not None:
@@ -361,12 +364,13 @@ def photocenter_corrections_from_observations_ellipsoidal(
             e_observer,
         )
 
-        # Rotate offset to inertial direction
-        offset_inertial = rot_matrix.T @ offset / observer_body_distance
+        # Rotate offset to inertial frame and retain only its plane-of-sky component
+        offset_inertial = rot_matrix.T @ offset
+        offset_sky = offset_inertial - np.dot(offset_inertial, e_observer_inertial) * e_observer_inertial
 
         # Translate into corrections
         corrections.append(
-            _offset_vector_to_corrections(offset_inertial, ra, dec)
+            _offset_vector_to_corrections(offset_sky / observer_body_distance, ra, dec)
         )
 
     return np.array(corrections)
