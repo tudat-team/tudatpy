@@ -49,13 +49,13 @@ static inline std::string get_hidden_path( )
 
 static inline std::string get_resources_path( )
 {
-    if( const char* path_p = getenv( "TUDAT_RESOURCE_DIR" ) )
+    if( const char* path_p = getenv( "TUDATPY_RESOURCE_DIR" ) )
     {
         char resourcedir[ MAX_PATH ];
         snprintf( resourcedir, MAX_PATH, "%s", path_p );
         return std::string( resourcedir ).c_str( );
     }
-    else  // TUDAT_RESOURCE_DIR is not set
+    else  // TUDATPY_RESOURCE_DIR is not set
     {
         return std::string( get_hidden_path( ) + RESOURCE ).c_str( );
     }
