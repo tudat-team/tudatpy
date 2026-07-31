@@ -243,17 +243,24 @@ jobs:
           -DTUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=ON ^
           -DCMAKE_UNITY_BUILD=ON
 
-    - name: Debug
-      run: |
-        conda info
-        conda list
-
     - name: Build C++ kernel
       id: build_kernel_non_windows
       if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+      run: |
+        if [ "${{ runner.os }}" = "macOS" ]; then
+          # Apple ld emits this harmless diagnostic for every executable that
+          # links the Fortran/quad runtime objects. Preserve all other stderr.
+          cmake --build "${{ github.workspace }}/build" \
+            --config "${{ matrix.build_type }}" \
+            -j${{ matrix.platform.build_jobs }} \
+            2> >(sed '/ld: warning: could not create compact unwind/d' >&2)
+        else
+          cmake --build "${{ github.workspace }}/build" \
+            --config "${{ matrix.build_type }}" \
+            -j${{ matrix.platform.build_jobs }}
+        fi
 
     - name: Build C++ kernel
       id: build_kernel_windows
@@ -261,6 +268,9 @@ jobs:
       shell: cmd
       run: |
         @echo off
+        rem The parent shell is already activated. Prevent Ninja's cmd.exe /C
+        rem link/archive subprocesses from repeating the verbose Conda hook.
+        reg delete "HKCU\Software\Microsoft\Command Processor" /v AutoRun /f >nul 2>nul
         call "%VCVARS64%" >nul 2>nul
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
