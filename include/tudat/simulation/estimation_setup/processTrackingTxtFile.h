@@ -13,16 +13,21 @@
 #ifndef TUDAT_PROCESSTRACKINGTXTFILE_H
 #define TUDAT_PROCESSTRACKINGTXTFILE_H
 
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
+
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readTrackingTxtFile.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
-#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
@@ -99,7 +104,6 @@ public:
         linkEndsVector_.clear( );
 
         // Get information from raw data file
-        const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap( );
         const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows( );
 
         // Deduce linkends representation
@@ -162,8 +166,7 @@ public:
         // Clear any previous values
         observationTimes_.clear( );
 
-        // Get data map and time representation
-        const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows( );
+        // Get time representation
         TimeRepresentation timeRepresentation = getTimeRepresentation( );
 
         // Depending on the time representation, convert further to tdb seconds since j2000
@@ -312,7 +315,7 @@ public:
         {
             try
             {
-                std::string currentGroundStation = linkEnds.at( referenceLinkEnd ).getStationName( );
+                std::string currentGroundStation = linkEnds.at( referenceLinkEnd ).getReferencePointName( );
                 groundStationPositions.push_back( earthFixedGroundStationPositions_.at( currentGroundStation ) );
             }
             catch( const std::runtime_error& error )
@@ -470,23 +473,101 @@ public:
 private:
     double getObservationTimeStep( )
     {
+        const double cadenceTolerance = 0.01;
+
         if( observationTimesUtc_.size( ) < 2 )
         {
             throw std::runtime_error( "Error when getting integration time for processed file contents, size is < 2" );
         }
-        double observationTimeStep = observationTimesUtc_.at( 1 ) - observationTimesUtc_.at( 0 );
+
+        struct CadenceGap {
+            unsigned int index;
+            TimeType previousTime;
+            TimeType nextTime;
+            double observedDelta;
+        };
+
+        std::vector< double > observationTimeSteps;
+        observationTimeSteps.reserve( observationTimesUtc_.size( ) - 1 );
         for( unsigned int i = 1; i < observationTimesUtc_.size( ); i++ )
         {
-            double testObservationTimeStep = observationTimesUtc_.at( i ) - observationTimesUtc_.at( i - 1 );
-            if( std::fabs( observationTimeStep - testObservationTimeStep ) >
-                0.01 )  // 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 )  )
+            double testObservationTimeStep = static_cast< double >( observationTimesUtc_.at( i ) - observationTimesUtc_.at( i - 1 ) );
+            observationTimeSteps.push_back( testObservationTimeStep );
+        }
+
+        double observationTimeStep = std::numeric_limits< double >::quiet_NaN( );
+        const auto& metaDataDoubleMap = rawTrackingTxtFileContents_->getMetaDataDoubleMap( );
+        auto integrationTimeIterator = metaDataDoubleMap.find( input_output::TrackingDataType::doppler_integration_time );
+        const bool hasPrecomputedCadence = integrationTimeIterator != metaDataDoubleMap.end( );
+        if( hasPrecomputedCadence )
+        {
+            observationTimeStep = integrationTimeIterator->second;
+            if( !std::isfinite( observationTimeStep ) || observationTimeStep <= cadenceTolerance )
             {
-                std::cout << std::setprecision( 19 ) << i << " " << observationTimesUtc_.at( i ) << " " << observationTimesUtc_.at( i - 1 )
-                          << " " << observationTimesUtc_.at( i - 2 ) << " " << testObservationTimeStep << " " << observationTimeStep << " "
-                          << testObservationTimeStep - observationTimeStep << " "
-                          << 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 ) << std::endl;
-                throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
+                throw std::runtime_error(
+                        "Error when getting integration time for processed file contents, invalid precomputed cadence found" );
             }
+        }
+        else
+        {
+            observationTimeStep = observationTimeSteps.front( );
+            if( !std::isfinite( observationTimeStep ) || observationTimeStep <= cadenceTolerance )
+            {
+                throw std::runtime_error(
+                        "Error when getting integration time for processed file contents, non-positive or too-small time step found" );
+            }
+        }
+
+        std::vector< CadenceGap > cadenceGaps;
+        for( unsigned int i = 1; i < observationTimesUtc_.size( ); i++ )
+        {
+            double testObservationTimeStep = observationTimeSteps.at( i - 1 );
+            if( !std::isfinite( testObservationTimeStep ) || testObservationTimeStep <= cadenceTolerance )
+            {
+                throw std::runtime_error(
+                        "Error when getting integration time for processed file contents, non-positive or too-small time step found" );
+            }
+            else if( std::fabs( observationTimeStep - testObservationTimeStep ) > cadenceTolerance )
+            {
+                if( hasPrecomputedCadence && testObservationTimeStep > observationTimeStep + cadenceTolerance )
+                {
+                    cadenceGaps.push_back(
+                            CadenceGap{ i, observationTimesUtc_.at( i - 1 ), observationTimesUtc_.at( i ), testObservationTimeStep } );
+                }
+                else if( hasPrecomputedCadence )
+                {
+                    throw std::runtime_error(
+                            "Error when getting integration time for processed file contents, step is smaller than inferred cadence" );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
+                }
+            }
+        }
+
+        if( !cadenceGaps.empty( ) )
+        {
+            const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap( );
+            auto fileNameIterator = metaDataStrMap.find( input_output::TrackingDataType::file_name );
+            std::string fileName = fileNameIterator == metaDataStrMap.end( ) ? "unknown tracking file" : fileNameIterator->second;
+
+            const unsigned int maximumNumberOfGapsToPrint = 5;
+            std::ostringstream warningMessage;
+            warningMessage << std::setprecision( 19 ) << "Warning when getting integration time for processed tracking file '" << fileName
+                           << "': found " << cadenceGaps.size( ) << " cadence gap(s), nominal cadence " << observationTimeStep << " s.";
+            for( unsigned int i = 0; i < std::min( maximumNumberOfGapsToPrint, static_cast< unsigned int >( cadenceGaps.size( ) ) ); i++ )
+            {
+                warningMessage << "\n  gap " << i + 1 << ": index " << cadenceGaps.at( i ).index << ", previous UTC "
+                               << cadenceGaps.at( i ).previousTime << ", next UTC " << cadenceGaps.at( i ).nextTime << ", observed delta "
+                               << cadenceGaps.at( i ).observedDelta << " s";
+            }
+            if( cadenceGaps.size( ) > maximumNumberOfGapsToPrint )
+            {
+                warningMessage << "\n  ... " << cadenceGaps.size( ) - maximumNumberOfGapsToPrint << " additional gap(s) omitted";
+            }
+            warningMessage << std::endl;
+            std::cout << warningMessage.str( );
         }
 
         return observationTimeStep;
@@ -639,19 +720,19 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
               std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
             observationSets;
 
-    for( unsigned int i = 0; i < processedTrackingTxtFileContents.size( ); i++ )
+    for( auto const& processedFileContent : processedTrackingTxtFileContents )
     {
         std::map< ObservableType,
                   std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
                 processedObervationSet = createTrackingTxtFileObservationSets< ObservationScalarType, TimeType >(
-                        processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings );
-        for( auto it : processedObervationSet )
+                        processedFileContent, observableTypesToProcess, ancillarySettings );
+        for( auto const& [ observableType, observationsPerLinkEnd ] : processedObervationSet )
         {
-            for( auto it2 : it.second )
+            for( auto const& [ linkEnds, observationSetsVector ] : observationsPerLinkEnd )
             {
-                for( unsigned int j = 0; j < it2.second.size( ); j++ )
+                for( auto const& observationSet : observationSetsVector )
                 {
-                    observationSets[ it.first ][ it2.first ].push_back( it2.second.at( j ) );
+                    observationSets[ observableType ][ linkEnds ].push_back( observationSet );
                 }
             }
         }
@@ -697,10 +778,20 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     return createTrackingTxtFileObservationCollection( processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings );
 }
 
-void setStationFrequenciesFromTrackingData(
-        const std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >&
-                rampInformation,
-        simulation_setup::SystemOfBodies& bodies );
+/*!
+ * @brief Container for transmitter frequency ramp information extracted from tracking data.
+ */
+struct FrequencyRampData {
+    std::vector< double > rampUtcTimes;        ///< reference epoch in seconds since J2000, in UTC time scale
+    std::vector< double > frequencyValues;     ///< transmitting frequency values
+    std::vector< double > frequencyRampRates;  ///< linear transmitting frequency ramp rates
+};
+
+using StationRampInformation = std::map< std::string, std::vector< FrequencyRampData > >;
+
+void setStationFrequenciesFromTrackingData( const StationRampInformation& rampInformation,
+                                            simulation_setup::SystemOfBodies& bodies,
+                                            const std::string& stationReferenceBodyName = "Earth" );
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 void setStationFrequenciesFromTrackingData(
@@ -708,30 +799,26 @@ void setStationFrequenciesFromTrackingData(
                 processedTrackingTxtFileContents,
         simulation_setup::SystemOfBodies& bodies )
 {
-    std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >
-            rampInformation;
-    for( unsigned int i = 0; i < processedTrackingTxtFileContents.size( ); i++ )
+    StationRampInformation rampInformation;
+    for( auto const& processedFileContent : processedTrackingTxtFileContents )
     {
-        std::shared_ptr< input_output::TrackingTxtFileContents > fileContents =
-                processedTrackingTxtFileContents.at( i )->getRawTrackingTxtFileContents( );
+        std::shared_ptr< input_output::TrackingTxtFileContents > fileContents = processedFileContent->getRawTrackingTxtFileContents( );
         std::vector< double > rampUtcTimes = fileContents->getDoubleDataColumn( input_output::TrackingDataType::utc_ramp_referencee_j2000 );
         std::vector< double > frequencyRampRates =
                 fileContents->getDoubleDataColumn( input_output::TrackingDataType::transmission_frequency_linear_term );
         std::vector< double > frequencyValues =
                 fileContents->getDoubleDataColumn( input_output::TrackingDataType::transmission_frequency_constant_term );
 
-        std::string transmitterName;
-        if( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).size( ) != 1 )
+        if( processedFileContent->getLinkEndsSet( ).size( ) != 1 )
         {
             throw std::runtime_error( "Error when getting link ends from IFMS file, found multiple link ends sets." +
-                                      std::to_string( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).size( ) ) );
+                                      std::to_string( processedFileContent->getLinkEndsSet( ).size( ) ) );
         }
-        else
-        {
-            LinkEnds currentLinkEnds = *( processedTrackingTxtFileContents.at( i )->getLinkEndsSet( ).begin( ) );
-            transmitterName = currentLinkEnds.at( transmitter ).stationName_;
-        }
-        rampInformation[ transmitterName ].push_back( std::make_tuple( rampUtcTimes, frequencyValues, frequencyRampRates ) );
+
+        LinkEnds currentLinkEnds = *( processedFileContent->getLinkEndsSet( ).begin( ) );
+        std::string transmitterName = currentLinkEnds.at( LinkEndType::transmitter ).getReferencePointName( );
+
+        rampInformation[ transmitterName ].push_back( FrequencyRampData{ rampUtcTimes, frequencyValues, frequencyRampRates } );
     }
     setStationFrequenciesFromTrackingData( rampInformation, bodies );
 }
@@ -839,19 +926,16 @@ createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
-                                                  const double& baseFrequency,
-                                                  const std::vector< std::string >& columnTypes,
-                                                  const std::string& targetName,
-                                                  const std::string& transmittingStationName,
-                                                  const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
-                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+createFdetsObservedObservationCollectionFromRawContents( const std::shared_ptr< input_output::TrackingTxtFileContents > fdetsFileContents,
+                                                         const double& baseFrequency,
+                                                         const std::string& targetName,
+                                                         const std::string& transmittingStationName,
+                                                         const std::string& receivingStationName,
+                                                         const FrequencyBands& receptionBand,
+                                                         const FrequencyBands& transmissionBand,
+                                                         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions )
 {
     using namespace input_output;
-    std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( fdetsFileName, columnTypes );
     fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, receivingStationName );
     fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, transmittingStationName );
     fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, baseFrequency );
@@ -868,6 +952,54 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
             processedFdetsFiles, std::vector< ObservableType >( ), ancillarySettings );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
+                                                  const double& baseFrequency,
+                                                  input_output::FdetDateFormat dateFormat,
+                                                  const std::string& targetName,
+                                                  const std::string& transmittingStationName,
+                                                  const std::string& receivingStationName,
+                                                  const FrequencyBands& receptionBand,
+                                                  const FrequencyBands& transmissionBand,
+                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createFdetsObservedObservationCollectionFromRawContents< ObservationScalarType, TimeType >(
+            input_output::readFdetsFile( fdetsFileName, dateFormat ),
+            baseFrequency,
+            targetName,
+            transmittingStationName,
+            receivingStationName,
+            receptionBand,
+            transmissionBand,
+            earthFixedGroundStationPositions );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
+                                                  const double& baseFrequency,
+                                                  const std::vector< std::string >& columnTypes,
+                                                  const std::string& targetName,
+                                                  const std::string& transmittingStationName,
+                                                  const std::string& receivingStationName,
+                                                  const FrequencyBands& receptionBand,
+                                                  const FrequencyBands& transmissionBand,
+                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createFdetsObservedObservationCollectionFromRawContents< ObservationScalarType, TimeType >(
+            input_output::readFdetsFile( fdetsFileName, columnTypes ),
+            baseFrequency,
+            targetName,
+            transmittingStationName,
+            receivingStationName,
+            receptionBand,
+            transmissionBand,
+            earthFixedGroundStationPositions );
 }
 
 }  // namespace observation_models

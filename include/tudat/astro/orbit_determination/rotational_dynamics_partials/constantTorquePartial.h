@@ -53,10 +53,10 @@ public:
         angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction ), torqueVector_( torqueVector ),
         getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
         bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTorquePartial( ) { }
+    ~ConstantTorquePartial( ) {}
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
@@ -92,7 +92,7 @@ public:
                                           const bool addContribution = 1,
                                           const int startRow = 0,
                                           const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
     /*!
@@ -108,7 +108,7 @@ public:
                                                  const bool addContribution = 1,
                                                  const int startRow = 0,
                                                  const int startColumn = 3 )
-    { }
+    {}
 
     //! Update partial model to current time
     /*!

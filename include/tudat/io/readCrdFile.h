@@ -23,8 +23,7 @@ namespace tudat
 namespace input_output
 {
 
-struct CrdPassConfigurationData
-{
+struct CrdPassConfigurationData {
     std::string stationName_ = "";
     int cdpPadId_ = -1;
     std::string targetName_ = "";
@@ -37,8 +36,7 @@ struct CrdPassConfigurationData
     double transmitWavelengthNm_ = TUDAT_NAN;
 };
 
-struct CrdNormalPointRecord
-{
+struct CrdNormalPointRecord {
     double secondOfDay_ = TUDAT_NAN;
     double twoWayTimeOfFlight_ = TUDAT_NAN;
     double oneWayRange_ = TUDAT_NAN;
@@ -49,8 +47,7 @@ struct CrdNormalPointRecord
     double binRms_ = TUDAT_NAN;
 };
 
-struct CrdFullRateRecord
-{
+struct CrdFullRateRecord {
     double secondOfDay_ = TUDAT_NAN;
     double twoWayTimeOfFlight_ = TUDAT_NAN;
     double oneWayRange_ = TUDAT_NAN;
@@ -61,23 +58,20 @@ struct CrdFullRateRecord
     int stopNumber_ = -1;
 };
 
-struct CrdMeteoRecord
-{
+struct CrdMeteoRecord {
     double secondOfDay_ = TUDAT_NAN;
     double pressure_ = TUDAT_NAN;
     double temperature_ = TUDAT_NAN;
     double humidity_ = TUDAT_NAN;
 };
 
-struct CrdPassData
-{
+struct CrdPassData {
     std::vector< CrdFullRateRecord > fullRateData_;
     std::vector< CrdNormalPointRecord > normalPointData_;
     std::vector< CrdMeteoRecord > meteorologicalData_;
 };
 
-struct CrdPass
-{
+struct CrdPass {
     CrdPassConfigurationData configuration_;
     CrdPassData data_;
 };

@@ -19,6 +19,7 @@
 #include <pybind11/stl_bind.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/io/basicInputOutput.h>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,8 @@
 #include "tudat/io/readVariousPdsFiles.h"
 #include "tudat/io/solarActivityData.h"
 
+#include "coma_model/expose_coma_model.h"
+
 namespace py = pybind11;
 namespace tio = tudat::input_output;
 
@@ -43,6 +46,9 @@ namespace data
 
 void expose_data( py::module& m )
 {
+    auto comaModel = m.def_submodule( "coma_model" );
+    tudatpy::data::coma_model::expose_coma_model( comaModel );
+
     py::module_::import( "tudatpy.kernel.math.interpolators" ).attr( "InterpolatorSettings" );
     // py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
     // py::object cubic_spline_interpolation =
@@ -525,6 +531,9 @@ Read a mapping from DOMES id to station name.
             .value( "doppler_averaged_frequency",
                     tudat::input_output::TrackingDataType::doppler_averaged_frequency,
                     R"doc(No documentation available.)doc" )
+            .value( "doppler_integration_time",
+                    tudat::input_output::TrackingDataType::doppler_integration_time,
+                    R"doc(No documentation available.)doc" )
             .value( "doppler_base_frequency",
                     tudat::input_output::TrackingDataType::doppler_base_frequency,
                     R"doc(No documentation available.)doc" )
@@ -557,6 +566,15 @@ Read a mapping from DOMES id to station name.
                     R"doc(No documentation available.)doc" )
             .export_values( );
 
+    py::enum_< tudat::input_output::FdetDateFormat >( m, "FdetDateFormat", R"doc(Date format used in an Fdets file.)doc" )
+            .value( "datetime_string",
+                    tudat::input_output::FdetDateFormat::datetime_string,
+                    R"doc(Date is provided in a single UTC datetime string column.)doc" )
+            .value( "pair_of_numbers",
+                    tudat::input_output::FdetDateFormat::pair_of_numbers,
+                    R"doc(Date is provided as a pair of numeric columns. This format is not currently supported.)doc" )
+            .export_values( );
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -572,7 +590,10 @@ Read a mapping from DOMES id to station name.
            R"doc(
  Reads a space weather data file and produces a dictionary with solar activity data for a range of epochs. Data files can be obtained from http://celestrak.com/SpaceData and should follow the legacy format.
 
- :param file_path: Path to the space weather data file.
+ Parameters
+ ----------
+ file_path : str
+     Path to the space weather data file.
  )doc" );
 
     py::class_< tio::solar_activity::SolarActivityContainer, std::shared_ptr< tio::solar_activity::SolarActivityContainer > >(
@@ -642,14 +663,21 @@ Read a mapping from DOMES id to station name.
             .def_readonly( "uplink_band_id", &tio::OdfCommonDataBlock::uplinkBandId_ )
             .def_readonly( "reference_band_id", &tio::OdfCommonDataBlock::referenceBandId_ )
             .def_readonly( "is_invalid", &tio::OdfCommonDataBlock::validity_ )
-            .def( "print_data_block",
-                  &tio::OdfCommonDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfCommonDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(Write the contents of the data block to a text file
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfDataSpecificBlock, std::shared_ptr< tio::OdfDataSpecificBlock > >(
@@ -677,14 +705,21 @@ Read a mapping from DOMES id to station name.
             m, "OdfDataBlock", R"doc(Contents of a line of the data section of an ODF)doc" )
             .def_property_readonly( "observable_specific_data_block", &tio::OdfDataBlock::getObservableSpecificDataBlock )
             .def_property_readonly( "common_data_block", &tio::OdfDataBlock::getCommonDataBlock )
-            .def( "print_data_block",
-                  &tio::OdfDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(Write the contents of the data block to a text file
+            .def(
+                    "print_data_block",
+                    []( tio::OdfDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(Write the contents of the data block to a text file
 
                   The file is created if it does not exist, and it can have, for example, txt extension
 
-                  :param output_file: Contents will be written to the file defined by this path
+                  Parameters
+                  ----------
+                  output_file : str
+                      Contents will be written to the file defined by this path
                   )doc" );
 
     py::class_< tio::OdfRampBlock, std::shared_ptr< tio::OdfRampBlock > >(
@@ -694,6 +729,11 @@ Read a mapping from DOMES id to station name.
             .def_property_readonly( "ramp_start_epoch", &tio::OdfRampBlock::getRampStartTime )
             .def_property_readonly( "ramp_end_epoch", &tio::OdfRampBlock::getRampEndTime )
             .def_property_readonly( "transmitting_station_id", &tio::OdfRampBlock::getTransmittingStationId );
+
+    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >( m, "OdfClockOffsetBlock" )
+            .def_property_readonly( "start_time", &tio::OdfClockOffsetBlock::getStartTime )
+            .def_property_readonly( "end_time", &tio::OdfClockOffsetBlock::getEndTime )
+            .def_property_readonly( "clock_offset", &tio::OdfClockOffsetBlock::getClockOffset );
 
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "OdfRawFileContents", R"doc(No documentation available.)doc" )
@@ -717,10 +757,27 @@ Read a mapping from DOMES id to station name.
                               const std::string& >( &tio::setDsnWeatherDataInGroundStations ),
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
-           py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
+           py::arg_v( "ground_stations_per_complex",
+                      tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           R"doc(No documentation available.)doc" );
+           R"doc(
+Set DSN weather data in the requested ground stations.
+
+Parameters
+----------
+bodies : dynamics.environment.SystemOfBodies
+    Bodies containing the ground stations to update.
+weather_file_names : list[str]
+    DSN weather data files to read.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.linear_interpolation()
+    Settings used to interpolate the weather data.
+ground_stations_per_complex : dict[int, list[str]], default = dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()
+    Ground-station names grouped by DSN complex.
+body_with_ground_stations_name : str, default = "Earth"
+    Name of the body containing the ground stations.
+)doc" );
 
     py::class_< tudat::input_output::TrackingTxtFileContents, std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
             m, "TrackingTxtFileContents", R"doc(No documentation available.)doc" )
@@ -781,11 +838,19 @@ Read a mapping from DOMES id to station name.
 
            Two of the columns of an IFMS file contain, respectively, the Doppler averaged frequency and a tropospheric correction for the station. When the `apply_tropospheric_correction` option is set to true, the content of the first column is modified by subtracting the values in the second.
 
-           :param file_name: String representing the path to the file to be loaded
-           :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
-           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           apply_tropospheric_correction : bool
+               Whether to modify the averaged Doppler frequency as described above (Default: True)
+           remove_invalid_lines : bool
+               Boolean defining whether a line is skipped if the transmit frequency, observed frequency, or troposphere correction is undefined (Default: True)
 
-           :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
+           Returns
+           -------
+           ifms_contents : TrackingTxtFileContents
+               Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",
            py::overload_cast< tudat::simulation_setup::SystemOfBodies&,
@@ -797,22 +862,32 @@ Read a mapping from DOMES id to station name.
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::cubicSplineInterpolation( ), "..." ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           R"doc(No documentation available.)doc" );
+           R"doc(
+Set ESTRACK weather data in a ground station.
 
-    // Temporary fix: Asigned default to variable to avoid compilation error
-    const std::vector< std::string > fdet_cols = {
-        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
-    };
+Parameters
+----------
+bodies : dynamics.environment.SystemOfBodies
+    Bodies containing the ground station to update.
+weather_file_names : list[str]
+    ESTRACK weather data files to read.
+ground_station_name : str
+    Name of the ground station to update.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.cubic_spline_interpolation()
+    Settings used to interpolate the weather data.
+body_with_ground_stations_name : str, default = "Earth"
+    Name of the body containing the ground station.
+)doc" );
 
     m.def( "read_fdets_file",
-           &tio::readFdetsFile,
+           py::overload_cast< const std::string&, tio::FdetDateFormat >( &tio::readFdetsFile ),
            py::arg( "file_name" ),
-           py::arg( "column_types" ) = fdet_cols,
+           py::arg( "date_format" ) = tio::FdetDateFormat::datetime_string,
            R"doc(Load contents of Fdets file into object
 
-           This function loads the contents of an Fdets file into a dictionary with keys defined by the strings listed in `column_types`. If a list of columns is not specified, the following structure is assumed:
+           This function loads the contents of an Fdets file. For the currently supported `datetime_string` date format, the following structure is assumed:
 
            - UTC datetime string
            - Signal to noise ratio [-]
@@ -820,9 +895,41 @@ Read a mapping from DOMES id to station name.
            - Doppler measured frequency [Hz]
            - Doppler noise [Hz]
 
-           :param file_name: String representing the path to the file to be loaded
-           :param column_types: Identifiers of the columns present in the Fdets file
-           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           If the file contains an additional leading scan-number column, this column is detected automatically.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           date_format : FdetDateFormat
+               Date format used in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
+
+    m.def( "read_fdets_file",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tio::readFdetsFile ),
+           py::arg( "file_name" ),
+           py::arg( "column_types" ),
+           R"doc(Load contents of Fdets file into object using explicit column identifiers.
+
+           .. deprecated::
+              Passing explicit column identifiers is deprecated. Use the `date_format` argument instead.
+
+           Parameters
+           ----------
+           file_name : str
+               String representing the path to the file to be loaded
+           column_types : List[str]
+               Identifiers of the columns present in the Fdets file
+
+           Returns
+           -------
+           fdets_contents : TrackingTxtFileContents
+               Dictionary with contents of the Fdets file as lists of strings
            )doc" );
 };
 

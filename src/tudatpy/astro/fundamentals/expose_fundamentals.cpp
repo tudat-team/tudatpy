@@ -26,7 +26,7 @@ namespace astro
 namespace fundamentals
 {
 
-void expose_fundamentals( py::module &m )
+void expose_fundamentals( py::module& m )
 {
     m.def( "compute_shadow_function",
            &tmg::computeShadowFunction,

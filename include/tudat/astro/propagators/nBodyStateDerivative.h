@@ -155,14 +155,14 @@ public:
     }
 
     // Destructor
-    virtual ~NBodyStateDerivative( ) { }
+    virtual ~NBodyStateDerivative( ) {}
 
     // Function to clear any reference/cached values of state derivative model
     /*
      * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
      * clearTranslationalStateDerivativeModel function. Default implementation is empty.
      */
-    virtual void clearDerivedTranslationalStateDerivativeModel( ) { }
+    virtual void clearDerivedTranslationalStateDerivativeModel( ) {}
 
     // Function to clear reference/cached values of acceleration models
     /*
@@ -376,7 +376,7 @@ protected:
             }
         }
 
-        for( auto it: accelerationModelsPerBody_ )
+        for( auto it : accelerationModelsPerBody_ )
         {
             if( std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), it.first ) ==
                 bodiesToBeIntegratedNumerically_.end( ) )
@@ -450,7 +450,8 @@ protected:
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) +=
                             ( innerAccelerationIterator->second[ j ]->getAccelerationScalingFactor( ) *
-                              innerAccelerationIterator->second[ j ]->getUnscaledAccelerationReference( ) ).template cast< StateScalarType >( );
+                              innerAccelerationIterator->second[ j ]->getUnscaledAccelerationReference( ) )
+                                    .template cast< StateScalarType >( );
                 }
             }
 

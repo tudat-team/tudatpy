@@ -45,8 +45,27 @@ Eigen::Matrix3d getRotationMatrixFromJ2000ToTeme( const double epochSinceJ2000 )
     return getRotationMatrixFromTemeToJ2000( epochSinceJ2000 ).transpose( );
 }
 
-TleEphemeris::TleEphemeris( const std::string &referenceFrameOrigin,
-                            const std::string &referenceFrameOrientation,
+Eigen::Matrix3d getRotationMatrixFromTemeToFrame( const double epochSinceJ2000, const std::string& frameOrientation )
+{
+    const Eigen::Matrix3d temeToJ2000 = getRotationMatrixFromTemeToJ2000( epochSinceJ2000 );
+    if( frameOrientation == "J2000" )
+    {
+        return temeToJ2000;
+    }
+    if( frameOrientation == "ECLIPJ2000" )
+    {
+        return spice_interface::getRotationFromJ2000ToEclipJ2000( ) * temeToJ2000;
+    }
+    throw std::runtime_error( "TLE state conversion to target frame " + frameOrientation + " is currently unsupported." );
+}
+
+Eigen::Matrix3d getRotationMatrixFromFrameToTeme( const double epochSinceJ2000, const std::string& frameOrientation )
+{
+    return getRotationMatrixFromTemeToFrame( epochSinceJ2000, frameOrientation ).transpose( );
+}
+
+TleEphemeris::TleEphemeris( const std::string& referenceFrameOrigin,
+                            const std::string& referenceFrameOrientation,
                             const std::shared_ptr< Tle > tle_ptr,
                             const bool useSDP ): Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
 {
@@ -77,32 +96,17 @@ Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
     // Compute TEME state
     Eigen::Vector6d cartesianStateAtEpochTEME = getCartesianStateInTemeFrame( secondsSinceEpoch );
 
-    // Compute rotation to J2000
-    Eigen::Matrix3d rotationToJ2000 = getRotationMatrixFromTemeToJ2000( secondsSinceEpoch );
-
+    // Apply the same centralized TEME-to-output-frame rotation to position and velocity.
+    const Eigen::Matrix3d rotationToOutputFrame = getRotationMatrixFromTemeToFrame( secondsSinceEpoch, referenceFrameOrientation_ );
     Eigen::Vector6d cartesianStateOutput = Eigen::Vector6d::Zero( );
-    if( referenceFrameOrientation_ == "J2000" )
-    {
-        cartesianStateOutput.segment( 0, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
-        cartesianStateOutput.segment( 3, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
-    }
-    else if( referenceFrameOrientation_ == "ECLIPJ2000" )
-    {
-        Eigen::Matrix3d itrsToEclipticQuaternion = spice_interface::getRotationFromJ2000ToEclipJ2000( );
-
-        cartesianStateOutput.segment( 0, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
-        cartesianStateOutput.segment( 3, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
-    }
-    else
-    {
-        throw std::runtime_error( "TLE state conversion to target frame " + referenceFrameOrientation_ + " is currently unsupported." );
-    }
+    cartesianStateOutput.segment( 0, 3 ) = rotationToOutputFrame * cartesianStateAtEpochTEME.segment( 0, 3 );
+    cartesianStateOutput.segment( 3, 3 ) = rotationToOutputFrame * cartesianStateAtEpochTEME.segment( 3, 3 );
 
     return cartesianStateOutput;
 }
 
 // Computes the TLE checksum (0-9) for a 69-character line (checksum digit is at index 68).
-int computeTleChecksum( const std::string &line )
+int computeTleChecksum( const std::string& line )
 {
     if( line.size( ) != 69 )
     {
@@ -126,7 +130,7 @@ int computeTleChecksum( const std::string &line )
     return checksum % 10;
 }
 
-void validateTleChecksumOrThrow( const std::string &line )
+void validateTleChecksumOrThrow( const std::string& line )
 {
     const int expected = computeTleChecksum( line );
     const int provided = static_cast< int >( line.at( 68 ) ) - '0';
@@ -137,7 +141,7 @@ void validateTleChecksumOrThrow( const std::string &line )
     }
 }
 
-Tle::Tle( const std::string &lines )
+Tle::Tle( const std::string& lines )
 {
     // First of all, the TLE lines to be checked for validity: they shall not be empty, contain more than 69 characters
     // or have an invalid checksum.
@@ -212,9 +216,13 @@ Tle::Tle( const std::string &lines )
     noradCatalogNumber_ = std::stoi( line1.substr( 2, 5 ) );
     classification_ = line1.at( 7 );
 
-    internationalDesignatorLaunchYear_ = std::stoi( line1.substr( 9, 2 ) );
-    internationalDesignatorLaunchNumber_ = std::stoi( line1.substr( 11, 3 ) );
-    internationalDesignatorPiece_ = boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
+    // IF missing INTLDES, replace with mock designation
+    std::string launchYearStr = boost::algorithm::trim_copy( line1.substr( 9, 2 ) );
+    internationalDesignatorLaunchYear_ = launchYearStr.empty( ) ? 0 : std::stoi( launchYearStr );
+    std::string launchNumberStr = boost::algorithm::trim_copy( line1.substr( 11, 3 ) );
+    internationalDesignatorLaunchNumber_ = launchNumberStr.empty( ) ? 0 : std::stoi( launchNumberStr );
+    internationalDesignatorPiece_ =
+            boost::algorithm::trim_copy( line1.substr( 14, 3 ) ).empty( ) ? "A" : boost::algorithm::trim_copy( line1.substr( 14, 3 ) );
 
     int epochYear = std::stoi( line1.substr( 18, 2 ) );
     double epochDayFraction = std::stod( line1.substr( 20, 12 ) );
@@ -271,11 +279,11 @@ Tle::Tle( const std::string &lines )
     revolutionNumberAtEpoch_ = std::stoi( line2.substr( 63, 5 ) );
 }
 
-Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
+Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
 
-Tle::Tle( const double *spiceElements )
+Tle::Tle( const double* spiceElements )
 {
-    for( double &spiceElement : spiceElements_ )
+    for( double& spiceElement : spiceElements_ )
     {
         spiceElement = *spiceElements;
         spiceElements++;

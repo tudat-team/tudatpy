@@ -73,7 +73,7 @@ template< typename T >
 ostream& operator<<( ostream& output, std::vector< T > const& values )
 {
     std::cout << "[ ";
-    for( auto const& value: values )
+    for( auto const& value : values )
     {
         output << value << ", ";
     }

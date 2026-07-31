@@ -39,10 +39,10 @@ class Parser
 {
 public:
     //! Default constructor, interface therefore empty.
-    Parser( ) { }
+    Parser( ) {}
 
     //! Default destructor, interface therefore empty.
-    virtual ~Parser( ) { }
+    virtual ~Parser( ) {}
 
     //! Parse data from a string.
     /*!

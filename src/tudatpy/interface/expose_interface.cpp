@@ -24,7 +24,7 @@ namespace interface
 {
 using namespace spice;
 
-void expose_interface( py::module &m )
+void expose_interface( py::module& m )
 {
     auto spice = m.def_submodule( "spice" );
     expose_spice( spice );

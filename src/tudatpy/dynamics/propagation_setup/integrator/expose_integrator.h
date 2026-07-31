@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -25,7 +24,7 @@ namespace propagation_setup
 namespace integrator
 {
 
-void expose_integrator( py::module &m );
+void expose_integrator( py::module& m );
 
 }  // namespace integrator
 }  // namespace propagation_setup

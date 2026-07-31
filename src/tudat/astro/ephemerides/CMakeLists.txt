@@ -27,6 +27,7 @@ set(ephemerides_SOURCES
         "synchronousRotationalEphemeris.cpp"
         "fullPlanetaryRotationModel.cpp"
         "tleEphemeris.cpp"
+        "tleFitting.cpp"
         "aeordynamicAngleRotationalEphemeris.cpp"
         "directionBasedRotationalEphemeris.cpp"
         "multiArcEphemeris.cpp"
@@ -57,8 +58,14 @@ set(ephemerides_HEADERS
         "fullPlanetaryRotationModel.h"
         "synchronousRotationalEphemeris.h"
         "tleEphemeris.h"
+        "tleFitting.h"
         "aeordynamicAngleRotationalEphemeris.h"
         "directionBasedRotationalEphemeris.h"
+        "timeEphemeris.h"
+        "timeEphemerisFromPostNewtonianExpansion.h"
+        "timeEphemerisWithFirstOrderDirectConversion.h"
+        "timeEphemerisWithSecondOrderDirectConversion.h"
+        "timeEphemerisDirectFromMetric.h"
         )
 
 TUDAT_ADD_LIBRARY("ephemerides"

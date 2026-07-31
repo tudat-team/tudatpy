@@ -37,10 +37,10 @@ public:
      */
     FreeCoreNutationRate( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< double >( free_core_nutation_rate, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~FreeCoreNutationRate( ) { }
+    ~FreeCoreNutationRate( ) {}
 
     //! Get value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!

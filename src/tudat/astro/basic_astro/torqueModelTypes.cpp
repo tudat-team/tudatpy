@@ -14,6 +14,8 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/basic_astro/dissipativeTorqueModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTorque.h"
+#include "tudat/astro/gravitation/fourthDegreeFullTwoBodyGravitationalTorque.h"
+#include "tudat/astro/gravitation/fullTwoBodySphericalHarmonicTorque.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
@@ -57,6 +59,14 @@ AvailableTorque getTorqueModelType( std::shared_ptr< basic_astrodynamics::Torque
     {
         torqueType = custom_torque;
     }
+    else if( std::dynamic_pointer_cast< gravitation::FullTwoBodySphericalHarmonicTorque >( torqueModel ) != nullptr )
+    {
+        torqueType = full_two_body_spherical_harmonic_gravitational_torque;
+    }
+    else if( std::dynamic_pointer_cast< gravitation::FourthDegreeFullTwoBodyGravitationalTorqueModel >( torqueModel ) != nullptr )
+    {
+        torqueType = fourth_degree_full_two_body_gravitational_torque;
+    }
     else
     {
         std::cerr << "Error, could not identify torque type" << std::endl;
@@ -90,6 +100,12 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
             break;
         case custom_torque:
             torqueName = "custom torque ";
+            break;
+        case full_two_body_spherical_harmonic_gravitational_torque:
+            torqueName = "full two-body spherical harmonic gravitational torque ";
+            break;
+        case fourth_degree_full_two_body_gravitational_torque:
+            torqueName = "fourth-degree full two-body gravitational torque ";
             break;
         default:
             std::string errorMessage = "Error, torque type " + std::to_string( torqueType ) + "not found when retrieving torque name ";

@@ -155,6 +155,25 @@ void expose_ephemeris_setup( py::module& m )
          :type: EphemerisType
       )doc" );
 
+    py::class_< tss::DirectTleEphemerisSettings, std::shared_ptr< tss::DirectTleEphemerisSettings >, tss::EphemerisSettings >(
+            m, "DirectTleEphemerisSettings", R"doc(
+
+         Class for defining settings of an ephemeris linked directly to TLE data.
+
+         `EphemerisSettings` derived class for ephemeris which are directly linked to TLE data.
+         This is typically created through the :func:`~tudatpy.dynamics.environment_setup.ephemeris.sgp4` function, which creates TLE ephemeris settings objects from TLE data.
+         
+         )doc" )
+            .def_property_readonly( "tle", &tss::DirectTleEphemerisSettings::getTle, R"doc(
+                
+            **read-only**
+
+            TLE object containing the TLE data from which the ephemeris is to be created.
+
+            :type: Tle
+                
+                )doc" );
+
     py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
             m,
             "DirectSpiceEphemerisSettings",
@@ -676,7 +695,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ),
+           py::arg_v( "interpolator_settings", std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ), "..." ),
            py::arg( "body_name_to_use" ) = "",
            R"doc(
 
@@ -702,7 +721,7 @@ void expose_ephemeris_setup( py::module& m )
      Origin of frame in which ephemeris data is defined.
  frame_orientation : str, default="ECLIPJ2000"
      Orientation of frame in which ephemeris data is defined.
- interpolator_settings : std::make_shared< interpolators::InterpolatorSettings >, default=std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 )
+ interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(6, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
      Settings to be used for the state interpolation.
  body_name_to_use : str, default = ""
      Body from which Spice ephemeris is to be created.
@@ -806,7 +825,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "start_time" ),
            py::arg( "end_time" ),
            py::arg( "time_step" ),
-           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
+           py::arg_v( "interpolator_settings", std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ), "..." ),
            R"doc(
 
  Function for creating tabulated ephemeris model settings from existing ephemeris.
@@ -829,7 +848,7 @@ void expose_ephemeris_setup( py::module& m )
      Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
  time_step : float
      Time step to use to tabulate the existing ephemeris.
- interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default=tudatpy.math.interpolators.lagrange_interpolation(8)
+ interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(8, boundary_interpolation=tudatpy.math.interpolators.extrapolate_at_boundary)
      Interpolator settings to use when interpolating between two tabulated ephemeris.
  Returns
  -------
@@ -1174,7 +1193,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "single_arc_ephemeris_settings" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "default_ephemeris_settings" ) = nullptr,
+           py::arg_v( "default_ephemeris_settings", std::shared_ptr< tss::EphemerisSettings >( ), "None" ),
            R"doc(
 
  Function for creating multi-arc ephemeris model settings.

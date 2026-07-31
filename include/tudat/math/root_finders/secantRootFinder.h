@@ -78,7 +78,7 @@ public:
      */
     SecantRootFinder( TerminationFunction terminationFunction, const DataType initialGuessOfRootOne = 0.5 ):
         RootFinder< DataType >( terminationFunction ), initialGuessOfRootOne_( initialGuessOfRootOne )
-    { }
+    {}
 
     //! Constructor taking typical convergence criteria and the least accurate initial guess.
     /*!
@@ -109,10 +109,10 @@ public:
                            std::placeholders::_4,
                            std::placeholders::_5 ) ),
         initialGuessOfRootOne_( initialGuessOfRootOne )
-    { }
+    {}
 
     //! Default destructor.
-    ~SecantRootFinder( ) { }
+    ~SecantRootFinder( ) {}
 
     //! Find a root of the function provided as input.
     /*!

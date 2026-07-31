@@ -34,10 +34,10 @@ class MassRateModel
 {
 public:
     //! Constructor
-    MassRateModel( ): currentTime_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN ) { }
+    MassRateModel( ): currentTime_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN ) {}
 
     //! Destructor
-    virtual ~MassRateModel( ) { }
+    virtual ~MassRateModel( ) {}
 
     //! Function to retrieve current mass rate
     /*!
@@ -95,10 +95,10 @@ public:
      * Constructor
      * \param massRateFunction Function returning mass rate as a function of time.
      */
-    CustomMassRateModel( const std::function< double( const double ) > massRateFunction ): massRateFunction_( massRateFunction ) { }
+    CustomMassRateModel( const std::function< double( const double ) > massRateFunction ): massRateFunction_( massRateFunction ) {}
 
     //! Destructor.
-    ~CustomMassRateModel( ) { }
+    ~CustomMassRateModel( ) {}
 
     //! Update member variables used by the mass rate model and compute the mass rate
     /*!

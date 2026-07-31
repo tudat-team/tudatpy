@@ -60,13 +60,13 @@ public:
         maximumIndependentVariable2_( TUDAT_NAN ), parameter_( TUDAT_NAN ), independentVariable_( firstIndependentVariable ),
         cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ), offset_( Eigen::VectorXd::Zero( 3 ) ),
         rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ), scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~SingleSurfaceGeometry( ) { }
+    virtual ~SingleSurfaceGeometry( ) {}
 
     //! Set offset of the shape.
     /*!

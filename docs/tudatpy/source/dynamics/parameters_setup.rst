@@ -43,6 +43,18 @@ Functions
 
    radiation_pressure_target_perpendicular_direction_scaling
 
+   specular_reflectivity
+
+   diffuse_reflectivity
+
+   energy_accommodation_coefficient
+
+   normal_accommodation_coefficient
+
+   tangential_accommodation_coefficient
+
+   normal_velocity_at_wall_ratio
+
    empirical_accelerations
 
    arcwise_empirical_accelerations
@@ -187,6 +199,18 @@ Functions
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_target_direction_scaling
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.radiation_pressure_target_perpendicular_direction_scaling
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.specular_reflectivity
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.diffuse_reflectivity
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.energy_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.normal_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.tangential_accommodation_coefficient
+
+.. autofunction:: tudatpy.dynamics.parameters_setup.normal_velocity_at_wall_ratio
 
 .. autofunction:: tudatpy.dynamics.parameters_setup.empirical_accelerations
 

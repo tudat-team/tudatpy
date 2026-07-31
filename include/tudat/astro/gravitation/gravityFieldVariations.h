@@ -67,7 +67,7 @@ public:
             const int numberOfOrders ):
         cosineSineInterpolator_( cosineSineInterpolator ), startDegree_( startDegree ), startOrder_( startOrder ),
         numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders )
-    { }
+    {}
 
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!
@@ -155,7 +155,7 @@ public:
     /*!
      *  Virtual destructor
      */
-    virtual ~GravityFieldVariations( ) { }
+    virtual ~GravityFieldVariations( ) {}
 
     //! Pure virtual function for calculating corrections.
     /*!
@@ -410,6 +410,23 @@ public:
      */
     std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation( const std::vector< std::string >& deformingBodies,
                                                                                    const BodyDeformationTypes tideType = basic_solid_body );
+
+    //! Function to retrieve all compatible tidal gravity field variations covering the requested deforming bodies
+    /*!
+     * Selects variation models of the requested tidal type that provide the requested Love-number degree and together
+     * cover the requested deforming bodies. Models that do not contain the requested degree are ignored before any
+     * coverage checks. An empty deformingBodies list selects every degree-compatible model of the requested type, but
+     * still rejects duplicate coverage of any deforming body. Models whose deforming-body set only partially overlaps
+     * an explicit request are rejected.
+     * \param deformingBodies List of tide-raising bodies that must be covered (empty = select all degree-compatible models)
+     * \param requestedDegree Spherical-harmonic degree that must be available in each selected model
+     * \param tideType Type of tidal gravity field variation to select
+     * \return Selected variation models in environment order
+     */
+    std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariationsForDegree(
+            const std::vector< std::string >& deformingBodies,
+            const int requestedDegree,
+            const BodyDeformationTypes tideType = basic_solid_body );
 
     //! Function to retrieve the tidal gravity field variations
     /*!

@@ -338,9 +338,9 @@ void getCloseApproachTimes( const double initialTime,
     }
 
     std::map< double, std::string > timeOrderedFlybyTimes;
-    for( auto bodyIterator: closeApproachTimes )
+    for( auto bodyIterator : closeApproachTimes )
     {
-        for( auto timeIterator: bodyIterator.second )
+        for( auto timeIterator : bodyIterator.second )
         {
             timeOrderedFlybyTimes[ timeIterator.first ] = bodyIterator.first;
 
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
                 std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
 
-        for( auto itr: multiArcCentralBodiesPerBody )
+        for( auto itr : multiArcCentralBodiesPerBody )
         {
             Eigen::VectorXd arcWiseStatesCurrentBody;
             arcWiseStatesCurrentBody.resize( 6 * itr.second.size( ) );

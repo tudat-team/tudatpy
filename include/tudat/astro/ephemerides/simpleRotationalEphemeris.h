@@ -85,7 +85,7 @@ public:
     }
 
     //! Destructor
-    ~SimpleRotationalEphemeris( ) { }
+    ~SimpleRotationalEphemeris( ) {}
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!

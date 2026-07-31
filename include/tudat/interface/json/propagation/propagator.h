@@ -76,7 +76,7 @@ void determineInitialStates( nlohmann::json& jsonObject,
     nlohmann::json jsonPropagators = jsonObject.at( Keys::propagators );
 
     // Update propagators at jsonObject with initial states stored at JSON bodies settings
-    for( nlohmann::json& jsonPropagator: jsonPropagators )
+    for( nlohmann::json& jsonPropagator : jsonPropagators )
     {
         if( !isDefined( jsonPropagator, K::initialStates ) )
         {
@@ -189,9 +189,9 @@ void resetDependentVariableSaveSettings(
     // Determine save settings from variables to be exported
     std::vector< std::string > addedVariablesIDs;
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    for( const std::shared_ptr< ExportSettings > exportSettings: exportSettingsVector )
+    for( const std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        for( const std::shared_ptr< propagators::VariableSettings > variable: exportSettings->variables_ )
+        for( const std::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
         {
             std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
                     std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
@@ -253,7 +253,7 @@ static std::map< IntegratedStateType, std::string > integratedStateTypes = { { h
                                                                              { translational_state, "translational" },
                                                                              { rotational_state, "rotational" },
                                                                              { body_mass_state, "mass" },
-                                                                             { custom_state, "custom" } };
+                                                                             { proper_time, "proper time" } { custom_state, "custom" } };
 
 //! `IntegratedStateType`s not supported by `json_interface`.
 static std::vector< IntegratedStateType > unsupportedIntegratedStateTypes = {
@@ -287,7 +287,7 @@ static std::map< TranslationalPropagatorType, std::string > translationalPropaga
 };
 
 //! `TranslationalPropagatorType`s not supported by `json_interface`.
-static std::vector< TranslationalPropagatorType > unsupportedTranslationalPropagatorTypes = { };
+static std::vector< TranslationalPropagatorType > unsupportedTranslationalPropagatorTypes = {};
 
 //! Convert `TranslationalPropagatorType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const TranslationalPropagatorType& translationalPropagatorType )
@@ -310,7 +310,7 @@ static std::map< RotationalPropagatorType, std::string > rotationalPropagatorTyp
                                                                                        { exponential_map, "exponentialMap" } };
 
 //! `RotationalPropagatorType`s not supported by `json_interface`.
-static std::vector< RotationalPropagatorType > unsupportedRotationalPropagatorTypes = { };
+static std::vector< RotationalPropagatorType > unsupportedRotationalPropagatorTypes = {};
 
 //! Convert `RotationalPropagatorType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const RotationalPropagatorType& rotationalPropagatorType )
@@ -368,7 +368,7 @@ void from_json( const nlohmann::json& jsonObject,
                 getValue< std::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, Keys::termination );
         terminationConditions.push_back( userConditions );
 
-        for( std::shared_ptr< PropagationTerminationSettings > condition: userConditions->terminationSettings_ )
+        for( std::shared_ptr< PropagationTerminationSettings > condition : userConditions->terminationSettings_ )
         {
             std::shared_ptr< PropagationTimeTerminationSettings > timeCondition =
                     std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( condition );
@@ -534,9 +534,9 @@ void from_json( const nlohmann::json& jsonObject,
     {
         case translational_state: {
             TranslationalStatePropagatorSettings< StateScalarType, TimeType > defaults(
-                    { },
+                    {},
                     SelectedAccelerationMap( ),
-                    { },
+                    {},
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ),
                     std::shared_ptr< PropagationTerminationSettings >( ) );
             singleArcPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
@@ -550,7 +550,7 @@ void from_json( const nlohmann::json& jsonObject,
         }
         case body_mass_state: {
             MassPropagatorSettings< StateScalarType, TimeType > defaults(
-                    { }, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
+                    {}, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
             singleArcPropagatorSettings = std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >(
                     bodiesToPropagate,
                     getValue< SelectedMassRateModelMap >( jsonObject, K::massRateModels ),
@@ -560,7 +560,7 @@ void from_json( const nlohmann::json& jsonObject,
         }
         case rotational_state: {
             RotationalStatePropagatorSettings< StateScalarType, TimeType > defaults(
-                    SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
+                    SelectedTorqueMap( ), {}, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
             singleArcPropagatorSettings = std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
                     bodiesToPropagate,

@@ -25,22 +25,6 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Function determine the numerical partial derivative of the true anomaly wrt the elements of the Cartesian state
-/*!
- *  unction determine the numerical partial derivative of the true anomaly wrt the elements of the Cartesian state,
- *  from the Cartesian state as input.
- *  A first-order central difference with a user-defined Cartesian state perturbation vector is used.
- *  \param cartesianElements Nominal Cartesian elements at which the partials are to be computed
- *  \param gravitationalParameter Gravitational parameter of central body around which Keplerian orbit is given
- *  \param cartesianStateElementPerturbations Numerical perturbations of Cartesian state that are to be used
- *  \return Partial of Cartesian state wrt true anomaly of orbit.
- */
-/*
-Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( const Eigen::Vector6d& cartesianElements,
-                                                                              const double gravitationalParameter,
-                                                                              const Eigen::Vector6d& cartesianStateElementPerturbations );
-*/
-
 class RTGAccelerationPartial : public AccelerationPartial
 {
 public:
@@ -184,9 +168,6 @@ public:
 private:
     //! Acceleration w.r.t. which partials are to be computed.
     std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration_;
-
-    //! Perturbations to use on Cartesian state elements when computing partial of true anomaly w.r.t. state.
-    Eigen::Matrix< double, 1, 6 > cartesianStateElementPerturbations;
 };
 
 }  // namespace acceleration_partials

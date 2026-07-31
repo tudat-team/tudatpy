@@ -50,7 +50,7 @@ public:
                               const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame ):
         rotationFromInertialToBodyFixedFrame_( rotationFromInertialToBodyFixedFrame ),
         rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame )
-    { }
+    {}
 
     //! Function to compute the elevation given a vector wrt topocentric frame.
     /*!

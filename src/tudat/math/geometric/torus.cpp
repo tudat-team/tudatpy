@@ -215,7 +215,7 @@ double Torus::getParameter( const int index )
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, Torus &torus )
+std::ostream& operator<<( std::ostream& stream, Torus& torus )
 {
     stream << "This is a torus geometry." << std::endl;
     stream << "The minor angle runs from: " << torus.getMinimumMinorCircumferentialAngle( ) * 180.0 / PI << " degrees to "

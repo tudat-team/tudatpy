@@ -24,7 +24,7 @@ namespace shape_based_methods
 {
 
 // Calculates the fitness
-std::vector< double > FixedTimeHodographicShapingOptimisationProblem::fitness( const std::vector< double > &x ) const
+std::vector< double > FixedTimeHodographicShapingOptimisationProblem::fitness( const std::vector< double >& x ) const
 {
     int numberFreeCoefficientsRadialFunction = radialVelocityFunctionComponents_.size( ) - 3;
     int numberFreeCoefficientsNormalFunction = normalVelocityFunctionComponents_.size( ) - 3;
@@ -74,7 +74,7 @@ std::vector< double > FixedTimeHodographicShapingOptimisationProblem::fitness( c
 }
 
 // Calculates the fitness
-std::vector< double > HodographicShapingOptimisationProblem::fitness( const std::vector< double > &x ) const
+std::vector< double > HodographicShapingOptimisationProblem::fitness( const std::vector< double >& x ) const
 {
     double departureTime = x.at( 0 );
     double timeOfFlight = x.at( 1 );

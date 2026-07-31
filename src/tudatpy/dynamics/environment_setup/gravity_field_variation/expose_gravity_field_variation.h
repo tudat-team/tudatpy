@@ -24,7 +24,8 @@ namespace environment_setup
 namespace gravity_field_variation
 {
 
-void expose_gravity_field_variation_setup( py::module &m );
+void expose_gravity_field_variation_types( py::module& m );
+void expose_gravity_field_variation_setup( py::module& m );
 
 }  // namespace gravity_field_variation
 }  // namespace environment_setup

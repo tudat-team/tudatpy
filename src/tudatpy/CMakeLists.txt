@@ -41,6 +41,19 @@ update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(kernel PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(kernel SYSTEM PRIVATE 
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+    message(STATUS "Tudatpy: MCD support linked to kernel")
+endif()
+
 # Link against libraries
 target_link_libraries(kernel PRIVATE
     ${Boost_LIBRARIES}
@@ -75,11 +88,7 @@ set_target_properties(kernel PROPERTIES UNITY_BUILD OFF)
 
 # Include headers
 target_include_directories(kernel PUBLIC
-    $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
     $<BUILD_INTERFACE:${Tudat_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
     $<INSTALL_INTERFACE:include>)
 
 if (TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS)
@@ -89,6 +98,7 @@ else ()
 endif ()
 
     target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
+    target_include_directories(kernel SYSTEM PRIVATE "${Boost_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")

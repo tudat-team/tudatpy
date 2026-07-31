@@ -23,6 +23,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
@@ -144,7 +145,7 @@ int main( )
 
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFiles )
+    for( std::string odfFile : odfFiles )
     {
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( dataDirectory + odfFile ) );
     }

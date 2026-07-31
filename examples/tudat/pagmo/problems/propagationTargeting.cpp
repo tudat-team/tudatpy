@@ -73,7 +73,7 @@ PropagationTargetingProblem::PropagationTargetingProblem(
     setGlobalFrameBodyEphemerides( bodies_, "Earth", "J2000" );
 }
 
-std::vector< double > PropagationTargetingProblem::fitness( const std::vector< double > &x ) const
+std::vector< double > PropagationTargetingProblem::fitness( const std::vector< double >& x ) const
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;

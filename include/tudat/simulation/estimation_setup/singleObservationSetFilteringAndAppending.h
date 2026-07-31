@@ -44,8 +44,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     bool useOppositeCondition = observationFilter->useOppositeCondition( );
 
     const bool filterOutObservations = observationFilter->filterOut( );
-    const auto getObservationTimeAt = [ & ]( const unsigned int index ) -> TimeType
-    {
+    const auto getObservationTimeAt = [ & ]( const unsigned int index ) -> TimeType {
         return filterOutObservations ? observationTimes_.at( index ) : filteredObservationSet_->getObservationTime( index );
     };
 
@@ -74,8 +73,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                 residualCutOff = vectorFilter->getFilterValue( );
             }
 
-            shouldRemoveObservation = [ &, residualCutOff ]( const unsigned int index )
-            {
+            shouldRemoveObservation = [ &, residualCutOff ]( const unsigned int index ) {
                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualVector =
                         filterOutObservations ? residuals_.at( index ) : filteredObservationSet_->getResidual( index );
                 for( unsigned int k = 0; k < singleObservationSize_; ++k )
@@ -111,8 +109,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                 absoluteValueCutOff = vectorFilter->getFilterValue( );
             }
 
-            shouldRemoveObservation = [ &, absoluteValueCutOff ]( const unsigned int index )
-            {
+            shouldRemoveObservation = [ &, absoluteValueCutOff ]( const unsigned int index ) {
                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationVector =
                         filterOutObservations ? observations_.at( index ) : filteredObservationSet_->getObservation( index );
                 for( unsigned int k = 0; k < singleObservationSize_; ++k )
@@ -130,21 +127,17 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         case epochs_filtering: {
             const std::vector< double > filterEpochs =
                     std::dynamic_pointer_cast< ObservationFilter< std::vector< double > > >( observationFilter )->getFilterValue( );
-            shouldRemoveObservation = [ &, filterEpochs ]( const unsigned int index )
-            {
+            shouldRemoveObservation = [ &, filterEpochs ]( const unsigned int index ) {
                 const TimeType observationTime = getObservationTimeAt( index );
-                const bool passesFilter =
-                        std::count( filterEpochs.begin( ), filterEpochs.end( ), observationTime ) > 0;
+                const bool passesFilter = std::count( filterEpochs.begin( ), filterEpochs.end( ), observationTime ) > 0;
                 return ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter );
             };
             break;
         }
         case time_bounds_filtering: {
             const std::pair< double, double > timeBounds =
-                    std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )
-                            ->getFilterValue( );
-            shouldRemoveObservation = [ &, timeBounds ]( const unsigned int index )
-            {
+                    std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )->getFilterValue( );
+            shouldRemoveObservation = [ &, timeBounds ]( const unsigned int index ) {
                 const TimeType observationTime = getObservationTimeAt( index );
                 const bool passesFilter = ( observationTime >= timeBounds.first ) && ( observationTime <= timeBounds.second );
                 return ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter );
@@ -163,8 +156,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 
             const std::shared_ptr< ObservationDependentVariableSettings > settings =
                     dependentVariableFilter->getDependentVariableSettings( );
-            const unsigned int dependentVariableSize =
-                    getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
+            const unsigned int dependentVariableSize = getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
 
             const Eigen::VectorXd dependentVariableCutOff = dependentVariableFilter->getFilterValue( );
             if( dependentVariableCutOff.size( ) != dependentVariableSize )
@@ -175,9 +167,9 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                         "variable size." );
             }
 
-            const Eigen::MatrixXd singleDependentVariableValues =
-                    filterOutObservations ? getSingleDependentVariable( settings )
-                                          : filteredObservationSet_->getSingleDependentVariable( settings );
+            const Eigen::MatrixXd singleDependentVariableValues = filterOutObservations
+                    ? getSingleDependentVariable( settings )
+                    : filteredObservationSet_->getSingleDependentVariable( settings );
             if( ( singleDependentVariableValues.rows( ) != nbObservationsToTest ) ||
                 ( singleDependentVariableValues.cols( ) != dependentVariableSize ) )
             {
@@ -187,20 +179,18 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                         "number of observations and presupposed dependent variable size." );
             }
 
-            shouldRemoveObservation = [ &, dependentVariableCutOff, singleDependentVariableValues, dependentVariableSize ](
-                                              const unsigned int index )
-            {
-                for( unsigned int k = 0; k < dependentVariableSize; ++k )
-                {
-                    const bool passesFilter =
-                            singleDependentVariableValues( index, k ) > dependentVariableCutOff[ k ];
-                    if( ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter ) )
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            };
+            shouldRemoveObservation =
+                    [ &, dependentVariableCutOff, singleDependentVariableValues, dependentVariableSize ]( const unsigned int index ) {
+                        for( unsigned int k = 0; k < dependentVariableSize; ++k )
+                        {
+                            const bool passesFilter = singleDependentVariableValues( index, k ) > dependentVariableCutOff[ k ];
+                            if( ( !useOppositeCondition && passesFilter ) || ( useOppositeCondition && !passesFilter ) )
+                            {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
             break;
         }
         default:
@@ -311,10 +301,8 @@ SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTimeType 
         for( unsigned int j = 0; j < indices.size( ); j++ )
         {
             const int sourceCol = static_cast< int >( indices.at( j ) ) * blockSize;
-            subsetMatrix.block( static_cast< int >( i ) * blockSize,
-                                static_cast< int >( j ) * blockSize,
-                                blockSize,
-                                blockSize ) = weightState_.fullWeights.block( sourceRow, sourceCol, blockSize, blockSize );
+            subsetMatrix.block( static_cast< int >( i ) * blockSize, static_cast< int >( j ) * blockSize, blockSize, blockSize ) =
+                    weightState_.fullWeights.block( sourceRow, sourceCol, blockSize, blockSize );
         }
     }
     return subsetMatrix;
@@ -373,11 +361,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 
     // Validate observation/residual/dependent-variable dimensions before mutating state.
     validateObservationBatchSizes(
-            observations,
-            times,
-            residuals,
-            dependentVariables,
-            "adding observations with explicit weight data to SingleObservationSet" );
+            observations, times, residuals, dependentVariables, "adding observations with explicit weight data to SingleObservationSet" );
     validateObservationDimensionsAgainstSingleSize( observations, "adding observations to SingleObservationSet" );
     validatePerObservationVectorSize( residuals, "residual", "adding observations to SingleObservationSet" );
     validateDependentVariableBatch( dependentVariables, observations.size( ), false, "adding observations to SingleObservationSet" );
@@ -413,8 +397,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     const int oldObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
     const int newObservationSetSize = static_cast< int >( observations.size( ) * singleObservationSize_ );
     if( weightSubsetData.fullWeights.rows( ) > 0 &&
-        ( weightSubsetData.fullWeights.rows( ) != newObservationSetSize ||
-          weightSubsetData.fullWeights.cols( ) != newObservationSetSize ) )
+        ( weightSubsetData.fullWeights.rows( ) != newObservationSetSize || weightSubsetData.fullWeights.cols( ) != newObservationSetSize ) )
     {
         throw std::runtime_error(
                 "Error when adding observations to SingleObservationSet, full weight matrix contribution size is incompatible." );
@@ -473,16 +456,15 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     if( weightState_.fullWeights.rows( ) > 0 || weightSubsetData.fullWeights.rows( ) > 0 )
     {
         // Expand/merge full-weight contribution blocks for old and appended observations.
-        Eigen::MatrixXd combinedFullWeights = Eigen::MatrixXd::Zero(
-                oldObservationSetSize + newObservationSetSize, oldObservationSetSize + newObservationSetSize );
+        Eigen::MatrixXd combinedFullWeights =
+                Eigen::MatrixXd::Zero( oldObservationSetSize + newObservationSetSize, oldObservationSetSize + newObservationSetSize );
         if( weightState_.fullWeights.rows( ) > 0 )
         {
             combinedFullWeights.block( 0, 0, oldObservationSetSize, oldObservationSetSize ) = weightState_.fullWeights;
         }
         if( weightSubsetData.fullWeights.rows( ) > 0 )
         {
-            combinedFullWeights.block(
-                    oldObservationSetSize, oldObservationSetSize, newObservationSetSize, newObservationSetSize ) =
+            combinedFullWeights.block( oldObservationSetSize, oldObservationSetSize, newObservationSetSize, newObservationSetSize ) =
                     weightSubsetData.fullWeights;
         }
         weightState_.fullWeights = combinedFullWeights;
@@ -510,8 +492,7 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
 {
     if( filteredObservationSet_ == nullptr )
     {
-        throw std::runtime_error(
-                "Error when moving observations in/out filtered set, filtered observation set pointer is empty." );
+        throw std::runtime_error( "Error when moving observations in/out filtered set, filtered observation set pointer is empty." );
     }
 
     const unsigned int currentObservationCountBeforeMove = numberOfObservations_;
@@ -525,9 +506,8 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     // Move observations from active storage to filtered storage.
     if( moveInFilteredSet )
     {
-        const Eigen::MatrixXd combinedFullWeightsBeforeMove = getCombinedFullWeightContributionMatrix(
-                currentObservationCountBeforeMove,
-                filteredObservationCountBeforeMove );
+        const Eigen::MatrixXd combinedFullWeightsBeforeMove =
+                getCombinedFullWeightContributionMatrix( currentObservationCountBeforeMove, filteredObservationCountBeforeMove );
         const std::vector< unsigned int > retainedCurrentIndices =
                 getComplementObservationIndices( currentObservationCountBeforeMove, indices );
 
@@ -572,26 +552,23 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
         if( saveFilteredObservations )
         {
             const std::vector< unsigned int > oldFilteredCombinedIndices =
-                    createSequentialObservationIndicesWithOffset( filteredObservationCountBeforeMove,
-                                                                  currentObservationCountBeforeMove );
+                    createSequentialObservationIndicesWithOffset( filteredObservationCountBeforeMove, currentObservationCountBeforeMove );
             const std::vector< unsigned int > movedCombinedIndices = indices;
             const std::vector< unsigned int > filteredCombinedConcatenatedIndices =
                     concatenateObservationIndices( oldFilteredCombinedIndices, movedCombinedIndices );
-            const std::vector< std::size_t > filteredSortPermutation =
-                    getTimeSortingPermutation( filteredTimesBeforeSorting );
-            filteredIndicesAfterMove =
-                    applyPermutationToObservationIndices( filteredCombinedConcatenatedIndices, filteredSortPermutation );
+            const std::vector< std::size_t > filteredSortPermutation = getTimeSortingPermutation( filteredTimesBeforeSorting );
+            filteredIndicesAfterMove = applyPermutationToObservationIndices( filteredCombinedConcatenatedIndices, filteredSortPermutation );
         }
         else
         {
-            filteredIndicesAfterMove = createSequentialObservationIndicesWithOffset( filteredObservationCountBeforeMove,
-                                                                                     currentObservationCountBeforeMove );
+            filteredIndicesAfterMove =
+                    createSequentialObservationIndicesWithOffset( filteredObservationCountBeforeMove, currentObservationCountBeforeMove );
         }
 
         const std::vector< unsigned int > combinedIndicesAfterMove =
                 concatenateObservationIndices( currentIndicesAfterMove, filteredIndicesAfterMove );
-        const Eigen::MatrixXd combinedFullWeightsAfterMove = extractObservationBlockMatrix(
-                combinedFullWeightsBeforeMove, combinedIndicesAfterMove, combinedIndicesAfterMove );
+        const Eigen::MatrixXd combinedFullWeightsAfterMove =
+                extractObservationBlockMatrix( combinedFullWeightsBeforeMove, combinedIndicesAfterMove, combinedIndicesAfterMove );
         setCombinedFullWeightContributionMatrix(
                 combinedFullWeightsAfterMove,
                 currentObservationCountBeforeMove - static_cast< unsigned int >( indices.size( ) ),
@@ -600,9 +577,8 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
     // Move observations from filtered storage back to active storage.
     else
     {
-        const Eigen::MatrixXd combinedFullWeightsBeforeMove = getCombinedFullWeightContributionMatrix(
-                currentObservationCountBeforeMove,
-                filteredObservationCountBeforeMove );
+        const Eigen::MatrixXd combinedFullWeightsBeforeMove =
+                getCombinedFullWeightContributionMatrix( currentObservationCountBeforeMove, filteredObservationCountBeforeMove );
         const std::vector< unsigned int > retainedFilteredIndices =
                 getComplementObservationIndices( filteredObservationCountBeforeMove, indices );
 
@@ -644,20 +620,18 @@ void SingleObservationSet< ObservationScalarType, TimeType, IsStateScalarAndTime
                 applyOffsetToObservationIndices( indices, currentObservationCountBeforeMove );
         std::vector< unsigned int > currentCombinedConcatenatedIndices =
                 concatenateObservationIndices( currentCombinedIndicesBeforeMove, movedCombinedIndices );
-        const std::vector< std::size_t > currentSortPermutationBeforeMove =
-                getTimeSortingPermutation( currentTimesBeforeSorting );
+        const std::vector< std::size_t > currentSortPermutationBeforeMove = getTimeSortingPermutation( currentTimesBeforeSorting );
         const std::vector< unsigned int > currentIndicesAfterMove =
                 applyPermutationToObservationIndices( currentCombinedConcatenatedIndices, currentSortPermutationBeforeMove );
         const std::vector< unsigned int > filteredIndicesAfterMove =
                 applyOffsetToObservationIndices( retainedFilteredIndices, currentObservationCountBeforeMove );
         const std::vector< unsigned int > combinedIndicesAfterMove =
                 concatenateObservationIndices( currentIndicesAfterMove, filteredIndicesAfterMove );
-        const Eigen::MatrixXd combinedFullWeightsAfterMove = extractObservationBlockMatrix(
-                combinedFullWeightsBeforeMove, combinedIndicesAfterMove, combinedIndicesAfterMove );
-        setCombinedFullWeightContributionMatrix(
-                combinedFullWeightsAfterMove,
-                currentObservationCountBeforeMove + static_cast< unsigned int >( indices.size( ) ),
-                filteredObservationCountBeforeMove - static_cast< unsigned int >( indices.size( ) ) );
+        const Eigen::MatrixXd combinedFullWeightsAfterMove =
+                extractObservationBlockMatrix( combinedFullWeightsBeforeMove, combinedIndicesAfterMove, combinedIndicesAfterMove );
+        setCombinedFullWeightContributionMatrix( combinedFullWeightsAfterMove,
+                                                 currentObservationCountBeforeMove + static_cast< unsigned int >( indices.size( ) ),
+                                                 filteredObservationCountBeforeMove - static_cast< unsigned int >( indices.size( ) ) );
     }
 }
 

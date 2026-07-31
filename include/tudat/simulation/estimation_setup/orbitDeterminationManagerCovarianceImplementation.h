@@ -50,9 +50,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     else if( weightsMatrixDiagonal.rows( ) != totalNumberOfObservations )
     {
         throw std::runtime_error( "Error when computing covariance, size of weights diagonal (" +
-                                  std::to_string( weightsMatrixDiagonal.rows( ) ) +
-                                  ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
-                                  ")" );
+                                  std::to_string( weightsMatrixDiagonal.rows( ) ) + ") is not compatible with number of observations (" +
+                                  std::to_string( totalNumberOfObservations ) + ")" );
     }
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
@@ -131,21 +130,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
         // Compute consider contribution with the same weighting model used above.
         if( hasOffDiagonalWeights )
         {
-            covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
-                    inverseNormalizedCovariance.inverse( ),
-                    designMatrixEstimatedParameters,
-                    weightsMatrix,
-                    designMatrixConsiderParameters,
-                    normalizedConsiderCovariance );
+            covarianceContributionConsiderParameters =
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                                                                                       designMatrixEstimatedParameters,
+                                                                                       weightsMatrix,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderCovariance );
         }
         else
         {
-            covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
-                    inverseNormalizedCovariance.inverse( ),
-                    designMatrixEstimatedParameters,
-                    weightsMatrixDiagonal,
-                    designMatrixConsiderParameters,
-                    normalizedConsiderCovariance );
+            covarianceContributionConsiderParameters =
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                                                                                       designMatrixEstimatedParameters,
+                                                                                       weightsMatrixDiagonal,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderCovariance );
         }
     }
     else

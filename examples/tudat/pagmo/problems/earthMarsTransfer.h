@@ -42,14 +42,14 @@ struct EarthMarsTransfer {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    EarthMarsTransfer( ): useTripTime_( false ) { }
+    EarthMarsTransfer( ): useTripTime_( false ) {}
 
     //! Constructor that sets boundaries of independent variables, and a boolean denoting whether the fitness is single-objective
     //! (Delta V), or dual objective (Delta V and time of flight).
-    EarthMarsTransfer( std::vector< std::vector< double > > &bounds, const bool useTripTime = false );
+    EarthMarsTransfer( std::vector< std::vector< double > >& bounds, const bool useTripTime = false );
 
     //! Calculate the fitness as a function of the parameter vector x
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
     //! Retrieve the allowable limits of the parameter vector x: pair containing minima and maxima of parameter values
     std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;
@@ -59,7 +59,7 @@ struct EarthMarsTransfer {
 
     //! Serialization function for Pagmo compatibility
     template< typename Archive >
-    void serialize( Archive &ar )
+    void serialize( Archive& ar )
     {
         ar( problemBounds_ );
     }

@@ -115,7 +115,7 @@ public:
     }
 
     //! Default destructor.
-    ~SimsFlanagan( ) { }
+    ~SimsFlanagan( ) {}
 
     //! Convert time to independent variable.
     double convertTimeToIndependentVariable( const double time )

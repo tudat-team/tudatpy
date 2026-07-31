@@ -81,7 +81,9 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 linkEnds,
                 lightTimeCorrectionSettings,
                 std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ),
-                std::make_shared< LightTimeConvergenceCriteria>(  ), basic_astrodynamics::tdb_scale, static_cast< bool >( test ) );
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+                basic_astrodynamics::tdb_scale,
+                static_cast< bool >( test ) );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
@@ -139,14 +141,16 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
         if( test == 0 )
         {
             BOOST_CHECK_CLOSE_FRACTION(
-                    rightAscension + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
+                    rightAscension +
+                            observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
                     observationFromReceptionTime( 0 ),
                     std::numeric_limits< double >::epsilon( ) );
         }
         else
         {
             BOOST_CHECK_CLOSE_FRACTION(
-                    rightAscension * std::cos( declination ) + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
+                    rightAscension * std::cos( declination ) +
+                            observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
                     observationFromReceptionTime( 0 ),
                     std::numeric_limits< double >::epsilon( ) );
         }
@@ -166,8 +170,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
         std::vector< double > linkEndTimes2;
         std::vector< Eigen::Vector6d > linkEndStates2;
         Eigen::Vector2d observationFromTransmissionTime = observationModel->computeObservations( transmitterObservationTime, transmitter );
-        Eigen::Vector2d observationFromTransmissionTime2 =
-                observationModel->computeObservationsWithLinkEndData( transmitterObservationTime, transmitter, linkEndTimes2, linkEndStates2 );
+        Eigen::Vector2d observationFromTransmissionTime2 = observationModel->computeObservationsWithLinkEndData(
+                transmitterObservationTime, transmitter, linkEndTimes2, linkEndStates2 );
 
         // Compare results against those obtained when keeping reception fixed.
         for( unsigned int i = 0; i < 2; i++ )

@@ -8,6 +8,7 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+from sys import platform
 
 
 @dataclass
@@ -176,6 +177,50 @@ class StubGenerator:
     # Default indentation length in pybind11-stubgen
     indentation: str = " " * 4
 
+    # Locations used to resolve the abbreviated ``<Enum.member: value>``
+    # representations emitted by pybind11 for default argument values.
+    enum_class_locations: dict[str, str] = {
+        "AerodynamicCoefficientFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AerodynamicsReferenceFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AvailableLookupScheme": "tudatpy.kernel.math.interpolators",
+        "BoundaryInterpolationType": "tudatpy.kernel.math.interpolators",
+        "FdetDateFormat": "tudatpy.kernel.data",
+        "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
+        "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
+        "IntegratedObservationPropertyHandling": (
+            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+        ),
+        "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
+        "LightTimeFailureHandling": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
+        "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
+        "MinimumIntegrationTimeStepHandling": (
+            "tudatpy.kernel.dynamics.propagation_setup.integrator"
+        ),
+        "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
+        "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "RadiationPressureTargetModelType": (
+            "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
+        ),
+        "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
+        "TimeScales": "tudatpy.kernel.astro.time_representation",
+        "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
+        "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "TroposphericMappingModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "WaterVaporPartialPressureModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+    }
+
     # Ignored modules and methods
     ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py"]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
@@ -186,8 +231,7 @@ class StubGenerator:
         build_dir = Path(build_dir).absolute()
         if not build_dir.exists():
             raise FileNotFoundError(
-                f"Failed to generate stubs: "
-                f"Build directory {build_dir} does not exist."
+                f"Failed to generate stubs: " f"Build directory {build_dir} does not exist."
             )
 
         # Source directory of tudatpy
@@ -213,8 +257,11 @@ class StubGenerator:
         self.stubs_dir = build_dir / "tudatpy-stubs"
 
         # Function names used for deprecation assignments
-        self.deprecation_function_names = [stat.name for stat in self.__parse_script(self.python_source_dir / "_deprecation.py").body if isinstance(stat, ast.FunctionDef)]
-
+        self.deprecation_function_names = [
+            stat.name
+            for stat in self.__parse_script(self.python_source_dir / "_deprecation.py").body
+            if isinstance(stat, ast.FunctionDef)
+        ]
 
         return None
 
@@ -254,9 +301,7 @@ class StubGenerator:
 
         # Unparse content and replace placeholder with backslashes
         unparsed_lines = ast.unparse(content).splitlines()
-        unparsed_content = "\n".join(
-            [line.replace("¿", "\\") for line in unparsed_lines]
-        )
+        unparsed_content = "\n".join([line.replace("¿", "\\") for line in unparsed_lines])
 
         return unparsed_content
 
@@ -377,6 +422,124 @@ class StubGenerator:
 
         return module
 
+    def __annotation_name(self, annotation: ast.expr) -> str | None:
+        """Return dotted annotation name if expression is a name or attribute."""
+
+        if isinstance(annotation, ast.Name):
+            return annotation.id
+        if isinstance(annotation, ast.Attribute):
+            base_name = self.__annotation_name(annotation.value)
+            if base_name is None:
+                return None
+            return f"{base_name}.{annotation.attr}"
+        return None
+
+    def __annotation_contains_none(self, annotation: ast.expr) -> bool:
+        """Check whether an annotation already allows None."""
+
+        if isinstance(annotation, ast.Constant):
+            return annotation.value is None
+
+        if isinstance(annotation, ast.Name):
+            return annotation.id == "None"
+
+        if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
+            # Python 3.10 union syntax: `Type | None`.
+            return self.__annotation_contains_none(
+                annotation.left
+            ) or self.__annotation_contains_none(annotation.right)
+
+        if isinstance(annotation, ast.Subscript):
+            annotation_name = self.__annotation_name(annotation.value)
+            if annotation_name in ("Optional", "typing.Optional"):
+                return True
+            if annotation_name in ("Union", "typing.Union"):
+                # Classic typing syntax: `typing.Union[Type, None]`.
+                if isinstance(annotation.slice, ast.Tuple):
+                    return any(
+                        self.__annotation_contains_none(item) for item in annotation.slice.elts
+                    )
+                return self.__annotation_contains_none(annotation.slice)
+
+        return False
+
+    def __default_is_none(self, default: ast.expr | None) -> bool:
+        """Check whether a default value is explicitly None."""
+
+        return isinstance(default, ast.Constant) and default.value is None
+
+    def __make_annotation_optional(self, annotation: ast.expr) -> ast.expr:
+        """Wrap an annotation as typing.Optional[annotation]."""
+
+        # Construct `typing.Optional[annotation]`.
+        optional_annotation = ast.Subscript(
+            value=ast.Attribute(
+                value=ast.Name(id="typing", ctx=ast.Load()),
+                attr="Optional",
+                ctx=ast.Load(),
+            ),
+            slice=annotation,
+            ctx=ast.Load(),
+        )
+        return ast.copy_location(optional_annotation, annotation)
+
+    def __make_none_defaults_optional_in_function(
+        self,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+    ) -> None:
+        """Mark annotated arguments with a None default as optional."""
+
+        # ast stores defaults only for the trailing positional arguments.
+        # Align the default list with the arguments it applies to.
+        positional_arguments = function.args.posonlyargs + function.args.args
+        default_start = len(positional_arguments) - len(function.args.defaults)
+
+        for argument, default in zip(
+            positional_arguments[default_start:],
+            function.args.defaults,
+        ):
+            self.__make_none_default_optional_in_argument(argument, default)
+
+        for argument, default in zip(
+            function.args.kwonlyargs,
+            function.args.kw_defaults,
+        ):
+            self.__make_none_default_optional_in_argument(argument, default)
+
+    def __make_none_default_optional_in_argument(
+        self,
+        argument: ast.arg,
+        default: ast.expr | None,
+    ) -> None:
+        """Mark a single annotated argument with a None default as optional."""
+
+        if argument.annotation is None:
+            return
+        if not self.__default_is_none(default):
+            return
+        if self.__annotation_contains_none(argument.annotation):
+            return
+
+        # Replace `argument: Type = None` with
+        # `argument: typing.Optional[Type] = None`.
+        argument.annotation = self.__make_annotation_optional(argument.annotation)
+
+    def __make_none_defaults_optional(self, module: ast.Module) -> ast.Module:
+        """Rewrite None-default stub annotations to Optional.
+
+        Converts `argument: Type = None` to `argument: Optional[Type] = None`.
+        """
+
+        def update_body(body: list[ast.stmt]) -> None:
+            for statement in body:
+                if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    self.__make_none_defaults_optional_in_function(statement)
+                elif isinstance(statement, ast.ClassDef):
+                    update_body(statement.body)
+
+        update_body(module.body)
+        return ast.fix_missing_locations(module)
+
     def __remove_autogenerated_methods(self, module: ast.Module) -> ast.Module:
         """Remove autogenerated methods from the stub
 
@@ -399,10 +562,7 @@ class StubGenerator:
             for item in statement.body:
 
                 # Skip if item is an autogenerated method
-                if (
-                    isinstance(item, ast.FunctionDef)
-                    and item.name in self.ignored_methods
-                ):
+                if isinstance(item, ast.FunctionDef) and item.name in self.ignored_methods:
                     continue
 
                 # Add item to updated class body
@@ -478,8 +638,12 @@ class StubGenerator:
 
         for item in self.python_source_dir.rglob("*"):
 
-            # Skip if not a directory or if it is a cache directory
-            if not item.is_dir() or item.name == "__pycache__":
+            # Only Python packages require a stub directory.
+            if (
+                not item.is_dir()
+                or item.name == "__pycache__"
+                or not (item / "__init__.py").is_file()
+            ):
                 continue
 
             # Make path relative to source directory
@@ -495,15 +659,24 @@ class StubGenerator:
 
         print("Generating stubs for tudatpy.kernel...")
 
+        stubgen_command = [
+            "pybind11-stubgen",
+            "tudatpy.kernel",
+            "-o",
+            str(self.mock_env.tmp),
+            "--numpy-array-wrap-with-annotated",
+        ]
+        for enum_name, module_path in self.enum_class_locations.items():
+            stubgen_command.extend(
+                [
+                    "--enum-class-locations",
+                    f"^{enum_name}$:{module_path}",
+                ]
+            )
+
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
-            [
-                "pybind11-stubgen",
-                "tudatpy.kernel",
-                "-o",
-                str(self.mock_env.tmp),
-                "--numpy-array-wrap-with-annotated",
-            ],
+            stubgen_command,
             env=self.mock_env.variables,
         )
         if outcome.returncode:
@@ -550,10 +723,7 @@ class StubGenerator:
                 continue
 
             # Skip if it belongs to an ignored module
-            if (
-                item.relative_to(self.mock_env.prefix / "tudatpy").parts[0]
-                in self.ignored_modules
-            ):
+            if item.relative_to(self.mock_env.prefix / "tudatpy").parts[0] in self.ignored_modules:
                 continue
 
             # Generate stub with stubgen
@@ -587,6 +757,8 @@ class StubGenerator:
             module = self.__parse_script(stub)
             module = self.__fix_external_imports(module)
             module = self.__fix_tudatpy_imports(module, stub)
+            # Update annotations for arguments that have None as default value.
+            module = self.__make_none_defaults_optional(module)
             module = self.__remove_autogenerated_methods(module)
             module = self.__adjust_docstring_indentation(module)
             content = self.__unparse_script(module)
@@ -594,9 +766,7 @@ class StubGenerator:
 
         return None
 
-    def __retrieve_items_in_all(
-        self, statement: ast.Assign | ast.AnnAssign
-    ) -> list[str]:
+    def __retrieve_items_in_all(self, statement: ast.Assign | ast.AnnAssign) -> list[str]:
         """Retrieve items in __all__ = [item1, item2, ...] statement
 
         :param statement: __all__ statement
@@ -610,8 +780,7 @@ class StubGenerator:
 
         if not isinstance(statement.value, ast.List):
             raise NotImplementedError(
-                f"Failed to expand {ast.unparse(statement)}: "
-                f"Expected __all__ = [...]"
+                f"Failed to expand {ast.unparse(statement)}: " f"Expected __all__ = [...]"
             )
 
         # Update __all__ in the stub and generate expanded import statement
@@ -621,8 +790,7 @@ class StubGenerator:
             # All items in __all__ should be strings
             if not (isinstance(_name, ast.Constant) and isinstance(_name.value, str)):
                 raise NotImplementedError(
-                    f"Failed to expand {ast.unparse(statement)}: "
-                    f"Unexpected item in __all__."
+                    f"Failed to expand {ast.unparse(statement)}: " f"Unexpected item in __all__."
                 )
 
             # Update __all__ list
@@ -640,9 +808,7 @@ class StubGenerator:
         module = self.__parse_script(script)
         module_all: ast.Assign | ast.AnnAssign | None = None
         for statement in module.body:
-            if isinstance(statement, ast.Assign) or isinstance(
-                statement, ast.AnnAssign
-            ):
+            if isinstance(statement, ast.Assign) or isinstance(statement, ast.AnnAssign):
                 if "__all__" in ast.unparse(statement):
                     module_all = statement
                     break
@@ -728,11 +894,7 @@ class StubGenerator:
         stub = self.__parse_script(stub_path)
 
         # Parse __init__.py of module
-        init_path = (
-            self.python_source_dir
-            / module_path.relative_to(self.stubs_dir)
-            / "__init__.py"
-        )
+        init_path = self.python_source_dir / module_path.relative_to(self.stubs_dir) / "__init__.py"
         init = self.__parse_script(init_path)
 
         # Initialize containers for the contents of the stub
@@ -813,9 +975,7 @@ class StubGenerator:
                     if is_star_import(statement):
 
                         # Get submodule stubs path from statement
-                        submodule_stubs_path = module_path / statement.module.replace(
-                            ".", "/"
-                        )
+                        submodule_stubs_path = module_path / statement.module.replace(".", "/")
 
                         # Generate __init__.pyi if it does not exist
                         if not module_has_init_stub(submodule_stubs_path):
@@ -825,9 +985,7 @@ class StubGenerator:
                         submodule_all_statement = self.__find_all_statement(
                             submodule_stubs_path / "__init__.pyi"
                         )
-                        submodule_contents = self.__retrieve_items_in_all(
-                            submodule_all_statement
-                        )
+                        submodule_contents = self.__retrieve_items_in_all(submodule_all_statement)
 
                         # If there is nothing to import, skip statement
                         if len(submodule_contents) == 0:
@@ -854,9 +1012,7 @@ class StubGenerator:
                     if is_star_import(statement):
 
                         # Process star import
-                        statement, stub_all = self.__expand_kernel_star_import(
-                            statement, stub_all
-                        )
+                        statement, stub_all = self.__expand_kernel_star_import(statement, stub_all)
                     else:
 
                         # Import from extension instead of kernel
@@ -881,9 +1037,7 @@ class StubGenerator:
                 stub_body.append(statement)
 
             # Assign statements
-            if isinstance(statement, ast.Assign) or isinstance(
-                statement, ast.AnnAssign
-            ):
+            if isinstance(statement, ast.Assign) or isinstance(statement, ast.AnnAssign):
 
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
@@ -901,7 +1055,10 @@ class StubGenerator:
                     continue
 
                 # Deprecation function assignments
-                if any(func_name in ast.unparse(statement) for func_name in self.deprecation_function_names):
+                if any(
+                    func_name in ast.unparse(statement)
+                    for func_name in self.deprecation_function_names
+                ):
                     continue
 
                 # Any other assign statement is unexpected
@@ -914,7 +1071,10 @@ class StubGenerator:
             # Ignore expression statements, e.g. for deprecation warnings
             if isinstance(statement, ast.Expr):
                 # Deprecation function expressions
-                if any(func_name in ast.unparse(statement) for func_name in self.deprecation_function_names):
+                if any(
+                    func_name in ast.unparse(statement)
+                    for func_name in self.deprecation_function_names
+                ):
                     continue
 
             # Other statements (We add them without modification)
@@ -1083,9 +1243,26 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
+            ext = ".pyd" if platform == "win32" else ".so"
+            kernel_candidates = [self.extension_source_dir / f"kernel{ext}"]
+            if platform == "win32":
+                # Multi-config generators (Visual Studio) add the build
+                # configuration directory, while single-config generators
+                # (Ninja) write the extension directly to the output directory.
+                kernel_candidates.insert(
+                    0,
+                    self.extension_source_dir / self.args.build_type / f"kernel{ext}",
+                )
+            kernel_source = next(
+                (candidate for candidate in kernel_candidates if candidate.is_file()),
+                None,
+            )
+            if kernel_source is None:
+                checked_paths = ", ".join(str(path) for path in kernel_candidates)
+                raise FileNotFoundError(f"Compiled kernel not found. Checked: {checked_paths}")
             shutil.copy(
-                self.extension_source_dir / "kernel.so",
-                mock_prefix / "tudatpy/kernel.so",
+                kernel_source,
+                mock_prefix / f"tudatpy/kernel{ext}",
             )
 
             # Create mock environment with tudatpy in PYTHONPATH
@@ -1158,7 +1335,8 @@ class Builder:
                     "-DBoost_NO_BOOST_CMAKE=ON",
                     f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
-                    f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
+                    f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
+                    f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                 ]
 
@@ -1166,9 +1344,7 @@ class Builder:
                 if self.args.build_with_mcd:
                     gfortran_path = self.conda_prefix / "bin" / "gfortran"
                     if gfortran_path.exists():
-                        cmake_command.append(
-                            f"-DCMAKE_Fortran_COMPILER={gfortran_path}"
-                        )
+                        cmake_command.append(f"-DCMAKE_Fortran_COMPILER={gfortran_path}")
                     else:
                         print(
                             f"WARNING: gfortran not found at {gfortran_path}. "

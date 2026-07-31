@@ -24,7 +24,7 @@ namespace environment_setup
 namespace shape_deformation
 {
 
-void expose_shape_deformation_setup( py::module &m );
+void expose_shape_deformation_setup( py::module& m );
 
 }  // namespace shape_deformation
 }  // namespace environment_setup

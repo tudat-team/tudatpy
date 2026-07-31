@@ -29,16 +29,19 @@ namespace tudatpy
 namespace astro
 {
 
-void expose_astro( py::module &m )
+void expose_astro_types( py::module& m )
+{
+    auto time_representation = m.def_submodule( "time_representation" );
+    time_representation::expose_time_representation( time_representation );
+}
+
+void expose_astro( py::module& m )
 {
     auto element_conversion = m.def_submodule( "element_conversion" );
     element_conversion::expose_element_conversion( element_conversion );
 
     auto frame_conversion = m.def_submodule( "frame_conversion" );
     frame_conversion::expose_frame_conversion( frame_conversion );
-
-    auto time_representation = m.def_submodule( "time_representation" );
-    time_representation::expose_time_representation( time_representation );
 
     auto two_body_dynamics = m.def_submodule( "two_body_dynamics" );
     two_body_dynamics::expose_two_body_dynamics( two_body_dynamics );
