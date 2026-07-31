@@ -1564,11 +1564,11 @@ private:
                     for( unsigned int j = 0; j < singleObservationSize_; j++ )
                     {
                         const double currentWeight = weightState_.diagonalWeights.at( i )( j );
-                        if( !std::isfinite( currentWeight ) || currentWeight <= 0.0 )
+                        if( !std::isfinite( currentWeight ) || currentWeight < 0.0 )
                         {
                             throw std::runtime_error(
-                                    "Error when setting weights in single observation set, diagonal weights must be finite and strictly "
-                                    "positive." );
+                                    "Error when setting weights in single observation set, diagonal weights must be finite and "
+                                    "non-negative." );
                         }
                     }
                 }
