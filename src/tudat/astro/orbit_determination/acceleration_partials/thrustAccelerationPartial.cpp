@@ -150,12 +150,16 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody( Eigen:
 MomentumWheelDesaturationPartial::MomentumWheelDesaturationPartial(
         const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration,
         const std::string acceleratedBody ):
-    AccelerationPartial( acceleratedBody, acceleratedBody, thrustAcceleration, basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
+    AccelerationPartial( acceleratedBody,
+                         acceleratedBody,
+                         thrustAcceleration,
+                         basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
     thrustAcceleration_( thrustAcceleration )
-{ }
+{}
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MomentumWheelDesaturationPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+MomentumWheelDesaturationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 
 {

@@ -37,9 +37,9 @@ class ManualAerodynamicAngleInterface : public BodyFixedAerodynamicAngleInterfac
 public:
     ManualAerodynamicAngleInterface( const std::function< Eigen::Vector3d( const double ) > manualAngleFuncion ):
         BodyFixedAerodynamicAngleInterface( custom_body_fixed_angles ), manualAngleFuncion_( manualAngleFuncion )
-    { }
+    {}
 
-    virtual ~ManualAerodynamicAngleInterface( ) { }
+    virtual ~ManualAerodynamicAngleInterface( ) {}
 
     Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame )
     {

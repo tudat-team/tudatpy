@@ -1104,11 +1104,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsFilteringAndUnfiltering )
     }
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >( angular_position,
-                                                                                          linkDefinition,
-                                                                                          observations,
-                                                                                          observationTimes,
-                                                                                          receiver );
+            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                    angular_position, linkDefinition, observations, observationTimes, receiver );
 
     std::vector< Eigen::MatrixXd > blockWeights;
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
@@ -1138,22 +1135,17 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsFilteringAndUnfiltering )
 
     auto getWeightSubMatrix = []( const Eigen::MatrixXd& inputWeightMatrix, const std::vector< unsigned int >& observationIndices ) {
         const int blockSize = 2;
-        Eigen::MatrixXd outputWeightMatrix = Eigen::MatrixXd::Zero(
-                static_cast< int >( observationIndices.size( ) ) * blockSize,
-                static_cast< int >( observationIndices.size( ) ) * blockSize );
+        Eigen::MatrixXd outputWeightMatrix = Eigen::MatrixXd::Zero( static_cast< int >( observationIndices.size( ) ) * blockSize,
+                                                                    static_cast< int >( observationIndices.size( ) ) * blockSize );
         for( unsigned int i = 0; i < observationIndices.size( ); i++ )
         {
             for( unsigned int j = 0; j < observationIndices.size( ); j++ )
             {
-                outputWeightMatrix.block( static_cast< int >( i ) * blockSize,
-                                          static_cast< int >( j ) * blockSize,
-                                          blockSize,
-                                          blockSize ) =
-                        inputWeightMatrix.block(
-                                static_cast< int >( observationIndices.at( i ) ) * blockSize,
-                                static_cast< int >( observationIndices.at( j ) ) * blockSize,
-                                blockSize,
-                                blockSize );
+                outputWeightMatrix.block( static_cast< int >( i ) * blockSize, static_cast< int >( j ) * blockSize, blockSize, blockSize ) =
+                        inputWeightMatrix.block( static_cast< int >( observationIndices.at( i ) ) * blockSize,
+                                                 static_cast< int >( observationIndices.at( j ) ) * blockSize,
+                                                 blockSize,
+                                                 blockSize );
             }
         }
         return outputWeightMatrix;

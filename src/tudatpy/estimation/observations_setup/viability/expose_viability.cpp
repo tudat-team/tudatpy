@@ -72,7 +72,7 @@ namespace observations_setup
 namespace viability
 {
 
-void expose_viability( py::module& m )
+void expose_observation_viability_settings_type( py::module& m )
 {
     py::class_< tom::ObservationViabilitySettings, std::shared_ptr< tom::ObservationViabilitySettings > >( m,
                                                                                                            "ObservationViabilitySettings",
@@ -104,6 +104,21 @@ void expose_viability( py::module& m )
 
 
       )doc" );
+}
+
+void expose_viability( py::module& m )
+{
+    py::class_< tom::ObservationBoundariesViabilitySettings,
+                std::shared_ptr< tom::ObservationBoundariesViabilitySettings >,
+                tom::ObservationViabilitySettings >( m,
+                                                     "ObservationBoundariesViabilitySettings",
+                                                     R"doc(
+
+         Class for defining observation boundaries viability settings.
+
+         Class for defining the settings for observation boundaries viability calculator creation.
+         Instances of this class are typically created through the :func:`~tudatpy.estimation.observations_setup.viability.observation_boundaries_viability` function.
+        )doc" );
 
     py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
@@ -130,7 +145,51 @@ Examples
             .value( "minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
             .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
+            .value( "observation_boundaries", tom::ObservationViabilityType::observation_boundaries )
             .export_values( );
+
+    m.def( "observation_boundaries_viability",
+           py::overload_cast< const std::pair< std::string, std::string >, const std::vector< std::pair< double, double > > >(
+                   &tom::observationBoundariesViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "boundaries" ),
+           R"doc(
+
+    Function for defining observation boundaries viability settings.
+
+    Function for defining observation boundaries viability settings for single link ends.
+    When simulating observations, this setting ensures that any applicable observations, for which the observed value is outside of given boundaries, will be omitted.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        # Code snippet to show the creation of an ObservationBoundariesViabilitySettings object
+        import numpy as np
+        from tudatpy.estimation.observations_setup import viability
+
+        # Create ObservationBoundariesViabilitySettings object
+        # In this case, we exclude observations for which the observed value is outside of the following boundaries: [0, 100] for the first entry of the observation vector, and [-50, 50] for the second entry of the observation vector.
+        boundaries = [(0, 100), (-50, 50)]
+        viability_settings = viability.observation_boundaries_viability(["Earth", ""], boundaries)
+
+        # Show that this is indeed an ObservationBoundariesViabilitySettings object
+        print(viability_settings)
+    
+    Parameters
+    ----------
+    link_end_id : tuple[str,str]
+    Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
+    
+    boundaries : list[tuple[float, float]]
+    List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+
+    Returns
+    -------
+    :class:`ObservationBoundariesViabilitySettings`
+    Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationBoundariesViabilitySettings`, defining the settings for observation viability.
+
+     )doc" );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),
@@ -256,6 +315,25 @@ Examples
 
 
      )doc" );
+
+    m.def( "observation_boundaries_viability_list",
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >,
+                              const std::vector< std::pair< double, double > > >( &tom::observationBoundariesViabilitySettings ),
+           py::arg( "link_end_ids" ),
+           py::arg( "boundaries" ),
+           R"doc(
+
+ Function for defining list of observation boundaries viability settings, equivalent to a series of calls to :func:`~observation_boundaries_viability`.
+
+ Parameters
+ ----------
+ link_end_ids : List[ tuple[str,str] ]
+     List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the observation boundaries viability setting is to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
+
+    boundaries : list[tuple[float, float]]
+    List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+    )doc" );
 
     m.def( "elevation_angle_viability_list",
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >, const double >(

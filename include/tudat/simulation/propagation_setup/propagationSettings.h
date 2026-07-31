@@ -1653,6 +1653,393 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
             .finished( );
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+class RelativisticTimeStatePropagatorSettings : public SingleArcPropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    RelativisticTimeStatePropagatorSettings(
+            const std::pair< std::string, std::string > referencePointId,
+            const RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                    []( const TimeType& inputTime ) { return inputTime; },
+            const double distanceScalingFactor = 1.0,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        RelativisticTimeStatePropagatorSettings( referencePointId,
+                                                 relativisticStateDerivativeType,
+                                                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 1 ),
+                                                 initialTime,
+                                                 integratorSettings,
+                                                 terminationSettings,
+                                                 timeVariableConversionFunction,
+                                                 distanceScalingFactor,
+                                                 dependentVariablesToSave,
+                                                 outputSettings )
+    {}
+
+    RelativisticTimeStatePropagatorSettings(
+            const std::pair< std::string, std::string > referencePointId,
+            const RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialState,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                    []( const TimeType& inputTime ) { return inputTime; },
+            const double distanceScalingFactor = 1.0,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( proper_time,
+                                                                  initialState,
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
+        relativisticStateDerivativeType_( relativisticStateDerivativeType ), referencePointId_( referencePointId ),
+        timeVariableConversionFunction_( timeVariableConversionFunction ), distanceScalingFactor_( distanceScalingFactor )
+    {}
+
+    virtual ~RelativisticTimeStatePropagatorSettings( ) {}
+
+    RelativisticTimeStateDerivativeType getRelativisticStateDerivativeType( )
+    {
+        return relativisticStateDerivativeType_;
+    }
+
+    std::pair< std::string, std::string > getReferencePointId( )
+    {
+        return referencePointId_;
+    }
+
+    std::function< TimeType( const TimeType& ) > getTimeVariableConversionFunction( )
+    {
+        return timeVariableConversionFunction_;
+    }
+
+    double getDistanceScalingFactor( )
+    {
+        return distanceScalingFactor_;
+    }
+
+protected:
+    RelativisticTimeStateDerivativeType relativisticStateDerivativeType_;
+    std::pair< std::string, std::string > referencePointId_;
+    std::function< TimeType( const TimeType& ) > timeVariableConversionFunction_;
+    double distanceScalingFactor_;
+
+    // private:
+    //     basic_astrodynamics::RelativisticTimeCorrectionModelMap relativisticTimeCorrectionModelMap_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class FirstOrderBodycentricRelativisticTimePropagatorSettings : public RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    FirstOrderBodycentricRelativisticTimePropagatorSettings(
+            const std::string& bodyName,
+            const std::vector< std::string >& externalBodies,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                    ( std::map< std::string, std::pair< int, int > >( ) ),
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                    []( const TimeType& inputTime ) { return inputTime; },
+            const double distanceScalingFactor = 1.0,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >( std::make_pair( bodyName, "" ),
+                                                                              first_order_barycentric_to_bodycentric,
+                                                                              initialTime,
+                                                                              integratorSettings,
+                                                                              terminationSettings,
+                                                                              timeVariableConversionFunction,
+                                                                              distanceScalingFactor,
+                                                                              dependentVariablesToSave,
+                                                                              outputSettings ),
+        externalBodies_( externalBodies ), sphericalHarmonicGravityExpansions_( sphericalHarmonicGravityExpansions )
+    {}
+
+    ~FirstOrderBodycentricRelativisticTimePropagatorSettings( ) {}
+
+    std::vector< std::string > getExternalBodyList( )
+    {
+        return externalBodies_;
+    }
+
+    std::map< std::string, std::pair< int, int > > getSphericalHarmonicGravityExpansions( )
+    {
+        return sphericalHarmonicGravityExpansions_;
+    }
+
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
+    {
+        // No operation needed for single-arc propagation
+    }
+
+protected:
+    std::vector< std::string > externalBodies_;
+    std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class SecondOrderBodyCenteredRelativisticTimeConverterSettings : public RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    SecondOrderBodyCenteredRelativisticTimeConverterSettings(
+            const std::string& bodyName,
+            const std::vector< std::string >& externalBodies,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                    ( std::map< std::string, std::pair< int, int > >( ) ),
+            const std::vector< std::string >& angularMomentumBodies = std::vector< std::string >( ),
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                    []( const TimeType& inputTime ) { return inputTime; },
+            const double distanceScalingFactor = 1.0,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >( std::make_pair( bodyName, "" ),
+                                                                              second_order_barycentric_to_bodycentric,
+                                                                              initialTime,
+                                                                              integratorSettings,
+                                                                              terminationSettings,
+                                                                              timeVariableConversionFunction,
+                                                                              distanceScalingFactor,
+                                                                              dependentVariablesToSave,
+                                                                              outputSettings ),
+        externalBodies_( externalBodies ), sphericalHarmonicGravityExpansions_( sphericalHarmonicGravityExpansions ),
+        angularMomentumBodies_( angularMomentumBodies )
+    {}
+
+    ~SecondOrderBodyCenteredRelativisticTimeConverterSettings( ) {}
+
+    std::vector< std::string > getExternalBodyList( )
+    {
+        return externalBodies_;
+    }
+
+    std::map< std::string, std::pair< int, int > > getSphericalHarmonicGravityExpansions( )
+    {
+        return sphericalHarmonicGravityExpansions_;
+    }
+
+    std::vector< std::string > getAngularMomentumBodies( )
+    {
+        return angularMomentumBodies_;
+    }
+
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
+    {
+        // No operation needed for single-arc propagation
+    }
+
+protected:
+    std::vector< std::string > externalBodies_;
+    std::map< std::string, std::pair< int, int > > sphericalHarmonicGravityExpansions_;
+    std::vector< std::string > angularMomentumBodies_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class BodycenteredToTopocentricTimePropagatorSettings : public RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    BodycenteredToTopocentricTimePropagatorSettings(
+            const std::pair< std::string, std::string > referencePointId,
+            const bool useAccelerationTerm,
+            const int maximumSphericalHarmonicDegree,
+            const bool useTimeDependentBodyFixedPosition,
+            const std::vector< std::string >& topocentricExternalBodies,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >(
+                referencePointId,
+                first_order_bodycentric_to_topocentric,
+                initialBodyStates,
+                initialTime,
+                integratorSettings,
+                terminationSettings,
+                []( const TimeType& inputTime ) { return inputTime; },
+                1.0,
+                dependentVariablesToSave,
+                outputSettings ),
+        useAccelerationTerm_( useAccelerationTerm ), maximumSphericalHarmonicDegree_( maximumSphericalHarmonicDegree ),
+        useTimeDependentBodyFixedPosition_( useTimeDependentBodyFixedPosition ), topocentricExternalBodies_( topocentricExternalBodies )
+    {}
+
+    ~BodycenteredToTopocentricTimePropagatorSettings( ) {}
+
+    bool getUseAccelerationTerm( )
+    {
+        return useAccelerationTerm_;
+    }
+
+    int getMaximumSphericalHarmonicDegree( )
+    {
+        return maximumSphericalHarmonicDegree_;
+    }
+
+    bool getUseTimeDependentBodyFixedPosition( )
+    {
+        return useTimeDependentBodyFixedPosition_;
+    }
+
+    std::vector< std::string > getTopocentricExternalBodies( )
+    {
+        return topocentricExternalBodies_;
+    }
+
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
+    {
+        // No operation needed for single-arc propagation
+    }
+
+private:
+    bool useAccelerationTerm_;
+    int maximumSphericalHarmonicDegree_;
+    bool useTimeDependentBodyFixedPosition_;
+    std::vector< std::string > topocentricExternalBodies_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >
+firstOrderBodycentricRelativisticTimePropagatorSettings(
+        const std::string& bodyName,
+        const std::vector< std::string >& externalBodies,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                std::map< std::string, std::pair< int, int > >( ),
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {} )
+{
+    return std::make_shared< FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
+            bodyName,
+            externalBodies,
+            initialTime,
+            integratorSettings,
+            terminationSettings,
+            sphericalHarmonicGravityExpansions,
+            []( const TimeType& inputTime ) { return inputTime; },
+            1.0,
+            dependentVariablesToSave );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >
+secondOrderBodyCenteredRelativisticTimePropagatorSettings(
+        const std::string& bodyName,
+        const std::vector< std::string >& externalBodies,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::map< std::string, std::pair< int, int > >& sphericalHarmonicGravityExpansions =
+                std::map< std::string, std::pair< int, int > >( ) )
+{
+    return std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalarType, TimeType > >(
+            bodyName, externalBodies, initialTime, integratorSettings, terminationSettings, sphericalHarmonicGravityExpansions );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >
+bodycenteredToTopocentricTimePropagatorSettings(
+        const std::pair< std::string, std::string > referencePointId,
+        const bool useAccelerationTerm,
+        const int maximumSphericalHarmonicDegree,
+        const bool useTimeDependentBodyFixedPosition,
+        const std::vector< std::string >& topocentricExternalBodies,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {} )
+{
+    return std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< StateScalarType, TimeType > >(
+            referencePointId,
+            useAccelerationTerm,
+            maximumSphericalHarmonicDegree,
+            useTimeDependentBodyFixedPosition,
+            topocentricExternalBodies,
+            initialBodyStates,
+            initialTime,
+            integratorSettings,
+            terminationSettings,
+            dependentVariablesToSave );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+class DirectRelativisticTimePropagatorSettings : public RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >
+{
+public:
+    DirectRelativisticTimePropagatorSettings(
+            const std::pair< std::string, std::string >& referencePointId,
+            const TimeType& initialTime,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const std::function< TimeType( const TimeType& ) > timeVariableConversionFunction =
+                    []( const TimeType& inputTime ) { return inputTime; },
+            const double distanceScalingFactor = 1.0,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType >( referencePointId,
+                                                                              direct_from_metric,
+                                                                              initialTime,
+                                                                              integratorSettings,
+                                                                              terminationSettings,
+                                                                              timeVariableConversionFunction,
+                                                                              distanceScalingFactor,
+                                                                              dependentVariablesToSave,
+                                                                              outputSettings )
+    {}
+
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
+    {
+        // No additional models required for direct-from-metric propagation.
+    }
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+inline std::shared_ptr< DirectRelativisticTimePropagatorSettings< StateScalarType, TimeType > > directRelativisticTimePropagatorSettings(
+        const std::pair< std::string, std::string >& referencePointId,
+        const TimeType& initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const double distanceScalingFactor = 1.0,
+        const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >& dependentVariablesToSave = {},
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
+{
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
+
+    return std::make_shared< DirectRelativisticTimePropagatorSettings< StateScalarType, TimeType > >(
+            referencePointId,
+            initialTime,
+            integratorSettings,
+            terminationSettings,
+            []( const TimeType& inputTime ) { return inputTime; },
+            distanceScalingFactor,
+            dependentVariablesToSave,
+            outputSettingsToUse );
+}
+
 //! Class used to provide settings for a custom state derivative model
 /*!
  *  Class used to provide settings for a custom state derivative model. The custom state derivative function has to be
@@ -1681,7 +2068,8 @@ public:
                                    const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                   const double statePrintInterval = TUDAT_NAN ):
+                                   const double statePrintInterval = TUDAT_NAN,
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   ( StateVectorType( 1 ) << initialState ).finished( ),
                                                                   terminationSettings,
@@ -1691,7 +2079,7 @@ public:
                                              stateDerivativeFunction,
                                              std::placeholders::_1,
                                              std::placeholders::_2 ) ),
-        stateSize_( 1 )
+        stateSize_( 1 ), bodyName_( bodyName )
     {}
 
     //! Constructor for vector custom state
@@ -1710,13 +2098,14 @@ public:
                                    const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                                   const double statePrintInterval = TUDAT_NAN ):
+                                   const double statePrintInterval = TUDAT_NAN,
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   initialState,
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   statePrintInterval ),
-        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ), bodyName_( bodyName )
     {}
 
     CustomStatePropagatorSettings( const std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
@@ -1727,7 +2116,8 @@ public:
                                    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                                            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
                                    const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                                   const std::string& bodyName = "" ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
                                                                   initialState,
                                                                   initialTime,
@@ -1735,7 +2125,7 @@ public:
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   outputSettings ),
-        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ), bodyName_( bodyName )
     {}
 
     //! Destructor
@@ -1746,6 +2136,9 @@ public:
 
     //! Size of the state that is propagated.
     int stateSize_;
+
+    //! Body for which the custom state is propagated. Empty if the custom state is not associated with a body.
+    std::string bodyName_;
 
     //! Function to create the integrated state models. Always throws an error.
     /*!
@@ -1768,10 +2161,11 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const double statePrintInterval = TUDAT_NAN )
+        const double statePrintInterval = TUDAT_NAN,
+        const std::string& bodyName = "" )
 {
     return std::make_shared< CustomStatePropagatorSettings< StateScalarType, TimeType > >(
-            stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval );
+            stateDerivativeFunction, initialState, terminationSettings, dependentVariablesToSave, statePrintInterval, bodyName );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -1785,7 +2179,8 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr,
+        const std::string& bodyName = "" )
 {
     std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
     if( outputSettingsToUse == nullptr )
@@ -1798,7 +2193,8 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
                                                                                            integratorSettings,
                                                                                            terminationSettings,
                                                                                            dependentVariablesToSave,
-                                                                                           outputSettingsToUse );
+                                                                                           outputSettingsToUse,
+                                                                                           bodyName );
 }
 
 //! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
@@ -2507,8 +2903,22 @@ std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string
             }
 
             std::vector< std::tuple< std::string, std::string, PropagatorType > > customList;
-            customList.push_back( std::make_tuple( "", "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
+            customList.push_back(
+                    std::make_tuple( customPropagatorSettings->bodyName_, "", PropagatorType( customPropagatorSettings->stateSize_ ) ) );
             integratedStateList[ custom_state ] = customList;
+            break;
+        }
+        case proper_time: {
+            std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > > properTimePropagatorSettings =
+                    std::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+
+            // Retrieve list of integrated bodies in correct formatting.
+            std::vector< std::tuple< std::string, std::string, PropagatorType > > integratedBodies;
+            integratedBodies.push_back( std::make_tuple( properTimePropagatorSettings->getReferencePointId( ).first,
+                                                         properTimePropagatorSettings->getReferencePointId( ).second,
+                                                         PropagatorType( ) ) );
+            integratedStateList[ proper_time ] = integratedBodies;
+
             break;
         }
         default:
@@ -2553,11 +2963,19 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
                     stateSize = getSingleIntegrationSize( stateType );
                     currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     break;
+                case proper_time:
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
                 case custom_state: {
                     stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
                     if( stateSize <= 0 )
                     {
                         throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                    }
+                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
+                    {
+                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     }
                     break;
                 }
@@ -2611,11 +3029,19 @@ inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
                     stateSize = getSingleIntegrationSize( stateType );
                     currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     break;
+                case proper_time:
+                    stateSize = getSingleIntegrationSize( stateType );
+                    currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
+                    break;
                 case custom_state: {
                     stateSize = std::get< 2 >( bodyList.at( i ) ).customStateSize_;
                     if( stateSize <= 0 )
                     {
                         throw std::runtime_error( "Error when getting custom state size; size is <= 0" );
+                    }
+                    if( std::get< 0 >( bodyList.at( i ) ) != "" )
+                    {
+                        currentString += " of body " + std::get< 0 >( bodyList.at( i ) );
                     }
                     break;
                 }

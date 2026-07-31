@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import subprocess
+import sysconfig
 
 
 class InstallParser(argparse.ArgumentParser):
@@ -55,40 +56,25 @@ class Installer:
         # Resolve build directory
         self.build_dir = Path(self.args.build_dir)
         if not self.build_dir.exists():
-            raise FileNotFoundError(
-                f"Build directory {self.build_dir} does not exist."
-            )
+            raise FileNotFoundError(f"Build directory {self.build_dir} does not exist.")
 
         # Resolve base directories for tudat and tudatpy
         self.base_tudat = Path(__file__).parent
         if not self.base_tudat.exists():
-            raise FileNotFoundError(
-                f"Directory {self.base_tudat} does not exist."
-            )
+            raise FileNotFoundError(f"Directory {self.base_tudat} does not exist.")
         self.base_tudatpy = self.base_tudat
         if not self.base_tudatpy.exists():
-            raise FileNotFoundError(
-                f"Directory {self.base_tudatpy} does not exist."
-            )
+            raise FileNotFoundError(f"Directory {self.base_tudatpy} does not exist.")
 
         # Resolve conda prefix
         self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
         if not self.conda_prefix.exists():
-            raise FileNotFoundError(
-                f"Conda prefix {self.conda_prefix} does not exist."
-            )
+            raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Resolve pylib destination directory
-        self.pylib_dir = (
-            Path(sys.exec_prefix)
-            / sys.platlibdir
-            / f"python{sys.version_info.major}.{sys.version_info.minor}"
-            / "site-packages"
-        )
+        self.pylib_dir = Path(sysconfig.get_path("purelib"))
         if not self.pylib_dir.exists():
-            raise FileNotFoundError(
-                f"Python library directory {self.pylib_dir} does not exist."
-            )
+            raise FileNotFoundError(f"Python library directory {self.pylib_dir} does not exist.")
 
         # Resolve path to stubs directory
         self.stubs_dir = self.build_dir / "tudatpy-stubs"
@@ -224,11 +210,35 @@ class Installer:
         if self.args.install_tudat:
 
             # Install tudat static libraries
-            self.link_content(
-                self.build_dir / "lib",
-                self.conda_prefix / "lib",
-                [".a", ".lib"],
-            )
+            if sys.platform == "win32":
+                # Multi-config generators put libraries in
+                # build/lib/<build_config>; single-config generators use
+                # build/lib directly.
+                lib_root = self.build_dir / "lib"
+                lib_dirs = [
+                    lib_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                lib_dirs.append(lib_root)
+                for lib_dir in lib_dirs:
+                    if any(lib_dir.glob("*.a")) or any(lib_dir.glob("*.lib")):
+                        self.link_content(
+                            lib_dir,
+                            self.conda_prefix / "lib",
+                            [".a", ".lib"],
+                        )
+                        break
+            else:
+                self.link_content(
+                    self.build_dir / "lib",
+                    self.conda_prefix / "lib",
+                    [".a", ".lib"],
+                )
 
             # Install tudat headers
             self.link_content(
@@ -262,11 +272,34 @@ class Installer:
             )
 
             # Install kernel
-            self.link_content(
-                self.build_dir / "src/tudatpy",
-                self.pylib_dir / "tudatpy",
-                [".so", ".dll", ".dylib"],
-            )
+            if sys.platform == "win32":
+                # Support both multi-config and single-config generators.
+                kernel_root = self.build_dir / "src/tudatpy"
+                kernel_dirs = [
+                    kernel_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                kernel_dirs.append(kernel_root)
+                for kernel_dir in kernel_dirs:
+                    if (kernel_dir / "kernel.pyd").is_file():
+                        self.link_content(
+                            kernel_dir,
+                            self.pylib_dir / "tudatpy",
+                            [".pyd"],
+                        )
+                        break
+            else:
+                # On Linux/macOS, kernel is in build/src/tudatpy/
+                self.link_content(
+                    self.build_dir / "src/tudatpy",
+                    self.pylib_dir / "tudatpy",
+                    [".so", ".dll", ".dylib", ".pyd"],
+                )
 
             # Install stubs
             if self.stubs_dir.exists():
@@ -310,9 +343,7 @@ class Installer:
         print("installation. In this case, you will be able to use the ")
         print("`uninstall.py` script to uninstall the package.")
         print("-----------------------------------------------------")
-        input_request = (
-            "Do you want to continue with the regular installation? [y/N] "
-        )
+        input_request = "Do you want to continue with the regular installation? [y/N] "
         proceed = True if input(input_request).lower() == "y" else False
         if not proceed:
             print("Installation aborted.")
@@ -326,9 +357,7 @@ class Installer:
             ]
         )
         if outcome.returncode != 0:
-            raise RuntimeError(
-                f"Installation failed with error code {outcome.returncode}"
-            )
+            raise RuntimeError(f"Installation failed with error code {outcome.returncode}")
 
         return None
 

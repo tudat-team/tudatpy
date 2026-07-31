@@ -256,7 +256,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                     {
                         if( isFirstLine )
                         {
-                            for( char c: vectorOfIndividualStrings[ 2 ] )
+                            for( char c : vectorOfIndividualStrings[ 2 ] )
                             {
                                 if( c == 'd' || c == 'D' )
                                 {

@@ -27,13 +27,13 @@ std::string createObsBiasSecondaryIdentifier( const observation_models::Observab
     auto transmitterIt = linkEnds.find( observation_models::transmitter );
     if( transmitterIt != linkEnds.end( ) )
     {
-        transmitterStr = transmitterIt->second.stationName_;
+        transmitterStr = transmitterIt->second.getReferencePointName( );
     }
 
     auto receiverIt = linkEnds.find( observation_models::receiver );
     if( receiverIt != linkEnds.end( ) )
     {
-        receiverStr = receiverIt->second.stationName_;
+        receiverStr = receiverIt->second.getReferencePointName( );
     }
 
     return transmitterStr + " --> " + receiverStr + " , " + observation_models::getObservableName( observableType );
@@ -52,9 +52,8 @@ SingleArcObservationBiasParameter::SingleArcObservationBiasParameter(
             pointOnBodyId.empty( ) ? createObsBiasSecondaryIdentifier( observableType, linkEnds ) : pointOnBodyId,
             getCurrentBias,
             resetCurrentBias ),
-    linkEnds_( linkEnds ),
-    observableType_( observableType )
-{ }
+    linkEnds_( linkEnds ), observableType_( observableType )
+{}
 
 Eigen::VectorXd SingleArcObservationBiasParameter::getParameterValue( )
 {
@@ -91,13 +90,12 @@ void SingleArcObservationBiasParameter::throwExceptionIfNotFullyDefined( )
 {
     if( !biasFunctionsAreDefined( ) )
     {
-        throw std::runtime_error(
-                "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
-                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + " with link ends: " +
-                observation_models::getLinkEndsString( linkEnds_ ) +
-                " parameter not linked to bias object. Associated bias model been implemented in observation model. "
-                "This may be because you are resetting the parameter value before creating observation models, "
-                "or because you have not defined the required bias model." );
+        throw std::runtime_error( "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                                  observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                                  " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                                  " parameter not linked to bias object. Associated bias model been implemented in observation model. "
+                                  "This may be because you are resetting the parameter value before creating observation models, "
+                                  "or because you have not defined the required bias model." );
     }
 }
 
@@ -134,13 +132,9 @@ MultiArcObservationBiasParameter::MultiArcObservationBiasParameter(
             pointOnBodyId.empty( ) ? createObsBiasSecondaryIdentifier( observableType, linkEnds ) : pointOnBodyId,
             getBiasList,
             resetBiasList ),
-    arcStartTimes_( arcStartTimes ),
-    linkEndIndex_( linkEndIndex ),
-    linkEnds_( linkEnds ),
-    observableType_( observableType ),
-    observableSize_( observation_models::getObservableSize( observableType ) ),
-    numberOfArcs_( static_cast< int >( arcStartTimes.size( ) ) )
-{ }
+    arcStartTimes_( arcStartTimes ), linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ),
+    observableSize_( observation_models::getObservableSize( observableType ) ), numberOfArcs_( static_cast< int >( arcStartTimes.size( ) ) )
+{}
 
 Eigen::VectorXd MultiArcObservationBiasParameter::getParameterValue( )
 {
@@ -197,8 +191,8 @@ void MultiArcObservationBiasParameter::throwExceptionIfNotFullyDefined( )
     {
         throw std::runtime_error(
                 "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
-                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + " with link ends: " +
-                observation_models::getLinkEndsString( linkEnds_ ) +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
                 " parameter not linked to bias object. Has associated bias model been implemented in observation model?" );
     }
 }
@@ -236,14 +230,12 @@ std::shared_ptr< interpolators::LookUpScheme< double > > MultiArcObservationBias
     return lookupScheme_;
 }
 
-void MultiArcObservationBiasParameter::setLookupScheme(
-        const std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme )
+void MultiArcObservationBiasParameter::setLookupScheme( const std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme )
 {
     lookupScheme_ = lookupScheme;
 }
 
-void TimeBiasParameterBase::setBodyAccelerationFunction(
-        const std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction )
+void TimeBiasParameterBase::setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction )
 {
     bodyAccelerationFunction_ = bodyAccelerationFunction;
 }
@@ -253,27 +245,23 @@ std::function< Eigen::VectorXd( const double ) > TimeBiasParameterBase::getBodyA
     return bodyAccelerationFunction_;
 }
 
-SingleArcTimeBiasParameter::SingleArcTimeBiasParameter(
-        const EstimatebleParametersEnum parameterName,
-        const std::function< Eigen::VectorXd( ) > getCurrentBias,
-        const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-        const observation_models::LinkEndType linkEndForTime,
-        const observation_models::LinkEnds linkEnds,
-        const observation_models::ObservableType observableType,
-        const std::string& pointOnBodyId ):
+SingleArcTimeBiasParameter::SingleArcTimeBiasParameter( const EstimatebleParametersEnum parameterName,
+                                                        const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                                        const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+                                                        const observation_models::LinkEndType linkEndForTime,
+                                                        const observation_models::LinkEnds linkEnds,
+                                                        const observation_models::ObservableType observableType,
+                                                        const std::string& pointOnBodyId ):
     ObservationBiasFunctionWrapper< Eigen::VectorXd >(
             parameterName,
             linkEnds.begin( )->second.bodyName_,
             pointOnBodyId.empty( ) ? createObsBiasSecondaryIdentifier( observableType, linkEnds ) : pointOnBodyId,
             getCurrentBias,
             resetCurrentBias ),
-    linkEndForTime_( linkEndForTime ),
-    linkEnds_( linkEnds ),
-    observableType_( observableType )
+    linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType )
 {
-    linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                            observableType_, linkEndForTime_, linkEnds_.size( ) )
-                            .at( 0 );
+    linkEndIndex_ =
+            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
 }
 
 Eigen::VectorXd SingleArcTimeBiasParameter::getParameterValue( )
@@ -313,13 +301,12 @@ void SingleArcTimeBiasParameter::throwExceptionIfNotFullyDefined( )
 {
     if( !biasFunctionsAreDefined( ) )
     {
-        throw std::runtime_error(
-                "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
-                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + " with link ends: " +
-                observation_models::getLinkEndsString( linkEnds_ ) +
-                " parameter not linked to bias object. Associated bias model been implemented in observation model. "
-                "This may be because you are resetting the parameter value before creating observation models, "
-                "or because you have not defined the required bias model." );
+        throw std::runtime_error( "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                                  observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                                  " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                                  " parameter not linked to bias object. Associated bias model been implemented in observation model. "
+                                  "This may be because you are resetting the parameter value before creating observation models, "
+                                  "or because you have not defined the required bias model." );
     }
 }
 
@@ -356,30 +343,25 @@ int SingleArcTimeBiasParameter::getLinkEndIndex( )
     return linkEndIndex_;
 }
 
-MultiArcTimeBiasParameter::MultiArcTimeBiasParameter(
-        const EstimatebleParametersEnum parameterName,
-        const std::vector< double > arcStartTimes,
-        const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-        const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-        const observation_models::LinkEndType linkEndForTime,
-        const observation_models::LinkEnds linkEnds,
-        const observation_models::ObservableType observableType,
-        const std::string& pointOnBodyId ):
+MultiArcTimeBiasParameter::MultiArcTimeBiasParameter( const EstimatebleParametersEnum parameterName,
+                                                      const std::vector< double > arcStartTimes,
+                                                      const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                                      const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
+                                                      const observation_models::LinkEndType linkEndForTime,
+                                                      const observation_models::LinkEnds linkEnds,
+                                                      const observation_models::ObservableType observableType,
+                                                      const std::string& pointOnBodyId ):
     ObservationBiasFunctionWrapper< std::vector< Eigen::VectorXd > >(
             parameterName,
             linkEnds.begin( )->second.bodyName_,
             pointOnBodyId.empty( ) ? createObsBiasSecondaryIdentifier( observableType, linkEnds ) : pointOnBodyId,
             getBiasList,
             resetBiasList ),
-    arcStartTimes_( arcStartTimes ),
-    linkEndForTime_( linkEndForTime ),
-    linkEnds_( linkEnds ),
-    observableType_( observableType ),
+    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType ),
     numberOfArcs_( static_cast< int >( arcStartTimes.size( ) ) )
 {
-    linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                            observableType_, linkEndForTime_, linkEnds_.size( ) )
-                            .at( 0 );
+    linkEndIndex_ =
+            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
 }
 
 Eigen::VectorXd MultiArcTimeBiasParameter::getParameterValue( )
@@ -437,13 +419,12 @@ void MultiArcTimeBiasParameter::throwExceptionIfNotFullyDefined( )
 {
     if( !biasFunctionsAreDefined( ) )
     {
-        throw std::runtime_error(
-                "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
-                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + " with link ends: " +
-                observation_models::getLinkEndsString( linkEnds_ ) +
-                " parameter not linked to bias object. Associated bias model been implemented in observation model. "
-                "This may be because you are resetting the parameter value before creating observation models, "
-                "or because you have not defined the required bias model." );
+        throw std::runtime_error( "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                                  observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                                  " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                                  " parameter not linked to bias object. Associated bias model been implemented in observation model. "
+                                  "This may be because you are resetting the parameter value before creating observation models, "
+                                  "or because you have not defined the required bias model." );
     }
 }
 
@@ -495,20 +476,17 @@ observation_models::LinkEndType MultiArcTimeBiasParameter::getReferenceLinkEnd( 
     return linkEndForTime_;
 }
 
-ConstantTimeDriftBiasParameter::ConstantTimeDriftBiasParameter(
-        const EstimatebleParametersEnum parameterName,
-        const std::function< Eigen::VectorXd( ) > getCurrentBias,
-        const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-        const int linkEndIndex,
-        const observation_models::LinkEnds linkEnds,
-        const observation_models::ObservableType observableType,
-        const double referenceEpoch,
-        const std::string& pointOnBodyId ):
-    SingleArcObservationBiasParameter(
-            parameterName, getCurrentBias, resetCurrentBias, linkEnds, observableType, pointOnBodyId ),
-    linkEndIndex_( linkEndIndex ),
-    referenceEpoch_( referenceEpoch )
-{ }
+ConstantTimeDriftBiasParameter::ConstantTimeDriftBiasParameter( const EstimatebleParametersEnum parameterName,
+                                                                const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                                                const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+                                                                const int linkEndIndex,
+                                                                const observation_models::LinkEnds linkEnds,
+                                                                const observation_models::ObservableType observableType,
+                                                                const double referenceEpoch,
+                                                                const std::string& pointOnBodyId ):
+    SingleArcObservationBiasParameter( parameterName, getCurrentBias, resetCurrentBias, linkEnds, observableType, pointOnBodyId ),
+    linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
+{}
 
 int ConstantTimeDriftBiasParameter::getLinkEndIndex( )
 {
@@ -539,7 +517,7 @@ ArcWiseTimeDriftBiasParameter::ArcWiseTimeDriftBiasParameter(
                                       observableType,
                                       pointOnBodyId ),
     referenceEpochs_( referenceEpochs )
-{ }
+{}
 
 std::vector< double > ArcWiseTimeDriftBiasParameter::getReferenceEpochs( )
 {

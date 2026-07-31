@@ -133,7 +133,7 @@ void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string >&
     outputFile_ << "StartIndex" << delimiter << "Size" << delimiter << "ID" << std::endl;
 
     // Loop over map of propagation history.
-    for( auto const& row: idMap )
+    for( auto const& row : idMap )
     {
         auto startIndex = row.first.first;
         auto size = row.first.second;

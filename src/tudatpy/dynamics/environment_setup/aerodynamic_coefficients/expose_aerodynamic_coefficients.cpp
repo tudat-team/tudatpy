@@ -38,7 +38,7 @@ namespace simulation_setup
 {
 //! @get_docstring(customAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettingsDeprecatedPy(
-        const std::function< Eigen::Vector3d( const std::vector< double > & ) > forceCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
@@ -75,7 +75,7 @@ namespace environment_setup
 namespace aerodynamic_coefficients
 {
 
-void expose_aerodynamic_coefficient_setup( py::module &m )
+void expose_aerodynamic_coefficient_types( py::module& m )
 {
     py::enum_< ta::AerodynamicCoefficientsIndependentVariables >( m,
                                                                   "AerodynamicCoefficientsIndependentVariables",
@@ -215,6 +215,10 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
             .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(No documentation found.)doc" )
             .export_values( );
 
+    py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
+                std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
+            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+
     py::enum_< trf::AerodynamicsReferenceFrameAngles >( m, "AerodynamicsReferenceFrameAngles", R"doc(
 
 Enumeration of angles typical for (atmospheric) flight dynamics and aerodynamic calculations.
@@ -330,7 +334,10 @@ The body-fixed frame of the body itself.
 
 )doc" )
             .export_values( );
+}
 
+void expose_aerodynamic_coefficient_setup( py::module& m )
+{
     /////////////////////////////////////////////////////////////////////////////
     // createAerodynamicCoefficientInterface.h
     /////////////////////////////////////////////////////////////////////////////
@@ -427,10 +434,6 @@ The body-fixed frame of the body itself.
                 tss::AerodynamicCoefficientSettings >(
             m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
-                std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
-            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
-
     py::class_< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings >,
                 tss::ControlSurfaceIncrementAerodynamicCoefficientSettings >( m,
@@ -515,7 +518,7 @@ The body-fixed frame of the body itself.
  )doc" );
 
     m.def( "constant_variable_cross_section",
-           py::overload_cast< const Eigen::Vector3d &, const int, const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const Eigen::Vector3d&, const int, const ta::AerodynamicCoefficientFrames >(
                    &tss::panelledConstantAerodynamicCoefficientSettings ),
            py::arg( "constant_force_coefficient" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
@@ -550,7 +553,7 @@ The body-fixed frame of the body itself.
  )doc" );
 
     m.def( "constant",
-           py::overload_cast< const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const double, const Eigen::Vector3d&, const ta::AerodynamicCoefficientFrames >(
                    &tss::constantAerodynamicCoefficientSettings ),
            py::arg( "reference_area" ),
            py::arg( "constant_force_coefficient" ),
@@ -670,7 +673,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_coefficients",
-           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
                               const double,
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames >( &tss::customAerodynamicCoefficientSettings ),
@@ -743,14 +746,14 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_and_moment_coefficients",
-           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
-                              const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+                              const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
                               const double,
                               const double,
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d & >( &tss::customAerodynamicCoefficientSettings ),
+                              const Eigen::Vector3d& >( &tss::customAerodynamicCoefficientSettings ),
            py::arg( "force_coefficient_function" ),
            py::arg( "moment_coefficient_function" ),
            py::arg( "reference_length" ),
@@ -816,7 +819,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const ta::AerodynamicCoefficientsIndependentVariables,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d&,
                               const std::shared_ptr< ti::InterpolatorSettings > >(
                    &tss::oneDimensionalTabulatedAerodynamicCoefficientSettings ),
            py::arg( "independent_variables" ),
@@ -828,7 +831,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
@@ -927,7 +930,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_name" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = ti::linearInterpolation( ),
+           py::arg_v( "interpolator_settings", ti::linearInterpolation( ), "..." ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
@@ -999,7 +1002,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_names" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated force coefficients from files.
@@ -1063,7 +1066,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
-                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d&,
                               const std::shared_ptr< ti::InterpolatorSettings > >( &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
            py::arg( "force_coefficient_files" ),
            py::arg( "moment_coefficient_files" ),
@@ -1073,7 +1076,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
            py::arg( "moment_reference_point" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
-           py::arg( "interpolator_settings" ) = nullptr,
+           py::arg_v( "interpolator_settings", std::shared_ptr< ti::InterpolatorSettings >( ), "None" ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from tabulated coefficients from files.

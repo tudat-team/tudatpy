@@ -39,9 +39,15 @@ double getConditionNumberOfDesignMatrix( const Eigen::MatrixXd designMatrix );
 /*!
  *  Function to get condition number of matrix from SVD decomposition
  * \param singularValueDecomposition SVD decomposition of matrix
+ * \tparam Options Options for the underlying Eigen JacobiSVD decomposition
  * \return Condition number of matrix
  */
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition );
+template< int Options >
+double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd, Options >& singularValueDecomposition )
+{
+    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+}
 
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 /*!
@@ -262,6 +268,21 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         const double initialScaling = 1.0e-6,
         const double convergenceTolerance = 1.0e-8,
         const unsigned int maximumNumberOfIterations = 25 );
+
+//! Perform a non-linear least-squares estimation and return iteration diagnostics by reference.
+/*!
+ * This overload uses the same Levenberg-Marquardt implementation as nonLinearLeastSquaresFit, while additionally
+ * returning the number of iterations and whether the update-norm convergence criterion was met.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged );
 
 }  // namespace linear_algebra
 

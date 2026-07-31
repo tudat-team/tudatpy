@@ -21,5 +21,5 @@ __all__ = [
     "get_orthogonal_array",
     "get_yates_array",
     "anova_analysis",
-    "transform_integer_to_roman_number"
+    "transform_integer_to_roman_number",
 ]

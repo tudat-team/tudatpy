@@ -19,6 +19,7 @@
 #include "tudat/basics/utilities.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/astro/propagators/integrateEquations.h"
@@ -601,8 +602,10 @@ struct PredefinedSingleArcStateDerivativeModels {
 public:
     PredefinedSingleArcStateDerivativeModels(
             const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
-            const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials ):
-        stateDerivativeModels_( stateDerivativeModels ), stateDerivativePartials_( stateDerivativePartials )
+            const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >& parametersToEstimate = nullptr ):
+        stateDerivativeModels_( stateDerivativeModels ), stateDerivativePartials_( stateDerivativePartials ),
+        parametersToEstimate_( parametersToEstimate )
     {}
 
     PredefinedSingleArcStateDerivativeModels( ) {}
@@ -610,6 +613,8 @@ public:
     std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels_;
 
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
 };
 
 template< typename StateScalarType, typename TimeType, int NumberOfColumns >
@@ -643,7 +648,6 @@ struct PostProcessingFunctionProvider< StateScalarType, TimeType, Eigen::Dynamic
                           std::placeholders::_1 );
     }
 };
-
 
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template class DynamicsSimulator< double, double >;

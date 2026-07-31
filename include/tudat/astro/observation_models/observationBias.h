@@ -61,10 +61,10 @@ class ObservationBias
 {
 public:
     //! Constructor
-    ObservationBias( const bool hasTimeBias = false ): hasTimeBias_( hasTimeBias ) { }
+    ObservationBias( const bool hasTimeBias = false ): hasTimeBias_( hasTimeBias ) {}
 
     //! Destructor
-    virtual ~ObservationBias( ) { }
+    virtual ~ObservationBias( ) {}
 
     //! Pure virtual function to retrieve the observation bias.
     /*!
@@ -124,10 +124,10 @@ public:
      * Constructor
      * \param observationBias Constant (entry-wise) observation bias.
      */
-    ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ): observationBias_( observationBias ) { }
+    ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ): observationBias_( observationBias ) {}
 
     //! Destructor
-    ~ConstantObservationBias( ) { }
+    ~ConstantObservationBias( ) {}
 
     //! Function to retrieve the constant observation bias.
     /*!
@@ -226,7 +226,7 @@ public:
     }
 
     //! Destructor
-    ~ConstantArcWiseObservationBias( ) { }
+    ~ConstantArcWiseObservationBias( ) {}
 
     //! Function to retrieve the observation bias, determining the current arc from linkEndTimes.
     /*!
@@ -373,10 +373,10 @@ public:
      */
     ConstantRelativeObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias ):
         relativeObservationBias_( relativeObservationBias )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantRelativeObservationBias( ) { }
+    ~ConstantRelativeObservationBias( ) {}
 
     //! Function to retrieve the constant relative observation bias.
     /*!
@@ -482,7 +482,7 @@ public:
     }
 
     //! Destructor
-    ~ConstantRelativeArcWiseObservationBias( ) { }
+    ~ConstantRelativeArcWiseObservationBias( ) {}
 
     //! Function to retrieve the constant observation bias, determining the current arc from linkEndTimes.
     /*!
@@ -617,7 +617,7 @@ public:
     }
 
     //! Destructor
-    ~MultiTypeObservationBias( ) { }
+    ~MultiTypeObservationBias( ) {}
 
     //! Function to retrieve the total observation bias.
     /*!
@@ -691,10 +691,10 @@ public:
                            const int linkEndIndexForTime,
                            const double referenceEpoch ):
         timeDriftBias_( timeDriftBias ), linkEndIndexForTime_( linkEndIndexForTime ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeDriftBias( ) { }
+    ~ConstantTimeDriftBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!
@@ -811,7 +811,7 @@ public:
     }
 
     //! Destructor
-    ~ArcWiseTimeDriftBias( ) { }
+    ~ArcWiseTimeDriftBias( ) {}
 
     //! Function to retrieve the arc-wise time drift bias, determining the current arc from linkEndTimes.
     /*!
@@ -941,10 +941,10 @@ public:
      */
     ConstantTimeBias( const double timeBias, const int linkEndIndexForTime ):
         ObservationBias< ObservationSize >( true ), timeBias_( timeBias ), linkEndIndexForTime_( linkEndIndexForTime )
-    { }
+    {}
 
     //! Destructor
-    ~ConstantTimeBias( ) { }
+    ~ConstantTimeBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!
@@ -1049,7 +1049,7 @@ public:
     }
 
     //! Destructor
-    ~ArcWiseTimeBias( ) { }
+    ~ArcWiseTimeBias( ) {}
 
     //! Function to retrieve the arc-wise time bias, determining the current arc from linkEndTimes.
     /*!
@@ -1180,7 +1180,7 @@ public:
     }
 
     //! Destructor
-    ~ClockInducedRangeBias( ) { }
+    ~ClockInducedRangeBias( ) {}
 
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
             const std::vector< double >& linkEndTimes,
@@ -1241,10 +1241,10 @@ public:
                               const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ):
         ObservationBias< ObservationSize >( false ), timeScaleConverter_( timeScaleConverter ),
         transmittingStationState_( transmittingStationState ), receivingStationState_( receivingStationState )
-    { }
+    {}
 
     //! Destructor
-    ~TwoWayTimeScaleRangeBias( ) { }
+    ~TwoWayTimeScaleRangeBias( ) {}
 
     //! Function to retrieve the constant time drift bias.
     /*!

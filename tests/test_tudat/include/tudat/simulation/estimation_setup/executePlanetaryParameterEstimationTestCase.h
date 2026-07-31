@@ -27,7 +27,6 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
-
 namespace tudat
 {
 namespace unit_tests
@@ -43,11 +42,10 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( );
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::shared_ptr< simulation_setup::EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >
-executePlanetaryParameterEstimation(
-        const int observableType = 1,
-        Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
-        Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
-        const double weight = 1.0 );
+executePlanetaryParameterEstimation( const int observableType = 1,
+                                     Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
+                                     Eigen::MatrixXd inverseAPrioriCovariance = Eigen::MatrixXd::Zero( 7, 7 ),
+                                     const double weight = 1.0 );
 
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double, double > >, Eigen::VectorXd >
@@ -58,8 +56,7 @@ executePlanetaryParameterEstimation< double, double >( const int observableType,
 #endif
 
 template< typename TimeType, typename StateScalarType >
-std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd >
-executePlanetaryParameterEstimation(
+std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,

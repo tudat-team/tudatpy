@@ -16,6 +16,7 @@ set(estimatable_parameters_SOURCES
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
   "specularDiffuseReflectivity.cpp"
+  "panelMaterialProperty.cpp"
 )
 
 # Set the header files.
@@ -46,6 +47,7 @@ set(estimatable_parameters_HEADERS
   "coreFactor.h"
   "freeCoreNutationRate.h"
   "specularDiffuseReflectivity.h"
+  "panelMaterialProperty.h"
   "polynomialClockCorrections.h"
   "iauRotationModelParameters.h"
 )

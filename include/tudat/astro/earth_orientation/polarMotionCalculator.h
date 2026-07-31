@@ -48,7 +48,7 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyIersValueInterpolator,
             const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator ):
         dailyIersValueInterpolator_( dailyIersValueInterpolator ), shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
-    { }
+    {}
 
     //! Calculate the position of the Celestial Intermediate Pole in the ITRS
     /*!

@@ -37,10 +37,10 @@ public:
      */
     CoreFactor( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< double >( core_factor, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~CoreFactor( ) { }
+    ~CoreFactor( ) {}
 
     //! Get value of the core factor of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!

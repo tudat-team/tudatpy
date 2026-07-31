@@ -65,10 +65,10 @@ public:
                                                                       bodiesToPropagate,
                                                                       bodyInertiaTensorFunctions,
                                                                       bodyInertiaTensorTimeDerivativeFunctions )
-    { }
+    {}
 
     //! Destructor
-    ~RotationalMotionModifiedRodriguesParametersStateDerivative( ) { }
+    ~RotationalMotionModifiedRodriguesParametersStateDerivative( ) {}
 
     //! Calculates the state derivative of the rotational motion of the system.
     /*!

@@ -50,6 +50,13 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
+    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY)
+        set_target_properties("${target_name}"
+                PROPERTIES
+                CXX_VISIBILITY_PRESET hidden
+                VISIBILITY_INLINES_HIDDEN TRUE
+                )
+    endif ()
 
     add_library(Tudat::${target_name} ALIAS "${target_name}")
     #==========================================================================
@@ -82,6 +89,13 @@ function(TUDAT_ADD_TEST_LIBRARY arg1 arg2 arg3)
         add_library(${target_name} STATIC "${arg2}")
     else ()
         add_library(${target_name} SHARED "${arg2}")
+    endif ()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_options("${target_name}" PRIVATE
+                -Wno-overloaded-virtual
+                -Wno-sign-compare
+                -Wno-dangling-reference
+                )
     endif ()
     #==========================================================================
     # TARGET-CONFIGURATION.

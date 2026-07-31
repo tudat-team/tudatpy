@@ -21,7 +21,7 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
@@ -46,11 +46,21 @@ void expose_observation_simulation_settings_factory_bindings( py::module& m )
     m.def( "change_simulation_settings_observable_types",
            &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_simulation_settings" ),
-           py::arg( "replacement_observable_types" ) =
-                   std::map< tom::ObservableType, tom::ObservableType >{
-                           { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
-                           { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
-           R"doc(No documentation found.)doc" );
+           py::arg_v( "replacement_observable_types",
+                      std::map< tom::ObservableType, tom::ObservableType >{
+                              { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
+                              { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
+                      "..." ),
+           R"doc(
+Change selected observable types in observation simulation settings.
+
+Parameters
+----------
+observation_simulation_settings : list[ObservationSimulationSettings]
+    Observation simulation settings to update.
+replacement_observable_types : dict[ObservableType, ObservableType], default = DSN Doppler replacements
+    Mapping from each observable type to its replacement. By default, DSN one-way and n-way averaged Doppler types are replaced by their generic averaged Doppler counterparts.
+)doc" );
 
     //    m.def("create_odf_observation_simulation_settings_list",
     //          &tom::createOdfObservationSimulationSettingsList<

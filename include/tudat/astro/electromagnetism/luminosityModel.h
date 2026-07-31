@@ -53,7 +53,7 @@ public:
     void updateMembers( double currentTime );
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
 };
@@ -69,7 +69,7 @@ public:
      *
      * @param luminosity Constant luminosity of the source [W]
      */
-    explicit ConstantLuminosityModel( double luminosity ): luminosity_( luminosity ) { }
+    explicit ConstantLuminosityModel( double luminosity ): luminosity_( luminosity ) {}
 
     double getLuminosity( ) const override
     {
@@ -91,7 +91,7 @@ public:
      */
     explicit VariableLuminosityModel( const std::function< double( const double ) > luminosityFunction ):
         luminosityFunction_( luminosityFunction ), luminosity_( TUDAT_NAN )
-    { }
+    {}
 
     double getLuminosity( ) const override
     {

@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testEllipticIntegralsComputation )
         expectedEllipticIntegralS += taylorCoefficients.at( taylorOrder ) * std::pow( m - m0, taylorOrder );
     }
 
-    for( bool ellipticIntegralSFromDAndB: { true, false } )
+    for( bool ellipticIntegralSFromDAndB : { true, false } )
     {
         gravitation::RingGravityCache gravityCache2 = gravitation::RingGravityCache( ringRadius, ellipticIntegralSFromDAndB );
         gravityCache2.update( bodyFixedPosition );
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     const double gravitationalParameter = 2.39e21 * physical_constants::GRAVITATIONAL_CONSTANT;
     const double ringRadius = 2.7 * physical_constants::ASTRONOMICAL_UNIT;
 
-    for( bool ellipticIntegralSFromDAndB: { true, false } )
+    for( bool ellipticIntegralSFromDAndB : { true, false } )
     {
         gravitation::RingGravityField gravityField =
                 gravitation::RingGravityField( gravitationalParameter, ringRadius, ellipticIntegralSFromDAndB );

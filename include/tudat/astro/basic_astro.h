@@ -38,6 +38,7 @@
 #include "basic_astro/stateRepresentationConversions.h"
 #include "basic_astro/stateVectorIndices.h"
 #include "basic_astro/timeConversions.h"
+#include "basic_astro/equinoctialElementConversions.h"
 #include "basic_astro/torqueModel.h"
 #include "basic_astro/torqueModelTypes.h"
 #include "basic_astro/unifiedStateModelExponentialMapElementConversions.h"

@@ -36,7 +36,7 @@ class Extractor
 {
 public:
     //! Default destructor.
-    virtual ~Extractor( ) { }
+    virtual ~Extractor( ) {}
 
     //! Extract function.
     /*!

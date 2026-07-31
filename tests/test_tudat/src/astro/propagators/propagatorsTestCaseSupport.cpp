@@ -7,9 +7,7 @@ namespace tudat
 namespace unit_tests
 {
 
-void propagatorsTestCaseSupportAnchor( )
-{
-}
+void propagatorsTestCaseSupportAnchor( ) {}
 
 }  // namespace unit_tests
 }  // namespace tudat

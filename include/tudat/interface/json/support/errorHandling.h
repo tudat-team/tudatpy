@@ -45,7 +45,7 @@ public:
      * \param keyPath Key path trying to access / accessed when the error was generated.
      */
     ValueAccessError( const std::string& errorMessage, const KeyPath& keyPath ): runtime_error( errorMessage.c_str( ) ), keyPath( keyPath )
-    { }
+    {}
 
     //! Key path trying to access / accessed when the error was generated.
     KeyPath keyPath;
@@ -101,7 +101,7 @@ public:
         ValueAccessError(
                 "Unrecognized error when trying to create object of type " + boost::core::demangled_name( expectedTypeInfo ) + " from key",
                 keyPath )
-    { }
+    {}
 };
 
 //! Class for errors generated when trying to access a key from a `json` object that does not exist.
@@ -116,7 +116,7 @@ public:
      * Constructor.
      * \param keyPath Key path trying to access when the error was generated.
      */
-    UndefinedKeyError( const KeyPath& keyPath ): ValueAccessError( "Undefined key", keyPath ) { }
+    UndefinedKeyError( const KeyPath& keyPath ): ValueAccessError( "Undefined key", keyPath ) {}
 
     //! Rethrow `this` if default values are not allowed, or print a message if requested by user.
     /*!
@@ -175,7 +175,7 @@ public:
     IllegalValueError( const KeyPath& keyPath, const nlohmann::json& value, const std::type_info& expectedTypeInfo ):
         ValueAccessError( "Illegal value for key", keyPath ), value( value ),
         expectedTypeName( boost::core::demangled_name( expectedTypeInfo ) )
-    { }
+    {}
 
     //! Associated (illegal) value.
     nlohmann::json value;
@@ -209,7 +209,7 @@ public:
     ReportableBugError( const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
                         const std::string& reportURL = "https://github.com/Tudat/tudat/issues" ):
         std::exception( ), errorMessage( errorMessage ), reportURL( reportURL )
-    { }
+    {}
 
     //! Full error message.
     virtual const char* what( ) const throw( )
@@ -366,7 +366,7 @@ public:
     /*!
      * Empty constructor.
      */
-    UnknownEnumError( ): runtime_error( "Unknown conversion between enum and string." ) { }
+    UnknownEnumError( ): runtime_error( "Unknown conversion between enum and string." ) {}
 };
 
 // enum <-> std::string
@@ -382,7 +382,7 @@ public:
 template< typename EnumType >
 EnumType enumFromString( const std::string& stringValue, const std::map< EnumType, std::string >& stringValues )
 {
-    for( auto entry: stringValues )
+    for( auto entry : stringValues )
     {
         if( stringValue == entry.second )
         {
@@ -391,7 +391,7 @@ EnumType enumFromString( const std::string& stringValue, const std::map< EnumTyp
     }
     std::cerr << "Unknown string \"" << stringValue << "\" for enum " << boost::core::demangled_name( typeid( EnumType ) ) << std::endl;
     std::cerr << "Recognized strings:" << std::endl;
-    for( auto entry: stringValues )
+    for( auto entry : stringValues )
     {
         std::cerr << "  " << entry.second << std::endl;
     }
@@ -443,7 +443,7 @@ public:
                             boost::core::demangled_name( typeid( T ) ) + "\" is not supported directly by the `json_interface`.\n" +
                             "Write your own JSON-based C++ application if you want to use this Tudat feature " +
                             "in combination with JSON input files." )
-    { }
+    {}
 };
 
 //! Class for errors generated when trying to use a value for an `enum` of type `EnumType` that is marked as supported

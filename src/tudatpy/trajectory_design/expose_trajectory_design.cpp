@@ -24,7 +24,7 @@ namespace tudatpy
 namespace trajectory_design
 {
 
-void expose_trajectory_design( py::module &m )
+void expose_trajectory_design( py::module& m )
 {
     auto shape_based_thrust = m.def_submodule( "shape_based_thrust" );
     shape_based_thrust::expose_shape_based_thrust( shape_based_thrust );

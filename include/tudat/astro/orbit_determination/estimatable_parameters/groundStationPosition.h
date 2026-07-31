@@ -42,10 +42,10 @@ public:
                            const std::string& associatedStation ):
         EstimatableParameter< Eigen::VectorXd >( ground_station_position, associatedBody, associatedStation ),
         groundStationState_( groundStationState )
-    { }
+    {}
 
     //! Destructor
-    ~GroundStationPosition( ) { }
+    ~GroundStationPosition( ) {}
 
     //! Get values (Cartesian x,y,z position) of ground station position
     /*!

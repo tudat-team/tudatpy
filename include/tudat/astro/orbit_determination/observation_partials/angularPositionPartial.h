@@ -55,21 +55,21 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( E
  * object
  * \return Derivative of (direct geometric) right ascension and declination w.r.t. position of observer or observed object.
  */
-Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
-                                                                                   const bool isLinkEndReceiver,
-                                                                                   const bool normalizeRightAscension = false,
-                                                                                   const Eigen::VectorXd& currentObservation = Eigen::VectorXd::Zero( 0 ) );
+Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition(
+        Eigen::Vector3d relativeRangeVector,
+        const bool isLinkEndReceiver,
+        const bool normalizeRightAscension = false,
+        const Eigen::VectorXd& currentObservation = Eigen::VectorXd::Zero( 0 ) );
 
 //! Derived class for scaling three-dimensional position partial to angular position observable partial
 class AngularPositionScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
-    AngularPositionScaling( const bool normalizeRightAscension ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ),
-    normalizeRightAscension_( normalizeRightAscension )
-    {
-    }
+    AngularPositionScaling( const bool normalizeRightAscension ):
+        DirectPositionPartialScaling< 2 >( observation_models::angular_position ), normalizeRightAscension_( normalizeRightAscension )
+    {}
     //! Destructor
-    ~AngularPositionScaling( ) { }
+    ~AngularPositionScaling( ) {}
 
     //! Update the scaling object to the current times and states
     /*!
@@ -123,7 +123,6 @@ public:
     }
 
 private:
-
     bool normalizeRightAscension_;
 
     //! Predeclared common scaling factor

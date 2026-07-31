@@ -31,10 +31,10 @@ public:
     ExportSettings( const boost::filesystem::path& outputFile,
                     const std::vector< std::shared_ptr< propagators::VariableSettings > >& variables ):
         outputFile_( outputFile ), variables_( variables )
-    { }
+    {}
 
     //! Destructor.
-    virtual ~ExportSettings( ) { }
+    virtual ~ExportSettings( ) {}
 
     //! Set the path of the output file the results will be written to.
     void setOutputFile( const boost::filesystem::path& outputFile )
@@ -98,7 +98,7 @@ void exportResultsOfDynamicsSimulator(
     std::map< TimeType, Eigen::VectorXd > dependentVariables = singleArcDynamicsSimulator->getDependentVariableHistory( );
     std::map< TimeType, double > cpuTimes = singleArcDynamicsSimulator->getCumulativeComputationTimeHistory( );
 
-    for( std::shared_ptr< ExportSettings > exportSettings: exportSettingsVector )
+    for( std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
         std::vector< std::shared_ptr< VariableSettings > > variables;
         std::vector< unsigned int > variableSizes;
@@ -114,7 +114,7 @@ void exportResultsOfDynamicsSimulator(
             std::cout << "Vector entry, Vector contents" << std::endl;
         }
 
-        for( std::shared_ptr< VariableSettings > variable: exportSettings->variables_ )
+        for( std::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
         {
             unsigned int variableSize = 0;
             unsigned int variableIndex = 0;
@@ -269,7 +269,7 @@ void exportResultsOfDynamicsSimulator(
             // Write results matrix to file.
             Eigen::MatrixXd resultsMatrix( results.size( ), cols );
             int currentRow = 0;
-            for( auto entry: results )
+            for( auto entry : results )
             {
                 resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
             }
@@ -291,9 +291,9 @@ void exportResultsOfVariationalEquations(
     using namespace propagators;
     using namespace input_output;
 
-    for( std::shared_ptr< ExportSettings > exportSettings: exportSettingsVector )
+    for( std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        for( std::shared_ptr< VariableSettings > variable: exportSettings->variables_ )
+        for( std::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
         {
             switch( variable->variableType_ )
             {

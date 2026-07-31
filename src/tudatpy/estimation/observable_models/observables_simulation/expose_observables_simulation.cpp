@@ -13,6 +13,7 @@
 #include "expose_observables_simulation.h"
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tom = tudat::observation_models;
@@ -29,6 +30,9 @@ namespace observables_simulation
 
 void expose_observables_simulation( py::module& m )
 {
+    py::class_< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" );
+
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
             "ObservationViabilityCalculator",
@@ -49,15 +53,15 @@ void expose_observables_simulation( py::module& m )
                   &tom::ObservationViabilityCalculator::isObservationViable,
                   py::arg( "link_end_states" ),
                   py::arg( "link_end_times" ),
+                  py::arg( "observation_value" ) = Eigen::VectorXd( ),
                   R"doc(
 
          Function to check whether an observation is viable.
 
          Function to check whether an observation is viable.
-         The calculation is performed based on the given times and link end states.
+         The calculation is performed based on the given times and link end states, and the current observation value.
          Note, that this function is called automatically during the simulation of observations.
          Direct calls to this function are generally not required.
-
 
          Parameters
          ----------
@@ -65,14 +69,12 @@ void expose_observables_simulation( py::module& m )
              Vector of states of the link ends involved in the observation.
          link_end_times : List[:class:`~tudatpy.astro.time_representation.Time`]
              Vector of times at the link ends involved in the observation.
+         observation_value : numpy.ndarray[numpy.float64[]]
+             Current simulated observation value.
          Returns
          -------
          bool
-             True if observation is viable, false if not.
-
-
-
-
+             True if observation is viable, false if not.   
 
      )doc" );
 

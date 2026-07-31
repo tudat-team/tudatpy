@@ -31,25 +31,22 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_thrust_types( py::module& m )
+{
+    py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >( m, "ThrustMagnitudeWrapper" );
+}
+
 void expose_propagation_thrust_bindings( py::module& m )
 {
-    py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >(
-            m, "ThrustMagnitudeWrapper" );
+    py::class_< tpr::ConstantThrustMagnitudeWrapper, std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >, tpr::ThrustMagnitudeWrapper >(
+            m, "ConstantThrustMagnitudeWrapper" )
+            .def_property( "constant_thrust_magnitude",
+                           &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
+                           &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
 
-    py::class_< tpr::ConstantThrustMagnitudeWrapper,
-                std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >,
-                tpr::ThrustMagnitudeWrapper >( m, "ConstantThrustMagnitudeWrapper" )
-            .def_property(
-                    "constant_thrust_magnitude",
-                    &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
-                    &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
-
-    py::class_< tpr::CustomThrustMagnitudeWrapper,
-                std::shared_ptr< tpr::CustomThrustMagnitudeWrapper >,
-                tpr::ThrustMagnitudeWrapper >( m, "CustomThrustMagnitudeWrapper" )
-            .def_property( "custom_thrust_magnitude",
-                           nullptr,
-                           &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction );
+    py::class_< tpr::CustomThrustMagnitudeWrapper, std::shared_ptr< tpr::CustomThrustMagnitudeWrapper >, tpr::ThrustMagnitudeWrapper >(
+            m, "CustomThrustMagnitudeWrapper" )
+            .def_property( "custom_thrust_magnitude", nullptr, &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction );
 }
 
 }  // namespace propagation

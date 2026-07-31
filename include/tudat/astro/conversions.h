@@ -15,6 +15,7 @@
 #include "basic_astro/geodeticCoordinateConversions.h"
 #include "basic_astro/modifiedEquinoctialElementConversions.h"
 #include "basic_astro/orbitalElementConversions.h"
+#include "basic_astro/equinoctialElementConversions.h"
 #include "basic_astro/sphericalStateConversions.h"
 #include "basic_astro/stateRepresentationConversions.h"
 #include "basic_astro/stateVectorIndices.h"

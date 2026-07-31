@@ -26,6 +26,7 @@
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observableTypes.h"
 
 // Some simplifications for shorter lines
 using namespace tudat::input_output;
@@ -97,10 +98,10 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             }
         }
 
-        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, { dsn_n_way_averaged_doppler } );
+        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, ObservableType::dsn_n_way_averaged_doppler );
 
         auto observationCollection = observation_models::createTrackingTxtFilesObservationCollection< double, Time >(
-                processedIfmsFiles, { dsn_n_way_averaged_doppler } );
+                processedIfmsFiles, { ObservableType::dsn_n_way_averaged_doppler } );
 
         std::vector< Time > observationTimes = observationCollection->getConcatenatedTimeVector( );
         Eigen::VectorXd observationValues = observationCollection->getObservationVector( );

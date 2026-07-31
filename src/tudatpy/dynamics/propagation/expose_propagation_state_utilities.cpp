@@ -45,7 +45,7 @@ namespace aerodynamics
 
 class PyAerodynamicGuidance : public ta::AerodynamicGuidance
 {
-   public:
+public:
     using AerodynamicGuidance::AerodynamicGuidance;
 
     using AerodynamicGuidance::currentAngleOfAttack_;
@@ -69,35 +69,38 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_state_utility_types( py::module& m )
+{
+    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
+
+    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
+            m, "AccelerationModel" );
+
+    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+}
+
 void expose_propagation_state_utility_bindings( py::module& m )
 {
-    py::class_< ta::AerodynamicGuidance,
-                ta::PyAerodynamicGuidance,
-                std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
+    py::class_< ta::AerodynamicGuidance, ta::PyAerodynamicGuidance, std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
             .def( py::init<>( ) )
             .def( "updateGuidance",
                   &ta::AerodynamicGuidance::updateGuidance,
-                  py::arg( "current_time" ) ) // The current_time parameter is now expected to be a Time object
+                  py::arg( "current_time" ) )  // The current_time parameter is now expected to be a Time object
             .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
             .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
             .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
-
-    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
 
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
            py::arg( "state_type" ) );
 
-    m.def( "get_generalized_acceleration_size",
-           &tp::getGeneralizedAccelerationSize,
-           py::arg( "state_type" ) );
+    m.def( "get_generalized_acceleration_size", &tp::getGeneralizedAccelerationSize, py::arg( "state_type" ) );
 
     m.def( "get_state_of_bodies",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::vector< std::string > &,
-                              const tss::SystemOfBodies &,
-                              const TIME_TYPE >(
-                   &tp::getInitialStatesOfBodies< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const tss::SystemOfBodies&,
+                              const TIME_TYPE >( &tp::getInitialStatesOfBodies< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies_to_propagate" ),
            py::arg( "central_bodies" ),
            py::arg( "body_system" ),
@@ -136,21 +139,17 @@ void expose_propagation_state_utility_bindings( py::module& m )
      )doc" );
 
     m.def( "get_initial_state_of_bodies",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::vector< std::string > &,
-                              const tss::SystemOfBodies &,
-                              const TIME_TYPE >(
-                   &tp::getInitialStatesOfBodies< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::vector< std::string >&,
+                              const tss::SystemOfBodies&,
+                              const TIME_TYPE >( &tp::getInitialStatesOfBodies< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies_to_propagate" ),
            py::arg( "central_bodies" ),
            py::arg( "body_system" ),
            py::arg( "initial_time" ) );
 
     m.def( "get_initial_state_of_body",  // overload [2/2]
-           py::overload_cast< const std::string &,
-                              const std::string &,
-                              const tss::SystemOfBodies &,
-                              const TIME_TYPE >(
+           py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
                    &tp::getInitialStateOfBody< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "body_to_propagate" ),
            py::arg( "central_body" ),
@@ -158,10 +157,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "initial_time" ) );
 
     m.def( "get_initial_rotational_state_of_body",
-           py::overload_cast< const std::string &,
-                              const std::string &,
-                              const tss::SystemOfBodies &,
-                              const TIME_TYPE >(
+           py::overload_cast< const std::string&, const std::string&, const tss::SystemOfBodies&, const TIME_TYPE >(
                    &tp::getInitialRotationalStateOfBody< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "body_to_propagate" ),
            py::arg( "base_orientation" ),
@@ -169,11 +165,9 @@ void expose_propagation_state_utility_bindings( py::module& m )
            py::arg( "initial_time" ) );
 
     py::class_< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >,
-                std::shared_ptr<
-                        tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE > > >(
-            m,
-            "RotationalProperModeDampingResults",
-            R"doc(
+                std::shared_ptr< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE > > >( m,
+                                                                                                   "RotationalProperModeDampingResults",
+                                                                                                   R"doc(
 
          Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state,
          as computed by the :func:`~get_damped_proper_mode_initial_rotational_state` function
@@ -184,10 +178,9 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
 
       )doc" )
-            .def_readwrite(
-                    "damped_initial_state",
-                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::initialState_,
-                    R"doc(
+            .def_readwrite( "damped_initial_state",
+                            &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::initialState_,
+                            R"doc(
 
          Initial state produced by the damping algorithm, for which the signature of the proper mode should be
          removed (or at least, substantially reduced). Note that this initial state corresponds to the *full* state vector
@@ -197,11 +190,9 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
          :type: numpy.ndarray
       )doc" )
-            .def_readwrite(
-                    "forward_backward_states",
-                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::
-                            forwardBackwardPropagatedStates_,
-                    R"doc(
+            .def_readwrite( "forward_backward_states",
+                            &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::forwardBackwardPropagatedStates_,
+                            R"doc(
 
          Data structure that contains the full state histories used by the damping algorithm. The contents are are as follows:
 
@@ -211,11 +202,9 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
          :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
       )doc" )
-            .def_readwrite(
-                    "forward_backward_dependent_variables",
-                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::
-                            forwardBackwardDependentVariables_,
-                    R"doc(
+            .def_readwrite( "forward_backward_dependent_variables",
+                            &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::forwardBackwardDependentVariables_,
+                            R"doc(
 
          As ``forward_backward_states``, but for the dependent variables.
 
@@ -224,15 +213,11 @@ void expose_propagation_state_utility_bindings( py::module& m )
       )doc" );
 
     m.def( "get_damped_proper_mode_initial_rotational_state",
-           py::overload_cast<
-                   const tss::SystemOfBodies &,
-                   const std::shared_ptr<
-                           tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                   const double,
-                   const std::vector< double >,
-                   const bool >(
-                   &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE,
-                                                                    STATE_SCALAR_TYPE > ),
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const double,
+                              const std::vector< double >,
+                              const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "propagator_settings" ),
            py::arg( "body_mean_rotational_rate" ),
@@ -327,13 +312,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
 
      )doc" );
-
-    py::class_< tba::AccelerationModel< Eigen::Vector3d >,
-                std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
-            m, "AccelerationModel" );
-
-    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
-
 }
 
 }  // namespace propagation
