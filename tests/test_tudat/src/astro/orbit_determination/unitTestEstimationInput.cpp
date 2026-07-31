@@ -15,6 +15,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -210,13 +213,22 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
     bodies.at( "Vehicle" )
-            ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
+            ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
     // Create ground stations.
-    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
-    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
-    createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station1",
+                         ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station2",
+                         ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station3",
+                         ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ),
+                         coordinate_conversions::geodetic_position );
 
     // Define dynamics.
     SelectedAccelerationMap accelerationMap;
@@ -231,15 +243,17 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsHandling )
     AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     Eigen::Vector6d initialStateInKeplerianElements;
-    initialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
-    initialStateInKeplerianElements( eccentricityIndex ) = 0.03;
-    initialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 78.0 );
-    initialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 35.0 );
-    initialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 15.0 );
-    initialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 120.0 );
+    initialStateInKeplerianElements( orbital_element_conversions::semiMajorAxisIndex ) = 7200.0E3;
+    initialStateInKeplerianElements( orbital_element_conversions::eccentricityIndex ) = 0.03;
+    initialStateInKeplerianElements( orbital_element_conversions::inclinationIndex ) = unit_conversions::convertDegreesToRadians( 78.0 );
+    initialStateInKeplerianElements( orbital_element_conversions::argumentOfPeriapsisIndex ) =
+            unit_conversions::convertDegreesToRadians( 35.0 );
+    initialStateInKeplerianElements( orbital_element_conversions::longitudeOfAscendingNodeIndex ) =
+            unit_conversions::convertDegreesToRadians( 15.0 );
+    initialStateInKeplerianElements( orbital_element_conversions::trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 120.0 );
     const double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::Matrix< double, 6, 1 > truthState =
-            convertKeplerianToCartesianElements( initialStateInKeplerianElements, earthGravitationalParameter );
+    Eigen::Matrix< double, 6, 1 > truthState = orbital_element_conversions::convertKeplerianToCartesianElements(
+            initialStateInKeplerianElements, earthGravitationalParameter );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
