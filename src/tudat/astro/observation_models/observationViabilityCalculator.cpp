@@ -192,35 +192,22 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
                          const Eigen::Vector3d occulterPosition,
                          const double radius )
 {
-    double observerRelativeDistance = ( observer2Position - observer1Position ).norm( );
-    double observer1OcculterDistance = ( occulterPosition - observer1Position ).norm( );
-    double observer2OcculterDistance = ( occulterPosition - observer2Position ).norm( );
+    const Eigen::Vector3d linkVector = observer2Position - observer1Position;
+    const Eigen::Vector3d observer1ToOcculter = occulterPosition - observer1Position;
+    const double linkLengthSquared = linkVector.squaredNorm( );
+    const double projectedDistanceAlongLink = observer1ToOcculter.dot( linkVector );
 
-    double cosineBody1Angle =
-            -( observer1OcculterDistance * observer1OcculterDistance - observer2OcculterDistance * observer2OcculterDistance -
-               observerRelativeDistance * observerRelativeDistance ) /
-            ( 2.0 * observer2OcculterDistance * observerRelativeDistance );
-    double cosineBody2Angle =
-            -( observer2OcculterDistance * observer2OcculterDistance - observer1OcculterDistance * observer1OcculterDistance -
-               observerRelativeDistance * observerRelativeDistance ) /
-            ( 2.0 * observer1OcculterDistance * observerRelativeDistance );
-
-    if( cosineBody1Angle < 0.0 || cosineBody2Angle < 0.0 )
+    // Preserve the existing segment semantics: an occultation is only possible when the closest
+    // point lies on the link segment.
+    if( linkLengthSquared == 0.0 || projectedDistanceAlongLink < 0.0 || projectedDistanceAlongLink > linkLengthSquared )
     {
         return false;
     }
-    else
-    {
-        double distanceToTest = observer2OcculterDistance * std::sqrt( 1.0 - cosineBody1Angle * cosineBody1Angle );
-        if( distanceToTest < radius )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+
+    // Avoid the catastrophic cancellation that occurs in a law-of-cosines formulation when one
+    // link end is many orders of magnitude farther from the occulter than the other.
+    const double distanceToLink = observer1ToOcculter.cross( linkVector.normalized( ) ).norm( );
+    return distanceToLink < radius;
 }
 
 //! Function for determining whether the link is occulted during the observataion.
