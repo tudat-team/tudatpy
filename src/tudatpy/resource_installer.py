@@ -14,6 +14,7 @@ import requests
 
 from tudatpy.resource_catalog import (
     USER_RESOURCE_CATALOG,
+    USER_RESOURCE_HASHES,
     load_resource_catalog,
     update_resource_catalog,
 )
@@ -32,10 +33,9 @@ DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat/resource"))
 DEFAULT_CACHE = Path(
     os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
 ).expanduser()
-# Loading the local catalog never makes a network request, so the catalog API
-# remains usable when this module is imported outside the command-line entry
-# point. ``main`` reloads it to honor an explicit ``--catalog`` option.
-RESOURCE_CATALOG: Dict[str, str] = load_resource_catalog()
+# Loading is deferred until after manifest mode has had the opportunity to
+# create the local catalog on a fresh installation.
+RESOURCE_CATALOG: Dict[str, str] = {}
 
 
 def _has_progressbar() -> bool:
@@ -416,8 +416,12 @@ def main() -> None:
 
     if args.mode == "manifest":
         output_path = catalog_path or USER_RESOURCE_CATALOG
-        updated = update_resource_catalog(output_path)
-        print(f"Updated {output_path} with {updated} resources from Zenodo manifests")
+        hash_path = output_path.with_name(USER_RESOURCE_HASHES.name)
+        updated = update_resource_catalog(output_path, hash_path)
+        print(
+            f"Updated {output_path} with {updated} resources and wrote SHA256 hashes "
+            f"to {hash_path}"
+        )
         return
 
     RESOURCE_CATALOG = load_resource_catalog(catalog_path)
