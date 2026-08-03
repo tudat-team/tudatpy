@@ -18,13 +18,33 @@ endif ()
 # Policies
 cmake_policy(SET CMP0069 NEW)  # Missing documentation
 cmake_policy(SET CMP0048 NEW)  # Missing documentation
+# Temporary compatibility setting: keep the legacy Python discovery behavior while
+# this project still relies on older find_package usage elsewhere in the build.
+# Migration path: replace legacy Python discovery with
+# `find_package(Python COMPONENTS Interpreter Development)` and then switch
+# CMP0148 to NEW.
+if(POLICY CMP0148)
+    cmake_policy(SET CMP0148 OLD)
+endif()
+# Temporary compatibility setting: keep the legacy Boost discovery behavior while
+# this project still relies on older Boost / Boost.Python package discovery
+# elsewhere in the build.
+# Migration path: update to the modern Boost package/config-based discovery
+# approach and then switch CMP0167 to NEW.
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
+if(POLICY CMP0175)
+    cmake_policy(SET CMP0175 NEW)
+endif()
 
 # Get version from file
 file(STRINGS "version" VERSION_LABEL)
 list(GET VERSION_LABEL 0 VERSION_LABEL)
+string(STRIP "${VERSION_LABEL}" TUDATPY_FULL_VERSION)
 string(
     REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
-    TUDATPY_VERSION "${VERSION_LABEL}"
+    TUDATPY_VERSION "${TUDATPY_FULL_VERSION}"
 )
 
 # Project declaration.
@@ -55,7 +75,9 @@ list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat/yolo")
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudatpy")
 
 # Additional statements from original cmake files (might not be needed)
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+if (NOT MSVC)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+endif ()
 enable_testing()
 if (MINGW)
     # https://github.com/tudat-team/tudatpy-feedstock/issues/3
@@ -83,7 +105,7 @@ option(
 )
 option(
     TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
-    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time."
+    "Enable explicit template instantiations (e.g. <double,double> extern templates) to reduce compilation time of tests."
     ON
 )
 option(
@@ -149,6 +171,12 @@ option(
 option(
     TUDAT_BUILD_WITH_PAGMO
     "Build Tudat with pagmo."
+    OFF
+)
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD_INTERFACE
+    "Build Tudat with Mars Climate Database support."
     OFF
 )
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
@@ -331,6 +359,7 @@ else ()
     message(STATUS "_GLIBCXX_USE_CXX11_ABI was not found.")
 endif ()
 
+include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 if (UNIX OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\"")
 endif ()
@@ -338,7 +367,7 @@ endif ()
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
 message(STATUS "TudatResources_INCLUDE_DIRS: ${TudatResources_INCLUDE_DIRS}")
-include_directories(TudatResources_INCLUDE_DIRS)
+include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
@@ -355,7 +384,7 @@ endif()
 if(NOT _TUDAT_EIGEN_INCLUDE_DIRS)
     message(FATAL_ERROR "Eigen3 was found, but no Eigen include directory was detected.")
 endif()
-include_directories(SYSTEM AFTER ${_TUDAT_EIGEN_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${_TUDAT_EIGEN_INCLUDE_DIRS})
 if (APPLE OR (WIN32 AND CLANG))
     list(GET _TUDAT_EIGEN_INCLUDE_DIRS 0 _TUDAT_EIGEN_PRIMARY_INCLUDE_DIR)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${_TUDAT_EIGEN_PRIMARY_INCLUDE_DIR}\"")
@@ -389,7 +418,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     if(NOT APPLE)
         find_package(FFTW3)
         message(STATUS "FFTW " ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        include_directories(AFTER SYSTEM "${FFTW3_INCLUDE_DIRS}")
         if(WIN32)
             set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
         else()
@@ -399,7 +428,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     else( )
         find_package(FFTW3)
         message(STATUS ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        include_directories(AFTER SYSTEM "${FFTW3_INCLUDE_DIRS}")
         set(
             CMAKE_CXX_FLAGS
             "${CMAKE_CXX_FLAGS} -I\"${FFTW3_INCLUDE_DIR}\""
@@ -416,32 +445,25 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# MCD dependency - add option and enable Fortran if needed
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
-
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language
     enable_language(Fortran)
-    
+
     # Find NetCDF (required for MCD)
     find_package(NetCDF REQUIRED COMPONENTS Fortran C)
-    
+
     if(NOT NetCDF_FOUND)
         message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
                            "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
     endif()
-    
+
     message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
     message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
     message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
-    
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=1)
 else()
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=0)
 endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
@@ -459,14 +481,14 @@ include(YOLOProjectAddExternalData)
 include(TudatLinkLibraries)
 
 # Build MCD library if enabled (must be AFTER TudatLinkLibraries)
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
     add_subdirectory(${MCD_SOURCE_DIR})
-    
+
     # Set MCD data directory path
     set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
     target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
-    
+
     message(STATUS "MCD: Library configured successfully")
     message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
 endif()

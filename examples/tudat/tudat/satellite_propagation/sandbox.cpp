@@ -138,7 +138,7 @@ void getCloseApproachTimes( const double initialTime, const double finalTime, co
             std::bind(
                     spice_interface::getBodyCartesianPositionAtEpoch, "-28", " Callisto", "ECLIPJ2000", "None", std::placeholders::_1 ) );
 
-    for( auto it: closeApproachTimes )
+    for( auto it : closeApproachTimes )
     {
         std::cout << std::setprecision( 16 ) << it.first << " " << it.second << " "
                   << spice_interface::getBodyCartesianStateAtEpoch( "-28", " Callisto", "ECLIPJ2000", "None", it.first )
@@ -147,7 +147,7 @@ void getCloseApproachTimes( const double initialTime, const double finalTime, co
                   << std::endl;
     }
     std::cout << std::endl;
-    for( auto it: closeApproachTimes )
+    for( auto it : closeApproachTimes )
     {
         std::cout << std::setprecision( 16 ) << it.first << " "
                   << spice_interface::getBodyCartesianStateAtEpoch( "-28", " Callisto", "ECLIPJ2000", "None", it.first ).transpose( )

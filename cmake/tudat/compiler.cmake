@@ -160,6 +160,7 @@
      set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
      set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
      set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
+     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
      if (APPLE)
          # standard apple clang compiler flags
@@ -305,7 +306,7 @@
      set(CMAKE_CXX_FLAGS_DEBUG "-g")
      set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare -Wno-maybe-uninitialized -Wno-stringop-overflow")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -333,6 +334,11 @@
 
  elseif (TUDAT_BUILD_MSVC)
      add_compile_definitions(TUDAT_BUILD_MSVC)
+     if (WIN32 AND TUDAT_FORCE_DYNAMIC_RUNTIME)
+         # Avoid unresolved MSVC STL vectorized helper symbols when the conda
+         # toolchain's runtime does not match the Visual Studio compiler.
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/D_USE_STD_VECTOR_ALGORITHMS=0>")
+     endif ()
      add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
      message(STATUS "Using MSVC compiler.")
      # problem: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=95&view=logs&j=00f5923e-fdef-5026-5091-0d5a0b3d5a2c&t=3cc4a9ed-60e1-5810-6eb3-5f9cd4a26dba
@@ -358,7 +364,7 @@
      endif ()
      if (MSVC_VERSION GREATER 1500)
          # Multiprocessor support during compilation
-         add_definitions("/MP")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/MP>")
      endif ()
  else ()
      message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}")
@@ -424,12 +430,15 @@
      endif ()
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -MP -W4 ${MSVC_DISABLED_WARNINGS_STR}")
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-     add_definitions(${MSVC_DISABLED_WARNINGS_STR})
+     foreach (MSVC_DISABLED_WARNING ${MSVC_DISABLED_WARNINGS_LIST})
+         string(REGEX REPLACE "^C" "" MSVC_DISABLED_WARNING_NUMBER "${MSVC_DISABLED_WARNING}")
+         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-wd${MSVC_DISABLED_WARNING_NUMBER}>")
+     endforeach ()
  endif ()
 
 if (MSVC)
   message(STATUS "Setting /bigobj")
-  add_compile_options(/bigobj)
+  add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/bigobj>")
 else()
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
 endif ()

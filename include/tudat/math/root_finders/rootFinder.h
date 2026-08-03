@@ -48,7 +48,7 @@ public:
      *  \param terminationFunction The function specifying the termination conditions of the
      *  root-finding process \sa RootFinderCore::terminationFunction_
      */
-    RootFinder( TerminationFunction terminationFunction ): terminationFunction_( terminationFunction ) { }
+    RootFinder( TerminationFunction terminationFunction ): terminationFunction_( terminationFunction ) {}
 
     RootFinder( std::shared_ptr< TerminationCondition< DataType > > terminationCondition ):
         terminationFunction_( std::bind( &TerminationCondition< DataType >::checkTerminationCondition,
@@ -58,13 +58,13 @@ public:
                                          std::placeholders::_3,
                                          std::placeholders::_4,
                                          std::placeholders::_5 ) )
-    { }
+    {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~RootFinder( ) { }
+    virtual ~RootFinder( ) {}
 
     //! Get the function subject to the rootfinding algorithm.
     /*!

@@ -14,7 +14,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BINARY_DIR}/tests/data/
     COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/data.zip
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/tests
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/data.zip
     COMMENT "Unpacking data.zip"
     VERBATIM
 )

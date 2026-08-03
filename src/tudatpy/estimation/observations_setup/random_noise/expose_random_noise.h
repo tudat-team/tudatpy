@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,7 @@ namespace observations_setup
 namespace random_noise
 {
 
-void expose_random_noise( py::module &m );
+void expose_random_noise( py::module& m );
 
 }  // namespace random_noise
 }  // namespace observations_setup

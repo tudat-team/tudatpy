@@ -40,7 +40,7 @@ public:
             const std::string& inputFilePath,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         JsonSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
-    { }
+    {}
 
     //! Constructor from JSON object.
     /*!
@@ -53,9 +53,9 @@ public:
             const nlohmann::json& jsonObject,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         JsonSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime )
-    { }
+    {}
 
-    virtual ~JsonVariationalEquationsSimulationManager( ) { }
+    virtual ~JsonVariationalEquationsSimulationManager( ) {}
 
     std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > getVariationalEquationsSolver( ) const
     {

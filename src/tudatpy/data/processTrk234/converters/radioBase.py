@@ -6,11 +6,12 @@ from tudatpy.dynamics.environment_setup.ground_station import (
     # from tudatpy.dynamics.environment import (
     get_approximate_dsn_ground_station_positions,
 )
-from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type:ignore
+from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type: ignore
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.astro import time_representation
 from . import Converter
-from trk234 import bands
+from trk234 import bands, SFDU
+from datetime import datetime
 
 
 class RadioBase(Converter):
@@ -33,7 +34,7 @@ class RadioBase(Converter):
 
     stationDict = get_approximate_dsn_ground_station_positions()
 
-    def get_link_ends(self, sfdu):
+    def get_link_ends(self, sfdu: SFDU) -> tuple[str, str, str]:
         """
         Returns the uplink, spacecraft, and downlink IDs for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -45,9 +46,9 @@ class RadioBase(Converter):
 
         Returns
         -------
-        tuple(int, int, int)
+        tuple(str, str, str)
             A tuple containing the uplink, spacecraft, and downlink IDs.
-            If the uplink or downlink are unknown or not valid, the function returns NaN.
+            If the uplink is unknown or not valid, the uplink entry is a `"nan"` string.
         """
         upLink = (
             sfdu.sec_chdo.vld_ul_stn
@@ -62,7 +63,7 @@ class RadioBase(Converter):
 
         return (upLink, scId, dlLink)
 
-    def get_band(self, sfdu):
+    def get_band(self, sfdu: SFDU) -> tuple[str, str]:
         """
         Returns the uplink and downlink radio bands for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -82,7 +83,7 @@ class RadioBase(Converter):
             bands[sfdu.sec_chdo.vld_dl_band],
         )
 
-    def get_tracking_mode(self, sfdu):
+    def get_tracking_mode(self, sfdu: SFDU) -> str:
         """
         Returns the tracking mode for a given SFDU record.
         The secondary CHDO has to be decoded before calling this function.
@@ -104,7 +105,9 @@ class RadioBase(Converter):
         )
         return trkMode
 
-    def build_link_ends_dict(self, link_end_tuple, spacecraftName=None):
+    def build_link_ends_dict(
+        self, link_end_tuple: tuple[str, str, str], spacecraftName: str | None = None
+    ) -> dict:
         """
         Construct a link ends dictionary for Doppler/Range observation creation.
 
@@ -126,18 +129,22 @@ class RadioBase(Converter):
             the reflector as the spacecraft, and the receiver using Earth's reference point from the third element.
         """
 
+        if len(link_end_tuple) != 3:
+            raise ValueError(
+                "Error when processing TNF file, building link ends dictionary: \n"
+                + f"the link end tuple should contain exactly 3 elements: {link_end_tuple} provided."
+            )
+
         # Set custom spacecraft name if provided
         if spacecraftName is not None:
             spacecraft = links.body_origin_link_end_id(spacecraftName)
         else:
             spacecraft = links.body_origin_link_end_id(link_end_tuple[1])
 
-        if link_end_tuple[0] == "nan" and len(link_end_tuple) == 2:
+        if link_end_tuple[0] == "nan":
             return {
                 links.transmitter: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id(
-                    "Earth", link_end_tuple[2]
-                ),
+                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
             }
         else:
             return {
@@ -145,18 +152,16 @@ class RadioBase(Converter):
                     "Earth", link_end_tuple[0]
                 ),
                 links.reflector1: spacecraft,
-                links.receiver: links.body_reference_point_link_end_id(
-                    "Earth", link_end_tuple[2]
-                ),
+                links.receiver: links.body_reference_point_link_end_id("Earth", link_end_tuple[2]),
             }
 
-    def from_datetime_to_TBD(self, epoch, station):
+    def from_datetime_UTC_to_TDB(self, datetime_utc: datetime, station: str) -> float:
         """
         Convert a datetime object in UTC into seconds since J2000 in TDB.
 
         Parameters
         ----------
-        epoch : datetime
+        datetime_utc : datetime
             The datetime object to convert.
 
         Returns
@@ -167,12 +172,10 @@ class RadioBase(Converter):
         if station not in self.stationDict:
             raise KeyError(
                 "Error when processing TNF file, converting time from UTC to TDB: \n"
-                + "the position of the ground station {} was not specified.".format(
-                    station
-                )
+                + "the position of the ground station {} was not specified.".format(station)
             )
 
-        epoch_utc = time_representation.DateTime.from_python_datetime(epoch).to_epoch()
+        epoch_utc = time_representation.DateTime.from_python_datetime(datetime_utc).to_epoch()
         epoch_tdb = self.time_scale_converter.convert_time(
             input_scale=time_representation.utc_scale,
             output_scale=time_representation.tdb_scale,

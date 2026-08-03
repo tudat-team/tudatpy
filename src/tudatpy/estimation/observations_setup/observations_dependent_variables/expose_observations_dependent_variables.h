@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,8 @@ namespace observations_setup
 namespace observations_dependent_variables
 {
 
-void expose_observations_dependent_variables( py::module &m );
+void expose_observations_dependent_variable_types( py::module& m );
+void expose_observations_dependent_variables( py::module& m );
 
 }  // namespace observations_dependent_variables
 }  // namespace observations_setup

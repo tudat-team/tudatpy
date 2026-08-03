@@ -29,7 +29,6 @@ namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace trf = tudat::reference_frames;
 
-
 namespace tudatpy
 {
 namespace estimation
@@ -54,7 +53,6 @@ void expose_estimation_analysis_ephemeris_fit( py::module& m )
            py::arg( "reintegrate_variational_equations" ) = true,
            py::arg( "results_print_frequency" ) = 0.0,
            R"doc(No documentation found.)doc" );
-
 }
 
 }  // namespace estimation_analysis

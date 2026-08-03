@@ -5,7 +5,10 @@ from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.astro import time_representation
 from tudatpy.dynamics.environment import (
     PiecewiseLinearFrequencyInterpolator,
+    SystemOfBodies,
+    FrequencyGapHandling,
 )
+from .converters.ramp import OpenRampHandling
 
 
 class Trk234Processor:
@@ -20,28 +23,35 @@ class Trk234Processor:
 
     Examples
     --------
-    >>> from tudatpy.data import Trk234Processor
-    >>>
-    >>> # Define TNF file paths
-    >>> tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
-    >>>
-    >>> # Create processor for both Doppler and range data
-    >>> tnf_processor = Trk234Processor(
-    ...     tnf_files,
-    ...     ["doppler", "range"],
-    ...     spacecraft_name="MRO"
-    ... )
-    >>>
-    >>> # Process observations
-    >>> observations = tnf_processor.process()
-    >>>
-    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
-    >>> tnf_processor.set_tnf_information_in_bodies(bodies)
+
+    .. code-block:: python
+
+        from tudatpy.data import Trk234Processor
+
+        # Define TNF file paths
+        tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
+
+        # Create processor for both Doppler and range data
+        tnf_processor = Trk234Processor(
+            tnf_files,
+            ["doppler", "range"],
+            spacecraft_name="MRO"
+        )
+
+        # Process observations
+        observations = tnf_processor.process()
+
+        # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
+        tnf_processor.set_tnf_information_in_bodies(bodies)
+
     """
 
     def __init__(
-        self, tnf_file_paths, requested_types, spacecraft_name=None, bodies=None
-    ):
+        self,
+        tnf_file_paths: list[str],
+        requested_types: list[str],
+        spacecraft_name: str | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -52,15 +62,12 @@ class Trk234Processor:
             Note: "ramp" should NOT be included here.
         spacecraft_name : str, optional
             The spacecraft name for building link definitions.
-        bodies : object, optional
-            The simulation bodies container (used for setting ramp data).
         """
         self.tnf_file_paths = tnf_file_paths
         self.spacecraft_name = spacecraft_name
-        self.bodies = bodies
 
         # Initialize observables converters.
-        self.converters = {}
+        self.converters: dict[str, cnv.Converter] = {}
         if "doppler" in requested_types:
             self.converters["doppler"] = cnv.DerivedDopplerConverter()
         if "range" in requested_types:
@@ -69,7 +76,7 @@ class Trk234Processor:
         # Initialize ramp converter if needed.
         self.ramp_converter = cnv.RampConverter()
 
-    def process(self):
+    def process(self) -> ObservationCollection:
         """
         Process all TNF files provided at initialization. For each file, decode the SFDU data,
         and for each requested radiometric data type, extract data via the converter's extract method.
@@ -78,9 +85,8 @@ class Trk234Processor:
 
         Returns
         -------
-        ObservationCollection or None
-            An ObservationCollection containing all radiometric observation sets,
-            or None if none were processed.
+        ObservationCollection
+            An ObservationCollection containing all radiometric observation sets, if none were extracted, an empty collection is returned.
         """
         # Accumulate outputs for radiometric converters.
         extracted_data = {key: [] for key in self.converters.keys()}
@@ -102,13 +108,16 @@ class Trk234Processor:
             if extracted_data[dtype]:
                 merged_df = pd_concat(extracted_data[dtype], ignore_index=True)
                 if not merged_df.empty:
-                    observation_sets.extend(
-                        converter.process(merged_df, self.spacecraft_name)
-                    )
+                    observation_sets.extend(converter.process(merged_df, self.spacecraft_name))
 
         return ObservationCollection(observation_sets)
 
-    def set_tnf_information_in_bodies(self, bodies):
+    def set_tnf_information_in_bodies(
+        self,
+        bodies: SystemOfBodies,
+        gap_handling: FrequencyGapHandling = FrequencyGapHandling.extrapolate_at_gaps,
+        open_ramp_handling: OpenRampHandling = OpenRampHandling.print_warning_once,
+    ) -> None:
         """
         Update stations in bodies by setting the frequency interpolators from the ramp data.
         Set the transponder turnaround ratio for the spacecraft.
@@ -117,12 +126,12 @@ class Trk234Processor:
 
         Parameters
         ----------
-        ramp_df : pd.DataFrame
-            DataFrame containing ramp data.
-        spacecraft_name : str
-            The spacecraft name used for setting the transponder turnaround ratio.
-        bodies : object
+        bodies : SystemOfBodies
             The simulation bodies container.
+        gap_handling : FrequencyGapHandling
+            The gap handling strategy for the frequency interpolators. Defaults to ``FrequencyGapHandling.extrapolate_at_gaps``.
+        open_ramp_handling : OpenRampHandling
+            Strategy for closing open-ended ramp intervals. Defaults to ``OpenRampHandling.print_warning_once``.
         """
 
         ramp_data_list = []
@@ -138,6 +147,7 @@ class Trk234Processor:
         all_ramps.reset_index(drop=True, inplace=True)
 
         ramp_df = self.ramp_converter.process(all_ramps)
+        ramp_df = self.ramp_converter.handle_open_ramps(ramp_df, open_ramp_handling)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
             lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
@@ -148,14 +158,21 @@ class Trk234Processor:
         earth = bodies.get("Earth")
         for station in ramp_df["station"].unique():
             station_df = ramp_df[ramp_df["station"] == station]
-            frequencyInterpolator = PiecewiseLinearFrequencyInterpolator(
+            frequency_interpolator = PiecewiseLinearFrequencyInterpolator(
                 station_df["start_time_seconds"].tolist(),
                 station_df["end_time_seconds"].tolist(),
                 station_df["rate"].tolist(),
                 station_df["freq"].tolist(),
+                gap_handling=gap_handling,
             )
-            groundStation = earth.get_ground_station(station)
-            groundStation.set_transmitting_frequency_calculator(frequencyInterpolator)
+            ground_station = earth.get_ground_station(station)
+
+            if not ground_station.has_frequency_calculator():
+                ground_station.set_transmitting_frequency_calculator(frequency_interpolator)
+            else:
+                ground_station.transmitting_frequency_calculator.add_frequency_interpolator(
+                    frequency_interpolator
+                )
 
         if self.spacecraft_name:
             spacecraft = bodies.get(self.spacecraft_name)

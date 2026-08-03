@@ -43,17 +43,21 @@ public:
      */
     TwoWayDopplerObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                    multiLegLightTimeCalculator,
+            const std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > >
+                    fullLinkLightTimeCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                     uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
                     downlinkDopplerCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const bool normalizeWithSpeedOfLight = false ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator ), uplinkDopplerCalculator_( uplinkDopplerCalculator ),
-        downlinkDopplerCalculator_( downlinkDopplerCalculator )
+        ObservationModel< 1, ObservationScalarType, TimeType >(
+                two_way_doppler,
+                linkEnds,
+                observationBiasCalculator,
+                std::vector< std::shared_ptr< FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > >{
+                        fullLinkLightTimeCalculator } ),
+        uplinkDopplerCalculator_( uplinkDopplerCalculator ), downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
@@ -82,15 +86,17 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > fullLinkLightTimeCalculator =
+                getFullLinkLightTimeCalculator( );
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
+                time, linkEndAssociatedWithTime, fullLinkLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
-        multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+        fullLinkLightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
         std::vector< double > uplinkLinkEndTimes = { linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) };
@@ -151,6 +157,11 @@ public:
         return downlinkDopplerCalculator_;
     }
 
+    std::shared_ptr< observation_models::FullLinkLightTimeCalculator< ObservationScalarType, TimeType > > getFullLinkLightTimeCalculator( )
+    {
+        return this->getFullLinkLightTimeCalculatorFromBase( );
+    }
+
     void setNormalizeWithSpeedOfLight( const bool normalizeWithSpeedOfLight )
     {
         normalizeWithSpeedOfLight_ = normalizeWithSpeedOfLight;
@@ -168,9 +179,22 @@ public:
         return multiplicationTerm_;
     }
 
-private:
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+    std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
+    getLegLightTimeCalculators( ) const override
+    {
+        std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > > legMap;
+        const auto legCalculators = this->getLightTimeCalculatorsFromBase( );
+        const int numberOfLinkEnds = static_cast< int >( legCalculators.size( ) ) + 1;
+        for( unsigned int i = 0; i < legCalculators.size( ); i++ )
+        {
+            const auto fromType = getNWayLinkEnumFromIndex( static_cast< int >( i ), numberOfLinkEnds );
+            const auto toType = getNWayLinkEnumFromIndex( static_cast< int >( i ) + 1, numberOfLinkEnds );
+            legMap[ std::make_pair( fromType, toType ) ].push_back( legCalculators.at( i ) );
+        }
+        return legMap;
+    }
 
+private:
     //! Object that computes the one-way Doppler observable for the uplink
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerCalculator_;
 

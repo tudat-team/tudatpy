@@ -76,7 +76,7 @@ public:
         setAndValidateInput( vectorEntries );
     }
 
-    virtual ~StationMeteoData( ) { }
+    virtual ~StationMeteoData( ) {}
 
     double getTemperature( const double currentUtc )
     {
@@ -172,9 +172,9 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator,
             const std::map< MeteoDataEntries, int > vectorEntries ):
         StationMeteoData( vectorEntries ), meteoDataInterpolator_( meteoDataInterpolator )
-    { }
+    {}
 
-    ~ContinuousInterpolatedMeteoData( ) { }
+    ~ContinuousInterpolatedMeteoData( ) {}
 
 private:
     void updateData( const double currentUtc );
@@ -199,7 +199,7 @@ public:
         lookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
     }
 
-    ~PiecewiseInterpolatedMeteoData( ) { }
+    ~PiecewiseInterpolatedMeteoData( ) {}
 
     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > getMeteoDataInterpolators( )
     {
@@ -233,7 +233,7 @@ private:
 class StationTroposphereData
 {
 public:
-    virtual ~StationTroposphereData( ) { }
+    virtual ~StationTroposphereData( ) {}
 
     virtual Eigen::Vector2d getZenithDelay( const double currentUtc ) = 0;
 
@@ -251,9 +251,9 @@ public:
             const bool dataHasGradient ):
         troposphereInterpolator_( troposphereInterpolator ), dataHasMappingFunction_( dataHasMappingFunction ),
         dataHasGradient_( dataHasGradient ), gradientStartIndex_( dataHasMappingFunction ? 4 : 2 ), currentUtc_( TUDAT_NAN )
-    { }
+    {}
 
-    ~InterpolatedStationTroposphereData( ) { }
+    ~InterpolatedStationTroposphereData( ) {}
 
     Eigen::Vector2d getZenithDelay( const double currentUtc )
     {
@@ -306,8 +306,6 @@ private:
             {
                 throw std::runtime_error( "Error in station meteo data.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
-
-
         }
     }
 

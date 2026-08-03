@@ -17,7 +17,7 @@ namespace tudat
 namespace observation_partials
 {
 
-void emptyVoidFunction( ) { }
+void emptyVoidFunction( ) {}
 
 //! Function to compute numerical partial derivative of double observable w.r.t. double parameter.
 Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(

@@ -40,7 +40,7 @@ public:
                            const HodographicBasisFunctionList& axialVelocityFunctionComponents );
 
     //! Default destructor.
-    ~HodographicShapingLeg( ) { }
+    ~HodographicShapingLeg( ) {}
 
     //! Compute current cartesian state.
     Eigen::Vector6d computeCurrentCartesianState( const double timeSinceDeparture );

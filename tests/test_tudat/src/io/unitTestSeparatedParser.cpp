@@ -47,10 +47,10 @@ public:
                 input_output::field_types::state::cartesianXCoordinate,
                 input_output::field_types::state::cartesianYCoordinate,
                 input_output::field_types::state::cartesianZCoordinate )
-    { }
+    {}
 
     //! Default destructor.
-    ~test_separated_parser_fixture( ) { }
+    ~test_separated_parser_fixture( ) {}
 
     //! A separated parser.
     input_output::SeparatedParser parser;

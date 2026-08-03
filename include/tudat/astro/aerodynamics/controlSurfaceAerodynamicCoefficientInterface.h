@@ -71,7 +71,7 @@ public:
     }
 
     //! Destructor
-    virtual ~ControlSurfaceIncrementAerodynamicInterface( ) { }
+    virtual ~ControlSurfaceIncrementAerodynamicInterface( ) {}
 
     //! Compute the aerodynamic coefficient increments of the control surface.
     /*!
@@ -207,7 +207,7 @@ public:
             const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ), coefficientFunction_( coefficientFunction )
-    { }
+    {}
 
     CustomControlSurfaceIncrementAerodynamicInterface(
             const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
@@ -220,7 +220,7 @@ public:
     }
 
     //! Destructor
-    ~CustomControlSurfaceIncrementAerodynamicInterface( ) { }
+    ~CustomControlSurfaceIncrementAerodynamicInterface( ) {}
 
     //! Compute the aerodynamic coefficient increments of the control surface.
     /*!

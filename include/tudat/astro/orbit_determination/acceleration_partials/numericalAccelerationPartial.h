@@ -20,6 +20,7 @@
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 
 namespace tudat
 {
@@ -62,6 +63,24 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         int startIndex,
         std::function< void( ) > updateFunction = emptyFunction,
         const double evaluationTime = TUDAT_NAN );
+
+Eigen::Matrix< double, 1, 6 > calculateRelativisticTimeDerivativeWrtStatePartials(
+        const std::function< void( const Eigen::Vector6d& ) > setBodyState,
+        const std::shared_ptr< RelativisticTimeStateDerivative<> > stateDerivativeModel,
+        const Eigen::Vector6d& originalState,
+        const Eigen::Vector6d& statePerturbation,
+        const double currentCoordinateTime = 0.0,
+        const double currentProperTime = 0.0,
+        const std::function< void( ) > updateFunction = emptyFunction );
+
+Eigen::Matrix< double, 1, Eigen::Dynamic > calculateRelativisticTimeDerivativeWrtParameterPartials(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        const std::shared_ptr< RelativisticTimeStateDerivative<> > stateDerivativeModel,
+        const double parameterPerturbation,
+        const std::function< void( ) > updateDependentVariables = emptyFunction,
+        const double currentCoordinateTime = 0.0,
+        const double currentProperTime = 0.0,
+        const std::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
 Eigen::Vector3d calculateAccelerationWrtMassPartials(
         std::function< void( double ) > setBodyMass,

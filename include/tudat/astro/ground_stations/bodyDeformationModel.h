@@ -33,7 +33,7 @@ namespace basic_astrodynamics
 class BodyDeformationModel
 {
 public:
-    virtual ~BodyDeformationModel( ) { }
+    virtual ~BodyDeformationModel( ) {}
 
     virtual Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition ) = 0;
 
@@ -52,7 +52,7 @@ public:
             std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >&( ) > modelList,
             const bool throwExceptionWhenNotAvailable ):
         modelList_( modelList ), throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable )
-    { }
+    {}
 
     Eigen::Vector6d getBodyFixedStationMotion( const double time,
                                                const std::shared_ptr< ground_stations::GroundStationState > groundStationState,

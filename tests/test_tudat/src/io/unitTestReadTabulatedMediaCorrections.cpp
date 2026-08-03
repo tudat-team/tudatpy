@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( testCspCommandsExtraction )
         BOOST_CHECK_EQUAL( ( extractedCspCommands.size( ) > 0 ), true );
         std::vector< unsigned int > cspCommandsIds = { 0, 1, static_cast< unsigned int >( extractedCspCommands.size( ) ) - 1 };
 
-        for( unsigned int cspCommandId: cspCommandsIds )
+        for( unsigned int cspCommandId : cspCommandsIds )
         {
             std::shared_ptr< AtmosphericCorrectionCspCommand > atmosphericCommand =
                     std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >( extractedCspCommands.at( cspCommandId ) );
