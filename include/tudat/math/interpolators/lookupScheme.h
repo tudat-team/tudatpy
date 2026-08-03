@@ -47,13 +47,13 @@ public:
      */
     LookUpScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
         independentVariableValues_( independentVariableValues )
-    { }
+    {}
 
     //! Destructor.
     /*!
      * Destructor.
      */
-    virtual ~LookUpScheme( ) { }
+    virtual ~LookUpScheme( ) {}
 
     //! Find nearest left neighbour.
     /*!
@@ -105,13 +105,13 @@ public:
      */
     HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
         LookUpScheme< IndependentVariableType >( independentVariableValues ), isFirstLookupDone( 0 ), previousNearestLowerIndex_( 0 )
-    { }
+    {}
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~HuntingAlgorithmLookupScheme( ) { }
+    ~HuntingAlgorithmLookupScheme( ) {}
 
     //! Find nearest left neighbour.
     /*!
@@ -193,13 +193,13 @@ public:
      */
     BinarySearchLookupScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
         LookUpScheme< IndependentVariableType >( independentVariableValues )
-    { }
+    {}
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~BinarySearchLookupScheme( ) { }
+    ~BinarySearchLookupScheme( ) {}
 
     //! Find nearest left neighbour.
     /*!

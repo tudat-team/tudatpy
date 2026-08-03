@@ -298,7 +298,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             {
                 currentObservation = observationModel->computeIdealObservationsWithLinkEndData(
                         referenceObservationTimes.at( i ), receiver, vectorOfTimes, vectorOfStates );
-                isObservationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
+                isObservationFeasible = observation_models::isObservationViable(
+                        vectorOfStates, vectorOfTimes, additionalViabilityCalculators, currentObservation );
                 if( testObservationTimes.at( testIndex ) == referenceObservationTimes.at( i ) )
                 {
                     BOOST_CHECK_EQUAL( isObservationFeasible, true );

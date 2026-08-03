@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -26,7 +25,8 @@ namespace observations_setup
 namespace observations_simulation_settings
 {
 
-void expose_observations_simulation_settings( py::module &m );
+void expose_observation_simulation_settings_types( py::module& m );
+void expose_observations_simulation_settings( py::module& m );
 
 }  // namespace observations_simulation_settings
 }  // namespace observations_setup

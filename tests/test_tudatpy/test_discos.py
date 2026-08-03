@@ -29,10 +29,10 @@ MOCK_RESPONSE_DISCOS_ID = {
             "predDecayDate": None,
             "active": None,
             "cataloguedFragments": 0,
-            "onOrbitCataloguedFragments": 0
+            "onOrbitCataloguedFragments": 0,
         },
         "relationships": {},
-        "links": {}
+        "links": {},
     }
 }
 
@@ -50,7 +50,7 @@ MOCK_RESPONSE_NORAD_ID = {
                 "mass": 450000,
             },
             "relationships": {},
-            "links": {}
+            "links": {},
         }
     ]
 }
@@ -62,7 +62,7 @@ def discos_query():
     return DiscosQuery(token="fake_token_123")
 
 
-@patch('tudatpy.data.discos.discos.requests.get')
+@patch("tudatpy.data.discos.discos.requests.get")
 def test_query_norad_success(mock_get, discos_query):
     """
     Tests Query by NORAD ID (Default).
@@ -73,7 +73,7 @@ def test_query_norad_success(mock_get, discos_query):
     mock_response.json.return_value = MOCK_RESPONSE_NORAD_ID
     mock_get.return_value = mock_response
 
-    result = discos_query.query_object('25544', is_discos_id=False, verbose=False)
+    result = discos_query.query_object("25544", is_discos_id=False, verbose=False)
 
     # Verify request
     mock_get.assert_called_once()
@@ -83,11 +83,11 @@ def test_query_norad_success(mock_get, discos_query):
 
     # Verify result
     assert isinstance(result, dict)
-    assert result.get('mass') == 450000
-    assert result.get('name') == 'International Space Station'
+    assert result.get("mass") == 450000
+    assert result.get("name") == "International Space Station"
 
 
-@patch('tudatpy.data.discos.discos.requests.get')
+@patch("tudatpy.data.discos.discos.requests.get")
 def test_query_discos_id_success(mock_get, discos_query):
     """
     Tests query by DISCOS ID using is_discos_id = True.
@@ -98,7 +98,7 @@ def test_query_discos_id_success(mock_get, discos_query):
     mock_response.json.return_value = MOCK_RESPONSE_DISCOS_ID
     mock_get.return_value = mock_response
 
-    result = discos_query.query_object('25544', is_discos_id=True, verbose=False)
+    result = discos_query.query_object("25544", is_discos_id=True, verbose=False)
 
     # Verify request
     mock_get.assert_called_once()
@@ -108,11 +108,11 @@ def test_query_discos_id_success(mock_get, discos_query):
 
     # Verify result
     assert isinstance(result, dict)
-    assert result.get('mass') == 942.52
-    assert result.get('name') == 'Delta II second stage (Delta 7925)'
+    assert result.get("mass") == 942.52
+    assert result.get("name") == "Delta II second stage (Delta 7925)"
 
 
-@patch('tudatpy.data.discos.discos.requests.get')
+@patch("tudatpy.data.discos.discos.requests.get")
 def test_query_not_found(mock_get, discos_query):
     """
     Tests invalid satellite norad and discos id.
@@ -120,17 +120,17 @@ def test_query_not_found(mock_get, discos_query):
     """
     mock_response = MagicMock()
     mock_response.ok = True
-    mock_response.json.return_value = {'data': []}
+    mock_response.json.return_value = {"data": []}
     mock_get.return_value = mock_response
 
-    result_norad = discos_query.query_object('00000', verbose=False)
-    result_discos = discos_query.query_object('00000', is_discos_id=True, verbose=False)
+    result_norad = discos_query.query_object("00000", verbose=False)
+    result_discos = discos_query.query_object("00000", is_discos_id=True, verbose=False)
 
     assert result_norad is None
     assert result_discos is None
 
 
-@patch('tudatpy.data.discos.discos.requests.get')
+@patch("tudatpy.data.discos.discos.requests.get")
 def test_api_error(mock_get, discos_query):
     """
     Scenario: API server error or Auth failure.
@@ -138,10 +138,10 @@ def test_api_error(mock_get, discos_query):
     """
     mock_response = MagicMock()
     mock_response.ok = False
-    mock_response.json.return_value = {'errors': 'This is an Error'}
+    mock_response.json.return_value = {"errors": "This is an Error"}
     mock_get.return_value = mock_response
 
-    result = discos_query.query_object('12345', verbose=False)
+    result = discos_query.query_object("12345", verbose=False)
 
     mock_get.assert_called_once()
     assert result is None

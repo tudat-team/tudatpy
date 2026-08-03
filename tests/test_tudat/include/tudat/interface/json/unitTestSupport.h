@@ -65,7 +65,7 @@ void checkConsistentEnum( const std::string& filename,
 
     // Create vector of supported values
     std::vector< Enum > supportedValues;
-    for( auto entry: stringValues )
+    for( auto entry : stringValues )
     {
         Enum value = entry.first;
         if( !contains( usupportedValues, value ) )

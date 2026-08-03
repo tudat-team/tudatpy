@@ -10,8 +10,6 @@
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
-#include <algorithm>
-
 namespace tio = tudat::input_output;
 
 namespace tudat
@@ -104,8 +102,9 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock( const std::shared_ptr< inp
     {
         case input_output::OdfDataType::one_way_doppler:
             linkEnds[ observation_models::LinkEndType::transmitter ] = observation_models::LinkEndId( spacecraftName );
-            linkEnds[ observation_models::LinkEndType::receiver ] =
-                    observation_models::LinkEndId( "Earth", getStationNameFromStationId( 0, commonDataBlock->receivingStationId_ ) );
+            linkEnds[ observation_models::LinkEndType::receiver ] = observation_models::LinkEndId(
+                    "Earth",
+                    getStationNameFromStationId( commonDataBlock->transmittingStationNetworkId_, commonDataBlock->receivingStationId_ ) );
             break;
         case input_output::OdfDataType::two_way_doppler:
         case input_output::OdfDataType::three_way_doppler:
@@ -115,8 +114,9 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock( const std::shared_ptr< inp
                                                    getStationNameFromStationId( commonDataBlock->transmittingStationNetworkId_,
                                                                                 commonDataBlock->transmittingStationId_ ) );
             linkEnds[ observation_models::LinkEndType::reflector1 ] = observation_models::LinkEndId( spacecraftName );
-            linkEnds[ observation_models::LinkEndType::receiver ] =
-                    observation_models::LinkEndId( "Earth", getStationNameFromStationId( 0, commonDataBlock->receivingStationId_ ) );
+            linkEnds[ observation_models::LinkEndType::receiver ] = observation_models::LinkEndId(
+                    "Earth",
+                    getStationNameFromStationId( commonDataBlock->transmittingStationNetworkId_, commonDataBlock->receivingStationId_ ) );
             break;
         default:
             throw std::runtime_error( "Error when getting link ends from ODF data blocks: Data type " +

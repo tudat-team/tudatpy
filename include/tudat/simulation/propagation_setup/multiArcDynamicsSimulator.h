@@ -857,7 +857,6 @@ std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > vali
                                                 updateDependentVariableInterpolator );
 }
 
-
 #if TUDAT_BUILD_EXPLICIT_INSTANTIATIONS
 extern template class MultiArcDynamicsSimulator< double, double >;
 #endif

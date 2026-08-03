@@ -26,9 +26,9 @@ namespace ephemerides
 class LongitudeLibrationCalculator
 {
 public:
-    LongitudeLibrationCalculator( ) { }
+    LongitudeLibrationCalculator( ) {}
 
-    virtual ~LongitudeLibrationCalculator( ) { }
+    virtual ~LongitudeLibrationCalculator( ) {}
 
     virtual double getLibrationAngleWrtFullySynchronousRotation( const Eigen::Vector6d& relativeState, const double time ) = 0;
 
@@ -41,9 +41,9 @@ class DirectLongitudeLibrationCalculator : public LongitudeLibrationCalculator
 public:
     DirectLongitudeLibrationCalculator( const double scaledLibrationAmplitude ):
         LongitudeLibrationCalculator( ), scaledLibrationAmplitude_( scaledLibrationAmplitude )
-    { }
+    {}
 
-    ~DirectLongitudeLibrationCalculator( ) { }
+    ~DirectLongitudeLibrationCalculator( ) {}
 
     double getLibrationAngleWrtFullySynchronousRotationFromScaledLibration( const Eigen::Vector6d& relativeState,
                                                                             const double time,
@@ -102,7 +102,7 @@ public:
     }
 
     //! Destructor
-    ~SynchronousRotationalEphemeris( ) { }
+    ~SynchronousRotationalEphemeris( ) {}
 
     Eigen::Matrix3d getFullyLockedRotationToBaseFrame( const Eigen::Vector6d& relativeState, const double currentTime );
 

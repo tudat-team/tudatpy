@@ -22,7 +22,7 @@ namespace math
 namespace interpolators
 {
 
-void expose_interpolators( py::module &m );
+void expose_interpolators( py::module& m );
 
 }
 }  // namespace math

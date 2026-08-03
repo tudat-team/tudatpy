@@ -96,7 +96,7 @@ public:
     }
 
     //! Destructor
-    virtual ~BodyMassStateDerivative( ) { }
+    virtual ~BodyMassStateDerivative( ) {}
 
     //! Calculates the state derivative of the system of equations for the mass dynamics
     /*!
@@ -260,7 +260,7 @@ private:
             }
         }
 
-        for( auto it: massRateModels_ )
+        for( auto it : massRateModels_ )
         {
             if( std::find( bodiesToIntegrate_.begin( ), bodiesToIntegrate_.end( ), it.first ) == bodiesToIntegrate_.end( ) )
             {

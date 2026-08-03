@@ -102,10 +102,10 @@ void integrateForwardWithDissipationAndBackwardsWithout(
     // Save states and dependent variables for both forward and backward integration
     propagatedStates = std::make_pair(
             utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( forwardIntegrated ),
-                    utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( backwardIntegrated ) );
+            utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( backwardIntegrated ) );
     dependentVariables = std::make_pair(
             utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >( forwardIntegratedDependent ),
-                    utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >( backwardIntegratedDependent ) );
+            utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >( backwardIntegratedDependent ) );
 }
 
 //! Function to determine the initial rotational state for which the free mode is fully damped

@@ -25,8 +25,7 @@ namespace tudat
 namespace input_output
 {
 
-struct SinexStationState
-{
+struct SinexStationState {
     std::string siteCode_ = "";
     std::string domesId_ = "";
     Eigen::Vector3d position_ = Eigen::Vector3d::Constant( TUDAT_NAN );
@@ -34,8 +33,7 @@ struct SinexStationState
     double referenceEpoch_ = TUDAT_NAN;
 };
 
-struct SinexStationEccentricity
-{
+struct SinexStationEccentricity {
     std::string domesId_ = "";
     int stationCode_ = -1;
     Eigen::Vector3d eccentricity_ = Eigen::Vector3d::Zero( );
@@ -44,8 +42,7 @@ struct SinexStationEccentricity
     bool hasOpenEnd_ = false;
 };
 
-struct IlrsStationRegistryEntry
-{
+struct IlrsStationRegistryEntry {
     int stationCode_ = -1;
     std::string stationName_ = "";
     std::string domesId_ = "";

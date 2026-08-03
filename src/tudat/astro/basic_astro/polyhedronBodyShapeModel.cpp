@@ -54,7 +54,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         }
 
         // Loop over selected vertices
-        for( unsigned int vertex: verticesToTest )
+        for( unsigned int vertex : verticesToTest )
         {
             // Loop over the edges and select the ones that include the selected vertex
             for( unsigned int edge = 0; edge < numberOfEdges; ++edge )
@@ -89,7 +89,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         // Create matrix with vertices defining each edge to be tested
         Eigen::MatrixXi verticesDefiningEachEdgeToTest = Eigen::MatrixXi::Constant( edgesToTest.size( ), 2, -1 );
         unsigned int counter = 0;
-        for( unsigned int edge: edgesToTest )
+        for( unsigned int edge : edgesToTest )
         {
             verticesDefiningEachEdgeToTest( counter, 0 ) = verticesDefiningEachEdge_( edge, 0 );
             verticesDefiningEachEdgeToTest( counter, 1 ) = verticesDefiningEachEdge_( edge, 1 );
@@ -99,7 +99,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         // Create matrix with vertices defining each facet to be tested
         Eigen::MatrixXi verticesDefiningEachFacetToTest = Eigen::MatrixXi::Constant( facetsToTest.size( ), 3, -1 );
         counter = 0;
-        for( unsigned int facet: facetsToTest )
+        for( unsigned int facet : facetsToTest )
         {
             verticesDefiningEachFacetToTest( counter, 0 ) = verticesDefiningEachFacet_( facet, 0 );
             verticesDefiningEachFacetToTest( counter, 1 ) = verticesDefiningEachFacet_( facet, 1 );
@@ -301,7 +301,7 @@ void PolyhedronBodyShapeModel::computeVerticesDefiningEachEdge( )
     }
     for( unsigned int i = 0; i < numberOfEdges; ++i )
     {
-        for( unsigned int j: { 0, 1 } )
+        for( unsigned int j : { 0, 1 } )
         {
             if( verticesDefiningEachEdge_( i, j ) != verticesDefiningEachEdge_( i, j ) )
             {

@@ -159,7 +159,7 @@ def get_biases_EFCC18(
     """Calculate and return star catalog bias values as described in:
     "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
     Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
-    This can then be selected using the bias_file parameter.
+    This can then be selected using the bias_file paramater.
 
     Parameters
     ----------
@@ -181,7 +181,7 @@ def get_biases_EFCC18(
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Right Ascension Corrections, Declination corrections
+        Right Ascencion Corrections, Declination corrections
 
     Raises
     ------
@@ -208,17 +208,13 @@ def get_biases_EFCC18(
     # load bias file
     # index matches the pixels
     # this is effectively a 3d table with axes: (pixel, star catalog), value) using pandas multiindex
-    bias_df, nside = load_bias_file(
-        filepath=bias_file, Nside=Nside, catalog_flags=catalog_flags
-    )
+    bias_df, nside = load_bias_file(filepath=bias_file, Nside=Nside, catalog_flags=catalog_flags)
 
     # find nearest tile using HEALPix Algorithm and get indices
     # ideally nside should be retrieved from the load_bias_file function
     hp_obj = HEALPix(nside=nside)
 
-    pixels = hp_obj.lonlat_to_healpix(
-        Quantity(RA, unit=u.rad), Quantity(DEC, unit=u.rad)
-    )
+    pixels = hp_obj.lonlat_to_healpix(Quantity(RA, unit=u.rad), Quantity(DEC, unit=u.rad))
 
     # retrieve bias values from bias file using indices
     # result is N x 4 biases for the correct star catalog
@@ -319,9 +315,7 @@ def get_weights_VFCC17(
         and (observatory is not None)
         and (star_catalog is not None)
     ):
-        if not (
-            len(epoch) == len(observation_type) == len(observatory) == len(star_catalog)
-        ):
+        if not (len(epoch) == len(observation_type) == len(observatory) == len(star_catalog)):
             raise ValueError("All inputs must have same size")
 
         table_dict = {
@@ -345,16 +339,18 @@ def get_weights_VFCC17(
             "Must provide either parameters: `epoch`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
         )
 
+    table["observatory"] = table["observatory"].astype(str).str.strip().str.zfill(3)
+    table["number"] = table["number"].astype(str).str.strip()
+
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
 
     # get an approximate timezone based on the observatory code's longitude
     observatories_table = MPC.get_observatory_codes().to_pandas()
+    observatories_table["Code"] = observatories_table["Code"].astype(str).str.strip().str.zfill(3)
     observatories_table = (
-        observatories_table.assign(
-            lon_wrapping=lambda x: (x.Longitude + 180) % 360 - 180
-        )
+        observatories_table.assign(lon_wrapping=lambda x: (x.Longitude + 180) % 360 - 180)
         .assign(approx_tz=lambda x: ((x.lon_wrapping / 180) * 12))
         .assign(jd_tz=lambda x: (x.lon_wrapping / 360).fillna(0))
         .loc[:, ["Code", "approx_tz", "jd_tz"]]
@@ -419,7 +415,7 @@ def get_weights_VFCC17(
 
     # CCD
     # ###################
-    # TABLE 3: asteroid observers
+    # TABLE 3: astroid observers
     # Table 3 conditions:
     # NOTE for now CCD will receive the same base weighting as CCD.
     # CMOS sensors for astronomy is a new development.
@@ -455,17 +451,11 @@ def get_weights_VFCC17(
 
     # Apply Table 2:
     table.inv_w = table.inv_w.mask((tab2_703_epoch & (table.observatory == "703")), 1.0)
-    table.inv_w = table.inv_w.mask(
-        (~tab2_703_epoch & (table.observatory == "703")), 0.8
-    )
+    table.inv_w = table.inv_w.mask((~tab2_703_epoch & (table.observatory == "703")), 0.8)
     table.inv_w = table.inv_w.mask((tab2_691_epoch & (table.observatory == "691")), 0.6)
-    table.inv_w = table.inv_w.mask(
-        (~tab2_691_epoch & (table.observatory == "691")), 0.5
-    )
+    table.inv_w = table.inv_w.mask((~tab2_691_epoch & (table.observatory == "691")), 0.5)
     table.inv_w = table.inv_w.mask((tab2_644_epoch & (table.observatory == "644")), 0.6)
-    table.inv_w = table.inv_w.mask(
-        (~tab2_644_epoch & (table.observatory == "644")), 0.4
-    )
+    table.inv_w = table.inv_w.mask((~tab2_644_epoch & (table.observatory == "644")), 0.4)
     # ###################
 
     # ###################
@@ -487,7 +477,7 @@ def get_weights_VFCC17(
         "F65",
     ]
     # NOTE these are additional LCO observatories, mostly online after publication
-    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omission in the paper.
+    # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omssion in the paper.
     # Those thus assume the default inv_weight of 1.0
     # Since remaining 1m telescopes are duplicates of existing observatories, they are included.
     # Dates retrieved from: https://sbnmpc.astro.umd.edu/mpecwatch/obs.html
@@ -517,21 +507,15 @@ def get_weights_VFCC17(
     tab4_Catalog_GAIA = table.catalog.isin(["U", "V", "W", "X", "3", "6"])
     tab4_Catalog_USNOB12 = table.catalog.isin(["o", "s"])
 
-    tab4_G83_UCAC4_PPMXL = (table.observatory == "G83") & (
-        tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL
-    )
+    tab4_G83_UCAC4_PPMXL = (table.observatory == "G83") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
     tab4_G83_GAIA = (table.observatory == "G83") & tab4_Catalog_GAIA
 
-    tab4_Y28_GAIA_PPMXL = (table.observatory == "Y28") & (
-        tab4_Catalog_PPMXL & tab4_Catalog_GAIA
-    )
+    tab4_Y28_GAIA_PPMXL = (table.observatory == "Y28") & (tab4_Catalog_PPMXL & tab4_Catalog_GAIA)
     tab4_568_USNOB = (table.observatory == "568") & tab4_Catalog_USNOB12
     tab4_568_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
     tab4_568_PPMXL = (table.observatory == "568") & tab4_Catalog_PPMXL
     tab4_T09_T12_T14_GAIA = (table.observatory.isin(MAUNAKEA_obs)) & tab4_Catalog_GAIA
-    tab4_309_UCAC4_PPMXL = (table.observatory == "309") & (
-        tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL
-    )
+    tab4_309_UCAC4_PPMXL = (table.observatory == "309") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
     tab4_309_GAIA = (table.observatory == "309") & tab4_Catalog_GAIA
 
     # Apply Table 4:
@@ -557,8 +541,7 @@ def get_weights_VFCC17(
 
     # Transform residual into weight:
     table = table.assign(
-        weight_pre=lambda x: 1
-        / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
+        weight_pre=lambda x: 1 / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
     )
 
     # Reduce weight if there are more than 4 observations that night:
@@ -575,9 +558,7 @@ def get_weights_VFCC17(
     # Which also means: weight_new = 1/(sigma_new^2) = W_old/N
     # Since we want the weight to be 1 when N = 4, we end up dividing by 4.
     # How this is done in practice: we divide the weight by N if N > 4, else 1.
-    table = table.assign(
-        mult_obs_deweight=lambda x: np.maximum(x.observations_on_epoch / 4, 1.0)
-    )
+    table = table.assign(mult_obs_deweight=lambda x: np.maximum(x.observations_on_epoch / 4, 1.0))
 
     table = table.assign(weight=lambda x: x.weight_pre / x.mult_obs_deweight)
 
@@ -725,12 +706,15 @@ class BatchMPC:
         self._table.drop_duplicates()
 
         self._observatories = list(self._table.observatory.unique())
-        self._space_telescopes = [
-            x for x in self._observatories if x in self._MPC_space_telescopes
-        ]
+        self._space_telescopes = [x for x in self._observatories if x in self._MPC_space_telescopes]
         if "bands" in self._table.columns:
             self._bands = list(self._table.band.unique())
-        self._MPC_codes = list(self._table.number.unique())
+
+        # if user gives custom name, set that as body name, else MPC code
+        if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
+            self._MPC_codes = list(self._table["custom_name"].unique())
+        else:
+            self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
         self._epoch_start = self._table.epoch_seconds_TDB.min()
@@ -740,18 +724,17 @@ class BatchMPC:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()
+            temp["Code"] = temp["Code"].astype(str).str.strip().str.zfill(3)
             # This query checks if Longitude is Nan: non-terrestrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
             self._MPC_space_telescopes = sats
         except Exception as e:
-            print("An error occurred while retrieving observatory data")
+            print("An error occured while retrieving observatory data")
             print(e)
 
-    def _add_observatory_positions(
-        self, bodies: environment.SystemOfBodies, earth_name
-    ) -> None:
-        """Internal. Add observatory cartesian positions to station data"""
+    def _add_observatory_positions(self, bodies: environment.SystemOfBodies, earth_name) -> None:
+        """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
 
         if temp is None:
@@ -769,6 +752,21 @@ class BatchMPC:
             .assign(Z=lambda x: x.sin * r_earth)
         )
         self._observatory_info = temp
+
+    def _standardize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Internal helper to ensure IDs are strings and observatories are zero-padded."""
+        # Work on a copy to avoid SettingWithCopyWarnings
+        df = df.copy()
+
+        # Standardize Observatory Codes (e.g., 673 -> "673", 89 -> "089", C51 -> "C51")
+        if "observatory" in df.columns:
+            df["observatory"] = df["observatory"].astype(str).str.strip().str.zfill(3)
+
+        # Standardize MPC Numbers (e.g., 433 -> "433")
+        if "number" in df.columns:
+            df["number"] = df["number"].astype(str).str.strip()
+
+        return df
 
     def _apply_EFCC18(
         self,
@@ -840,9 +838,20 @@ class BatchMPC:
 
         return augmented_table
 
+    def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
+
+        augmented_table = table.copy()
+        augmented_table["custom_name"] = [custom_name] * len(augmented_table)
+
+        return augmented_table
+
     # data retrieval options: from_file: allows external observations to be added
     def from_file(
-        self, filename: str, frame: str = "J2000"
+        self,
+        filename: str,
+        in_degrees: bool = False,
+        frame: str = "J2000",
+        custom_name: str | None = None,
     ) -> None:
         """
         Loads observations from a local MPC 80-column text file.
@@ -894,8 +903,10 @@ class BatchMPC:
         astropy_table = parse_80cols_file(filename)
 
         # Use the from_astropy method to validate and add the data.
-        # we set in_degrees to False because the parser outputs data in radians.
-        self.from_astropy(astropy_table, in_degrees=False, frame=frame)
+        # in_degrees is False because the parser has already converted to radians.
+        self.from_astropy(
+            astropy_table, in_degrees=in_degrees, frame=frame, custom_name=custom_name
+        )
 
     # data retrieval options: get_observations: retrieves data from mpc through astroquery.
     def get_observations(
@@ -903,6 +914,7 @@ class BatchMPC:
         MPCcodes: list[str | int],
         id_types: list[str | None] | None = None,
         drop_misc_observations: bool = True,
+        custom_name: str | None = None,
     ) -> None:
         """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
@@ -932,15 +944,11 @@ class BatchMPC:
 
         # 2. Ensure the lists have the same length for a 1-to-1 mapping
         if len(MPCcodes) != len(id_types):
-            raise ValueError(
-                "MPCcodes and id_types must have the same number of elements."
-            )
+            raise ValueError("MPCcodes and id_types must have the same number of elements.")
 
         for code, id_type in zip(MPCcodes, id_types):
             if not (isinstance(code, int) or isinstance(code, str)):
-                raise ValueError(
-                    "All codes in the MPCcodes parameter must be integers or strings"
-                )
+                raise ValueError("All codes in the MPCcodes parameter must be integers or strings")
 
             # 3. Conditionally call the function based on whether id_type exists
             if id_type is not None:
@@ -948,7 +956,8 @@ class BatchMPC:
             else:
                 obs = MPC.get_observations(code).to_pandas()
 
-            obs["number"] = obs["number"].astype(str)  # to avoid pandas FutureWarning
+            obs = self._standardize_dataframe(obs)
+            obs = self._add_custom_name_column(obs, custom_name)
 
             # convert JD to J2000 and UTC, convert deg to rad
             obs = self._add_time_columns(obs)
@@ -969,9 +978,7 @@ class BatchMPC:
                 elif "comettype" in obs.columns:
                     type_col = "comettype"
 
-                if type_col and pd.notna(
-                    obs[type_col].iloc[0]
-                ):  # checks first digit is not NA
+                if type_col and pd.notna(obs[type_col].iloc[0]):  # checks first digit is not NA
                     # It is a comet or interstellar object
                     number_part = str(obs["number"].iloc[0])
                     type_part = str(obs[type_col].iloc[0])
@@ -980,11 +987,7 @@ class BatchMPC:
                 elif "number" in obs.columns:
                     pd.set_option("future.no_silent_downcasting", True)
                     valid_numbers = (
-                        obs["number"]
-                        .dropna()
-                        .astype(str)
-                        .replace("<NA>", np.nan)
-                        .dropna()
+                        obs["number"].dropna().astype(str).replace("<NA>", np.nan).dropna()
                     )
 
                     if not valid_numbers.empty:
@@ -992,11 +995,7 @@ class BatchMPC:
                     else:
                         # fallback to designation if no number has been assigned yet
                         valid_designations = (
-                            obs["desig"]
-                            .dropna()
-                            .astype(str)
-                            .replace("<NA>", np.nan)
-                            .dropna()
+                            obs["desig"].dropna().astype(str).replace("<NA>", np.nan).dropna()
                         )
                         potential_id = valid_designations.iloc[0]
 
@@ -1008,19 +1007,13 @@ class BatchMPC:
 
                     try:
                         # Try to unpack it. This handles '00001' and 'D4341'.
-                        identifier = unpackers.unpack_permanent_minor_planet(
-                            potential_id
-                        )
+                        identifier = unpackers.unpack_permanent_minor_planet(potential_id)
                     except Exception:
                         # If unpacking fails (e.g. it was already unpacked or invalid),
                         # we keep the potential_id as is.
                         identifier = potential_id
 
-            if (
-                identifier is None
-                and "desig" in obs.columns
-                and pd.notna(obs["desig"].iloc[0])
-            ):
+            if identifier is None and "desig" in obs.columns and pd.notna(obs["desig"].iloc[0]):
                 identifier = str(obs["desig"].iloc[0])
 
             if identifier is None:
@@ -1035,24 +1028,22 @@ class BatchMPC:
 
         self._refresh_metadata()
 
-    def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
+    def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
         obs = table
         obs = self._add_time_columns(obs)
+        obs = self._add_custom_name_column(obs, custom_name)
         if in_degrees:
-            obs = obs.assign(
-                RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi
-            ).assign(DEC=lambda x: np.radians(x.DEC))
+            obs = obs.assign(RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi).assign(
+                DEC=lambda x: np.radians(x.DEC)
+            )
 
         # convert object mpc code to string
-        obs["number"] = obs.number.astype(str)
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
     def _validate_table(
-        self,
-        table: astropy.table.QTable | astropy.table.Table | pd.DataFrame,
-        frame: str,
+        self, table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str
     ) -> None:
         """Internal helper to validate the frame and required columns of a table.
 
@@ -1064,9 +1055,7 @@ class BatchMPC:
             The reference frame to check.
         """
         if frame != "J2000":
-            raise NotImplementedError(
-                "Only observations in J2000 are supported currently"
-            )
+            raise NotImplementedError("Only observations in J2000 are supported currently")
 
         # Get column names depending on table type
         if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
@@ -1079,20 +1068,17 @@ class BatchMPC:
             raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
         if not set(self._req_cols).issubset(set(colnames)):
-            raise ValueError(
-                f"Table must include a set of mandatory columns: {self._req_cols}"
-            )
+            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
 
         if nrows == 0:
-            raise ValueError(
-                "Table contains zero rows: no valid observations were parsed."
-            )
+            raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
     def from_astropy(
         self,
         table: astropy.table.QTable | astropy.table.Table,
         in_degrees: bool = True,
         frame: str = "J2000",
+        custom_name: str | None = None,
     ) -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
 
@@ -1119,15 +1105,17 @@ class BatchMPC:
             NotImplementedError: If a `frame` other than 'J2000' is provided.
         """
         if not isinstance(table, (astropy.table.QTable, astropy.table.Table)):
-            raise ValueError(
-                "Table must be of type astropy.table.QTable or astropy.table.Table"
-            )
+            raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
 
         self._validate_table(table, frame)
-        self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
+        self._add_table(table=table.to_pandas(), in_degrees=in_degrees, custom_name=custom_name)
 
     def from_pandas(
-        self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
+        self,
+        table: pd.DataFrame,
+        in_degrees: bool = True,
+        frame: str = "J2000",
+        custom_name: str | None = None,
     ) -> None:
         """
         Loads observations from a pandas DataFrame into the BatchMPC object.
@@ -1155,7 +1143,7 @@ class BatchMPC:
             raise ValueError("Table must be of type pandas.DataFrame")
 
         self._validate_table(table, frame)
-        self._add_table(table=table, in_degrees=in_degrees)
+        self._add_table(table=table, in_degrees=in_degrees, custom_name=custom_name)
 
     def set_weights(
         self,
@@ -1230,7 +1218,7 @@ class BatchMPC:
         in_place : bool, optional
             If true, modify the current batch object.\
                   If false returns a new object that is\
-                      filtered, correct batch remains unmodified, by default True
+                      filtered, currect batch remains unmodified, by default True
 
         Raises
         ------
@@ -1258,16 +1246,10 @@ class BatchMPC:
             raise ValueError("catalogs parameter must be list of strings or None")
 
         if not (isinstance(observation_types, list) or (observation_types is None)):
-            raise ValueError(
-                "observation_types parameter must be list of strings or None"
-            )
+            raise ValueError("observation_types parameter must be list of strings or None")
 
-        if not (
-            isinstance(observatories_exclude, list) or (observatories_exclude is None)
-        ):
-            raise ValueError(
-                "observatories_exclude parameter must be list of strings or None"
-            )
+        if not (isinstance(observatories_exclude, list) or (observatories_exclude is None)):
+            raise ValueError("observatories_exclude parameter must be list of strings or None")
 
         if not (isinstance(bands, list) or (bands is None)):
             raise ValueError("bands parameter must be list of strings or None")
@@ -1288,15 +1270,13 @@ class BatchMPC:
             if observatories_exclude is not None:
                 self._table = self._table.query("observatory != @observatories_exclude")
 
-            timescale_converter_needed = isinstance(
-                epoch_start, datetime.datetime
-            ) or isinstance(epoch_end, datetime.datetime)
+            timescale_converter_needed = isinstance(epoch_start, datetime.datetime) or isinstance(
+                epoch_end, datetime.datetime
+            )
 
             if timescale_converter_needed:
                 # This loads necessary kernels/tables
-                time_scale_converter = (
-                    time_representation.default_time_scale_converter()
-                )
+                time_scale_converter = time_representation.default_time_scale_converter()
             else:
                 time_scale_converter = None
             if epoch_start is not None:
@@ -1304,33 +1284,25 @@ class BatchMPC:
                     self._table = self._table.query("epoch_seconds_TDB >= @epoch_start")
                 elif isinstance(epoch_start, datetime.datetime):
                     epoch_start_iso_string = epoch_start.isoformat(sep=" ")
-                    epoch_start_utc = DateTime.from_iso_string(
-                        epoch_start_iso_string
-                    ).to_epoch()
+                    epoch_start_utc = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
                     epoch_start_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
                         input_value=epoch_start_utc,
                     )
-                    self._table = self._table.query(
-                        "epoch_seconds_TDB >= @epoch_start_tdb"
-                    )
+                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
             if epoch_end is not None:
                 if isinstance(epoch_end, float) or isinstance(epoch_end, int):
                     self._table = self._table.query("epoch_seconds_TDB <= @epoch_end")
                 elif isinstance(epoch_end, datetime.datetime):
                     epoch_end_iso_string = epoch_end.isoformat(sep=" ")
-                    epoch_end_utc = DateTime.from_iso_string(
-                        epoch_end_iso_string
-                    ).to_epoch()
+                    epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
                     epoch_end_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
                         input_value=epoch_end_utc,
                     )
-                    self._table = self._table.query(
-                        "epoch_seconds_TDB <= @epoch_end_tdb"
-                    )
+                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
 
             self._refresh_metadata()
             return None
@@ -1347,15 +1319,15 @@ class BatchMPC:
                 in_place=True,
             )
             return new
-    def create_observations_from_astropy_table(
-            self,
-            table,
-            station_body: str = "Earth",
-            apply_weights_VFCC17: bool = False,
-            apply_star_catalog_debias: bool = False,
-            debias_kwargs: dict = dict(),
-            in_degrees: bool = True,
 
+    def create_observations_from_astropy_table(
+        self,
+        table,
+        station_body: str = "Earth",
+        apply_weights_VFCC17: bool = False,
+        apply_star_catalog_debias: bool = False,
+        debias_kwargs: dict = dict(),
+        in_degrees: bool = True,
     ) -> observations.ObservationCollection:
         """
         Just like to_tudat(), creates a Tudat ObservationCollection from an Astropy table or pandas DataFrame.
@@ -1410,7 +1382,7 @@ class BatchMPC:
                 mpc_table=temp_batch.table,
                 return_full_table=True,
             )
-            df = weights_table # Work with the table containing weights
+            df = weights_table  # Work with the table containing weights
         else:
             df = temp_batch.table.copy()
 
@@ -1438,7 +1410,7 @@ class BatchMPC:
                 link_definition.link_ends,
                 observables,
                 times,
-                links.receiver
+                links.receiver,
             )
 
             # --- D. Apply Weights ---
@@ -1570,9 +1542,7 @@ class BatchMPC:
         if included_satellites is not None:
             sat_obs_codes_included = list(included_satellites.keys())
             # this appears unused but is used in a pandas query:
-            sat_obs_codes_excluded = list(
-                set(self._space_telescopes) - set(sat_obs_codes_included)
-            )
+            sat_obs_codes_excluded = list(set(self._space_telescopes) - set(sat_obs_codes_included))
 
             # Ensure that the satellite is in the SystemOfBodies object
             for sat in list(included_satellites.values()):
@@ -1668,22 +1638,20 @@ class BatchMPC:
                 link_definition = links.link_definition(link_ends)
 
             # get observations, angles and times for this specific link
-            observations_for_this_link = observations_table.query(
-                "number == @MPC_number"
-            ).query("observatory == @station_name")
+            observations_for_this_link = observations_table.query("number == @MPC_number").query(
+                "observatory == @station_name"
+            )
 
-            observation_angles = observations_for_this_link.loc[
-                :, [RA_col, DEC_col]
-            ].to_numpy()
+            observation_angles = observations_for_this_link.loc[:, [RA_col, DEC_col]].to_numpy()
 
-            observation_times = observations_for_this_link.loc[
-                :, ["epoch_seconds_TDB"]
-            ].to_numpy()[:, 0]
+            observation_times = observations_for_this_link.loc[:, ["epoch_seconds_TDB"]].to_numpy()[
+                :, 0
+            ]
 
             # create a set of obs for this link
-            observation_set = observations.create_single_observation_set(
+            observation_set = observations.single_observation_set(
                 model_settings.angular_position_type,
-                link_definition.link_ends,
+                link_definition,
                 observation_angles,
                 observation_times,
                 links.receiver,
@@ -1691,21 +1659,15 @@ class BatchMPC:
 
             # apply weights if apply_weights is True or set_weights() has been used.
             if apply_weights_VFCC17 or self._custom_weights_set:
-                observation_weights = observations_for_this_link.loc[
-                    :, ["weight"]
-                ].to_numpy()[:, 0]
+                observation_weights = observations_for_this_link.loc[:, ["weight"]].to_numpy()[:, 0]
                 # this is to make sure the order is RA1, DEC1, 2, 2, 3, 3 etc.
-                observation_weights = np.ravel(
-                    [observation_weights, observation_weights], "F"
-                )
+                observation_weights = np.ravel([observation_weights, observation_weights], "F")
 
                 observation_set.weights_vector = observation_weights
 
             observation_set_list.append(observation_set)
 
-        observation_collection = observations.ObservationCollection(
-            observation_set_list
-        )
+        observation_collection = observations.ObservationCollection(observation_set_list)
         return observation_collection
 
     def plot_observations_temporal(
@@ -1788,9 +1750,7 @@ class BatchMPC:
         NOTE: Only plots observations between 1970 and 3000 to ensure
         safe datetime conversion across platforms.
         """
-        fig, ax = plt.subplots(
-            1, 1, subplot_kw={"projection": projection}, figsize=figsize
-        )
+        fig, ax = plt.subplots(1, 1, subplot_kw={"projection": projection}, figsize=figsize)
 
         if objects is None:
             objs = self.MPC_objects
@@ -1857,16 +1817,11 @@ class BatchMPC:
             try:
                 # Matplotlib projections can sometimes return non-standard ticks
                 yticks = [
-                    f"{x}°"
-                    for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(
-                        int
-                    )
+                    f"{x}°" for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
                 ]
                 xticks = [
                     f"{x}°"
-                    for x in (
-                        np.degrees(np.array(ax.get_xticks().tolist())) + 180
-                    ).astype(int)
+                    for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
                 ]
                 if projection in ["aitoff", "hammer", "mollweide"]:
                     ax.set_yticklabels(yticks)
@@ -1889,9 +1844,7 @@ class BatchMPC:
         end_date_str = DateTime.from_epoch(vmax).to_iso_string()
 
         ax.grid()
-        fig.suptitle(
-            f"{len(plot_data)} observations between {start_date_str} and {end_date_str}"
-        )
+        fig.suptitle(f"{len(plot_data)} observations between {start_date_str} and {end_date_str}")
         fig.set_layout_engine("tight")
 
         return fig
@@ -1913,9 +1866,7 @@ class BatchMPC:
         )
         print(f"   In seconds TDB since J2000: {self.epoch_start} to {self.epoch_end}")
         print(
-            f"   In Julian Days: "
-            + f"{self._table.epoch.min()}"
-            + f" to {self._table.epoch.max()}"
+            f"   In Julian Days: " + f"{self._table.epoch.min()}" + f" to {self._table.epoch.max()}"
         )
         print(
             f"4. The batch contains observations from {len(self.observatories)} "
@@ -1931,7 +1882,7 @@ class BatchMPC:
         include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
-        Cartesian positions are only available after running the `to_tudat()` method.
+        Carthesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------
@@ -1950,7 +1901,7 @@ class BatchMPC:
         pd.DataFrame
             Dataframe with information about the observatories.
         """
-        temp = self._observatory_info
+        temp = self._observatory_info.copy()
         temp2 = self._table
 
         count_observations = (
@@ -1960,6 +1911,9 @@ class BatchMPC:
             .reset_index(drop=False)
             .loc[:, ["observatory", "count"]]
         )
+
+        temp = temp.copy()
+        count_observations = count_observations.copy()
 
         temp = pd.merge(
             left=temp,

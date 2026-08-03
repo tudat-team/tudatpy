@@ -108,7 +108,7 @@ public:
     }
 
     //! Default destructor.
-    virtual ~AerodynamicCoefficientGenerator( ) { }
+    virtual ~AerodynamicCoefficientGenerator( ) {}
 
     //! Get the number of points for an independent variable.
     /*!
@@ -242,9 +242,9 @@ public:
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " +
+                                      std::string( caughtException.what( ) ) );
         }
-
     }
 
     void clearBaseData( )

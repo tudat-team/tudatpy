@@ -13,7 +13,6 @@
 
 #include <pybind11/pybind11.h>
 
-
 namespace py = pybind11;
 
 namespace tudatpy
@@ -23,7 +22,8 @@ namespace estimation
 namespace observable_models_setup
 {
 
-void expose_observable_models_setup( py::module &m );
+void expose_observable_models_setup_types( py::module& m );
+void expose_observable_models_setup( py::module& m );
 
 }  // namespace observable_models_setup
 }  // namespace estimation

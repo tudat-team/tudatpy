@@ -92,6 +92,9 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AccelerationSet
             jsonObject[ K::centralBodyAngularMomentum ] = relativisticAccelerationCorrectionSettings->centralBodyAngularMomentum_;
             return;
         }
+        case relativistic_acceleration_from_metric: {
+            return;
+        }
         case empirical_acceleration: {
             std::shared_ptr< EmpiricalAccelerationSettings > empiricalAccelerationSettings =
                     std::dynamic_pointer_cast< EmpiricalAccelerationSettings >( accelerationSettings );
@@ -155,6 +158,10 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationS
                     getValue( jsonObject, K::centralBodyAngularMomentum, defaults.centralBodyAngularMomentum_ ) );
             return;
         }
+        case relativistic_acceleration_from_metric: {
+            accelerationSettings = std::make_shared< AccelerationSettings >( relativistic_acceleration_from_metric );
+            return;
+        }
         case empirical_acceleration: {
             EmpiricalAccelerationSettings defaults;
             accelerationSettings = std::make_shared< EmpiricalAccelerationSettings >(
@@ -165,7 +172,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationS
         }
         default: {
             if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
-                accelerationType == third_body_mutual_spherical_harmonic_gravity )
+                accelerationType == third_body_mutual_spherical_harmonic_gravity ||
+                accelerationType == third_body_full_two_body_spherical_harmonic_gravity )
             {
                 std::cerr << "Whether a body will cause a third-body acceleration is determined internally "
                           << "by Tudat based on the propagation settings." << std::endl;

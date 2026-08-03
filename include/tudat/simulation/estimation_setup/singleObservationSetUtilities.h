@@ -205,9 +205,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
 
         if( weightsMatrixType == diagonal_weights_matrix )
         {
-            Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                    weightsVector.segment( startIndex * observationSet->getSingleObservableSize( ),
-                                           sizeCurrentSet * observationSet->getSingleObservableSize( ) );
+            Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector = weightsVector.segment(
+                    startIndex * observationSet->getSingleObservableSize( ), sizeCurrentSet * observationSet->getSingleObservableSize( ) );
             newSet->setTabulatedWeights( newWeightsVector );
         }
         else if( weightsMatrixType == block_diagonal_weights_matrix )

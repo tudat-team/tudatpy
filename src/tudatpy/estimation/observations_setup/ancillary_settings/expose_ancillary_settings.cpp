@@ -64,8 +64,31 @@ namespace observations_setup
 namespace ancillary_settings
 {
 
-void expose_ancillary_settings( py::module& m )
+void expose_ancillary_settings_types( py::module& m )
 {
+    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
+                                                                                       "ObservationIntermediateSimulationVariable",
+                                                                                       R"doc(
+        Enumeration of observation intermediate variable types.
+
+        This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
+        )doc" )
+            .value( "transmitter_frequency_intermediate",
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
+            .value( "received_frequency_intermediate",
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
+            .export_values( );
+
+    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
+        Enumeration of frequency bands.
+
+        This enum lists common frequency bands used in deep space navigation.
+        )doc" )
+            .value( "s_band", tom::FrequencyBands::s_band )
+            .value( "x_band", tom::FrequencyBands::x_band )
+            .value( "ka_band", tom::FrequencyBands::ka_band )
+            .value( "ku_band", tom::FrequencyBands::ku_band );
+
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
                                                               R"doc(
@@ -77,7 +100,7 @@ void expose_ancillary_settings( py::module& m )
                     tom::ObservationAncillarySimulationVariable::link_ends_delays,
                     R"doc(
                     Retransmission delays at the retransmitter link ends (in seconds), typically for an n-way range or Doppler observation.
-                    For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter``->``retransmitter``->``receiver``
+                    For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter`` -> ``retransmitter`` -> ``receiver``
                     for :math:`N=2`, this ancillary setting is a list of length :math:`N-1` representing the time in seconds between
                     signal reception and subsequent retransmission/reflection at a link end. This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
@@ -110,7 +133,7 @@ void expose_ancillary_settings( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_list_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_list_settings`
                     the mapping of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands`
-                    enum to integers (with s-band equal to 1, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
+                    enum to integers (with s-band equal to 0, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
                     ancillary setting gets the value ``[0, 1]``
                     )doc" )
             .value( "reception_reference_frequency_band",
@@ -127,6 +150,16 @@ void expose_ancillary_settings( py::module& m )
                     R"doc(
                     Lowest sequential ranging component :math:`n` used for the
                     :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range` observation model.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "range_conversion_factor",
+                    tom::ObservationAncillarySimulationVariable::range_conversion_factor,
+                    R"doc(
+                    Conversion factor to convert from range units (RU) to meter for the
+                    :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range` observation model.
+                    It is defined as :math:`\frac{c}{F}`, with :math:`c` the speed of light and :math:`F` the conversion factor depending on the frequency band, as defined in Moyer (2003), Section 13.5.2.
                     This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
@@ -256,19 +289,23 @@ void expose_ancillary_settings( py::module& m )
 
 
      )doc" );
+}
 
-    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
-                                                                                       "ObservationIntermediateSimulationVariable",
-                                                                                       R"doc(
-        Enumeration of observation intermediate variable types.
+void expose_ancillary_settings( py::module& m )
+{
+    m.def(
+            "empty_ancillary_settings",
+            []( ) { return tom::ObservationAncillarySimulationSettings( ); },
+            R"doc(
 
-        This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
-        )doc" )
-            .value( "transmitter_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
-            .value( "received_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
-            .export_values( );
+ Create an empty observation ancillary-settings object.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Empty ancillary settings.
+
+     )doc" );
 
     m.def( "doppler_ancillary_settings",
            &tom::getAveragedDopplerAncillarySettings,
@@ -543,16 +580,6 @@ void expose_ancillary_settings( py::module& m )
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
     /////////////////////////////////////////////////////////////////////////////////////////////////
-
-    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
-        Enumeration of frequency bands.
-
-        This enum lists common frequency bands used in deep space navigation.
-        )doc" )
-            .value( "s_band", tom::FrequencyBands::s_band )
-            .value( "x_band", tom::FrequencyBands::x_band )
-            .value( "ka_band", tom::FrequencyBands::ka_band )
-            .value( "ku_band", tom::FrequencyBands::ku_band );
 
     m.def( "dsn_default_turnaround_ratios",
            &tom::getDsnDefaultTurnaroundRatios,

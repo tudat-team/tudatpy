@@ -46,8 +46,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::preprocessD
                 estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, ( integratorIndexOffset == 0 ) );
         if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != arcStartTimes.size( ) )
         {
-            throw std::runtime_error( "Error when processing deprecated integrator/propagator settings in estimation; inconsistent number "
-                                      "of arcs" );
+            throw std::runtime_error(
+                    "Error when processing deprecated integrator/propagator settings in estimation; inconsistent number "
+                    "of arcs" );
         }
         for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
         {
@@ -77,16 +78,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-        const bool propagateOnCreation ):
-    parametersToEstimate_( parametersToEstimate )
+        const bool propagateOnCreation ): parametersToEstimate_( parametersToEstimate )
 {
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings =
             preprocessDeprecatedIntegratorSettings( parametersToEstimate, integratorSettings, propagatorSettings );
-    initializeOrbitDeterminationManager( bodies,
-                                         observationSettingsList,
-                                         propagators::validateDeprecatePropagatorSettings(
-                                                 processedIntegratorSettings, propagatorSettings ),
-                                         propagateOnCreation );
+    initializeOrbitDeterminationManager(
+            bodies,
+            observationSettingsList,
+            propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+            propagateOnCreation );
 }
 
 template< typename ObservationScalarType,
@@ -98,12 +98,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-        const bool propagateOnCreation ):
-    parametersToEstimate_( parametersToEstimate ), bodies_( bodies )
+        const bool propagateOnCreation ): parametersToEstimate_( parametersToEstimate ), bodies_( bodies )
 {
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings;
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >(
-                propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) !=
+        nullptr )
     {
         processedIntegratorSettings = { integratorSettings };
     }
@@ -112,8 +111,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
     {
         int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ).size( );
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > unprocessedIntegratorSettings =
-                std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( numberOfArcs,
-                                                                                                         integratorSettings );
+                std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( numberOfArcs, integratorSettings );
         processedIntegratorSettings =
                 preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
     }
@@ -128,11 +126,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
                 preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
     }
 
-    initializeOrbitDeterminationManager( bodies,
-                                         observationSettingsList,
-                                         propagators::validateDeprecatePropagatorSettings(
-                                                 processedIntegratorSettings, propagatorSettings ),
-                                         propagateOnCreation );
+    initializeOrbitDeterminationManager(
+            bodies,
+            observationSettingsList,
+            propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+            propagateOnCreation );
 }
 
 template< typename ObservationScalarType,
@@ -144,8 +142,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::OrbitDeterm
         const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
         const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
         const bool propagateOnCreation ):
-    parametersToEstimate_( parametersToEstimate ), considerParameters_( parametersToEstimate_->getConsiderParameters( ) ),
-    bodies_( bodies )
+    parametersToEstimate_( parametersToEstimate ), considerParameters_( parametersToEstimate_->getConsiderParameters( ) ), bodies_( bodies )
 {
     initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings, propagateOnCreation );
 }

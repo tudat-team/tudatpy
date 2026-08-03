@@ -22,7 +22,7 @@ namespace trajectory_design
 namespace transfer_trajectory
 {
 
-void expose_transfer_trajectory( py::module &m );
+void expose_transfer_trajectory( py::module& m );
 
 }  // namespace transfer_trajectory
 }  // namespace trajectory_design

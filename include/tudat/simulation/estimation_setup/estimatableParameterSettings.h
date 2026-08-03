@@ -236,7 +236,7 @@ public:
                                                          const bool isBiasAdditive ):
         EstimatableParameterSettings( linkEnds.linkEnds_.begin( )->second.bodyName_,
                                       isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                      linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                                      linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {}
 
@@ -271,7 +271,7 @@ public:
         EstimatableParameterSettings(
                 linkEnds.linkEnds_.begin( )->second.bodyName_,
                 isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.linkEnds_.begin( )->second.stationName_ ),
+                linkEnds.linkEnds_.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -309,7 +309,7 @@ public:
                                                        const double referenceEpoch ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch )
     {}
 
@@ -349,7 +349,7 @@ public:
                                                       const std::vector< double > referenceEpochs ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_drift_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ),
         referenceEpochs_( referenceEpochs )
     {}
@@ -389,7 +389,7 @@ public:
                                                   const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       constant_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -425,7 +425,7 @@ public:
                                                  const observation_models::LinkEndType linkEndForTime ):
         EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_,
                                       arc_wise_time_observation_bias,
-                                      linkEnds.begin( )->second.stationName_ ),
+                                      linkEnds.begin( )->second.getReferencePointName( ) ),
         linkEnds_( linkEnds ), observableType_( observableType ), arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime )
     {}
 
@@ -817,9 +817,9 @@ public:
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class FullDegreeTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -876,9 +876,9 @@ public:
  *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
  *  degree. The estimation will provide separate Love numbers for each order
  *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
- *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
- *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
- *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ *  The constructor argument representing the deforming body/bodies selects the compatible
+ *  BasicSolidBodyTideGravityFieldVariations member objects of the deformed body that together cover the requested bodies.
+ *  An empty deforming-body list selects all compatible basic solid-body tide models.
  */
 class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings : public EstimatableParameterSettings
 {
@@ -1689,6 +1689,62 @@ inline std::shared_ptr< EstimatableParameterSettings > diffuseReflectivity( cons
 inline std::shared_ptr< EstimatableParameterSettings > specularReflectivity( const std::string bodyName, const std::string panel_group_id )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, specular_reflectivity, panel_group_id );
+}
+
+//! Create settings to estimate the energy accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Sentman and Cook gas-surface interaction models; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless energy accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > energyAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, energy_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalAccommodationCoefficient( const std::string bodyName,
+                                                                                       const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the tangential accommodation coefficient shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless tangential accommodation coefficient.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > tangentialAccommodationCoefficient( const std::string bodyName,
+                                                                                           const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, tangential_accommodation_coefficient, panel_group_id );
+}
+
+//! Create settings to estimate the normal velocity at wall ratio shared by a panel group.
+/*!
+ * When the parameter is created, differing initial values in the selected group are replaced by their arithmetic mean. This
+ * parameter affects the Storch gas-surface interaction model; its aerodynamic partial is zero for other models.
+ * \param bodyName Name of the body carrying the panels.
+ * \param panel_group_id Panel type identifier selecting the group.
+ * \return Settings for estimating the dimensionless normal velocity at wall ratio.
+ */
+inline std::shared_ptr< EstimatableParameterSettings > normalVelocityAtWallRatio( const std::string bodyName,
+                                                                                  const std::string panel_group_id )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, normal_velocity_at_wall_ratio, panel_group_id );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(

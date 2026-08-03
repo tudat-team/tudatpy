@@ -52,10 +52,10 @@ public:
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
                                     const bool checkTerminationToExactCondition = false ):
         terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationSettings( ) { }
+    virtual ~PropagationTerminationSettings( ) {}
 
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
@@ -82,10 +82,10 @@ public:
      */
     PropagationTimeTerminationSettings( const double terminationTime, const bool checkTerminationToExactCondition = false ):
         PropagationTerminationSettings( time_stopping_condition, checkTerminationToExactCondition ), terminationTime_( terminationTime )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationTimeTerminationSettings( ) { }
+    ~PropagationTimeTerminationSettings( ) {}
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
@@ -106,10 +106,10 @@ public:
      */
     PropagationCPUTimeTerminationSettings( const double cpuTerminationTime ):
         PropagationTerminationSettings( cpu_time_stopping_condition ), cpuTerminationTime_( cpuTerminationTime )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationCPUTimeTerminationSettings( ) { }
+    ~PropagationCPUTimeTerminationSettings( ) {}
 
     //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
     double cpuTerminationTime_;
@@ -156,7 +156,7 @@ public:
     }
 
     //! Destructor
-    ~PropagationDependentVariableTerminationSettings( ) { }
+    ~PropagationDependentVariableTerminationSettings( ) {}
 
     //! Settings for dependent variable that is to be checked
     std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
@@ -189,14 +189,14 @@ public:
     PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
         checkStopCondition_( [ = ]( const double time, const Eigen::MatrixXd& ) { return checkStopCondition( time ); } )
-    { }
+    {}
 
     PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd& ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ), checkStopCondition_( checkStopCondition )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationCustomTerminationSettings( ) { }
+    ~PropagationCustomTerminationSettings( ) {}
 
     //! Custom temination function.
     std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
@@ -234,7 +234,7 @@ public:
     }
 
     //! Destructor
-    ~PropagationHybridTerminationSettings( ) { }
+    ~PropagationHybridTerminationSettings( ) {}
 
     //! List of termination settings for which stopping conditions are created.
     std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
@@ -267,7 +267,7 @@ public:
     }
 
     //! Destructor
-    ~NonSequentialPropagationTerminationSettings( ) { }
+    ~NonSequentialPropagationTerminationSettings( ) {}
 
     //! Termination settings for forward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings_;

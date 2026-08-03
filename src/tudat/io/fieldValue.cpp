@@ -19,7 +19,7 @@ namespace input_output
 //! Create a FieldValue containing type, string content and transformation of field.
 FieldValue::FieldValue( const FieldType& fieldType, const std::string& fieldContent, const std::shared_ptr< FieldTransform > transformer ):
     type( fieldType ), rawField( fieldContent ), transform( transformer )
-{ }
+{}
 
 //! Get transformed field content.
 const std::string& FieldValue::getTransformed( )

@@ -84,7 +84,7 @@ namespace environment_setup
 namespace gravity_field_variation
 {
 
-void expose_gravity_field_variation_setup( py::module& m )
+void expose_gravity_field_variation_types( py::module& m )
 {
     py::enum_< tg::BodyDeformationTypes >( m,
                                            "BodyDeformationTypes",
@@ -144,7 +144,10 @@ Variation model due to pole tides
 
       )doc" )
             .export_values( );
+}
 
+void expose_gravity_field_variation_setup( py::module& m )
+{
     py::class_< tss::GravityFieldVariationSettings, std::shared_ptr< tss::GravityFieldVariationSettings > >(
             m,
             "GravityFieldVariationSettings",
