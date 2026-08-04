@@ -296,7 +296,7 @@ protected:
                     outlierRejectionInput.parameterCorrection_.template cast<double>() ,
                     outlierRejectionInput.parameterCovariance_,
                     outlierRejectionInput.getObservationCovariance( observationId ),
-                    this->getRejectionStatus(observationId));
+                    this->getRejectionStatus(observationId).at(observationId));
 
                 chiSquaredPerObservation.push_back( chiSquared );
             }
@@ -317,7 +317,7 @@ protected:
     {
         // Get Maximum chi-squared of all accepted observations
         double chiSquaredMax = 0.0;
-        for(unsigned int observationId; observationId < this->isRejected_.size(); observationId++)
+        for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
         {
             if(!this->isRejected_.at( observationId ))
             {
@@ -340,21 +340,29 @@ protected:
 
     bool decideRejectionStatus( const bool isCurrentlyRejected, const double chiSquared, const double chiSquaredRejectionThreshold ) const
     {
-        if( isCurrentlyRejected )
+        if(chiSquared > 0 && std::isfinite(chiSquared))
         {
-            // Observation was rejected but is now below recovery threshold
-            if(chiSquared < outlierRejectionSettings_->getChi2RecoveryThreshold(  ))
+            if( isCurrentlyRejected )
             {
-                return false;
+                // Observation was rejected but is now below recovery threshold
+                if(chiSquared < outlierRejectionSettings_->getChi2RecoveryThreshold(  ))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Observation was accepted but is now above rejection threshold
+                if(chiSquared > chiSquaredRejectionThreshold)
+                {
+                    return true;
+                }
             }
         }
         else
         {
-            // Observation was accepted but is now above rejection threshold
-            if(chiSquared > chiSquaredRejectionThreshold)
-            {
-                return true;
-            }
+            std::cerr << "Warning: in Carpino outlier rejection, one or more chi-squared values are negative/NaN. Leaving rejection flag"
+            << "unchanged" << std::endl;
         }
         return isCurrentlyRejected; // Return unchanged
     }
@@ -385,11 +393,6 @@ protected:
         // Chi-squared value
         double chiSquared;
         chiSquared = (residualsVectorPostFit.transpose() * residualCovariance.inverse( ) * residualsVectorPostFit).value();
-
-        if(chiSquared < 0 || !std::isfinite(chiSquared))
-        {
-            throw std::runtime_error("Error during outlier rejection, computed Chi-squared value is unphysical");
-        }
 
         return chiSquared;
 
