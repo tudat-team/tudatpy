@@ -282,7 +282,80 @@ protected:
      */
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
-        throw std::runtime_error( "Error, the Carpino outlier rejection algorithm is not yet implemented." );
+        // Only update rejections if later than first iteration with rejection
+        if(outlierRejectionInput.iterationNumber_ >= outlierRejectionSettings_->getFirstIterationWithRejection(  ))
+        {
+            // Compute chi-squared for each observation ID
+            for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
+            {
+                double chiSquared = computeChiSquared(
+                    outlierRejectionInput.getDesignMatrixBlock( observationId ),
+                    outlierRejectionInput.getResidualBlock( observationId ).template cast<double>(),
+                    outlierRejectionInput.parameterCorrection_.template cast<double>() ,
+                    outlierRejectionInput.parameterCovariance_,
+                    outlierRejectionInput.getObservationCovariance( observationId ),
+                    this->isRejected_.at(observationId));
+
+                // Update rejection status
+                this->isRejected_.at(observationId) = decideRejectionStatus( observationId, chiSquared );
+            }
+        }
+    }
+
+    bool decideRejectionStatus( const unsigned int observationId, const double chiSquared ) const
+    {
+        const bool isCurrentlyRejected = this->isRejected_.at( observationId );
+        if( isCurrentlyRejected )
+        {
+            if(chiSquared < outlierRejectionSettings_->getChi2RecoveryThreshold(  ))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if(chiSquared > outlierRejectionSettings_->getChi2RejectionThreshold(  ))
+            {
+                return true;
+            }
+        }
+        return isCurrentlyRejected;
+    }
+
+    // Compute Chi2 for one observation
+    double computeChiSquared(const Eigen::MatrixXd& partialsForObservation,
+                             const Eigen::VectorXd& residualVector,
+                             const Eigen::VectorXd& parameterCorrection,
+                             const Eigen::MatrixXd& parameterCovariance,
+                             const Eigen::MatrixXd& singleObservationCovariance,
+                             const bool isRejected) const
+    {
+        // Get linear approximation of post-fit residuals
+        Eigen::VectorXd residualsVectorPostFit;
+        residualsVectorPostFit = residualVector -  partialsForObservation * parameterCorrection;
+
+        // Residual covariance
+        Eigen::MatrixXd residualCovariance;
+        if( isRejected )
+        {
+            residualCovariance = singleObservationCovariance + partialsForObservation * parameterCovariance * partialsForObservation.transpose();
+        }
+        else
+        {
+            residualCovariance = singleObservationCovariance - partialsForObservation * parameterCovariance * partialsForObservation.transpose();
+        }
+
+        // Chi-squared value
+        double chiSquared;
+        chiSquared = (residualsVectorPostFit.transpose() * residualCovariance.inverse( ) * residualsVectorPostFit).value();
+
+        if(chiSquared < 0 || !std::isfinite(chiSquared))
+        {
+            throw std::runtime_error("Error during outlier rejection, computed Chi-squared value is unphysical");
+        }
+
+        return chiSquared;
+
     }
 
     //! Settings defining the thresholds of the algorithm.
