@@ -23,6 +23,8 @@ Functions
 
    estimation_convergence_checker
 
+   carpino_outlier_rejection_settings
+
    create_covariance_from_diagonal_entries
 
    add_covariance_diagonal_entries
@@ -39,6 +41,8 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
 
@@ -63,6 +67,10 @@ Classes
    Estimator
 
    EstimationConvergenceChecker
+
+   OutlierRejectionSettings
+
+   CarpinoOutlierRejectionSettings
 
 
 
@@ -91,4 +99,10 @@ Classes
    :special-members: __init__
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
+   :members:
+
+.. autoclass:: tudatpy.estimation.estimation_analysis.OutlierRejectionSettings
+   :members:
+
+.. autoclass:: tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings
    :members:

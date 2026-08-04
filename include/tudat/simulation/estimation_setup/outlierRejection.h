@@ -1,0 +1,432 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_OUTLIERREJECTION_H
+#define TUDAT_OUTLIERREJECTION_H
+
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/LU>
+
+#include "tudat/simulation/estimation_setup/flattenedObservationData.h"
+#include "tudat/simulation/estimation_setup/observationCondition.h"
+#include "tudat/simulation/estimation_setup/observationDataset.h"
+#include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
+
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+//! Number of scalar observations above which computing the full observation covariance is reported to the user.
+constexpr int MAXIMUM_OBSERVATION_COVARIANCE_SIZE_WITHOUT_WARNING = 5000;
+
+//! Provider of the observation covariance matrix used by outlier rejection algorithms.
+/*!
+ * The observations carry weights, which represent the inverse of the observation covariance. This class inverts the
+ * complete weight matrix once, and hands out the requested (blocks of the) resulting covariance matrix. The full
+ * matrix is inverted, rather than the individual per-observation weight blocks, because the weight matrix is not
+ * assumed to be block diagonal: correlations between arbitrary observations may be defined, and in that case the
+ * covariance of a single observation is a block of the inverse of the complete matrix, which is not the same as the
+ * inverse of that observation's own weight block.
+ *
+ * Note that the inverse is computed and stored as a dense matrix of size (number of scalar observations) squared, so
+ * both the memory use and the computational cost grow quickly with the number of observations. A warning is printed
+ * when a large matrix is inverted. This class is the single place where the observation covariance is defined, so
+ * once the covariance is stored on the ObservationDataset itself, only this class needs to be modified.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+class ObservationCovarianceInterface
+{
+public:
+    //! Constructor.
+    /*!
+     * \param flattenedObservationData Flattened data defining the row order of the covariance matrix. This should be
+     * the data over *all* observations (rejected observations included), since the covariance is a property of the
+     * observations themselves, and not of the observations that are currently used in the estimation.
+     */
+    ObservationCovarianceInterface(
+            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData )
+    {
+        const int numberOfRows = static_cast< int >( flattenedObservationData.getWeightVector( ).size( ) );
+        if( numberOfRows > MAXIMUM_OBSERVATION_COVARIANCE_SIZE_WITHOUT_WARNING )
+        {
+            std::cerr << "Warning when computing the observation covariance for outlier rejection, the covariance is computed by "
+                         "inverting the full weight matrix of "
+                      << numberOfRows << " by " << numberOfRows << " entries, which may be slow and memory intensive." << std::endl;
+        }
+
+        const Eigen::MatrixXd weightMatrix = Eigen::MatrixXd( flattenedObservationData.getSparseWeightMatrix( ) );
+        observationCovariance_ = weightMatrix.inverse( );
+
+        // Store where each observation is located in the covariance matrix. The observations are numbered from zero,
+        // so the number of entries needed is one more than the highest observation id in the data.
+        unsigned int numberOfObservations = 0;
+        for( const unsigned int observationId : flattenedObservationData.getObservationIds( ) )
+        {
+            numberOfObservations = std::max( numberOfObservations, observationId + 1 );
+        }
+
+        firstRowByObservation_.resize( numberOfObservations );
+        scalarSizeByObservation_.resize( numberOfObservations );
+        for( unsigned int observationId = 0; observationId < numberOfObservations; observationId++ )
+        {
+            firstRowByObservation_.at( observationId ) = flattenedObservationData.getFirstFlattenedRowForObservation( observationId );
+            scalarSizeByObservation_.at( observationId ) = flattenedObservationData.getScalarSizeForObservation( observationId );
+        }
+    }
+
+    //! Return the full observation covariance matrix, in the row order of the flattened data it was created from.
+    const Eigen::MatrixXd& getFullObservationCovariance( ) const
+    {
+        return observationCovariance_;
+    }
+
+    //! Return the covariance block of a single observation (of size observable size by observable size).
+    Eigen::MatrixXd getObservationCovariance( const unsigned int observationId ) const
+    {
+        return getObservationCovariance( observationId, observationId );
+    }
+
+    //! Return the covariance block between two observations (zero if the two observations are uncorrelated).
+    Eigen::MatrixXd getObservationCovariance( const unsigned int rowObservationId, const unsigned int columnObservationId ) const
+    {
+        const std::pair< int, unsigned int > rowRange = getRowRange( rowObservationId );
+        const std::pair< int, unsigned int > columnRange = getRowRange( columnObservationId );
+        return observationCovariance_.block( rowRange.first, columnRange.first, rowRange.second, columnRange.second );
+    }
+
+private:
+    //! Return the first row and the number of rows occupied by one observation, throwing if it is not present.
+    std::pair< int, unsigned int > getRowRange( const unsigned int observationId ) const
+    {
+        if( observationId >= firstRowByObservation_.size( ) || firstRowByObservation_.at( observationId ) < 0 )
+        {
+            throw std::runtime_error( "Error when retrieving observation covariance, observation " + std::to_string( observationId ) +
+                                      " is not present in the data from which the covariance was computed." );
+        }
+        return std::make_pair( firstRowByObservation_.at( observationId ), scalarSizeByObservation_.at( observationId ) );
+    }
+
+    //! Inverse of the full weight matrix.
+    Eigen::MatrixXd observationCovariance_;
+
+    //! First row of each observation in the covariance matrix; -1 for observations that are not present.
+    std::vector< int > firstRowByObservation_;
+
+    //! Number of rows spanned by each observation in the covariance matrix; 0 for observations that are not present.
+    std::vector< unsigned int > scalarSizeByObservation_;
+};
+
+//! Data from a single estimation iteration that is provided to an outlier rejection algorithm.
+/*!
+ * This object bundles the quantities that the least-squares iteration has computed anyway. Which of these an
+ * algorithm uses is up to the algorithm: an algorithm that only inspects residual values simply ignores the
+ * remaining entries. The object stores references only, so creating it is cheap.
+ *
+ * All quantities are unnormalized (that is, they are the physical quantities, not the internally scaled ones that
+ * the least-squares solution uses), and they cover *all* observations in the dataset, including those that are
+ * currently rejected and that therefore did not contribute to the estimation. The latter is required for algorithms
+ * to be able to recover observations that were rejected in an earlier iteration.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+struct OutlierRejectionInput {
+    OutlierRejectionInput(
+            const int iterationNumber,
+            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+            const ObservationCovarianceInterface< ObservationScalarType, TimeType >& observationCovarianceInterface,
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+            const Eigen::MatrixXd& designMatrix,
+            const Eigen::MatrixXd& parameterCovariance,
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterCorrection ):
+        iterationNumber_( iterationNumber ), flattenedObservationData_( flattenedObservationData ),
+        observationCovarianceInterface_( observationCovarianceInterface ), residuals_( residuals ), designMatrix_( designMatrix ),
+        parameterCovariance_( parameterCovariance ), parameterCorrection_( parameterCorrection )
+    { }
+
+    //! Return the rows of the design matrix H that belong to a single observation.
+    /*!
+     * The returned block has as many rows as the observable has components, and one column per estimated parameter.
+     * This is what a criterion that is evaluated per observation needs.
+     */
+    Eigen::MatrixXd getDesignMatrixBlock( const unsigned int observationId ) const
+    {
+        const std::pair< int, unsigned int > rowRange = getRowRange( observationId );
+        return designMatrix_.block( rowRange.first, 0, rowRange.second, designMatrix_.cols( ) );
+    }
+
+    //! Return the residuals of a single observation (one entry per component of the observable).
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualBlock( const unsigned int observationId ) const
+    {
+        const std::pair< int, unsigned int > rowRange = getRowRange( observationId );
+        return residuals_.segment( rowRange.first, rowRange.second );
+    }
+
+    //! Return the covariance block of a single observation (of size observable size by observable size).
+    Eigen::MatrixXd getObservationCovariance( const unsigned int observationId ) const
+    {
+        return observationCovarianceInterface_.getObservationCovariance( observationId );
+    }
+
+    //! Return the covariance block between two observations (zero if the two observations are uncorrelated).
+    Eigen::MatrixXd getObservationCovariance( const unsigned int rowObservationId, const unsigned int columnObservationId ) const
+    {
+        return observationCovarianceInterface_.getObservationCovariance( rowObservationId, columnObservationId );
+    }
+
+    //! Iteration of the estimation for which this data was computed, counted from zero.
+    const int iterationNumber_;
+
+    //! Flattened data over all observations, defining the row order of the residuals and the design matrix.
+    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData_;
+
+    //! Provider of the observation covariance.
+    const ObservationCovarianceInterface< ObservationScalarType, TimeType >& observationCovarianceInterface_;
+
+    //! Residual vector of all observations.
+    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals_;
+
+    //! Design matrix (partials of the observations w.r.t. the estimated parameters) of all observations.
+    const Eigen::MatrixXd& designMatrix_;
+
+    //! Covariance of the estimated parameters, as computed in the current iteration.
+    const Eigen::MatrixXd& parameterCovariance_;
+
+    //! Correction to the parameter vector computed in the current iteration.
+    const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterCorrection_;
+
+private:
+    //! Return the first row and the number of rows that one observation occupies in the residuals/design matrix.
+    std::pair< int, unsigned int > getRowRange( const unsigned int observationId ) const
+    {
+        const int firstRow = flattenedObservationData_.getFirstFlattenedRowForObservation( observationId );
+        const unsigned int numberOfRows = flattenedObservationData_.getScalarSizeForObservation( observationId );
+        if( firstRow < 0 || numberOfRows == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving outlier rejection input for observation " +
+                                      std::to_string( observationId ) + ", observation is not present in the current iteration data." );
+        }
+        return std::make_pair( firstRow, numberOfRows );
+    }
+};
+
+//! Base class for algorithms that reject and recover outlying observations during an estimation.
+/*!
+ * One object of this type is created at the start of an estimation, from the settings that the user provided, and is
+ * called once per iteration of the least-squares process. The object keeps the rejection status of every observation
+ * and writes that status through to the ObservationDataset, which is what the estimation reads to decide which
+ * observations to use. The dataset therefore remains the single place where the rejection status is stored.
+ *
+ * Derived classes implement one function only: computeRejectionStatus, which fills the isRejected_ vector for the
+ * current iteration. The surrounding steps (initializing the status from the dataset, and writing the new status back
+ * to it) are identical for every algorithm and are handled by this base class.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+class OutlierRejection
+{
+public:
+    //! Constructor.
+    /*!
+     * \param outlierRejectionType Algorithm implemented by the derived class, used for logging and error messages.
+     * \param observationDataset Dataset holding the observations of the estimation. Observations that are already
+     * rejected in this dataset (for instance by the user, before the estimation) start out as rejected.
+     */
+    OutlierRejection( const OutlierRejectionType outlierRejectionType,
+                      const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
+        outlierRejectionType_( outlierRejectionType ), observationDataset_( observationDataset )
+    {
+        if( observationDataset_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating outlier rejection object, observation dataset is null." );
+        }
+
+        isRejected_.resize( observationDataset_->getNumberOfObservations( ) );
+        for( unsigned int observationId = 0; observationId < isRejected_.size( ); observationId++ )
+        {
+            isRejected_.at( observationId ) = !observationDataset_->getObservationRow( observationId ).isActive_;
+        }
+    }
+
+    //! Destructor (virtual, since objects of derived types are deleted through a pointer to this base class).
+    virtual ~OutlierRejection( ) = default;
+
+    //! Update the rejection status of all observations, using the data of the current estimation iteration.
+    /*!
+     * This function is called once per iteration by the estimation. It first lets the algorithm decide which
+     * observations are outliers, and then applies that decision to the observation dataset.
+     */
+    void updateRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput )
+    {
+        computeRejectionStatus( outlierRejectionInput );
+
+        if( isRejected_.size( ) != observationDataset_->getNumberOfObservations( ) )
+        {
+            throw std::runtime_error( "Error after computing outlier rejection status, size of rejection status vector (" +
+                                      std::to_string( isRejected_.size( ) ) + ") is not equal to the number of observations (" +
+                                      std::to_string( observationDataset_->getNumberOfObservations( ) ) + ")." );
+        }
+
+        applyRejectionStatusToObservationDataset( );
+    }
+
+    //! Return the rejection status of each observation, indexed by observation id.
+    const std::vector< bool >& getRejectionStatus( ) const
+    {
+        return isRejected_;
+    }
+
+    //! Return the number of observations that are currently rejected.
+    unsigned int getNumberOfRejectedObservations( ) const
+    {
+        unsigned int numberOfRejectedObservations = 0;
+        for( const bool observationIsRejected : isRejected_ )
+        {
+            if( observationIsRejected )
+            {
+                numberOfRejectedObservations++;
+            }
+        }
+        return numberOfRejectedObservations;
+    }
+
+    OutlierRejectionType getOutlierRejectionType( ) const
+    {
+        return outlierRejectionType_;
+    }
+
+protected:
+    //! Determine which observations are outliers, by filling the isRejected_ vector.
+    /*!
+     * The '= 0' makes this function pure virtual: this class provides no implementation, every derived class must
+     * provide one, and an object of this base class can no longer be created directly.
+     *
+     * Implementations must set an entry for every observation in the dataset, both for observations that are
+     * currently used in the estimation (which may become rejected) and for observations that are currently rejected
+     * (which may be recovered).
+     */
+    virtual void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) = 0;
+
+    //! Write the current rejection status to the observation dataset.
+    void applyRejectionStatusToObservationDataset( )
+    {
+        // Condition that selects exactly those observations that this object has marked as rejected. The condition is
+        // evaluated by the dataset for each of its observations in turn.
+        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > isRejectedCondition(
+                [ this ]( const observation_models::ObservationDataset< ObservationScalarType, TimeType >&, const int observationId ) {
+                    return isRejected_.at( observationId );
+                } );
+
+        observationDataset_->rejectObservations( isRejectedCondition, getOutlierRejectionTypeString( outlierRejectionType_ ) );
+        observationDataset_->restoreObservations( !isRejectedCondition );
+    }
+
+    //! Algorithm implemented by the derived class.
+    const OutlierRejectionType outlierRejectionType_;
+
+    //! Rejection status of each observation, indexed by observation id; true means the observation is rejected.
+    std::vector< bool > isRejected_;
+
+    //! Dataset holding the observations of the estimation.
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
+};
+
+//! Outlier rejection algorithm of Carpino et al. (2003).
+/*!
+ * The algorithm computes, for each observation, a chi-squared value from the residual of that observation and the
+ * covariance of that residual, and compares this value against the rejection and recovery thresholds in the
+ * settings. Computing the residual covariance requires the observation covariance, the design matrix and the
+ * covariance of the estimated parameters, all of which are available from the OutlierRejectionInput object.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+class CarpinoOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
+{
+public:
+    CarpinoOutlierRejection(
+            const std::shared_ptr< CarpinoOutlierRejectionSettings >& outlierRejectionSettings,
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
+        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::carpino_outlier_rejection, observationDataset ),
+        outlierRejectionSettings_( outlierRejectionSettings )
+    {
+        if( outlierRejectionSettings_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating Carpino outlier rejection object, settings are null." );
+        }
+    }
+
+protected:
+    //! Determine which observations are outliers according to the algorithm of Carpino et al. (2003).
+    /*!
+     * The algorithm is not implemented yet. Its implementation uses, for each observation, the following data from
+     * the outlierRejectionInput object: the residuals of the observation (getResidualBlock), the rows of the design
+     * matrix of the observation (getDesignMatrixBlock), the covariance of the observation (getObservationCovariance),
+     * the covariance of the estimated parameters (parameterCovariance_) and the correction to the parameters
+     * (parameterCorrection_), which it compares against the thresholds in outlierRejectionSettings_.
+     */
+    void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
+    {
+        throw std::runtime_error( "Error, the Carpino outlier rejection algorithm is not yet implemented." );
+    }
+
+    //! Settings defining the thresholds of the algorithm.
+    std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
+};
+
+//! Function to create the outlier rejection object defined by a set of outlier rejection settings.
+/*!
+ * \param outlierRejectionSettings Settings provided by the user; a null pointer means that no outlier rejection is to
+ * be performed, in which case a null pointer is returned.
+ * \param observationDataset Dataset holding the observations of the estimation.
+ * \return Outlier rejection object to be used during the estimation, or a null pointer if no settings were provided.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > createOutlierRejection(
+        const std::shared_ptr< OutlierRejectionSettings >& outlierRejectionSettings,
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
+{
+    if( outlierRejectionSettings == nullptr )
+    {
+        return nullptr;
+    }
+
+    switch( outlierRejectionSettings->getOutlierRejectionType( ) )
+    {
+        case OutlierRejectionType::carpino_outlier_rejection: {
+            // The settings are held as a pointer to the base class, so they must be converted to a pointer to the
+            // derived class before the algorithm-specific parameters can be read. dynamic_pointer_cast performs this
+            // conversion, and returns a null pointer if the object is not of the requested type.
+            const std::shared_ptr< CarpinoOutlierRejectionSettings > carpinoSettings =
+                    std::dynamic_pointer_cast< CarpinoOutlierRejectionSettings >( outlierRejectionSettings );
+            if( carpinoSettings == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating outlier rejection object, settings are of type carpino_outlier_rejection, but are not "
+                        "CarpinoOutlierRejectionSettings." );
+            }
+            return std::make_shared< CarpinoOutlierRejection< ObservationScalarType, TimeType > >( carpinoSettings, observationDataset );
+        }
+        default:
+            throw std::runtime_error( "Error when creating outlier rejection object, type " +
+                                      getOutlierRejectionTypeString( outlierRejectionSettings->getOutlierRejectionType( ) ) +
+                                      " not recognized." );
+    }
+}
+
+}  // namespace simulation_setup
+
+}  // namespace tudat
+
+#endif  // TUDAT_OUTLIERREJECTION_H

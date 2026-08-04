@@ -145,6 +145,89 @@ void calculateResiduals(
             observationsCollection->getObservationDataset( ), observationSimulator, residuals );
 }
 
+//! Function to retrieve the weights of a set of observations, checking their size against the number of observations
+/*!
+ * \param flattenedObservationData Flattened data of the observations for which the weights are to be retrieved
+ * \param weightsMatrixDiagonals Diagonal of the weights matrix (returned by reference)
+ * \param weightsMatrix Full weights matrix; only set when off-diagonal weights are present (returned by reference)
+ * \param hasOffDiagonalWeights Boolean denoting whether off-diagonal weights are present (returned by reference)
+ */
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+void retrieveObservationWeights( const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+                                 Eigen::VectorXd& weightsMatrixDiagonals,
+                                 Eigen::SparseMatrix< double >& weightsMatrix,
+                                 bool& hasOffDiagonalWeights )
+{
+    const int totalNumberOfObservations = static_cast< int >( flattenedObservationData.getObservationVector( ).size( ) );
+
+    weightsMatrixDiagonals = flattenedObservationData.getWeightVector( );
+    hasOffDiagonalWeights = flattenedObservationData.hasOffDiagonalWeights( );
+    if( hasOffDiagonalWeights )
+    {
+        weightsMatrix = flattenedObservationData.getSparseWeightMatrix( );
+        if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights matrix (" +
+                                      std::to_string( weightsMatrix.rows( ) ) + ", " + std::to_string( weightsMatrix.cols( ) ) +
+                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
+                                      ")" );
+        }
+    }
+    else if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
+    {
+        throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
+                                  std::to_string( weightsMatrixDiagonals.rows( ) ) + ") is not compatible with number of observations (" +
+                                  std::to_string( totalNumberOfObservations ) + ")" );
+    }
+}
+
+//! Function to extract the rows of a matrix or vector that belong to the observations used in the estimation
+/*!
+ * When outlier rejection is used, residuals and partials are computed for all observations, including the ones that
+ * are currently rejected, while the least-squares calculation may only use the observations that are active. The rows
+ * of the active observations are a subset of the rows of the complete data, in the same order, so this function
+ * copies, per active observation, the rows of that observation from the complete data to the estimation data.
+ *
+ * \param computationData Flattened data of all observations, defining the row order of computedRows
+ * \param estimationData Flattened data of the observations used in the estimation, defining the row order of the output
+ * \param computedRows Matrix (or vector) with one row per scalar entry of computationData
+ * \return Matrix (or vector) with one row per scalar entry of estimationData
+ */
+template< typename ObservationScalarType, typename TimeType, typename EigenType >
+EigenType extractEstimationObservationRows(
+        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& computationData,
+        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& estimationData,
+        const EigenType& computedRows )
+{
+    const int numberOfEstimationRows = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+    EigenType estimationRows = EigenType::Zero( numberOfEstimationRows, computedRows.cols( ) );
+
+    // Each observation occupies one row per component of its observable, so the loop advances by the number of rows
+    // of the observation that was just copied.
+    const std::vector< unsigned int >& observationIds = estimationData.getObservationIds( );
+    for( int estimationRow = 0; estimationRow < numberOfEstimationRows; )
+    {
+        const unsigned int observationId = observationIds.at( estimationRow );
+        const unsigned int numberOfRows = estimationData.getScalarSizeForObservation( observationId );
+        const int computationRow = computationData.getFirstFlattenedRowForObservation( observationId );
+
+        if( computationRow < 0 || computationData.getScalarSizeForObservation( observationId ) != numberOfRows )
+        {
+            throw std::runtime_error( "Error when extracting observations used in the estimation, observation " +
+                                      std::to_string( observationId ) + " is not present in the computed data." );
+        }
+
+        estimationRows.block( estimationRow, 0, numberOfRows, computedRows.cols( ) ) =
+                computedRows.block( computationRow, 0, numberOfRows, computedRows.cols( ) );
+
+        estimationRow += static_cast< int >( numberOfRows );
+    }
+
+    return estimationRows;
+}
+
 //! Function to calculate the observation partials matrix and residuals
 /*!
  *  This function calculates the observation partials matrix and residuals, based on the state transition matrix,

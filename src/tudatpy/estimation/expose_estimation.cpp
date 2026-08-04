@@ -26,6 +26,7 @@
 #include "estimation_analysis/expose_estimation_analysis.h"
 #include "estimation_analysis/expose_estimation_analysis_estimator.h"
 #include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
+#include "estimation_analysis/expose_estimation_analysis_outlier_rejection.h"
 
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
@@ -53,6 +54,7 @@ void expose_estimation( py::module& m )
     observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
+    estimation_analysis::expose_estimation_analysis_outlier_rejection( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );

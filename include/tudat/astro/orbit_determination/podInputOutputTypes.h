@@ -26,6 +26,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
 
 namespace tudat
@@ -667,11 +668,13 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const bool applyFinalParameterCorrection = true ):
+            const bool applyFinalParameterCorrection = true,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
+        outlierRejectionSettings_( outlierRejectionSettings )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -704,11 +707,13 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const bool applyFinalParameterCorrection = true ):
+            const bool applyFinalParameterCorrection = true,
+            const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings = nullptr ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationDataset, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
+        outlierRejectionSettings_( outlierRejectionSettings )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -800,6 +805,18 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    //! Function to return the settings for the outlier rejection during the estimation (null if no outlier rejection is used)
+    std::shared_ptr< OutlierRejectionSettings > getOutlierRejectionSettings( )
+    {
+        return outlierRejectionSettings_;
+    }
+
+    //! Function to set the settings for the outlier rejection during the estimation (null to use no outlier rejection)
+    void setOutlierRejectionSettings( const std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings )
+    {
+        outlierRejectionSettings_ = outlierRejectionSettings;
+    }
+
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
@@ -814,6 +831,9 @@ public:
     bool conditionNumberWarningEachIteration_;
 
     bool applyFinalParameterCorrection_;
+
+    //! Settings defining the outlier rejection algorithm used during the estimation; null if no outlier rejection is used
+    std::shared_ptr< OutlierRejectionSettings > outlierRejectionSettings_;
 };
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker( const unsigned int maximumNumberOfIterations = 5,
@@ -1290,6 +1310,20 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     {
         if( residualHistory_.size( ) > 0 )
         {
+            // When observations are rejected or recovered during the estimation, the number of residuals differs
+            // between iterations, and the history cannot be represented as a single matrix.
+            for( unsigned int i = 1; i < residualHistory_.size( ); i++ )
+            {
+                if( residualHistory_.at( i ).rows( ) != residualHistory_.at( 0 ).rows( ) )
+                {
+                    std::cerr << "Warning, requesting residual history as a matrix, but the number of residuals differs between "
+                                 "iterations (most likely because outlier rejection was used). Returning empty 0x0 matrix; the "
+                                 "residuals per iteration remain available as a list."
+                              << std::endl;
+                    return Eigen::MatrixXd::Zero( 0, 0 );
+                }
+            }
+
             Eigen::MatrixXd residualHistoryMatrix = Eigen::MatrixXd( residualHistory_.at( 0 ).rows( ), residualHistory_.size( ) );
             for( unsigned int i = 0; i < residualHistory_.size( ); i++ )
             {
