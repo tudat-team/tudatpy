@@ -285,28 +285,64 @@ protected:
         // Only update rejections if later than first iteration with rejection
         if(outlierRejectionInput.iterationNumber_ >= outlierRejectionSettings_->getFirstIterationWithRejection(  ))
         {
+            std::vector<double> chiSquaredPerObservation;
+
             // Compute chi-squared for each observation ID
             for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
             {
-                double chiSquared = computeChiSquared(
+                const double chiSquared = computeChiSquared(
                     outlierRejectionInput.getDesignMatrixBlock( observationId ),
                     outlierRejectionInput.getResidualBlock( observationId ).template cast<double>(),
                     outlierRejectionInput.parameterCorrection_.template cast<double>() ,
                     outlierRejectionInput.parameterCovariance_,
                     outlierRejectionInput.getObservationCovariance( observationId ),
-                    this->isRejected_.at(observationId));
+                    this->getRejectionStatus(observationId));
 
-                // Update rejection status
-                this->isRejected_.at(observationId) = decideRejectionStatus( observationId, chiSquared );
+                chiSquaredPerObservation.push_back( chiSquared );
             }
+
+            const double rejectionThreshold = getRejectionThreshold( chiSquaredPerObservation );
+
+            for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
+            {
+                const bool isCurrentlyRejected = this->getRejectionStatus(  ).at( observationId );
+                this->isRejected_.at(observationId) = decideRejectionStatus( isCurrentlyRejected,
+                    chiSquaredPerObservation.at( observationId ), rejectionThreshold);
+            }
+
         }
     }
 
-    bool decideRejectionStatus( const unsigned int observationId, const double chiSquared ) const
+    double getRejectionThreshold(const std::vector<double>& chiSquaredPerObservation) const
     {
-        const bool isCurrentlyRejected = this->isRejected_.at( observationId );
+        // Get Maximum chi-squared of all accepted observations
+        double chiSquaredMax = 0.0;
+        for(unsigned int observationId; observationId < this->isRejected_.size(); observationId++)
+        {
+            if(!this->isRejected_.at( observationId ))
+            {
+                chiSquaredMax = std::max(chiSquaredMax, chiSquaredPerObservation.at(observationId));
+            }
+        }
+
+        const int numberOfAcceptedObservations = this->observationDataset_->getNumberOfObservations(  ) -
+            this->getNumberOfRejectedObservations(  );
+
+        // Increases rejection threshold when small number of observations are left
+        const double fudgeTerm = 400 * std::pow(1.2, -numberOfAcceptedObservations);
+
+        double rejectionThreshold =
+            std::max(0.25 * chiSquaredMax, this->outlierRejectionSettings_->getChi2RejectionThreshold(  )) + fudgeTerm;
+
+        return rejectionThreshold;
+
+    }
+
+    bool decideRejectionStatus( const bool isCurrentlyRejected, const double chiSquared, const double chiSquaredRejectionThreshold ) const
+    {
         if( isCurrentlyRejected )
         {
+            // Observation was rejected but is now below recovery threshold
             if(chiSquared < outlierRejectionSettings_->getChi2RecoveryThreshold(  ))
             {
                 return false;
@@ -314,12 +350,13 @@ protected:
         }
         else
         {
-            if(chiSquared > outlierRejectionSettings_->getChi2RejectionThreshold(  ))
+            // Observation was accepted but is now above rejection threshold
+            if(chiSquared > chiSquaredRejectionThreshold)
             {
                 return true;
             }
         }
-        return isCurrentlyRejected;
+        return isCurrentlyRejected; // Return unchanged
     }
 
     // Compute Chi2 for one observation
