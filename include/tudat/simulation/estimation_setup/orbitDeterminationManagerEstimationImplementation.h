@@ -58,12 +58,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Rejecting an observation only changes whether it is active, and never the structure of the dataset, so this
     // data (and the observation covariance derived from it) is created only once.
     observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computationData;
-    std::shared_ptr< ObservationCovarianceInterface< ObservationScalarType, TimeType > > observationCovarianceInterface;
+    Eigen::MatrixXd observationCovariance;
     if( applyOutlierRejection )
     {
         computationData = estimationInput->getObservationDataset( )->createOrderedFlattenedObservationData( true );
-        observationCovarianceInterface =
-                std::make_shared< ObservationCovarianceInterface< ObservationScalarType, TimeType > >( computationData );
+
+        // The observation weights represent the inverse of the observation covariance, and do not change during the
+        // estimation, so the covariance is computed once here.
+        observationCovariance = Eigen::MatrixXd( computationData.getSparseWeightMatrix( ) ).inverse( );
     }
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
@@ -427,7 +429,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         {
             const OutlierRejectionInput< ObservationScalarType, TimeType > outlierRejectionInput( numberOfIterations,
                                                                                                   computationData,
-                                                                                                  *observationCovarianceInterface,
+                                                                                                  observationCovariance,
                                                                                                   computedResiduals,
                                                                                                   computedDesignMatrixEstimatedParameters,
                                                                                                   parameterCovariance,

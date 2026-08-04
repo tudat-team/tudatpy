@@ -73,6 +73,12 @@ std::shared_ptr< ObservationDataset< double, double > > createTestDataset( )
     return dataset;
 }
 
+//! Compute the observation covariance the way the estimation does: by inverting the complete weight matrix.
+Eigen::MatrixXd createObservationCovariance( const FlattenedObservationData< double, double >& flattenedObservationData )
+{
+    return Eigen::MatrixXd( flattenedObservationData.getSparseWeightMatrix( ) ).inverse( );
+}
+
 //! Outlier rejection algorithm that rejects a fixed list of observations, used to test the base class machinery.
 class FixedListOutlierRejection : public OutlierRejection< double, double >
 {
@@ -166,9 +172,8 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionCreation )
     const Eigen::MatrixXd emptyMatrix = Eigen::MatrixXd::Zero( 0, 0 );
     const Eigen::VectorXd emptyVector = Eigen::VectorXd::Zero( 0 );
     const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-    const ObservationCovarianceInterface< double, double > observationCovarianceInterface( flattenedData );
     const OutlierRejectionInput< double, double > outlierRejectionInput(
-            0, flattenedData, observationCovarianceInterface, emptyVector, emptyMatrix, emptyMatrix, emptyVector );
+            0, flattenedData, createObservationCovariance( flattenedData ), emptyVector, emptyMatrix, emptyMatrix, emptyVector );
     BOOST_CHECK_THROW( outlierRejection->updateRejectionStatus( outlierRejectionInput ), std::runtime_error );
 }
 
@@ -178,14 +183,14 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionStatusIsAppliedToDataset )
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
 
     const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-    const ObservationCovarianceInterface< double, double > observationCovarianceInterface( flattenedData );
+    const Eigen::MatrixXd observationCovariance = createObservationCovariance( flattenedData );
     const Eigen::VectorXd residuals = flattenedData.getResidualVector( );
     const Eigen::MatrixXd designMatrix = Eigen::MatrixXd::Ones( residuals.rows( ), 2 );
     const Eigen::MatrixXd parameterCovariance = Eigen::MatrixXd::Identity( 2, 2 );
     const Eigen::VectorXd parameterCorrection = Eigen::VectorXd::Zero( 2 );
 
     const OutlierRejectionInput< double, double > outlierRejectionInput(
-            0, flattenedData, observationCovarianceInterface, residuals, designMatrix, parameterCovariance, parameterCorrection );
+            0, flattenedData, observationCovariance, residuals, designMatrix, parameterCovariance, parameterCorrection );
 
     // Reject one range observation and one angular position observation
     FixedListOutlierRejection outlierRejection( dataset, { 1, 4 } );
@@ -213,9 +218,12 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionStatusIsAppliedToDataset )
     BOOST_CHECK_EQUAL( dataset->createOrderedFlattenedObservationData( false ).getObservationVector( ).size( ), 7 );
 }
 
-//! Check that the observation covariance is the inverse of the weight matrix, also with off-diagonal weights.
-BOOST_AUTO_TEST_CASE( test_ObservationCovarianceInterface )
+//! Check that the per-observation covariance is the inverse of the weight matrix, also with off-diagonal weights.
+BOOST_AUTO_TEST_CASE( test_ObservationCovariance )
 {
+    const Eigen::MatrixXd emptyMatrix = Eigen::MatrixXd::Zero( 0, 0 );
+    const Eigen::VectorXd emptyVector = Eigen::VectorXd::Zero( 0 );
+
     const std::shared_ptr< ObservationDataset< double, double > > dataset = createTestDataset( );
     dataset->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< double, double >::observableType( one_way_range ),
                                                        4.0 );
@@ -225,20 +233,23 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovarianceInterface )
 
     {
         const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-        const ObservationCovarianceInterface< double, double > observationCovarianceInterface( flattenedData );
+        const OutlierRejectionInput< double, double > input( 0,
+                                                             flattenedData,
+                                                             createObservationCovariance( flattenedData ),
+                                                             flattenedData.getResidualVector( ),
+                                                             emptyMatrix,
+                                                             emptyMatrix,
+                                                             emptyVector );
 
         // For diagonal weights, the covariance of an observation is the inverse of its own weights
-        BOOST_CHECK_CLOSE_FRACTION( observationCovarianceInterface.getObservationCovariance( 0 )( 0, 0 ), 1.0 / 4.0, 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( input.getObservationCovariance( 0 )( 0, 0 ), 1.0 / 4.0, 1.0E-12 );
 
-        const Eigen::MatrixXd angularCovariance = observationCovarianceInterface.getObservationCovariance( 3 );
+        const Eigen::MatrixXd angularCovariance = input.getObservationCovariance( 3 );
         BOOST_CHECK_EQUAL( angularCovariance.rows( ), 2 );
         BOOST_CHECK_EQUAL( angularCovariance.cols( ), 2 );
         BOOST_CHECK_CLOSE_FRACTION( angularCovariance( 0, 0 ), 1.0 / 2.0, 1.0E-12 );
         BOOST_CHECK_CLOSE_FRACTION( angularCovariance( 1, 1 ), 1.0 / 8.0, 1.0E-12 );
         BOOST_CHECK_SMALL( angularCovariance( 0, 1 ), 1.0E-12 );
-
-        // Uncorrelated observations have a zero cross-covariance
-        BOOST_CHECK_SMALL( observationCovarianceInterface.getObservationCovariance( 0, 1 )( 0, 0 ), 1.0E-12 );
     }
 
     {
@@ -249,14 +260,22 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovarianceInterface )
         dataset->setWeightBlock( { 0, 1 }, { 0, 1 }, weightBlock );
 
         const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-        const ObservationCovarianceInterface< double, double > observationCovarianceInterface( flattenedData );
+        const OutlierRejectionInput< double, double > input( 0,
+                                                             flattenedData,
+                                                             createObservationCovariance( flattenedData ),
+                                                             flattenedData.getResidualVector( ),
+                                                             emptyMatrix,
+                                                             emptyMatrix,
+                                                             emptyVector );
 
+        // The correlation must be accounted for: the covariance of the observation is a block of the inverse of the
+        // complete weight matrix, which for a correlated pair differs from the inverse of its own weight entry
         const Eigen::MatrixXd expectedCovariance = weightBlock.inverse( );
-        BOOST_CHECK_CLOSE_FRACTION( observationCovarianceInterface.getObservationCovariance( 0 )( 0, 0 ), expectedCovariance( 0, 0 ), 1.0E-12 );
-        BOOST_CHECK_CLOSE_FRACTION( observationCovarianceInterface.getObservationCovariance( 0, 1 )( 0, 0 ), expectedCovariance( 0, 1 ), 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( input.getObservationCovariance( 0 )( 0, 0 ), expectedCovariance( 0, 0 ), 1.0E-12 );
+        BOOST_CHECK( std::fabs( expectedCovariance( 0, 0 ) - 1.0 / 4.0 ) > 1.0E-6 );
 
         // The uncorrelated observations are unaffected
-        BOOST_CHECK_CLOSE_FRACTION( observationCovarianceInterface.getObservationCovariance( 2 )( 0, 0 ), 1.0 / 4.0, 1.0E-12 );
+        BOOST_CHECK_CLOSE_FRACTION( input.getObservationCovariance( 2 )( 0, 0 ), 1.0 / 4.0, 1.0E-12 );
     }
 }
 

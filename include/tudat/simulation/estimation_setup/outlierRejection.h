@@ -19,7 +19,6 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/LU>
 
 #include "tudat/simulation/estimation_setup/flattenedObservationData.h"
 #include "tudat/simulation/estimation_setup/observationCondition.h"
@@ -32,106 +31,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Number of scalar observations above which computing the full observation covariance is reported to the user.
-constexpr int MAXIMUM_OBSERVATION_COVARIANCE_SIZE_WITHOUT_WARNING = 5000;
-
-//! Provider of the observation covariance matrix used by outlier rejection algorithms.
-/*!
- * The observations carry weights, which represent the inverse of the observation covariance. This class inverts the
- * complete weight matrix once, and hands out the requested (blocks of the) resulting covariance matrix. The full
- * matrix is inverted, rather than the individual per-observation weight blocks, because the weight matrix is not
- * assumed to be block diagonal: correlations between arbitrary observations may be defined, and in that case the
- * covariance of a single observation is a block of the inverse of the complete matrix, which is not the same as the
- * inverse of that observation's own weight block.
- *
- * Note that the inverse is computed and stored as a dense matrix of size (number of scalar observations) squared, so
- * both the memory use and the computational cost grow quickly with the number of observations. A warning is printed
- * when a large matrix is inverted. This class is the single place where the observation covariance is defined, so
- * once the covariance is stored on the ObservationDataset itself, only this class needs to be modified.
- */
-template< typename ObservationScalarType = double, typename TimeType = double >
-class ObservationCovarianceInterface
-{
-public:
-    //! Constructor.
-    /*!
-     * \param flattenedObservationData Flattened data defining the row order of the covariance matrix. This should be
-     * the data over *all* observations (rejected observations included), since the covariance is a property of the
-     * observations themselves, and not of the observations that are currently used in the estimation.
-     */
-    ObservationCovarianceInterface(
-            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData )
-    {
-        const int numberOfRows = static_cast< int >( flattenedObservationData.getWeightVector( ).size( ) );
-        if( numberOfRows > MAXIMUM_OBSERVATION_COVARIANCE_SIZE_WITHOUT_WARNING )
-        {
-            std::cerr << "Warning when computing the observation covariance for outlier rejection, the covariance is computed by "
-                         "inverting the full weight matrix of "
-                      << numberOfRows << " by " << numberOfRows << " entries, which may be slow and memory intensive." << std::endl;
-        }
-
-        const Eigen::MatrixXd weightMatrix = Eigen::MatrixXd( flattenedObservationData.getSparseWeightMatrix( ) );
-        observationCovariance_ = weightMatrix.inverse( );
-
-        // Store where each observation is located in the covariance matrix. The observations are numbered from zero,
-        // so the number of entries needed is one more than the highest observation id in the data.
-        unsigned int numberOfObservations = 0;
-        for( const unsigned int observationId : flattenedObservationData.getObservationIds( ) )
-        {
-            numberOfObservations = std::max( numberOfObservations, observationId + 1 );
-        }
-
-        firstRowByObservation_.resize( numberOfObservations );
-        scalarSizeByObservation_.resize( numberOfObservations );
-        for( unsigned int observationId = 0; observationId < numberOfObservations; observationId++ )
-        {
-            firstRowByObservation_.at( observationId ) = flattenedObservationData.getFirstFlattenedRowForObservation( observationId );
-            scalarSizeByObservation_.at( observationId ) = flattenedObservationData.getScalarSizeForObservation( observationId );
-        }
-    }
-
-    //! Return the full observation covariance matrix, in the row order of the flattened data it was created from.
-    const Eigen::MatrixXd& getFullObservationCovariance( ) const
-    {
-        return observationCovariance_;
-    }
-
-    //! Return the covariance block of a single observation (of size observable size by observable size).
-    Eigen::MatrixXd getObservationCovariance( const unsigned int observationId ) const
-    {
-        return getObservationCovariance( observationId, observationId );
-    }
-
-    //! Return the covariance block between two observations (zero if the two observations are uncorrelated).
-    Eigen::MatrixXd getObservationCovariance( const unsigned int rowObservationId, const unsigned int columnObservationId ) const
-    {
-        const std::pair< int, unsigned int > rowRange = getRowRange( rowObservationId );
-        const std::pair< int, unsigned int > columnRange = getRowRange( columnObservationId );
-        return observationCovariance_.block( rowRange.first, columnRange.first, rowRange.second, columnRange.second );
-    }
-
-private:
-    //! Return the first row and the number of rows occupied by one observation, throwing if it is not present.
-    std::pair< int, unsigned int > getRowRange( const unsigned int observationId ) const
-    {
-        if( observationId >= firstRowByObservation_.size( ) || firstRowByObservation_.at( observationId ) < 0 )
-        {
-            throw std::runtime_error( "Error when retrieving observation covariance, observation " + std::to_string( observationId ) +
-                                      " is not present in the data from which the covariance was computed." );
-        }
-        return std::make_pair( firstRowByObservation_.at( observationId ), scalarSizeByObservation_.at( observationId ) );
-    }
-
-    //! Inverse of the full weight matrix.
-    Eigen::MatrixXd observationCovariance_;
-
-    //! First row of each observation in the covariance matrix; -1 for observations that are not present.
-    std::vector< int > firstRowByObservation_;
-
-    //! Number of rows spanned by each observation in the covariance matrix; 0 for observations that are not present.
-    std::vector< unsigned int > scalarSizeByObservation_;
-};
-
 //! Data from a single estimation iteration that is provided to an outlier rejection algorithm.
 /*!
  * This object bundles the quantities that the least-squares iteration has computed anyway. Which of these an
@@ -142,19 +41,25 @@ private:
  * the least-squares solution uses), and they cover *all* observations in the dataset, including those that are
  * currently rejected and that therefore did not contribute to the estimation. The latter is required for algorithms
  * to be able to recover observations that were rejected in an earlier iteration.
+ *
+ * The observation covariance is the inverse of the complete weight matrix. The complete matrix is inverted, rather
+ * than the weight block of each observation, because the weight matrix is not assumed to be block diagonal:
+ * correlations between arbitrary observations may be defined, and in that case the covariance of a single
+ * observation is a block of the inverse of the complete matrix, which is not the same as the inverse of that
+ * observation's own weight block.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct OutlierRejectionInput {
     OutlierRejectionInput(
             const int iterationNumber,
             const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
-            const ObservationCovarianceInterface< ObservationScalarType, TimeType >& observationCovarianceInterface,
+            const Eigen::MatrixXd& observationCovariance,
             const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
             const Eigen::MatrixXd& designMatrix,
             const Eigen::MatrixXd& parameterCovariance,
             const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterCorrection ):
         iterationNumber_( iterationNumber ), flattenedObservationData_( flattenedObservationData ),
-        observationCovarianceInterface_( observationCovarianceInterface ), residuals_( residuals ), designMatrix_( designMatrix ),
+        observationCovariance_( observationCovariance ), residuals_( residuals ), designMatrix_( designMatrix ),
         parameterCovariance_( parameterCovariance ), parameterCorrection_( parameterCorrection )
     { }
 
@@ -176,16 +81,15 @@ struct OutlierRejectionInput {
         return residuals_.segment( rowRange.first, rowRange.second );
     }
 
-    //! Return the covariance block of a single observation (of size observable size by observable size).
+    //! Return the covariance of a single observation (of size observable size by observable size).
+    /*!
+     * This is the diagonal block of the complete observation covariance, which for a right ascension/declination
+     * pair, for instance, is the 2 x 2 covariance of that pair.
+     */
     Eigen::MatrixXd getObservationCovariance( const unsigned int observationId ) const
     {
-        return observationCovarianceInterface_.getObservationCovariance( observationId );
-    }
-
-    //! Return the covariance block between two observations (zero if the two observations are uncorrelated).
-    Eigen::MatrixXd getObservationCovariance( const unsigned int rowObservationId, const unsigned int columnObservationId ) const
-    {
-        return observationCovarianceInterface_.getObservationCovariance( rowObservationId, columnObservationId );
+        const std::pair< int, unsigned int > rowRange = getRowRange( observationId );
+        return observationCovariance_.block( rowRange.first, rowRange.first, rowRange.second, rowRange.second );
     }
 
     //! Iteration of the estimation for which this data was computed, counted from zero.
@@ -194,8 +98,8 @@ struct OutlierRejectionInput {
     //! Flattened data over all observations, defining the row order of the residuals and the design matrix.
     const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData_;
 
-    //! Provider of the observation covariance.
-    const ObservationCovarianceInterface< ObservationScalarType, TimeType >& observationCovarianceInterface_;
+    //! Covariance of all observations: the inverse of the complete weight matrix, in the row order above.
+    const Eigen::MatrixXd& observationCovariance_;
 
     //! Residual vector of all observations.
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals_;
