@@ -48,6 +48,16 @@ class SBDBquery:
         return self.query["object"]["spkid"]
 
     @property
+    def moid(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with the Earth [m], if available"""
+        return self.query["orbit"]["moid"].to(u.meter).value
+
+    @property
+    def moid_jup(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with Jupiter [m], if available"""
+        return self.query["orbit"]["moid_jup"].to(u.meter).value
+
+    @property
     def codes_300_spkid(self):
         """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
 
