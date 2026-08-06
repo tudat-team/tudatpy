@@ -58,17 +58,13 @@ def find_in_catalog(search_string: str) -> Dict[str, str]:
     return {key: url for key, url in RESOURCE_CATALOG.items() if search_string in key}
 
 
-def resolve_catalog_keys(
-    keys: Optional[List[str]] = None, search: Optional[str] = None
-) -> Dict[str, str]:
-    """Resolve catalog keys using search string or key matching.
+def resolve_catalog_keys(keys: List[str]) -> Dict[str, str]:
+    """Resolve catalog keys by substring matching.
 
     Parameters
     ----------
     keys:
-        List of catalog keys or partial key strings to match.
-    search:
-        Substring to search for in catalog keys.
+        Substrings to search for in catalog keys.
 
     Returns
     -------
@@ -76,23 +72,8 @@ def resolve_catalog_keys(
         Mapping of matched catalog keys to their URLs.
     """
     resolved: Dict[str, str] = {}
-    if search:
-        resolved.update(find_in_catalog(search))
-
-    if keys:
-        for key in keys:
-            if key in RESOURCE_CATALOG:
-                resolved[key] = RESOURCE_CATALOG[key]
-                continue
-
-            matches = {
-                catalog_key: url
-                for catalog_key, url in RESOURCE_CATALOG.items()
-                if catalog_key.startswith(key) or key in catalog_key
-            }
-            if not matches:
-                raise ValueError(f"No catalog entries match '{key}'")
-            resolved.update(matches)
+    for key in keys:
+        resolved.update(find_in_catalog(key))
 
     return resolved
 
@@ -381,10 +362,7 @@ def parse_arguments() -> argparse.Namespace:
         help="Cache directory for downloads and tarballs.",
     )
     parser.add_argument(
-        "--files", nargs="+", help="Exact catalog keys or prefixes for update mode."
-    )
-    parser.add_argument(
-        "--search", help="Substring search to select catalog files for update or list."
+        "--files", nargs="+", help="Substrings selecting catalog files for update mode."
     )
     parser.add_argument("--extra-url", help="URL of an extra file to download in extra mode.")
     parser.add_argument(
@@ -433,7 +411,7 @@ def main() -> None:
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
-        list_catalog(args.list_search or args.search)
+        list_catalog(args.list_search)
         return
 
     if args.mode == "scratch":
@@ -451,9 +429,9 @@ def main() -> None:
         return
 
     if args.mode == "update":
-        if not args.files and not args.search:
-            raise ValueError("Update mode requires --files or --search.")
-        files = resolve_catalog_keys(args.files, args.search)
+        if not args.files:
+            raise ValueError("Update mode requires --files.")
+        files = resolve_catalog_keys(args.files)
         installed = install_files(files, dest_path, cache_dir, force=True, hashes=hash_map)
         print(f"Updated {installed} selected resources to {dest_path}")
         return
