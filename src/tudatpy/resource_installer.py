@@ -20,11 +20,6 @@ from tudatpy.resource_catalog import (
 )
 
 try:
-    import pooch
-except ImportError:  # pragma: no cover
-    pooch = None
-
-try:
     from tqdm import tqdm
 except ImportError:  # pragma: no cover
     tqdm = None
@@ -109,30 +104,40 @@ def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[st
     return regular, tarball_groups
 
 
-def _download_with_requests(url: str, dest_path: Path) -> None:
-    print(f"Downloading {dest_path.name}")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    total = int(response.headers.get("Content-Length", 0))
+def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None:
+    """Download ``url`` atomically, retrying failed transfers."""
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    progress = None
-    if _has_progressbar():
-        progress = tqdm(
-            total=total or None,
-            unit="B",
-            unit_scale=True,
-            desc=f"Downloading {dest_path.name}",
-        )
-    try:
-        with dest_path.open("wb") as fd:
-            for chunk in response.iter_content(chunk_size=32_768):
-                if chunk:
-                    fd.write(chunk)
-                    if progress is not None:
-                        progress.update(len(chunk))
-    finally:
-        if progress is not None:
-            progress.close()
+    temporary_path = dest_path.with_name(f".{dest_path.name}.part")
+
+    for attempt in range(1, retries + 1):
+        print(f"Downloading {dest_path.name} (attempt {attempt}/{retries})")
+        progress = None
+        try:
+            with requests.get(url, stream=True, timeout=30) as response:
+                response.raise_for_status()
+                total = int(response.headers.get("Content-Length", 0))
+                if _has_progressbar():
+                    progress = tqdm(
+                        total=total or None,
+                        unit="B",
+                        unit_scale=True,
+                        desc=f"Downloading {dest_path.name}",
+                    )
+                with temporary_path.open("wb") as fd:
+                    for chunk in response.iter_content(chunk_size=32_768):
+                        if chunk:
+                            fd.write(chunk)
+                            if progress is not None:
+                                progress.update(len(chunk))
+            temporary_path.replace(dest_path)
+            return
+        except (requests.RequestException, OSError):
+            temporary_path.unlink(missing_ok=True)
+            if attempt == retries:
+                raise
+        finally:
+            if progress is not None:
+                progress.close()
 
 
 def _sha256_file(path: Path) -> str:
@@ -160,10 +165,7 @@ def _download_file(
             return False
         dest_path.unlink()
 
-    if pooch is not None:
-        pooch.retrieve(url, path=str(dest_path), progressbar=True, retry_if_failed=3)
-    else:
-        _download_with_requests(url, dest_path)
+    _download_with_requests(url, dest_path)
 
     if expected_hash:
         try:
@@ -186,10 +188,7 @@ def _download_tarball(
     if tar_path.exists():
         tar_path.unlink()
 
-    if pooch is not None:
-        pooch.retrieve(url, path=str(tar_path), progressbar=True, retry_if_failed=3)
-    else:
-        _download_with_requests(url, tar_path)
+    _download_with_requests(url, tar_path)
 
     if expected_hash:
         try:
