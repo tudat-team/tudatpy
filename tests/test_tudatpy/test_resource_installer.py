@@ -82,6 +82,16 @@ def test_download_failure_removes_partial_file(monkeypatch, tmp_path):
     assert not destination.with_name(".resource.dat.part").exists()
 
 
+def test_verify_sha256_returns_boolean(tmp_path):
+    """Report checksum matches and mismatches without raising an exception."""
+    resource = tmp_path / "resource.dat"
+    resource.write_bytes(b"resource")
+    expected_hash = hashlib.sha256(b"resource").hexdigest()
+
+    assert resource_installer._verify_sha256(resource, expected_hash)
+    assert not resource_installer._verify_sha256(resource, "0" * 64)
+
+
 def test_download_tarball_reuses_verified_cache(monkeypatch, tmp_path):
     """Reuse a cached archive only after its checksum has been verified."""
     archive = tmp_path / "resources.tar.gz"

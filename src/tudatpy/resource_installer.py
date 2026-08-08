@@ -163,13 +163,14 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _verify_sha256(path: Path, expected_hash: str) -> None:
-    """Verify a file against an expected SHA256 digest."""
-    got = _sha256_file(path)
-    if got.lower() != expected_hash.lower():
-        raise ChecksumMismatchError(
-            f"SHA256 mismatch for {path}: expected {expected_hash}, got {got}"
-        )
+def _verify_sha256(path: Path, expected_hash: str) -> bool:
+    """Return whether a file matches its expected SHA-256 digest."""
+    return _sha256_file(path).lower() == expected_hash.lower()
+
+
+def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
+    """Return a diagnostic for a file that failed checksum verification."""
+    return f"SHA256 mismatch for {path}: expected {expected_hash}"
 
 
 def _download_file(
@@ -183,12 +184,10 @@ def _download_file(
 
     _download_with_requests(url, dest_path)
 
+    if expected_hash and not _verify_sha256(dest_path, expected_hash):
+        dest_path.unlink(missing_ok=True)
+        raise ChecksumMismatchError(_checksum_mismatch_message(dest_path, expected_hash))
     if expected_hash:
-        try:
-            _verify_sha256(dest_path, expected_hash)
-        except ChecksumMismatchError:
-            dest_path.unlink(missing_ok=True)
-            raise
         print(f"Verified SHA256 for {dest_path}")
     return True
 
@@ -200,9 +199,7 @@ def _download_tarball(
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
         if expected_hash:
-            try:
-                _verify_sha256(tar_path, expected_hash)
-            except ChecksumMismatchError:
+            if not _verify_sha256(tar_path, expected_hash):
                 print(f"Discarding outdated cached archive {tar_path.name}")
                 tar_path.unlink()
             else:
@@ -217,12 +214,10 @@ def _download_tarball(
 
     _download_with_requests(url, tar_path)
 
+    if expected_hash and not _verify_sha256(tar_path, expected_hash):
+        tar_path.unlink(missing_ok=True)
+        raise ChecksumMismatchError(_checksum_mismatch_message(tar_path, expected_hash))
     if expected_hash:
-        try:
-            _verify_sha256(tar_path, expected_hash)
-        except ChecksumMismatchError:
-            tar_path.unlink(missing_ok=True)
-            raise
         print(f"Verified SHA256 for archive {tar_path.name}")
     return tar_path
 
@@ -259,10 +254,9 @@ def _extract_tarball_members(
             dest_path = dest_root / target
             if dest_path.exists() and not force:
                 if hashes and (expected_hash := hashes.get(target)):
-                    try:
-                        _verify_sha256(dest_path, expected_hash)
-                    except ChecksumMismatchError as error:
-                        warnings.warn(str(error), RuntimeWarning, stacklevel=2)
+                    if not _verify_sha256(dest_path, expected_hash):
+                        warning = _checksum_mismatch_message(dest_path, expected_hash)
+                        warnings.warn(warning, RuntimeWarning, stacklevel=2)
                         dest_path.unlink(missing_ok=True)
                     else:
                         verified += 1
@@ -283,11 +277,9 @@ def _extract_tarball_members(
                 failures.append(failure)
                 continue
             if hashes and (expected_hash := hashes.get(target)):
-                try:
-                    _verify_sha256(dest_path, expected_hash)
-                except ChecksumMismatchError as error:
+                if not _verify_sha256(dest_path, expected_hash):
                     dest_path.unlink(missing_ok=True)
-                    failure = f"{target}: {error}"
+                    failure = f"{target}: {_checksum_mismatch_message(dest_path, expected_hash)}"
                     warnings.warn(failure, RuntimeWarning, stacklevel=2)
                     failures.append(failure)
                     continue
