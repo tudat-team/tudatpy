@@ -3,6 +3,7 @@
 import argparse
 import os
 import tarfile
+import warnings
 from importlib import resources
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -31,6 +32,19 @@ DEFAULT_CACHE = Path(
 # Loading is deferred until after manifest mode has had the opportunity to
 # create the local catalog on a fresh installation.
 RESOURCE_CATALOG: Dict[str, str] = {}
+
+
+class ChecksumMismatchError(RuntimeError):
+    """Raised when a file does not match its expected SHA-256 digest."""
+
+
+class ResourceInstallationError(RuntimeError):
+    """Raised after all resources have been attempted and some have failed."""
+
+    def __init__(self, failures: List[str]):
+        self.failures = failures
+        details = "\n".join(f"- {failure}" for failure in failures)
+        super().__init__(f"Failed to install {len(failures)} resource(s):\n{details}")
 
 
 def _has_progressbar() -> bool:
@@ -153,7 +167,9 @@ def _verify_sha256(path: Path, expected_hash: str) -> None:
     """Verify a file against an expected SHA256 digest."""
     got = _sha256_file(path)
     if got.lower() != expected_hash.lower():
-        raise RuntimeError(f"SHA256 mismatch for {path}: expected {expected_hash}, got {got}")
+        raise ChecksumMismatchError(
+            f"SHA256 mismatch for {path}: expected {expected_hash}, got {got}"
+        )
 
 
 def _download_file(
@@ -170,7 +186,7 @@ def _download_file(
     if expected_hash:
         try:
             _verify_sha256(dest_path, expected_hash)
-        except RuntimeError:
+        except ChecksumMismatchError:
             dest_path.unlink(missing_ok=True)
             raise
         print(f"Verified SHA256 for {dest_path}")
@@ -183,8 +199,19 @@ def _download_tarball(
     cache_dir.mkdir(parents=True, exist_ok=True)
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
-        print(f"Using cached archive {tar_path.name}")
-        return tar_path
+        if expected_hash:
+            try:
+                _verify_sha256(tar_path, expected_hash)
+            except ChecksumMismatchError:
+                print(f"Discarding outdated cached archive {tar_path.name}")
+                tar_path.unlink()
+            else:
+                print(f"Using verified cached archive {tar_path.name}")
+                return tar_path
+        else:
+            # A cached archive cannot be considered current without an
+            # authoritative checksum against which to verify it.
+            tar_path.unlink()
     if tar_path.exists():
         tar_path.unlink()
 
@@ -193,7 +220,7 @@ def _download_tarball(
     if expected_hash:
         try:
             _verify_sha256(tar_path, expected_hash)
-        except RuntimeError:
+        except ChecksumMismatchError:
             tar_path.unlink(missing_ok=True)
             raise
         print(f"Verified SHA256 for archive {tar_path.name}")
@@ -222,35 +249,53 @@ def _extract_tarball_members(
     dest_root: Path,
     force: bool = False,
     hashes: Optional[Dict[str, str]] = None,
-) -> int:
+) -> Tuple[int, List[str]]:
     installed = 0
     verified = 0
+    failures: List[str] = []
     print(f"Extracting {len(targets)} resources from {tar_path.name}")
     with tarfile.open(tar_path, mode="r:*") as tar:
         for target in targets:
             dest_path = dest_root / target
             if dest_path.exists() and not force:
                 if hashes and (expected_hash := hashes.get(target)):
-                    _verify_sha256(dest_path, expected_hash)
-                    verified += 1
-                continue
+                    try:
+                        _verify_sha256(dest_path, expected_hash)
+                    except ChecksumMismatchError as error:
+                        warnings.warn(str(error), RuntimeWarning, stacklevel=2)
+                        dest_path.unlink(missing_ok=True)
+                    else:
+                        verified += 1
+                        continue
+                else:
+                    continue
             dest_path.parent.mkdir(parents=True, exist_ok=True)
-            member = _find_tar_member(tar, target)
-            extracted = tar.extractfile(member)
-            if extracted is None:
-                raise RuntimeError(f"Cannot extract '{member.name}' from {tar_path}")
-            dest_path.write_bytes(extracted.read())
+            try:
+                member = _find_tar_member(tar, target)
+                extracted = tar.extractfile(member)
+                if extracted is None:
+                    raise RuntimeError(f"Cannot extract '{member.name}' from {tar_path}")
+                dest_path.write_bytes(extracted.read())
+            except (KeyError, OSError, RuntimeError, tarfile.TarError) as error:
+                dest_path.unlink(missing_ok=True)
+                failure = f"{target}: {error}"
+                warnings.warn(failure, RuntimeWarning, stacklevel=2)
+                failures.append(failure)
+                continue
             if hashes and (expected_hash := hashes.get(target)):
                 try:
                     _verify_sha256(dest_path, expected_hash)
-                except RuntimeError:
+                except ChecksumMismatchError as error:
                     dest_path.unlink(missing_ok=True)
-                    raise
+                    failure = f"{target}: {error}"
+                    warnings.warn(failure, RuntimeWarning, stacklevel=2)
+                    failures.append(failure)
+                    continue
                 verified += 1
             installed += 1
     if verified:
         print(f"Verified SHA256 for {verified} resources from {tar_path.name}")
-    return installed
+    return installed, failures
 
 
 def install_files(
@@ -268,23 +313,42 @@ def install_files(
 
     regular_files, tarball_groups = _split_tarball_files(files)
     installed = 0
+    failures: List[str] = []
 
     for relative_path, url in regular_files.items():
         target_path = dest_path / relative_path
         expected = None
         if hashes:
             expected = hashes.get(relative_path) or hashes.get(url)
-        if _download_file(url, target_path, force=force, expected_hash=expected):
-            installed += 1
+        try:
+            if _download_file(url, target_path, force=force, expected_hash=expected):
+                installed += 1
+        except ChecksumMismatchError as error:
+            failure = f"{relative_path}: {error}"
+            warnings.warn(failure, RuntimeWarning, stacklevel=2)
+            failures.append(failure)
 
     for tarball_url, targets in tarball_groups.items():
         expected = None
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
-        tar_path = _download_tarball(tarball_url, cache_dir, force=force, expected_hash=expected)
-        installed += _extract_tarball_members(
-            tar_path, targets, dest_path, force=force, hashes=hashes
-        )
+        try:
+            tar_path = _download_tarball(
+                tarball_url, cache_dir, force=force, expected_hash=expected
+            )
+            extracted, extraction_failures = _extract_tarball_members(
+                tar_path, targets, dest_path, force=force, hashes=hashes
+            )
+        except (ChecksumMismatchError, OSError, tarfile.TarError) as error:
+            failure = f"{_tarball_cache_name(tarball_url)}: {error}"
+            warnings.warn(failure, RuntimeWarning, stacklevel=2)
+            failures.append(failure)
+            continue
+        installed += extracted
+        failures.extend(extraction_failures)
+
+    if failures:
+        raise ResourceInstallationError(failures)
 
     return installed
 
@@ -335,6 +399,17 @@ def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
                 return json.load(hash_stream), f"package resource {hash_file}"
 
     raise FileNotFoundError(f"Hash file not found: {path}")
+
+
+def _automatic_hash_file(catalog_path: Optional[Path]) -> Optional[Path]:
+    """Return the checksum file associated with the selected local catalog."""
+    if catalog_path is not None:
+        candidate = catalog_path.with_name(USER_RESOURCE_HASHES.name)
+    elif USER_RESOURCE_CATALOG.exists():
+        candidate = USER_RESOURCE_HASHES
+    else:
+        return None
+    return candidate if candidate.exists() else None
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -393,7 +468,11 @@ def main() -> None:
 
     if args.mode == "manifest":
         output_path = catalog_path or USER_RESOURCE_CATALOG
-        hash_path = output_path.with_name(USER_RESOURCE_HASHES.name)
+        hash_path = (
+            output_path.with_name(USER_RESOURCE_HASHES.name)
+            if catalog_path is not None
+            else USER_RESOURCE_HASHES
+        )
         updated = update_resource_catalog(output_path, hash_path)
         print(
             f"Updated {output_path} with {updated} resources and wrote SHA256 hashes "
@@ -407,6 +486,9 @@ def main() -> None:
     hash_map: Optional[Dict[str, str]] = None
     if getattr(args, "hash_file", None):
         hash_map, hash_source = _load_hash_file(args.hash_file)
+        print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
+    elif automatic_hash_file := _automatic_hash_file(catalog_path):
+        hash_map, hash_source = _load_hash_file(str(automatic_hash_file))
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":

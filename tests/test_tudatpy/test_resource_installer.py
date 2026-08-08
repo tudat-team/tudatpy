@@ -1,5 +1,11 @@
 """Tests for downloading and caching TudatPy resources."""
 
+import argparse
+import hashlib
+import io
+import json
+import tarfile
+
 import pytest
 import requests
 
@@ -74,3 +80,185 @@ def test_download_failure_removes_partial_file(monkeypatch, tmp_path):
 
     assert not destination.exists()
     assert not destination.with_name(".resource.dat.part").exists()
+
+
+def test_download_tarball_reuses_verified_cache(monkeypatch, tmp_path):
+    """Reuse a cached archive only after its checksum has been verified."""
+    archive = tmp_path / "resources.tar.gz"
+    archive.write_bytes(b"current archive")
+    expected_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
+
+    def unexpected_download(*args, **kwargs):
+        pytest.fail("A verified archive should not be downloaded again")
+
+    monkeypatch.setattr(resource_installer, "_download_with_requests", unexpected_download)
+
+    result = resource_installer._download_tarball(
+        "https://example.invalid/resources.tar.gz",
+        tmp_path,
+        expected_hash=expected_hash,
+    )
+
+    assert result == archive
+    assert result.read_bytes() == b"current archive"
+
+
+def test_download_tarball_replaces_invalid_cache(monkeypatch, tmp_path):
+    """Replace a cached archive when it does not match the current checksum."""
+    archive = tmp_path / "resources.tar.gz"
+    archive.write_bytes(b"outdated archive")
+    current_content = b"current archive"
+    expected_hash = hashlib.sha256(current_content).hexdigest()
+    downloads = []
+
+    def download(url, destination):
+        downloads.append((url, destination))
+        destination.write_bytes(current_content)
+
+    monkeypatch.setattr(resource_installer, "_download_with_requests", download)
+
+    result = resource_installer._download_tarball(
+        "https://example.invalid/resources.tar.gz",
+        tmp_path,
+        expected_hash=expected_hash,
+    )
+
+    assert result.read_bytes() == current_content
+    assert downloads == [("https://example.invalid/resources.tar.gz", archive)]
+
+
+def test_download_tarball_does_not_trust_cache_without_hash(monkeypatch, tmp_path):
+    """Redownload a cached archive when no authoritative checksum is available."""
+    archive = tmp_path / "resources.tar.gz"
+    archive.write_bytes(b"unknown archive")
+
+    def download(url, destination):
+        destination.write_bytes(b"fresh archive")
+
+    monkeypatch.setattr(resource_installer, "_download_with_requests", download)
+
+    result = resource_installer._download_tarball(
+        "https://example.invalid/resources.tar.gz", tmp_path
+    )
+
+    assert result.read_bytes() == b"fresh archive"
+
+
+def test_main_automatically_loads_manifest_hashes(monkeypatch, tmp_path):
+    """Use checksums written beside an explicitly selected catalog."""
+    catalog_path = tmp_path / "resource_catalog.csv"
+    catalog_path.write_text(
+        "path,modified,url\n"
+        "resource.dat,2026-08-07T00:00:00+00:00,https://example.invalid/resources.tar.gz\n"
+    )
+    hash_path = tmp_path / resource_installer.USER_RESOURCE_HASHES.name
+    hashes = {"resources.tar.gz": "a" * 64}
+    hash_path.write_text(json.dumps(hashes))
+    captured = {}
+
+    monkeypatch.setattr(
+        resource_installer,
+        "parse_arguments",
+        lambda: argparse.Namespace(
+            mode="missing",
+            catalog=str(catalog_path),
+            dest=str(tmp_path / "resources"),
+            cache_dir=str(tmp_path / "cache"),
+            hash_file=None,
+            list_search=None,
+            files=None,
+            extra_url=None,
+            extra_dest=None,
+            force=False,
+        ),
+    )
+
+    def install(files, dest_path, cache_dir, force=False, hashes=None):
+        captured["hashes"] = hashes
+        return 0
+
+    monkeypatch.setattr(resource_installer, "install_files", install)
+
+    resource_installer.main()
+
+    assert captured["hashes"] == hashes
+
+
+def test_extract_continues_after_checksum_mismatch(tmp_path):
+    """Try every archive member and report failed checksum verification."""
+    archive = tmp_path / "resources.tar.gz"
+    contents = {"bad.dat": b"corrupt", "good.dat": b"valid"}
+    with tarfile.open(archive, "w:gz") as tar:
+        for name, content in contents.items():
+            member = tarfile.TarInfo(name)
+            member.size = len(content)
+            tar.addfile(member, io.BytesIO(content))
+
+    hashes = {
+        "bad.dat": hashlib.sha256(b"expected").hexdigest(),
+        "good.dat": hashlib.sha256(contents["good.dat"]).hexdigest(),
+    }
+    destination = tmp_path / "destination"
+
+    with pytest.warns(RuntimeWarning, match="bad.dat"):
+        installed, failures = resource_installer._extract_tarball_members(
+            archive, ["bad.dat", "good.dat"], destination, hashes=hashes
+        )
+
+    assert installed == 1
+    assert len(failures) == 1
+    assert "bad.dat" in failures[0]
+    assert not (destination / "bad.dat").exists()
+    assert (destination / "good.dat").read_bytes() == b"valid"
+
+
+def test_extract_replaces_existing_file_with_invalid_checksum(tmp_path):
+    """Replace an invalid existing target from the already verified archive."""
+    archive = tmp_path / "resources.tar.gz"
+    content = b"valid"
+    with tarfile.open(archive, "w:gz") as tar:
+        member = tarfile.TarInfo("resource.dat")
+        member.size = len(content)
+        tar.addfile(member, io.BytesIO(content))
+
+    destination = tmp_path / "destination"
+    destination.mkdir()
+    target = destination / "resource.dat"
+    target.write_bytes(b"corrupt")
+    hashes = {"resource.dat": hashlib.sha256(content).hexdigest()}
+
+    with pytest.warns(RuntimeWarning, match="resource.dat"):
+        installed, failures = resource_installer._extract_tarball_members(
+            archive, ["resource.dat"], destination, hashes=hashes
+        )
+
+    assert installed == 1
+    assert not failures
+    assert target.read_bytes() == content
+
+
+def test_install_attempts_all_tarballs_before_raising(monkeypatch, tmp_path):
+    """Aggregate failures only after all tarball groups have been processed."""
+    attempted = []
+
+    def download(url, cache_dir, force=False, expected_hash=None):
+        return cache_dir / resource_installer._tarball_cache_name(url)
+
+    def extract(tar_path, targets, dest_root, force=False, hashes=None):
+        attempted.append(tar_path.name)
+        if tar_path.name == "first.tar.gz":
+            return 0, ["first.dat: checksum mismatch"]
+        return 1, []
+
+    monkeypatch.setattr(resource_installer, "_download_tarball", download)
+    monkeypatch.setattr(resource_installer, "_extract_tarball_members", extract)
+
+    files = {
+        "first.dat": "https://example.invalid/first.tar.gz",
+        "second.dat": "https://example.invalid/second.tar.gz",
+    }
+    with pytest.raises(resource_installer.ResourceInstallationError) as error:
+        resource_installer.install_files(files, tmp_path / "dest", tmp_path / "cache")
+
+    assert attempted == ["first.tar.gz", "second.tar.gz"]
+    assert error.value.failures == ["first.dat: checksum mismatch"]
