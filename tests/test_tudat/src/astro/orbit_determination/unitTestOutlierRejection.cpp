@@ -396,6 +396,7 @@ public:
     using CarpinoOutlierRejection< double, double >::applyMaximumRejectedFraction;
     using CarpinoOutlierRejection< double, double >::decideRejectionStatus;
     using CarpinoOutlierRejection< double, double >::getRejectionThreshold;
+    using CarpinoOutlierRejection< double, double >::computeChiSquared;
 };
 
 //! Term that the algorithm adds to the rejection threshold, which raises the threshold (and thereby makes rejection
@@ -655,6 +656,56 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectedFraction )
                                        expectedRejectedObservationIds.begin( ),
                                        expectedRejectedObservationIds.end( ) );
     }
+}
+
+
+//! Test computation of Chi-squared for an arbitrary case
+BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
+{
+    std::shared_ptr<CarpinoOutlierRejectionSettings> settings =
+        std::make_shared<CarpinoOutlierRejectionSettings>(9.0,8.0);
+    TestableCarpinoOutlierRejection outlierRejection(
+        settings, createRangeDataset( 10 ));
+
+    Eigen::MatrixXd covariance(2,2);
+    covariance << 1E-9, 1E-10, 1E-10, 1E-9;
+
+    Eigen::VectorXd residuals(2);
+    residuals << 2E-9, 1E-9;
+
+    Eigen::MatrixXd partialsMatrix = Eigen::MatrixXd::Ones(2,6) * 1E-5;
+    partialsMatrix(0,0) = 2E-5;
+
+    Eigen::MatrixXd parameterCovariance = Eigen::MatrixXd::Ones(6,6) * 1E-5;
+    parameterCovariance(0,0) = 2E-5;
+
+    Eigen::VectorXd parameterCorrection = Eigen::VectorXd::Ones(6)*1E-5;
+    parameterCorrection(0) = 2E-5;
+
+    // Check case where observation is rejected
+    const double chiSquaredRejectedObservation = outlierRejection.computeChiSquared(
+        partialsMatrix,
+        residuals,
+        parameterCorrection,
+        parameterCovariance,
+        covariance,
+        true);
+    const double expectedChiSquaredRejectedObservation = 1.24638312e-09;
+
+    BOOST_CHECK_CLOSE_FRACTION(chiSquaredRejectedObservation, expectedChiSquaredRejectedObservation, 1E-15);
+
+    // check case where observation is accepted
+    const double chiSquaredAcceptedObservation = outlierRejection.computeChiSquared(
+        partialsMatrix,
+        residuals,
+        parameterCorrection,
+        parameterCovariance,
+        covariance,
+        false);
+
+    const double expectedChiSquaredAcceptedObservation = 1.24654618e-09;
+    BOOST_CHECK_CLOSE(chiSquaredAcceptedObservation, expectedChiSquaredAcceptedObservation, 1E-15);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )  // carpino_outlier_rejection
