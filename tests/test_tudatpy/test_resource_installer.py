@@ -92,6 +92,27 @@ def test_verify_sha256_returns_boolean(tmp_path):
     assert not resource_installer._verify_sha256(resource, "0" * 64)
 
 
+def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, capsys):
+    """List the union of resources matching multiple key substrings."""
+    monkeypatch.setattr(
+        resource_installer,
+        "RESOURCE_CATALOG",
+        {
+            "ephemerides/de430.dat": "https://example.invalid/de430.dat",
+            "earth/gravity.dat": "https://example.invalid/gravity.dat",
+            "earth/rotation.dat": "https://example.invalid/rotation.dat",
+        },
+    )
+
+    resource_installer.list_catalog(["de430", "earth"])
+
+    assert capsys.readouterr().out.splitlines() == [
+        "earth/gravity.dat",
+        "earth/rotation.dat",
+        "ephemerides/de430.dat",
+    ]
+
+
 def test_download_tarball_reuses_verified_cache(monkeypatch, tmp_path):
     """Reuse a cached archive only after its checksum has been verified."""
     archive = tmp_path / "resources.tar.gz"

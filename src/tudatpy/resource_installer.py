@@ -369,11 +369,9 @@ def download_extra_file(
     return dest_path
 
 
-def list_catalog(search: Optional[str] = None) -> None:
-    """Print catalog entries, optionally filtered by search string."""
-    entries = RESOURCE_CATALOG
-    if search:
-        entries = find_in_catalog(search)
+def list_catalog(keys: Optional[List[str]] = None) -> None:
+    """Print catalog entries, optionally filtered by key substrings."""
+    entries = resolve_catalog_keys(keys) if keys else RESOURCE_CATALOG
     for key in sorted(entries):
         print(key)
 
@@ -436,7 +434,9 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument(
-        "--list-search", help="Search string to filter catalog output in list mode."
+        "--list-search",
+        nargs="+",
+        help="Substrings used to filter catalog output in list mode.",
     )
     parser.add_argument(
         "--hash-file",
