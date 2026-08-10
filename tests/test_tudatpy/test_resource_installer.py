@@ -113,6 +113,31 @@ def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, capsys):
     ]
 
 
+def test_main_uses_files_to_filter_list_mode(monkeypatch, tmp_path):
+    """Use the shared files option to select resources in list mode."""
+    selected = ["de430", "earth"]
+    captured = {}
+    monkeypatch.setattr(
+        resource_installer,
+        "parse_arguments",
+        lambda: argparse.Namespace(
+            mode="list",
+            catalog=None,
+            dest=str(tmp_path / "resources"),
+            cache_dir=str(tmp_path / "cache"),
+            hash_file=None,
+            files=selected,
+        ),
+    )
+    monkeypatch.setattr(resource_installer, "load_resource_catalog", lambda path: {})
+    monkeypatch.setattr(resource_installer, "_automatic_hash_file", lambda path: None)
+    monkeypatch.setattr(resource_installer, "list_catalog", lambda keys: captured.update(keys=keys))
+
+    resource_installer.main()
+
+    assert captured["keys"] == selected
+
+
 def test_download_tarball_reuses_verified_cache(monkeypatch, tmp_path):
     """Reuse a cached archive only after its checksum has been verified."""
     archive = tmp_path / "resources.tar.gz"
@@ -196,7 +221,6 @@ def test_main_automatically_loads_manifest_hashes(monkeypatch, tmp_path):
             dest=str(tmp_path / "resources"),
             cache_dir=str(tmp_path / "cache"),
             hash_file=None,
-            list_search=None,
             files=None,
             extra_url=None,
             extra_dest=None,

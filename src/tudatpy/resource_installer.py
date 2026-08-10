@@ -426,18 +426,15 @@ def parse_arguments() -> argparse.Namespace:
         help="Cache directory for downloads and tarballs.",
     )
     parser.add_argument(
-        "--files", nargs="+", help="Substrings selecting catalog files for update mode."
+        "--files",
+        nargs="+",
+        help="Substrings selecting catalog resources for update or list mode.",
     )
     parser.add_argument("--extra-url", help="URL of an extra file to download in extra mode.")
     parser.add_argument(
         "--extra-dest", help="Relative or absolute destination path for extra mode."
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
-    parser.add_argument(
-        "--list-search",
-        nargs="+",
-        help="Substrings used to filter catalog output in list mode.",
-    )
     parser.add_argument(
         "--hash-file",
         help="Path to a JSON file mapping catalog keys or URLs to SHA256 hex digests.",
@@ -484,7 +481,7 @@ def main() -> None:
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
-        list_catalog(args.list_search)
+        list_catalog(args.files)
         return
 
     if args.mode == "scratch":
