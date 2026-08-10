@@ -659,7 +659,8 @@ BOOST_AUTO_TEST_CASE( test_MaximumRejectedFraction )
 }
 
 
-//! Test computation of Chi-squared for an arbitrary case
+//! Test computation of Chi-squared for an arbitrary case. Expected values computed seperately
+//! using a Python implementation of Carpino outlier rejection
 BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
 {
     std::shared_ptr<CarpinoOutlierRejectionSettings> settings =
@@ -690,7 +691,7 @@ BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
         parameterCovariance,
         covariance,
         true);
-    const double expectedChiSquaredRejectedObservation = 1.24638312e-09;
+    const double expectedChiSquaredRejectedObservation = 1.246383124908181e-09;
 
     BOOST_CHECK_CLOSE_FRACTION(chiSquaredRejectedObservation, expectedChiSquaredRejectedObservation, 1E-15);
 
@@ -703,7 +704,7 @@ BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
         covariance,
         false);
 
-    const double expectedChiSquaredAcceptedObservation = 1.24654618e-09;
+    const double expectedChiSquaredAcceptedObservation = 1.246546181332082e-09;
     BOOST_CHECK_CLOSE(chiSquaredAcceptedObservation, expectedChiSquaredAcceptedObservation, 1E-15);
 
 }
