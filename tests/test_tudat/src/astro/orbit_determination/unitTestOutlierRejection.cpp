@@ -168,13 +168,17 @@ BOOST_AUTO_TEST_CASE( test_OutlierRejectionCreation )
             createOutlierRejection< double, double >( carpinoOutlierRejectionSettings( ), dataset );
     BOOST_CHECK_EQUAL( rejectionFromRejectedDataset->getNumberOfRejectedObservations( ), 2 );
 
-    // The algorithm itself is not implemented yet
+    // No observation is rejected before the first iteration at which the algorithm is allowed to reject, so the
+    // iteration data is not used at all and may be left empty here
     const Eigen::MatrixXd emptyMatrix = Eigen::MatrixXd::Zero( 0, 0 );
     const Eigen::VectorXd emptyVector = Eigen::VectorXd::Zero( 0 );
     const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
+    const Eigen::MatrixXd observationCovariance = createObservationCovariance( flattenedData );
     const OutlierRejectionInput< double, double > outlierRejectionInput(
-            0, flattenedData, createObservationCovariance( flattenedData ), emptyVector, emptyMatrix, emptyMatrix, emptyVector );
-    BOOST_CHECK_THROW( outlierRejection->updateRejectionStatus( outlierRejectionInput ), std::runtime_error );
+            0, flattenedData, observationCovariance, emptyVector, emptyMatrix, emptyMatrix, emptyVector );
+
+    rejectionFromRejectedDataset->updateRejectionStatus( outlierRejectionInput );
+    BOOST_CHECK_EQUAL( rejectionFromRejectedDataset->getNumberOfRejectedObservations( ), 2 );
 }
 
 //! Check that the rejection status computed by an algorithm is applied to the observation dataset.
@@ -233,13 +237,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovariance )
 
     {
         const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-        const OutlierRejectionInput< double, double > input( 0,
-                                                             flattenedData,
-                                                             createObservationCovariance( flattenedData ),
-                                                             flattenedData.getResidualVector( ),
-                                                             emptyMatrix,
-                                                             emptyMatrix,
-                                                             emptyVector );
+
+        // The input stores references only, so the data it refers to must outlive it and cannot be a temporary
+        const Eigen::MatrixXd observationCovariance = createObservationCovariance( flattenedData );
+        const OutlierRejectionInput< double, double > input(
+                0, flattenedData, observationCovariance, flattenedData.getResidualVector( ), emptyMatrix, emptyMatrix, emptyVector );
 
         // For diagonal weights, the covariance of an observation is the inverse of its own weights
         BOOST_CHECK_CLOSE_FRACTION( input.getObservationCovariance( 0 )( 0, 0 ), 1.0 / 4.0, 1.0E-12 );
@@ -260,13 +262,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationCovariance )
         dataset->setWeightBlock( { 0, 1 }, { 0, 1 }, weightBlock );
 
         const FlattenedObservationData< double, double > flattenedData = dataset->createOrderedFlattenedObservationData( true );
-        const OutlierRejectionInput< double, double > input( 0,
-                                                             flattenedData,
-                                                             createObservationCovariance( flattenedData ),
-                                                             flattenedData.getResidualVector( ),
-                                                             emptyMatrix,
-                                                             emptyMatrix,
-                                                             emptyVector );
+        const Eigen::MatrixXd observationCovariance = createObservationCovariance( flattenedData );
+        const OutlierRejectionInput< double, double > input(
+                0, flattenedData, observationCovariance, flattenedData.getResidualVector( ), emptyMatrix, emptyMatrix, emptyVector );
 
         // The correlation must be accounted for: the covariance of the observation is a block of the inverse of the
         // complete weight matrix, which for a correlated pair differs from the inverse of its own weight entry
