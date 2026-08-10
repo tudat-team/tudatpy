@@ -57,8 +57,18 @@ set(estimation_HEADERS
         observationOutput.h
         observationSimulationSettings.h
         observationsProcessing.h
+        observations.h
+        createDirectObservationPartials.h
+        createPositionPartialScaling.h
+        createClockPartials.h
+        processOdfFile.h
+        processPsfFile.h
+        processTrackingTxtFile.h
+        trackingDataWeighting.h
+        createObservationDataset.h
+        createObservationCollection.h
+        compressDopplerObservationCollection.h
         flattenedObservationData.h
-        observationCollection.h
         observationCondition.h
         observationDataset.h
         observationDatasetAccessorsImplementation.h
@@ -71,15 +81,6 @@ set(estimation_HEADERS
         observationDatasetWeightsImplementation.h
         observationLegacyParserAdapter.h
         observationWeights.h
-        singleObservationSet.h
-        observations.h
-        createDirectObservationPartials.h
-        createPositionPartialScaling.h
-        createClockPartials.h
-        processOdfFile.h
-        processObservationFilesLegacy.h
-        processPsfFile.h
-        processTrackingTxtFile.h
         simulateObservationsLegacy.h
         )
 
@@ -100,6 +101,9 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createObservationDataset.cpp
+        createObservationCollection.cpp
+        trackingDataWeighting.cpp
         createInverseAprioriCovariance.cpp
         createObservationViability.cpp
         observationSimulationSettings.cpp

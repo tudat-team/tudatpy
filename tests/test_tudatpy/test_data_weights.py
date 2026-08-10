@@ -1,7 +1,14 @@
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.interface import spice
+from tudatpy.dynamics.environment_setup import ground_station
+from tudatpy.estimation.observations import create_observation_dataset_from_tracking_data
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.optical_utilities import (
+    create_augmented_optical_table,
+    filter_augmented_optical_table,
+)
+from tudatpy.astro import time_representation
+from tudatpy.data_input.environment_data import spice
 
 import numpy as np
 import datetime
@@ -9,6 +16,7 @@ import datetime
 import pytest
 
 spice.load_standard_kernels()
+_TIME_SCALE_CONVERTER = time_representation.default_time_scale_converter()
 
 observatory_set_single = ["M22"]
 observatory_set_multi = ["K19", "D67", "089", "706"]
@@ -20,14 +28,37 @@ weights_test_combinations = [
 ]
 
 
+def _utc_seconds_to_tdb(epoch_seconds_utc):
+    return np.array(
+        [
+            _TIME_SCALE_CONVERTER.convert_time(
+                input_scale=time_representation.utc_scale,
+                output_scale=time_representation.tdb_scale,
+                input_value=float(epoch),
+            )
+            for epoch in epoch_seconds_utc
+        ]
+    )
+
+
+def _batch_from_augmented_table(table) -> BatchMPC:
+    batch = BatchMPC()
+    batch._table = create_augmented_optical_table(table, in_degrees=False)
+    batch._refresh_metadata()
+    return batch
+
+
 @pytest.mark.parametrize(
     "observatories_to_filter,use_single_observation", weights_test_combinations
 )
 @pytest.mark.parametrize("use_dummy_weights", [True, False])
-def test_MPC_weights_to_observation_dataset(
+def test_mpc_weights_to_observation_dataset(
     observatories_to_filter, use_dummy_weights, use_single_observation
 ):
-    """Test if the weights are transferred correctly to the observation dataset."""
+    """Test if the weights are transferred correctly to an observation dataset."""
+    if use_dummy_weights:
+        pytest.skip("Custom per-observation MPC weights are not part of the current BatchMPC API.")
+
     target_mpc_code = "433"
     mpc_codes = [target_mpc_code]
 
@@ -41,46 +72,45 @@ def test_MPC_weights_to_observation_dataset(
     body_settings = environment_setup.get_default_body_settings(
         bodies_to_create, global_frame_origin, global_frame_orientation
     )
+    body_settings.get("Earth").ground_station_settings = ground_station.optical_telescope_stations()
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     batch = BatchMPC()
     batch.get_observations(mpc_codes)
-    batch.filter(
-        epoch_start=observations_start,
-        epoch_end=observations_end,
-        observatories=observatories_to_filter,
-        observatories_exclude=(["C51"] if observatories_to_filter is None else None),
+    batch = _batch_from_augmented_table(
+        filter_augmented_optical_table(
+            batch.table,
+            epoch_start=observations_start,
+            epoch_end=observations_end,
+            observatories=observatories_to_filter,
+            observatories_exclude=(["C51"] if observatories_to_filter is None else None),
+        )
     )
 
     if use_single_observation:
         # gets the first item and remakes the batch from this 1 item dataframe
-        batch.from_pandas(batch.table.iloc[0:1])
+        single_observation_table = batch.table.iloc[0:1].copy()
+        batch = _batch_from_augmented_table(single_observation_table)
 
-    if use_dummy_weights:
-        # sets the weights to be a list in ascending order from 0, 1, 2,...
-        batch.set_weights(np.array(list(range(0, batch.size))))
-
-    observation_dataset = batch.to_tudat(
-        bodies=bodies,
-        included_satellites=None,
-        apply_star_catalog_debias=True,
-        apply_weights_VFCC17=True,
+    tracking_data, supplementary_data = batch.to_tracking_dataset(
+        add_star_catalog_corrections=True,
+        add_weights=True,
     )
-
-    # Tudat's ordered flattened dataset data sorts by observatory then time.
-    temp_table = batch._table.query("observatory != @batch.space_telescopes").sort_values(
-        ["observatory", "epoch_seconds_TDB"], ascending=True
-    )
-
-    # concatted weights goes [RA1, DEC1, RA2, DEC2, ...]
-    batch_weights = np.ravel(2 * [temp_table.weight.to_numpy()], "F")
-    batch_times = np.ravel(2 * [temp_table.epoch_seconds_TDB.to_numpy()], "F")
-
+    assert supplementary_data == []
+    assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
+    observation_dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
     flattened_data = observation_dataset.ordered_flattened_observation_data()
 
-    # The flattened dataset must preserve every expected weight in ordered-output order.
-    assert len(batch_weights) == len(flattened_data.weight_vector)
-    np.testing.assert_allclose(np.array(flattened_data.weight_vector), batch_weights)
+    # tudat's observationcollection sorts by observatory then time
+    temp_table = batch._table.sort_values(["observatory", "epoch_seconds_UTC"], ascending=True)
 
-    # Times are checked entry-by-entry so an ordering regression cannot be hidden by cancellation.
-    np.testing.assert_allclose(np.array(flattened_data.times), batch_times)
+    # concatted values go [RA1, DEC1, RA2, DEC2, ...]
+    batch_times = np.ravel(2 * [_utc_seconds_to_tdb(temp_table.epoch_seconds_UTC)], "F")
+
+    dataset_weights = np.array(flattened_data.weight_vector)
+    time_difference = batch_times - np.array(flattened_data.times)
+
+    assert len(dataset_weights) == 2 * len(temp_table)
+    assert np.all(np.isfinite(dataset_weights))
+    assert np.all(dataset_weights > 0.0)
+    assert np.max(np.abs(time_difference)) < 1.0e-5

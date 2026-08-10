@@ -26,10 +26,10 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 
-#include "tudat/io/readOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/processObservationFilesLegacy.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
@@ -251,16 +251,13 @@ void runSimulation( std::vector< std::string > odfFiles,
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFile : odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
 
-    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
-
-    // Create observed observation collection
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
-                                                                                             { dsn_n_way_averaged_doppler } );
-
-    // Set transmitting frequencies
-    observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
+    const auto trackingDataAndSupplementaryData = convertRawOdfFile< long double, Time >( rawOdfDataVector, spacecraftName, "Earth" );
+    observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
+    std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+            observation_models::createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first,
+                                                                                               bodies );
+    observedObservationDataset = observedObservationDataset->createNewAndKeep(
+            ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
 
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
@@ -294,31 +291,17 @@ void runSimulation( std::vector< std::string > odfFiles,
         lightTimeCorrectionSettings.push_back( jakowskiIonosphericCorrectionSettings( ) );
     }
 
-    std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-            observedObservationCollection->getLinkEndsPerObservableType( );
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria = std::make_shared< LightTimeConvergenceCriteria >( true );
-    for( auto it = linkEndsPerObservable.begin( ); it != linkEndsPerObservable.end( ); ++it )
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        for( unsigned int i = 0; i < it->second.size( ); ++i )
+        const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
+        if( metadata.observableType_ == observation_models::dsn_n_way_averaged_doppler )
         {
-            //            observationModelSettingsList.push_back(
-            //                    std::make_shared< observation_models::ObservationModelSettings >(
-            //                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
-            if( it->first == observation_models::dsn_n_way_averaged_doppler )
-            {
-                observationModelSettingsList.push_back(
-                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
-                                it->second.at( i ), lightTimeCorrectionSettings, nullptr, lightTimeConvergenceCriteria ) );
-                //                observationModelSettingsList.push_back(
-                //                    std::make_shared< observation_models::NWayDifferencedRangeObservationModelSettings >(
-                //                            it->second.at( i ), lightTimeCorrectionSettings, nullptr,
-                //                            lightTimeConvergenceCriteria ) );
-                //                observationModelSettingsList.push_back(
-                //                    std::make_shared< observation_models::NWayRangeObservationModelSettings >(
-                //                            it->second.at( i ),
-                //                            nullptr, 3, nullptr,
-                //                            lightTimeConvergenceCriteria ) );
-            }
+            observationModelSettingsList.push_back( std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
+                    observedObservationDataset->getLinkDefinition( metadata.linkDefinitionId_ ),
+                    lightTimeCorrectionSettings,
+                    nullptr,
+                    lightTimeConvergenceCriteria ) );
         }
     }
 
@@ -357,7 +340,7 @@ void runSimulation( std::vector< std::string > odfFiles,
 
     // Define estimation input
     std::shared_ptr< EstimationInput< long double, Time > > estimationInput = std::make_shared< EstimationInput< long double, Time > >(
-            observedObservationCollection,
+            observedObservationDataset,
             Eigen::MatrixXd::Zero( 0, 0 ),
             std::make_shared< EstimationConvergenceChecker >( estimationMaxIterations ) );
     estimationInput->saveStateHistoryForEachIteration_ = true;
@@ -389,10 +372,11 @@ void runSimulation( std::vector< std::string > odfFiles,
     residualsWithTime.resize( residualHistory.rows( ), residualHistory.cols( ) + 1 );
     residualsWithTime.rightCols( residualHistory.cols( ) ) = residualHistory;
 
-    for( unsigned int i = 0; i < observedObservationCollection->getObservationVector( ).size( ); ++i )
+    const FlattenedObservationData< long double, Time > flattenedObservationData =
+            observedObservationDataset->createEstimationFlattenedObservationData( );
+    for( unsigned int i = 0; i < flattenedObservationData.getObservationVector( ).size( ); ++i )
     {
-        residualsWithTime( i, 0 ) =
-                static_cast< Time >( observedObservationCollection->getConcatenatedTimeVector( ).at( i ) ).getSeconds< long double >( );
+        residualsWithTime( i, 0 ) = static_cast< Time >( flattenedObservationData.getTimes( ).at( i ) ).getSeconds< long double >( );
     }
 
     std::ofstream file( saveDirectory + "residuals_" + fileTag + ".txt" );
@@ -413,20 +397,14 @@ void runSimulation( std::vector< std::string > odfFiles,
     file4.close( );
 
     std::ofstream file2( saveDirectory + "observationsStartAndSize_" + fileTag + ".txt" );
-    std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
-            observedObservationCollection->getObservationSetStartAndSizePerLinkEndIndex( );
-    for( auto it = observationSetStartAndSize.begin( ); it != observationSetStartAndSize.end( ); ++it )
+    unsigned int observationSetStartIndex = 0;
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        ObservableType observable = it->first;
-        for( auto it2 = it->second.begin( ); it2 != it->second.end( ); ++it2 )
-        {
-            int linkEnd = it2->first;
-            for( unsigned int i = 0; i < it2->second.size( ); ++i )
-            {
-                file2 << std::setprecision( 15 ) << observable << " " << linkEnd << " " << it2->second.at( i ).first << " "
-                      << it2->second.at( i ).second << std::endl;
-            }
-        }
+        const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
+        const unsigned int setSize = observedObservationDataset->getObservationsForSet( setId ).size( ) * metadata.observableSize_;
+        file2 << std::setprecision( 15 ) << metadata.observableType_ << " " << metadata.linkDefinitionId_ << " " << observationSetStartIndex
+              << " " << setSize << std::endl;
+        observationSetStartIndex += setSize;
     }
     file2.close( );
 }

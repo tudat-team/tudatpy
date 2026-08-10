@@ -143,6 +143,14 @@ inline LinkEndId linkEndId( const std::string& bodyName )
  */
 std::string getLinkEndTypeString( const LinkEndType linkEndType );
 
+//! Function to get a link end type from a string identifier
+/*!
+ * Function to get a link end type from a string identifier
+ * \param linkEndName String identifier for a link end type
+ * \return Link end type for a string identifier
+ */
+LinkEndType getLinkEndTypeFromString( const std::string& linkEndName );
+
 //! Typedef for list of link ends, with associated role, used for a single observation (model).
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 

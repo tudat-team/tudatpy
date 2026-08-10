@@ -18,6 +18,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -33,6 +34,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readPsfFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/astro/system_models/camera.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/processPsfFile.h"
 
@@ -147,8 +150,19 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
                                                                                     const Eigen::Vector2d& pixelLine,
                                                                                     const Eigen::Vector3d& observerBarycentricVelocity )
 {
+    const std::shared_ptr< const data::CameraInstrumentSupplementaryData > cameraData =
+            input_output::psf::getPsfCameraInstrumentSupplementaryData( psfFile, image.cameraId_ );
+    if( cameraData == nullptr )
+    {
+        throw std::runtime_error( "No PSF camera data found for camera " + image.cameraId_ + "." );
+    }
     const std::shared_ptr< system_models::PsfCameraProjectionModel > cameraProjectionModel =
-            input_output::psf::createPsfCameraProjectionModel( psfFile.cameraProperties_.at( image.cameraId_ ) );
+            std::make_shared< system_models::PsfCameraProjectionModel >( cameraData->getFocalLength( ),
+                                                                         cameraData->getPrincipalPoint( ),
+                                                                         cameraData->getKMatrix( ),
+                                                                         cameraData->getDistortionCoefficients( ),
+                                                                         cameraData->getMountingOffsets( ),
+                                                                         cameraData->getFieldOfViewBounds( ) );
     const Eigen::Vector3d cameraFrameUnitVector = cameraProjectionModel->pixelLineToUnitVector( pixelLine );
     const Eigen::Vector3d apparentInertialUnitVector =
             observation_models::getPsfPictureRotationFromInertialToCameraFrame( image ).inverse( ) * cameraFrameUnitVector;
@@ -160,20 +174,18 @@ Eigen::Vector2d getRightAscensionAndDeclinationFromAberrationCorrectedPsfPixelLi
     return convertUnitVectorToRightAscensionAndDeclinationDegrees( b1950UnitVector.normalized( ) );
 }
 
-Eigen::Vector2d getObservationFromDatasetAtTime(
+Eigen::Vector2d getObservationFromSetAtTime(
         const std::shared_ptr< observation_models::ObservationDataset< double, double > >& observationDataset,
-        const observation_models::LinkDefinition& linkDefinition,
+        const unsigned int setId,
         const double observationTime )
 {
-    const std::vector< unsigned int > matchingObservationIds = observationDataset->getObservationIdsMatchingCondition(
-            observation_models::ObservationSelectionCondition< double, double >::observableType( observation_models::pixel_coordinates ) &&
-            observation_models::ObservationSelectionCondition< double, double >::linkDefinition( linkDefinition ) );
-
-    for( const unsigned int observationId : matchingObservationIds )
+    const std::vector< double > observationTimes = observationDataset->getObservationTimesForSet( setId );
+    const std::vector< Eigen::VectorXd > observations = observationDataset->getObservationsForSet( setId );
+    for( unsigned int i = 0; i < observationTimes.size( ); ++i )
     {
-        if( std::fabs( observationDataset->getObservationTime( observationId ) - observationTime ) < 1.0E-6 )
+        if( std::fabs( observationTimes.at( i ) - observationTime ) < 1.0E-6 )
         {
-            return observationDataset->getObservationValue( observationId );
+            return observations.at( i );
         }
     }
 
@@ -232,7 +244,10 @@ BOOST_AUTO_TEST_SUITE( test_psf_pixel_coordinates_observation_model )
 BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( );
-    const input_output::psf::RawPsfFileContents psfFile = input_output::psf::readPsfFile( testDataPath + "/psf/psf_vgr2_neptune.txt" );
+    const std::string psfFilePath = testDataPath + "/psf/psf_vgr2_neptune.txt";
+    const input_output::psf::RawPsfFileContents psfFile = input_output::psf::readRawPsfFile( psfFilePath );
+    const auto trackingDataAndSupplementaryData = input_output::psf::readPsfFile< double, double >(
+            psfFilePath, "VGR2", std::map< std::string, std::string >( { { "TRITON", "TRITON" } } ), false );
 
     spice_interface::loadStandardSpiceKernels( std::vector< std::string >( ) );
     spice_interface::loadSpiceKernelInTudat( testDataPath + "/spice/vgr2_nep097.bsp" );
@@ -325,16 +340,6 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
         BOOST_CHECK_SMALL( declinationDifference, maximumAstrometricDifference );
     }
 
-    observation_models::PsfFileObservationConversionSettings conversionSettings(
-            "VGR2", std::map< std::string, std::string >( { { "TRITON", "TRITON" } } ) );
-    conversionSettings.useRawImageNameAsBodyNameIfUnmapped_ = false;
-
-    // Exercise the PSF-to-observation conversion separately from the model calculation below.
-    const std::shared_ptr< observation_models::ObservationDataset< double, double > > observationDataset =
-            observation_models::createPsfFileObservationDataset< double, double >( psfFile, conversionSettings );
-
-    // The model test below forces only Voyager's state from the paper table. Triton uses a normal Neptune-barycentric
-    // SPICE ephemeris, so the model computes the target state and light-time geometry through the standard path.
     simulation_setup::SystemOfBodies bodies( "8", "J2000" );
     bodies.createEmptyBody< double, double >( "8", false );
     bodies.createEmptyBody< double, double >( "VGR2", false );
@@ -349,7 +354,27 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
     bodies.at( "VGR2" )->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
             Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "J2000", "VGR2_Fixed" ) );
     bodies.processBodyFrameDefinitions< double, double >( );
-    observation_models::addPsfCamerasToBodies( psfFile, bodies, conversionSettings );
+    observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
+    std::ostringstream cameraOverrideWarningBuffer;
+    std::streambuf* originalCerrBuffer = std::cerr.rdbuf( cameraOverrideWarningBuffer.rdbuf( ) );
+    for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData : trackingDataAndSupplementaryData.second )
+    {
+        BOOST_REQUIRE( supplementaryData != nullptr );
+        const std::string cameraId = supplementaryData->getReferencePointName( );
+        const std::shared_ptr< system_models::Camera > camera = bodies.at( "VGR2" )->getVehicleSystems( )->getCamera( cameraId );
+        bodies.at( "VGR2" )->getVehicleSystems( )->addCamera(
+                cameraId,
+                std::make_shared< system_models::Camera >(
+                        cameraId,
+                        Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
+                        camera->getProjectionModel( ),
+                        observation_models::createNearestPsfPicturePointingFunction< double >( psfFile, cameraId, true ) ) );
+    }
+    std::cerr.rdbuf( originalCerrBuffer );
+
+    const std::shared_ptr< observation_models::ObservationDataset< double, double > > observationDataset =
+            observation_models::createObservationDatasetFromTrackingData< double, double >( trackingDataAndSupplementaryData.first,
+                                                                                            bodies );
 
     std::map< std::string, std::shared_ptr< observation_models::ObservationModel< 2, double, double > > > observationModelsByCamera;
     const double maximumModelPixelLineDifference = 1.0;
@@ -368,12 +393,20 @@ BOOST_AUTO_TEST_CASE( testPsfFileReaderJacobson1991Consistency )
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId( reference.targetName_ );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId( "VGR2", image.cameraId_ );
         const observation_models::LinkDefinition linkDefinition( linkEnds );
+        const observation_models::ObservationSelectionCondition< double, double > selectionCondition =
+                observation_models::ObservationSelectionCondition< double, double >::observableType(
+                        observation_models::pixel_coordinates ) &&
+                observation_models::ObservationSelectionCondition< double, double >::linkDefinition( linkDefinition );
+        const std::vector< unsigned int > observationIds = observationDataset->getObservationIdsMatchingCondition( selectionCondition );
+        BOOST_REQUIRE( !observationIds.empty( ) );
+        const unsigned int setId = observationDataset->getObservationRow( observationIds.at( 0 ) ).setId_;
+
         const double observationTime = observation_models::getPsfPictureObservationTime< double >( image, true );
-        const Eigen::Vector2d observationSetPixelLine =
-                getObservationFromDatasetAtTime( observationDataset, linkDefinition, observationTime );
+        const Eigen::Vector2d observationSetPixelLine = getObservationFromSetAtTime( observationDataset, setId, observationTime );
 
         // The observation set should store the PSF effective pixel/line exactly; dynamics only enter when the model is evaluated.
         BOOST_CHECK_SMALL( ( observationSetPixelLine - measurement->getEffectivePixelLine( ) ).norm( ), 1.0E-12 );
+        BOOST_REQUIRE( bodies.at( "VGR2" )->getVehicleSystems( )->getCamera( image.cameraId_ ) != nullptr );
 
         // Observation models are camera-specific, so reuse them when multiple selected pictures use the same camera.
         if( observationModelsByCamera.count( image.cameraId_ ) == 0 )

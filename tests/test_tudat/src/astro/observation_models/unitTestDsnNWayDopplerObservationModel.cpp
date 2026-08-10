@@ -21,11 +21,12 @@
 
 #include "tudat/basics/testMacros.h"
 
-#include "tudat/io/readOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
@@ -89,30 +90,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
-        // Read and process ODF file data
-        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset;
-
-        if( testType == 0 )
+        std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
+        for( const std::string& odfFile : odfFiles )
         {
-            std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-            for( std::string odfFile : odfFiles ) rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
-
-            std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-                    std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
-
-            // Create observed observation dataset
-            observedObservationDataset = observation_models::createOdfObservedObservationDataset< long double, Time >(
-                    processedOdfFileContents, { dsn_n_way_averaged_doppler } );
-
-            observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
+            rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
         }
-        else if( testType == 1 )
-        {
-            observedObservationDataset =
-                    createOdfObservedObservationDatasetFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
-            observedObservationDataset = observedObservationDataset->createNewAndKeep(
-                    ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
-        }
+        const auto trackingDataAndSupplementaryData = testType == 0
+                ? convertRawOdfFile< long double, Time >( rawOdfDataVector, spacecraftName, "Earth" )
+                : loadOdfFile< long double, Time >( odfFiles, spacecraftName, "Earth" );
+        observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
+        bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+                observation_models::createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first,
+                                                                                                   bodies );
+        observedObservationDataset = observedObservationDataset->createNewAndKeep(
+                ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
@@ -360,13 +352,14 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
     }
 
-    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
-
+    const auto trackingDataAndSupplementaryData = convertRawOdfFile< long double, Time >( rawOdfDataVector, spacecraftName, "Earth" );
+    observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
+    bodies.at( spacecraftName )->getVehicleSystems( )->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
     std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
-            observation_models::createOdfObservedObservationDataset< long double, Time >( processedOdfFileContents,
-                                                                                          { dsn_n_way_averaged_doppler } );
-    observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
+            observation_models::createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first,
+                                                                                               bodies );
+    observedObservationDataset = observedObservationDataset->createNewAndKeep(
+            ObservationSelectionCondition< long double, Time >::observableType( dsn_n_way_averaged_doppler ) );
 
     LinkEnds dss45MgsLinkEnds;
     dss45MgsLinkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-45" );

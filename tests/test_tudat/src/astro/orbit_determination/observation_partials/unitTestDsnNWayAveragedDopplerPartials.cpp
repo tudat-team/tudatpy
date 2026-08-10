@@ -23,8 +23,8 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-#include "tudat/io/readOdfFile.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
@@ -77,20 +77,19 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
     double finalEphemerisTime = 544869060.0;
     double stateEvaluationTime = initialEphemerisTime + 8.0e3;
 
-    // Read ODF file - used just for the automatic creation of ground station ramp frequency calculator
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
-            std::make_shared< OdfRawFileContents >( tudat::paths::getTudatTestDataPath( ) + "mromagr2017_097_1335xmmmv1.odf" );
+    // Odf file - used just for the automatic creation of ground station ramp frequency calculator
+    std::string odfFile = tudat::paths::getTudatTestDataPath( ) + "mromagr2017_097_1335xmmmv1.odf";
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
-        // Process ODF file
-        std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+        // Load ODF file
+        std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData =
+                loadOdfFile( { odfFile }, "MSL", "Earth" ).second;
         // Create ground stations
-        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
         vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
@@ -141,11 +140,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
-        // Process ODF file
-        std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+        // Load ODF file
+        std::vector< std::shared_ptr< data::TrackingSupplementaryData > > supplementaryData =
+                loadOdfFile( { odfFile }, "MSL", "Earth" ).second;
         // Create ground stations
-        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTrackingSupplementaryDataInBodies( bodies, supplementaryData );
         // Set turnaround ratios in spacecraft (ground station)
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
         vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );

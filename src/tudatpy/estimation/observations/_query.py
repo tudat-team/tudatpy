@@ -58,10 +58,17 @@ class _TimeSelector:
 
 
 class _VectorValueSelector:
+    """Selector for row-level absolute-value comparisons.
+
+    A vector observable row is selected when any scalar component exceeds the
+    supplied absolute limit.
+    """
+
     def __init__(self, abs_greater_than_factory):
         self._abs_greater_than_factory = abs_greater_than_factory
 
     def abs_greater_than(self, limit):
+        """Select rows where any component has absolute value above ``limit``."""
         return self._abs_greater_than_factory(limit)
 
     def __bool__(self):
@@ -69,11 +76,18 @@ class _VectorValueSelector:
 
 
 class _DependentVariableSelector:
+    """Selector for row-level dependent-variable comparisons.
+
+    Unlike residual and observation selectors, ``greater_than`` compares signed
+    dependent-variable values.
+    """
+
     def __init__(self, settings, return_first_compatible_settings=False):
         self._settings = settings
         self._return_first_compatible_settings = return_first_compatible_settings
 
     def greater_than(self, limit):
+        """Select rows where any compatible dependent-variable component is above ``limit``."""
         return ObservationSelectionCondition.dependent_variable_greater_than(
             self._settings,
             limit,

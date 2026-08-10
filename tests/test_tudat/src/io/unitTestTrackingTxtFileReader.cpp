@@ -26,8 +26,11 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 
+#include "tudat/io/preProcessFdetsFile.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -107,7 +110,57 @@ std::shared_ptr< tio::TrackingTxtFileContents > createSyntheticAveragedDopplerTr
     return trackingFile;
 }
 
-std::shared_ptr< tom::ObservationDataset< double, double > > createSyntheticAveragedDopplerDataset(
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< tom::ObservationDataset< ObservationScalarType, TimeType > > makeDatasetFromProcessedTrackingFile(
+        const std::shared_ptr< tom::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > processedTrackingFile,
+        std::vector< tom::ObservableType > observableTypesToProcess = std::vector< tom::ObservableType >( ) )
+{
+    const std::vector< tom::ObservableType > availableObservableTypes = processedTrackingFile->getObservableTypes( );
+    if( observableTypesToProcess.empty( ) )
+    {
+        observableTypesToProcess = availableObservableTypes;
+    }
+    if( !utilities::containsAll( availableObservableTypes, observableTypesToProcess ) )
+    {
+        throw std::runtime_error( "Insufficient tracking-file data for the requested observables." );
+    }
+
+    auto observationDataset = std::make_shared< tom::ObservationDataset< ObservationScalarType, TimeType > >( );
+    const auto& observationMap = processedTrackingFile->getObservationMap( );
+    const auto& observationTimes = processedTrackingFile->getObservationTimes( );
+    const auto& linkEndsVector = processedTrackingFile->getLinkEndsVector( );
+
+    for( const tom::ObservableType observableType : observableTypesToProcess )
+    {
+        auto ancillarySettings = std::make_shared< tom::ObservationAncillarySimulationSettings >( );
+        processedTrackingFile->updateAncillarySettings( observableType, ancillarySettings );
+
+        std::map< tom::LinkEnds, std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observationsPerLink;
+        std::map< tom::LinkEnds, std::vector< TimeType > > timesPerLink;
+        for( unsigned int i = 0; i < observationTimes.size( ); i++ )
+        {
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observation( 1 );
+            observation( 0 ) = observationMap.at( observableType ).at( i );
+            observationsPerLink[ linkEndsVector.at( i ) ].push_back( observation );
+            timesPerLink[ linkEndsVector.at( i ) ].push_back( observationTimes.at( i ) );
+        }
+
+        for( const auto& [ linkEnds, observations ] : observationsPerLink )
+        {
+            observationDataset->addObservationSet( observableType,
+                                                   tom::LinkDefinition( linkEnds ),
+                                                   observations,
+                                                   timesPerLink.at( linkEnds ),
+                                                   tom::receiver,
+                                                   std::vector< Eigen::VectorXd >( ),
+                                                   nullptr,
+                                                   ancillarySettings );
+        }
+    }
+    return observationDataset;
+}
+
+std::shared_ptr< tom::ObservationDataset< double, double > > createSyntheticAveragedDopplerObservationDataset(
         const std::vector< double >& observationSeconds,
         const bool addFileNameMetadata = true,
         const double precomputedCadence = std::numeric_limits< double >::quiet_NaN( ) )
@@ -121,7 +174,7 @@ std::shared_ptr< tom::ObservationDataset< double, double > > createSyntheticAver
             std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
                     trackingFile, "SyntheticSpacecraft", stationPositions );
 
-    return tom::createTrackingTxtFileObservationDataset< double, double >( processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
+    return makeDatasetFromProcessedTrackingFile< double, double >( processedTrackingFile, { tom::dsn_n_way_averaged_doppler } );
 }
 
 }  // namespace
@@ -236,8 +289,9 @@ BOOST_AUTO_TEST_CASE( VikingRangeDataCustomFunction )
     BOOST_CHECK_EQUAL( dataBlock3[ tio::TrackingDataType::n_way_light_time ], 2290.150246895 );
 
     //! Incidentally, check if the correct number of observations are transferred into an observation dataset
-    auto observationDataset =
-            tom::createTrackingTxtFileObservationDataset< double, double >( rawVikingFile, spacecraftName, { tom::n_way_range } );
+    auto processedVikingFile = std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
+            rawVikingFile, spacecraftName, getCombinedApproximateGroundStationPositions( ) );
+    auto observationDataset = makeDatasetFromProcessedTrackingFile( processedVikingFile, { tom::n_way_range } );
     BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 1258 );
 }
 
@@ -376,15 +430,15 @@ BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
 {
     // Load the observations from the Viking file
     std::shared_ptr< tio::TrackingTxtFileContents > rawVikingFile = readVikingRangeFile( vikingRangePath );
-    auto observationDataset =
-            tom::createTrackingTxtFileObservationDataset< double, double >( rawVikingFile, "Viking", { tom::n_way_range } );
+    auto processedVikingFile = std::make_shared< tom::ProcessedTrackingTxtFileContents< double, double > >(
+            rawVikingFile, "Viking", getCombinedApproximateGroundStationPositions( ) );
+    auto observationDataset = makeDatasetFromProcessedTrackingFile( processedVikingFile, { tom::n_way_range } );
 
     // Check size of observations
     BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 1258 );
 
     // Check if n-way-range is present in the dataset
-    const auto& observationTypeStartSize = observationDataset->getObservableTypeStartAndSize( );
-    BOOST_CHECK( observationTypeStartSize.find( tom::n_way_range ) != observationTypeStartSize.end( ) );
+    BOOST_CHECK( !observationDataset->getObservationSetIdsForObservableType( tom::n_way_range ).empty( ) );
 
     //  Checking the first element with station 63 - 63 in the Viking file
     const tom::LinkDefinition linkDefDsn63( {
@@ -393,7 +447,7 @@ BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
             { tom::receiver, tom::LinkEndId( "Earth", "DSS-63" ) },
     } );
 
-    const auto observationsAndTimesDsn63 = observationDataset->getSingleLinkObservationsAndTimes( tom::n_way_range, linkDefDsn63 );
+    auto observationsAndTimesDsn63 = observationDataset->getSingleLinkObservationsAndTimes( tom::n_way_range, linkDefDsn63 );
     auto observationsDsn63 = observationsAndTimesDsn63.first;
     auto timesDsn63 = observationsAndTimesDsn63.second;
 
@@ -430,11 +484,6 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     auto timeDataBlockLast = dataBlockLast[ tio::TrackingDataType::utc_reception_time_j2000 ];
 
     DateTime utcObservationTime = DateTime( 2023, 4, 25, 9, 46, 10.0 );
-    double tdbObservationTime = createDefaultTimeConverter( )->getCurrentTime< Time >(
-            utc_scale,
-            tdb_scale,
-            utcObservationTime.epoch< Time >( ),
-            getCombinedApproximateGroundStationPositions( ).at( receivingStationName ) );
 
     BOOST_CHECK_CLOSE_FRACTION(
             timeDataBlockLast, utcObservationTime.epoch< double >( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
@@ -448,22 +497,44 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::transmitting_station_name ), transmittingStationName );
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::receiving_station_name ), receivingStationName );
 
-    auto observationDataset = tom::createTrackingTxtFileObservationDataset< double, double >( rawFdetsDopplerFile, "JUICE" );
-    BOOST_CHECK_EQUAL( observationDataset->getTotalScalarSize( ), 120 );
+    std::vector< std::shared_ptr< data::TrackingData< double, Time > > > trackingData =
+            tio::readFdetsFiles< double, Time >( std::vector< std::string >( { juiceFdetsDopplerPath } ),
+                                                 std::vector< double >( { dopplerBaseFrequency } ),
+                                                 tio::FdetDateFormat::datetime_string,
+                                                 "JUICE",
+                                                 std::vector< std::string >( { transmittingStationName } ),
+                                                 std::vector< std::string >( { receivingStationName } ) )
+                    .first;
 
-    auto observationData = observationDataset->createEstimationFlattenedObservationData( );
-    auto concatenatedObservations = observationData.getObservationVector( );
-    auto concatenatedTimes = observationData.getTimes( );
+    BOOST_REQUIRE_EQUAL( trackingData.size( ), 1 );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getObservableType( ), "DopplerMeasuredFrequency" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getReferenceLinkEnd( ), "receiver" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getTimeScale( ), "UTC" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getNumberOfObservations( ), 120 );
 
-    BOOST_CHECK_EQUAL( concatenatedObservations.size( ), 120 );
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations = trackingData.at( 0 )->getObservations( );
+    std::vector< Time > epochs = trackingData.at( 0 )->getObservationEpochs( );
 
-    BOOST_CHECK_EQUAL( concatenatedObservations( 0 ), dopplerBaseFrequency + 5978760.982806123793 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( 1 ), dopplerBaseFrequency + 5978754.318319843151 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( 2 ), dopplerBaseFrequency + 5978747.672510409728 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( concatenatedObservations.rows( ) - 1 ), dopplerBaseFrequency + 5977954.253958693705 );
+    BOOST_CHECK_EQUAL( observations.at( 0 )( 0 ), dopplerBaseFrequency + 5978760.982806123793 );
+    BOOST_CHECK_EQUAL( observations.at( 1 )( 0 ), dopplerBaseFrequency + 5978754.318319843151 );
+    BOOST_CHECK_EQUAL( observations.at( 2 )( 0 ), dopplerBaseFrequency + 5978747.672510409728 );
+    BOOST_CHECK_EQUAL( observations.at( observations.size( ) - 1 )( 0 ), dopplerBaseFrequency + 5977954.253958693705 );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-            tdbObservationTime, concatenatedTimes.at( concatenatedTimes.size( ) - 1 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( utcObservationTime.epoch< Time >( ) ),
+                                static_cast< double >( epochs.at( epochs.size( ) - 1 ) ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    auto observationDataset = tom::createObservationDatasetFromTrackingData< double, Time >( trackingData, bodies );
+    std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedFlattenedObservationData( ).getTimes( );
+    const Eigen::Vector3d earthFixedPosition =
+            bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
+    Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+            utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), earthFixedPosition );
+    BOOST_REQUIRE_EQUAL( observationDatasetEpochs.size( ), epochs.size( ) );
+    BOOST_CHECK_SMALL( static_cast< double >( observationDatasetEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
 
 BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )
@@ -501,7 +572,7 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     std::string gapWarning;
     {
         CoutRedirect outputRedirect;
-        gapObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 50.0 }, true, 10.0 );
+        gapObservationDataset = createSyntheticAveragedDopplerObservationDataset( { 0.0, 10.0, 20.0, 50.0 }, true, 10.0 );
         gapWarning = outputRedirect.getOutput( );
     }
 
@@ -519,7 +590,7 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     std::string gapFreeWarning;
     {
         CoutRedirect outputRedirect;
-        gapFreeObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 30.0 } );
+        gapFreeObservationDataset = createSyntheticAveragedDopplerObservationDataset( { 0.0, 10.0, 20.0, 30.0 } );
         gapFreeWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK_CLOSE_FRACTION(
@@ -531,12 +602,12 @@ BOOST_AUTO_TEST_CASE( TestAveragedDopplerCadenceGaps )
     std::string unknownFileWarning;
     {
         CoutRedirect outputRedirect;
-        createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 30.0 }, false, 10.0 );
+        createSyntheticAveragedDopplerObservationDataset( { 0.0, 10.0, 30.0 }, false, 10.0 );
         unknownFileWarning = outputRedirect.getOutput( );
     }
     BOOST_CHECK( unknownFileWarning.find( "unknown tracking file" ) != std::string::npos );
 
-    BOOST_CHECK_THROW( createSyntheticAveragedDopplerDataset( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
+    BOOST_CHECK_THROW( createSyntheticAveragedDopplerObservationDataset( { 0.0, 10.0, 20.0, 50.0 } ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
@@ -561,7 +632,7 @@ BOOST_AUTO_TEST_CASE( TestIfmsCadenceInferredBeforeFiltering )
     std::string gapWarning;
     {
         CoutRedirect outputRedirect;
-        gapObservationDataset = createSyntheticAveragedDopplerDataset( { 0.0, 20.0, 40.0 }, true, 10.0 );
+        gapObservationDataset = createSyntheticAveragedDopplerObservationDataset( { 0.0, 20.0, 40.0 }, true, 10.0 );
         gapWarning = outputRedirect.getOutput( );
     }
 

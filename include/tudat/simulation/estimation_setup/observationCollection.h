@@ -21,10 +21,9 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
-#include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -2021,6 +2020,8 @@ private:
     void refreshLegacyConcatenatedDataFromObservationDataset( )
     {
         refreshFromDatasetIfNeeded( );
+        // Value/status changes do not change the dataset structural version, so
+        // concatenated legacy vectors must be refreshed even when wrappers are current.
         setLegacyConcatenatedDataFromObservationSets( );
     }
 

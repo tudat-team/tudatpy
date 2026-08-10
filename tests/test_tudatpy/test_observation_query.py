@@ -382,7 +382,6 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
         row_observation_ids=[angular_ids[0]],
         column_observation_ids=[angular_ids[1]],
         weight_block=cross_weight_block,
-        make_symmetric=True,
     )
 
     # The dataset-level flag verifies that the Python set_weight_block call stored advanced blocks.
@@ -415,7 +414,7 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
         ],
         cross_weight_block,
     )
-    # make_symmetric=True must materialize the transposed block in the opposite quadrant.
+    # Symmetric insertion must materialize the transposed block in the opposite quadrant.
     np.testing.assert_allclose(
         dense_weight_matrix[
             second_row_start : second_row_start + 2, first_row_start : first_row_start + 2

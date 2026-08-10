@@ -1,21 +1,10 @@
-import datetime
 import warnings
 
 import numpy as np
 import pytest
-import requests
 
-from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.processTrk234.processor import Trk234Processor
-from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
-from tudatpy.estimation.observations_setup import ancillary_settings
-from tudatpy.estimation.observable_models_setup import links
-from tudatpy.interface import spice
-
-spice.load_standard_kernels()
-
-mpc_codes_test = [222, 999]
+from tudatpy.estimation.observations import observations_processing
 
 
 def _link_ends(receiver_body):
@@ -103,26 +92,8 @@ def _link_ends_per_observable_signature(link_ends_per_observable_type):
     }
 
 
-def _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset):
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_observations),
-            np.array(flattened_data.observation_vector),
-        )
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_times),
-            np.array(flattened_data.times),
-        )
-        np.testing.assert_allclose(
-            np.array(legacy_collection.concatenated_weights),
-            np.array(flattened_data.weight_vector),
-        )
-        assert len(legacy_collection.get_single_observation_sets()) == (
-            observation_dataset.number_of_observation_sets
-        )
+def _to_dense_matrix(matrix):
+    return matrix.toarray() if hasattr(matrix, "toarray") else np.asarray(matrix)
 
 
 def test_legacy_single_observation_set_conversion_matches_dataset():
@@ -144,6 +115,75 @@ def test_legacy_single_observation_set_conversion_matches_dataset():
         [float(time) for time in dataset.observation_times_for_set(0)],
         [3.0, 5.0],
     )
+
+
+def test_dataset_add_observation_set_accepts_single_observation_set_object():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        observation_set = observations.create_single_observation_set(
+            observations.angular_position,
+            _link_ends("Mars"),
+            [np.array([1.0, 2.0]), np.array([3.0, 4.0])],
+            [3.0, 5.0],
+            observations.receiver,
+        )
+
+    dataset = observations.ObservationDataset()
+    assert dataset.add_observation_set(observation_set) == 0
+
+    np.testing.assert_allclose(dataset.observation_vector_for_set(0), [1.0, 2.0, 3.0, 4.0])
+    np.testing.assert_allclose(
+        [float(time) for time in dataset.observation_times_for_set(0)],
+        [3.0, 5.0],
+    )
+
+
+def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
+    link_definition = observations.LinkDefinition(_link_ends("Earth"))
+    observation_values = [np.array([10.0]), np.array([20.0])]
+    observation_times = [1.0, 2.0]
+
+    positional_dataset = observations.ObservationDataset()
+    assert (
+        positional_dataset.add_observation_set(
+            observations.one_way_range,
+            link_definition,
+            observation_values,
+            observation_times,
+            observations.receiver,
+        )
+        == 0
+    )
+
+    keyword_dataset = observations.ObservationDataset()
+    assert (
+        keyword_dataset.add_observation_set(
+            observable_type=observations.one_way_range,
+            link_definition=link_definition,
+            observation_values=observation_values,
+            observation_times=observation_times,
+            reference_link_end=observations.receiver,
+        )
+        == 0
+    )
+
+    np.testing.assert_allclose(
+        positional_dataset.ordered_flattened_observation_data().observation_vector,
+        keyword_dataset.ordered_flattened_observation_data().observation_vector,
+    )
+    np.testing.assert_allclose(
+        positional_dataset.ordered_flattened_observation_data().times,
+        keyword_dataset.ordered_flattened_observation_data().times,
+    )
+
+
+def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
+    with pytest.raises(TypeError) as exception_info:
+        observations.ObservationDataset().add_observation_set(object())
+
+    error_message = str(exception_info.value)
+    assert "add_observation_set(single_observation_set)" in error_message
+    assert "add_observation_set(observable_type, link_definition" in error_message
 
 
 def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
@@ -287,85 +327,68 @@ def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
     np.testing.assert_allclose(updated.residual_vector, new_residuals)
 
 
-@pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_legacy_create_observations_from_astropy_table_matches_dataset(mpc_code):
-    query = BatchMPC()
-    query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
-
-    observation_dataset = query.create_observation_dataset_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
-    )
-    legacy_collection = query.create_observations_from_astropy_table(
-        query._table, apply_weights_VFCC17=True, apply_star_catalog_debias=False, in_degrees=False
-    )
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-
-@pytest.mark.parametrize("mpc_code", mpc_codes_test)
-def test_legacy_batch_mpc_to_tudat_observation_collection_matches_dataset(mpc_code):
-    query = BatchMPC()
-    query.get_observations([mpc_code])
-    query.filter(observatories=["T05", "T08"])
-    query._table = query._table.sort_values(["observatory", "epoch_seconds_TDB"])
-
-    spice.load_standard_kernels()
-    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-
-    observation_dataset = query.to_tudat(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
-    legacy_collection = query.to_tudat_observation_collection(
-        bodies=bodies, included_satellites=None, apply_star_catalog_debias=False
-    )
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-
-def test_legacy_trk234_observation_collection_matches_dataset(tmp_path):
-    local_filename = tmp_path / "tnfp.dat"
-    url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
-    assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
-    local_filename.write_bytes(response.content)
-
-    trk_processor = Trk234Processor(
-        [str(local_filename)],
-        ["doppler"],
-        spacecraft_name="-202",
-    )
-    observation_dataset = trk_processor.process()
-    legacy_collection = trk_processor.process_observation_collection()
-
-    _assert_legacy_collection_matches_dataset(legacy_collection, observation_dataset)
-
-    set_metadata = observation_dataset.get_observation_set_metadata(0)
-    ancillary_settings_for_set = observation_dataset.ancillary_settings(
-        set_metadata.ancillary_settings_id
-    )
-    doppler_count = ancillary_settings_for_set.get_float_settings(
-        ancillary_settings.doppler_integration_time
-    )
-    link_definition = observation_dataset.link_definition(set_metadata.link_definition_id)
-
+def test_legacy_weight_setters_match_dataset(sample_dataset):
+    legacy_collection = _legacy_collection(sample_dataset)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
-        first_legacy_set = legacy_collection.get_single_observation_sets()[0]
-        legacy_doppler_count = first_legacy_set.ancillary_settings.get_float_settings(
-            ancillary_settings.doppler_integration_time
-        )
-        assert legacy_doppler_count == pytest.approx(doppler_count)
+        range_parser = observations_processing.observation_parser(observations.one_way_range)
+        angular_parser = observations_processing.observation_parser(observations.angular_position)
 
-        legacy_link_definition = first_legacy_set.link_definition
-        assert legacy_link_definition.link_end_id(links.transmitter).reference_point == (
-            link_definition.link_end_id(links.transmitter).reference_point
+    def assert_weights_match(expected_weights):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            np.testing.assert_allclose(
+                np.asarray(legacy_collection.concatenated_weights),
+                expected_weights,
+            )
+        flattened = sample_dataset.ordered_flattened_observation_data()
+        np.testing.assert_allclose(flattened.weight_vector, expected_weights)
+        np.testing.assert_allclose(
+            _to_dense_matrix(flattened.sparse_weight_matrix),
+            np.diag(expected_weights),
         )
-        assert legacy_link_definition.link_end_id(links.reflector1).body_name == (
-            link_definition.link_end_id(links.reflector1).body_name
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            if hasattr(legacy_collection, "get_full_weights_matrix"):
+                np.testing.assert_allclose(
+                    np.asarray(legacy_collection.get_full_weights_matrix()),
+                    np.diag(expected_weights),
+                )
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.set_constant_weight_per_observation_parser(
+            {range_parser: 4.0, angular_parser: 9.0}
         )
-        assert legacy_link_definition.link_end_id(links.receiver).reference_point == (
-            link_definition.link_end_id(links.receiver).reference_point
+    assert_weights_match(np.array([4.0, 4.0, 4.0, 9.0, 9.0, 9.0, 9.0]))
+
+    tabulated_weights = {
+        range_parser: np.array([1.1, 1.2, 1.3]),
+        angular_parser: np.array([2.1, 2.2, 2.3, 2.4]),
+    }
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.set_tabulated_weights(tabulated_weights)
+    assert_weights_match(np.array([1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4]))
+
+    stale_viewer = sample_dataset.create_viewer(observations.observation_query.active)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        legacy_collection.remove_single_observation_sets(range_parser)
+    with pytest.raises(RuntimeError):
+        stale_viewer.number_of_observations
+
+    assert sample_dataset.number_of_observation_sets == 1
+    assert sample_dataset.get_observation_set_metadata(0).observable_type == (
+        observations.angular_position
+    )
+    np.testing.assert_allclose(
+        sample_dataset.ordered_flattened_observation_data().weight_vector,
+        [2.1, 2.2, 2.3, 2.4],
+    )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        np.testing.assert_allclose(
+            np.asarray(legacy_collection.concatenated_weights),
+            [2.1, 2.2, 2.3, 2.4],
         )

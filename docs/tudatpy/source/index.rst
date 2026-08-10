@@ -15,8 +15,7 @@ On this page, we provide a comprehensive overview of the functionality available
 * :ref:`astro`: This submodule contains various (semi-)standalone functions for astrodynamics applications, which can be used very well outside of a Tudat application/propagation. Submodules contain lists of frame conversions, element conversion, elementary orbit calculations, *etc.*.
 * :ref:`math`:  This submodule contains various functions and classes for purely mathematical operations, such as numerical interpolation, quadrature *etc.*.
 * :ref:`trajectory_design`: This submodule contains (basic) functionality for the preliminary design of a full (transfer) orbit, using for instance a Multiple Gravity Assist (MGA) or a low-thrust system. It relies on functionality in the ``astro`` submodule. It is largely independent of the ``dynamics`` and ``estimation`` submodule, but does contain interface functions to allow the preliminary design to be used as an initial guess for a full numerical propagation.
-* :ref:`interface`: This submodule contains functionality to interface with various external packages which Tudat uses, such as `SPICE <https://naif.jpl.nasa.gov/naif/toolkit.html>`_
-* :ref:`data`: This submodule contains various pieces of functionality for file input-output in Tudatpy, including interfaces to retrieve data from `JPL Horizons <https://ssd.jpl.nasa.gov/horizons/>`_ and the `Minor Planet Center <https://www.minorplanetcenter.net/>`_ among others. Unlike most of the main Tudatpy submodules (which are written in C++, and exposed to Python), this submodule is written partially in Python
+* :ref:`data_input`: This submodule contains data-loading and data-downloading interfaces for external tracking, mission, and resource data sources.
 * :ref:`plotting`: This submodule contains various pieces of functionality to support the easy plotting of results generated with Tudatpy. Unlike most of the main Tudatpy submodules (which are written in C++, and exposed to Python), this submodule is written in Python
 * :ref:`util`: This submodule contains various small pieces of functionality to support the easy post-processing of results generated with Tudatpy. Unlike most of the main Tudatpy submodules (which are written in C++, and exposed to Python), this submodule is written in Python
 * :ref:`constants`: This submodule contains various numerical constants used inside Tudat
@@ -28,11 +27,10 @@ On this page, we provide a comprehensive overview of the functionality available
 
    astro
    constants
-   data
+   data_input
    dynamics
    estimation
    exceptions
-   interface
    math
    trajectory_design
    plotting

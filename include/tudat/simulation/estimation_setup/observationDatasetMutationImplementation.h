@@ -150,6 +150,29 @@ int addObservationSetAndApplyWeights(
     return setId;
 }
 
+template< typename ObservationScalarType >
+Eigen::VectorXd accumulateResidualStatistic( const unsigned int observableSize,
+                                             const std::size_t numberOfObservations,
+                                             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+                                             const bool rootMeanSquare )
+{
+    Eigen::VectorXd statistic = Eigen::VectorXd::Zero( observableSize );
+    for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
+    {
+        for( std::size_t observationIndex = 0; observationIndex < numberOfObservations; ++observationIndex )
+        {
+            const double residual = static_cast< double >( residuals.at( observationIndex )( componentIndex, 0 ) );
+            statistic[ componentIndex ] += rootMeanSquare ? residual * residual : residual;
+        }
+        statistic[ componentIndex ] /= static_cast< double >( numberOfObservations );
+        if( rootMeanSquare )
+        {
+            statistic[ componentIndex ] = std::sqrt( statistic[ componentIndex ] );
+        }
+    }
+    return statistic;
+}
+
 }  // namespace observation_dataset_detail
 
 template< typename ObservationScalarType,
@@ -674,18 +697,8 @@ Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
 {
     const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
     const std::size_t numberOfObservations = getNumberOfObservationsForSet( setId );
-    Eigen::VectorXd rmsResiduals = Eigen::VectorXd::Zero( observableSize );
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsForSet( setId );
-
-    for( unsigned int i = 0; i < observableSize; ++i )
-    {
-        for( std::size_t j = 0; j < numberOfObservations; ++j )
-        {
-            rmsResiduals[ i ] += residuals.at( j )( i, 0 ) * residuals.at( j )( i, 0 );
-        }
-        rmsResiduals[ i ] = std::sqrt( rmsResiduals[ i ] / static_cast< double >( numberOfObservations ) );
-    }
-    return rmsResiduals;
+    return observation_dataset_detail::accumulateResidualStatistic( observableSize, numberOfObservations, residuals, true );
 }
 
 template< typename ObservationScalarType,
@@ -695,18 +708,8 @@ Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
 {
     const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
     const std::size_t numberOfObservations = getNumberOfObservationsForSet( setId );
-    Eigen::VectorXd meanResiduals = Eigen::VectorXd::Zero( observableSize );
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsForSet( setId );
-
-    for( unsigned int i = 0; i < observableSize; ++i )
-    {
-        for( std::size_t j = 0; j < numberOfObservations; ++j )
-        {
-            meanResiduals[ i ] += residuals.at( j )( i, 0 );
-        }
-        meanResiduals[ i ] /= static_cast< double >( numberOfObservations );
-    }
-    return meanResiduals;
+    return observation_dataset_detail::accumulateResidualStatistic( observableSize, numberOfObservations, residuals, false );
 }
 
 template< typename ObservationScalarType,
