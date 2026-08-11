@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import io
 import json
+import sys
 import tarfile
 
 import pytest
@@ -90,6 +91,25 @@ def test_verify_sha256_returns_boolean(tmp_path):
 
     assert resource_installer._verify_sha256(resource, expected_hash)
     assert not resource_installer._verify_sha256(resource, "0" * 64)
+
+
+def test_help_documents_resource_environment_variables(monkeypatch, capsys):
+    """Expose every resource-location environment variable in CLI help."""
+    monkeypatch.setattr(sys, "argv", ["resource_installer", "--help"])
+
+    with pytest.raises(SystemExit) as exit_info:
+        resource_installer.parse_arguments()
+
+    assert exit_info.value.code == 0
+    help_text = capsys.readouterr().out
+    for variable in (
+        "TUDATPY_RESOURCE_DIR",
+        "TUDATPY_RESOURCE_CACHE",
+        "TUDATPY_RESOURCE_CATALOG",
+        "TUDATPY_RESOURCE_HASHES",
+    ):
+        assert variable in help_text
+    assert "packaged catalog" not in help_text
 
 
 def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, tmp_path, capsys):

@@ -409,7 +409,23 @@ def _automatic_hash_file(catalog_path: Optional[Path]) -> Optional[Path]:
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments for the resource installer."""
     parser = argparse.ArgumentParser(
-        description="Install or update TudatPy common resource files with cache and progress support."
+        description="Install or update TudatPy common resource files with cache and progress support.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""Environment variables:
+  TUDATPY_RESOURCE_DIR
+      Default for --dest (currently: {DEFAULT_DEST}).
+  TUDATPY_RESOURCE_CACHE
+      Default for --cache-dir (currently: {DEFAULT_CACHE}).
+  TUDATPY_RESOURCE_CATALOG
+      Default catalog path when --catalog is omitted
+      (currently: {USER_RESOURCE_CATALOG}).
+  TUDATPY_RESOURCE_HASHES
+      Default checksum path associated with the default catalog
+      (currently: {USER_RESOURCE_HASHES}).
+
+Command-line options override their corresponding environment-variable defaults.
+With --mode manifest and an explicit --catalog, the checksum file is written beside
+the selected catalog.""",
     )
     parser.add_argument(
         "--mode",
@@ -422,12 +438,14 @@ def parse_arguments() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--dest", default=str(DEFAULT_DEST), help="Destination root for resource files."
+        "--dest",
+        default=str(DEFAULT_DEST),
+        help="Destination root for resource files (env: TUDATPY_RESOURCE_DIR).",
     )
     parser.add_argument(
         "--cache-dir",
         default=str(DEFAULT_CACHE),
-        help="Cache directory for downloads and tarballs.",
+        help="Cache directory for downloads and tarballs (env: TUDATPY_RESOURCE_CACHE).",
     )
     parser.add_argument(
         "--files",
@@ -441,13 +459,16 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument(
         "--hash-file",
-        help="Path to a JSON file mapping catalog keys or URLs to SHA256 hex digests.",
+        help=(
+            "Explicit JSON checksum file, overriding the automatically selected "
+            "TUDATPY_RESOURCE_HASHES path."
+        ),
     )
     parser.add_argument(
         "--catalog",
         help=(
             "Path to a resource catalog. With --mode manifest, this is the output path; "
-            "otherwise it overrides the user or packaged catalog."
+            "otherwise it overrides TUDATPY_RESOURCE_CATALOG."
         ),
     )
     return parser.parse_args()
