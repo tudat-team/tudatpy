@@ -203,7 +203,7 @@ def apply_photocenter_correction_to_observation_collection(
         return new_observation_collection
 
 
-def _photocenter_correction_ellispoidal(
+def _photocenter_correction_ellipsoidal(
         semi_axes: list | np.ndarray,
         e_sun: np.ndarray,
         e_observer : np.ndarray,
@@ -222,8 +222,7 @@ def _photocenter_correction_ellispoidal(
     Returns
     -------
     np.ndarray
-        Position of the photocenter w.r.t. the body center, in the principle axis system. Note that this is a full 3D
-        vector, so it is not restricted to the plane of sky.
+        Photocenter-barycenter offset vector in principal axis system of the ellipsoid.
     """
     a, b, c = semi_axes
     c_mat = np.diag((a ** -2, b ** -2, c ** -2))
@@ -260,7 +259,8 @@ def _photocenter_correction_ellispoidal(
     )
     i_vec = np.array([i1, i2, 0])
 
-    # Compute Euler rotation matrix
+    # Compute rotation matrix K-frame (principal axis) -> K''-frame (computation frame)
+    # (note we skip the explicit Euler matrix derivation steps as the angles are not needed)
     n_sun = np.sqrt(c_mat) @ e_sun / (np.sqrt(e_sun.T @ c_mat @ e_sun))
     n_observer = np.sqrt(c_mat) @ e_observer / (np.sqrt(e_observer.T @ c_mat @ e_observer))
 
@@ -292,16 +292,16 @@ def photocenter_corrections_from_observations_ellipsoidal(
     """
     Compute photocenter-barycenter offset correction, assuming an ellipsoidal shape of the observed body.
 
-    Requires a rotational ephemeris to be loaded for body with body_name. The x, y, and z-axes of the body-fixed frame
-    must be aligned with the semi-axes in order a, b, c.
+    Requires a rotational ephemeris to be loaded for body with body_name, with the body-fixed frame being the ellipsoid
+    principal axis frame with axes x,y,z aligned with semi-axes a, b, c.
 
     Parameters
     ----------
     observations : np.ndarray
         Observations with columns [time, RA, DEC]
     semi_axes : list | np.ndarray
-        Ellipsoid semi-axes ordered from largest to smallest. It is assumed that the body-fixed frames axes x,y,z are
-        aligned with the a,b,c directions in order.
+        Ellipsoid semi-axes as [a, b, c]. They must be aligned with the body-fixed (principal axis) frame of the
+        ellipsoid, i.e.: a along x-axis, b along y-axis, and c along z-axis.
     bodies : SystemOfBodies
         System of Bodies object
     body_name : str
@@ -321,7 +321,10 @@ def photocenter_corrections_from_observations_ellipsoidal(
         raise ValueError('Observations must be shaped N x 3')
 
     if len(semi_axes) != 3:
-        raise ValueError('Body extent must be of length 3')
+        raise ValueError('Semi-axes array must be of length 3')
+
+    if any([ax <= 0 for ax in semi_axes]):
+        raise ValueError('Semi-axes must be positive')
 
     # Create ephemeris for the reference point if it is given
     if observer_reference_name is not None:
@@ -358,7 +361,7 @@ def photocenter_corrections_from_observations_ellipsoidal(
         e_observer = rot_matrix @ e_observer_inertial
 
         # Get offset in axes of ellipsoid
-        offset = _photocenter_correction_ellispoidal(
+        offset = _photocenter_correction_ellipsoidal(
             semi_axes,
             e_sun,
             e_observer,
