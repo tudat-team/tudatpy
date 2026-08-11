@@ -92,7 +92,7 @@ def test_verify_sha256_returns_boolean(tmp_path):
     assert not resource_installer._verify_sha256(resource, "0" * 64)
 
 
-def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, capsys):
+def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, tmp_path, capsys):
     """List the union of resources matching multiple key substrings."""
     monkeypatch.setattr(
         resource_installer,
@@ -104,12 +104,32 @@ def test_list_catalog_accepts_multiple_key_substrings(monkeypatch, capsys):
         },
     )
 
-    resource_installer.list_catalog(["de430", "earth"])
+    resource_installer.list_catalog(tmp_path, ["de430", "earth"])
 
     assert capsys.readouterr().out.splitlines() == [
         "earth/gravity.dat",
         "earth/rotation.dat",
         "ephemerides/de430.dat",
+    ]
+
+
+def test_list_catalog_highlights_files_not_in_manifest(monkeypatch, tmp_path, capsys):
+    """Mark installed files that do not occur in the manifest catalog."""
+    monkeypatch.setattr(
+        resource_installer,
+        "RESOURCE_CATALOG",
+        {"known/resource.dat": "https://example.invalid/resource.dat"},
+    )
+    (tmp_path / "known").mkdir()
+    (tmp_path / "known/resource.dat").write_bytes(b"known")
+    (tmp_path / "custom").mkdir()
+    (tmp_path / "custom/extra.dat").write_bytes(b"extra")
+
+    resource_installer.list_catalog(tmp_path)
+
+    assert capsys.readouterr().out.splitlines() == [
+        "known/resource.dat",
+        "custom/extra.dat [not in manifest]",
     ]
 
 
@@ -131,11 +151,16 @@ def test_main_uses_files_to_filter_list_mode(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(resource_installer, "load_resource_catalog", lambda path: {})
     monkeypatch.setattr(resource_installer, "_automatic_hash_file", lambda path: None)
-    monkeypatch.setattr(resource_installer, "list_catalog", lambda keys: captured.update(keys=keys))
+    monkeypatch.setattr(
+        resource_installer,
+        "list_catalog",
+        lambda dest_path, keys: captured.update(dest_path=dest_path, keys=keys),
+    )
 
     resource_installer.main()
 
     assert captured["keys"] == selected
+    assert captured["dest_path"] == tmp_path / "resources"
 
 
 def test_download_tarball_reuses_verified_cache(monkeypatch, tmp_path):

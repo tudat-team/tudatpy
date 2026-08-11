@@ -369,11 +369,23 @@ def download_extra_file(
     return dest_path
 
 
-def list_catalog(keys: Optional[List[str]] = None) -> None:
-    """Print catalog entries, optionally filtered by key substrings."""
+def list_catalog(dest_path: Path, keys: Optional[List[str]] = None) -> None:
+    """Print manifest entries and highlight local files absent from the manifest."""
     entries = resolve_catalog_keys(keys) if keys else RESOURCE_CATALOG
     for key in sorted(entries):
         print(key)
+
+    if not dest_path.is_dir():
+        return
+
+    local_files = {
+        path.relative_to(dest_path).as_posix() for path in dest_path.rglob("*") if path.is_file()
+    }
+    extra_files = local_files.difference(RESOURCE_CATALOG)
+    if keys:
+        extra_files = {path for path in extra_files if any(key in path for key in keys)}
+    for path in sorted(extra_files):
+        print(f"{path} [not in manifest]")
 
 
 def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
@@ -413,7 +425,7 @@ def parse_arguments() -> argparse.Namespace:
         default="missing",
         help=(
             "scratch=overwrite all; missing=download only missing; update=selected subset; "
-            "extra=download one extra URL; list=show the local catalog; "
+            "extra=download one extra URL; list=show the local catalog and unlisted files; "
             "manifest=refresh the local catalog from Zenodo manifests."
         ),
     )
@@ -481,7 +493,7 @@ def main() -> None:
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
-        list_catalog(args.files)
+        list_catalog(dest_path, args.files)
         return
 
     if args.mode == "scratch":
