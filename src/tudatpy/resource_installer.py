@@ -4,7 +4,6 @@ import argparse
 import os
 import tarfile
 import warnings
-from importlib import resources
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import hashlib
@@ -389,17 +388,10 @@ def list_catalog(dest_path: Path, keys: Optional[List[str]] = None) -> None:
 
 
 def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
-    """Load a user-supplied hash file or the hash file bundled with TudatPy."""
+    """Load a user-supplied SHA-256 hash file."""
     path = Path(hash_file).expanduser()
     if path.exists():
         return json.loads(path.read_text()), str(path)
-
-    if path.name == hash_file:
-        packaged_hashes = resources.files("tudatpy").joinpath(hash_file)
-        if packaged_hashes.is_file():
-            with packaged_hashes.open(encoding="utf-8") as hash_stream:
-                return json.load(hash_stream), f"package resource {hash_file}"
-
     raise FileNotFoundError(f"Hash file not found: {path}")
 
 

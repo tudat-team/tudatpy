@@ -27,6 +27,27 @@ def manifest(record_id, archive, path):
     )
 
 
+def test_missing_default_catalog_explains_how_to_create_it(monkeypatch, tmp_path):
+    """Direct users to manifest mode when no local catalog exists."""
+    missing_catalog = tmp_path / "resource_catalog.csv"
+    monkeypatch.setattr(resource_catalog, "USER_RESOURCE_CATALOG", missing_catalog)
+
+    with pytest.raises(FileNotFoundError, match="--mode manifest") as error:
+        resource_catalog.load_resource_catalog()
+
+    assert str(missing_catalog) in str(error.value)
+
+
+def test_missing_explicit_catalog_includes_catalog_command(tmp_path):
+    """Include the selected path in instructions for creating a custom catalog."""
+    missing_catalog = tmp_path / "custom.csv"
+
+    with pytest.raises(FileNotFoundError, match="--catalog") as error:
+        resource_catalog.load_resource_catalog(missing_catalog)
+
+    assert str(missing_catalog) in str(error.value)
+
+
 def test_update_resource_catalog_writes_catalog_and_hashes(monkeypatch, tmp_path):
     responses = iter(
         [

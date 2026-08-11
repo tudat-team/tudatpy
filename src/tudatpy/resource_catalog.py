@@ -5,10 +5,8 @@ import json
 import os
 import re
 import tempfile
-from importlib import resources
-from importlib.resources.abc import Traversable
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Union
+from typing import Dict, Iterable, Optional
 
 import requests
 
@@ -29,22 +27,26 @@ USER_RESOURCE_HASHES = Path(
     os.environ.get("TUDATPY_RESOURCE_HASHES", "~/.cache/tudatpy_resources/resource_hashes.json")
 ).expanduser()
 
-CatalogPath = Union[Path, Traversable]
+
+def resource_catalog_path() -> Path:
+    """Return the user-refreshed catalog or explain how to create it."""
+    if not USER_RESOURCE_CATALOG.is_file():
+        raise FileNotFoundError(
+            f"Resource catalog not found: {USER_RESOURCE_CATALOG}. Create it with "
+            "'python -m tudatpy.resource_installer --mode manifest'."
+        )
+    return USER_RESOURCE_CATALOG
 
 
-def packaged_resource_catalog() -> Traversable:
-    """Return the catalog bundled with the installed ``tudatpy`` package."""
-    return resources.files("tudatpy").joinpath("resource_catalog.csv")
-
-
-def resource_catalog_path() -> CatalogPath:
-    """Return a user-refreshed catalog when available, else the bundled one."""
-    return USER_RESOURCE_CATALOG if USER_RESOURCE_CATALOG.exists() else packaged_resource_catalog()
-
-
-def load_resource_catalog(catalog_path: Optional[CatalogPath] = None) -> Dict[str, str]:
+def load_resource_catalog(catalog_path: Optional[Path] = None) -> Dict[str, str]:
     """Load the local resource catalog without making network requests."""
     catalog_path = catalog_path or resource_catalog_path()
+    if not catalog_path.is_file():
+        raise FileNotFoundError(
+            f"Resource catalog not found: {catalog_path}. Create it with "
+            "'python -m tudatpy.resource_installer --mode manifest "
+            f"--catalog {catalog_path}'."
+        )
     with catalog_path.open(newline="", encoding="utf-8") as catalog_file:
         rows = csv.DictReader(catalog_file)
         if rows.fieldnames is None or not {"path", "modified", "url"}.issubset(rows.fieldnames):
