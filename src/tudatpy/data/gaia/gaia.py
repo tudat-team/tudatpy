@@ -55,6 +55,20 @@ class GaiaAstrometry:
         .load_from_local_archive
         """
         self._table = observations_and_metadata
+        self._corrected = False
+        self._filtered = False
+
+    @property
+    def is_corrected(self) -> bool:
+        """Boolean flag indicating if the astrometry in this instance has been corrected for relativity
+        and/or the photocenter offset"""
+        return self._corrected
+
+
+    @property
+    def is_filtered(self) -> bool:
+        """Boolean flag indicating if the astrometry in this instance has been filtered by epochs or not."""
+        return self._filtered
 
 
     @property
@@ -235,19 +249,18 @@ class GaiaAstrometry:
                              ellipsoid_semi_axes: dict | None = None,) -> None:
         """Apply photocenter and/or light-deflection corrections to the observations.
 
-        Applies corrections to the loaded asteroid astrometry for:
-            Photocenter-barycenter offset, according to Fuentes-Munoz et al. (2024)
-            Light-deflection due to relativity according to Klioner (2008)
+        To apply light deflection and photocenter corrections, the bodies object must have an ephemeris loaded for
+        Gaia, planetary bodies involved in light deflection, the Sun, and the asteroid itself (e.g. from an initial guess
+        or JPL Horizons). In addition, to use the ellipsoidal photocenter model variant, a rotation model must be loaded
+        for the asteroid, where the body-fixed frame must be the principal axis frame with x,y,z aligned with the semi-
+        axes a, b and c.
 
-        The applied corrections are also stored in the correction columns of the astrometry table
-        so their magnitudes can be inspected.
+        After corrections are applied, they are stored on the table property for inspection and post-processing.
 
         Parameters
         ----------
         bodies : SystemOfBodies
-            Bodies object. Must have the Gaia body and its ephemeris loaded, and a
-            reference ephemeris loaded for the asteroids over the complete timespan of
-            observations.
+            Bodies object which contains (rotational) ephemerides of the asteroid, Sun, planetary bodies and the observer.
         light_deflection_bodies : list, optional
             Names of perturber bodies involved in light bending, by default 'Sun'.
         photocenter_correction_model : str | None, optional
@@ -265,16 +278,14 @@ class GaiaAstrometry:
         if photocenter_correction_model == 'ellipsoidal' and ellipsoid_semi_axes is None:
             raise ValueError('Ellipsoidal photocenter model was chosen but semi-axes are empty')
 
+        # Guard to protect against correcting more than once
+        if self.is_corrected:
+            raise RuntimeError('correct_observations cannot be called more than once on the same instance')
+
+        # Apply corrections to all asteroid data currently loaded
         photocenter_columns = ['photocenter_corr_ra', 'photocenter_corr_dec']
         light_deflection_columns = ['light_deflection_corr_ra', 'light_deflection_corr_dec']
 
-        # Prevent applying the same correction twice (nonzero correction columns indicate it was already applied)
-        if photocenter_correction_model in ['spherical','ellipsoidal'] and (self._table[photocenter_columns] != 0).any(axis=None):
-            raise RuntimeError('correct_observations was called, but photocenter corrections were already applied on this instance')
-        if light_deflection_bodies and (self._table[light_deflection_columns] != 0).any(axis=None):
-            raise RuntimeError('correct_observations was called, but light-deflection corrections were already applied on this instance')
-
-        # Apply corrections to all asteroid data currently loaded
         for mpc_number in self.mpc_numbers:
 
             mask = self.table['number_mp'] == mpc_number
@@ -319,6 +330,8 @@ class GaiaAstrometry:
 
         # Wrap RA
         self._table['ra'] = (self._table['ra'] + np.pi) % (2 * np.pi) - np.pi
+
+        self._corrected = True
 
     @classmethod
     def load_from_astroquery(cls,
@@ -519,6 +532,7 @@ class GaiaAstrometry:
             raise RuntimeError('No observations left after filtering by epochs')
 
         self._table = filtered_table
+        self._filtered = True
 
 
     def print_summary(self) -> None:
@@ -598,10 +612,15 @@ class GaiaAsteroids:
         """Return a copy of the object itself"""
         return copy.deepcopy(self)
 
+    @property
+    def mpc_numbers(self)->np.ndarray:
+        """List of all asteroid MPC numbers for which data is fetched."""
+        return pd.unique(self._table['number_mp'])
+
     def get_state_for_mpc(self,
                           mpc_number: int) -> tuple[float, np.ndarray]:
         """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame.
-        Data must be loaded into the asteroids table via one of the load methods.
+        Raises an error if the asteroid is not found in the Gaia source archive.
 
         Parameters
         ----------
@@ -615,18 +634,24 @@ class GaiaAsteroids:
         np.ndarray
             State vector (heliocentric J2000).
         """
+        if mpc_number not in self.mpc_numbers:
+            raise LookupError(f'State requested for {mpc_number}, but no asteroid data found in fetched archive')
+
         asteroid_data = self.table.query('number_mp == @mpc_number').iloc[0]
         return asteroid_data.epoch_state_vector, asteroid_data.h_state_vector
 
     @classmethod
     def load_from_astroquery(cls,
-                             mpc_numbers: int | Iterable,) -> "GaiaAsteroids":
-        """Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection.
+                             mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
+        """Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection. Note this method of
+        loading the data may be slow or unreliable. For frequent use, it is recommended to use load_from_local_archive
+        instead.
 
         Parameters
         ----------
-        mpc_numbers : int | Iterable
-            MPC numbers of asteroids to retrieve data for
+        mpc_numbers : int | Iterable | None
+            MPC numbers of asteroids to retrieve data for. If None, the complete archive of Gaia-derived orbits
+            is retrieved. This may take up several minutes.
 
         Returns
         -------
@@ -667,16 +692,13 @@ class GaiaAsteroids:
                                 mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
         """Retrieve orbit data locally from a .parquet file of the Gaia archive.
 
-        Mirrors load_from_astroquery, but mpc_numbers can be empty, in which case the data is retrieved for all asteroids
-        in the catalog.
-
         Parameters
         ----------
         archive_file_path : Path | str
             Path to the archive .parquet file.
         mpc_numbers : int | list | tuple, optional
-            MPC numbers to retrieve orbits for. If None, select all objects in the
-            catalog, by default None.
+            MPC numbers of asteroids to retrieve orbits for. If None, the complete archive of Gaia-derived orbits
+            is retrieved.
 
         Returns
         -------
