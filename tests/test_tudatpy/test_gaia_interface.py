@@ -180,7 +180,8 @@ def test_correct_observations_photocenter(gaia_astrometry):
     with mock.patch('tudatpy.data.gaia.gaia.photocenter_corrections_from_observations',
                     side_effect=fake_correction):
         gaia_astrometry.correct_observations(bodies=None, diameters=diameters,
-                                             light_deflection_bodies=[], correct_photocenter=True)
+                                             light_deflection_bodies=[],
+                                             photocenter_correction_model='spherical')
     astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
@@ -203,8 +204,7 @@ def test_correct_observations_light_deflection(gaia_astrometry):
     # Corrections are applied to all loaded asteroids
     with mock.patch('tudatpy.data.gaia.gaia.relativistic_light_deflection_from_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'],
-                                             correct_photocenter=False)
+        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
     astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
@@ -219,12 +219,10 @@ def test_correct_observations_twice_raises_error(gaia_astrometry):
 
     with mock.patch('tudatpy.data.gaia.gaia.relativistic_light_deflection_from_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'],
-                                             correct_photocenter=False)
+        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
 
         with pytest.raises(RuntimeError):
-            gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'],
-                                                 correct_photocenter=False)
+            gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
 
 
 def test_get_gaia_ephemeris_geocentric(gaia_astrometry, spice_kernels):
