@@ -162,8 +162,7 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.BodyListSettings
    :members:
-
-   .. automethod:: __init__
+   :special-members: __init__
 
 .. autoclass:: tudatpy.dynamics.environment_setup.BodySettings
    :members:
