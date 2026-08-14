@@ -362,3 +362,50 @@ def test_install_attempts_all_tarballs_before_raising(monkeypatch, tmp_path):
 
     assert attempted == ["first.tar.gz", "second.tar.gz"]
     assert error.value.failures == ["first.dat: checksum mismatch"]
+
+
+def test_regular_download_failure_has_actionable_diagnostic(monkeypatch, tmp_path):
+    """Identify a failed file and provide every requested recovery route."""
+    url = "https://example.invalid/path/resource.dat"
+
+    def fail_download(*args, **kwargs):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(resource_installer, "_download_file", fail_download)
+
+    with pytest.warns(RuntimeWarning) as warning_info:
+        with pytest.raises(resource_installer.ResourceInstallationError) as error:
+            resource_installer.install_files(
+                {"earth/resource.dat": url}, tmp_path / "dest", tmp_path / "cache"
+            )
+
+    message = str(error.value)
+    assert "earth/resource.dat" in message
+    assert url in message
+    assert "web search" in message
+    assert "resource tarball" in message
+    assert resource_installer.ISSUE_TRACKER_URL in message
+    assert url in str(warning_info[0].message)
+
+
+def test_tarball_download_failure_lists_members_and_manual_cache_path(monkeypatch, tmp_path):
+    """Describe all affected files and where a manual tarball can be saved."""
+    url = "https://example.invalid/resources.tar.gz"
+
+    def fail_download(*args, **kwargs):
+        raise requests.Timeout("timed out")
+
+    monkeypatch.setattr(resource_installer, "_download_tarball", fail_download)
+
+    with pytest.warns(RuntimeWarning):
+        with pytest.raises(resource_installer.ResourceInstallationError) as error:
+            resource_installer.install_files(
+                {"one.dat": url, "two.dat": url}, tmp_path / "dest", tmp_path / "cache"
+            )
+
+    message = str(error.value)
+    assert "one.dat, two.dat" in message
+    assert url in message
+    assert "web search" in message
+    assert str(tmp_path / "cache" / "resources.tar.gz") in message
+    assert resource_installer.ISSUE_TRACKER_URL in message

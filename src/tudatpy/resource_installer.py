@@ -31,6 +31,7 @@ DEFAULT_CACHE = Path(
 # Loading is deferred until after manifest mode has had the opportunity to
 # create the local catalog on a fresh installation.
 RESOURCE_CATALOG: Dict[str, str] = {}
+ISSUE_TRACKER_URL = "https://github.com/tudat-team/tudatpy/issues"
 
 
 class ChecksumMismatchError(RuntimeError):
@@ -170,6 +171,25 @@ def _verify_sha256(path: Path, expected_hash: str) -> bool:
 def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
     """Return a diagnostic for a file that failed checksum verification."""
     return f"SHA256 mismatch for {path}: expected {expected_hash}"
+
+
+def _download_failure_message(
+    paths: List[str], url: str, error: BaseException, cache_path: Optional[Path] = None
+) -> str:
+    """Return an actionable diagnostic for a failed resource download."""
+    file_description = ", ".join(paths)
+    archive_advice = (
+        f"download the tarball manually from the URL above and save it as {cache_path}"
+        if cache_path is not None
+        else "search for and download the Tudat resource tarball containing this file"
+    )
+    return (
+        f"Could not download: {file_description}\n"
+        f"URL: {url}\n"
+        f"Reason: {type(error).__name__}: {error}\n"
+        f"Try a web search for the listed file name(s), or {archive_advice}.\n"
+        f"If the resource is still unavailable, open an issue at {ISSUE_TRACKER_URL}."
+    )
 
 
 def _download_file(
@@ -314,8 +334,8 @@ def install_files(
         try:
             if _download_file(url, target_path, force=force, expected_hash=expected):
                 installed += 1
-        except ChecksumMismatchError as error:
-            failure = f"{relative_path}: {error}"
+        except (ChecksumMismatchError, requests.RequestException, OSError) as error:
+            failure = _download_failure_message([relative_path], url, error)
             warnings.warn(failure, RuntimeWarning, stacklevel=2)
             failures.append(failure)
 
@@ -330,8 +350,14 @@ def install_files(
             extracted, extraction_failures = _extract_tarball_members(
                 tar_path, targets, dest_path, force=force, hashes=hashes
             )
-        except (ChecksumMismatchError, OSError, tarfile.TarError) as error:
-            failure = f"{_tarball_cache_name(tarball_url)}: {error}"
+        except (
+            ChecksumMismatchError,
+            requests.RequestException,
+            OSError,
+            tarfile.TarError,
+        ) as error:
+            cache_path = cache_dir / _tarball_cache_name(tarball_url)
+            failure = _download_failure_message(targets, tarball_url, error, cache_path)
             warnings.warn(failure, RuntimeWarning, stacklevel=2)
             failures.append(failure)
             continue
