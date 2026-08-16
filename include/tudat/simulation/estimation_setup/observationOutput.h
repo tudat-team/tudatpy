@@ -255,8 +255,9 @@ private:
                                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
 
-    //! Per-leg light-time calculators used only for `light_time_correction_components`. Populated
-    //! at simulate-time by the simulator (or left empty if no leg-specific variables are requested).
+    //! Per-leg light-time calculators used by leg-specific dependent variables such as
+    //! `light_time` and `light_time_correction_components`. Populated at simulate-time by the
+    //! simulator (or left empty if no leg-specific variables are requested).
     std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
               std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >
             legLightTimeCalculators_;

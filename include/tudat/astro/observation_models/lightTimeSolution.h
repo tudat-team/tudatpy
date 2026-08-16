@@ -242,13 +242,13 @@ private:
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
 };
 
-//! Non-templated base class providing type-erased access to light-time correction data.
+//! Non-templated base class providing type-erased access to the most recent light-time solution.
 /*!
  *  Non-templated base class of `LightTimeCalculator`, exposing only the subset of the API that
  *  does not depend on the `ObservationScalarType` / `TimeType` template parameters. This allows
  *  callers that do not want to commit to a specific instantiation (e.g. dependent-variable
- *  plumbing or Python bindings) to hold a pointer to any `LightTimeCalculator` and read its
- *  per-correction breakdown from the last evaluation.
+ *  plumbing) to hold a pointer to any `LightTimeCalculator` and read the
+ *  solved light time or its per-correction breakdown from the last evaluation.
  */
 class LightTimeCalculatorBase
 {
@@ -258,6 +258,9 @@ public:
     //! Returns the per-correction values cached during the last call to `setTotalLightTimeCorrection`.
     //! Order matches `getLightTimeCorrectionList()`.
     virtual const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const = 0;
+
+    //! Returns the total solved light time from the most recent evaluation, including configured corrections.
+    virtual double getCurrentTotalLightTime( ) const = 0;
 
     //! Returns the list of light-time correction objects registered on this calculator.
     virtual std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const = 0;
@@ -704,6 +707,11 @@ public:
     const std::vector< double >& getCurrentLightTimeCorrectionComponents( ) const override
     {
         return currentCorrectionComponents_;
+    }
+
+    double getCurrentTotalLightTime( ) const override
+    {
+        return static_cast< double >( currentIdealLightTime_ + currentCorrection_ );
     }
 
     std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrectionList( ) const override

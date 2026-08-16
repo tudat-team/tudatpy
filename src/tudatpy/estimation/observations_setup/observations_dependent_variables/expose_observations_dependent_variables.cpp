@@ -348,6 +348,63 @@ void expose_observations_dependent_variables( py::module& m )
             The dependent variable settings object.
         )doc" );
 
+    m.def( "light_time_between_link_ends_dependent_variable",
+           &tss::lightTimeBetweenLinkEndsDependentVariable,
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg_v( "start_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg_v( "end_link_end_id",
+                      tom::linkEndId( "" ),
+                      "tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id(\"\")" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(
+        Function to create a dependent variable for the solved signal-propagation light time
+        between two link ends.
+
+        The returned scalar is the sum of the already solved per-leg times of flight along the
+        contiguous n-way chain from ``start_link_end_type`` to ``end_link_end_type``. It is the
+        light time of the actual observation-model solution (including any configured light-time
+        corrections), not a second independent light-time solve and not an instantaneous
+        Euclidean range divided by the speed of light.
+
+        All link-end delays are excluded, including transmitter, receiver, and intermediate
+        retransmission / turnaround delays. For a two-way observation with ground transmission
+        ``t0``, spacecraft reception ``t1``, spacecraft retransmission ``t2`` and ground
+        reception ``t3``:
+
+        * uplink: ``start_link_end_type=transmitter``, ``end_link_end_type=retransmitter`` → ``t1 - t0``
+        * downlink: ``start_link_end_type=retransmitter``, ``end_link_end_type=receiver`` → ``t3 - t2``
+        * combined uplink+downlink: ``start_link_end_type=transmitter``, ``end_link_end_type=receiver`` → ``(t1 - t0) + (t3 - t2)``
+
+        The combined value is therefore not ``t3 - t0``, which would additionally include the
+        retransmission delay ``t2 - t1``.
+
+        If the start and end are left unspecified, the full transmitter-to-receiver propagation
+        path is saved. If only one end is specified, the other defaults to the corresponding
+        path endpoint. The start must precede the end along the transmitter → receiver chain;
+        reversed or ambiguous selections raise a ``RuntimeError``.
+
+        Parameters
+        ----------
+        start_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the starting (transmitting) link end of the selected portion.
+        end_link_end_type : tudatpy.estimation.observable_models_setup.links.LinkEndType, optional
+            Type of the ending (receiving) link end of the selected portion.
+        start_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the starting end (body/station).
+        end_link_end_id : tudatpy.estimation.observable_models_setup.links.LinkEndId, default = :func:`~tudatpy.estimation.observable_models_setup.links.body_origin_link_end_id` called with an empty string
+            Optional specific link-end ID for the ending end.
+        integrated_observation_handling : tudatpy.estimation.observations_setup.observations_dependent_variables.IntegratedObservationPropertyHandling, optional
+            Specifies how to handle the variable for integrated observations.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
+            The dependent variable settings object.
+        )doc" );
+
     m.def( "avoidance_angle_dependent_variable",
            &tss::bodyAvoidanceAngleDependentVariable,
            py::arg( "body_name" ),

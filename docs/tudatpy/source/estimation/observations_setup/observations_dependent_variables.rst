@@ -22,6 +22,8 @@ Functions
 
    target_range_between_link_ends_dependent_variable
 
+   light_time_between_link_ends_dependent_variable
+
    avoidance_angle_dependent_variable
 
    body_center_distance_dependent_variable
@@ -45,6 +47,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.azimuth_angle_dependent_variable
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.target_range_between_link_ends_dependent_variable
+
+.. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.light_time_between_link_ends_dependent_variable
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.avoidance_angle_dependent_variable
 
