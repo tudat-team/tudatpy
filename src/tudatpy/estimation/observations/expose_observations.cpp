@@ -606,56 +606,6 @@ numpy.ndarray
             A `SingleObservationSet` object.
         )doc" );
 
-    m.def( "create_observation_collection_from_tracking_data",
-           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "tracking_data" ),
-           py::arg( "bodies" ),
-           py::arg( "apply_corrections" ) = false,
-           R"doc(
-
-        Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
-
-        This function converts each entry of `tracking_data` (as produced e.g. by
-        :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`, :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom
-        reader) into a `SingleObservationSet`, and collects the results into an `ObservationCollection`.
-
-        Parameters
-        ----------
-        tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
-            List of tracking data objects to convert.
-        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
-            System of bodies, used to resolve ground station positions for time scale conversions.
-        apply_corrections : bool, optional
-            Whether corrections stored in the tracking data should be applied to
-            the observation values during conversion. Default is False.
-
-        Returns
-        -------
-        tudatpy.estimation.observations.ObservationCollection
-            An `ObservationCollection` containing one observation set per input `TrackingData` object.
-        )doc" );
-
-    tudatpy::estimation::observations::expose_observations_io_bindings( m );
-    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
-
-    m.def( "set_tracking_supplementary_data_in_bodies",
-           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
-                   &tom::setTrackingSupplementaryDataInBodies ),
-           py::arg( "bodies" ),
-           py::arg( "supplementary_data" ),
-           R"doc(
-
-        Sets tracking supplementary data (e.g. ground station frequency ramps) in the bodies.
-
-        Parameters
-        ----------
-        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
-            System of bodies in which the supplementary data is set.
-        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
-            List of tracking supplementary data objects, as produced e.g. by
-            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
-        )doc" );
-
     // OBSERVATION COLLECTION
 
     py::class_< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1852,6 +1802,56 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          dict[Time, numpy.ndarray]
              A map from time to dependent variable value, with times as Time objects.
      )doc" );
+
+    tudatpy::estimation::observations::expose_observations_io_bindings( m );
+    tudatpy::estimation::observations::expose_observations_simulation_bindings( m );
+
+    m.def( "create_observation_collection_from_tracking_data",
+           &tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+
+        Factory function to create an `ObservationCollection` from a list of `TrackingData` objects.
+
+        This function converts each entry of `tracking_data` (as produced e.g. by
+        :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data`, :func:`~tudatpy.data_input.tracking_data.fdets.read_fdets_data`, or a custom
+        reader) into a `SingleObservationSet`, and collects the results into an `ObservationCollection`.
+
+        Parameters
+        ----------
+        tracking_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingData`]
+            List of tracking data objects to convert.
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies, used to resolve ground station positions for time scale conversions.
+        apply_corrections : bool, optional
+            Whether corrections stored in the tracking data should be applied to
+            the observation values during conversion. Default is False.
+
+        Returns
+        -------
+        tudatpy.estimation.observations.ObservationCollection
+            An `ObservationCollection` containing one observation set per input `TrackingData` object.
+        )doc" );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(
+
+        Sets tracking supplementary data (e.g. ground station frequency ramps) in the bodies.
+
+        Parameters
+        ----------
+        bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
+            System of bodies in which the supplementary data is set.
+        supplementary_data : list[:class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData`]
+            List of tracking supplementary data objects, as produced e.g. by
+            :func:`~tudatpy.data_input.tracking_data.ifms.read_ifms_data` or a custom reader.
+        )doc" );
 
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
