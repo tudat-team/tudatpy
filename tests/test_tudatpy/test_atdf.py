@@ -14,7 +14,7 @@ from tudatpy.estimation.observations import create_observation_collection_from_t
 from tudatpy.data_input.tracking_data.atdf._converters import (
     AtdfNwayDopplerConverter,
     AtdfRampConverter,
-    AtdfRangeConverter,
+    AtdfNwayRangeConverter,
 )
 
 _SPACECRAFT_NAME = "-202"
@@ -24,12 +24,12 @@ _SPACECRAFT_NAME = "-202"
 # AtdfConverter helper tests
 # -----------------------------------------------------------------------------
 def test_atdf_station_to_tudat():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     assert converter.atdf_station_to_tudat(" DSS 65 ") == "DSS-65"
 
 
 def test_get_link_ends_two_way():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     row = pd.Series({"Xmtr": "DSS 65", "Rcvr": "DSS 65"})
     assert converter.get_link_ends(row, _SPACECRAFT_NAME) == (
         "DSS-65",
@@ -39,7 +39,7 @@ def test_get_link_ends_two_way():
 
 
 def test_get_link_ends_one_way():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     row = pd.Series({"Xmtr": "S/C", "Rcvr": "DSS 65"})
     assert converter.get_link_ends(row, _SPACECRAFT_NAME) == (
         "",
@@ -49,7 +49,7 @@ def test_get_link_ends_one_way():
 
 
 def test_get_link_end_delays_two_way():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     row = pd.Series(
         {"Xmtr": "DSS 65", "XmtrDly (nsec)": 100.0, "ScDly (nsec)": 200.0, "RcvrDly (nsec)": 50.0}
     )
@@ -58,7 +58,7 @@ def test_get_link_end_delays_two_way():
 
 def test_get_link_end_delays_one_way_folds_transmitter_into_spacecraft():
     """When the spacecraft is the transmitter, its delay is folded into the spacecraft delay."""
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     row = pd.Series(
         {"Xmtr": "S/C", "XmtrDly (nsec)": 100.0, "ScDly (nsec)": 200.0, "RcvrDly (nsec)": 50.0}
     )
@@ -66,7 +66,7 @@ def test_get_link_end_delays_one_way_folds_transmitter_into_spacecraft():
 
 
 def test_build_link_ends_two_way():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     link_ends = converter.build_link_ends(("DSS-65", _SPACECRAFT_NAME, "DSS-65"), "Earth")
     assert link_ends == [
         (("Earth", "DSS-65"), "transmitter"),
@@ -76,7 +76,7 @@ def test_build_link_ends_two_way():
 
 
 def test_build_link_ends_one_way():
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
     link_ends = converter.build_link_ends(("", _SPACECRAFT_NAME, "DSS-65"), "Earth")
     assert link_ends == [
         ((_SPACECRAFT_NAME, ""), "transmitter"),
@@ -110,7 +110,7 @@ def _msr_row(**overrides):
 
 def test_range_converter_extract_and_process():
     df = pd.DataFrame([_msr_row()])
-    converter = AtdfRangeConverter()
+    converter = AtdfNwayRangeConverter()
 
     extracted = converter.extract(df, _SPACECRAFT_NAME)
     assert len(extracted) == 1
@@ -207,8 +207,8 @@ def test_pipeline_range_synthetic():
     bodies = _dsn_bodies()
 
     df = pd.DataFrame([_msr_row()])
-    extracted = AtdfRangeConverter().extract(df, _SPACECRAFT_NAME)
-    tracking_data = AtdfRangeConverter().process(extracted)
+    extracted = AtdfNwayRangeConverter().extract(df, _SPACECRAFT_NAME)
+    tracking_data = AtdfNwayRangeConverter().process(extracted)
 
     observation_collection = create_observation_collection_from_tracking_data(tracking_data, bodies)
     obs_sets = observation_collection.get_single_observation_sets()

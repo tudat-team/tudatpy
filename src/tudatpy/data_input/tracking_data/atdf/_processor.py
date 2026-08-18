@@ -3,14 +3,12 @@ from pathlib import Path
 
 import pandas as pd
 from atdf2ascii import main as atdf2ascii_main
-from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data import (
-    RampedFrequencySupplementaryData,
     TrackingData,
     TrackingSupplementaryData,
 )
 
-from ._converters import AtdfNwayDopplerConverter, AtdfRampConverter, AtdfRangeConverter
+from ._converters import AtdfNwayDopplerConverter, AtdfRampConverter, AtdfNwayRangeConverter
 
 _DEFAULT_PROC_COUNT = max(1, (os.cpu_count() or 2) // 2)
 
@@ -79,13 +77,15 @@ class AtdfTrackingDataProcessor:
         self.range_two_way = range_two_way
 
     def _convert_atdf_to_ascii(
-        self, output_dir: Path | None, count_time: list[float] | None = [60.0]
+        self,
+        output_dir: Path | None,
+        count_time: list[float] | None = None,
     ):
         if output_dir is None:
             output_dir = self.output_dir
 
-        if count_time is None:
-            count_time = []
+        if count_time is not None:
+            count_time = list(count_time)
 
         for atdf_file in self.atdf_file_path:
 
@@ -167,22 +167,32 @@ class AtdfTrackingDataProcessor:
         self.df_raw_rmp = self._read_atdf_ascii_table(self.atdf_file_path, output_dir, "ramp")
         self.df_processed_rmp = self._process_ramp_dataframe(self.df_raw_rmp)
 
+    def nway_doppler_enabled(self) -> bool:
+        return self.doppler_two_way or self.doppler_three_way
+
+    def nway_range_enabled(self) -> bool:
+        return self.range_two_way
+
+    def any_observable_enabled(self) -> bool:
+        return self.nway_doppler_enabled() or self.nway_range_enabled()
+
     def process(
         self,
         output_dir: Path,
         earth_name: str = "Earth",
     ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
 
-        self.read_atdf_ascii_msr(output_dir)
+        if self.any_observable_enabled():
+            self.read_atdf_ascii_msr(output_dir)
 
-        if self.range_two_way:
-            rng_converter = AtdfRangeConverter()
+        if self.nway_range_enabled():
+            rng_converter = AtdfNwayRangeConverter()
             n_way_range_obs = rng_converter.extract(self.df_processed_msr, self.spacecraft_name)
             rng_tracking_data = rng_converter.process(n_way_range_obs, earth_name)
         else:
             rng_tracking_data = []
 
-        if self.doppler_two_way or self.doppler_three_way:
+        if self.nway_doppler_enabled():
             doppler_converter = AtdfNwayDopplerConverter()
             nway_doppler_obs = doppler_converter.extract(
                 self.df_processed_msr, self.spacecraft_name
@@ -194,30 +204,7 @@ class AtdfTrackingDataProcessor:
         self.read_atdf_ascii_ramp(output_dir)
 
         ramp_converter = AtdfRampConverter()
-
         ramp_df = ramp_converter.extract(self.df_processed_rmp)
-        ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
-            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
-        )
-        ramp_df["end_time_seconds"] = ramp_df["end_time"].apply(
-            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
-        )
-
-        supplementary_data_list = []
-        for station in ramp_df["station"].unique():
-            station_df = ramp_df[ramp_df["station"] == station]
-
-            frequency_data = RampedFrequencySupplementaryData()
-            for _, row in station_df.iterrows():
-                frequency_data.add_frequency_ramp(
-                    row["start_time_seconds"],
-                    row["end_time_seconds"],
-                    row["freq"],
-                    row["rate"],
-                )
-
-            supplementary_data = TrackingSupplementaryData(earth_name, station)
-            supplementary_data.set_frequency_supplementary_data([frequency_data])
-            supplementary_data_list.append(supplementary_data)
+        supplementary_data_list = ramp_converter.process(ramp_df, earth_name)
 
         return doppler_tracking_data + rng_tracking_data, supplementary_data_list

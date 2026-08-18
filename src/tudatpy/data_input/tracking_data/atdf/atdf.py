@@ -11,7 +11,10 @@ tracking-data and supplementary-data objects.
 
 from pathlib import Path
 
-from ._processor import _DEFAULT_PROC_COUNT, AtdfTrackingDataProcessor
+from ._processor import (
+    _DEFAULT_PROC_COUNT,
+    AtdfTrackingDataProcessor,
+)
 from tudatpy.data_input.tracking_data import TrackingData, TrackingSupplementaryData
 
 
@@ -19,7 +22,7 @@ def read_atdf_data(
     atdf_file_path: list[Path],
     spacecraft_name: str,
     output_dir: Path = Path("output"),
-    count_time: list[float] | None = [60.0],
+    count_time: list[float] | None = None,
     proc_count: int = _DEFAULT_PROC_COUNT,
     doppler_one_way: bool = False,
     doppler_two_way: bool = True,
@@ -49,8 +52,10 @@ def read_atdf_data(
     output_dir : pathlib.Path, default Path("output")
         Directory in which ``atdf2ascii`` writes the intermediate ASCII
         tables.
-    count_time : list[float] | None, default [60.0]
-        Doppler count times (in seconds) to be decoded by ``atdf2ascii``.
+    count_time : list[float] | None, default None
+        Doppler count times (in seconds) to compress the decoded observations
+        to. If ``None`` (default), each observation keeps its own count time
+        as archived in the ATDF file, i.e. no compression is applied.
     proc_count : int
         Number of processors to use for the ``atdf2ascii`` decoding step.
         Defaults to half the available cores.

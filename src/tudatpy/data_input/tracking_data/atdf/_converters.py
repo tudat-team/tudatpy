@@ -8,7 +8,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from tudatpy.astro import time_representation
-from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.tracking_data import (
+    RampedFrequencySupplementaryData,
+    TrackingData,
+    TrackingSupplementaryData,
+)
 
 
 class AtdfConverter(abc.ABC):
@@ -55,7 +59,8 @@ class AtdfConverter(abc.ABC):
             ((earth_name, link_ends[2]), "receiver"),
         ]
 
-    def atdf_station_to_tudat(self, station: str) -> str:
+    @staticmethod
+    def atdf_station_to_tudat(station: str) -> str:
         return station.strip().replace(" ", "-")
 
     def get_link_ends(self, row: pd.Series, sc_name: str) -> tuple[str, str, str]:
@@ -103,7 +108,7 @@ class AtdfConverter(abc.ABC):
         ).to_epoch_time_object()
 
 
-class AtdfRangeConverter(AtdfConverter):
+class AtdfNwayRangeConverter(AtdfConverter):
     def extract(self, df: pd.DataFrame, sc_name: str) -> pd.DataFrame:
 
         df_nway_range = df[
@@ -114,13 +119,19 @@ class AtdfRangeConverter(AtdfConverter):
             )
         ]
 
+        link_ends_list = []
+        band_list = []
+        link_end_delays_list = []
+        for _, row in df_nway_range.iterrows():
+            link_ends_list.append(self.get_link_ends(row, sc_name))
+            band_list.append((row["UL"], row["DL"]))
+            link_end_delays_list.append(self.get_link_end_delays(row))
+
         data = {
             "epoch": df_nway_range["time_tag (DT)"].to_list(),
-            "link_ends": [self.get_link_ends(row, sc_name) for _, row in df_nway_range.iterrows()],
-            "band": [(row["UL"], row["DL"]) for _, row in df_nway_range.iterrows()],
-            "link_end_delays": [
-                self.get_link_end_delays(row) for _, row in df_nway_range.iterrows()
-            ],
+            "link_ends": link_ends_list,
+            "band": band_list,
+            "link_end_delays": link_end_delays_list,
             "lowest_ranging_component": df_nway_range["Rng-LC"].to_list(),
             "obs": df_nway_range["Observed"].to_list(),
         }
@@ -186,15 +197,19 @@ class AtdfNwayDopplerConverter(AtdfConverter):
             )
         ]
 
+        link_ends_list = []
+        band_list = []
+        link_end_delays_list = []
+        for _, row in df_nway_doppler.iterrows():
+            link_ends_list.append(self.get_link_ends(row, sc_name))
+            band_list.append((row["UL"], row["DL"]))
+            link_end_delays_list.append(self.get_link_end_delays(row))
+
         data = {
             "epoch": df_nway_doppler["time_tag (DT)"].to_list(),
-            "link_ends": [
-                self.get_link_ends(row, sc_name) for _, row in df_nway_doppler.iterrows()
-            ],
-            "band": [(row["UL"], row["DL"]) for _, row in df_nway_doppler.iterrows()],
-            "link_end_delays": [
-                self.get_link_end_delays(row) for _, row in df_nway_doppler.iterrows()
-            ],
+            "link_ends": link_ends_list,
+            "band": band_list,
+            "link_end_delays": link_end_delays_list,
             "count_time": df_nway_doppler["CT (sec)"].to_list(),
             "obs": df_nway_doppler["Observed"].to_list(),
             "ref_freq": df_nway_doppler["Ref-Freq (Hz)"].to_list(),
@@ -221,9 +236,9 @@ class AtdfNwayDopplerConverter(AtdfConverter):
                             for ex in df_ct["ex"].unique():
                                 df_ex = df_ct[df_ct["ex"] == ex]
                                 obs_values = df_ex["obs"].to_numpy(dtype=float).reshape((-1, 1))
-                                epoch_seconds = (
-                                    df_ex["epoch"].apply(self.to_utc_epoch).to_numpy(dtype=float)
-                                )
+                                epoch_seconds = [
+                                    self.to_utc_epoch(dt) for dt in df_ex["epoch"].to_list()
+                                ]
 
                                 tracking_data = TrackingData(
                                     "DsnNWayAveragedDoppler",
@@ -264,9 +279,40 @@ class AtdfRampConverter:
         data = {
             "start_time": df["Start-Time (DT)"].to_list(),
             "end_time": df["End-Time (DT)"].to_list(),
-            "station": df["Station"].apply(lambda x: x.strip().replace(" ", "-")).to_list(),
+            "station": df["Station"].apply(AtdfConverter.atdf_station_to_tudat).to_list(),
             "freq": df["Frequency (Hz)"].to_list(),
             "rate": df["Rate (Hz/sec)"].to_list(),
         }
 
         return pd.DataFrame(data)
+
+    def process(
+        self, df: pd.DataFrame, earth_name: str = "Earth"
+    ) -> list[TrackingSupplementaryData]:
+
+        ramp_df = df.copy()
+        ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
+        )
+        ramp_df["end_time_seconds"] = ramp_df["end_time"].apply(
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
+        )
+
+        supplementary_data_list = []
+        for station in ramp_df["station"].unique():
+            station_df = ramp_df[ramp_df["station"] == station]
+
+            frequency_data = RampedFrequencySupplementaryData()
+            for _, row in station_df.iterrows():
+                frequency_data.add_frequency_ramp(
+                    row["start_time_seconds"],
+                    row["end_time_seconds"],
+                    row["freq"],
+                    row["rate"],
+                )
+
+            supplementary_data = TrackingSupplementaryData(earth_name, station)
+            supplementary_data.set_frequency_supplementary_data([frequency_data])
+            supplementary_data_list.append(supplementary_data)
+
+        return supplementary_data_list
