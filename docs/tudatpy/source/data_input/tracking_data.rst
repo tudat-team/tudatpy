@@ -20,6 +20,7 @@ objects is applied with
    :maxdepth: 2
    :caption: Modules
 
+   tracking_data/atdf
    tracking_data/obs_80_cols
    tracking_data/fdets
    tracking_data/generic_text_file
