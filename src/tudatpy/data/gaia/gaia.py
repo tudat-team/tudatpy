@@ -2,7 +2,6 @@
 Retrieve Gaia FPR astrometry from the archives
 """
 import numpy as np
-from astroquery.gaia import Gaia
 import pandas as pd
 from tudatpy.astro.time_representation import julian_day_to_seconds_since_epoch, TCB_to_TDB, DateTime
 from tudatpy.dynamics.environment import SystemOfBodies
@@ -358,6 +357,8 @@ class GaiaAstrometry:
         GaiaAstrometry
             A GaiaAstrometry object with observations loaded
         """
+        from astroquery.gaia import Gaia # late import because it tends to be slow
+
         if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
@@ -658,6 +659,8 @@ class GaiaAsteroids:
         GaiaAsteroids
             Instance with data loaded from astroquery.
         """
+        from astroquery.gaia import Gaia  # late import because it tends to be slow
+
         if not isinstance(mpc_numbers, Iterable):
             mpc_numbers = [mpc_numbers]
 
