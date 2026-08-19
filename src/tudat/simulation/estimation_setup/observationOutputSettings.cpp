@@ -486,10 +486,9 @@ std::vector< std::pair< LinkEndType, LinkEndId > > getLinearLinkEndChain( const 
     return chain;
 }
 
-std::vector< int > getMatchingLightTimeSelectionIndices(
-        const std::vector< std::pair< LinkEndType, LinkEndId > >& chain,
-        const LinkEndType requestedType,
-        const LinkEndId& requestedId )
+std::vector< int > getMatchingLightTimeSelectionIndices( const std::vector< std::pair< LinkEndType, LinkEndId > >& chain,
+                                                         const LinkEndType requestedType,
+                                                         const LinkEndId& requestedId )
 {
     std::vector< int > matchingIndices;
     for( int i = 0; i < static_cast< int >( chain.size( ) ); i++ )
@@ -540,8 +539,8 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
     const std::vector< std::pair< LinkEndType, LinkEndId > > chain = getLinearLinkEndChain( linkEnds );
     const bool startSelectorSpecified = ( interlinkSettings->originatingLinkEndType_ != unidentified_link_end ||
                                           interlinkSettings->originatingLinkEndId_ != LinkEndId( "", "" ) );
-    const bool endSelectorSpecified = ( interlinkSettings->linkEndType_ != unidentified_link_end ||
-                                        interlinkSettings->linkEndId_ != LinkEndId( "", "" ) );
+    const bool endSelectorSpecified =
+            ( interlinkSettings->linkEndType_ != unidentified_link_end || interlinkSettings->linkEndId_ != LinkEndId( "", "" ) );
 
     int startIndex = 0;
     int endIndex = static_cast< int >( chain.size( ) ) - 1;
@@ -553,8 +552,8 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         {
             return allDependentVariablesSettings;
         }
-        startIndex = resolveUniqueLightTimeSelectionIndex(
-                matchingStartIndices, "start", observableType, static_cast< int >( chain.size( ) ) );
+        startIndex =
+                resolveUniqueLightTimeSelectionIndex( matchingStartIndices, "start", observableType, static_cast< int >( chain.size( ) ) );
     }
     if( endSelectorSpecified )
     {
@@ -564,8 +563,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         {
             return allDependentVariablesSettings;
         }
-        endIndex = resolveUniqueLightTimeSelectionIndex(
-                matchingEndIndices, "end", observableType, static_cast< int >( chain.size( ) ) );
+        endIndex = resolveUniqueLightTimeSelectionIndex( matchingEndIndices, "end", observableType, static_cast< int >( chain.size( ) ) );
     }
 
     if( startIndex >= endIndex )
@@ -576,10 +574,10 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
     }
 
     allDependentVariablesSettings.push_back( createCompleteObservationDependentVariableSettings( dependentVariableSettings,
-                                                                                                  chain.at( endIndex ).first,
-                                                                                                  chain.at( endIndex ).second,
-                                                                                                  chain.at( startIndex ).first,
-                                                                                                  chain.at( startIndex ).second ) );
+                                                                                                 chain.at( endIndex ).first,
+                                                                                                 chain.at( endIndex ).second,
+                                                                                                 chain.at( startIndex ).first,
+                                                                                                 chain.at( startIndex ).second ) );
 
     return allDependentVariablesSettings;
 }

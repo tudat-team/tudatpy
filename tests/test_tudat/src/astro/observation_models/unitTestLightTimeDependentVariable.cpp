@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testOneWayLightTimeDependentVariable )
 }
 
 //! Two-way uplink, downlink and combined propagation light times come from the per-leg solutions.
-//! Combined light time excludes the retransmission delay.
+//! Combined light time is uplink plus downlink, so the spacecraft turnaround delay is left out.
 BOOST_AUTO_TEST_CASE( testTwoWayLightTimeDependentVariableWithRetransmissionDelay )
 {
     loadStandardSpiceKernels( );
@@ -213,8 +213,7 @@ BOOST_AUTO_TEST_CASE( testThreeLegLightTimeExcludesAllLinkEndDelays )
 
     const double observationTime = 5.0E8 + 1000.0;
     const std::vector< double > linkEndDelays{ 4.0e-4, 1.0e-3, 2.0e-3, 7.0e-4 };
-    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
-            getNWayRangeAncillarySettings( linkEndDelays );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = getNWayRangeAncillarySettings( linkEndDelays );
 
     std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
             ObservationModelCreator< 1, double, double >::createObservationModel(
@@ -226,8 +225,7 @@ BOOST_AUTO_TEST_CASE( testThreeLegLightTimeExcludesAllLinkEndDelays )
 
     BOOST_REQUIRE_EQUAL( linkEndTimes.size( ), 6 );
     const double totalLinkEndDelay = std::accumulate( linkEndDelays.begin( ), linkEndDelays.end( ), 0.0 );
-    const double expectedPropagationLightTime =
-            rangeObservation( 0 ) / physical_constants::SPEED_OF_LIGHT - totalLinkEndDelay;
+    const double expectedPropagationLightTime = rangeObservation( 0 ) / physical_constants::SPEED_OF_LIGHT - totalLinkEndDelay;
 
     std::shared_ptr< ObservationDependentVariableSettings > firstLegSettings =
             lightTimeBetweenLinkEndsDependentVariable( transmitter, reflector1 );
@@ -277,8 +275,7 @@ BOOST_AUTO_TEST_CASE( testIntegratedLightTimeSelectsRequestedIntervalEndpoint )
                     std::make_shared< ObservationModelSettings >( one_way_differenced_range, linkEnds ), bodies );
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
-    observationModel->computeObservationsWithLinkEndData(
-            observationTime, receiver, linkEndTimes, linkEndStates, ancillarySettings );
+    observationModel->computeObservationsWithLinkEndData( observationTime, receiver, linkEndTimes, linkEndStates, ancillarySettings );
 
     const auto legLightTimeCalculators = observationModel->getLegLightTimeCalculators( );
     const auto calculatorIt = legLightTimeCalculators.find( std::make_pair( transmitter, receiver ) );
@@ -288,10 +285,10 @@ BOOST_AUTO_TEST_CASE( testIntegratedLightTimeSelectsRequestedIntervalEndpoint )
     const double expectedEndLightTime = calculatorIt->second.at( 1 )->getCurrentTotalLightTime( );
     BOOST_CHECK_GT( std::fabs( expectedEndLightTime - expectedStartLightTime ), 1.0e-10 );
 
-    std::shared_ptr< ObservationDependentVariableSettings > startSettings = lightTimeBetweenLinkEndsDependentVariable(
-            transmitter, receiver, LinkEndId( "", "" ), LinkEndId( "", "" ), interval_start );
-    std::shared_ptr< ObservationDependentVariableSettings > endSettings = lightTimeBetweenLinkEndsDependentVariable(
-            transmitter, receiver, LinkEndId( "", "" ), LinkEndId( "", "" ), interval_end );
+    std::shared_ptr< ObservationDependentVariableSettings > startSettings =
+            lightTimeBetweenLinkEndsDependentVariable( transmitter, receiver, LinkEndId( "", "" ), LinkEndId( "", "" ), interval_start );
+    std::shared_ptr< ObservationDependentVariableSettings > endSettings =
+            lightTimeBetweenLinkEndsDependentVariable( transmitter, receiver, LinkEndId( "", "" ), LinkEndId( "", "" ), interval_end );
     std::shared_ptr< ObservationCollection<> > collection = simulateWithDependentVariables(
             one_way_differenced_range, bodies, linkEnds, { observationTime }, { startSettings, endSettings }, ancillarySettings );
 
@@ -320,10 +317,9 @@ BOOST_AUTO_TEST_CASE( testUnspecifiedLightTimeSelectsFullPath )
             collection->getSingleLinkAndTypeObservationSets( n_way_range, LinkDefinition( twoWayLinkEnds ) ).at( 0 );
     BOOST_REQUIRE_EQUAL( singleSet->getDependentVariableBookkeeping( )->getDependentVariableSettings( ).size( ), 1 );
 
-    const double defaultLightTime =
-            getScalarDependentVariable( collection, lightTimeBetweenLinkEndsDependentVariable( ), observationTime );
-    const double explicitFullPathLightTime = getScalarDependentVariable(
-            collection, lightTimeBetweenLinkEndsDependentVariable( transmitter, receiver ), observationTime );
+    const double defaultLightTime = getScalarDependentVariable( collection, lightTimeBetweenLinkEndsDependentVariable( ), observationTime );
+    const double explicitFullPathLightTime =
+            getScalarDependentVariable( collection, lightTimeBetweenLinkEndsDependentVariable( transmitter, receiver ), observationTime );
     BOOST_CHECK_CLOSE_FRACTION( defaultLightTime, explicitFullPathLightTime, 10.0 * std::numeric_limits< double >::epsilon( ) );
 }
 
@@ -346,8 +342,7 @@ BOOST_AUTO_TEST_CASE( testLightTimeSelectionUsesExactLinkEndIds )
     BOOST_CHECK( createAllCompatibleDependentVariableSettings( one_way_range, linkEnds, station2Settings ).empty( ) );
     BOOST_CHECK( createAllCompatibleDependentVariableSettings( one_way_range, linkEnds, bodyOriginSettings ).empty( ) );
 
-    std::shared_ptr< ObservationDependentVariableSettings > startOnlySettings =
-            lightTimeBetweenLinkEndsDependentVariable( transmitter );
+    std::shared_ptr< ObservationDependentVariableSettings > startOnlySettings = lightTimeBetweenLinkEndsDependentVariable( transmitter );
     const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > startOnlyCompleted =
             createAllCompatibleDependentVariableSettings( one_way_range, linkEnds, startOnlySettings );
     BOOST_REQUIRE_EQUAL( startOnlyCompleted.size( ), 1 );

@@ -774,9 +774,8 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::getDependentVaria
 namespace
 {
 
-using LegLightTimeCalculatorMap =
-        std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
-                  std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >;
+using LegLightTimeCalculatorMap = std::map< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >,
+                                            std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > >;
 
 //! Resolve the calculators holding the selected propagation legs. The settings have normally been
 //! completed by `createAllCompatibleDependentVariableSettings`, so this deliberately requires
@@ -814,10 +813,9 @@ std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > re
     }
 
     const int numberOfLinkEnds = static_cast< int >( linkEnds.size( ) );
-    const int startIndex = observation_models::getNWayLinkIndexFromLinkEndType(
-            lightTimeSettings->originatingLinkEndType_, numberOfLinkEnds );
-    const int endIndex =
-            observation_models::getNWayLinkIndexFromLinkEndType( lightTimeSettings->linkEndType_, numberOfLinkEnds );
+    const int startIndex =
+            observation_models::getNWayLinkIndexFromLinkEndType( lightTimeSettings->originatingLinkEndType_, numberOfLinkEnds );
+    const int endIndex = observation_models::getNWayLinkIndexFromLinkEndType( lightTimeSettings->linkEndType_, numberOfLinkEnds );
     if( startIndex >= endIndex )
     {
         throw std::runtime_error(
@@ -843,10 +841,8 @@ std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > re
     selectedCalculators.reserve( static_cast< size_t >( endIndex - startIndex ) );
     for( int legIndex = startIndex; legIndex < endIndex; legIndex++ )
     {
-        const observation_models::LinkEndType fromType =
-                observation_models::getNWayLinkEnumFromIndex( legIndex, numberOfLinkEnds );
-        const observation_models::LinkEndType toType =
-                observation_models::getNWayLinkEnumFromIndex( legIndex + 1, numberOfLinkEnds );
+        const observation_models::LinkEndType fromType = observation_models::getNWayLinkEnumFromIndex( legIndex, numberOfLinkEnds );
+        const observation_models::LinkEndType toType = observation_models::getNWayLinkEnumFromIndex( legIndex + 1, numberOfLinkEnds );
         const auto calculatorIt = legLightTimeCalculators.find( std::make_pair( fromType, toType ) );
         if( calculatorIt == legLightTimeCalculators.end( ) )
         {
@@ -859,19 +855,18 @@ std::vector< std::shared_ptr< observation_models::LightTimeCalculatorBase > > re
         if( calculatorIt->second.size( ) != expectedCalculatorsPerLeg )
         {
             throw std::runtime_error( "Error when building light_time dependent variable for " +
-                                      observation_models::getObservableName( observableType, numberOfLinkEnds ) +
-                                      ": expected " + std::to_string( expectedCalculatorsPerLeg ) +
-                                      " cached light-time solution(s) for selected leg (" +
+                                      observation_models::getObservableName( observableType, numberOfLinkEnds ) + ": expected " +
+                                      std::to_string( expectedCalculatorsPerLeg ) + " cached light-time solution(s) for selected leg (" +
                                       observation_models::getLinkEndTypeString( fromType ) + " -> " +
                                       observation_models::getLinkEndTypeString( toType ) + "), but found " +
                                       std::to_string( calculatorIt->second.size( ) ) + "." );
         }
-        const std::shared_ptr< observation_models::LightTimeCalculatorBase >& calculator =
-                calculatorIt->second.at( calculatorIndex );
+        const std::shared_ptr< observation_models::LightTimeCalculatorBase >& calculator = calculatorIt->second.at( calculatorIndex );
         if( calculator == nullptr )
         {
-            throw std::runtime_error( "Error when building light_time dependent variable: null LightTimeCalculator registered for "
-                                      "selected propagation leg." );
+            throw std::runtime_error(
+                    "Error when building light_time dependent variable: null LightTimeCalculator registered for "
+                    "selected propagation leg." );
         }
         selectedCalculators.push_back( calculator );
     }
@@ -1103,8 +1098,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
                                              dependentVariableBookkeeping_->getObservableType( ),
                                              dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_,
                                              legLightTimeCalculators_ );
-        dependentVariableAddFunctions_.push_back(
-                makeLightTimeAddFunction( currentIndex, parameterSize, lightTimeCalculators ) );
+        dependentVariableAddFunctions_.push_back( makeLightTimeAddFunction( currentIndex, parameterSize, lightTimeCalculators ) );
         return;
     }
 

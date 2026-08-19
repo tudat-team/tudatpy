@@ -85,6 +85,7 @@ def test_one_way_light_time_dependent_variable():
 
 
 def test_two_way_light_time_excludes_retransmission_delay():
+    # Two-way range elapsed time includes the spacecraft delay; this variable must not.
     bodies = _create_bodies()
     link_ends = {
         links.transmitter: links.body_reference_point_link_end_id("Earth", "Station1"),
@@ -94,14 +95,20 @@ def test_two_way_light_time_excludes_retransmission_delay():
     link_definition = links.LinkDefinition(link_ends)
     observation_time = 5.0e8 + 1000.0
     retransmission_delay = 1.0e-3
-    uplink_settings = observations_dependent_variables.light_time_between_link_ends_dependent_variable(
-        links.transmitter, links.retransmitter
+    uplink_settings = (
+        observations_dependent_variables.light_time_between_link_ends_dependent_variable(
+            links.transmitter, links.retransmitter
+        )
     )
-    downlink_settings = observations_dependent_variables.light_time_between_link_ends_dependent_variable(
-        links.retransmitter, links.receiver
+    downlink_settings = (
+        observations_dependent_variables.light_time_between_link_ends_dependent_variable(
+            links.retransmitter, links.receiver
+        )
     )
-    combined_settings = observations_dependent_variables.light_time_between_link_ends_dependent_variable(
-        links.transmitter, links.receiver
+    combined_settings = (
+        observations_dependent_variables.light_time_between_link_ends_dependent_variable(
+            links.transmitter, links.receiver
+        )
     )
     epoch_settings = observations_dependent_variables.link_end_epochs_dependent_variable()
 

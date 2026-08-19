@@ -10,11 +10,12 @@ on:
 
 jobs:
   dispacher:
+    if: github.repository == 'tudat-team/tudatpy'
     runs-on: ubuntu-latest
     name: webservices
     steps:
       - name: repository-dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
           repository: tudat-team/.github
