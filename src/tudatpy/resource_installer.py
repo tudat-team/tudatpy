@@ -3,7 +3,7 @@
 import argparse
 import os
 import tarfile
-from importlib import resources
+import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import hashlib
@@ -14,14 +14,10 @@ import requests
 
 from tudatpy.resource_catalog import (
     USER_RESOURCE_CATALOG,
+    USER_RESOURCE_HASHES,
     load_resource_catalog,
     update_resource_catalog,
 )
-
-try:
-    import pooch
-except ImportError:  # pragma: no cover
-    pooch = None
 
 try:
     from tqdm import tqdm
@@ -32,10 +28,23 @@ DEFAULT_DEST = Path(os.environ.get("TUDATPY_RESOURCE_DIR", "~/.tudat/resource"))
 DEFAULT_CACHE = Path(
     os.environ.get("TUDATPY_RESOURCE_CACHE", "~/.cache/tudatpy_resources")
 ).expanduser()
-# Loading the local catalog never makes a network request, so the catalog API
-# remains usable when this module is imported outside the command-line entry
-# point. ``main`` reloads it to honor an explicit ``--catalog`` option.
-RESOURCE_CATALOG: Dict[str, str] = load_resource_catalog()
+# Loading is deferred until after manifest mode has had the opportunity to
+# create the local catalog on a fresh installation.
+RESOURCE_CATALOG: Dict[str, str] = {}
+ISSUE_TRACKER_URL = "https://github.com/tudat-team/tudatpy/issues"
+
+
+class ChecksumMismatchError(RuntimeError):
+    """Raised when a file does not match its expected SHA-256 digest."""
+
+
+class ResourceInstallationError(RuntimeError):
+    """Raised after all resources have been attempted and some have failed."""
+
+    def __init__(self, failures: List[str]):
+        self.failures = failures
+        details = "\n".join(f"- {failure}" for failure in failures)
+        super().__init__(f"Failed to install {len(failures)} resource(s):\n{details}")
 
 
 def _has_progressbar() -> bool:
@@ -58,17 +67,13 @@ def find_in_catalog(search_string: str) -> Dict[str, str]:
     return {key: url for key, url in RESOURCE_CATALOG.items() if search_string in key}
 
 
-def resolve_catalog_keys(
-    keys: Optional[List[str]] = None, search: Optional[str] = None
-) -> Dict[str, str]:
-    """Resolve catalog keys using search string or key matching.
+def resolve_catalog_keys(keys: List[str]) -> Dict[str, str]:
+    """Resolve catalog keys by substring matching.
 
     Parameters
     ----------
     keys:
-        List of catalog keys or partial key strings to match.
-    search:
-        Substring to search for in catalog keys.
+        Substrings to search for in catalog keys.
 
     Returns
     -------
@@ -76,23 +81,8 @@ def resolve_catalog_keys(
         Mapping of matched catalog keys to their URLs.
     """
     resolved: Dict[str, str] = {}
-    if search:
-        resolved.update(find_in_catalog(search))
-
-    if keys:
-        for key in keys:
-            if key in RESOURCE_CATALOG:
-                resolved[key] = RESOURCE_CATALOG[key]
-                continue
-
-            matches = {
-                catalog_key: url
-                for catalog_key, url in RESOURCE_CATALOG.items()
-                if catalog_key.startswith(key) or key in catalog_key
-            }
-            if not matches:
-                raise ValueError(f"No catalog entries match '{key}'")
-            resolved.update(matches)
+    for key in keys:
+        resolved.update(find_in_catalog(key))
 
     return resolved
 
@@ -128,30 +118,40 @@ def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[st
     return regular, tarball_groups
 
 
-def _download_with_requests(url: str, dest_path: Path) -> None:
-    print(f"Downloading {dest_path.name}")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    total = int(response.headers.get("Content-Length", 0))
+def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None:
+    """Download ``url`` atomically, retrying failed transfers."""
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    progress = None
-    if _has_progressbar():
-        progress = tqdm(
-            total=total or None,
-            unit="B",
-            unit_scale=True,
-            desc=f"Downloading {dest_path.name}",
-        )
-    try:
-        with dest_path.open("wb") as fd:
-            for chunk in response.iter_content(chunk_size=32_768):
-                if chunk:
-                    fd.write(chunk)
-                    if progress is not None:
-                        progress.update(len(chunk))
-    finally:
-        if progress is not None:
-            progress.close()
+    temporary_path = dest_path.with_name(f".{dest_path.name}.part")
+
+    for attempt in range(1, retries + 1):
+        print(f"Downloading {dest_path.name} (attempt {attempt}/{retries})")
+        progress = None
+        try:
+            with requests.get(url, stream=True, timeout=30) as response:
+                response.raise_for_status()
+                total = int(response.headers.get("Content-Length", 0))
+                if _has_progressbar():
+                    progress = tqdm(
+                        total=total or None,
+                        unit="B",
+                        unit_scale=True,
+                        desc=f"Downloading {dest_path.name}",
+                    )
+                with temporary_path.open("wb") as fd:
+                    for chunk in response.iter_content(chunk_size=32_768):
+                        if chunk:
+                            fd.write(chunk)
+                            if progress is not None:
+                                progress.update(len(chunk))
+            temporary_path.replace(dest_path)
+            return
+        except (requests.RequestException, OSError):
+            temporary_path.unlink(missing_ok=True)
+            if attempt == retries:
+                raise
+        finally:
+            if progress is not None:
+                progress.close()
 
 
 def _sha256_file(path: Path) -> str:
@@ -163,11 +163,33 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _verify_sha256(path: Path, expected_hash: str) -> None:
-    """Verify a file against an expected SHA256 digest."""
-    got = _sha256_file(path)
-    if got.lower() != expected_hash.lower():
-        raise RuntimeError(f"SHA256 mismatch for {path}: expected {expected_hash}, got {got}")
+def _verify_sha256(path: Path, expected_hash: str) -> bool:
+    """Return whether a file matches its expected SHA-256 digest."""
+    return _sha256_file(path).lower() == expected_hash.lower()
+
+
+def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
+    """Return a diagnostic for a file that failed checksum verification."""
+    return f"SHA256 mismatch for {path}: expected {expected_hash}"
+
+
+def _download_failure_message(
+    paths: List[str], url: str, error: BaseException, cache_path: Optional[Path] = None
+) -> str:
+    """Return an actionable diagnostic for a failed resource download."""
+    file_description = ", ".join(paths)
+    archive_advice = (
+        f"download the tarball manually from the URL above and save it as {cache_path}"
+        if cache_path is not None
+        else "search for and download the Tudat resource tarball containing this file"
+    )
+    return (
+        f"Could not download: {file_description}\n"
+        f"URL: {url}\n"
+        f"Reason: {type(error).__name__}: {error}\n"
+        f"Try a web search for the listed file name(s), or {archive_advice}.\n"
+        f"If the resource is still unavailable, open an issue at {ISSUE_TRACKER_URL}."
+    )
 
 
 def _download_file(
@@ -179,17 +201,12 @@ def _download_file(
             return False
         dest_path.unlink()
 
-    if pooch is not None:
-        pooch.retrieve(url, path=str(dest_path), progressbar=True, retry_if_failed=3)
-    else:
-        _download_with_requests(url, dest_path)
+    _download_with_requests(url, dest_path)
 
+    if expected_hash and not _verify_sha256(dest_path, expected_hash):
+        dest_path.unlink(missing_ok=True)
+        raise ChecksumMismatchError(_checksum_mismatch_message(dest_path, expected_hash))
     if expected_hash:
-        try:
-            _verify_sha256(dest_path, expected_hash)
-        except RuntimeError:
-            dest_path.unlink(missing_ok=True)
-            raise
         print(f"Verified SHA256 for {dest_path}")
     return True
 
@@ -200,22 +217,26 @@ def _download_tarball(
     cache_dir.mkdir(parents=True, exist_ok=True)
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
-        print(f"Using cached archive {tar_path.name}")
-        return tar_path
+        if expected_hash:
+            if not _verify_sha256(tar_path, expected_hash):
+                print(f"Discarding outdated cached archive {tar_path.name}")
+                tar_path.unlink()
+            else:
+                print(f"Using verified cached archive {tar_path.name}")
+                return tar_path
+        else:
+            # A cached archive cannot be considered current without an
+            # authoritative checksum against which to verify it.
+            tar_path.unlink()
     if tar_path.exists():
         tar_path.unlink()
 
-    if pooch is not None:
-        pooch.retrieve(url, path=str(tar_path), progressbar=True, retry_if_failed=3)
-    else:
-        _download_with_requests(url, tar_path)
+    _download_with_requests(url, tar_path)
 
+    if expected_hash and not _verify_sha256(tar_path, expected_hash):
+        tar_path.unlink(missing_ok=True)
+        raise ChecksumMismatchError(_checksum_mismatch_message(tar_path, expected_hash))
     if expected_hash:
-        try:
-            _verify_sha256(tar_path, expected_hash)
-        except RuntimeError:
-            tar_path.unlink(missing_ok=True)
-            raise
         print(f"Verified SHA256 for archive {tar_path.name}")
     return tar_path
 
@@ -242,35 +263,50 @@ def _extract_tarball_members(
     dest_root: Path,
     force: bool = False,
     hashes: Optional[Dict[str, str]] = None,
-) -> int:
+) -> Tuple[int, List[str]]:
     installed = 0
     verified = 0
+    failures: List[str] = []
     print(f"Extracting {len(targets)} resources from {tar_path.name}")
     with tarfile.open(tar_path, mode="r:*") as tar:
         for target in targets:
             dest_path = dest_root / target
             if dest_path.exists() and not force:
                 if hashes and (expected_hash := hashes.get(target)):
-                    _verify_sha256(dest_path, expected_hash)
-                    verified += 1
-                continue
+                    if not _verify_sha256(dest_path, expected_hash):
+                        warning = _checksum_mismatch_message(dest_path, expected_hash)
+                        warnings.warn(warning, RuntimeWarning, stacklevel=2)
+                        dest_path.unlink(missing_ok=True)
+                    else:
+                        verified += 1
+                        continue
+                else:
+                    continue
             dest_path.parent.mkdir(parents=True, exist_ok=True)
-            member = _find_tar_member(tar, target)
-            extracted = tar.extractfile(member)
-            if extracted is None:
-                raise RuntimeError(f"Cannot extract '{member.name}' from {tar_path}")
-            dest_path.write_bytes(extracted.read())
+            try:
+                member = _find_tar_member(tar, target)
+                extracted = tar.extractfile(member)
+                if extracted is None:
+                    raise RuntimeError(f"Cannot extract '{member.name}' from {tar_path}")
+                dest_path.write_bytes(extracted.read())
+            except (KeyError, OSError, RuntimeError, tarfile.TarError) as error:
+                dest_path.unlink(missing_ok=True)
+                failure = f"{target}: {error}"
+                warnings.warn(failure, RuntimeWarning, stacklevel=2)
+                failures.append(failure)
+                continue
             if hashes and (expected_hash := hashes.get(target)):
-                try:
-                    _verify_sha256(dest_path, expected_hash)
-                except RuntimeError:
+                if not _verify_sha256(dest_path, expected_hash):
                     dest_path.unlink(missing_ok=True)
-                    raise
+                    failure = f"{target}: {_checksum_mismatch_message(dest_path, expected_hash)}"
+                    warnings.warn(failure, RuntimeWarning, stacklevel=2)
+                    failures.append(failure)
+                    continue
                 verified += 1
             installed += 1
     if verified:
         print(f"Verified SHA256 for {verified} resources from {tar_path.name}")
-    return installed
+    return installed, failures
 
 
 def install_files(
@@ -288,23 +324,48 @@ def install_files(
 
     regular_files, tarball_groups = _split_tarball_files(files)
     installed = 0
+    failures: List[str] = []
 
     for relative_path, url in regular_files.items():
         target_path = dest_path / relative_path
         expected = None
         if hashes:
             expected = hashes.get(relative_path) or hashes.get(url)
-        if _download_file(url, target_path, force=force, expected_hash=expected):
-            installed += 1
+        try:
+            if _download_file(url, target_path, force=force, expected_hash=expected):
+                installed += 1
+        except (ChecksumMismatchError, requests.RequestException, OSError) as error:
+            failure = _download_failure_message([relative_path], url, error)
+            warnings.warn(failure, RuntimeWarning, stacklevel=2)
+            failures.append(failure)
 
     for tarball_url, targets in tarball_groups.items():
         expected = None
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
-        tar_path = _download_tarball(tarball_url, cache_dir, force=force, expected_hash=expected)
-        installed += _extract_tarball_members(
-            tar_path, targets, dest_path, force=force, hashes=hashes
-        )
+        try:
+            tar_path = _download_tarball(
+                tarball_url, cache_dir, force=force, expected_hash=expected
+            )
+            extracted, extraction_failures = _extract_tarball_members(
+                tar_path, targets, dest_path, force=force, hashes=hashes
+            )
+        except (
+            ChecksumMismatchError,
+            requests.RequestException,
+            OSError,
+            tarfile.TarError,
+        ) as error:
+            cache_path = cache_dir / _tarball_cache_name(tarball_url)
+            failure = _download_failure_message(targets, tarball_url, error, cache_path)
+            warnings.warn(failure, RuntimeWarning, stacklevel=2)
+            failures.append(failure)
+            continue
+        installed += extracted
+        failures.extend(extraction_failures)
+
+    if failures:
+        raise ResourceInstallationError(failures)
 
     return installed
 
@@ -333,34 +394,64 @@ def download_extra_file(
     return dest_path
 
 
-def list_catalog(search: Optional[str] = None) -> None:
-    """Print catalog entries, optionally filtered by search string."""
-    entries = RESOURCE_CATALOG
-    if search:
-        entries = find_in_catalog(search)
+def list_catalog(dest_path: Path, keys: Optional[List[str]] = None) -> None:
+    """Print manifest entries and highlight local files absent from the manifest."""
+    entries = resolve_catalog_keys(keys) if keys else RESOURCE_CATALOG
     for key in sorted(entries):
         print(key)
 
+    if not dest_path.is_dir():
+        return
+
+    local_files = {
+        path.relative_to(dest_path).as_posix() for path in dest_path.rglob("*") if path.is_file()
+    }
+    extra_files = local_files.difference(RESOURCE_CATALOG)
+    if keys:
+        extra_files = {path for path in extra_files if any(key in path for key in keys)}
+    for path in sorted(extra_files):
+        print(f"{path} [not in manifest]")
+
 
 def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
-    """Load a user-supplied hash file or the hash file bundled with TudatPy."""
+    """Load a user-supplied SHA-256 hash file."""
     path = Path(hash_file).expanduser()
     if path.exists():
         return json.loads(path.read_text()), str(path)
-
-    if path.name == hash_file:
-        packaged_hashes = resources.files("tudatpy").joinpath(hash_file)
-        if packaged_hashes.is_file():
-            with packaged_hashes.open(encoding="utf-8") as hash_stream:
-                return json.load(hash_stream), f"package resource {hash_file}"
-
     raise FileNotFoundError(f"Hash file not found: {path}")
+
+
+def _automatic_hash_file(catalog_path: Optional[Path]) -> Optional[Path]:
+    """Return the checksum file associated with the selected local catalog."""
+    if catalog_path is not None:
+        candidate = catalog_path.with_name(USER_RESOURCE_HASHES.name)
+    elif USER_RESOURCE_CATALOG.exists():
+        candidate = USER_RESOURCE_HASHES
+    else:
+        return None
+    return candidate if candidate.exists() else None
 
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command-line arguments for the resource installer."""
     parser = argparse.ArgumentParser(
-        description="Install or update TudatPy common resource files with cache and progress support."
+        description="Install or update TudatPy common resource files with cache and progress support.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""Environment variables:
+  TUDATPY_RESOURCE_DIR
+      Default for --dest (currently: {DEFAULT_DEST}).
+  TUDATPY_RESOURCE_CACHE
+      Default for --cache-dir (currently: {DEFAULT_CACHE}).
+  TUDATPY_RESOURCE_CATALOG
+      Default catalog path when --catalog is omitted
+      (currently: {USER_RESOURCE_CATALOG}).
+  TUDATPY_RESOURCE_HASHES
+      Default checksum path associated with the default catalog
+      (currently: {USER_RESOURCE_HASHES}).
+
+Command-line options override their corresponding environment-variable defaults.
+With --mode manifest and an explicit --catalog, the checksum file is written beside
+the selected catalog.""",
     )
     parser.add_argument(
         "--mode",
@@ -368,23 +459,24 @@ def parse_arguments() -> argparse.Namespace:
         default="missing",
         help=(
             "scratch=overwrite all; missing=download only missing; update=selected subset; "
-            "extra=download one extra URL; list=show the local catalog; "
+            "extra=download one extra URL; list=show the local catalog and unlisted files; "
             "manifest=refresh the local catalog from Zenodo manifests."
         ),
     )
     parser.add_argument(
-        "--dest", default=str(DEFAULT_DEST), help="Destination root for resource files."
+        "--dest",
+        default=str(DEFAULT_DEST),
+        help="Destination root for resource files (env: TUDATPY_RESOURCE_DIR).",
     )
     parser.add_argument(
         "--cache-dir",
         default=str(DEFAULT_CACHE),
-        help="Cache directory for downloads and tarballs.",
+        help="Cache directory for downloads and tarballs (env: TUDATPY_RESOURCE_CACHE).",
     )
     parser.add_argument(
-        "--files", nargs="+", help="Exact catalog keys or prefixes for update mode."
-    )
-    parser.add_argument(
-        "--search", help="Substring search to select catalog files for update or list."
+        "--files",
+        nargs="+",
+        help="Substrings selecting catalog resources for update or list mode.",
     )
     parser.add_argument("--extra-url", help="URL of an extra file to download in extra mode.")
     parser.add_argument(
@@ -392,17 +484,17 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--force", action="store_true", help="Overwrite existing files.")
     parser.add_argument(
-        "--list-search", help="Search string to filter catalog output in list mode."
-    )
-    parser.add_argument(
         "--hash-file",
-        help="Path to a JSON file mapping catalog keys or URLs to SHA256 hex digests.",
+        help=(
+            "Explicit JSON checksum file, overriding the automatically selected "
+            "TUDATPY_RESOURCE_HASHES path."
+        ),
     )
     parser.add_argument(
         "--catalog",
         help=(
             "Path to a resource catalog. With --mode manifest, this is the output path; "
-            "otherwise it overrides the user or packaged catalog."
+            "otherwise it overrides TUDATPY_RESOURCE_CATALOG."
         ),
     )
     return parser.parse_args()
@@ -416,8 +508,16 @@ def main() -> None:
 
     if args.mode == "manifest":
         output_path = catalog_path or USER_RESOURCE_CATALOG
-        updated = update_resource_catalog(output_path)
-        print(f"Updated {output_path} with {updated} resources from Zenodo manifests")
+        hash_path = (
+            output_path.with_name(USER_RESOURCE_HASHES.name)
+            if catalog_path is not None
+            else USER_RESOURCE_HASHES
+        )
+        updated = update_resource_catalog(output_path, hash_path)
+        print(
+            f"Updated {output_path} with {updated} resources and wrote SHA256 hashes "
+            f"to {hash_path}"
+        )
         return
 
     RESOURCE_CATALOG = load_resource_catalog(catalog_path)
@@ -427,9 +527,12 @@ def main() -> None:
     if getattr(args, "hash_file", None):
         hash_map, hash_source = _load_hash_file(args.hash_file)
         print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
+    elif automatic_hash_file := _automatic_hash_file(catalog_path):
+        hash_map, hash_source = _load_hash_file(str(automatic_hash_file))
+        print(f"Loaded {len(hash_map)} SHA256 hashes from {hash_source}")
 
     if args.mode == "list":
-        list_catalog(args.list_search or args.search)
+        list_catalog(dest_path, args.files)
         return
 
     if args.mode == "scratch":
@@ -447,9 +550,9 @@ def main() -> None:
         return
 
     if args.mode == "update":
-        if not args.files and not args.search:
-            raise ValueError("Update mode requires --files or --search.")
-        files = resolve_catalog_keys(args.files, args.search)
+        if not args.files:
+            raise ValueError("Update mode requires --files.")
+        files = resolve_catalog_keys(args.files)
         installed = install_files(files, dest_path, cache_dir, force=True, hashes=hash_map)
         print(f"Updated {installed} selected resources to {dest_path}")
         return
