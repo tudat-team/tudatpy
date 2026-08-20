@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangeResidualConversion )
     ancillarySettings->setAncillaryDoubleData( range_conversion_factor, rangeConversionFactor );
 
     const std::vector< double > residuals = { 2.0, -4.0, 0.5 };
-    auto observationSet = makeObservationSet(
-            dsn_n_way_range, getNWayLinkDefinition( "DSS-14" ), { 10.0, 11.0, 12.0 }, residuals, ancillarySettings );
+    auto observationSet =
+            makeObservationSet( dsn_n_way_range, getNWayLinkDefinition( "DSS-14" ), { 10.0, 11.0, 12.0 }, residuals, ancillarySettings );
 
     BOOST_CHECK_CLOSE_FRACTION( observationSet->getResidualStateSpaceConversionFactor( ), rangeConversionFactor, 1.0e-15 );
 
@@ -130,8 +130,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangeResidualConversion )
 BOOST_AUTO_TEST_CASE( testDsnNWayRangeMissingConversionFactor )
 {
     auto ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
-    auto observationSet =
-            makeObservationSet( dsn_n_way_range, getNWayLinkDefinition( "DSS-14" ), { 10.0 }, { 1.0 }, ancillarySettings );
+    auto observationSet = makeObservationSet( dsn_n_way_range, getNWayLinkDefinition( "DSS-14" ), { 10.0 }, { 1.0 }, ancillarySettings );
     BOOST_CHECK_THROW( observationSet->getResidualStateSpaceConversionFactor( ), std::runtime_error );
     BOOST_CHECK_THROW( ( computeResidualStateSpaceConversionFactor( dsn_n_way_range, ancillarySettings ) ), std::runtime_error );
 }
@@ -142,18 +141,14 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerResidualConversion )
     auto ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings( { x_band, x_band }, x_band, referenceFrequency, 60.0 );
 
     const double turnaroundRatio = getDsnDefaultTurnaroundRatios( x_band, x_band );
-    const double expectedFactor =
-            physical_constants::SPEED_OF_LIGHT / ( 2.0 * turnaroundRatio * referenceFrequency );
+    const double expectedFactor = physical_constants::SPEED_OF_LIGHT / ( 2.0 * turnaroundRatio * referenceFrequency );
 
     BOOST_CHECK_CLOSE_FRACTION(
             ( computeResidualStateSpaceConversionFactor( dsn_n_way_averaged_doppler, ancillarySettings ) ), expectedFactor, 1.0e-14 );
 
     const std::vector< double > residuals = { 0.25, -1.5 };
-    auto observationSet = makeObservationSet( dsn_n_way_averaged_doppler,
-                                              getNWayLinkDefinition( "DSS-14" ),
-                                              { 8.4e9, 8.4e9 },
-                                              residuals,
-                                              ancillarySettings );
+    auto observationSet = makeObservationSet(
+            dsn_n_way_averaged_doppler, getNWayLinkDefinition( "DSS-14" ), { 8.4e9, 8.4e9 }, residuals, ancillarySettings );
 
     BOOST_CHECK_CLOSE_FRACTION( observationSet->getResidualStateSpaceConversionFactor( ), expectedFactor, 1.0e-14 );
     const Eigen::VectorXd convertedResiduals = observationSet->getResidualsInStateSpaceVector( );
@@ -181,14 +176,12 @@ BOOST_AUTO_TEST_CASE( testOneWayMeasuredFrequencyResidualConversion )
     ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceCarrierFrequency );
 
     const double expectedFactor = physical_constants::SPEED_OF_LIGHT / referenceCarrierFrequency;
-    BOOST_CHECK_CLOSE_FRACTION(
-            ( computeResidualStateSpaceConversionFactor( one_way_doppler_measured_frequency, ancillarySettings ) ), expectedFactor, 1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( ( computeResidualStateSpaceConversionFactor( one_way_doppler_measured_frequency, ancillarySettings ) ),
+                                expectedFactor,
+                                1.0e-14 );
 
-    auto observationSet = makeObservationSet( one_way_doppler_measured_frequency,
-                                              getOneWayLinkDefinition( "DSS-14" ),
-                                              { 8.4e9 },
-                                              { -3.0 },
-                                              ancillarySettings );
+    auto observationSet = makeObservationSet(
+            one_way_doppler_measured_frequency, getOneWayLinkDefinition( "DSS-14" ), { 8.4e9 }, { -3.0 }, ancillarySettings );
     BOOST_CHECK_CLOSE_FRACTION( observationSet->getResidualsInStateSpaceVector( )( 0 ), -3.0 * expectedFactor, 1.0e-14 );
 }
 
@@ -196,8 +189,8 @@ BOOST_AUTO_TEST_CASE( testMeasuredFrequencySetLevelConversion )
 {
     const double referenceFrequency = 7.2e9;
     auto ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings( { x_band, x_band }, x_band, referenceFrequency, 60.0 );
-    const double expectedFactor = physical_constants::SPEED_OF_LIGHT /
-            ( 2.0 * getDsnDefaultTurnaroundRatios( x_band, x_band ) * referenceFrequency );
+    const double expectedFactor =
+            physical_constants::SPEED_OF_LIGHT / ( 2.0 * getDsnDefaultTurnaroundRatios( x_band, x_band ) * referenceFrequency );
 
     BOOST_CHECK_CLOSE_FRACTION(
             ( computeResidualStateSpaceConversionFactor( doppler_measured_frequency, ancillarySettings ) ), expectedFactor, 1.0e-14 );
@@ -232,14 +225,10 @@ BOOST_AUTO_TEST_CASE( testCollectionParserOrderAndUnsupportedRejection )
 
     auto rangeSet = makeObservationSet(
             dsn_n_way_range, getNWayLinkDefinition( "DSS-14" ), { 1.0, 2.0 }, { 4.0, 5.0 }, rangeAncillarySettings, { 10.0, 11.0 } );
-    auto dopplerSet = makeObservationSet( dsn_n_way_averaged_doppler,
-                                          getNWayLinkDefinition( "DSS-15" ),
-                                          { 8.4e9 },
-                                          { -0.5 },
-                                          dopplerAncillarySettings,
-                                          { 20.0 } );
-    auto unsupportedSet = makeObservationSet(
-            one_way_doppler, getOneWayLinkDefinition( "DSS-16" ), { 0.1 }, { 0.3 }, emptyAncillarySettings, { 30.0 } );
+    auto dopplerSet = makeObservationSet(
+            dsn_n_way_averaged_doppler, getNWayLinkDefinition( "DSS-15" ), { 8.4e9 }, { -0.5 }, dopplerAncillarySettings, { 20.0 } );
+    auto unsupportedSet =
+            makeObservationSet( one_way_doppler, getOneWayLinkDefinition( "DSS-16" ), { 0.1 }, { 0.3 }, emptyAncillarySettings, { 30.0 } );
 
     std::vector< std::shared_ptr< SingleObservationSet< double, double > > > supportedSets = { rangeSet, dopplerSet };
     ObservationCollection< double, double > supportedCollection( supportedSets );

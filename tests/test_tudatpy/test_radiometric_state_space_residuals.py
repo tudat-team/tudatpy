@@ -58,7 +58,9 @@ def test_dsn_n_way_range_residuals_in_state_space():
     )
     observation_set.set_residuals(residuals)
 
-    assert observation_set.residual_state_space_conversion_factor == pytest.approx(range_conversion_factor)
+    assert observation_set.residual_state_space_conversion_factor == pytest.approx(
+        range_conversion_factor
+    )
     np.testing.assert_allclose(
         observation_set.concatenated_residuals_in_state_space,
         residuals * range_conversion_factor,
@@ -74,7 +76,9 @@ def test_dsn_n_way_averaged_doppler_residuals_in_state_space():
         60.0,
     )
     expected_factor = SPEED_OF_LIGHT / (
-        2.0 * dsn_default_turnaround_ratios(FrequencyBands.x_band, FrequencyBands.x_band) * reference_frequency
+        2.0
+        * dsn_default_turnaround_ratios(FrequencyBands.x_band, FrequencyBands.x_band)
+        * reference_frequency
     )
 
     residuals = np.array([0.25, -1.5])
@@ -113,7 +117,9 @@ def test_one_way_doppler_conversion_is_rejected():
 
 def test_collection_parser_order_and_unsupported_rejection():
     range_ancillary_settings = ObservationAncillarySimulationSettings()
-    range_ancillary_settings.set_float_settings(ObservationAncillarySimulationVariable.range_conversion_factor, 2.0)
+    range_ancillary_settings.set_float_settings(
+        ObservationAncillarySimulationVariable.range_conversion_factor, 2.0
+    )
     doppler_ancillary_settings = dsn_n_way_doppler_ancillary_settings(
         [FrequencyBands.x_band, FrequencyBands.x_band],
         FrequencyBands.x_band,
@@ -158,8 +164,12 @@ def test_collection_parser_order_and_unsupported_rejection():
 
     assert len(converted_blocks) == len(native_blocks)
     expected = []
-    for native_block, observation_set in zip(native_blocks, supported_collection.get_single_observation_sets()):
-        expected.append(np.ravel(native_block) * observation_set.residual_state_space_conversion_factor)
+    for native_block, observation_set in zip(
+        native_blocks, supported_collection.get_single_observation_sets()
+    ):
+        expected.append(
+            np.ravel(native_block) * observation_set.residual_state_space_conversion_factor
+        )
     np.testing.assert_allclose(np.ravel(converted_residuals), np.concatenate(expected))
     np.testing.assert_equal(np.ravel(native_residuals).shape, np.ravel(converted_residuals).shape)
 

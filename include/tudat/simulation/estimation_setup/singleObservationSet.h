@@ -583,8 +583,7 @@ public:
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResidualsInStateSpace( ) const
     {
-        const ObservationScalarType conversionFactor =
-                static_cast< ObservationScalarType >( getResidualStateSpaceConversionFactor( ) );
+        const ObservationScalarType conversionFactor = static_cast< ObservationScalarType >( getResidualStateSpaceConversionFactor( ) );
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > convertedResiduals = residuals_;
         for( unsigned int i = 0; i < convertedResiduals.size( ); i++ )
         {

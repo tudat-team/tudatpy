@@ -52,9 +52,8 @@ inline std::string getUnsupportedResidualStateSpaceConversionMessage( const Obse
             "doppler_measured_frequency, and one_way_doppler_measured_frequency.";
 }
 
-inline double computeDopplerResidualStateSpaceConversionFactorFromReferenceCarrierFrequency(
-        const double downlinkReferenceCarrierFrequency,
-        const unsigned int numberOfWayFactors )
+inline double computeDopplerResidualStateSpaceConversionFactorFromReferenceCarrierFrequency( const double downlinkReferenceCarrierFrequency,
+                                                                                             const unsigned int numberOfWayFactors )
 {
     if( numberOfWayFactors != 1 && numberOfWayFactors != 2 )
     {
