@@ -332,13 +332,15 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
-    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    void setDefaultLinkEndDelayFunctions(
+            const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions,
+            const std::vector< std::function< bool( ) > >& defaultLinkEndDelayOverrideFlags = std::vector< std::function< bool( ) > >( ) )
     {
         for( auto lightTimeCalculator : lightTimeCalculators_ )
         {
             if( lightTimeCalculator != nullptr )
             {
-                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions, defaultLinkEndDelayOverrideFlags );
             }
         }
     }

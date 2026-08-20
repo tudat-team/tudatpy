@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <map>
 #include <numeric>
+#include <string>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -908,57 +909,102 @@ public:
     void resetLinkEndDelays( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
                              const bool performFullComputation = true )
     {
-        linkEndsDelays_.clear( );
+        std::vector< double > ancillaryDelays;
+        std::vector< double > delaySources;
         if( ancillarySettings != nullptr )
         {
-            linkEndsDelays_ = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
+            ancillaryDelays = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
+            delaySources = ancillarySettings->getLinkEndDelaySources( );
         }
 
-        if( !linkEndsDelays_.empty( ) )
+        completeLinkEndDelayVector( ancillaryDelays, "retransmission delays" );
+        if( !delaySources.empty( ) )
         {
-            if( hasDefaultLinkEndDelayFunctions_ && !ancillaryDelayOverrideWarningPrinted_ )
-            {
-                std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
-                             "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
-                             "This warning is printed only once for this light-time calculator."
-                          << std::endl;
-                ancillaryDelayOverrideWarningPrinted_ = true;
-            }
+            completeLinkEndDelayVector( delaySources, "link-end delay sources" );
+        }
 
-            // Delays vector not including delays at receiving and transmitting stations: set them to 0
-            if( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
-            {
-                linkEndsDelays_.insert( linkEndsDelays_.begin( ), 0.0 );
-                linkEndsDelays_.push_back( 0.0 );
-            }
-            else if( linkEndsDelays_.size( ) != numberOfLinkEnds_ )
-            {
-                throw std::runtime_error( "Error when computing multi-leg light time: size of retransmission delays (" +
-                                          std::to_string( linkEndsDelays_.size( ) ) + ") is invalid, should be " +
-                                          std::to_string( numberOfLinkEnds_ ) + " or " + std::to_string( numberOfLinkEnds_ - 2 ) + "." );
-            }
+        const bool hasAncillaryDelays = !ancillaryDelays.empty( );
+        if( hasAncillaryDelays )
+        {
+            linkEndsDelays_ = ancillaryDelays;
         }
         else
         {
-            if( hasDefaultLinkEndDelayFunctions_ )
+            linkEndsDelays_.assign( numberOfLinkEnds_, 0.0 );
+        }
+
+        bool ignoredDefaultDueToAncillary = false;
+        if( hasDefaultLinkEndDelayFunctions_ )
+        {
+            for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
             {
-                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+                const bool hasDefaultFunction =
+                        ( i < defaultLinkEndDelayFunctions_.size( ) && defaultLinkEndDelayFunctions_.at( i ) != nullptr );
+                const bool vehicleSystemsDelayRequested = !delaySources.empty( ) && delaySources.at( i ) != 0.0;
+
+                if( !hasDefaultFunction )
                 {
-                    linkEndsDelays_.push_back(
-                            defaultLinkEndDelayFunctions_.at( i ) == nullptr ? 0.0 : defaultLinkEndDelayFunctions_.at( i )( ) );
+                    if( vehicleSystemsDelayRequested )
+                    {
+                        throw std::runtime_error(
+                                "Error when computing observation: vehicle-systems transponder delay was selected for link end index " +
+                                std::to_string( i ) +
+                                ", but no default transponder delay function is defined for that link end. Set the transponder delay on "
+                                "the spacecraft VehicleSystems before creating the observation model." );
+                    }
+                    continue;
                 }
-            }
-            else
-            {
-                for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+
+                bool useDefaultDelay = !hasAncillaryDelays;
+                if( hasAncillaryDelays )
                 {
-                    linkEndsDelays_.push_back( 0.0 );
+                    if( !delaySources.empty( ) )
+                    {
+                        useDefaultDelay = vehicleSystemsDelayRequested;
+                    }
+                    else if( i < defaultLinkEndDelayOverrideFlags_.size( ) && defaultLinkEndDelayOverrideFlags_.at( i ) != nullptr )
+                    {
+                        useDefaultDelay = defaultLinkEndDelayOverrideFlags_.at( i )( );
+                    }
+                }
+
+                if( useDefaultDelay )
+                {
+                    linkEndsDelays_.at( i ) = defaultLinkEndDelayFunctions_.at( i )( );
+                }
+                else
+                {
+                    ignoredDefaultDueToAncillary = true;
                 }
             }
         }
+        else if( !delaySources.empty( ) )
+        {
+            for( unsigned int i = 0; i < delaySources.size( ); i++ )
+            {
+                if( delaySources.at( i ) != 0.0 )
+                {
+                    throw std::runtime_error(
+                            "Error when computing observation: vehicle-systems transponder delay was selected, but no default transponder "
+                            "delay functions are present in the observation model. Set the transponder delay on the spacecraft "
+                            "VehicleSystems before creating the observation model." );
+                }
+            }
+        }
+
+        if( hasAncillaryDelays && ignoredDefaultDueToAncillary && !ancillaryDelayOverrideWarningPrinted_ )
+        {
+            std::cerr << "Warning when computing observation: transponder delay functions are present in the observation model, "
+                         "but retransmission delays are provided through ancillary settings. The ancillary settings will be used. "
+                         "This warning is printed only once for this light-time calculator."
+                      << std::endl;
+            ancillaryDelayOverrideWarningPrinted_ = true;
+        }
     }
 
-    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    void setDefaultLinkEndDelayFunctions(
+            const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions,
+            const std::vector< std::function< bool( ) > >& defaultLinkEndDelayOverrideFlags = std::vector< std::function< bool( ) > >( ) )
     {
         if( !defaultLinkEndDelayFunctions.empty( ) && defaultLinkEndDelayFunctions.size( ) != numberOfLinkEnds_ )
         {
@@ -966,7 +1012,14 @@ public:
                                       std::to_string( defaultLinkEndDelayFunctions.size( ) ) +
                                       ") is inconsistent with number of link ends (" + std::to_string( numberOfLinkEnds_ ) + ")." );
         }
+        if( !defaultLinkEndDelayOverrideFlags.empty( ) && defaultLinkEndDelayOverrideFlags.size( ) != numberOfLinkEnds_ )
+        {
+            throw std::runtime_error( "Error when setting default link-end delay override flags: size (" +
+                                      std::to_string( defaultLinkEndDelayOverrideFlags.size( ) ) +
+                                      ") is inconsistent with number of link ends (" + std::to_string( numberOfLinkEnds_ ) + ")." );
+        }
         defaultLinkEndDelayFunctions_ = defaultLinkEndDelayFunctions;
+        defaultLinkEndDelayOverrideFlags_ = defaultLinkEndDelayOverrideFlags;
         hasDefaultLinkEndDelayFunctions_ = false;
         for( const auto& defaultLinkEndDelayFunction : defaultLinkEndDelayFunctions_ )
         {
@@ -1180,6 +1233,25 @@ public:
     }
 
 private:
+    void completeLinkEndDelayVector( std::vector< double >& delays, const std::string& vectorName ) const
+    {
+        if( delays.empty( ) )
+        {
+            return;
+        }
+        if( delays.size( ) == numberOfLinkEnds_ - 2 )
+        {
+            delays.insert( delays.begin( ), 0.0 );
+            delays.push_back( 0.0 );
+        }
+        else if( delays.size( ) != numberOfLinkEnds_ )
+        {
+            throw std::runtime_error( "Error when computing multi-leg light time: size of " + vectorName + " (" +
+                                      std::to_string( delays.size( ) ) + ") is invalid, should be " + std::to_string( numberOfLinkEnds_ ) +
+                                      " or " + std::to_string( numberOfLinkEnds_ - 2 ) + "." );
+        }
+    }
+
     void initializeFullLinkLightTimeCalculator( )
     {
         correctionsNeedFrequency_ = false;
@@ -1271,6 +1343,8 @@ private:
     std::vector< double > linkEndsDelays_;
 
     std::vector< std::function< double( ) > > defaultLinkEndDelayFunctions_;
+
+    std::vector< std::function< bool( ) > > defaultLinkEndDelayOverrideFlags_;
 
     bool hasDefaultLinkEndDelayFunctions_;
 

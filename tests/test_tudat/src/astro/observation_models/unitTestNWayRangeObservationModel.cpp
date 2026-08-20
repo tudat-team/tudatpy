@@ -923,6 +923,195 @@ BOOST_AUTO_TEST_CASE( testDeprecatedObservationCollectionTransponderDelay )
     BOOST_CHECK_EQUAL( moonLinkEndDelays.at( 1 ), originalMoonDelay );
 }
 
+BOOST_AUTO_TEST_CASE( testVehicleSystemTransponderDelayOverrideOfAncillarySettings )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Moon" };
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    createGroundStation( bodies.at( "Earth" ),
+                         "EarthStation",
+                         ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
+                         ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+    twoWayLinkEnds[ retransmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+    twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+
+    const double vehicleSystemDelay = 7.0E-6;
+    const double uplinkDelay = 4.0E-6;
+    const double fileTransponderDelay = 2.0E-6;
+    const double downlinkDelay = 3.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( vehicleSystemDelay );
+
+    std::shared_ptr< ObservationModelSettings > twoWayObservableSettings = twoWayRangeSimple( twoWayLinkEnds );
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettings, bodies );
+
+    const double observationTime = 1.0E5;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    std::shared_ptr< ObservationAncillarySimulationSettings > fileAncillarySettings =
+            getNWayRangeAncillarySettings( { uplinkDelay, fileTransponderDelay, downlinkDelay } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > hybridAncillarySettings =
+            getNWayRangeAncillarySettings( { uplinkDelay, vehicleSystemDelay, downlinkDelay } );
+
+    const Eigen::VectorXd fileDelayObservation = observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, fileAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - fileTransponderDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    const Eigen::VectorXd hybridDelayObservation = observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, hybridAncillarySettings );
+
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelayOverridesAncillarySettings( true );
+    const Eigen::VectorXd overriddenObservation = observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, fileAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( overriddenObservation( 0 ), hybridDelayObservation( 0 ), 1.0E-12 );
+    BOOST_CHECK_GT( std::fabs( overriddenObservation( 0 ) - fileDelayObservation( 0 ) ),
+                    0.5 * physical_constants::SPEED_OF_LIGHT * ( vehicleSystemDelay - fileTransponderDelay ) );
+
+    std::vector< double > storedFileDelays = fileAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+    BOOST_CHECK_EQUAL( storedFileDelays.at( 0 ), uplinkDelay );
+    BOOST_CHECK_EQUAL( storedFileDelays.at( 1 ), fileTransponderDelay );
+    BOOST_CHECK_EQUAL( storedFileDelays.at( 2 ), downlinkDelay );
+
+    LinkEnds nWayLinkEnds;
+    nWayLinkEnds[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    nWayLinkEnds[ retransmitter ] = LinkEndId( "Mars", "MarsStation" );
+    nWayLinkEnds[ retransmitter2 ] = LinkEndId( "Moon" );
+    nWayLinkEnds[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    const double marsVehicleDelay = 5.0E-6;
+    const double moonVehicleDelay = 8.0E-6;
+    const double ancillaryMarsDelay = 1.0E-6;
+    const double ancillaryMoonDelay = 3.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( marsVehicleDelay );
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelayOverridesAncillarySettings( true );
+    bodies.at( "Moon" )->getVehicleSystems( )->setTransponderDelay( moonVehicleDelay );
+    bodies.at( "Moon" )->getVehicleSystems( )->setTransponderDelayOverridesAncillarySettings( false );
+
+    std::shared_ptr< ObservationModel< 1, double, double > > nWayObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( nWayRangeSimple( nWayLinkEnds ), bodies );
+    nWayObservationModel->computeIdealObservationsWithLinkEndData(
+            observationTime,
+            receiver,
+            linkEndTimes,
+            linkEndStates,
+            getNWayRangeAncillarySettings( { uplinkDelay, ancillaryMarsDelay, ancillaryMoonDelay, downlinkDelay } ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsVehicleDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - ancillaryMoonDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+}
+
+BOOST_AUTO_TEST_CASE( testObservationCollectionTransponderDelaySourceSelection )
+{
+    LinkEnds marsLinkEnds;
+    marsLinkEnds[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    marsLinkEnds[ retransmitter ] = LinkEndId( "Mars", "MarsStation" );
+    marsLinkEnds[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    LinkEnds moonLinkEnds;
+    moonLinkEnds[ transmitter ] = LinkEndId( "Earth", "EarthStation" );
+    moonLinkEnds[ retransmitter ] = LinkEndId( "Moon", "MoonStation" );
+    moonLinkEnds[ receiver ] = LinkEndId( "Earth", "EarthStation" );
+
+    Eigen::VectorXd observationValue = Eigen::VectorXd::Zero( 1 );
+    std::vector< Eigen::VectorXd > observations = { observationValue };
+    std::vector< double > observationTimes = { 1.0E5 };
+
+    const double uplinkDelay = 4.0E-6;
+    const double marsFileDelay = 1.0E-6;
+    const double moonFileDelay = 3.0E-6;
+    const double downlinkDelay = 2.0E-6;
+
+    std::shared_ptr< ObservationAncillarySimulationSettings > marsAncillarySettings =
+            getNWayRangeAncillarySettings( { uplinkDelay, marsFileDelay, downlinkDelay } );
+    std::shared_ptr< ObservationAncillarySimulationSettings > moonAncillarySettings =
+            getNWayRangeAncillarySettings( { uplinkDelay, moonFileDelay, downlinkDelay } );
+
+    std::shared_ptr< SingleObservationSet< double, double > > marsObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( marsLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        marsAncillarySettings );
+    std::shared_ptr< SingleObservationSet< double, double > > moonObservationSet =
+            std::make_shared< SingleObservationSet< double, double > >( n_way_range,
+                                                                        LinkDefinition( moonLinkEnds ),
+                                                                        observations,
+                                                                        observationTimes,
+                                                                        receiver,
+                                                                        std::vector< Eigen::VectorXd >( ),
+                                                                        nullptr,
+                                                                        moonAncillarySettings );
+
+    ObservationCollection< double, double > observationCollection(
+            std::vector< std::shared_ptr< SingleObservationSet< double, double > > >{ marsObservationSet, moonObservationSet } );
+    observationCollection.setTransponderDelayOverridesAncillarySettings( "Mars", true );
+
+    std::vector< double > marsDelaySources = marsAncillarySettings->getLinkEndDelaySources( );
+    std::vector< double > moonDelaySources = moonAncillarySettings->getLinkEndDelaySources( );
+    std::vector< double > marsLinkEndDelays = marsAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+    std::vector< double > moonLinkEndDelays = moonAncillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+
+    BOOST_CHECK_EQUAL( marsDelaySources.size( ), 3 );
+    BOOST_CHECK_EQUAL( marsDelaySources.at( 0 ), static_cast< double >( ancillary_settings_delay_source ) );
+    BOOST_CHECK_EQUAL( marsDelaySources.at( 1 ), static_cast< double >( vehicle_systems_delay_source ) );
+    BOOST_CHECK_EQUAL( marsDelaySources.at( 2 ), static_cast< double >( ancillary_settings_delay_source ) );
+    BOOST_CHECK( moonDelaySources.empty( ) || moonDelaySources.at( 1 ) == static_cast< double >( ancillary_settings_delay_source ) );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 0 ), uplinkDelay );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 1 ), marsFileDelay );
+    BOOST_CHECK_EQUAL( marsLinkEndDelays.at( 2 ), downlinkDelay );
+    BOOST_CHECK_EQUAL( moonLinkEndDelays.at( 1 ), moonFileDelay );
+
+    spice_interface::loadStandardSpiceKernels( );
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+    createGroundStation( bodies.at( "Earth" ),
+                         "EarthStation",
+                         ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
+                         ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    const double marsVehicleDelay = 7.0E-6;
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransponderDelay( marsVehicleDelay );
+
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( twoWayRangeSimple( marsLinkEnds ), bodies );
+
+    const double observationTime = 1.0E5;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, marsAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsVehicleDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    observationCollection.setTransponderDelayOverridesAncillarySettings( "Mars", false );
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, marsAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsFileDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

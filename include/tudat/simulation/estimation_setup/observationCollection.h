@@ -2017,8 +2017,10 @@ public:
                      "observation model, for example in Python: "
                      "`bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay`. In C++, call "
                      "`bodies.at(spacecraftName)->getVehicleSystems()->setTransponderDelay(transponderDelay)` before creating the "
-                     "observation model. This deprecated ObservationCollection function is kept for backward compatibility only and "
-                     "will be removed in a future major release."
+                     "observation model. If ancillary link-end delays are already present, use "
+                     "set_transponder_delay_overrides_ancillary_settings(...) so that the vehicle-systems transponder delay is used "
+                     "for that spacecraft. This deprecated ObservationCollection function is kept for backward compatibility only "
+                     "and will be removed in a future major release."
                   << std::endl;
 
         // Create observation parser with the spacecraft name
@@ -2052,6 +2054,72 @@ public:
                 linkEndsDelays[ 1 ] = transponderDelay;
                 ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
             }
+        }
+    }
+
+    void setTransponderDelayOverridesAncillarySettings( const std::string& spacecraftName,
+                                                        const bool overridesAncillarySettings = true,
+                                                        const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
+                                                                std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::shared_ptr< ObservationCollectionParser > spacecraftParser = observationParser( spacecraftName );
+        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
+                std::vector< std::shared_ptr< ObservationCollectionParser > >( { spacecraftParser, inputObservationParser } ), true );
+
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
+                getSingleObservationSets( jointParser );
+
+        bool foundRetransmitter = false;
+        for( auto set : singleSets )
+        {
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = set->getAncillarySettings( );
+            if( ancillarySettings == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when selecting vehicle-systems transponder delay: the selected observation set has no ancillary "
+                        "settings. Set the transponder delay on the spacecraft VehicleSystems before creating the observation model "
+                        "if no link-end delays are stored with the observations." );
+            }
+
+            const LinkEnds linkEnds = set->getLinkEnds( ).linkEnds_;
+            const unsigned int numberOfLinkEnds = static_cast< unsigned int >( linkEnds.size( ) );
+            std::vector< double > delaySources = ancillarySettings->getLinkEndDelaySources( );
+            if( delaySources.empty( ) )
+            {
+                delaySources.assign( numberOfLinkEnds, static_cast< double >( ancillary_settings_delay_source ) );
+            }
+            else if( delaySources.size( ) == numberOfLinkEnds - 2 )
+            {
+                delaySources.insert( delaySources.begin( ), static_cast< double >( ancillary_settings_delay_source ) );
+                delaySources.push_back( static_cast< double >( ancillary_settings_delay_source ) );
+            }
+            else if( delaySources.size( ) != numberOfLinkEnds )
+            {
+                throw std::runtime_error( "Error when selecting vehicle-systems transponder delay: size of link-end delay sources (" +
+                                          std::to_string( delaySources.size( ) ) + ") is invalid, should be " +
+                                          std::to_string( numberOfLinkEnds ) + " or " + std::to_string( numberOfLinkEnds - 2 ) + "." );
+            }
+
+            const double selectedSource =
+                    static_cast< double >( overridesAncillarySettings ? vehicle_systems_delay_source : ancillary_settings_delay_source );
+            for( const auto& linkEnd : linkEnds )
+            {
+                const int linkEndIndex = getNWayLinkIndexFromLinkEndType( linkEnd.first, static_cast< int >( numberOfLinkEnds ) );
+                if( linkEnd.second.bodyName_ == spacecraftName && linkEndIndex > 0 &&
+                    linkEndIndex < static_cast< int >( numberOfLinkEnds ) - 1 )
+                {
+                    delaySources.at( static_cast< unsigned int >( linkEndIndex ) ) = selectedSource;
+                    foundRetransmitter = true;
+                }
+            }
+
+            ancillarySettings->setLinkEndDelaySources( delaySources );
+        }
+
+        if( !foundRetransmitter )
+        {
+            throw std::runtime_error( "Error when selecting vehicle-systems transponder delay: no retransmitter link end with body name " +
+                                      spacecraftName + " was found in the selected observation sets." );
         }
     }
 

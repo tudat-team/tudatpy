@@ -41,6 +41,9 @@ enum ObservationAncillarySimulationVariable {
     range_conversion_factor,
 };
 
+//! Source of a link-end delay when both ancillary settings and vehicle-system delays are available.
+enum LinkEndDelaySource { ancillary_settings_delay_source = 0, vehicle_systems_delay_source = 1 };
+
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
 
 struct ObservationAncillarySimulationSettings {
@@ -248,7 +251,18 @@ public:
 
     bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
+        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_ &&
+                linkEndDelaySources_ == rightSettings.linkEndDelaySources_;
+    }
+
+    void setLinkEndDelaySources( const std::vector< double >& linkEndDelaySources )
+    {
+        linkEndDelaySources_ = linkEndDelaySources;
+    }
+
+    std::vector< double > getLinkEndDelaySources( ) const
+    {
+        return linkEndDelaySources_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
@@ -266,6 +280,8 @@ protected:
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
+    std::vector< double > linkEndDelaySources_;
 };
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )

@@ -212,6 +212,7 @@ void setDefaultTransponderDelayFunctions(
 
     LinkEnds linkEnds = observationModel->getLinkEnds( );
     std::vector< std::function< double( ) > > defaultLinkEndDelayFunctions( linkEnds.size( ), nullptr );
+    std::vector< std::function< bool( ) > > defaultLinkEndDelayOverrideFlags( linkEnds.size( ), nullptr );
     bool hasDefaultTransponderDelay = false;
     const int numberOfLinkEnds = static_cast< int >( linkEnds.size( ) );
 
@@ -230,13 +231,16 @@ void setDefaultTransponderDelayFunctions(
         {
             defaultLinkEndDelayFunctions.at( linkEndIndex ) =
                     std::bind( &system_models::VehicleSystems::getTransponderDelay, bodies.at( linkEndBody )->getVehicleSystems( ) );
+            defaultLinkEndDelayOverrideFlags.at( linkEndIndex ) =
+                    std::bind( &system_models::VehicleSystems::getTransponderDelayOverridesAncillarySettings,
+                               bodies.at( linkEndBody )->getVehicleSystems( ) );
             hasDefaultTransponderDelay = true;
         }
     }
 
     if( hasDefaultTransponderDelay )
     {
-        observationModel->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+        observationModel->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions, defaultLinkEndDelayOverrideFlags );
     }
 }
 

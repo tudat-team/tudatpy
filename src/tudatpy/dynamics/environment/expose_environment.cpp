@@ -1425,6 +1425,17 @@ bool
 
          :type: float
      )doc" )
+            .def_property( "transponder_delay_overrides_ancillary_settings",
+                           &tsm::VehicleSystems::getTransponderDelayOverridesAncillarySettings,
+                           &tsm::VehicleSystems::setTransponderDelayOverridesAncillarySettings,
+                           R"doc(
+         If true, the vehicle transponder delay is used even when link-end delays are provided
+         through observation ancillary settings. Station delays from those ancillary settings
+         are left unchanged. The default is false, in which case a complete ancillary delay
+         vector takes precedence.
+
+         :type: bool
+     )doc" )
             .def( "is_transponder_delay_defined",
                   &tsm::VehicleSystems::isTransponderDelayDefined,
                   R"doc(

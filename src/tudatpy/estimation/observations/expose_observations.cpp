@@ -1597,6 +1597,8 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          For new simulations, set the default transponder delay on the spacecraft vehicle systems
          before creating the observation model:
          ``bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay``.
+         If the observations already contain link-end delays, use
+         ``set_transponder_delay_overrides_ancillary_settings`` instead of overwriting the ancillary values.
 
          Parameters
          ----------
@@ -1604,6 +1606,29 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft with the transponder.
          transponder_delay : float
              The transponder delay in seconds.
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
+             Parser to select the observation sets.
+     )doc" )
+            .def( "set_transponder_delay_overrides_ancillary_settings",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelayOverridesAncillarySettings,
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "overrides_ancillary_settings" ) = true,
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
+                  R"doc(
+         Select whether the vehicle-systems transponder delay should be used for a spacecraft
+         instead of the retransmitter entry in the ancillary link-end delays.
+
+         Station delays stored in the ancillary settings are left unchanged. The transponder
+         delay itself must still be set on the spacecraft vehicle systems before the
+         observation model is created.
+
+         Parameters
+         ----------
+         spacecraft_name : str
+             Name of the spacecraft whose transponder delay should be taken from the vehicle systems.
+         overrides_ancillary_settings : bool, default = True
+             If true, use the vehicle-systems transponder delay for that spacecraft. If false,
+             revert to the ancillary retransmitter delay.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets.
      )doc" )

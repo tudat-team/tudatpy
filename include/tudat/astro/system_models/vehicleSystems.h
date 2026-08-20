@@ -47,7 +47,8 @@ public:
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
     VehicleSystems( const double dryMass = TUDAT_NAN ):
-        currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ), transponderDelay_( TUDAT_NAN )
+        currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ), transponderDelay_( TUDAT_NAN ),
+        transponderDelayOverridesAncillarySettings_( false )
     {}
 
     //! Destructor
@@ -374,6 +375,16 @@ public:
         return transponderDelay_;
     }
 
+    void setTransponderDelayOverridesAncillarySettings( const bool transponderDelayOverridesAncillarySettings )
+    {
+        transponderDelayOverridesAncillarySettings_ = transponderDelayOverridesAncillarySettings;
+    }
+
+    bool getTransponderDelayOverridesAncillarySettings( ) const
+    {
+        return transponderDelayOverridesAncillarySettings_;
+    }
+
     bool doesReferencePointExist( const std::string referencePoint )
     {
         return ( referencePoints_.count( referencePoint ) > 0 );
@@ -537,6 +548,8 @@ private:
             transponderTurnaroundRatio_;
 
     double transponderDelay_;
+
+    bool transponderDelayOverridesAncillarySettings_;
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator_;
 };
