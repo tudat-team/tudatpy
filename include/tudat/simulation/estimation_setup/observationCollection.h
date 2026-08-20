@@ -784,6 +784,52 @@ public:
         return concatenatedResiduals;
     }
 
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResidualsInStateSpace(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
+
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices =
+                getSingleObservationSetsIndices( observationParser );
+        for( auto observableIt : observationSetsIndices )
+        {
+            for( auto linkEndsIt : observableIt.second )
+            {
+                for( auto index : linkEndsIt.second )
+                {
+                    residuals.push_back( observationSetList_.at( observableIt.first )
+                                                 .at( linkEndsIt.first )
+                                                 .at( index )
+                                                 ->getResidualsInStateSpaceVector( ) );
+                }
+            }
+        }
+        return residuals;
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedResidualsInStateSpace(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = getResidualsInStateSpace( observationParser );
+
+        unsigned int totalObsSize = 0;
+        for( auto residual : residuals )
+        {
+            totalObsSize += residual.size( );
+        }
+
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedResiduals =
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObsSize, 1 );
+        unsigned int obsIndex = 0;
+        for( unsigned int k = 0; k < residuals.size( ); k++ )
+        {
+            concatenatedResiduals.block( obsIndex, 0, residuals.at( k ).size( ), 1 ) = residuals.at( k );
+            obsIndex += residuals.at( k ).size( );
+        }
+
+        return concatenatedResiduals;
+    }
+
     std::vector< Eigen::VectorXd > getRmsResiduals(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {

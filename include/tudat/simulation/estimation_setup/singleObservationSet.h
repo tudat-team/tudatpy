@@ -22,6 +22,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/astro/observation_models/radiometricResidualStateSpaceConversion.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -569,6 +570,32 @@ public:
             residualsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = residuals_.at( i );
         }
         return residualsVector;
+    }
+
+    //! Scalar factor converting this set's residuals from the native observable units to line-of-sight state units.
+    //! Supported types: dsn_n_way_range (RU -> m), dsn_n_way_averaged_doppler (Hz -> m/s), and, when a set-level
+    //! factor or reference frequency is available, doppler_measured_frequency / one_way_doppler_measured_frequency.
+    //! This is not a generic observation-to-Cartesian-state mapping. Unsupported types throw std::runtime_error.
+    double getResidualStateSpaceConversionFactor( ) const
+    {
+        return computeResidualStateSpaceConversionFactor( observableType_, ancillarySettings_ );
+    }
+
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResidualsInStateSpace( ) const
+    {
+        const ObservationScalarType conversionFactor =
+                static_cast< ObservationScalarType >( getResidualStateSpaceConversionFactor( ) );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > convertedResiduals = residuals_;
+        for( unsigned int i = 0; i < convertedResiduals.size( ); i++ )
+        {
+            convertedResiduals[ i ] *= conversionFactor;
+        }
+        return convertedResiduals;
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualsInStateSpaceVector( ) const
+    {
+        return static_cast< ObservationScalarType >( getResidualStateSpaceConversionFactor( ) ) * getResidualsVector( );
     }
 
     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getResidualsReference( )

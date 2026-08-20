@@ -164,6 +164,21 @@ void expose_ancillary_settings_types( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
                     )doc" )
+            .value( "doppler_conversion_factor",
+                    tom::ObservationAncillarySimulationVariable::doppler_conversion_factor,
+                    R"doc(
+                    Conversion factor to convert frequency-domain Doppler residuals (Hz) to line-of-sight velocity (m/s).
+                    For one-way frequency Doppler the factor is :math:`c / f_C`; for two-/three-way Doppler it is
+                    :math:`c / (2 f_C)`, where :math:`c` is the speed of light and :math:`f_C` is the downlink reference
+                    carrier frequency. For DSN n-way averaged Doppler, :math:`f_C \approx M_{2,R} f_{\text{ref}}`, with
+                    :math:`f_{\text{ref}}` from ``doppler_reference_frequency`` and :math:`M_{2,R}` from the reception
+                    reference frequency band, downlink band, and default DSN turnaround ratios.
+                    This is a set-level scalar for grouped ODF/DSN sets (same reference frequency and bands). It is not
+                    a per-observation ramp-aware conversion for arbitrary simulated measured-frequency data.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
+                    )doc" )
             .export_values( );
 
     py::class_< tom::ObservationAncillarySimulationSettings, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(

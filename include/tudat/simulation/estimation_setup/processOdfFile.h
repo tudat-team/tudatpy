@@ -23,6 +23,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/astro/observation_models/radiometricResidualStateSpaceConversion.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -1143,6 +1144,9 @@ observation_models::ObservationAncillarySimulationSettings createOdfAncillarySet
                     std::vector< double >{ dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
                                            0.0,
                                            dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
+            ancillarySettings.setAncillaryDoubleData(
+                    observation_models::ObservationAncillarySimulationVariable::doppler_conversion_factor,
+                    computeDopplerResidualStateSpaceConversionFactor( currentObservableType, &ancillarySettings ) );
         }
         else
         {

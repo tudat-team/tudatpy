@@ -55,6 +55,7 @@ set(observation_models_HEADERS
         "corrections/solarCoronaCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
         "observationFrequencies.h"
+        "radiometricResidualStateSpaceConversion.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"

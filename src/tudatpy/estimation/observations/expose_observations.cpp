@@ -370,6 +370,48 @@ Returns
 numpy.ndarray
     A single vector containing all residuals.
 )doc" )
+            .def_property_readonly( "residual_state_space_conversion_factor",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualStateSpaceConversionFactor,
+                                    R"doc(
+Scalar factor converting this set's residuals from native observable units to line-of-sight state units.
+
+Supported types: ``dsn_n_way_range`` (RU to m), ``dsn_n_way_averaged_doppler`` (Hz to m/s), and, when a set-level
+factor or reference frequency is available, ``doppler_measured_frequency`` / ``one_way_doppler_measured_frequency``.
+This factor is only for residuals of those supported radiometric types. It is not a generic observation-to-Cartesian
+state mapping. Unsupported types, including ``one_way_doppler`` and ``two_way_doppler``, raise a runtime error rather
+than multiplying by the speed of light. For measured-frequency types the factor is a set-level reference conversion,
+not a per-observation ramp-aware conversion.
+
+Returns
+-------
+float
+    Conversion factor applied as ``state_space_residual = residual * factor``.
+)doc" )
+            .def_property_readonly( "residuals_in_state_space",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsInStateSpace,
+                                    R"doc(
+Residuals converted to line-of-sight state units (m for range, m/s for supported Doppler).
+
+See ``residual_state_space_conversion_factor`` for the supported types and limitations. Observation values themselves
+are unchanged; estimation still uses native-unit residuals.
+
+Returns
+-------
+list[numpy.ndarray]
+    The list of converted residuals.
+)doc" )
+            .def_property_readonly( "concatenated_residuals_in_state_space",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsInStateSpaceVector,
+                                    R"doc(
+All residuals converted to line-of-sight state units and concatenated into a single vector.
+
+See ``residual_state_space_conversion_factor`` for the supported types and limitations.
+
+Returns
+-------
+numpy.ndarray
+    A single vector containing all converted residuals.
+)doc" )
             .def_property_readonly( "rms_residuals",
                                     &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
                                     R"doc(
@@ -1254,6 +1296,48 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          -------
          numpy.ndarray
              The concatenated vector of residuals.
+     )doc" )
+            .def( "get_residuals_in_state_space",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsInStateSpace,
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
+                  R"doc(
+         Get residuals converted to line-of-sight state units for a subset of observation sets.
+
+         Converts native-unit residuals of supported radiometric types (``dsn_n_way_range``,
+         ``dsn_n_way_averaged_doppler``, and, when a set-level factor is available,
+         ``doppler_measured_frequency`` / ``one_way_doppler_measured_frequency``). This is not a generic
+         observation-to-Cartesian-state mapping. If any selected set has an unsupported type
+         (including ``one_way_doppler`` and ``two_way_doppler``), the call raises a runtime error rather
+         than converting only part of the collection. Observation values themselves are unchanged.
+
+         Parameters
+         ----------
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
+             Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
+
+         Returns
+         -------
+         list[numpy.ndarray]
+             A list of converted residual vectors, one for each selected observation set, in the same order as ``get_residuals``.
+     )doc" )
+            .def( "get_concatenated_residuals_in_state_space",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedResidualsInStateSpace,
+                  py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
+                  R"doc(
+         Get concatenated residuals converted to line-of-sight state units for a subset of observation sets.
+
+         See ``get_residuals_in_state_space`` for the supported types and mixed-collection failure behavior.
+         Concatenation order matches ``get_concatenated_residuals``.
+
+         Parameters
+         ----------
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
+             Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
+
+         Returns
+         -------
+         numpy.ndarray
+             The concatenated vector of converted residuals.
      )doc" )
             .def( "get_rms_residuals",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,

@@ -240,6 +240,11 @@ public:
         ObservationScalarType currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
         ObservationScalarType currentReferenceTurnAroundRatio =
                 static_cast< ObservationScalarType >( turnaroundRatio_( referenceUplinkBand, downlinkBand ) );
+        const double downlinkReferenceCarrierFrequency =
+                static_cast< double >( currentReferenceTurnAroundRatio * referenceFrequency );
+        ancillarySettings->setAncillaryDoubleData(
+                observation_models::doppler_conversion_factor,
+                physical_constants::SPEED_OF_LIGHT / ( 2.0 * downlinkReferenceCarrierFrequency ) );
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
                 ? Eigen::Vector3d::Zero( )

@@ -39,6 +39,7 @@ enum ObservationAncillarySimulationVariable {
     doppler_reference_frequency,
     sequential_range_lowest_ranging_component,
     range_conversion_factor,
+    doppler_conversion_factor,
 };
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
@@ -58,6 +59,7 @@ public:
             case reception_reference_frequency_band:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
+            case doppler_conversion_factor:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -96,6 +98,7 @@ public:
                 case reception_reference_frequency_band:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
+                case doppler_conversion_factor:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -184,6 +187,9 @@ public:
                 break;
             case range_conversion_factor:
                 name = "DSN range conversion factor from RU to meter";
+                break;
+            case doppler_conversion_factor:
+                name = "Doppler conversion factor from Hz to line-of-sight velocity";
                 break;
             default:
                 throw std::runtime_error(
