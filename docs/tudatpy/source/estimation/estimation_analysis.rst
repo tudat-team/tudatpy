@@ -25,6 +25,8 @@ Functions
 
    carpino_outlier_rejection_settings
 
+   simple_outlier_rejection_settings
+
    create_covariance_from_diagonal_entries
 
    add_covariance_diagonal_entries
@@ -43,6 +45,8 @@ Functions
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.simple_outlier_rejection_settings
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.create_covariance_from_diagonal_entries
 
@@ -71,6 +75,8 @@ Classes
    OutlierRejectionSettings
 
    CarpinoOutlierRejectionSettings
+
+   SimpleOutlierRejectionSettings
 
 
 
@@ -105,4 +111,7 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings
+   :members:
+
+.. autoclass:: tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings
    :members:

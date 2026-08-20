@@ -145,6 +145,153 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
      :class:`~tudatpy.estimation.estimation_analysis.CarpinoOutlierRejectionSettings` class.
 
      )doc" );
+
+    py::class_< tss::SimpleOutlierRejectionSettings,
+                std::shared_ptr< tss::SimpleOutlierRejectionSettings >,
+                tss::OutlierRejectionSettings >( m,
+                                                 "SimpleOutlierRejectionSettings",
+                                                 R"doc(
+
+         Class for defining the settings of the simple outlier rejection algorithm.
+
+         Class for defining the settings of an outlier rejection algorithm that compares the residual of an observation
+         against a maximum allowed value. Objects of this class are typically created through the
+         :func:`~tudatpy.estimation.estimation_analysis.simple_outlier_rejection_settings` function.
+
+      )doc" )
+            .def_property_readonly( "maximum_allowed_residual_value",
+                                    &tss::SimpleOutlierRejectionSettings::getMaximumAllowedResidualValue,
+                                    R"doc(
+
+         **read-only**
+
+         Maximum allowed size of a residual, used for every observable type. This value is -1.0 if a separate value was
+         provided for each observable type, in which case ``maximum_allowed_residual_value_per_observable_type`` is
+         used instead.
+
+         :type: float
+      )doc" )
+            .def_property_readonly( "maximum_allowed_residual_value_per_observable_type",
+                                    &tss::SimpleOutlierRejectionSettings::getMaximumAllowedResidualValueMap,
+                                    R"doc(
+
+         **read-only**
+
+         Maximum allowed size of a residual for each observable type. This dictionary is empty if a single value was
+         provided for all observable types, in which case ``maximum_allowed_residual_value`` is used instead.
+
+         :type: dict[ObservableType, float]
+      )doc" )
+            .def_property_readonly( "first_iteration_with_rejection",
+                                    &tss::SimpleOutlierRejectionSettings::getFirstIterationWithRejection,
+                                    R"doc(
+
+         **read-only**
+
+         Index of the first estimation iteration in which observations may be rejected.
+
+         :type: int
+      )doc" )
+            .def_property_readonly( "allow_restore",
+                                    &tss::SimpleOutlierRejectionSettings::getAllowRestore,
+                                    R"doc(
+
+         **read-only**
+
+         Whether an observation that was rejected in an earlier iteration may be recovered.
+
+         :type: bool
+      )doc" );
+
+    m.def( "simple_outlier_rejection_settings",
+           static_cast< std::shared_ptr< tss::OutlierRejectionSettings > ( * )( const double, const int, const bool ) >(
+                   &tss::simpleOutlierRejectionSettings ),
+           py::arg( "maximum_allowed_residual_value" ),
+           py::arg( "first_iteration_with_rejection" ) = 1,
+           py::arg( "allow_restore" ) = true,
+           R"doc(
+
+ Function for creating settings for the simple outlier rejection algorithm.
+
+ Function for creating settings for an outlier rejection algorithm that compares the residual of each observation
+ against a maximum allowed value. An observation is rejected when the size of its residual exceeds
+ ``maximum_allowed_residual_value``. If ``allow_restore`` is true, an observation that was rejected in an earlier
+ iteration is recovered as soon as the size of its residual drops back below that value. Observations that were
+ excluded from the estimation by the user are never modified by this algorithm.
+
+ The residual is compared against the value component by component, so an observation of an observable type with
+ more than one component is rejected if any of its components exceeds the maximum allowed value.
+
+ The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+ class, through its ``outlier_rejection_settings`` input.
+
+
+ Parameters
+ ----------
+ maximum_allowed_residual_value : float
+     Maximum allowed size of a residual, used for every observable type. Must be positive.
+ first_iteration_with_rejection : int, default = 1
+     Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
+     value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
+     a priori parameter values and can be large for all observations.
+ allow_restore : bool, default = True
+     Whether an observation that was rejected in an earlier iteration may be recovered in a later iteration.
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings`
+     Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
+     :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings` class.
+
+     )doc" );
+
+    m.def( "simple_outlier_rejection_settings",
+           static_cast< std::shared_ptr< tss::OutlierRejectionSettings > ( * )(
+                   const std::map< tss::ObservableType, double >&, const int, const bool ) >( &tss::simpleOutlierRejectionSettings ),
+           py::arg( "maximum_allowed_residual_value_per_observable_type" ),
+           py::arg( "first_iteration_with_rejection" ) = 1,
+           py::arg( "allow_restore" ) = true,
+           R"doc(
+
+ Function for creating settings for the simple outlier rejection algorithm, with a separate maximum allowed residual
+ value for each observable type.
+
+ Function for creating settings for an outlier rejection algorithm that compares the residual of each observation
+ against a maximum allowed value, where this value is defined separately for each observable type. An observation is
+ rejected when the size of its residual exceeds the value that is provided for its observable type. If
+ ``allow_restore`` is true, an observation that was rejected in an earlier iteration is recovered as soon as the size
+ of its residual drops back below that value. Observations that were excluded from the estimation by the user are
+ never modified by this algorithm.
+
+ The residual is compared against the value component by component, so an observation of an observable type with
+ more than one component is rejected if any of its components exceeds the maximum allowed value.
+
+ An exception is thrown during the estimation if the observations contain an observable type that is not present in
+ ``maximum_allowed_residual_value_per_observable_type``.
+
+ The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+ class, through its ``outlier_rejection_settings`` input.
+
+
+ Parameters
+ ----------
+ maximum_allowed_residual_value_per_observable_type : dict[ObservableType, float]
+     Maximum allowed size of a residual for each observable type. Must not be empty, and each value must be
+     positive.
+ first_iteration_with_rejection : int, default = 1
+     Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
+     value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
+     a priori parameter values and can be large for all observations.
+ allow_restore : bool, default = True
+     Whether an observation that was rejected in an earlier iteration may be recovered in a later iteration.
+
+ Returns
+ -------
+ :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings`
+     Instance of the :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings` derived
+     :class:`~tudatpy.estimation.estimation_analysis.SimpleOutlierRejectionSettings` class.
+
+     )doc" );
 }
 
 }  // namespace estimation_analysis
