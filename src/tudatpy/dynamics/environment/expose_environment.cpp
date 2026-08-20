@@ -558,6 +558,39 @@ void expose_environment( py::module& m )
                 :type: str
                 )doc" )
 
+            .def_property_readonly( "international_designator_launch_year",
+                                    &te::Tle::getInternationalDesignatorLaunchYear,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch year of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_launch_number",
+                                    &te::Tle::getInternationalDesignatorLaunchNumber,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch number of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_piece",
+                                    &te::Tle::getInternationalDesignatorPiece,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch piece of the space object, as provided by the TLE.
+
+                :type: str
+                )doc" )
+
             .def_property_readonly( "element_set_number",
                                     &te::Tle::getElementSetNumber,
                                     R"doc(
@@ -634,6 +667,7 @@ void expose_environment( py::module& m )
 
                 :type: str
                 )doc" )
+
             .def( "epoch", &te::Tle::getEpoch )
             .def( "get_b_star", &te::Tle::getBStar )
             .def( "get_epoch", &te::Tle::getEpoch )

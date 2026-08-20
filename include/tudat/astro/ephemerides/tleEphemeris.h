@@ -143,6 +143,21 @@ public:
         return classification_;
     }
 
+    int getInternationalDesignatorLaunchYear( ) const
+    {
+        return internationalDesignatorLaunchYear_;
+    }
+
+    int getInternationalDesignatorLaunchNumber( ) const
+    {
+        return internationalDesignatorLaunchNumber_;
+    }
+
+    std::string getInternationalDesignatorPiece( ) const
+    {
+        return internationalDesignatorPiece_;
+    }
+
     int getElementSetNumber( ) const
     {
         return elementSetNumber_;
