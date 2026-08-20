@@ -25,12 +25,15 @@
 #include "tudat/simulation/estimation_setup/observationCondition.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
+#include <tudat/astro/observation_models/observableTypes.h>
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+using ObservableType = tudat::observation_models::ObservableType;
 
 //! Data from a single estimation iteration that is provided to an outlier rejection algorithm.
 /*!
@@ -164,6 +167,8 @@ public:
         {
             isRejected_.at( observationId ) = !observationDataset_->getObservationRow( observationId ).isActive_;
         }
+        isDisabled_ = isRejected_;
+        numberOfDisabledObservations_ = getNumberOfRejectedObservations(  );
     }
 
     //! Destructor (virtual, since objects of derived types are deleted through a pointer to this base class).
@@ -239,11 +244,23 @@ protected:
         observationDataset_->restoreObservations( !isRejectedCondition );
     }
 
+    ObservableType getObservableType( const unsigned int observationId ) const
+    {
+        const unsigned int setId = observationDataset_->getObservationRow(observationId).setId_;
+        return observationDataset_->getObservationSetMetadata(setId).observableType_;
+    }
+
+
     //! Algorithm implemented by the derived class.
     const OutlierRejectionType outlierRejectionType_;
 
     //! Rejection status of each observation, indexed by observation id; true means the observation is rejected.
     std::vector< bool > isRejected_;
+
+    //! Vector that tracks if the observation was inactive at the start of estimation
+    std::vector< bool > isDisabled_;
+
+    unsigned int numberOfDisabledObservations_;
 
     //! Dataset holding the observations of the estimation.
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset_;
@@ -293,41 +310,47 @@ protected:
     void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
     {
         // Only update rejections if later than first iteration with rejection
-        if(outlierRejectionInput.iterationNumber_ >= outlierRejectionSettings_->getFirstIterationWithRejection(  ))
+        if(outlierRejectionInput.iterationNumber_ < outlierRejectionSettings_->getFirstIterationWithRejection(  ))
         {
-            std::vector<double> chiSquaredPerObservation;
-
-            // Compute chi-squared for each observation ID
-            for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
-            {
-                const double chiSquared = computeChiSquared(
-                    outlierRejectionInput.getDesignMatrixBlock( observationId ),
-                    outlierRejectionInput.getResidualBlock( observationId ).template cast<double>(),
-                    outlierRejectionInput.parameterCorrection_.template cast<double>() ,
-                    outlierRejectionInput.parameterCovariance_,
-                    outlierRejectionInput.getObservationCovariance( observationId ),
-                    this->getRejectionStatus(  ).at( observationId ));
-
-                chiSquaredPerObservation.push_back( chiSquared );
-            }
-
-            const double rejectionThreshold = getRejectionThreshold( chiSquaredPerObservation );
-
-            // Rejection status for the next iteration. The isRejected_ member keeps the status of the current
-            // iteration until the end of this function, so that every step below can compare against it.
-            std::vector< bool > newRejectionStatus = this->isRejected_;
-            for(unsigned int observationId = 0; observationId < newRejectionStatus.size(); observationId++)
-            {
-                const bool isCurrentlyRejected = this->getRejectionStatus(  ).at( observationId );
-                newRejectionStatus.at(observationId) = decideRejectionStatus( isCurrentlyRejected,
-                    chiSquaredPerObservation.at( observationId ), rejectionThreshold);
-            }
-
-            // Prevent too many observations being rejected at once during one iteration
-            applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
-
-            this->isRejected_ = newRejectionStatus;
+            return;
         }
+        std::vector<double> chiSquaredPerObservation;
+
+        // Compute chi-squared for each observation ID
+        for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
+        {
+            const double chiSquared = computeChiSquared(
+                outlierRejectionInput.getDesignMatrixBlock( observationId ),
+                outlierRejectionInput.getResidualBlock( observationId ).template cast<double>(),
+                outlierRejectionInput.parameterCorrection_.template cast<double>() ,
+                outlierRejectionInput.parameterCovariance_,
+                outlierRejectionInput.getObservationCovariance( observationId ),
+                this->getRejectionStatus(  ).at( observationId ));
+
+            chiSquaredPerObservation.push_back( chiSquared );
+        }
+
+        const double rejectionThreshold = getRejectionThreshold( chiSquaredPerObservation );
+
+        // Rejection status for the next iteration. The isRejected_ member keeps the status of the current
+        // iteration until the end of this function, so that every step below can compare against it.
+        std::vector< bool > newRejectionStatus = this->isRejected_;
+        for(unsigned int observationId = 0; observationId < newRejectionStatus.size(); observationId++)
+        {
+            // Observations that were excluded at start of estimation cannot be recovered
+            if(this->isDisabled_.at(observationId))
+            {
+                continue;
+            }
+            const bool isCurrentlyRejected = this->getRejectionStatus(  ).at( observationId );
+            newRejectionStatus.at(observationId) = decideRejectionStatus( isCurrentlyRejected,
+                chiSquaredPerObservation.at( observationId ), rejectionThreshold);
+        }
+
+        // Prevent too many observations being rejected at once during one iteration
+        applyMaximumRejectedFraction( newRejectionStatus, chiSquaredPerObservation );
+
+        this->isRejected_ = newRejectionStatus;
     }
 
     //! Limit the number of observations rejected in this iteration to the fraction that the settings allow.
@@ -345,8 +368,9 @@ protected:
     void applyMaximumRejectedFraction( std::vector< bool >& newRejectionStatus,
                                        const std::vector< double >& chiSquaredPerObservation ) const
     {
+        const unsigned int numberOfTotalObservations = static_cast<unsigned int>(newRejectionStatus.size() ) - this->numberOfDisabledObservations_;
         const std::size_t maximumNumberRejected = static_cast< std::size_t >( std::floor(
-                outlierRejectionSettings_->getMaximumRejectedFraction( ) * static_cast< double >( newRejectionStatus.size( ) ) ) );
+                outlierRejectionSettings_->getMaximumRejectedFraction( ) * numberOfTotalObservations ) );
 
         // Split the observations that are to be rejected into those that were already rejected before this
         // iteration, and those that are rejected by the criteria of this iteration
@@ -354,6 +378,10 @@ protected:
         std::vector< unsigned int > newlyRejectedObservationIds;
         for( unsigned int observationId = 0; observationId < newRejectionStatus.size( ); observationId++ )
         {
+            if(this->isDisabled_.at(observationId))
+            {
+                continue;
+            }
             if( newRejectionStatus.at( observationId ) )
             {
                 if( this->isRejected_.at( observationId ) )
@@ -483,6 +511,77 @@ protected:
     std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
 };
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+class SimpleOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
+{
+public:
+    SimpleOutlierRejection(
+        const std::shared_ptr<SimpleOutlierRejectionSettings>& outlierRejectionSettings,
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
+        OutlierRejection< ObservationScalarType, TimeType >( OutlierRejectionType::simple_outlier_rejection, observationDataset ),
+        outlierRejectionSettings_( outlierRejectionSettings )
+    {
+        if( outlierRejectionSettings_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating simple outlier rejection object, settings are null." );
+        }
+    }
+
+protected:
+
+    void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) override
+    {
+        if(outlierRejectionInput.iterationNumber_ < outlierRejectionSettings_->getFirstIterationWithRejection(  ))
+        {
+            return; // Outlier rejection starts at a later iteration
+        }
+        const std::map<ObservableType, double>& maximumAllowedResidualValueMap = outlierRejectionSettings_->getMaximumAllowedResidualValueMap(  );
+        const bool useMaximumAllowedResidualValueMap = !maximumAllowedResidualValueMap.empty();
+
+        for(unsigned int observationId = 0; observationId < this->isRejected_.size(); observationId++)
+        {
+            // Skip observations that were excluded at the start of the estimation
+            if(this->isDisabled_.at(observationId))
+            {
+                continue;
+            }
+            const Eigen::VectorXd residualVector = outlierRejectionInput.getResidualBlock( observationId ).template cast<double>();
+            double rejectionThreshold;
+
+            if(useMaximumAllowedResidualValueMap)
+            {
+                const ObservableType observableType = this->getObservableType( observationId );
+                if(maximumAllowedResidualValueMap.find(observableType) == maximumAllowedResidualValueMap.end())
+                {
+                    throw std::runtime_error("Error in outlier rejection: no maximum allowed residual value was provided for the"
+                                             "observable type "
+                                             + tudat::observation_models::getObservableName( observableType ));
+                }
+                rejectionThreshold = maximumAllowedResidualValueMap.at(observableType);
+            }
+            else
+            {
+                rejectionThreshold = outlierRejectionSettings_->getMaximumAllowedResidualValue(  );
+            }
+            const bool residualAboveThreshold = (residualVector.array().abs() > rejectionThreshold).any();
+
+            // If any of the residual values for the observation exceeds threshold, reject
+            if(residualAboveThreshold)
+            {
+                this->isRejected_.at(observationId) = true;
+            }
+
+            // If restoring is enabled, accept observation if below the threshold
+            if(!residualAboveThreshold && outlierRejectionSettings_->getAllowRestore(  ))
+            {
+                this->isRejected_.at(observationId) = false;
+            }
+        }
+    }
+
+    const std::shared_ptr< SimpleOutlierRejectionSettings > outlierRejectionSettings_;
+};
+
 //! Function to create the outlier rejection object defined by a set of outlier rejection settings.
 /*!
  * \param outlierRejectionSettings Settings provided by the user; a null pointer means that no outlier rejection is to
@@ -515,6 +614,17 @@ std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > createOut
                         "CarpinoOutlierRejectionSettings." );
             }
             return std::make_shared< CarpinoOutlierRejection< ObservationScalarType, TimeType > >( carpinoSettings, observationDataset );
+        }
+
+        case OutlierRejectionType::simple_outlier_rejection: {
+            const std::shared_ptr<SimpleOutlierRejectionSettings> simpleSettings =
+                std::dynamic_pointer_cast<SimpleOutlierRejectionSettings>( outlierRejectionSettings );
+            if( simpleSettings == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error while creating simple outlier rejection object");
+            }
+            return std::make_shared< SimpleOutlierRejection<ObservationScalarType, TimeType > >(simpleSettings, observationDataset );
         }
         default:
             throw std::runtime_error( "Error when creating outlier rejection object, type " +

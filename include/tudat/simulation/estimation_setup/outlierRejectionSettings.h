@@ -14,6 +14,8 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <map>
+#include <tudat/astro/observation_models/observableTypes.h>
 
 namespace tudat
 {
@@ -21,8 +23,15 @@ namespace tudat
 namespace simulation_setup
 {
 
+using ObservableType = tudat::observation_models::ObservableType;
+
 //! Outlier rejection algorithms that can be used during an estimation.
-enum class OutlierRejectionType { carpino_outlier_rejection };
+enum class OutlierRejectionType
+{
+    carpino_outlier_rejection,
+    simple_outlier_rejection,
+
+};
 
 inline std::string getOutlierRejectionTypeString( const OutlierRejectionType outlierRejectionType )
 {
@@ -30,6 +39,8 @@ inline std::string getOutlierRejectionTypeString( const OutlierRejectionType out
     {
         case OutlierRejectionType::carpino_outlier_rejection:
             return "carpino_outlier_rejection";
+        case OutlierRejectionType::simple_outlier_rejection:
+            return "simple_outlier_rejection";
         default:
             throw std::runtime_error( "Error when retrieving outlier rejection type string, type not recognized." );
     }
@@ -154,6 +165,88 @@ protected:
     const int firstIterationWithRejection_;
 };
 
+class SimpleOutlierRejectionSettings : public OutlierRejectionSettings
+{
+public:
+    // Use a single value for the residuals
+    SimpleOutlierRejectionSettings(
+        const double maximumAllowedResidualValue,
+        const int firstIterationWithRejection = 1,
+        const bool allowRestore = true) : OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection ),
+            firstIterationWithRejection_( firstIterationWithRejection ), allowRestore_( allowRestore ),
+             maximumAllowedResidualValue_( maximumAllowedResidualValue )
+    {
+        if(firstIterationWithRejection < 0)
+        {
+            throw std::runtime_error("Error when creating simple outlier rejection settings, the first iteration with rejection must not be negative.");
+        }
+        if(maximumAllowedResidualValue <= 0.0)
+        {
+            throw std::runtime_error("Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive value");
+        }
+    }
+
+    // Use different values for each type of observable
+    SimpleOutlierRejectionSettings(
+        const std::map<tudat::observation_models::ObservableType, double>& maximumAllowedResidualValueMap,
+        const int firstIterationWithRejection = 1,
+        const bool allowRestore = true) : OutlierRejectionSettings( OutlierRejectionType::simple_outlier_rejection ),
+            firstIterationWithRejection_( firstIterationWithRejection ), allowRestore_( allowRestore ),
+            maximumAllowedResidualValueMap_(maximumAllowedResidualValueMap), maximumAllowedResidualValue_( -1.0 )
+    {
+        if(firstIterationWithRejection < 0)
+        {
+            throw std::runtime_error("Error when creating simple outlier rejection settings, the first iteration with rejection must not be negative");
+        }
+        if(maximumAllowedResidualValueMap.empty())
+        {
+            throw std::runtime_error("Error when creating simple outlier rejection settings, the map for the maximum residual values per "
+                                     "observable type was left empty");
+        }
+        for(const auto& pair : maximumAllowedResidualValueMap)
+        {
+            if(pair.second <= 0.0)
+            {
+                throw std::runtime_error("Error when creating simple outlier rejection settings. The maximum allowed residual value must be a positive value");
+            }
+        }
+    }
+
+    const std::map<ObservableType, double>& getMaximumAllowedResidualValueMap( ) const
+    {
+        return maximumAllowedResidualValueMap_;
+    }
+
+    double getMaximumAllowedResidualValue( ) const
+    {
+        return maximumAllowedResidualValue_;
+    }
+
+    int getFirstIterationWithRejection( ) const
+    {
+        return firstIterationWithRejection_;
+    }
+
+    bool getAllowRestore( ) const
+    {
+        return allowRestore_;
+    }
+
+
+protected:
+    // First iteration at which to start outlier rejection process
+    const int firstIterationWithRejection_;
+
+    // If true, allow rejected observations to be restored in later iterations
+    const bool allowRestore_;
+
+    // A map of the maximum allowed residual value per observable type
+    const std::map<ObservableType, double> maximumAllowedResidualValueMap_;
+
+    // One maximum allowed value per observable type
+    const double maximumAllowedResidualValue_;
+};
+
 //! Function to create settings for the outlier rejection algorithm of Carpino et al. (2003).
 inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettings( const double chi2RejectionThreshold = 9.0,
                                                                                     const double chi2RecoveryThreshold = 8.0,
@@ -163,6 +256,23 @@ inline std::shared_ptr< OutlierRejectionSettings > carpinoOutlierRejectionSettin
     return std::make_shared< CarpinoOutlierRejectionSettings >(
             chi2RejectionThreshold, chi2RecoveryThreshold, maximumRejectedFraction, firstIterationWithRejection );
 }
+
+//! Function to create settings the simple residual based outlier rejection settings
+inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings( const double maximumAllowedResidualValue,
+                                                                                    const int firstIterationWithRejection = 1,
+                                                                                    const bool allowRestore = true)
+{
+    return std::make_shared< SimpleOutlierRejectionSettings>(maximumAllowedResidualValue, firstIterationWithRejection, allowRestore );
+}
+
+inline std::shared_ptr< OutlierRejectionSettings > simpleOutlierRejectionSettings( const std::map<ObservableType, double>& maximumAllowedResidualValueMap_,
+                                                                                    const int firstIterationWithRejection = 1,
+                                                                                    const bool allowRestore = true)
+{
+    return std::make_shared< SimpleOutlierRejectionSettings>(maximumAllowedResidualValueMap_, firstIterationWithRejection, allowRestore );
+}
+
+
 
 }  // namespace simulation_setup
 
