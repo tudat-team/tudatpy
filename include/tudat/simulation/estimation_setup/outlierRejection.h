@@ -270,6 +270,20 @@ public:
         {
             throw std::runtime_error( "Error when creating Carpino outlier rejection object, settings are null." );
         }
+
+        //! If the weights of the observation dataset are all equal to 1 (i.e. default), they are not meaningful and the Carpino outlier
+        //! rejection algorithm produces garbage results
+        FlattenedObservationData<ObservationScalarType, TimeType> flattenedData =
+            observationDataset->createComputationFlattenedObservationData(  );
+        const Eigen::VectorXd& observationWeightVector = flattenedData.getWeightVector(  );
+        const bool hasOffDiagonalWeights = flattenedData.hasOffDiagonalWeights(  );
+        const bool hasDefaultWeights = (observationWeightVector.array() == 1.0).all();
+        if(!hasOffDiagonalWeights && hasDefaultWeights)
+        {
+            throw std::runtime_error("Error in outlier rejection: Carpino algorithm expects observation weights to be compatible with the"
+                                     "per-observation uncertainty, but default weights were found on the ObservationDataset");
+        }
+
     }
 
 protected:
