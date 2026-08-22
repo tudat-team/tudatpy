@@ -21,9 +21,8 @@ namespace
 {
 template< typename TimeType, typename StateScalarType, int StateSize, typename ScalarType = typename scalar_type< TimeType >::value_type >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, StateSize, 1 > > >
-createConfiguredOrDefaultStateInterpolator(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, StateSize, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+createConfiguredOrDefaultStateInterpolator( const std::map< TimeType, Eigen::Matrix< StateScalarType, StateSize, 1 > >& stateMap,
+                                            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     if( interpolatorSettings == nullptr )
     {

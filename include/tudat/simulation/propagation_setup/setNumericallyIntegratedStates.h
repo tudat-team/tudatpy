@@ -645,9 +645,8 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Mat
  */
 template< typename TimeType, typename StateScalarType >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
-createRotationalStateInterpolator(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+createRotationalStateInterpolator( const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //! Function to reset the tabulated rotational ephemeris of a body
 /*!
@@ -1091,15 +1090,14 @@ public:
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
             const std::vector< double >& arcStartTimes )
     {
-        resetMultiArcIntegratedEphemerides< TimeType, StateScalarType >(
-                this->bodies_,
-                numericalSolution,
-                this->arcStartTimes_,
-                this->bodiesToIntegrate_,
-                this->startIndexAndSize_,
-                ephemerisUpdateOrder_,
-                multiArcIntegrationToEphemerisFrameFunctions_,
-                this->getInterpolatorSettings( ) );
+        resetMultiArcIntegratedEphemerides< TimeType, StateScalarType >( this->bodies_,
+                                                                         numericalSolution,
+                                                                         this->arcStartTimes_,
+                                                                         this->bodiesToIntegrate_,
+                                                                         this->startIndexAndSize_,
+                                                                         ephemerisUpdateOrder_,
+                                                                         multiArcIntegrationToEphemerisFrameFunctions_,
+                                                                         this->getInterpolatorSettings( ) );
     }
 
 private:

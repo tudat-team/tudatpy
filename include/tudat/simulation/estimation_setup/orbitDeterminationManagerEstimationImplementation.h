@@ -395,8 +395,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     // Get number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
-    if( integrateAndEstimateOrbit_ && variationalEquationsSolver_ != nullptr &&
-        estimationInput->getInterpolatorSettings( ) != nullptr )
+    if( integrateAndEstimateOrbit_ && variationalEquationsSolver_ != nullptr && estimationInput->getInterpolatorSettings( ) != nullptr )
     {
         variationalEquationsSolver_->setIntegratedStateInterpolatorSettings( estimationInput->getInterpolatorSettings( ) );
     }

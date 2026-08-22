@@ -42,9 +42,9 @@ public:
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
-        considerCovariance_( considerCovariance ), interpolatorSettings_( interpolatorSettings ),
-        limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
-        reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
+        considerCovariance_( considerCovariance ), interpolatorSettings_( interpolatorSettings ), limitConditionNumberForWarning_( 1.0E8 ),
+        reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ),
+        printOutput_( true )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
         //        setConstantWeightsMatrix( 1.0 );
@@ -627,8 +627,10 @@ public:
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
             const bool applyFinalParameterCorrection = true,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >(
-                observationCollection, inverseOfAprioriCovariance, considerCovariance, interpolatorSettings ),
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection,
+                                                                    inverseOfAprioriCovariance,
+                                                                    considerCovariance,
+                                                                    interpolatorSettings ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )

@@ -127,8 +127,7 @@ public:
      */
     virtual std::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( ) = 0;
 
-    virtual void setIntegratedStateInterpolatorSettings(
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    virtual void setIntegratedStateInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
     {
         getDynamicsSimulatorBase( )->setIntegratedStateInterpolatorSettings( interpolatorSettings );
     }

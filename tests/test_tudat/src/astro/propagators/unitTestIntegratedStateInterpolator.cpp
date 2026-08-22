@@ -54,10 +54,10 @@ BOOST_AUTO_TEST_CASE( testProcessingSettingsInterpolatorSettings )
 
     processingSettings.setInterpolatorSettings( interpolatorSettings );
     BOOST_CHECK( processingSettings.getInterpolatorSettings( ) == interpolatorSettings );
-    BOOST_CHECK_EQUAL( std::dynamic_pointer_cast< interpolators::LagrangeInterpolatorSettings >(
-                               processingSettings.getInterpolatorSettings( ) )
-                               ->getInterpolatorOrder( ),
-                       10 );
+    BOOST_CHECK_EQUAL(
+            std::dynamic_pointer_cast< interpolators::LagrangeInterpolatorSettings >( processingSettings.getInterpolatorSettings( ) )
+                    ->getInterpolatorOrder( ),
+            10 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

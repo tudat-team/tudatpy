@@ -418,8 +418,7 @@ public:
         throw std::runtime_error( "Error, getDynamicsSimulatorBase not implemented in hyrbid arc propagator" );
     }
 
-    void setIntegratedStateInterpolatorSettings(
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    void setIntegratedStateInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
     {
         if( propagatorSettings_ != nullptr && propagatorSettings_->getOutputSettings( ) != nullptr )
         {
