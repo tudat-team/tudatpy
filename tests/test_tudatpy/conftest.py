@@ -2,6 +2,34 @@ import os
 
 import pytest
 
+# Connection failures from requests/urllib3/the stdlib. HTTP errors after a
+# completed request are left as failures.
+_REMOTE_NETWORK_EXCEPTION_NAMES = {
+    "ConnectTimeout",
+    "ConnectTimeoutError",
+    "ConnectionError",
+    "NewConnectionError",
+    "ReadTimeout",
+    "Timeout",
+    "TimeoutError",
+}
+
+
+def _exception_chain(exc):
+    seen = set()
+    while exc is not None and id(exc) not in seen:
+        seen.add(id(exc))
+        yield exc
+        exc = exc.__cause__ or exc.__context__
+
+
+def _is_remote_network_outage(exc):
+    if exc is None:
+        return False
+    return any(
+        type(item).__name__ in _REMOTE_NETWORK_EXCEPTION_NAMES for item in _exception_chain(exc)
+    )
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -68,3 +96,23 @@ def pytest_collection_modifyitems(config, items):
             "missing environment variable(s): " + ", ".join(missing_env),
             yellow=True,
         )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if (
+        report.when != "call"
+        or not report.failed
+        or item.get_closest_marker("remote_data") is None
+        or call.excinfo is None
+        or not _is_remote_network_outage(call.excinfo.value)
+    ):
+        return
+
+    # Keep assertion/API failures as errors; skip when the remote host is unreachable.
+    report.outcome = "skipped"
+    reason = f"remote service unavailable: {call.excinfo.value}"
+    location = item.location[1] if item.location is not None else 0
+    report.longrepr = (str(item.path), location, reason)
