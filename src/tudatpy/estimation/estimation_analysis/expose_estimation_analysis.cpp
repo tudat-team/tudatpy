@@ -24,6 +24,7 @@
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -31,6 +32,7 @@ namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace trf = tudat::reference_frames;
+namespace ti = tudat::interpolators;
 
 namespace tudat
 {
@@ -345,10 +347,12 @@ void expose_estimation_analysis( py::module& m )
       )doc" )
             .def( py::init< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
                             const Eigen::MatrixXd,
-                            const Eigen::MatrixXd >( ),
+                            const Eigen::MatrixXd,
+                            const std::shared_ptr< ti::InterpolatorSettings > >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ),
                   R"doc(
 
          Class constructor.
@@ -362,6 +366,8 @@ void expose_estimation_analysis( py::module& m )
              Total data structure of observations and associated times/link ends/type/etc.
          inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
              A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
+         interpolator_settings : math.interpolators.InterpolatorSettings, default = None
+             Settings used to interpolate the numerically integrated state history when computing observations. If left empty, a 6th-order Lagrange interpolator is used.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
@@ -546,6 +552,16 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def_property( "interpolator_settings",
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterpolatorSettings,
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterpolatorSettings,
+                           R"doc(
+
+         Settings used to interpolate the numerically integrated state history when computing observations.
+         If left empty, a 6th-order Lagrange interpolator is used.
+
+         :type: math.interpolators.InterpolatorSettings
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -566,7 +582,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                             std::shared_ptr< tss::EstimationConvergenceChecker >,
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
-                            const bool >( ),
+                            const bool,
+                            const std::shared_ptr< ti::InterpolatorSettings > >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg_v( "convergence_checker",
@@ -575,6 +592,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
+                  py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ),
                   R"doc(
 
          Class constructor.
@@ -596,6 +614,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
              Whether to apply the final estimated parameter correction to the simulation models after convergence.
+         interpolator_settings : math.interpolators.InterpolatorSettings, default = None
+             Settings used to interpolate the numerically integrated state history when computing observations. If left empty, a 6th-order Lagrange interpolator is used.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`

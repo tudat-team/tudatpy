@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -38,9 +39,11 @@ public:
     CovarianceAnalysisInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ):
         observationCollection_( observationCollection ), inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
-        considerCovariance_( considerCovariance ), limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
+        considerCovariance_( considerCovariance ), interpolatorSettings_( interpolatorSettings ),
+        limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ), saveDesignMatrix_( true ), printOutput_( true )
     {
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
@@ -484,6 +487,16 @@ public:
         this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
     }
 
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+    {
+        return interpolatorSettings_;
+    }
+
+    void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    {
+        interpolatorSettings_ = interpolatorSettings;
+    }
+
     bool areConsiderParametersIncluded( ) const
     {
         return considerParametersIncluded_;
@@ -498,6 +511,9 @@ protected:
 
     //! Covariance matrix for consider parameters
     Eigen::MatrixXd considerCovariance_;
+
+    //! Interpolator used when writing numerically integrated states to the environment
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
     double limitConditionNumberForWarning_;
 
@@ -609,8 +625,10 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const bool applyFinalParameterCorrection = true ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
+            const bool applyFinalParameterCorrection = true,
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >(
+                observationCollection, inverseOfAprioriCovariance, considerCovariance, interpolatorSettings ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
         conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
