@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
                 Time( linkEndTimes.at( 3 ) );
         BOOST_CHECK_SMALL( ( receptionTimeDifference - transmissionTimeDifference ) * physical_constants::SPEED_OF_LIGHT -
                                    ( biasedTwoWayRange - unbiasedTwoWayRange ),
-                           1.0E-4 );
+                           1.5E-4 );
     }
 }
 

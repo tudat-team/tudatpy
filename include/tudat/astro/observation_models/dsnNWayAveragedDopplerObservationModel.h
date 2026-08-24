@@ -323,6 +323,10 @@ public:
                         nominalTransmittingStationState );
         const ObservationScalarType representedTransmissionUtcDuration =
                 convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcEndTime - transmissionUtcStartTime );
+
+        // The represented start epoch is the integration anchor. Consequently the residual between the independently
+        // computed physical duration and the represented endpoint separation is an end-boundary perturbation only.
+        // From d/dt1 integral(t0,t1) f(t)dt = f(t1), its first-order contribution is f(t1) * delta_t1.
         const ObservationScalarType endTransmissionFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmissionUtcEndTime );
         transmitterFrequencyIntegral += endTransmissionFrequency * ( transmissionUtcDuration - representedTransmissionUtcDuration );
