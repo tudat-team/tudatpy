@@ -1,8 +1,6 @@
 #ifndef TUDATRESOURCES_RESOURCE_H
 #define TUDATRESOURCES_RESOURCE_H
 
-#include <tudat/resource/config.hpp>
-
 #define RESOURCE "/resource"
 #define ATMOSPHERE_TABLES "/atmosphere_tables"
 #define EARTH_ORIENTATION "/earth_orientation"
