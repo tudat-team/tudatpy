@@ -1599,7 +1599,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          For new simulations, set the default transponder delay on the spacecraft vehicle systems
          before creating the observation model:
-         ``bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay``.
+         ``bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay``.
 
          Parameters
          ----------

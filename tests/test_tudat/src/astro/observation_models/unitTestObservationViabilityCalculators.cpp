@@ -37,6 +37,35 @@ using namespace tudat::unit_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_observation_viability_calculators )
 
+BOOST_AUTO_TEST_CASE( testInterplanetaryOccultationNumericalStability )
+{
+    const double earthRadius = 5.0E6;
+    const double spacecraftOrbitalRadius = earthRadius + 10.0;
+    const double spacecraftXPosition = -14169.6;
+
+    Eigen::Vector3d spacecraftPosition =
+            ( Eigen::Vector3d( ) << spacecraftXPosition,
+              std::sqrt( spacecraftOrbitalRadius * spacecraftOrbitalRadius - spacecraftXPosition * spacecraftXPosition ),
+              0.0 )
+                    .finished( );
+    Eigen::Vector3d distantBodyPosition = ( Eigen::Vector3d( ) << 1.0E12, 0.0, 0.0 ).finished( );
+
+    // Squared-distance forms of this calculation suffer catastrophic cancellation at interplanetary
+    // distances and have sporadically classified this near-limb geometry as viable on Windows.
+    BOOST_CHECK( computeOccultation( spacecraftPosition, distantBodyPosition, Eigen::Vector3d::Zero( ), earthRadius ) );
+    BOOST_CHECK( computeOccultation( distantBodyPosition, spacecraftPosition, Eigen::Vector3d::Zero( ), earthRadius ) );
+
+    spacecraftPosition( 0 ) = -5000.0;
+    spacecraftPosition( 1 ) =
+            std::sqrt( spacecraftOrbitalRadius * spacecraftOrbitalRadius - spacecraftPosition( 0 ) * spacecraftPosition( 0 ) );
+    BOOST_CHECK( !computeOccultation( spacecraftPosition, distantBodyPosition, Eigen::Vector3d::Zero( ), earthRadius ) );
+
+    spacecraftPosition( 0 ) = -spacecraftXPosition;
+    spacecraftPosition( 1 ) =
+            std::sqrt( spacecraftOrbitalRadius * spacecraftOrbitalRadius - spacecraftPosition( 0 ) * spacecraftPosition( 0 ) );
+    BOOST_CHECK( !computeOccultation( spacecraftPosition, distantBodyPosition, Eigen::Vector3d::Zero( ), earthRadius ) );
+}
+
 BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 {
     // Load spice kernels.
@@ -1211,11 +1240,7 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 ) ), 1.0E-3 );
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3 );
 
-                        // Define tolerance for ambiguous cases near zero
-                        double tolerance = 10.0 * std::numeric_limits< double >::epsilon( ) * rotatedSpacecraft.norm( );
-
-                        // Skip ambiguous region near 0 (test on tolerance, not 0)
-                        if( rotatedSpacecraft( 0 ) < tolerance )
+                        if( rotatedSpacecraft( 0 ) < 0.0 )
                         {
                             currentObservationIsViable = false;
                         }
