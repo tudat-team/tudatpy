@@ -15,7 +15,6 @@
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/math/interpolators/interpolator.h"
-#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
@@ -126,11 +125,6 @@ public:
      * \return Dynamics simulator object (as base-class pointer)
      */
     virtual std::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( ) = 0;
-
-    virtual void setIntegratedStateInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
-    {
-        getDynamicsSimulatorBase( )->setIntegratedStateInterpolatorSettings( interpolatorSettings );
-    }
 
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > getVariationalPropagationResults( ) = 0;
 

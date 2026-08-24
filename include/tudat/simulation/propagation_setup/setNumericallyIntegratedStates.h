@@ -94,13 +94,13 @@ void addEmptyTabulatedRotationalEphemeris( const simulation_setup::SystemOfBodie
 /*!
  * Function to create an interpolator for the new translational state of a body.
  * \param stateMap New state history, w.r.t. the required ephemeris origin.
- * \param interpolatorSettings Settings used to create the interpolator. If empty, a Lagrange interpolator of order 6 is used.
+ * \param interpolatorSettings Settings used to create the interpolator.
  * \return Interpolator that produces the required continuous state.
  */
 template< typename TimeType, typename StateScalarType >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > createStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings );
 
 //! Function to reset the tabulated ephemeris of a body
 /*!
@@ -628,7 +628,7 @@ void convertNumericalSolutionToRotationalEphemerisInput(
 /*!
  * Function to create an interpolator for the new translational state of a body.
  * \param stateMap New state history, w.r.t. the required ephemeris origin.
- * \param interpolatorSettings Settings used to create the interpolator. If empty, a Lagrange interpolator of order 6 is used.
+ * \param interpolatorSettings Settings used to create the interpolator.
  * \return Interpolator that produces the required continuous state.
  */
 template< typename TimeType, typename StateScalarType >
@@ -640,13 +640,13 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Mat
 /*!
  * Function to create an interpolator for the new rotational state of a body.
  * \param stateMap New rotational state history.
- * \param interpolatorSettings Settings used to create the interpolator. If empty, a Lagrange interpolator of order 6 is used.
+ * \param interpolatorSettings Settings used to create the interpolator.
  * \return Interpolator that produces the required continuous rotational state.
  */
 template< typename TimeType, typename StateScalarType >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
 createRotationalStateInterpolator( const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap,
-                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings );
 
 //! Function to reset the tabulated rotational ephemeris of a body
 /*!

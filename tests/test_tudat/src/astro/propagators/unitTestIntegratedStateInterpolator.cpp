@@ -33,12 +33,6 @@ BOOST_AUTO_TEST_CASE( testCreateStateInterpolatorOrder )
         stateMap[ static_cast< double >( i ) ] = Eigen::Matrix< double, 6, 1 >::Constant( static_cast< double >( i ) );
     }
 
-    std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > > defaultInterpolator =
-            std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >(
-                    propagators::createStateInterpolator( stateMap ) );
-    BOOST_CHECK( defaultInterpolator != nullptr );
-    BOOST_CHECK_EQUAL( defaultInterpolator->getNumberOfStages( ), 6 );
-
     std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > > eighthOrderInterpolator =
             std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >(
                     propagators::createStateInterpolator( stateMap, interpolators::lagrangeInterpolation( 8 ) ) );
@@ -48,10 +42,17 @@ BOOST_AUTO_TEST_CASE( testCreateStateInterpolatorOrder )
 
 BOOST_AUTO_TEST_CASE( testProcessingSettingsInterpolatorSettings )
 {
-    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::lagrangeInterpolation( 10 );
     propagators::SingleArcPropagatorProcessingSettings processingSettings;
-    BOOST_CHECK( processingSettings.getInterpolatorSettings( ) == nullptr );
+    std::shared_ptr< interpolators::LagrangeInterpolatorSettings > defaultSettings =
+            std::dynamic_pointer_cast< interpolators::LagrangeInterpolatorSettings >( processingSettings.getInterpolatorSettings( ) );
+    BOOST_REQUIRE( defaultSettings != nullptr );
+    BOOST_CHECK_EQUAL( defaultSettings->getInterpolatorOrder( ), 6 );
+    BOOST_CHECK_EQUAL( defaultSettings->getSelectedLookupScheme( ), interpolators::huntingAlgorithm );
+    BOOST_CHECK_EQUAL( defaultSettings->getLagrangeBoundaryHandling( ), interpolators::lagrange_cubic_spline_boundary_interpolation );
+    BOOST_REQUIRE_EQUAL( defaultSettings->getBoundaryHandling( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( defaultSettings->getBoundaryHandling( ).at( 0 ), interpolators::throw_exception_at_boundary );
 
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::lagrangeInterpolation( 10 );
     processingSettings.setInterpolatorSettings( interpolatorSettings );
     BOOST_CHECK( processingSettings.getInterpolatorSettings( ) == interpolatorSettings );
     BOOST_CHECK_EQUAL(

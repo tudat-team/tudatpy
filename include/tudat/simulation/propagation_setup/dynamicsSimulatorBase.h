@@ -519,14 +519,6 @@ public:
         return propagatorSettingsBase_->getOutputSettingsBase( )->getSetIntegratedResult( );
     }
 
-    void setIntegratedStateInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
-    {
-        if( propagatorSettingsBase_ != nullptr && propagatorSettingsBase_->getOutputSettingsBase( ) != nullptr )
-        {
-            propagatorSettingsBase_->getOutputSettingsBase( )->setInterpolatorSettings( interpolatorSettings );
-        }
-    }
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. For instance, it sets

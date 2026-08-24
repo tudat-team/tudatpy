@@ -19,6 +19,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 
 namespace tudat
 {
@@ -40,7 +41,9 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         const int numberOfDaysOfData = 3,
         const int numberOfIterations = 5,
         const bool useFullParameterSet = true,
-        const bool saveDesignMatrix = true )
+        const bool saveDesignMatrix = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr,
+        std::pair< int, int >* integratedStateInterpolatorOrders = nullptr )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -151,6 +154,11 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
                     centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, TimeType( finalEphemerisTime ), cowell );
+    if( integratedStateInterpolatorSettings != nullptr )
+    {
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        propagatorSettings->getOutputSettings( )->setInterpolatorSettings( integratedStateInterpolatorSettings );
+    }
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -251,6 +259,27 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             OrbitDeterminationManager< StateScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
+    const auto getIntegratedStateInterpolatorOrder = [ &bodies ]( ) {
+        std::shared_ptr< TabulatedCartesianEphemeris<> > vehicleEphemeris =
+                std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( bodies.at( "Vehicle" )->getEphemeris( ) );
+        if( vehicleEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Expected a tabulated vehicle ephemeris in estimation test." );
+        }
+        std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::Vector6d > > vehicleInterpolator =
+                std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >(
+                        vehicleEphemeris->getInterpolator( ) );
+        if( vehicleInterpolator == nullptr )
+        {
+            throw std::runtime_error( "Expected a Lagrange vehicle ephemeris interpolator in estimation test." );
+        }
+        return vehicleInterpolator->getNumberOfStages( );
+    };
+    if( integratedStateInterpolatorOrders != nullptr )
+    {
+        integratedStateInterpolatorOrders->first = getIntegratedStateInterpolatorOrder( );
+    }
+
     std::vector< TimeType > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
     double observationInterval = 20.0;
@@ -307,6 +336,11 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
+
+    if( integratedStateInterpolatorOrders != nullptr )
+    {
+        integratedStateInterpolatorOrders->second = getIntegratedStateInterpolatorOrder( );
+    }
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;

@@ -42,7 +42,13 @@ public:
                                   const bool setIntegratedVariationalResult = true ):
         clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult ),
         createStateProcessors_( setIntegratedResult ), updateDependentVariableInterpolator_( updateDependentVariableInterpolator ),
-        setIntegratedVariationalResult_( setIntegratedVariationalResult )
+        setIntegratedVariationalResult_( setIntegratedVariationalResult ),
+        interpolatorSettings_( std::make_shared< interpolators::LagrangeInterpolatorSettings >(
+                6,
+                false,
+                interpolators::huntingAlgorithm,
+                interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary ) )
     {}
 
     virtual ~PropagatorProcessingSettings( ) {}
@@ -99,6 +105,10 @@ public:
 
     virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
     {
+        if( interpolatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when setting propagation processing interpolator settings, settings are null." );
+        }
         interpolatorSettings_ = interpolatorSettings;
     }
 
@@ -466,7 +476,7 @@ public:
 
     virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
     {
-        interpolatorSettings_ = interpolatorSettings;
+        PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
             singleArcSettings_.at( i )->setInterpolatorSettings( interpolatorSettings );
@@ -569,7 +579,7 @@ public:
 
     virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
     {
-        interpolatorSettings_ = interpolatorSettings;
+        PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
         if( singleArcSettings_ != nullptr )
         {
             singleArcSettings_->setInterpolatorSettings( interpolatorSettings );

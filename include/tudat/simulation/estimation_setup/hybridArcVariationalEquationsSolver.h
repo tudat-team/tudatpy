@@ -418,26 +418,6 @@ public:
         throw std::runtime_error( "Error, getDynamicsSimulatorBase not implemented in hyrbid arc propagator" );
     }
 
-    void setIntegratedStateInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
-    {
-        if( propagatorSettings_ != nullptr && propagatorSettings_->getOutputSettings( ) != nullptr )
-        {
-            propagatorSettings_->getOutputSettings( )->setInterpolatorSettings( interpolatorSettings );
-        }
-        if( singleArcSolver_ != nullptr )
-        {
-            singleArcSolver_->setIntegratedStateInterpolatorSettings( interpolatorSettings );
-        }
-        if( multiArcSolver_ != nullptr )
-        {
-            multiArcSolver_->setIntegratedStateInterpolatorSettings( interpolatorSettings );
-        }
-        if( originalMultiArcSolver_ != nullptr )
-        {
-            originalMultiArcSolver_->setIntegratedStateInterpolatorSettings( interpolatorSettings );
-        }
-    }
-
     std::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > getMultiArcSolver( )
     {
         return multiArcSolver_;

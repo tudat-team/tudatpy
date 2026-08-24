@@ -12,6 +12,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
@@ -256,6 +257,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             bool clearNumericalSolution = processResults > 1 ? true : false;
             hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResults );
             hybridArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolution );
+            hybridArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 10 ) );
 
             BOOST_CHECK_EQUAL( hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
             BOOST_CHECK_EQUAL( singleArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
@@ -283,6 +285,34 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                         hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
                 multiArcSolutionFromHybrid =
                         hybridArcDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+                if( setIntegratedResults )
+                {
+                    std::shared_ptr< TabulatedCartesianEphemeris<> > integratedMarsEphemeris =
+                            std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( bodies.at( "Mars" )->getEphemeris( ) );
+                    BOOST_REQUIRE( integratedMarsEphemeris != nullptr );
+                    std::shared_ptr< LagrangeInterpolator< double, Eigen::Vector6d > > marsInterpolator =
+                            std::dynamic_pointer_cast< LagrangeInterpolator< double, Eigen::Vector6d > >(
+                                    integratedMarsEphemeris->getInterpolator( ) );
+                    BOOST_REQUIRE( marsInterpolator != nullptr );
+                    BOOST_CHECK_EQUAL( marsInterpolator->getNumberOfStages( ), 10 );
+
+                    std::shared_ptr< MultiArcEphemeris > integratedOrbiterEphemeris =
+                            std::dynamic_pointer_cast< MultiArcEphemeris >( bodies.at( "Orbiter" )->getEphemeris( ) );
+                    BOOST_REQUIRE( integratedOrbiterEphemeris != nullptr );
+                    BOOST_REQUIRE( !integratedOrbiterEphemeris->getSingleArcEphemerides( ).empty( ) );
+                    for( const std::shared_ptr< Ephemeris >& arcEphemeris : integratedOrbiterEphemeris->getSingleArcEphemerides( ) )
+                    {
+                        std::shared_ptr< TabulatedCartesianEphemeris<> > tabulatedArcEphemeris =
+                                std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( arcEphemeris );
+                        BOOST_REQUIRE( tabulatedArcEphemeris != nullptr );
+                        std::shared_ptr< LagrangeInterpolator< double, Eigen::Vector6d > > arcInterpolator =
+                                std::dynamic_pointer_cast< LagrangeInterpolator< double, Eigen::Vector6d > >(
+                                        tabulatedArcEphemeris->getInterpolator( ) );
+                        BOOST_REQUIRE( arcInterpolator != nullptr );
+                        BOOST_CHECK_EQUAL( arcInterpolator->getNumberOfStages( ), 10 );
+                    }
+                }
             }
 
             if( !clearNumericalSolution && !setIntegratedResults )

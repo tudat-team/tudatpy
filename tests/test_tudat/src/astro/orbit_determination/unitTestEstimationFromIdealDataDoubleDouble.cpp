@@ -98,6 +98,20 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimation )
+{
+    std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podDataOutput;
+    std::pair< int, int > interpolatorOrders{ -1, -1 };
+
+    executeEarthOrbiterParameterEstimation< double, double >(
+            podDataOutput, 1.0E7, 1, 1, false, false, interpolators::lagrangeInterpolation( 8 ), &interpolatorOrders );
+
+    BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
+    BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

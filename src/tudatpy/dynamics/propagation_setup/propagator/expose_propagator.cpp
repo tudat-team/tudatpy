@@ -570,7 +570,7 @@ Enumeration of available integrated state types.
                            R"doc(
 
          Settings used to interpolate numerically integrated translational and rotational states when they are written to the environment.
-         If left empty, a 6th-order Lagrange interpolator is used.
+         By default, a 6th-order Lagrange interpolator with cubic-spline boundary interpolation is used.
 
          :type: math.interpolators.InterpolatorSettings
       )doc" );
