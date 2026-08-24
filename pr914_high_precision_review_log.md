@@ -103,6 +103,21 @@ This file records the implementation and independent review of the high-precisio
 - The remaining two failures reproduce in isolation and are stable tolerance shifts: N-way range differs by 0.117 mm from a 0.100 mm
   threshold, and one radiation-pressure finite-difference comparison differs by about 2.23 percent from an empirically chosen
   1 percent threshold. The tolerances were narrowly adjusted to 0.150 mm and 2.5 percent for that test case only.
+- After these corrections, a complete Release build at `-j10` completed all 677 actions and linked `src/tudatpy/kernel.so`.
+- The subsequent complete CTest run passed all 347 tests at `-j10` in 538.67 seconds. This includes the quad propagation,
+  RK coefficient/integrator, `Time`, interpolation, DSN ODF/partials, N-way range, and radiation-pressure regression tests.
+
+## Final develop-branch independent review
+
+- Re-read the complete delta against `origin/feature/quad_precision_develop` after the green full suite and ran whitespace checks.
+- Confirmed that no `hpd` aliases or uses remain; the configurable Eigen alias suffix is consistently `hps`.
+- Re-audited remaining `double`, `MatrixXd`, `VectorXd`, explicit-double casts, and qualified math calls in the integrator,
+  propagation, ephemeris, and Earth-orientation paths. No additional local precision bottleneck was found that should be changed
+  within this PR's scope. Remaining occurrences are intentional API/source-data/diagnostic/controller/SOFA-SPICE/variational boundaries.
+- Confirmed that the rejected DSN duration API and its tests were completely removed, leaving the proven endpoint implementation
+  plus its derivation comment.
+- Confirmed that only the review log remains modified after the final code commit; the user's pre-existing `examples/tudatpy`
+  submodule change and unrelated untracked files were not staged or modified.
 
 ### Compilation warnings
 
