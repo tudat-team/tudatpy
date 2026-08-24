@@ -15,6 +15,7 @@ dependencies:
   - c-compiler
   - cxx-compiler
   - fortran-compiler
+  - binutils
   - libnetcdf
   - netcdf-fortran
   - python
