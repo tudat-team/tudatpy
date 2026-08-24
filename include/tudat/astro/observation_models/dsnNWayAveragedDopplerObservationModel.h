@@ -302,9 +302,6 @@ public:
         TimeType transmissionUtcEndTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
-        ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
-                                                                                                                   transmissionUtcEndTime );
         const ObservationScalarType integrationTimeScalar = convertIndependentVariableToScalar< ObservationScalarType >( integrationTime );
         const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
                 timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
@@ -321,11 +318,14 @@ public:
                         transmissionTdbStartTime,
                         transmissionTdbEndTime,
                         nominalTransmittingStationState );
-        const ObservationScalarType representedTransmissionUtcDuration =
-                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcEndTime - transmissionUtcStartTime );
-        const ObservationScalarType endTransmissionFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmissionUtcEndTime );
-        transmitterFrequencyIntegral += endTransmissionFrequency * ( transmissionUtcDuration - representedTransmissionUtcDuration );
+        // Integrate from the represented transmission-start epoch using the independently derived physical UTC duration. This avoids
+        // replacing the duration by the difference of two normalized Time objects and is exact for every constant or piecewise-linear
+        // ramp segment, including intervals that cross ramp boundaries.
+        const ObservationScalarType transmissionUtcStartScalar =
+                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcStartTime );
+        const ObservationScalarType transmitterFrequencyIntegral =
+                frequencyInterpolator_->template getTemplatedFrequencyIntegralFromTimeAndDuration< ObservationScalarType >(
+                        transmissionUtcStartScalar, transmissionUtcDuration );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =

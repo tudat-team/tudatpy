@@ -16,6 +16,7 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/basics/tudatExceptions.h"
+#include "tudat/basics/timeType.h"
 
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
@@ -110,6 +111,31 @@ std::vector< double > getIndependentVariableVector( )
 }
 
 BOOST_AUTO_TEST_SUITE( test_lagrange_interpolation )
+
+BOOST_AUTO_TEST_CASE( testLargeEpochExactAndNearNodeRequests )
+{
+    const long double referenceEpoch = 1.0e12L;
+    const long double spacing = 1.0e-6L;
+    std::map< Time, HighPrecisionStateScalar > data;
+    for( int i = 0; i < 10; ++i )
+    {
+        data.emplace( Time( referenceEpoch ) + Time( static_cast< long double >( i ) * spacing ), HighPrecisionStateScalar( i ) );
+    }
+
+    interpolators::LagrangeInterpolator< Time, HighPrecisionStateScalar > interpolator(
+            data, 6, interpolators::huntingAlgorithm, interpolators::lagrange_no_boundary_interpolation );
+
+    const Time exactNode = Time( referenceEpoch ) + Time( 5.0L * spacing );
+    BOOST_CHECK_EQUAL( interpolator.interpolate( exactNode ), HighPrecisionStateScalar( 5 ) );
+
+    // This offset is much smaller than a magnitude-scaled tolerance at the absolute epoch,
+    // but remains representable in Time's split long-double residual.
+    const Time nearNode = exactNode + Time( 1.0e-9L );
+    const HighPrecisionStateScalar nearValue = interpolator.interpolate( nearNode );
+    BOOST_CHECK_NE( nearValue, HighPrecisionStateScalar( 5 ) );
+    const HighPrecisionStateScalar expectedNearValue = HighPrecisionStateScalar( 5001 ) / HighPrecisionStateScalar( 1000 );
+    BOOST_CHECK_CLOSE_FRACTION( nearValue, expectedNearValue, HighPrecisionStateScalar( 1.0e-12L ) );
+}
 
 // Test whetehr Lagrange interpolator can properly reproduce polynomial interpolation
 // Since Lagrange interpolation uses a unique (n-1)th order polynomial to fit n data points,

@@ -106,15 +106,15 @@ public:
             if( orderToUse_ == RungeKuttaCoefficients::OrderEstimateToIntegrate::lower )
             {
                 // Keep the first row of bCoefficients.
-                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
+                Eigen::MatrixXhps oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXhps::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 0 );
             }
             else
             {
                 // Keep the second row of bCoefficients.
-                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
+                Eigen::MatrixXhps oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXhps::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
             }
         }
@@ -177,7 +177,8 @@ public:
                 if( this->butcherTableau_.aCoefficients( stage, column ) !=
                     mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
                 {
-                    stateUpdate += this->butcherTableau_.aCoefficients( stage, column ) * currentScaledStateDerivatives_[ column ];
+                    stateUpdate += static_cast< typename StateType::Scalar >( this->butcherTableau_.aCoefficients( stage, column ) ) *
+                            currentScaledStateDerivatives_[ column ];
                 }
             }
 
@@ -185,8 +186,8 @@ public:
             StateType intermediateState = this->currentState_ + stateUpdate;
 
             // Compute the state derivative.
-            const IndependentVariableType time =
-                    this->currentIndependentVariable_ + this->butcherTableau_.cCoefficients( stage ) * stepSize;
+            const IndependentVariableType time = this->currentIndependentVariable_ +
+                    static_cast< TimeStepType >( this->butcherTableau_.cCoefficients( stage ) ) * stepSize;
             currentScaledStateDerivatives_[ stage ] = stepSize * this->stateDerivativeFunction_( time, intermediateState );
 
             // Check if propagation should terminate because the propagation termination condition has been reached
@@ -206,27 +207,8 @@ public:
             if( this->butcherTableau_.bCoefficients( 0, stage ) !=
                 mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
             {
-                // The classic RK4 weights contain 1/6 and 1/3.  Recover those
-                // fractions in the state scalar instead of first rounding them
-                // to the double storage type of the shared Butcher tableau.
-                if constexpr( std::is_same_v< typename StateType::Scalar, HighPrecisionStateScalar > )
-                {
-                    if( coefficientsSet_ == rungeKutta4Classic )
-                    {
-                        const int denominator = ( stage == 0 || stage == 3 ) ? 6 : 3;
-                        stateUpdate += currentScaledStateDerivatives_[ stage ] /
-                                mathematical_constants::getFloatingInteger< typename StateType::Scalar >( denominator );
-                    }
-                    else
-                    {
-                        stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
-                    }
-                }
-                else
-                {
-                    // Update the estimate.
-                    stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
-                }
+                stateUpdate += static_cast< typename StateType::Scalar >( this->butcherTableau_.bCoefficients( 0, stage ) ) *
+                        currentScaledStateDerivatives_[ stage ];
             }
         }
 

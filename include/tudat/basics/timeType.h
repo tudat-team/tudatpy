@@ -976,7 +976,8 @@ public:
     template< typename ScalarType >
     ScalarType getSeconds( ) const
     {
-        return static_cast< ScalarType >( static_cast< long double >( fullPeriods_ ) * TIME_NORMALIZATION_TERM + secondsIntoFullPeriod_ );
+        return static_cast< ScalarType >( fullPeriods_ ) * static_cast< ScalarType >( TIME_NORMALIZATION_INTEGER_TERM ) +
+                static_cast< ScalarType >( secondsIntoFullPeriod_ );
     }
 
     //! Function to get the total seconds since epoch, in int precision (cast of Time to int)

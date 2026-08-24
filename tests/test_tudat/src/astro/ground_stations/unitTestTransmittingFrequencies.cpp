@@ -119,6 +119,36 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
     //    BOOST_CHECK( errorThrown );
 }
 
+BOOST_AUTO_TEST_CASE( testFrequencyIntegralFromExplicitDuration )
+{
+    ConstantFrequencyInterpolator constantFrequency( 10.0 );
+    BOOST_CHECK_EQUAL( constantFrequency.getTemplatedFrequencyIntegralFromTimeAndDuration( 1.25, 3.5 ), 35.0 );
+
+    const std::vector< Time > startTimes = { 0.0, 5.0, 9.0 };
+    const std::vector< Time > endTimes = { 5.0, 9.0, 15.0 };
+    const std::vector< double > rampRates = { 2.0, -1.0, 0.5 };
+    const std::vector< double > startFrequencies = { 10.0, 30.0, 20.0 };
+    PiecewiseLinearFrequencyInterpolator rampFrequency( startTimes, endTimes, rampRates, startFrequencies );
+
+    // One linear segment, with independently perturbed start and end boundaries.
+    const double perturbedStart = 1.0 + 0.125;
+    const double perturbedEnd = 4.0 - 0.25;
+    const double duration = perturbedEnd - perturbedStart;
+    const double startFrequency = 10.0 + 2.0 * perturbedStart;
+    const double endFrequency = 10.0 + 2.0 * perturbedEnd;
+    BOOST_CHECK_EQUAL( rampFrequency.getTemplatedFrequencyIntegralFromTimeAndDuration( perturbedStart, duration ),
+                       duration * ( startFrequency + endFrequency ) / 2.0 );
+
+    // Cross one ramp boundary.
+    const double boundaryCrossingIntegral = ( 5.0 - 4.0 ) * ( 18.0 + 20.0 ) / 2.0 + ( 7.0 - 5.0 ) * ( 30.0 + 28.0 ) / 2.0;
+    BOOST_CHECK_EQUAL( rampFrequency.getTemplatedFrequencyIntegralFromTimeAndDuration( 4.0, 3.0 ), boundaryCrossingIntegral );
+
+    // Cross multiple independently defined ramp segments.
+    const double multipleRampIntegral =
+            ( 5.0 - 3.0 ) * ( 16.0 + 20.0 ) / 2.0 + ( 9.0 - 5.0 ) * ( 30.0 + 26.0 ) / 2.0 + ( 12.0 - 9.0 ) * ( 20.0 + 21.5 ) / 2.0;
+    BOOST_CHECK_EQUAL( rampFrequency.getTemplatedFrequencyIntegralFromTimeAndDuration( 3.0, 9.0 ), multipleRampIntegral );
+}
+
 BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolatorOverlappingRampTables )
 {
     std::vector< Time > startTimes = { 0.0, 90.0 };

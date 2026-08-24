@@ -101,6 +101,12 @@ BOOST_AUTO_TEST_CASE( testTimeQuadPrecisionConstruction )
     const Time quadTime( absoluteEpoch );
     BOOST_CHECK_EQUAL( quadTime.getFullPeriods( ), numberOfFullPeriods );
     BOOST_CHECK_EQUAL( quadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( remainder ) );
+    const HighPrecisionStateScalar reconstructedEpoch = static_cast< HighPrecisionStateScalar >( numberOfFullPeriods ) * normalizationTerm +
+            static_cast< HighPrecisionStateScalar >( quadTime.getSecondsIntoFullPeriod( ) );
+    BOOST_CHECK_EQUAL( quadTime.getSeconds< HighPrecisionStateScalar >( ), reconstructedEpoch );
+    BOOST_CHECK_NE( quadTime.getSeconds< HighPrecisionStateScalar >( ),
+                    static_cast< HighPrecisionStateScalar >( static_cast< long double >( numberOfFullPeriods ) * TIME_NORMALIZATION_TERM +
+                                                             quadTime.getSecondsIntoFullPeriod( ) ) );
 
     const Time quadExpressionTime( absoluteEpoch + HighPrecisionStateScalar( "0.125" ) );
     BOOST_CHECK_EQUAL( quadExpressionTime.getFullPeriods( ), numberOfFullPeriods );
@@ -113,6 +119,10 @@ BOOST_AUTO_TEST_CASE( testTimeQuadPrecisionConstruction )
     const Time negativeQuadTime( -absoluteEpoch );
     BOOST_CHECK_EQUAL( negativeQuadTime.getFullPeriods( ), -numberOfFullPeriods - 1 );
     BOOST_CHECK_EQUAL( negativeQuadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( normalizationTerm - remainder ) );
+    const HighPrecisionStateScalar reconstructedNegativeEpoch =
+            static_cast< HighPrecisionStateScalar >( negativeQuadTime.getFullPeriods( ) ) * normalizationTerm +
+            static_cast< HighPrecisionStateScalar >( negativeQuadTime.getSecondsIntoFullPeriod( ) );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getSeconds< HighPrecisionStateScalar >( ), reconstructedNegativeEpoch );
 }
 #endif
 

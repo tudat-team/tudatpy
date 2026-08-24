@@ -102,6 +102,13 @@ OutputScalarType convertIndependentVariableToScalar( const IndependentVariableTy
     return static_cast< OutputScalarType >( static_cast< NativeScalarType >( value ) );
 }
 
+//! Reconstruct an absolute Time value directly in the requested scalar.
+template< typename OutputScalarType >
+OutputScalarType convertIndependentVariableToScalar( const Time& value )
+{
+    return value.template getSeconds< OutputScalarType >( );
+}
+
 template< typename T >
 struct is_direct_gravity_partial {
     static const bool value = false;

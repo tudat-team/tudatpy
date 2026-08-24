@@ -524,11 +524,14 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         // Compute the intermediate state.
         for( int column = 0; column < stage; column++ )
         {
-            intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column ) * currentStateDerivatives_[ column ];
+            intermediateState += stepSize *
+                    static_cast< typename StateType::Scalar >( this->coefficients_.aCoefficients( stage, column ) ) *
+                    currentStateDerivatives_[ column ];
         }
 
         // Compute the state derivative.
-        const IndependentVariableType time = this->currentIndependentVariable_ + this->coefficients_.cCoefficients( stage ) * stepSize;
+        const IndependentVariableType time =
+                this->currentIndependentVariable_ + static_cast< TimeStepType >( this->coefficients_.cCoefficients( stage ) ) * stepSize;
         currentStateDerivatives_.push_back( this->stateDerivativeFunction_( time, intermediateState ) );
 
         // Check if propagation should terminate because the propagation termination condition has been reached
@@ -542,8 +545,10 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         }
 
         // Update the estimate.
-        lowerOrderEstimate += this->coefficients_.bCoefficients( 0, stage ) * stepSize * currentStateDerivatives_[ stage ];
-        higherOrderEstimate += this->coefficients_.bCoefficients( 1, stage ) * stepSize * currentStateDerivatives_[ stage ];
+        lowerOrderEstimate += static_cast< typename StateType::Scalar >( this->coefficients_.bCoefficients( 0, stage ) ) * stepSize *
+                currentStateDerivatives_[ stage ];
+        higherOrderEstimate += static_cast< typename StateType::Scalar >( this->coefficients_.bCoefficients( 1, stage ) ) * stepSize *
+                currentStateDerivatives_[ stage ];
     }
 
     // Determine if the error was within bounds and compute a new step size.

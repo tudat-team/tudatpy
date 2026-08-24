@@ -62,8 +62,16 @@ static_assert( std::is_same_v< Scalar, long double > );
 #endif
 
 static_assert( is_state_scalar< Scalar >::value );
-static_assert( std::is_same_v< typename Eigen::Vector6ld::Scalar, Scalar > );
-static_assert( std::is_same_v< typename Eigen::VectorXld::Scalar, Scalar > );
+static_assert( std::is_same_v< typename Eigen::Vector3ld::Scalar, long double > );
+static_assert( std::is_same_v< typename Eigen::Vector6ld::Scalar, long double > );
+static_assert( std::is_same_v< typename Eigen::Vector7ld::Scalar, long double > );
+static_assert( std::is_same_v< typename Eigen::VectorXld::Scalar, long double > );
+static_assert( std::is_same_v< typename Eigen::MatrixXld::Scalar, long double > );
+static_assert( std::is_same_v< typename Eigen::Vector3hps::Scalar, Scalar > );
+static_assert( std::is_same_v< typename Eigen::Vector6hps::Scalar, Scalar > );
+static_assert( std::is_same_v< typename Eigen::Vector7hps::Scalar, Scalar > );
+static_assert( std::is_same_v< typename Eigen::VectorXhps::Scalar, Scalar > );
+static_assert( std::is_same_v< typename Eigen::MatrixXhps::Scalar, Scalar > );
 
 constexpr bool timeHasExtendedLongDoublePrecision = std::numeric_limits< long double >::digits > std::numeric_limits< double >::digits;
 
