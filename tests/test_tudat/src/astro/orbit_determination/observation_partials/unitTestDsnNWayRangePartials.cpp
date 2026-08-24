@@ -54,7 +54,9 @@ std::vector< double > getRetransmissionDelays( const double evaluationTime, cons
 //! Test partial derivatives of DSN N-way range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
 {
-    Eigen::VectorXd parameterPerturbationMultipliers = ( Eigen::VectorXd( 4 ) << 1000.0, 1000.0, 1.0, 100.0 ).finished( );
+    const double tolerance = 5.0E-7;
+    const double positionPerturbationMultiplier = 5.0E0;
+    Eigen::VectorXd parameterPerturbationMultipliers = ( Eigen::VectorXd( 4 ) << 1.0E3, 5.0E2, 2.0E0, 1.0E1 ).finished( );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -114,10 +116,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
                                       fullEstimatableParameterSet,
                                       linkEnds,
                                       dsn_n_way_range,
-                                      1.0E-4,
+                                      tolerance,
                                       true,
                                       true,
-                                      1.0E-2,
+                                      positionPerturbationMultiplier,
                                       parameterPerturbationMultipliers,
                                       getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
                                                                         lowestRangingComponent,
@@ -165,10 +167,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayRangePartials )
                                       fullEstimatableParameterSet,
                                       linkEnds,
                                       dsn_n_way_range,
-                                      1.0E-4,
+                                      tolerance,
                                       false,
                                       true,
-                                      1.0E-2,
+                                      positionPerturbationMultiplier,
                                       parameterPerturbationMultipliers,
                                       getDsnNWayRangeAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
                                                                         lowestRangingComponent,
