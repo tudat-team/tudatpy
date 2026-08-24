@@ -125,3 +125,39 @@ This file records the implementation and independent review of the high-precisio
   `tudat_propagators_test_case_support`'s precompiled header because `MCD_DATA_PATH` was not defined consistently (`-Winvalid-pch`).
   Compilation correctly fell back to the normal header path. This is a pre-existing CMake/PCH configuration issue and is unrelated
   to the high-precision changes; no warning was emitted from changed code.
+
+## Quad-precision Python exposure branch
+
+- Switched to `feature/quad_precision_exposure` only after completing and committing the develop-branch work.
+- Merged `feature/quad_precision_develop` into the exposure branch without rebasing. The sole merge conflict was in the CI configure
+  command; resolved it by explicitly retaining both the quad high-precision scalar selection and quad Python exposure option.
+- Recorded the merge as commit `3bced14e4`; nothing was pushed.
+- Reviewed the import-time scalar-selection architecture before validation. The Python selection is locked when `tudatpy.kernel` is
+  imported, so a process cannot subsequently mix pybind registrations instantiated for different C++ scalar types.
+- Confirmed that Python scalar and NumPy boundaries deliberately remain binary64. The exposure changes the internal C++ state,
+  propagation, observation, and estimation instantiations; it does not claim to expose a Python quad numeric dtype.
+- Began a complete Release build in `tudatpy-dev`, `cmake-build-release`, with quad exposure enabled and `-j10`.
+
+### Exposure-branch warnings
+
+- CMake warned that the generated MCD C header was absent when first checking the source-tree path, then configured the MCD target
+  and its generated header normally. This is a configure-time dependency-order diagnostic, not a warning from exposure code.
+- The same unrelated `-Winvalid-pch` warning recorded on the develop branch occurred once in a propagator test because
+  `MCD_DATA_PATH` was not defined consistently for that PCH consumer. No exposure source emitted a compiler warning.
+
+### Exposure-branch validation and independent review
+
+- The complete Release build finished all 1124 actions successfully and linked `cmake-build-release/src/tudatpy/kernel.so` with
+  both the double and quad scalar-specific binding object libraries.
+- An initial Python test invocation resolved the editable/installed kernel instead of the in-tree artifact; all five tests therefore
+  failed on the missing new kernel metadata before exercising numerical behavior. This was an invalid environment selection, not a
+  code failure. With `PYTHONPATH` set to `cmake-build-release/src`, all five dedicated exposure tests passed in 11.52 seconds.
+- The complete CTest suite passed all 347 tests at `-j10` in 881.89 seconds.
+- The complete `tests/test_tudatpy` suite against the in-tree exposure kernel passed 248 tests in 201.46 seconds. Two live
+  Space-Track tests were skipped because their external credentials were not configured.
+- Re-read the exposure-only implementation after the green suites. Confirmed import-time locking prevents incompatible double and
+  quad pybind registrations from being mixed in one process, the scalar-specific sources consistently use the configured macro,
+  and the Python casters intentionally convert through binary64 at the public Python/NumPy boundary.
+- Added README documentation for the pre-kernel-import selection API, process-wide locking, availability query, double default, and
+  binary64 Python boundary. No code or tolerance change was justified by the final review.
+- `git diff --check` is clean, no `hpd` type aliases were introduced, and the user's existing submodule/untracked work remains untouched.

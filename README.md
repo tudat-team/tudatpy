@@ -101,8 +101,28 @@ cmake --build build
 The supported CMake values are `CPP_BIN_FLOAT_QUAD` (the default) and
 `LONG_DOUBLE`. This selection affects the C++ state API and its binary interface,
 so all libraries and C++ consumers must use the same configuration.
-The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
-limited to their supported scalar types.
+When TudatPy is built with `TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=ON`
+(the default), Python can select the C++ state scalar before importing the
+kernel:
+
+```python
+import tudatpy
+
+if tudatpy.quad_precision_available():
+    tudatpy.set_state_scalar_type("quad")
+
+from tudatpy import kernel
+```
+
+The default Python mode is `"double"`. The selection is process-wide and is
+locked by the first import of `tudatpy.kernel`; calling
+`set_state_scalar_type` afterwards raises an error. The active selection is
+reported by `tudatpy.get_state_scalar_type()`.
+
+The Boost scalar is not exposed as a Python numeric type. Python scalar and
+NumPy inputs and outputs remain binary64; selecting `"quad"` instantiates the
+supported internal C++ state, propagation, observation, and estimation paths
+with `HighPrecisionStateScalar`.
 
 Eigen typedefs ending in `ld` always use literal `long double`; typedefs ending
 in `hps` use the configured `HighPrecisionStateScalar`. Quad state arithmetic
