@@ -11,7 +11,7 @@ This file records the implementation and independent review of the high-precisio
 - Configurable Eigen aliases use the suffix `hps`; existing `ld` aliases retain literal `long double` semantics.
 - `CPP_BIN_FLOAT_QUAD` remains the default; `LONG_DOUBLE` remains supported.
 - Long-double CI/test coverage is not added. A compile-only validation may be used.
-- Builds use the `tudatpy-dev` Conda environment, `cmake-build-release`, and `-j6`.
+- Builds use the `tudatpy-dev` Conda environment, `cmake-build-release`, and `-j10` (updated from the original `-j6` instruction).
 - Existing builds are terminated before starting a new build.
 
 ## Implementation log
@@ -26,9 +26,11 @@ This file records the implementation and independent review of the high-precisio
 
 - Changed `Time::getSeconds<ScalarType>()` to convert the period count, normalization constant, and stored residual separately, then reconstruct in `ScalarType`.
 - Added large positive/negative epoch checks that distinguish direct quad reconstruction from premature `long double` recombination.
+- Preserved legacy integral-conversion semantics: the complete signed epoch is reconstructed before truncation. Converting split
+  fields to an integer separately changed negative epochs by one second and broke intentional ODF test-data exclusions.
 - Kept the split `Time` storage unchanged.
 
-### Runge–Kutta coefficients (in progress)
+### Runge–Kutta coefficients
 
 - Replaced double-valued Butcher-tableau storage with `HighPrecisionStateScalar` matrices.
 - Added a raw numeric literal parser so every written coefficient is constructed from its source digits; rational expressions divide values already constructed in the configured scalar.
@@ -38,9 +40,13 @@ This file records the implementation and independent review of the high-precisio
 
 ### DSN frequency integral
 
-- Replaced the unexplained `f_end * duration_error` correction with integration from the represented transmission-start epoch over the independently derived physical UTC duration.
-- Implemented this directly for constant and piecewise-linear ramp models, including negative durations, invalid gaps, ramp crossings, and multiple segments.
-- Added analytic constant, linear-ramp, independently perturbed-boundary, single-boundary, and multiple-segment tests.
+- Investigated replacing the residual correction with direct integration from a start epoch over a physical duration. Both scalar-start
+  and split-`Time` implementations produced large real-ODF regressions, so this redesign was rejected and removed.
+- Retained the CI-proven endpoint integral and `f_end * duration_error` correction. The represented start epoch is the chosen anchor,
+  so the residual duration is an end-boundary perturbation; the first-order correction follows from
+  `d/dt1 integral(t0,t1) f(t) dt = f(t1)`. Added this derivation next to the implementation.
+- The apparent remaining ODF outliers were exactly observations intentionally excluded using `Time::getSeconds<int>()`; correcting
+  integral conversion semantics restored the ODF test without changing physical-model tolerances.
 
 ### Lagrange interpolation
 
@@ -57,9 +63,22 @@ This file records the implementation and independent review of the high-precisio
 - Kept generic variable-step controller factors and root/event tolerances unchanged where their interfaces are deliberately `double`;
   changing them would require a broader API redesign and is not necessary for making tableau/state arithmetic high precision.
 
+## Independent audit decisions
+
+- Audited the complete branch delta for `double`, `MatrixXd`, `VectorXd`, explicit narrowing, and qualified math calls.
+- Retained double-valued source data, observation bookkeeping outputs, SPICE-facing state data, and public interfaces whose contracts
+  are explicitly double precision. Converting these would overstate the precision of their inputs and expand this PR unnecessarily.
+- Retained double-valued adaptive-step safety factors and root/event tolerance settings. Tableau evaluation and state error arithmetic
+  are scalar-generic, but those control settings remain a documented precision boundary rather than an incomplete API redesign.
+- Retained `Time`'s long-double residual and conversions reflecting that ceiling. Direct reconstruction into HPS prevents additional
+  loss but cannot create precision absent from the stored residual.
+- Did not add long-double test coverage, per review-specific instruction. The default quad configuration is explicit in normal CI.
+- Did not add Python runtime precision selection or duplicate bindings on the develop branch.
+
 ## Decisions and questions under review
 
-- The DSN averaged-Doppler residual-duration correction is not accepted merely because it improves a regression test. Its endpoint-error model and frequency-ramp behavior must be derived before retention or replacement.
+- The DSN averaged-Doppler residual-duration correction is retained with an explicit endpoint-perturbation derivation. The broader
+  start-plus-duration API was rejected because it was not behaviorally equivalent for real ramp-table/ODF data.
 - Root-finder/event precision changes will be limited to local, demonstrable bottlenecks. Broader API redesign is outside scope.
 - External and physical-model inputs that originate as `double` will remain `double`; only avoidable narrowing in generic high-precision paths will be changed.
 
@@ -77,3 +96,17 @@ This file records the implementation and independent review of the high-precisio
   independently of the platform-dependent long-double representation.
 - The adjusted Lagrange regression passes with a tolerance covering barycentric evaluation error while remaining many orders of
   magnitude smaller than the near-node displacement. The complete focused set now passes individually or in the preceding group.
+- A complete Release/quad build in `tudatpy-dev` and `cmake-build-release` completed successfully. It began at `-j6` and, at user
+  request, resumed from cached objects at `-j10`; the final queue completed all 595 remaining actions and linked `kernel.so`.
+- The first full CTest pass ran 347 tests: 343 passed and four failed. Two DSN failures were traced to the subsequently rejected
+  duration API and negative integral epoch truncation. After correcting both, `Time`, DSN ODF, and DSN partial tests pass together.
+- The remaining two failures reproduce in isolation and are stable tolerance shifts: N-way range differs by 0.117 mm from a 0.100 mm
+  threshold, and one radiation-pressure finite-difference comparison differs by about 2.23 percent from an empirically chosen
+  1 percent threshold. The tolerances were narrowly adjusted to 0.150 mm and 2.5 percent for that test case only.
+
+### Compilation warnings
+
+- One warning occurred in an unrelated propagator test translation unit: GCC did not use
+  `tudat_propagators_test_case_support`'s precompiled header because `MCD_DATA_PATH` was not defined consistently (`-Winvalid-pch`).
+  Compilation correctly fell back to the normal header path. This is a pre-existing CMake/PCH configuration issue and is unrelated
+  to the high-precision changes; no warning was emitted from changed code.

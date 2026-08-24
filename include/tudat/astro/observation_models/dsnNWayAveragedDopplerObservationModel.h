@@ -299,6 +299,12 @@ public:
 
         TimeType transmissionUtcStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
+        TimeType transmissionUtcEndTime = timeScaleConverter_->template getCurrentTime< TimeType >(
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
+
+        ObservationScalarType transmitterFrequencyIntegral =
+                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
+                                                                                                                   transmissionUtcEndTime );
         const ObservationScalarType integrationTimeScalar = convertIndependentVariableToScalar< ObservationScalarType >( integrationTime );
         const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
                 timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
@@ -315,14 +321,15 @@ public:
                         transmissionTdbStartTime,
                         transmissionTdbEndTime,
                         nominalTransmittingStationState );
-        // Integrate from the represented transmission-start epoch using the independently derived physical UTC duration. This avoids
-        // replacing the duration by the difference of two normalized Time objects and is exact for every constant or piecewise-linear
-        // ramp segment, including intervals that cross ramp boundaries.
-        const ObservationScalarType transmissionUtcStartScalar =
-                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcStartTime );
-        const ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegralFromTimeAndDuration< ObservationScalarType >(
-                        transmissionUtcStartScalar, transmissionUtcDuration );
+        const ObservationScalarType representedTransmissionUtcDuration =
+                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcEndTime - transmissionUtcStartTime );
+
+        // The represented start epoch is the integration anchor. Consequently the residual between the independently
+        // computed physical duration and the represented endpoint separation is an end-boundary perturbation only.
+        // From d/dt1 integral(t0,t1) f(t)dt = f(t1), its first-order contribution is f(t1) * delta_t1.
+        const ObservationScalarType endTransmissionFrequency =
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmissionUtcEndTime );
+        transmitterFrequencyIntegral += endTransmissionFrequency * ( transmissionUtcDuration - representedTransmissionUtcDuration );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =

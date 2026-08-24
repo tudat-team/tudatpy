@@ -976,8 +976,18 @@ public:
     template< typename ScalarType >
     ScalarType getSeconds( ) const
     {
-        return static_cast< ScalarType >( fullPeriods_ ) * static_cast< ScalarType >( TIME_NORMALIZATION_INTEGER_TERM ) +
-                static_cast< ScalarType >( secondsIntoFullPeriod_ );
+        if constexpr( std::is_integral_v< ScalarType > )
+        {
+            // Preserve conversion of the complete signed epoch before truncation. Converting the split terms to an
+            // integer separately can differ by one period-relative second for negative epochs.
+            return static_cast< ScalarType >( static_cast< long double >( fullPeriods_ ) * TIME_NORMALIZATION_TERM +
+                                              secondsIntoFullPeriod_ );
+        }
+        else
+        {
+            return static_cast< ScalarType >( fullPeriods_ ) * static_cast< ScalarType >( TIME_NORMALIZATION_INTEGER_TERM ) +
+                    static_cast< ScalarType >( secondsIntoFullPeriod_ );
+        }
     }
 
     //! Function to get the total seconds since epoch, in int precision (cast of Time to int)

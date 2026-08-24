@@ -66,21 +66,6 @@ HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyInte
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
-template<>
-double StationFrequencyInterpolator::getTemplatedFrequencyIntegralFromTimeAndDuration( const double& quadratureStartTime,
-                                                                                       const double& duration )
-{
-    return getFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
-}
-
-template<>
-HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyIntegralFromTimeAndDuration(
-        const HighPrecisionStateScalar& quadratureStartTime,
-        const HighPrecisionStateScalar& duration )
-{
-    return getLongFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
-}
-
 void PiecewiseLinearFrequencyInterpolator::initialize( )
 {
     invalidTimeBlocksStartTimes_.clear( );

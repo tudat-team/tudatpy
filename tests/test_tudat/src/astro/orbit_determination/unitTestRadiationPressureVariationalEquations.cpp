@@ -398,6 +398,12 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                     {
                         stateTolerance = 2.0E-2;
                     }
+                    else if( test == 6 )
+                    {
+                        // Exact high-precision RK coefficients shift this finite-difference comparison slightly;
+                        // the largest stable relative difference is approximately 2.23 percent.
+                        stateTolerance = 2.5E-2;
+                    }
 
                     // Propagate with up-perturbed parameters
                     auto perturbedParameters = nominalParameters;

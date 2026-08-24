@@ -61,15 +61,6 @@ public:
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
 
-    /*! Integrate frequency from an absolute epoch over an explicitly represented duration.
-     *
-     * This interface avoids reconstructing a short integration interval by subtracting two independently normalized
-     * absolute epochs. Both inputs are expressed directly in the requested observation scalar.
-     */
-    template< typename ObservationScalarType = double >
-    ObservationScalarType getTemplatedFrequencyIntegralFromTimeAndDuration( const ObservationScalarType& quadratureStartTime,
-                                                                            const ObservationScalarType& duration );
-
 private:
     //! Get frequency (with long double as observation scalar type and double as time type).
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
@@ -94,11 +85,6 @@ private:
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
     virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
-
-    virtual double getFrequencyIntegralFromTimeAndDuration( const double quadratureStartTime, const double duration ) = 0;
-
-    virtual HighPrecisionStateScalar getLongFrequencyIntegralFromTimeAndDuration( const HighPrecisionStateScalar& quadratureStartTime,
-                                                                                  const HighPrecisionStateScalar& duration ) = 0;
 };
 
 class ConstantFrequencyInterpolator : public StationFrequencyInterpolator
@@ -121,13 +107,6 @@ public:
     {
         return static_cast< ObservationScalarType >( frequency_ ) *
                 convertIndependentVariableToScalar< ObservationScalarType >( quadratureEndTime - quadratureStartTime );
-    }
-
-    template< typename ObservationScalarType = double >
-    ObservationScalarType computeFrequencyIntegralFromTimeAndDuration( const ObservationScalarType quadratureStartTime,
-                                                                       const ObservationScalarType duration )
-    {
-        return static_cast< ObservationScalarType >( frequency_ ) * duration;
     }
 
 private:
@@ -177,17 +156,6 @@ private:
     virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
-    }
-
-    virtual double getFrequencyIntegralFromTimeAndDuration( const double quadratureStartTime, const double duration )
-    {
-        return computeFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
-    }
-
-    virtual HighPrecisionStateScalar getLongFrequencyIntegralFromTimeAndDuration( const HighPrecisionStateScalar& quadratureStartTime,
-                                                                                  const HighPrecisionStateScalar& duration )
-    {
-        return computeFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
     }
 
     double frequency_;
@@ -364,75 +332,6 @@ public:
         return integral;
     }
 
-    template< typename ObservationScalarType = double >
-    ObservationScalarType computeFrequencyIntegralFromTimeAndDuration( ObservationScalarType quadratureStartTime,
-                                                                       ObservationScalarType duration )
-    {
-        if( duration < ObservationScalarType( 0 ) )
-        {
-            return -computeFrequencyIntegralFromTimeAndDuration( quadratureStartTime + duration, -duration );
-        }
-
-        const ObservationScalarType quadratureEndTime = quadratureStartTime + duration;
-        std::vector< ObservationScalarType > scalarStartTimes;
-        scalarStartTimes.reserve( startTimes_.size( ) );
-        for( const Time& startTime : startTimes_ )
-        {
-            scalarStartTimes.push_back( startTime.template getSeconds< ObservationScalarType >( ) );
-        }
-
-        for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); ++i )
-        {
-            const ObservationScalarType invalidStart = invalidTimeBlocksStartTimes_.at( i ).template getSeconds< ObservationScalarType >( );
-            const ObservationScalarType invalidEnd = invalidTimeBlocksEndTimes_.at( i ).template getSeconds< ObservationScalarType >( );
-            if( quadratureStartTime < invalidEnd && quadratureEndTime > invalidStart )
-            {
-                handleGap(
-                        "Error when integrating ramp reference frequency: scalar interval overlaps a time interval without "
-                        "transmitted frequency." );
-            }
-        }
-
-        int currentRamp = 0;
-        for( unsigned int i = 1; i < scalarStartTimes.size( ); ++i )
-        {
-            if( scalarStartTimes.at( i ) <= quadratureStartTime )
-            {
-                currentRamp = static_cast< int >( i );
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        ObservationScalarType integral = ObservationScalarType( 0 );
-        ObservationScalarType currentTime = quadratureStartTime;
-        while( currentTime < quadratureEndTime )
-        {
-            ObservationScalarType segmentEnd = quadratureEndTime;
-            if( currentRamp + 1 < static_cast< int >( scalarStartTimes.size( ) ) && scalarStartTimes.at( currentRamp + 1 ) < segmentEnd )
-            {
-                segmentEnd = scalarStartTimes.at( currentRamp + 1 );
-            }
-
-            const ObservationScalarType startOffset = currentTime - scalarStartTimes.at( currentRamp );
-            const ObservationScalarType endOffset = segmentEnd - scalarStartTimes.at( currentRamp );
-            const ObservationScalarType startFrequency = static_cast< ObservationScalarType >( startFrequencies_.at( currentRamp ) ) +
-                    static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) * startOffset;
-            const ObservationScalarType endFrequency = static_cast< ObservationScalarType >( startFrequencies_.at( currentRamp ) ) +
-                    static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) * endOffset;
-            integral += ( segmentEnd - currentTime ) * ( startFrequency + endFrequency ) / ObservationScalarType( 2 );
-
-            currentTime = segmentEnd;
-            if( currentRamp + 1 < static_cast< int >( scalarStartTimes.size( ) ) && currentTime == scalarStartTimes.at( currentRamp + 1 ) )
-            {
-                ++currentRamp;
-            }
-        }
-        return integral;
-    }
-
     //! Function to retrieve ramp start times
     std::vector< Time > getStartTimes( )
     {
@@ -547,17 +446,6 @@ private:
     virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
-    }
-
-    virtual double getFrequencyIntegralFromTimeAndDuration( const double quadratureStartTime, const double duration )
-    {
-        return computeFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
-    }
-
-    virtual HighPrecisionStateScalar getLongFrequencyIntegralFromTimeAndDuration( const HighPrecisionStateScalar& quadratureStartTime,
-                                                                                  const HighPrecisionStateScalar& duration )
-    {
-        return computeFrequencyIntegralFromTimeAndDuration( quadratureStartTime, duration );
     }
 
     //! Start time of each ramp

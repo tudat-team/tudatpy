@@ -49,6 +49,10 @@ BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
                                     std::numeric_limits< long double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION(
                 static_cast< double >( testTime ), 2.0 * TIME_NORMALIZATION_TERM + PI, std::numeric_limits< double >::epsilon( ) );
+
+        const Time negativeTime( -25540040.8144906L );
+        BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), -25540040 );
+        BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), static_cast< int >( static_cast< long double >( negativeTime ) ) );
     }
 
     // Test if Time pre-/post-multiplies Eigen vectors at expected level of precision
