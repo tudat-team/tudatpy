@@ -133,8 +133,9 @@ BOOST_AUTO_TEST_CASE( testLargeEpochExactAndNearNodeRequests )
     const Time nearNode = exactNode + Time( 1.0e-9L );
     const HighPrecisionStateScalar nearValue = interpolator.interpolate( nearNode );
     BOOST_CHECK_NE( nearValue, HighPrecisionStateScalar( 5 ) );
-    const HighPrecisionStateScalar expectedNearValue = HighPrecisionStateScalar( 5001 ) / HighPrecisionStateScalar( 1000 );
-    BOOST_CHECK_CLOSE_FRACTION( nearValue, expectedNearValue, HighPrecisionStateScalar( 1.0e-12L ) );
+    const HighPrecisionStateScalar expectedNearValue = HighPrecisionStateScalar( 5 ) +
+            convertIndependentVariableToScalar< HighPrecisionStateScalar >( nearNode - exactNode ) / HighPrecisionStateScalar( spacing );
+    BOOST_CHECK_CLOSE_FRACTION( nearValue, expectedNearValue, HighPrecisionStateScalar( 1.0e-13L ) );
 }
 
 // Test whetehr Lagrange interpolator can properly reproduce polynomial interpolation

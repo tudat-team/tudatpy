@@ -23,6 +23,8 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 
 #include <cstdlib>
+#include <iomanip>
+#include <limits>
 #include <type_traits>
 
 namespace tudat
@@ -318,7 +320,8 @@ void initializeRalston4Coefficients( RungeKuttaCoefficients& ralston4Coefficient
     ralston4Coefficients.isFixedStepSize = true;
 
     // Compute the square root of 5 to re-use later on.
-    double SQRT5 = std::sqrt( 5.0_hps );
+    using std::sqrt;
+    const HighPrecisionStateScalar SQRT5 = sqrt( 5.0_hps );
 
     // Define a-coefficients for the Ralston4 method of order 4 and with 4 stages.
     ralston4Coefficients.aCoefficients = Eigen::MatrixXhps::Zero( 4, 4 );
@@ -986,7 +989,8 @@ void initializeRungeKuttaVerner89Coefficients( RungeKuttaCoefficients& rungeKutt
     // http://www.jstor.org/stable/2156139
 
     // Compute the square root of 6 to re-use later on.
-    double SQRT6 = std::sqrt( 6.0_hps );
+    using std::sqrt;
+    const HighPrecisionStateScalar SQRT6 = sqrt( 6.0_hps );
 
     // a-coefficients for the Runge-Kutta-Verner method of order 8
     // with an embedded 9th-order method for stepsize control and a total of 16 stages.
@@ -2634,76 +2638,30 @@ void printButcherTableau( CoefficientSets coefficientSet )
 
     std::cout << "Butcher tableau of the " << coefficients.name << " coefficients: " << std::endl;
 
-    // Create a zero matrix of the same size as aCoefficients plus 1.
-    Eigen::MatrixXd ButcherTable = Eigen::MatrixXhps::Zero( coefficients.aCoefficients.rows( ) + coefficients.bCoefficients.rows( ),
-                                                            coefficients.bCoefficients.cols( ) + 1 );
-
-    // Set the table first column to the values of cCoefficients.
-    ButcherTable.block( 0, 0, coefficients.cCoefficients.rows( ), 1 ) = coefficients.cCoefficients;
-
-    // Set the table last row(s) to the values of bCoefficients.
-    ButcherTable.block( coefficients.aCoefficients.rows( ), 1, coefficients.bCoefficients.rows( ), coefficients.bCoefficients.cols( ) ) =
-            coefficients.bCoefficients;
-
-    // Set the rest of the table to the values of aCoefficients.
-    ButcherTable.block( 0, 1, coefficients.aCoefficients.rows( ), coefficients.aCoefficients.cols( ) ) = coefficients.aCoefficients;
-
-    // Feed the full Butcher tableau into a stringstream (to make use of the precision/formatting from IOFormat implemented in Eigen).
-    std::stringstream tableStream;
-    tableStream << ButcherTable;
-    int line_i = 0;
-    int first_column_end = -1;
-    std::string line;
-    // Go trough each of the table lines.
-    while( std::getline( tableStream, line, '\n' ) )
+    // Stream elements individually: Eigen's matrix formatter assumes NumTraits::max_digits10,
+    // which is not provided by every supported multiprecision scalar.
+    const std::streamsize previousPrecision = std::cout.precision( );
+    std::cout << std::setprecision( std::numeric_limits< HighPrecisionStateScalar >::max_digits10 );
+    for( Eigen::Index row = 0; row < coefficients.aCoefficients.rows( ); ++row )
     {
-        // If the index at which the first column ends is not known yet, find it.
-        if( first_column_end == -1 )
+        std::cout << coefficients.cCoefficients( row ) << " |";
+        for( Eigen::Index column = 0; column < coefficients.aCoefficients.cols( ); ++column )
         {
-            bool has_encountered_non_space = false;
-            // Go trough each of the line characters.
-            for( unsigned int i = 0; i < line.length( ); i++ )
-            {
-                // If the character is not a space, remember it.
-                if( line[ i ] != ' ' )
-                {
-                    has_encountered_non_space = true;
-                }
-                // If the character is a space and we have encountered a non-space character before...
-                if( line[ i ] == ' ' && has_encountered_non_space )
-                {
-                    // Remember the index at which the first column ends.
-                    first_column_end = i;
-                    break;
-                }
-            }
+            std::cout << ' ' << coefficients.aCoefficients( row, column );
         }
-
-        // Add a vertical bar after the end of the first column.
-        line.insert( first_column_end + 1, "| " );
-
-        // If we are in the last row(s)...
-        if( line_i >= ButcherTable.rows( ) - coefficients.bCoefficients.rows( ) )
-        {
-            // Replace every character in the line before the first column end by a space (do not print 0 in bottom left tableau section).
-            for( int i = 0; i < first_column_end; i++ )
-            {
-                line[ i ] = ' ';
-            }
-        }
-
-        // Print the line.
-        std::cout << line << std::endl;
-
-        // Print a dash line to show the separation between a and b coefficients.
-        if( line_i == ButcherTable.rows( ) - coefficients.bCoefficients.rows( ) - 1 )
-        {
-            std::string dash_line( line.length( ) - 1, '-' );
-            dash_line.insert( first_column_end + 1, "|" );
-            std::cout << dash_line << std::endl;
-        }
-        line_i++;
+        std::cout << std::endl;
     }
+    std::cout << "--|" << std::endl;
+    for( Eigen::Index row = 0; row < coefficients.bCoefficients.rows( ); ++row )
+    {
+        std::cout << "  |";
+        for( Eigen::Index column = 0; column < coefficients.bCoefficients.cols( ); ++column )
+        {
+            std::cout << ' ' << coefficients.bCoefficients( row, column );
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::setprecision( previousPrecision );
 }
 
 }  // namespace numerical_integrators

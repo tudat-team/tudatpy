@@ -104,6 +104,15 @@ so all libraries and C++ consumers must use the same configuration.
 The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
 limited to their supported scalar types.
 
+Eigen typedefs ending in `ld` always use literal `long double`; typedefs ending
+in `hps` use the configured `HighPrecisionStateScalar`. Quad state arithmetic
+does not make every input or external interface quad precision. In particular,
+`Time` retains its split representation with a `long double` fractional field,
+and data or APIs defined as `double` remain limited to that precision. The
+effective epoch resolution therefore depends on the platform's `long double`
+implementation (commonly extended precision on Linux/x86, but equivalent to
+`double` with MSVC).
+
 7. Install
 
 ```

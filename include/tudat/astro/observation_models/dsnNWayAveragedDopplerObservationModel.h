@@ -299,9 +299,6 @@ public:
 
         TimeType transmissionUtcStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
-        TimeType transmissionUtcEndTime = timeScaleConverter_->template getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
-
         const ObservationScalarType integrationTimeScalar = convertIndependentVariableToScalar< ObservationScalarType >( integrationTime );
         const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
                 timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(

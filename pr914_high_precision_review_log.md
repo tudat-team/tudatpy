@@ -51,6 +51,12 @@ This file records the implementation and independent review of the high-precisio
 
 - Made the default quad scalar explicit on both Unix and Windows workflow configuration paths.
 
+### Documented precision boundaries
+
+- Documented `ld` versus `hps` alias semantics and the `Time`/external-double precision ceilings in the main build documentation.
+- Kept generic variable-step controller factors and root/event tolerances unchanged where their interfaces are deliberately `double`;
+  changing them would require a broader API redesign and is not necessary for making tableau/state arithmetic high precision.
+
 ## Decisions and questions under review
 
 - The DSN averaged-Doppler residual-duration correction is not accepted merely because it improves a regression test. Its endpoint-error model and frequency-ramp behavior must be derived before retention or replacement.
@@ -59,4 +65,15 @@ This file records the implementation and independent review of the high-precisio
 
 ## Validation log
 
-No post-change build or test has been run yet.
+- The first quad targeted build reached the numerical-integrator library and exposed two remaining coefficient-path narrowing defects:
+  `sqrt(5)`/`sqrt(6)` temporaries were still `double`, and the printable Butcher tableau was still `MatrixXd`.
+- Changed the square-root calls to ADL-compatible high-precision operations and retained the printable tableau in `MatrixXhps`.
+- Eigen cannot format this multiprecision matrix because its scalar traits lack `max_digits10`; preserved the diagnostic by streaming
+  each tableau element individually at `std::numeric_limits<HighPrecisionStateScalar>::max_digits10` precision.
+- The next targeted build compiled and linked the changed libraries and two tests, then found mixed `double`/HPS arguments in two
+  Boost.Test small-value assertions. Converted the tolerances to the coefficient scalar.
+- All six targeted executables subsequently built. Five tests passed; the new Lagrange test's assumed decimal oracle differed from
+  the exact `Time` residual by 1.7e-11 relative. Changed the oracle to use the stored `Time` difference, which tests interpolation
+  independently of the platform-dependent long-double representation.
+- The adjusted Lagrange regression passes with a tolerance covering barycentric evaluation error while remaining many orders of
+  magnitude smaller than the near-node displacement. The complete focused set now passes individually or in the preceding group.

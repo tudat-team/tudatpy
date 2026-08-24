@@ -53,7 +53,7 @@ void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const
             Eigen::VectorXhps::Constant( 2, HighPrecisionStateScalar( 1 ) ), coefficients.bCoefficients.rowwise( ).sum( ), tolerance );
 
     // Check that the first c-coefficient is zero.
-    BOOST_CHECK_SMALL( coefficients.cCoefficients( 0 ), tolerance );
+    BOOST_CHECK_SMALL( coefficients.cCoefficients( 0 ), HighPrecisionStateScalar( tolerance ) );
 
     // Check that the c-coefficient/a-coefficient relation holds.
     for( int i = 1; i < coefficients.cCoefficients.size( ); i++ )
@@ -61,7 +61,7 @@ void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const
         using std::abs;
         if( abs( coefficients.cCoefficients( i ) ) < tolerance )
         {
-            BOOST_CHECK_SMALL( coefficients.aCoefficients.row( i ).sum( ), tolerance );
+            BOOST_CHECK_SMALL( coefficients.aCoefficients.row( i ).sum( ), HighPrecisionStateScalar( tolerance ) );
         }
 
         else
