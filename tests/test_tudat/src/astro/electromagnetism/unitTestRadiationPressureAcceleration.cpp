@@ -72,6 +72,21 @@ BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressureAccelerationCannonbal
     const auto targetModel = std::make_shared< CannonballRadiationPressureTargetModel >( area, radiationPressureCoefficient );
     const auto noOccultation = std::make_shared< NoOccultingBodyOccultationModel >( );
 
+    BOOST_CHECK_THROW( ThreeCoefficientRadiationPressureAcceleration(
+                               nullptr,
+                               sourceShapeModel,
+                               [ & ] { return sourcePosition; },
+                               [ & ] { return sourceVelocity; },
+                               targetModel,
+                               [ & ] { return targetPosition; },
+                               [ = ] { return targetMass; },
+                               noOccultation,
+                               [ & ] { return referencePosition; },
+                               [ & ] { return referenceVelocity; },
+                               coefficients,
+                               "Earth" ),
+                       std::runtime_error );
+
     ThreeCoefficientRadiationPressureAcceleration threeCoefficientModel(
             sourceModel,
             sourceShapeModel,

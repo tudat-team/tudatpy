@@ -301,7 +301,7 @@ void expose_acceleration_setup( py::module& m )
 Settings for the three-coefficient solar-radiation-pressure model.
 
 The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in square metres, resolved in the
-source/reference-body UVW frame of McMahon and Scheeres (2015).
+source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 )doc" )
             .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
@@ -658,7 +658,10 @@ The acceleration is
 where :math:`\Phi` is the received irradiance and the UVW basis is tied to the source-centred orbit of the selected
 reference body. If no reference body is selected, the propagation central body is used. For the published Earth/Sun
 model, use Earth as the reference body and Sun as the body exerting the acceleration. All involved body states must
-use a common inertial frame orientation.
+use a common inertial frame orientation. Specifically, :math:`\hat{\mathbf U}` points from the reference body towards
+the source, :math:`\hat{\mathbf W}` is obtained using the fixed :math:`23.4^\circ` obliquity in the model, and
+:math:`\hat{\mathbf V}=\hat{\mathbf W}\times\hat{\mathbf U}`. See :cite:t:`mcmahon2015` for the model derivation and
+frame convention.
 
 An isotropic point radiation source and a cannonball radiation target must be configured in the environment. The
 cannonball target supplies the occultation configuration; its area and radiation-pressure coefficient are not used

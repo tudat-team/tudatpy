@@ -20,6 +20,15 @@ namespace
 
 constexpr double earthObliquityDegrees = 23.4;
 
+std::string getValidatedSourceName( const std::shared_ptr< IsotropicPointRadiationSourceModel >& sourceModel )
+{
+    if( sourceModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating three-coefficient radiation-pressure acceleration: source model is null." );
+    }
+    return sourceModel->getSourceName( );
+}
+
 void validateVectorNorm( const Eigen::Vector3d& vector, const std::string& vectorDescription )
 {
     if( !( vector.norm( ) > 0.0 ) )
@@ -51,7 +60,7 @@ ThreeCoefficientRadiationPressureAcceleration::ThreeCoefficientRadiationPressure
             []( ) { return Eigen::Quaterniond::Identity( ); },
             targetMassFunction,
             sourceToTargetOccultationModel,
-            sourceModel->getSourceName( ) ),
+            getValidatedSourceName( sourceModel ) ),
     sourceModel_( sourceModel ), sourceBodyShapeModel_( sourceBodyShapeModel ), sourceVelocityFunction_( sourceVelocityFunction ),
     referenceBodyPositionFunction_( referenceBodyPositionFunction ), referenceBodyVelocityFunction_( referenceBodyVelocityFunction ),
     coefficients_( coefficients ), referenceBodyName_( referenceBodyName ), currentBasis_( Eigen::Matrix3d::Constant( TUDAT_NAN ) ),
