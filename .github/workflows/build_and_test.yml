@@ -278,6 +278,10 @@ jobs:
       run: |
         python install.py -e
 
+    - name: Download resources
+      run: |
+        python -m tudatpy.resource_installer --mode update --files ''
+
     - name: Test Python
       shell: bash -l {0}
       run: |
