@@ -112,7 +112,7 @@ template< typename StateTimeType, typename StateScalarType, typename EphemerisTi
 void resetIntegratedEphemerisOfBody(
         const std::map< StateTimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
         const std::shared_ptr< ephemerides::TabulatedCartesianEphemeris< EphemerisScalarType, EphemerisTimeType > > tabulatedEphemeris,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > castEphemerisInput;
     utilities::castMatrixMap< StateTimeType, StateScalarType, EphemerisTimeType, EphemerisScalarType, 6, 1 >( ephemerisInput,
@@ -135,7 +135,7 @@ template< typename TimeType, typename StateScalarType >
 void resetIntegratedEphemerisOfBody( const simulation_setup::SystemOfBodies& bodies,
                                      const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
                                      const std::string& bodyToIntegrate,
-                                     const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+                                     const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
@@ -329,10 +329,10 @@ void createAndSetInterpolatorsForEphemerides(
         const int startIndex,
         const std::vector< std::string >& ephemerisUpdateOrder,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
         const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
                 integrationToEphemerisFrameFunctions =
-                        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ),
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+                        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     using namespace tudat::interpolators;
 
@@ -375,11 +375,11 @@ void resetIntegratedEphemerides(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
         const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
                 integrationToEphemerisFrameFunctions =
-                        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ),
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+                        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     // Set update order arbitrarily if no order is provided.
     if( ephemerisUpdateOrder.size( ) == 0 )
@@ -409,8 +409,8 @@ void resetIntegratedEphemerides(
                                              startIndexAndSize.first,
                                              ephemerisUpdateOrder,
                                              equationsOfMotionNumericalSolution,
-                                             integrationToEphemerisFrameFunctions,
-                                             interpolatorSettings );
+                                             interpolatorSettings,
+                                             integrationToEphemerisFrameFunctions );
 }
 
 //! Resets the ephemerides of the integrated bodies from the numerical multi-arc integration results.
@@ -436,12 +436,12 @@ void resetMultiArcIntegratedEphemerides(
         const std::vector< double > arcStartTimes,
         const std::vector< std::vector< std::string > >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
         std::vector< std::vector< std::string > > ephemerisUpdateOrder = std::vector< std::vector< std::string > >( ),
         const std::map< std::string, std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >&
                 multiArcIntegrationToEphemerisFrameFunctions =
                         std::map< std::string,
-                                  std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >( ),
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+                                  std::vector< std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > >( ) )
 {
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
@@ -662,7 +662,7 @@ void createAndSetInterpolatorsForRotationalEphemerides(
         const std::vector< std::string >& bodiesToIntegrate,
         const int startIndex,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     using namespace tudat::interpolators;
 
@@ -696,7 +696,7 @@ void resetIntegratedRotationalEphemerides(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     // Create interpolators from numerical integration results (states) at discrete times.
     createAndSetInterpolatorsForRotationalEphemerides(
@@ -956,9 +956,9 @@ public:
                                                                  numericalSolution,
                                                                  this->bodiesToIntegrate_,
                                                                  this->startIndexAndSize_,
+                                                                 this->getInterpolatorSettings( ),
                                                                  ephemerisUpdateOrder_,
-                                                                 integrationToEphemerisFrameFunctions_,
-                                                                 this->getInterpolatorSettings( ) );
+                                                                 integrationToEphemerisFrameFunctions_ );
     }
 
     std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
@@ -1095,9 +1095,9 @@ public:
                                                                          this->arcStartTimes_,
                                                                          this->bodiesToIntegrate_,
                                                                          this->startIndexAndSize_,
+                                                                         this->getInterpolatorSettings( ),
                                                                          ephemerisUpdateOrder_,
-                                                                         multiArcIntegrationToEphemerisFrameFunctions_,
-                                                                         this->getInterpolatorSettings( ) );
+                                                                         multiArcIntegrationToEphemerisFrameFunctions_ );
     }
 
 private:
