@@ -309,6 +309,22 @@ def _extract_tarball_members(
     return installed, failures
 
 
+def _required_tarball_targets(
+    targets: List[str], dest_root: Path, hashes: Optional[Dict[str, str]] = None
+) -> List[str]:
+    """Return archive members that are absent or fail their checksum."""
+    required = []
+    for target in targets:
+        dest_path = dest_root / target
+        if not dest_path.exists():
+            required.append(target)
+            continue
+        if hashes and (expected_hash := hashes.get(target)):
+            if not _verify_sha256(dest_path, expected_hash):
+                required.append(target)
+    return required
+
+
 def install_files(
     files: Dict[str, str],
     dest_path: Path,
@@ -340,6 +356,11 @@ def install_files(
             failures.append(failure)
 
     for tarball_url, targets in tarball_groups.items():
+        required_targets = (
+            targets if force else _required_tarball_targets(targets, dest_path, hashes)
+        )
+        if not required_targets:
+            continue
         expected = None
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
@@ -348,7 +369,7 @@ def install_files(
                 tarball_url, cache_dir, force=force, expected_hash=expected
             )
             extracted, extraction_failures = _extract_tarball_members(
-                tar_path, targets, dest_path, force=force, hashes=hashes
+                tar_path, required_targets, dest_path, force=force, hashes=hashes
             )
         except (
             ChecksumMismatchError,
@@ -357,7 +378,7 @@ def install_files(
             tarfile.TarError,
         ) as error:
             cache_path = cache_dir / _tarball_cache_name(tarball_url)
-            failure = _download_failure_message(targets, tarball_url, error, cache_path)
+            failure = _download_failure_message(required_targets, tarball_url, error, cache_path)
             warnings.warn(failure, RuntimeWarning, stacklevel=2)
             failures.append(failure)
             continue
