@@ -100,11 +100,14 @@ auto make_pickle_polymorphic_derived( )
 //  Use __VA_ARGS__ so template types with commas (e.g. Foo<A,B>) work
 // =====================================================================
 
-//! Add __eq__ and __ne__ to a pybind11 class_ chain using operator==
-#define TUDATPY_DEF_EQ_NE( ... )                                                                                                          \
-    .def( "__eq__", &__VA_ARGS__::operator==, py::arg( "rhs" ) ).def( "__ne__", []( const __VA_ARGS__& self, const __VA_ARGS__& other ) { \
-        return self != other;                                                                                                             \
-    } )
+//! Add __eq__, __ne__, and a compatibility hash to a pybind11 class_ chain.
+//! Python disables __hash__ when __eq__ is defined. A constant hash preserves
+//! the required invariant that equal objects have equal hashes, including for
+//! mutable settings whose value-based hash could otherwise change over time.
+#define TUDATPY_DEF_EQ_NE( ... )                                                                                \
+    .def( "__eq__", &__VA_ARGS__::operator==, py::arg( "rhs" ) )                                                \
+            .def( "__ne__", []( const __VA_ARGS__& self, const __VA_ARGS__& other ) { return self != other; } ) \
+            .def( "__hash__", []( const __VA_ARGS__& ) { return 0; } )
 
 #if TUDAT_BUILD_WITH_SERIALIZATION
 

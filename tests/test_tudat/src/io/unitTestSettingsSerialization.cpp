@@ -663,6 +663,27 @@ BOOST_AUTO_TEST_CASE( test_SerializationArchiveValidation )
     truncatedProvenance.write( "short", 5 );
     truncatedProvenance.seekg( 0 );
     BOOST_CHECK_THROW( serialization::readBinaryProvenance( truncatedProvenance ), std::runtime_error );
+
+    std::stringstream typedHeader( std::ios::in | std::ios::out | std::ios::binary );
+    serialization::writeBinaryHeader( typedHeader, "ExampleSettings" );
+    typedHeader.seekg( 0 );
+    const auto typedMetadata = serialization::parseBinaryHeaderPayload( serialization::readBinaryProvenance( typedHeader ) );
+    BOOST_CHECK_EQUAL( typedMetadata.provenance, serialization::currentProvenance( ) );
+    BOOST_CHECK_EQUAL( typedMetadata.rootType, "ExampleSettings" );
+
+    std::stringstream legacyHeader( std::ios::in | std::ios::out | std::ios::binary );
+    serialization::writeBinaryHeader( legacyHeader );
+    legacyHeader.seekg( 0 );
+    const auto legacyMetadata = serialization::parseBinaryHeaderPayload( serialization::readBinaryProvenance( legacyHeader ) );
+    BOOST_CHECK_EQUAL( legacyMetadata.provenance, serialization::currentProvenance( ) );
+    BOOST_CHECK( legacyMetadata.rootType.empty( ) );
+
+    BOOST_CHECK_NO_THROW( serialization::checkRootType( "ExampleSettings", "ExampleSettings" ) );
+    BOOST_CHECK_NO_THROW( serialization::checkRootType( "", "ExampleSettings" ) );
+    BOOST_CHECK_THROW( serialization::checkRootType( "ExampleSettings", "OtherSettings" ), std::runtime_error );
+
+    const std::string jsonMetadata = "{\"tudat_provenance\": \"version@commit@date\", \"tudat_root_type\": \"ExampleSettings\"}";
+    BOOST_CHECK_EQUAL( serialization::extractJsonRootType( jsonMetadata ), "ExampleSettings" );
 }
 
 // Test PropagationTerminationDetailsFromHybridCondition serialization

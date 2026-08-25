@@ -137,6 +137,44 @@ def assert_binary_poly_roundtrip(obj, base_class):
                 os.unlink(full)
 
 
+class TestSerializationMetadataAndHashing:
+    """Regression coverage for archive type metadata and equality-compatible hashing."""
+
+    def test_equal_objects_are_hashable(self):
+        first = acc.point_mass_gravity()
+        second = acc.point_mass_gravity()
+
+        assert first == second
+        assert hash(first) == hash(second) == 0
+        assert {first: "value"}[second] == "value"
+
+    @pytest.mark.parametrize(
+        ("extension", "save_method", "load_method"),
+        [
+            (".tudat", "save_to_binary", "load_from_binary"),
+            (".json", "save_to_json", "load_from_json"),
+        ],
+    )
+    def test_wrong_loader_reports_stored_and_requested_types(
+        self, extension, save_method, load_method
+    ):
+        obj = root_finders.bisection()
+        path = _temp_path()
+        try:
+            getattr(obj, save_method)(path)
+            wrong_class = ancillary_settings.ObservationAncillarySimulationSettings
+            with pytest.raises(RuntimeError) as error:
+                getattr(wrong_class, load_method)(path)
+
+            message = str(error.value)
+            assert "RootFinderSettings" in message
+            assert "ObservationAncillarySimulationSettings" in message
+        finally:
+            full = path + extension
+            if os.path.exists(full):
+                os.unlink(full)
+
+
 # ===========================================================================
 # 1. ACCELERATION SETTINGS  (polymorphic, has FILE_IO)
 # ===========================================================================
