@@ -1,6 +1,9 @@
 import os
+import socket
+from urllib.error import URLError
 
 import pytest
+import requests
 
 
 def pytest_addoption(parser):
@@ -68,3 +71,28 @@ def pytest_collection_modifyitems(config, items):
             "missing environment variable(s): " + ", ".join(missing_env),
             yellow=True,
         )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Treat unavailable remote services as skips, not test failures."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if (
+        report.when not in ("setup", "call")
+        or report.outcome != "failed"
+        or item.get_closest_marker("remote_data") is None
+        or call.excinfo is None
+        or not call.excinfo.errisinstance(
+            (requests.exceptions.RequestException, URLError, TimeoutError, socket.timeout)
+        )
+    ):
+        return
+
+    report.outcome = "skipped"
+    report.longrepr = (
+        str(item.path),
+        call.excinfo.traceback[-1].lineno,
+        f"Remote service unavailable: {call.excinfo.value}",
+    )
