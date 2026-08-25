@@ -830,10 +830,10 @@ In this example, the calendar date corresponding to when 122 days have passed in
                             microsecond = 0;
                         }
 
-                        // Handle potential leap second
+                        // Python datetime cannot represent leap seconds.
                         if( sec_int >= 60 )
                         {
-                            sec_int = 59;
+                            throw py::value_error( "Cannot convert a Tudat DateTime containing a leap second to Python datetime." );
                         }
 
                         // Call the cached constructor

@@ -122,3 +122,16 @@ def test_to_python_datetime_microseconds_overflow(dt, expected):
     """Verify that to_python_datetime correctly handles microsecond overflow."""
     result = dt.to_python_datetime()
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        DateTime(2016, 12, 31, 23, 59, 60.5),
+        DateTime(2016, 12, 31, 23, 59, 59.9999996),
+    ],
+)
+def test_to_python_datetime_rejects_leap_seconds(dt):
+    """Python datetime cannot represent explicit or rounded leap seconds."""
+    with pytest.raises(ValueError, match="leap second"):
+        dt.to_python_datetime()
