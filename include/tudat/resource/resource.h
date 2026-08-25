@@ -19,10 +19,6 @@
 #include <cstring>
 #include <string>
 
-// #define MAX_PREFIX_LEN 256
-// #define MAX_RESOURCE_LEN strlen("/resource")
-// #define MAX_RELATIVE_LEN 20
-
 namespace tudat
 {
 namespace paths
@@ -40,11 +36,6 @@ static inline std::string get_homedir( void )
     return std::string( homedir );
 }
 
-static inline std::string get_hidden_path( )
-{
-    return std::string( get_homedir( ) + "/.tudat" ).c_str( );
-}
-
 static inline std::string get_resources_path( )
 {
     if( const char* path_p = getenv( "TUDATPY_RESOURCE_DIR" ) )
@@ -55,58 +46,58 @@ static inline std::string get_resources_path( )
     }
     else  // TUDATPY_RESOURCE_DIR is not set
     {
-        return std::string( get_hidden_path( ) + RESOURCE ).c_str( );
+        return std::string( get_homedir( ) + "/.tudat" + RESOURCE ).c_str( );
     }
 }
 
 static inline std::string get_atmosphere_tables_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + ATMOSPHERE_TABLES ).c_str( );
+    return std::string( get_resources_path( ) + ATMOSPHERE_TABLES ).c_str( );
 }
 
 static inline std::string get_earth_orientation_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + EARTH_ORIENTATION ).c_str( );
+    return std::string( get_resources_path( ) + EARTH_ORIENTATION ).c_str( );
 }
 
 static inline std::string get_earth_deformation_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + EARTH_ORIENTATION ).c_str( );
+    return std::string( get_resources_path( ) + EARTH_ORIENTATION ).c_str( );
 }
 
 static inline std::string get_ephemeris_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + EPHEMERIS ).c_str( );
+    return std::string( get_resources_path( ) + EPHEMERIS ).c_str( );
 }
 
 static inline std::string get_gravity_models_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + GRAVITY_MODELS ).c_str( );
+    return std::string( get_resources_path( ) + GRAVITY_MODELS ).c_str( );
 }
 
 static inline std::string get_quadrature_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + QUADRATURE ).c_str( );
+    return std::string( get_resources_path( ) + QUADRATURE ).c_str( );
 }
 
 static inline std::string get_space_weather_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + SPACE_WEATHER ).c_str( );
+    return std::string( get_resources_path( ) + SPACE_WEATHER ).c_str( );
 }
 
 static inline std::string get_spice_kernels_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + SPICE_KERNELS ).c_str( );
+    return std::string( get_resources_path( ) + SPICE_KERNELS ).c_str( );
 }
 
 static inline std::string get_star_catalog_biases_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + STAR_CATALOG_BIASES ).c_str( );
+    return std::string( get_resources_path( ) + STAR_CATALOG_BIASES ).c_str( );
 }
 
 static inline std::string get_station_locations_path( )
 {
-    return std::string( get_hidden_path( ) + RESOURCE + STATION_LOCATIONS ).c_str( );
+    return std::string( get_resources_path( ) + STATION_LOCATIONS ).c_str( );
 }
 }  // namespace paths
 }  // namespace tudat
