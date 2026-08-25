@@ -607,7 +607,8 @@ class OMMUtils:
         Parameters
         ----------
         json_data : list[dict] | dict
-            One or more OMM records containing ``TLE_LINE1`` and ``TLE_LINE2``.
+            One or more OMM records. Records without both ``TLE_LINE1`` and
+            ``TLE_LINE2`` are ignored.
 
         Returns
         -------
@@ -620,7 +621,11 @@ class OMMUtils:
         final_dict = defaultdict(list)
 
         for entry in json_data:
-            final_dict[entry["NORAD_CAT_ID"]].append((entry["TLE_LINE1"], entry["TLE_LINE2"]))
+            tle_line_1 = entry.get("TLE_LINE1")
+            tle_line_2 = entry.get("TLE_LINE2")
+            if not tle_line_1 or not tle_line_2:
+                continue
+            final_dict[entry["NORAD_CAT_ID"]].append((tle_line_1, tle_line_2))
 
         return final_dict
 
