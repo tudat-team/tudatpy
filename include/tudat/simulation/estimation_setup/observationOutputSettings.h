@@ -41,7 +41,7 @@ enum ObservationDependentVariables {
     retransmission_delays_dependent_variable,
     link_end_epochs_dependent_variable,
     light_time_correction_components,
-    light_time
+    light_time_dependent_variable
 };
 
 //! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
@@ -487,7 +487,7 @@ inline std::shared_ptr< ObservationDependentVariableSettings > lightTimeBetweenL
         const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
     return std::make_shared< InterlinkObservationDependentVariableSettings >(
-            light_time, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
+            light_time_dependent_variable, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
 }
 
 //! Function to create a dependent variable computing the link avoidance angle w.r.t. a given body
