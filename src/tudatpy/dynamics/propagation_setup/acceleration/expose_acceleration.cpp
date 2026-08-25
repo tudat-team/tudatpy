@@ -223,6 +223,9 @@ void expose_acceleration_setup( py::module& m )
                     tba::AvailableAcceleration::radiation_pressure,
                     R"doc(
       )doc" )
+            .value( "three_coefficient_radiation_pressure_type",
+                    tba::AvailableAcceleration::three_coefficient_radiation_pressure,
+                    R"doc(Three-coefficient solar-radiation-pressure acceleration.)doc" )
             .value( "einstein_infeld_hoffmann_acceleration_type",
                     tba::AvailableAcceleration::einstein_infeld_hoffmann_acceleration,
                     R"doc(
@@ -288,6 +291,21 @@ void expose_acceleration_setup( py::module& m )
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
+
+    py::class_< tss::ThreeCoefficientRadiationPressureAccelerationSettings,
+                std::shared_ptr< tss::ThreeCoefficientRadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "ThreeCoefficientRadiationPressureAccelerationSettings",
+                                             R"doc(
+
+Settings for the three-coefficient solar-radiation-pressure model.
+
+The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in square metres, resolved in the
+source/reference-body UVW frame of :cite:t:`mcmahon2015`.
+
+)doc" )
+            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
+            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -623,6 +641,46 @@ AccelerationSettings
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure",
+           &tss::threeCoefficientRadiationPressureAcceleration,
+           py::arg( "coefficients" ),
+           py::arg( "reference_body" ) = "",
+           R"doc(
+
+Creates settings for the three-coefficient solar-radiation-pressure acceleration.
+
+The acceleration is
+
+.. math::
+   \mathbf{a}=\frac{\Phi}{c m}\left(A_1\hat{\mathbf U}+A_2\hat{\mathbf V}+A_3\hat{\mathbf W}\right),
+
+where :math:`\Phi` is the received irradiance and the UVW basis is tied to the source-centred orbit of the selected
+reference body. If no reference body is selected, the propagation central body is used. For the published Earth/Sun
+model, use Earth as the reference body and Sun as the body exerting the acceleration. All involved body states must
+use a common inertial frame orientation. Specifically, :math:`\hat{\mathbf U}` points from the reference body towards
+the source, :math:`\hat{\mathbf W}` is obtained using the fixed :math:`23.4^\circ` obliquity in the model, and
+:math:`\hat{\mathbf V}=\hat{\mathbf W}\times\hat{\mathbf U}`. See :cite:t:`mcmahon2015` for the model derivation and
+frame convention.
+
+An isotropic point radiation source and a cannonball radiation target must be configured in the environment. The
+cannonball target supplies the occultation configuration; its area and radiation-pressure coefficient are not used
+by this acceleration. Selecting the accelerated body as the reference body and using
+:math:`(-C_R A,0,0)` gives the cannonball model exactly.
+
+Parameters
+----------
+coefficients : numpy.ndarray
+    Three-vector :math:`(A_1,A_2,A_3)` of constant effective areas in square metres.
+reference_body : str, default=""
+    Body defining the source-centred UVW frame. An empty string selects the propagation central body.
+
+Returns
+-------
+ThreeCoefficientRadiationPressureAccelerationSettings
+    Settings for the three-coefficient radiation-pressure acceleration.
+
+)doc" );
 
     m.def( "cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration );
 

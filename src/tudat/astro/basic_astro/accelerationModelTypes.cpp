@@ -16,6 +16,7 @@
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
@@ -102,6 +103,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
             break;
         case radiation_pressure:
             accelerationName = "radiation pressure acceleration";
+            break;
+        case three_coefficient_radiation_pressure:
+            accelerationName = "three-coefficient radiation pressure acceleration";
             break;
         case cannon_ball_radiation_pressure:
             accelerationName = "cannonball radiation pressure acceleration (deprecated)";
@@ -227,6 +231,10 @@ AvailableAcceleration getAccelerationModelType(
             accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
         }
     }
+    else if( std::dynamic_pointer_cast< ThreeCoefficientRadiationPressureAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = three_coefficient_radiation_pressure;
+    }
     else if( std::dynamic_pointer_cast< RadiationPressureAcceleration >( accelerationModel ) != NULL )
     {
         accelerationType = radiation_pressure;
@@ -288,6 +296,7 @@ bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleratio
         case aerodynamic:
         case cannon_ball_radiation_pressure:
         case radiation_pressure:
+        case three_coefficient_radiation_pressure:
             return true;
         default:
             throw std::runtime_error( "Error when determining if parameter is area-to-mass dependent, acceleration " +

@@ -1283,6 +1283,15 @@ inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoeffici
     return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );
 }
 
+//! Settings for estimating the three area coefficients of a three-coefficient radiation-pressure acceleration.
+inline std::shared_ptr< EstimatableParameterSettings > threeCoefficientRadiationPressureCoefficients(
+        const std::string& bodyName,
+        const std::string& radiationSourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+            bodyName, three_coefficient_radiation_pressure_coefficients, radiationSourceName );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > sphericalHarmonicsCosineBlock( const std::string bodyName,
                                                                                       const int minimumDegree,
                                                                                       const int minimumOrder,

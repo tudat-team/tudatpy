@@ -67,6 +67,8 @@ void expose_parameters_setup_types( py::module& m )
             .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
             .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
             .value( "radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient )
+            .value( "three_coefficient_radiation_pressure_coefficients_type",
+                    tep::EstimatebleParametersEnum::three_coefficient_radiation_pressure_coefficients )
             .value( "arc_wise_radiation_pressure_coefficient_type",
                     tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient )
             .value( "spherical_harmonics_cosine_coefficient_block_type",
@@ -556,6 +558,32 @@ void expose_parameters_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure_coefficients",
+           &tep::threeCoefficientRadiationPressureCoefficients,
+           py::arg( "body" ),
+           py::arg( "radiation_source" ),
+           R"doc(
+
+Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
+
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+linked to every matching three-coefficient acceleration from ``radiation_source`` acting on ``body`` in the supplied
+propagator settings.
+
+Parameters
+----------
+body : str
+    Body undergoing the three-coefficient radiation-pressure acceleration.
+radiation_source : str
+    Body emitting the radiation and exerting the acceleration.
+
+Returns
+-------
+EstimatableParameterSettings
+    Settings for the size-three coefficient parameter.
+
+)doc" );
 
     m.def( "arcwise_radiation_pressure_coefficient",
            &tep::arcwiseRadiationPressureCoefficient,
