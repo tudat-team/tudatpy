@@ -8,8 +8,8 @@ def pytest_addoption(parser):
         "--remote-data",
         action="store_true",
         dest="remote_data",
-        default=True,
-        help="run tests that require a network connection (default)",
+        default=False,
+        help="run tests that require a network connection (disabled by default)",
     )
     parser.addoption(
         "--no-remote-data",
@@ -38,7 +38,7 @@ def pytest_collection_modifyitems(config, items):
 
         if not run_remote_tests:
             item.add_marker(
-                pytest.mark.skip(reason="remote-data tests disabled with --no-remote-data")
+                pytest.mark.skip(reason="remote-data tests disabled; use --remote-data to enable")
             )
             continue
 
