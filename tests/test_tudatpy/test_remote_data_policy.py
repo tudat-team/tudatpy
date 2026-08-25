@@ -1,6 +1,8 @@
 import importlib.util
+import socket
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
@@ -39,14 +41,37 @@ def _run_report_hook(exception):
     return report
 
 
-def test_remote_connection_failure_is_skipped():
-    report = _run_report_hook(requests.ConnectionError("offline"))
+@pytest.mark.parametrize(
+    "exception",
+    (
+        requests.ConnectionError("offline"),
+        requests.ConnectTimeout("connect timed out"),
+        requests.ReadTimeout("read timed out"),
+        ConnectionRefusedError("connection refused"),
+        ConnectionResetError("connection reset"),
+        socket.gaierror("name resolution failed"),
+        URLError("offline"),
+    ),
+)
+def test_remote_connectivity_failure_is_skipped(exception):
+    report = _run_report_hook(exception)
 
     assert report.outcome == "skipped"
-    assert "Remote service unavailable: offline" in report.longrepr[2]
+    assert "Remote service unavailable:" in report.longrepr[2]
 
 
-def test_remote_assertion_failure_still_fails():
-    report = _run_report_hook(AssertionError("incorrect result"))
+@pytest.mark.parametrize(
+    "exception",
+    (
+        AssertionError("incorrect result"),
+        requests.HTTPError("HTTP 500"),
+        requests.exceptions.InvalidURL("invalid URL"),
+        requests.exceptions.InvalidJSONError("invalid JSON"),
+        requests.exceptions.SSLError("certificate verification failed"),
+        HTTPError("https://example.invalid", 500, "server error", None, None),
+    ),
+)
+def test_non_connectivity_failure_still_fails(exception):
+    report = _run_report_hook(exception)
 
     assert report.outcome == "failed"

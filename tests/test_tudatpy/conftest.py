@@ -1,9 +1,30 @@
 import os
 import socket
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 import pytest
 import requests
+
+
+def _is_connectivity_failure(exception):
+    """Return whether an exception represents an unavailable remote service."""
+    if isinstance(
+        exception,
+        (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            ConnectionRefusedError,
+            ConnectionResetError,
+            socket.gaierror,
+            TimeoutError,
+        ),
+    ):
+        return not isinstance(
+            exception,
+            (requests.exceptions.SSLError, requests.exceptions.InvalidURL),
+        )
+
+    return isinstance(exception, URLError) and not isinstance(exception, HTTPError)
 
 
 def pytest_addoption(parser):
@@ -84,9 +105,7 @@ def pytest_runtest_makereport(item, call):
         or report.outcome != "failed"
         or item.get_closest_marker("remote_data") is None
         or call.excinfo is None
-        or not call.excinfo.errisinstance(
-            (requests.exceptions.RequestException, URLError, TimeoutError, socket.timeout)
-        )
+        or not _is_connectivity_failure(call.excinfo.value)
     ):
         return
 
