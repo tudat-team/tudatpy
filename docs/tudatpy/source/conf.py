@@ -256,6 +256,7 @@ def _rewrite_overloaded_list_items(lines):
             continue
 
         indent, index, signature = match.groups()
+        signature = simplify_type_annotations(signature)
         rewritten_lines.append(f"{indent}Overload {index}:")
         rewritten_lines.append(f"{indent}``{signature}``")
 
@@ -352,7 +353,17 @@ def replace_annotated_nparrays(text: str) -> str:
         typing\.Annotated\[
             \s*numpy\.typing\.ArrayLike\s*,
             \s*(?P<dtype>[^,\]]+)\s*,
-            \s*"\[(?P<shape>[^\]]+)\]"\s*
+            \s*(?P<quote>["'])\[(?P<shape>[^\]]+)\](?P=quote)\s*
+        \]
+        """,
+        re.VERBOSE,
+    )
+
+    pattern_unshaped_arraylike = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.ArrayLike\s*,
+            \s*(?P<dtype>[^,\]]+)\s*
         \]
         """,
         re.VERBOSE,
@@ -366,7 +377,7 @@ def replace_annotated_nparrays(text: str) -> str:
                 \s*(?P<dtype>[^\]]+)\s*
             \]
             \s*,\s*
-            "\[(?P<shape>[^\]]+)\]"
+            (?P<quote>["'])\[(?P<shape>[^\]]+)\](?P=quote)
             \s*
         \]
         """,
@@ -379,38 +390,73 @@ def replace_annotated_nparrays(text: str) -> str:
         return f"numpy.ndarray[{dtype}[{shape}]]"
 
     text = pattern_arraylike.sub(repl, text)
+    text = pattern_unshaped_arraylike.sub(
+        lambda match: f"numpy.ndarray[{match.group('dtype').strip()}]", text
+    )
     text = pattern_ndarray.sub(repl, text)
 
     return text
 
 
-def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
+SCALAR_PROTOCOL_UNIONS = (
+    (
+        re.compile(
+            r"(?:(?:typing\.)?SupportsComplex|complex)\s*\|\s*"
+            r"(?:(?:typing\.)?SupportsFloat|float)\s*\|\s*"
+            r"(?:typing\.)?SupportsIndex"
+        ),
+        "complex",
+    ),
+    (
+        re.compile(r"(?:(?:typing\.)?SupportsFloat|float)\s*\|\s*" r"(?:typing\.)?SupportsIndex"),
+        "float",
+    ),
+    (
+        re.compile(r"(?:(?:typing\.)?SupportsInt|int)\s*\|\s*" r"(?:typing\.)?SupportsIndex"),
+        "int",
+    ),
+)
+
+
+def simplify_type_annotations(text: str) -> str:
+    """Replace converter-oriented annotations with public Python types."""
+
+    text = re.sub(r"(?<!\w)~(?=[A-Za-z_])", "", text)
+
+    for pattern, replacement in SCALAR_PROTOCOL_UNIONS:
+        text = pattern.sub(replacement, text)
 
     # map complex type hints to simpler representations
     type_replacements = {
+        "typing.SupportsComplex": "complex",
         "typing.SupportsInt": "int",
         "typing.SupportsFloat": "float",
+        "typing.SupportsIndex": "int",
         "typing.List": "list",
         "typing.Dict": "dict",
         "typing.Callable": "Callable",
-        "typing.Any": "any",
+        "typing.Any": "Any",
         "collections.abc.Sequence": "list",
         "collections.abc.Mapping": "dict",
         "collections.abc.Callable": "Callable",
+        "SupportsComplex": "complex",
         "SupportsFloat": "float",
         "SupportsInt": "int",
+        "SupportsIndex": "int",
     }
 
     for full_type, simple_type in type_replacements.items():
-        if signature:
-            signature = signature.replace(full_type, simple_type)
-        if return_annotation:
-            return_annotation = return_annotation.replace(full_type, simple_type)
+        text = text.replace(full_type, simple_type)
+
+    return replace_annotated_nparrays(text)
+
+
+def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
 
     if signature:
-        signature = replace_annotated_nparrays(signature)
+        signature = simplify_type_annotations(signature)
     if return_annotation:
-        return_annotation = replace_annotated_nparrays(return_annotation)
+        return_annotation = simplify_type_annotations(return_annotation)
 
     return signature, return_annotation
 
