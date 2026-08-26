@@ -267,8 +267,7 @@ void expose_acceleration_setup( py::module& m )
          (Derived) Class members are all public, for ease of access and modification.
 
       )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::AccelerationSettings ) TUDATPY_DEF_EQ_NE( tss::AccelerationSettings )
-            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings )
-                    .def( "__hash__", []( const tss::AccelerationSettings& ) { return 0; } );
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));

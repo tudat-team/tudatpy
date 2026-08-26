@@ -65,11 +65,23 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
     if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY)
-        set_target_properties("${target_name}"
-                PROPERTIES
-                CXX_VISIBILITY_PRESET hidden
-                VISIBILITY_INLINES_HIDDEN TRUE
-                )
+        # Cereal's header-defined registries and RTTI must have the same visibility
+        # in every static library that produces or consumes serialized types. Mixed
+        # visibility creates distinct weak symbols on Apple platforms, breaking
+        # polymorphic cast registration at runtime.
+        if (TUDAT_BUILD_WITH_SERIALIZATION)
+            set_target_properties("${target_name}"
+                    PROPERTIES
+                    CXX_VISIBILITY_PRESET default
+                    VISIBILITY_INLINES_HIDDEN FALSE
+                    )
+        else ()
+            set_target_properties("${target_name}"
+                    PROPERTIES
+                    CXX_VISIBILITY_PRESET hidden
+                    VISIBILITY_INLINES_HIDDEN TRUE
+                    )
+        endif ()
     endif ()
 
     add_library(Tudat::${target_name} ALIAS "${target_name}")

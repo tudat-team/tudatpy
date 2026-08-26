@@ -104,8 +104,13 @@ endif ()
     target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
     target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
-    set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY AND TUDAT_BUILD_WITH_SERIALIZATION)
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET default)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN FALSE)
+    else ()
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    endif ()
 
 # Install
 #################################################################
