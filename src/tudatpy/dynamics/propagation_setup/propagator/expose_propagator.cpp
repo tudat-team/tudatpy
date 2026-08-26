@@ -37,6 +37,9 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_propagation.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tp = tudat::propagators;
@@ -45,6 +48,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudatpy
 {
@@ -995,6 +999,10 @@ Enumeration of available integrated state types.
 
       )doc";
 
+    propagation_termination_settings TUDATPY_DEF_EQ_NE( tp::PropagationTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::PropagationTerminationSettings )
+                    TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::PropagationTerminationSettings );
+
     py::class_< tp::PropagationDependentVariableTerminationSettings,
                 std::shared_ptr< tp::PropagationDependentVariableTerminationSettings >,
                 tp::PropagationTerminationSettings >( m,
@@ -1007,7 +1015,9 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationDependentVariableTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationSettings,
+                                                    tp::PropagationDependentVariableTerminationSettings );
 
     py::class_< tp::PropagationTimeTerminationSettings,
                 std::shared_ptr< tp::PropagationTimeTerminationSettings >,
@@ -1021,7 +1031,8 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationTimeTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationSettings, tp::PropagationTimeTerminationSettings );
 
     py::class_< tp::PropagationCPUTimeTerminationSettings,
                 std::shared_ptr< tp::PropagationCPUTimeTerminationSettings >,
@@ -1035,7 +1046,8 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationCPUTimeTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationSettings, tp::PropagationCPUTimeTerminationSettings );
 
     py::class_< tp::PropagationCustomTerminationSettings,
                 std::shared_ptr< tp::PropagationCustomTerminationSettings >,
@@ -1049,7 +1061,8 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationCustomTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationSettings, tp::PropagationCustomTerminationSettings );
 
     py::class_< tp::PropagationHybridTerminationSettings,
                 std::shared_ptr< tp::PropagationHybridTerminationSettings >,
@@ -1063,12 +1076,15 @@ Enumeration of available integrated state types.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( tp::PropagationHybridTerminationSettings )
+            TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::PropagationTerminationSettings, tp::PropagationHybridTerminationSettings );
 
     py::class_< tp::NonSequentialPropagationTerminationSettings,
                 std::shared_ptr< tp::NonSequentialPropagationTerminationSettings >,
                 tp::PropagationTerminationSettings >(
-            m, "NonSequentialPropagationTerminationSettings", R"doc(No propagator documentation found.)doc" );
+            m, "NonSequentialPropagationTerminationSettings", R"doc(No propagator documentation found.)doc" )
+            TUDATPY_DEF_EQ_NE( tp::NonSequentialPropagationTerminationSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED(
+                    tp::PropagationTerminationSettings, tp::NonSequentialPropagationTerminationSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////
 

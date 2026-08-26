@@ -19,7 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tom = tudat::observation_models;
@@ -288,7 +289,9 @@ void expose_ancillary_settings_types( py::module& m )
 
 
 
-     )doc" );
+     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationAncillarySimulationSettings )
+                    TUDATPY_DEF_EQ_NE( tom::ObservationAncillarySimulationSettings )
+                            TUDATPY_DEF_FILE_IO( tom::ObservationAncillarySimulationSettings );
 }
 
 void expose_ancillary_settings( py::module& m )

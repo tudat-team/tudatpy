@@ -38,6 +38,9 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_acceleration.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -47,6 +50,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -255,21 +259,29 @@ void expose_acceleration_setup( py::module& m )
          Functional base class to define settings for accelerations.
 
          Class for providing settings for acceleration model. This class is a functional (base) class for
-         settings of acceleration models that  require no information in addition to their type.
+         settings of acceleration models that require no information in addition to their type.
          Classes defining settings for acceleration models requiring additional information must be derived from this class.
          Bodies exerting and undergoing acceleration are set externally from this class.
          This class can be used for the easy setup of acceleration models
          (see createAccelerationModels.h), but users may also chose to do so manually.
          (Derived) Class members are all public, for ease of access and modification.
 
-
-
-
-
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::AccelerationSettings ) TUDATPY_DEF_EQ_NE( tss::AccelerationSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
+
+    py::class_< tss::RadiationPressureAccelerationSettings,
+                std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "RadiationPressureAccelerationSettings",
+                                             R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the radiation pressure acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RadiationPressureAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RadiationPressureAccelerationSettings );
 
     py::class_< tss::SphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::SphericalHarmonicAccelerationSettings >,
@@ -282,12 +294,9 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
-
-
-
-
-      )doc" );
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
@@ -323,7 +332,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MutualSphericalHarmonicAccelerationSettings );
 
     py::class_< tss::FullTwoBodySphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::FullTwoBodySphericalHarmonicAccelerationSettings >,
@@ -361,7 +371,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::EmpiricalAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::EmpiricalAccelerationSettings );
 
     py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -374,7 +385,18 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
          force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
          to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RTGAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RTGAccelerationSettings );
+
+    py::class_< tss::YarkovskyAccelerationSettings, std::shared_ptr< tss::YarkovskyAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "YarkovskyAccelerationSettings",
+            R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the Yarkovsky acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -392,7 +414,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings )
+            TUDATPY_DEF_EQ_NE( tss::RelativisticAccelerationCorrectionSettings );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -408,7 +431,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::CustomAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::CustomAccelerationSettings );
 
     py::class_< tss::DirectTidalDissipationAccelerationSettings,
                 std::shared_ptr< tss::DirectTidalDissipationAccelerationSettings >,
@@ -426,7 +450,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::DirectTidalDissipationAccelerationSettings );
 
     py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
                 std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
@@ -443,7 +468,8 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MomentumWheelDesaturationAccelerationSettings );
 
     py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -464,7 +490,9 @@ source/reference-body UVW frame of :cite:t:`mcmahon2015`.
                     &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
             .def_property_readonly(
                     "magnitude_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > );
+                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
+                            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
