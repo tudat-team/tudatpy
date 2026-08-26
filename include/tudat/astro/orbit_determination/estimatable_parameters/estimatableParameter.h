@@ -744,6 +744,10 @@ bool isDynamicalParameterSingleArc(
             flag = true;
             break;
         }
+        case constrained_initial_body_state: {
+            flag = true;
+            break;
+        }
         case initial_rotational_body_state: {
             flag = true;
             break;
