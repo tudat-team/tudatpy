@@ -63,6 +63,7 @@ void expose_parameters_setup_types( py::module& m )
       )doc" )
             .value( "arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
             .value( "initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state )
+            .value( "constrained_initial_body_state_type", tep::EstimatebleParametersEnum::constrained_initial_body_state )
             .value( "initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state )
             .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
             .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
@@ -256,6 +257,79 @@ void expose_parameters_setup( py::module& m )
 
      )doc" );
 
+    py::class_< tep::InitialTranslationalStateParameter< double >, std::shared_ptr< tep::InitialTranslationalStateParameter< double > > >(
+            m,
+            "InitialTranslationalStateParameter",
+            R"doc(
+
+Base class for initial translational state parameters.
+
+Base class representing an estimatable initial translational state parameter.
+It is typically created automatically by the parameter factory.
+
+     )doc" );
+
+    py::class_< tep::ConstrainedTranslationalStateParameter< double >,
+                std::shared_ptr< tep::ConstrainedTranslationalStateParameter< double > >,
+                tep::InitialTranslationalStateParameter< double > >( m,
+                                                                     "ConstrainedTranslationalStateParameter",
+                                                                     R"doc(
+
+Custom parameter class for constrained Line of Variations (LOV) differential corrections.
+
+Class representing a constrained initial translational state parameter.
+It enforces orthogonality to the weak direction during the estimation process by defining a custom parameter constraint.
+
+     )doc" )
+            .def( py::init< const std::string&, const Eigen::VectorXd&, const std::string&, const std::string& >( ),
+                  py::arg( "associated_body" ),
+                  py::arg( "initial_state" ),
+                  py::arg( "central_body" ),
+                  py::arg( "frame_orientation" ) = "",
+                  R"doc(
+
+Constructor for the constrained translational state parameter.
+
+Parameters
+----------
+associated_body : str
+    Name of the body whose initial state is estimated.
+initial_state : numpy.ndarray[numpy.float64[6, 1]]
+    Initial guess for the 6D Cartesian state.
+central_body : str
+    The central body w.r.t. which the state is defined.
+frame_orientation : str = ""
+    Orientation of the frame in which the state is defined.
+
+     )doc" )
+            .def( "set_weak_direction",
+                  &tep::ConstrainedTranslationalStateParameter< double >::setWeakDirection,
+                  py::arg( "weak_direction" ),
+                  R"doc(
+
+Set the weak direction vector for the constrained LOV update.
+
+Method to dynamically update the weak direction vector (the tangent to the Line of Variations) at the current state. This vector acts as the constraint multiplier during the differential correction step.
+
+Parameters
+----------
+weak_direction : numpy.ndarray[numpy.float64[6, 1]]
+    The 6D weak direction vector to which the update step must remain orthogonal.
+
+     )doc" )
+            .def( "get_weak_direction",
+                  &tep::ConstrainedTranslationalStateParameter< double >::getWeakDirection,
+                  R"doc(
+
+Get the current weak direction vector.
+
+Returns
+-------
+numpy.ndarray[numpy.float64[6, 1]]
+    The currently set 6D weak direction vector.
+
+     )doc" );
+
     // ###############    Initial States
     // ################################
 
@@ -308,6 +382,45 @@ void expose_parameters_setup( py::module& m )
  List[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ]
      List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
 
+
+     )doc" );
+
+    // ###############    Constrained Initial States (Line of Variations)
+    // ################################
+
+    m.def( "constrained_initial_states",
+           &tep::constrainedInitialTranslationalState< STATE_SCALAR_TYPE >,
+           py::arg( "body" ),
+           py::arg( "initial_state" ),
+           py::arg( "weak_direction" ) = Eigen::Matrix< double, 6, 1 >::Zero( ),
+           py::arg( "central_body" ) = "SSB",
+           py::arg( "frame_orientation" ) = "ECLIPJ2000",
+           R"doc(
+
+ Function for creating parameter settings for a constrained initial translational state, for use in a Line of Variations (LOV) differential correction.
+
+ Function for creating a parameter settings object for a body's initial translational state, in which the update computed by the differential correction
+ is constrained to remain orthogonal to the given weak direction. Repeatedly re-solving this constrained problem for a range of states displaced along the
+ weak direction (letting the fit adjust the state in all other directions) is used to sample points along the Line of Variations. The weak direction can be
+ provided here, or set (and updated) later via the ``set_weak_direction`` method of the resulting parameter object.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body whose initial state is to be estimated.
+ initial_state : numpy.ndarray[numpy.float64[6, 1]]
+     Initial guess for the 6D Cartesian state.
+ weak_direction : numpy.ndarray[numpy.float64[6, 1]], default = [ 0, 0, 0, 0, 0, 0 ]
+     Direction (tangent to the Line of Variations) to which the update of the differential correction must remain orthogonal.
+ central_body : str, default = "SSB"
+     Body w.r.t. which the initial state is defined.
+ frame_orientation : str, default = "ECLIPJ2000"
+     Orientation of the frame in which the state is defined.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived class, encoding the settings for the constrained initial translational state.
 
      )doc" );
 
