@@ -24,10 +24,15 @@ set(root_finders_SOURCES
         "createRootFinder.cpp"
         )
 
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    list(APPEND root_finders_SOURCES "rootFinderSettingsSerialization.cpp")
+endif ()
+
 # Add library.
 TUDAT_ADD_LIBRARY("root_finders"
         "${root_finders_SOURCES}"
         "${root_finders_HEADERS}"
+        PUBLIC_SERIALIZATION
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
