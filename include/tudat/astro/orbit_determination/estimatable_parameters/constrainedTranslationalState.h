@@ -24,8 +24,26 @@ template< typename InitialStateParameterType = double >
 class ConstrainedTranslationalStateParameter : public InitialTranslationalStateParameter< InitialStateParameterType >
 {
 public:
-    //! Inherit constructors from the base class
-    using InitialTranslationalStateParameter< InitialStateParameterType >::InitialTranslationalStateParameter;
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state. Explicitly forwards to the base class constructor with
+     * parameterType set to constrained_initial_body_state, so that this parameter correctly identifies itself as distinct
+     * from a plain InitialTranslationalStateParameter (e.g. via getParameterName()).
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialTranslationalState Current value of initial state (w.r.t. centralBody)
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ConstrainedTranslationalStateParameter( const std::string& associatedBody,
+                                            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialTranslationalState,
+                                            const std::string& centralBody = "SSB",
+                                            const std::string& frameOrientation = "ECLIPJ2000" ):
+        InitialTranslationalStateParameter< InitialStateParameterType >( associatedBody,
+                                                                         initialTranslationalState,
+                                                                         centralBody,
+                                                                         frameOrientation,
+                                                                         constrained_initial_body_state )
+    {}
 
     //! Function to get the size of the constraint
     /*!
