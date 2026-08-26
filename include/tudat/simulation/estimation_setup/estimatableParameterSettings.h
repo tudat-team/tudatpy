@@ -1267,6 +1267,19 @@ inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( 
     return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
 }
 
+//! Settings for estimating a constrained initial translational state (Line of Variations differential correction).
+template< typename InitialStateParameterType = double >
+inline std::shared_ptr< EstimatableParameterSettings > constrainedInitialTranslationalState(
+        const std::string& bodyName,
+        const Eigen::Matrix< InitialStateParameterType, 6, 1 >& initialStateValue,
+        const Eigen::Matrix< double, 6, 1 >& weakDirection = Eigen::Matrix< double, 6, 1 >::Zero( ),
+        const std::string& centralBody = "SSB",
+        const std::string& frameOrientation = "ECLIPJ2000" )
+{
+    return std::make_shared< ConstrainedTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+            bodyName, initialStateValue, weakDirection, centralBody, frameOrientation );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > fullAccelerationScaling(
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration,
