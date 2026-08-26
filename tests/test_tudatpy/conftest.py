@@ -1,6 +1,30 @@
 import os
+import socket
+from urllib.error import HTTPError, URLError
 
 import pytest
+import requests
+
+
+def _is_connectivity_failure(exception):
+    """Return whether an exception represents an unavailable remote service."""
+    if isinstance(
+        exception,
+        (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            ConnectionRefusedError,
+            ConnectionResetError,
+            socket.gaierror,
+            TimeoutError,
+        ),
+    ):
+        return not isinstance(
+            exception,
+            (requests.exceptions.SSLError, requests.exceptions.InvalidURL),
+        )
+
+    return isinstance(exception, URLError) and not isinstance(exception, HTTPError)
 
 
 def pytest_addoption(parser):
@@ -68,3 +92,26 @@ def pytest_collection_modifyitems(config, items):
             "missing environment variable(s): " + ", ".join(missing_env),
             yellow=True,
         )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Treat unavailable remote services as skips, not test failures."""
+    outcome = yield
+    report = outcome.get_result()
+
+    if (
+        report.when not in ("setup", "call")
+        or report.outcome != "failed"
+        or item.get_closest_marker("remote_data") is None
+        or call.excinfo is None
+        or not _is_connectivity_failure(call.excinfo.value)
+    ):
+        return
+
+    report.outcome = "skipped"
+    report.longrepr = (
+        str(item.path),
+        call.excinfo.traceback[-1].lineno,
+        f"Remote service unavailable: {call.excinfo.value}",
+    )

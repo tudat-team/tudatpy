@@ -328,6 +328,11 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
         Function to create a dependent variable for the range between link ends.
+        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+
+        .. math::
+
+            r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
 
         Parameters
         ----------

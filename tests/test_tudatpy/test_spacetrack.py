@@ -139,6 +139,21 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     assert second_dict == [batch_data[2]]
 
 
+def test_get_tles_skips_omm_records_without_tle_lines():
+    records = [
+        {
+            "NORAD_CAT_ID": "111",
+            "TLE_LINE1": "line 1",
+            "TLE_LINE2": "line 2",
+        },
+        {"NORAD_CAT_ID": "222"},
+        {"NORAD_CAT_ID": "333", "TLE_LINE1": "line 1"},
+        {"NORAD_CAT_ID": "444", "TLE_LINE1": "", "TLE_LINE2": "line 2"},
+    ]
+
+    assert OMMUtils.get_tles(records) == {"111": [("line 1", "line 2")]}
+
+
 # --- 4. Cleaning Logic ---
 def test_clean_file_dict_format(temp_tle_folder):
     """Verifies cleaning works on the dictionary/metadata format."""

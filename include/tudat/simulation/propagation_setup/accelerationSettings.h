@@ -84,6 +84,26 @@ public:
     RadiationPressureTargetModelType targetModelType_;
 };
 
+//! Settings for the three-coefficient radiation-pressure acceleration of McMahon and Scheeres (2015).
+/*!
+ * The three coefficients are effective areas, in square metres, resolved in the model's source/reference-body UVW
+ * frame. If no reference body is specified, the propagation central body is used.
+ */
+class ThreeCoefficientRadiationPressureAccelerationSettings : public AccelerationSettings
+{
+public:
+    explicit ThreeCoefficientRadiationPressureAccelerationSettings( const Eigen::Vector3d& coefficients,
+                                                                    const std::string& referenceBody = "" ):
+        AccelerationSettings( basic_astrodynamics::three_coefficient_radiation_pressure ), coefficients_( coefficients ),
+        referenceBody_( referenceBody )
+    {}
+
+    Eigen::Vector3d coefficients_;
+
+    //! Reference body defining the source-centred UVW frame; empty selects the propagation central body.
+    std::string referenceBody_;
+};
+
 inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType )
 {
     return std::make_shared< AccelerationSettings >( accelerationType );
@@ -116,6 +136,13 @@ inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
         const RadiationPressureTargetModelType targetModelType = undefined_target )
 {
     return std::make_shared< RadiationPressureAccelerationSettings >( targetModelType );
+}
+
+//! Create settings for three-coefficient radiation pressure, with coefficients in square metres.
+inline std::shared_ptr< AccelerationSettings > threeCoefficientRadiationPressureAcceleration( const Eigen::Vector3d& coefficients,
+                                                                                              const std::string& referenceBody = "" )
+{
+    return std::make_shared< ThreeCoefficientRadiationPressureAccelerationSettings >( coefficients, referenceBody );
 }
 
 // Class for providing settings for spherical harmonics acceleration model.

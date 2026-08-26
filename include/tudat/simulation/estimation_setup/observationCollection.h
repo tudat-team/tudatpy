@@ -2015,7 +2015,7 @@ public:
                      "retransmission delay stored in the observation ancillary settings of the selected observation sets. For the "
                      "new default transponder-delay mechanism, set the delay on the spacecraft VehicleSystems before creating the "
                      "observation model, for example in Python: "
-                     "`bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay`. In C++, call "
+                     "`bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay`. In C++, call "
                      "`bodies.at(spacecraftName)->getVehicleSystems()->setTransponderDelay(transponderDelay)` before creating the "
                      "observation model. This deprecated ObservationCollection function is kept for backward compatibility only and "
                      "will be removed in a future major release."
@@ -2045,7 +2045,7 @@ public:
                             "Error in deprecated ObservationCollection.set_transponder_delay(...): the selected observation set does "
                             "not contain an ancillary link_ends_delays vector with a retransmitter delay entry. To use the new "
                             "VehicleSystems transponder-delay mechanism, set "
-                            "`bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay` in Python, or "
+                            "`bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay` in Python, or "
                             "`bodies.at(spacecraftName)->getVehicleSystems()->setTransponderDelay(transponderDelay)` in C++, before "
                             "creating the observation model." );
                 }

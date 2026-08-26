@@ -815,17 +815,35 @@ In this example, the calendar date corresponding to when 122 days have passed in
             .def(
                     "to_python_datetime",
                     []( const tba::DateTime& self ) {
-                        const auto sec_int = static_cast< int >( self.getSeconds( ) );
-                        const auto microsecond = static_cast< int >(
-                                std::round( ( self.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
-                        return py::module_::import( "datetime" )
-                                .attr( "datetime" )( self.getYear( ),
-                                                     self.getMonth( ),
-                                                     self.getDay( ),
-                                                     self.getHour( ),
-                                                     self.getMinute( ),
-                                                     sec_int,
-                                                     microsecond );
+                        // Cache the Python datetime class constructor
+                        static py::object py_datetime = py::module_::import( "datetime" ).attr( "datetime" );
+
+                        tba::DateTime normalizedDateTime = self;
+                        auto sec_int = static_cast< int >( normalizedDateTime.getSeconds( ) );
+                        auto microsecond = static_cast< int >(
+                                std::round( ( normalizedDateTime.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
+
+                        if( microsecond == 1000000 )
+                        {
+                            normalizedDateTime = normalizedDateTime.addSecondsToDateTime( 1.0L );
+                            sec_int = static_cast< int >( normalizedDateTime.getSeconds( ) );
+                            microsecond = 0;
+                        }
+
+                        // Python datetime cannot represent leap seconds.
+                        if( sec_int >= 60 )
+                        {
+                            throw py::value_error( "Cannot convert a Tudat DateTime containing a leap second to Python datetime." );
+                        }
+
+                        // Call the cached constructor
+                        return py_datetime( normalizedDateTime.getYear( ),
+                                            normalizedDateTime.getMonth( ),
+                                            normalizedDateTime.getDay( ),
+                                            normalizedDateTime.getHour( ),
+                                            normalizedDateTime.getMinute( ),
+                                            sec_int,
+                                            microsecond );
                     },
                     R"doc(
 

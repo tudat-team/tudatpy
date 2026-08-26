@@ -67,6 +67,8 @@ void expose_parameters_setup_types( py::module& m )
             .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
             .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
             .value( "radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient )
+            .value( "three_coefficient_radiation_pressure_coefficients_type",
+                    tep::EstimatebleParametersEnum::three_coefficient_radiation_pressure_coefficients )
             .value( "arc_wise_radiation_pressure_coefficient_type",
                     tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient )
             .value( "spherical_harmonics_cosine_coefficient_block_type",
@@ -556,6 +558,32 @@ void expose_parameters_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure_coefficients",
+           &tep::threeCoefficientRadiationPressureCoefficients,
+           py::arg( "body" ),
+           py::arg( "radiation_source" ),
+           R"doc(
+
+Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
+
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+linked to every matching three-coefficient acceleration from ``radiation_source`` acting on ``body`` in the supplied
+propagator settings.
+
+Parameters
+----------
+body : str
+    Body undergoing the three-coefficient radiation-pressure acceleration.
+radiation_source : str
+    Body emitting the radiation and exerting the acceleration.
+
+Returns
+-------
+EstimatableParameterSettings
+    Settings for the size-three coefficient parameter.
+
+)doc" );
 
     m.def( "arcwise_radiation_pressure_coefficient",
            &tep::arcwiseRadiationPressureCoefficient,
@@ -1053,11 +1081,11 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
- Function for creating parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+ Function for creating parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both ascending, i.e., :math:`\bar{C}_{20}, \bar{C}_{21}, \bar{C}_{22}, \bar{C}_{30}, \bar{C}_{31}, ...`).
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity` acceleration
 
 
  Parameters
@@ -1132,11 +1160,11 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
- Function for creating parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+ Function for creating parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both ascending, i.e., :math:`\bar{S}_{21}, \bar{S}_{22}, \bar{S}_{31}, ...`).
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity` acceleration
 
 
  Parameters
