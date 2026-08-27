@@ -337,6 +337,87 @@ def test_extract_replaces_existing_file_with_invalid_checksum(tmp_path):
     assert target.read_bytes() == content
 
 
+def test_install_skips_tarball_when_all_resources_are_present(monkeypatch, tmp_path):
+    """Do not obtain an archive when all of its resources are already installed."""
+    destination = tmp_path / "destination"
+    destination.mkdir()
+    target = destination / "resource.dat"
+    target.write_bytes(b"current")
+    hashes = {"resource.dat": hashlib.sha256(target.read_bytes()).hexdigest()}
+
+    def unexpected_download(*args, **kwargs):
+        pytest.fail("An archive with no missing resources should not be downloaded")
+
+    monkeypatch.setattr(resource_installer, "_download_tarball", unexpected_download)
+
+    installed = resource_installer.install_files(
+        {"resource.dat": "https://example.invalid/resources.tar.gz"},
+        destination,
+        tmp_path / "cache",
+        hashes=hashes,
+    )
+
+    assert installed == 0
+
+
+def test_install_extracts_only_missing_tarball_resources(monkeypatch, tmp_path):
+    """Obtain an archive once and extract only resources that need installation."""
+    destination = tmp_path / "destination"
+    destination.mkdir()
+    (destination / "present.dat").write_bytes(b"present")
+    archive = tmp_path / "cache" / "resources.tar.gz"
+    extracted_targets = []
+
+    def download(*args, **kwargs):
+        return archive
+
+    def extract(tar_path, targets, dest_root, force=False, hashes=None):
+        extracted_targets.extend(targets)
+        return len(targets), []
+
+    monkeypatch.setattr(resource_installer, "_download_tarball", download)
+    monkeypatch.setattr(resource_installer, "_extract_tarball_members", extract)
+
+    installed = resource_installer.install_files(
+        {
+            "present.dat": "https://example.invalid/resources.tar.gz",
+            "missing.dat": "https://example.invalid/resources.tar.gz",
+        },
+        destination,
+        tmp_path / "cache",
+    )
+
+    assert installed == 1
+    assert extracted_targets == ["missing.dat"]
+
+
+def test_install_repairs_tarball_resource_with_invalid_checksum(monkeypatch, tmp_path):
+    """Still obtain an archive when an installed resource fails verification."""
+    destination = tmp_path / "destination"
+    destination.mkdir()
+    (destination / "resource.dat").write_bytes(b"outdated")
+    archive = tmp_path / "cache" / "resources.tar.gz"
+    extracted_targets = []
+
+    monkeypatch.setattr(resource_installer, "_download_tarball", lambda *args, **kwargs: archive)
+
+    def extract(tar_path, targets, dest_root, force=False, hashes=None):
+        extracted_targets.extend(targets)
+        return len(targets), []
+
+    monkeypatch.setattr(resource_installer, "_extract_tarball_members", extract)
+
+    installed = resource_installer.install_files(
+        {"resource.dat": "https://example.invalid/resources.tar.gz"},
+        destination,
+        tmp_path / "cache",
+        hashes={"resource.dat": hashlib.sha256(b"current").hexdigest()},
+    )
+
+    assert installed == 1
+    assert extracted_targets == ["resource.dat"]
+
+
 def test_install_attempts_all_tarballs_before_raising(monkeypatch, tmp_path):
     """Aggregate failures only after all tarball groups have been processed."""
     attempted = []
