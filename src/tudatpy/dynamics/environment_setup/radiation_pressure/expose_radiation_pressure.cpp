@@ -971,7 +971,7 @@ reference_epoch : float
      Names of bodies to occult the source as seen from this target
  Returns
  -------
- CannonballRadiationPressureTargetModelSettings
+ RadiationPressureTargetModelSettings
      Object defining settings for a cannonball radiation pressure target model
 
 

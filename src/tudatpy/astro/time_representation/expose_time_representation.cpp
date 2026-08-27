@@ -1325,7 +1325,7 @@ datetime.datetime
      Time object representing the epoch as seconds since J2000, in the TCB time scale.
  Returns
  -------
- epoch : astro.time_representation.Time
+ epoch : float
      Time object representing the epoch as seconds since J2000, in the TDB time scale.
 
 
@@ -1371,7 +1371,7 @@ datetime.datetime
      Time object representing the epoch as seconds since J2000, in the TDB time scale.
  Returns
  -------
- epoch : astro.time_representation.Time
+ epoch : float
      Time object representing the epoch as seconds since J2000, in the TCB time scale.
 
 
@@ -1396,7 +1396,7 @@ datetime.datetime
      Time object representing the epoch as seconds since J2000, in the TCG time scale.
  Returns
  -------
- astro.time_representation.Time
+ float
      Time object representing the epoch as seconds since J2000, in the TT time scale.
 
 
@@ -1424,7 +1424,7 @@ datetime.datetime
      Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
+ float
     Time object representing the epoch as seconds since J2000, in the TCG time scale.
 
 
@@ -1449,7 +1449,7 @@ datetime.datetime
     Time object representing the epoch as seconds since J2000, in the TAI time scale.
  Returns
  -------
- astro.time_representation.Time
+ float
      Time object representing the epoch as seconds since J2000, in the TT time scale.
 
 
@@ -1477,7 +1477,7 @@ datetime.datetime
     Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
+ float
     Time object representing the epoch as seconds since J2000, in the TAI time scale.
 
 
@@ -1507,7 +1507,7 @@ datetime.datetime
     Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
+ float
     Time object representing the epoch as seconds since J2000, in the TDB time scale.
 
 

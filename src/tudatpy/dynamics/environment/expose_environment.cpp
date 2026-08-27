@@ -1269,7 +1269,7 @@ bool
          Returns
          -------
          numpy.ndarray
-             Contribution from the requested control surface to the aerodynamic moment coefficients
+             Contribution from the requested control surface to the aerodynamic moment coefficients.
 
 
 
@@ -1306,8 +1306,8 @@ bool
 
          Returns
          -------
-         numpy.ndarray
-             Contribution from the requested control surface to the aerodynamic moment coefficients
+         None
+             This method updates the stored aerodynamic coefficients in place.
 
 
 
@@ -2443,7 +2443,7 @@ bool
 
          Returns
          -------
-         tuple[list[float],float]
+         tuple[numpy.ndarray[numpy.float64[5, 1]], astro.time_representation.Time]
              Pair (tuple of size two) with the first entry a list of orientation angles :math:`X,Y,s,x_{p},y_{p}` (in that order) and the second entry the current UT1.
 
      )doc" );

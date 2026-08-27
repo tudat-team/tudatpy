@@ -322,8 +322,8 @@ void expose_observations_geometry( py::module& m )
 
  Returns
  -------
- dict[astro.time_representation.Time,numpy.ndarray[numpy.float64[3, 1]]]
-     Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
+ tuple[list[float], list[numpy.ndarray]]
+     Pair containing the observation times and the corresponding arrays of elevation angle, azimuth angle, and range.
 
 
 

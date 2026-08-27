@@ -275,7 +275,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
  Returns
  -------
- DampedInitialRotationalStateResults
+ RotationalProperModeDampingResults
      Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
 
 

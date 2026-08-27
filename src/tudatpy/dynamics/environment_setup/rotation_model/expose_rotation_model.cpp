@@ -325,8 +325,8 @@ void expose_rotation_model_setup( py::module& m )
      Spice reference of target frame.
  Returns
  -------
- SynchronousRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SynchronousRotationModelSettings` class
+ RotationModelSettings
+     Settings for a synchronous rotation model.
 
 
 
@@ -519,8 +519,8 @@ void expose_rotation_model_setup( py::module& m )
      Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
  Returns
  -------
- CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ RotationModelSettings
+     Settings for a custom rotation model.
 
 
 
@@ -557,8 +557,8 @@ void expose_rotation_model_setup( py::module& m )
      Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
  Returns
  -------
- CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ RotationModelSettings
+     Settings for an aerodynamic-angle-based rotation model.
 
 
 
@@ -603,8 +603,8 @@ void expose_rotation_model_setup( py::module& m )
      Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
- BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+ RotationModelSettings
+     Settings for a body-fixed-direction-based rotation model.
 
 
 
@@ -647,8 +647,8 @@ void expose_rotation_model_setup( py::module& m )
      Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time (as Time object). If this input is left empty, this angle is fixed to 0.
  Returns
  -------
- BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+ RotationModelSettings
+     Settings for an orbital-state-direction-based rotation model.
 
 
 
@@ -735,8 +735,8 @@ void expose_rotation_model_setup( py::module& m )
      Step size to use when computing the rotation matrix derivative numerically
  Returns
  -------
- :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings`
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings`
+     Settings for a zero-pitch-moment aerodynamic-angle-based rotation model.
 
 
 

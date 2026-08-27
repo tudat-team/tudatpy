@@ -1126,7 +1126,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[n, n]] ]
+ dict[float, numpy.ndarray[numpy.float64[n, n]]]
      Dictionary reporting the propagated covariances at each output time.
 
 
@@ -1168,7 +1168,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, n]] ]
+ dict[float, numpy.ndarray[numpy.float64[m, n]]]
      Dictionary reporting the propagated covariances at each output time.
 
 
@@ -1204,7 +1204,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]] ]
+ dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary reporting the propagated formal errors at each output time.
 
 

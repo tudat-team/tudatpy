@@ -608,8 +608,8 @@ void expose_gravitation( py::module& m )
      Boolean denoting whether the coefficients computed are normalized (if true) or unnormalized (if false)
  Returns
  -------
- tuple[numpy.ndarray, numpy.ndarray]
-     Tuple of two matrices, containing the spherical harmonic coefficients :math:`{C}_{lm}` (first) and :math:`{S}_{lm}` (second) up to degree and order 2.
+ tuple[numpy.ndarray, numpy.ndarray, float]
+     Tuple containing the spherical harmonic coefficients :math:`{C}_{lm}` (first), :math:`{S}_{lm}` (second), and the mean moment of inertia (third).
      The degree-two coefficients are computed from the inertia tensor, the degree-one coefficients are set to zero (and :math:`C_{00}=0`)
 
 

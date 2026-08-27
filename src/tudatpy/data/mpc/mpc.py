@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.figure import Figure
 import datetime
 from astroquery.mpc import MPC
 from astropy_healpix import HEALPix
@@ -294,10 +295,9 @@ def get_weights_VFCC17(
 
     Returns
     -------
-    np.ndarray
-        If `return_full_table` is False, numpy array with weights with same size as input.
-    pd.DataFrame
-        If `return_full_table` is True, pandas table with all intermediate calculations.
+    np.ndarray | pd.DataFrame
+        A NumPy array with the weights when `return_full_table` is False, or a
+        pandas table with all intermediate calculations when it is True.
 
     Raises
     ------
@@ -1674,7 +1674,7 @@ class BatchMPC:
         self,
         objects: list[str] | None = None,
         figsize: tuple[float] = (9.0, 6.0),
-    ):
+    ) -> Figure:
         """Generates a matplotlib figure with the declination and right ascension
         over time.
 
@@ -1692,7 +1692,7 @@ class BatchMPC:
 
         Returns
         -------
-        Matplotlib figure
+        Figure
             Matplotlib figure with the observations
         """
         fig, (axRA, axDEC) = plt.subplots(2, 1, figsize=figsize, sharex=True)

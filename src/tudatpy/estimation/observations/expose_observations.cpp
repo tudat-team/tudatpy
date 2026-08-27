@@ -536,7 +536,7 @@ return_first_compatible_settings : bool, optional
 
 Returns
 -------
-dict[float, numpy.ndarray]
+dict[astro.time_representation.Time, numpy.ndarray]
     A map from observation time to the value of the specified dependent variable.
 )doc" )
             .def_property_readonly( "dependent_variables_matrix",

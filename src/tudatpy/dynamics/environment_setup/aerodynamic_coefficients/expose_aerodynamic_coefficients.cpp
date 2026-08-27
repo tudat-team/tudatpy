@@ -873,8 +873,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
  Returns
  -------
- TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+ AerodynamicCoefficientSettings
+     Aerodynamic coefficient settings object for tabulated coefficients.
 
 
 
@@ -958,8 +958,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+ AerodynamicCoefficientSettings
+     Aerodynamic coefficient settings object for tabulated coefficients.
 
 
 
@@ -1028,8 +1028,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+ AerodynamicCoefficientSettings
+     Aerodynamic coefficient settings object for tabulated coefficients.
 
 
 
@@ -1144,8 +1144,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+ AerodynamicCoefficientSettings
+     Aerodynamic coefficient settings object for tabulated coefficients.
 
 
 

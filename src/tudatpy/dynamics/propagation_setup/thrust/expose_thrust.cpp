@@ -215,7 +215,7 @@ void expose_thrust_setup( py::module& m )
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
+ ThrustMagnitudeSettings
      From function thrust magnitude settings object.
 
 
@@ -261,7 +261,7 @@ void expose_thrust_setup( py::module& m )
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
+ ThrustMagnitudeSettings
      From function thrust magnitude settings object.
 
 
@@ -292,7 +292,7 @@ void expose_thrust_setup( py::module& m )
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
+ ThrustMagnitudeSettings
      From function thrust magnitude settings object.
 
 
@@ -319,7 +319,7 @@ void expose_thrust_setup( py::module& m )
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
+ ThrustMagnitudeSettings
      From function thrust magnitude settings object.
 
 

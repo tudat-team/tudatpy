@@ -124,9 +124,9 @@ Examples
 
  Returns
  -------
- List[ LinkDefinition ]
-     List of one or more :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition` types, each defining the geometry for one one-way downlink.
-     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type is mapped.
+ list[dict[LinkEndType, LinkEndId]]
+     List of one or more link-end dictionaries, each defining the geometry for one one-way downlink.
+     Each dictionary has one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` is mapped.
 
  Examples
  --------
@@ -184,9 +184,9 @@ Examples
 
  Returns
  -------
- List[ LinkDefinition ]
-     List of one or more :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition` types, each defining the geometry for one one-way uplink.
-     A :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` type is mapped.
+ list[dict[LinkEndType, LinkEndId]]
+     List of one or more link-end dictionaries, each defining the geometry for one one-way uplink.
+     Each dictionary has one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` is mapped.
 
  Examples
  --------
@@ -483,8 +483,8 @@ Examples
 
          Returns
          -------
-         :type: dict[LinkEndType,LinkEndId]
-             Dictionary of link ends
+         LinkEndId
+             Identifier of the requested link end.
 
          Examples
          --------

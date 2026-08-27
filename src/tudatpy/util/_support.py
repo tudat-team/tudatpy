@@ -6,7 +6,7 @@ import os
 from typing import Union, Callable
 
 
-def result2array(result: dict[float, np.ndarray]):
+def result2array(result: dict[float, np.ndarray]) -> np.ndarray:
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
@@ -68,7 +68,7 @@ def compare_results(
     baseline_results: dict[float, np.ndarray],
     new_results: dict[float, np.ndarray],
     difference_epochs: list[float] | np.ndarray,
-):
+) -> dict[float, np.ndarray]:
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
     This uses a 8th-order Lagrange interpolator to compute the difference in state of the two simulations at specified epochs.
@@ -336,7 +336,7 @@ def pareto_optimums(points: list | np.ndarray, operator: Union[None, list[Callab
 #     return state_history_book
 
 
-def vector2matrix(flat_matrix: np.ndarray):
+def vector2matrix(flat_matrix: np.ndarray) -> np.ndarray:
     """Convert a flattened matrix into a matrix.
 
     Following Tudat standards, a rotation matrix is returned as a nine-entry vector in the dependent variable output,

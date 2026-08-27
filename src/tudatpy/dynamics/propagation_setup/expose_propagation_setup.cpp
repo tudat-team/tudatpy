@@ -101,7 +101,7 @@ void expose_propagation_setup( py::module& m )
      List of central bodies, each referred to each propagated body in the same order.
  Returns
  -------
- AccelerationMap : dict[str, list[AccelerationModel]]
+ dict[str, dict[str, list[AccelerationModel]]]
     Set of accelerations acting on the bodies to propagate, provided as dual key-value container (dictionary), similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
 
 
@@ -165,7 +165,7 @@ void expose_propagation_setup( py::module& m )
      List of bodies to propagate.
  Returns
  -------
- TorqueModelMap
+ dict[str, dict[str, list[TorqueModel]]]
      Set of torques acting on the bodies to propagate, provided as dual key-value container, similar to the torque settings input, but now with ``TorqueModel`` lists as inner value
 
 
@@ -229,7 +229,7 @@ void expose_propagation_setup( py::module& m )
      Sorted list of acceleration models, as created by :func:`create_acceleration_models`
  Returns
  -------
- MassRateModelMap
+ dict[str, list[MassRateModel]]
      Set of mass-rate models, as key-value container, same as the settings input, with the difference that the rate settings objects have been processed into the associated objects calculating the actual mass-rate changes.
 
 

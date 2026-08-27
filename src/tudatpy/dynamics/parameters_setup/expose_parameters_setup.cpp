@@ -443,8 +443,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "side_component_scaling",
            &tep::sideComponentScaling,
@@ -486,8 +486,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "lift_component_scaling",
            &tep::liftComponentScaling,
@@ -529,8 +529,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,

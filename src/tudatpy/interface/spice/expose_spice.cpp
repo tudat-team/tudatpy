@@ -84,7 +84,8 @@ void expose_spice( py::module& m )
      Julian date that is to be converted to ephemeris time.
  Returns
  -------
- ephemeris_time : float    Julian date calculated from ephemeris time.
+ float
+     Ephemeris time corresponding to the given Julian date.
 
 
 
@@ -110,7 +111,7 @@ void expose_spice( py::module& m )
 
  Returns
  -------
- utc_time : float
+ float
      Approximate UTC time corresponding to the given ephemeris time.
 
      )doc" );
@@ -136,7 +137,8 @@ void expose_spice( py::module& m )
      Ephemeris time that is to be converted to Julian date.
  Returns
  -------
- julian_date : float    Julian date calculated from ephemeris time.
+ float
+     Julian date calculated from ephemeris time.
 
 
 
@@ -169,7 +171,8 @@ void expose_spice( py::module& m )
 
  Returns
  -------
- ephemeris_time : str    Ephemeris time corresponding to given date_string.
+ float
+     Ephemeris time corresponding to the given date string.
 
 
 
@@ -234,6 +237,11 @@ void expose_spice( py::module& m )
      Observation time (or transmission time of observed light, see description
      of aberrationCorrections).
 
+ Returns
+ -------
+ numpy.ndarray[3, 1]
+     Cartesian position vector of the target body relative to the observer.
+
 
 
 
@@ -295,7 +303,8 @@ void expose_spice( py::module& m )
 
  Returns
  -------
- cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+ numpy.ndarray[6, 1]
+     Cartesian state vector containing position and velocity.
 
 
 
@@ -326,7 +335,8 @@ void expose_spice( py::module& m )
      Tle object containing the SGP/SDP model parameters as derived from the element set.
  Returns
  -------
- cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+ numpy.ndarray[6, 1]
+     Cartesian state vector containing position and velocity.
 
 
 
@@ -362,7 +372,8 @@ void expose_spice( py::module& m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Rotation matrix from original to new frame at given time.
+ numpy.ndarray[3, 3]
+     Rotation matrix from the original to the new frame at the given time.
 
 
 
@@ -397,7 +408,8 @@ void expose_spice( py::module& m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- State rotation matrix from original to new frame at given time.
+ numpy.ndarray[6, 6]
+     State rotation matrix from the original to the new frame at the given time.
 
 
 
@@ -439,7 +451,8 @@ void expose_spice( py::module& m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Time derivative of rotation matrix from original to new frame at given time.
+ numpy.ndarray[3, 3]
+     Time derivative of the rotation matrix from the original to the new frame at the given time.
 
 
 
@@ -476,7 +489,8 @@ void expose_spice( py::module& m )
      Value of ephemeris time at which rotation is to be determined.
  Returns
  -------
- Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
+ numpy.ndarray[3, 1]
+     Angular velocity of the new frame with respect to the original frame, expressed in the original frame.
 
 
      )doc" );
@@ -510,7 +524,8 @@ void expose_spice( py::module& m )
 
  Returns
  -------
- Property value(s) expressed in an STL vector of doubles.
+ list[float]
+     Requested property values.
 
 
 
@@ -548,7 +563,8 @@ void expose_spice( py::module& m )
      Name of the body of which the parameter is to be retrieved.
  Returns
  -------
- Gravitational parameter of requested body.
+ float
+     Gravitational parameter of the requested body.
 
 
 
@@ -576,7 +592,8 @@ void expose_spice( py::module& m )
      Name of the body of which the average radius is to be retrieved.
  Returns
  -------
- Arithmetic mean of principal axes of tri-axial ellipsoid shape model of body.
+ float
+     Arithmetic mean of the principal axes of the body's tri-axial ellipsoid shape model.
 
 
 
@@ -605,7 +622,8 @@ void expose_spice( py::module& m )
      Name of the body for which NAIF id is to be retrieved.
  Returns
  -------
- NAIF id number for the body with bodyName.
+ int
+     NAIF identification number for the body.
 
 
 
@@ -684,7 +702,8 @@ void expose_spice( py::module& m )
 
  Returns
  -------
- n_kernels : int    Number of spice kernels currently loaded.
+ int
+     Number of Spice kernels currently loaded.
 
 
 
