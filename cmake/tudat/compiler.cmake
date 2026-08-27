@@ -170,15 +170,8 @@
                  " -stdlib=libc++"
                  " -Wall "
                  " -Wextra"
-                 )
-         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-         # disabled warnings for warnings coming from legacy tudat code
-         set(CMAKE_CXX_FLAGS
-                 "${CMAKE_CXX_FLAGS}"
                  " -Wno-unused-parameter"
                  " -Wno-unused-variable"
-                 " -Wno-enum-constexpr-conversion"
                  )
          string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
