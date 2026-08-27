@@ -26,7 +26,6 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
-
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 using namespace tudat::propagators;

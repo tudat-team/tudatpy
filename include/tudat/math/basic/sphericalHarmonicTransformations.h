@@ -22,7 +22,6 @@
 #include <map>
 #include <memory>
 
-
 #include "tudat/math/basic/wignerDMatrices.h"
 
 namespace tudat

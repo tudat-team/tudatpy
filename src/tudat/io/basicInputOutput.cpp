@@ -83,7 +83,7 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
 
 //! Lists all files in directory.
 std::vector< std::filesystem::path > listAllFilesInDirectory( const std::filesystem::path& directory,
-                                                                const bool isRecurseIntoSubdirectories )
+                                                              const bool isRecurseIntoSubdirectories )
 {
     // Declare local variables.
     std::vector< std::filesystem::path > listOfFileNamesWithPath_;

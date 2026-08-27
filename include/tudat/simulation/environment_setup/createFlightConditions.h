@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATEFLIGHTCONDITIONS_H
 #define TUDAT_CREATEFLIGHTCONDITIONS_H
 
-
 #include <functional>
 #include <memory>
 #include <string>

@@ -11,7 +11,6 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 #define TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 
-
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"

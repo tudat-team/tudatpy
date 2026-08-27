@@ -188,14 +188,12 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
         // If long transfer arc.
         if( isLongway )
         {
-            betaParameter =
-                    -2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter = -2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
         // Otherwise short transfer arc
         else
         {
-            betaParameter =
-                    2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter = 2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
 
         // Time-of-flight according to Lagrange.

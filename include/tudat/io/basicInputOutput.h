@@ -152,7 +152,7 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
  * filenames in directory, stored as filesystem paths.
  */
 std::vector< std::filesystem::path > listAllFilesInDirectory( const std::filesystem::path& directory,
-                                                                const bool isRecurseIntoSubdirectories = false );
+                                                              const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!

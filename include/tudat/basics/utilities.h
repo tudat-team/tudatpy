@@ -455,7 +455,7 @@ typename boost::multi_array< double, NumberOfDimensions >::index getMultiArrayIn
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 std::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray( const boost::multi_array< double, 1 >& multiArray,
-                                                                                   const double* requestedElement );
+                                                                                 const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 2) of doubles
 /*!
@@ -465,7 +465,7 @@ std::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 std::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray( const boost::multi_array< double, 2 >& multiArray,
-                                                                                   const double* requestedElement );
+                                                                                 const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 3) of doubles
 /*!
@@ -475,7 +475,7 @@ std::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 std::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray( const boost::multi_array< double, 3 >& multiArray,
-                                                                                   const double* requestedElement );
+                                                                                 const double* requestedElement );
 
 template< typename S, typename T >
 std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )

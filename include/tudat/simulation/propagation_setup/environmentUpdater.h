@@ -319,8 +319,7 @@ private:
                             if( std::get< 0 >( updateFunctionVector_.at( i ) ) == body_rotational_state_update )
                             {
                                 // Check id body has no rotational ephemeris (i.e. if rotation comes from iterationNumber ).
-                                if( bodyList_.at( std::get< 1 >( updateFunctionVector_.at( i ) ) )->getRotationalEphemeris( ) ==
-                                    nullptr )
+                                if( bodyList_.at( std::get< 1 >( updateFunctionVector_.at( i ) ) )->getRotationalEphemeris( ) == nullptr )
                                 {
                                     //                                    // Check if DependentOrientationCalculator is an
                                     //                                    AerodynamicAngleCalculator. std::shared_ptr<
@@ -378,8 +377,7 @@ private:
                                                 vehicleTranslationalUpdateIndexSet = true;
                                             }
 
-                                            if( ( std::get< 0 >( updateFunctionVector_.at( j ) ) ==
-                                                  vehicle_flight_conditions_update ) &&
+                                            if( ( std::get< 0 >( updateFunctionVector_.at( j ) ) == vehicle_flight_conditions_update ) &&
                                                 ( std::get< 1 >( updateFunctionVector_.at( j ) ) ==
                                                   std::get< 1 >( updateFunctionVector_.at( i ) ) ) )
                                             {
@@ -582,9 +580,9 @@ private:
 
                                 resetFunctionVector_.push_back(
                                         std::make_tuple( body_translational_state_update,
-                                                           currentBodies.at( i ),
-                                                           std::bind( &simulation_setup::Body::recomputeStateOnNextCall,
-                                                                      bodyList_.at( currentBodies.at( i ) ) ) ) );
+                                                         currentBodies.at( i ),
+                                                         std::bind( &simulation_setup::Body::recomputeStateOnNextCall,
+                                                                    bodyList_.at( currentBodies.at( i ) ) ) ) );
                             }
                             break;
                         }
@@ -666,9 +664,9 @@ private:
                                                                    std::placeholders::_1 ) ) );
                                 resetFunctionVector_.push_back(
                                         std::make_tuple( body_mass_update,
-                                                           currentBodies.at( i ),
-                                                           std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime,
-                                                                      bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+                                                         currentBodies.at( i ),
+                                                         std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime,
+                                                                    bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
                             }
                             break;
                         }
@@ -680,9 +678,9 @@ private:
                                                                std::placeholders::_1 ) ) );
                             resetFunctionVector_.push_back(
                                     std::make_tuple( body_mass_distribution_update,
-                                                       currentBodies.at( i ),
-                                                       std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime,
-                                                                  bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+                                                     currentBodies.at( i ),
+                                                     std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime,
+                                                                bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
 
                             break;
                         }
@@ -722,9 +720,9 @@ private:
 
                             resetFunctionVector_.push_back(
                                     std::make_tuple( body_segment_orientation_update,
-                                                       currentBodies.at( i ),
-                                                       std::bind( &system_models::VehicleSystems::resetTime,
-                                                                  bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
+                                                     currentBodies.at( i ),
+                                                     std::bind( &system_models::VehicleSystems::resetTime,
+                                                                bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
                             break;
                         }
                         case vehicle_flight_conditions_update: {
@@ -741,9 +739,9 @@ private:
 
                                 resetFunctionVector_.push_back(
                                         std::make_tuple( vehicle_flight_conditions_update,
-                                                           currentBodies.at( i ),
-                                                           std::bind( &aerodynamics::FlightConditions::resetCurrentTime,
-                                                                      bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) ) ) );
+                                                         currentBodies.at( i ),
+                                                         std::bind( &aerodynamics::FlightConditions::resetCurrentTime,
+                                                                    bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) ) ) );
                             }
                             else
                             {

@@ -29,7 +29,6 @@
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
-
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
 using namespace tudat::propagators;

@@ -14,7 +14,6 @@
 
 #include <cmath>
 
-
 #include <Eigen/Core>
 
 #include <tudat/math/integrators/stepSizeController.h>

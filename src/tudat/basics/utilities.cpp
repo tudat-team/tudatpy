@@ -18,7 +18,7 @@ namespace utilities
 
 //! Get indices of pointer to single entry in multi-array (size 1) of doubles
 std::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray( const boost::multi_array< double, 1 >& multiArray,
-                                                                                   const double* requestedElement )
+                                                                                 const double* requestedElement )
 {
     typedef boost::multi_array< double, 1 > NMultiArray;
     std::array< NMultiArray::index, 1 > currentIndices;
@@ -33,7 +33,7 @@ std::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
 
 //! Get indices of pointer to single entry in multi-array (size 2) of doubles
 std::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray( const boost::multi_array< double, 2 >& multiArray,
-                                                                                   const double* requestedElement )
+                                                                                 const double* requestedElement )
 {
     typedef boost::multi_array< double, 2 > NMultiArray;
     std::array< NMultiArray::index, 2 > currentIndices;
@@ -48,7 +48,7 @@ std::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
 
 //! Get indices of pointer to single entry in multi-array (size 3) of doubles
 std::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray( const boost::multi_array< double, 3 >& multiArray,
-                                                                                   const double* requestedElement )
+                                                                                 const double* requestedElement )
 {
     typedef boost::multi_array< double, 3 > NMultiArray;
     std::array< NMultiArray::index, 3 > currentIndices;

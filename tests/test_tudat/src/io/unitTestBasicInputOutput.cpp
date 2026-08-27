@@ -178,8 +178,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     std::filesystem::create_directory( pathToNewDirectory );
 
     // List all files in directory and check that there are none.
-    const std::vector< std::filesystem::path > emptyListOfFilenames =
-            input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
+    const std::vector< std::filesystem::path > emptyListOfFilenames = input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
 
     BOOST_CHECK_EQUAL( emptyListOfFilenames.size( ), 0 );
 

@@ -15,7 +15,6 @@
 #include <map>
 #include <Eigen/Core>
 
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
