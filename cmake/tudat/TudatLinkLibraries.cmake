@@ -84,6 +84,10 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
 
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
 
+    list(APPEND Tudat_PROPAGATION_LIBRARIES
+            Tudat::tudat_estimatable_parameters
+            )
+
     list(APPEND Tudat_ESTIMATION_LIBRARIES
             Tudat::tudat_estimation_setup
             Tudat::tudat_propagation_setup

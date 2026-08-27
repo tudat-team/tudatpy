@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 
 #include "tudat/simulation/propagation_setup/propagationPrintSettings.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/io/serialization/core.h"
 #include "tudat/io/serialization/file_io_declarations.h"
 
@@ -43,7 +44,13 @@ public:
                                   const bool setIntegratedVariationalResult = true ):
         clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult ),
         createStateProcessors_( setIntegratedResult ), updateDependentVariableInterpolator_( updateDependentVariableInterpolator ),
-        setIntegratedVariationalResult_( setIntegratedVariationalResult )
+        setIntegratedVariationalResult_( setIntegratedVariationalResult ),
+        interpolatorSettings_( std::make_shared< interpolators::LagrangeInterpolatorSettings >(
+                6,
+                false,
+                interpolators::huntingAlgorithm,
+                interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary ) )
     {}
 
     virtual ~PropagatorProcessingSettings( ) {}
@@ -98,6 +105,20 @@ public:
         updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
     }
 
+    virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    {
+        if( interpolatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when setting propagation processing interpolator settings, settings are null." );
+        }
+        interpolatorSettings_ = interpolatorSettings;
+    }
+
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ) const
+    {
+        return interpolatorSettings_;
+    }
+
     virtual bool printAnyOutput( ) = 0;
 
     virtual std::string getPropagationStartHeader( ) = 0;
@@ -124,6 +145,7 @@ protected:
     bool createStateProcessors_;
     bool updateDependentVariableInterpolator_;
     bool setIntegratedVariationalResult_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
 protected:
     virtual bool equals( const PropagatorProcessingSettings& rhs ) const
@@ -438,6 +460,7 @@ public:
             singleArcSettings_.at( i )->setIntegratedVariationalResultFromMultiArc( false );
             singleArcSettings_.at( i )->setAsMultiArc( i, printCurrentArcIndex_ );
             singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setInterpolatorSettings( interpolatorSettings_ );
             if( useIdenticalSettings_ )
             {
                 if( consistentSingleArcPrintSettings_ == nullptr )
@@ -544,6 +567,15 @@ public:
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
             singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
+        }
+    }
+
+    virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    {
+        PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            singleArcSettings_.at( i )->setInterpolatorSettings( interpolatorSettings );
         }
     }
 
@@ -709,6 +741,19 @@ public:
         multiArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
     }
 
+    virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    {
+        PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
+        if( singleArcSettings_ != nullptr )
+        {
+            singleArcSettings_->setInterpolatorSettings( interpolatorSettings );
+        }
+        if( multiArcSettings_ != nullptr )
+        {
+            multiArcSettings_->setInterpolatorSettings( interpolatorSettings );
+        }
+    }
+
     void resetArcSettings( const bool printWarning = false )
     {
         if( !areArcSettingsSet_ )
@@ -719,10 +764,12 @@ public:
         singleArcSettings_->setClearNumericalSolutions( clearNumericalSolutions_ );
         singleArcSettings_->setIntegratedResult( setIntegratedResult_ );
         singleArcSettings_->setIntegratedVariationalResult( setIntegratedVariationalResult_ );
+        singleArcSettings_->setInterpolatorSettings( interpolatorSettings_ );
 
         multiArcSettings_->setClearNumericalSolutions( clearNumericalSolutions_ );
         multiArcSettings_->setIntegratedResult( setIntegratedResult_ );
         multiArcSettings_->setIntegratedVariationalResult( setIntegratedVariationalResult_ );
+        multiArcSettings_->setInterpolatorSettings( interpolatorSettings_ );
 
         if( useIdenticalSettings_ )
         {
