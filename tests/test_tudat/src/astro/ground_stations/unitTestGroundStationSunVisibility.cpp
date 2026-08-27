@@ -75,6 +75,18 @@ BOOST_AUTO_TEST_CASE( test_isItDarkAtGroundStation )
 
     // Requesting a station that does not exist should throw.
     BOOST_CHECK_THROW( isItDarkAtGroundStation( "NonExistentStation", testTime, 0.0, bodies ), std::runtime_error );
+
+    // The generic, state-based visibility check that isItDarkAtGroundStation is built on should agree with the reference
+    // elevation: the Sun should be reported "visible" at or below its own elevation, and not visible just above it.
+    BOOST_CHECK_EQUAL( isTargetVisibleFromGroundStation(
+                               groundStationPosition, sunPosition, testTime, referenceSunElevation, pointingAnglesCalculator ),
+                       true );
+    BOOST_CHECK_EQUAL( isTargetVisibleFromGroundStation( groundStationPosition,
+                                                         sunPosition,
+                                                         testTime,
+                                                         referenceSunElevation + convertDegreesToRadians( 1.0 ),
+                                                         pointingAnglesCalculator ),
+                       false );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
