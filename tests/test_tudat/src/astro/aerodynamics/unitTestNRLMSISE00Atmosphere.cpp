@@ -1334,7 +1334,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
                     systemInitialState,
                     simulationStartEpoch,
                     integratorSettings,
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     cowell,
                     dependentVariables );
 
@@ -1554,7 +1554,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
                     systemInitialState,
                     simulationStartEpoch,
                     integratorSettings,
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     cowell,
                     dependentVariables );
 

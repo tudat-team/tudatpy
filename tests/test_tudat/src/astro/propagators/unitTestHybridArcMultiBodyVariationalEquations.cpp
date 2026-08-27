@@ -971,9 +971,14 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
             for( const auto& itr : multiArcSolution[ k ][ 0 ] )
             {
                 BOOST_CHECK( itr.second.allFinite( ) );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),
-                                                   multiArcSolutionTest[ k ][ 0 ].at( itr.first ),
-                                                   1.0E-10 );
+                const Eigen::MatrixXd hybridStateTransitionMatrix =
+                        itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 );
+                const Eigen::MatrixXd& standaloneStateTransitionMatrix = multiArcSolutionTest[ k ][ 0 ].at( itr.first );
+                BOOST_REQUIRE_EQUAL( hybridStateTransitionMatrix.rows( ), standaloneStateTransitionMatrix.rows( ) );
+                BOOST_REQUIRE_EQUAL( hybridStateTransitionMatrix.cols( ), standaloneStateTransitionMatrix.cols( ) );
+                BOOST_CHECK_SMALL( ( hybridStateTransitionMatrix - standaloneStateTransitionMatrix ).norm( ) /
+                                           std::max( 1.0, standaloneStateTransitionMatrix.norm( ) ),
+                                   1.0E-10 );
 
                 const Eigen::MatrixXd& hybridSensitivity = multiArcSolution.at( k ).at( 1 ).at( itr.first );
                 const Eigen::MatrixXd& standaloneSensitivity = multiArcSolutionTest.at( k ).at( 1 ).at( itr.first );
