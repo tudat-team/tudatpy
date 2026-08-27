@@ -69,3 +69,31 @@ def test_overload_signatures_are_simplified(api_docs_conf):
         "Overload 1:",
         "``select(values: list[float]) -> int``",
     ]
+
+
+def test_readonly_property_is_marked_once(api_docs_conf):
+    readonly_property = property(lambda instance: instance.value)
+    lines = ["Property description."]
+
+    api_docs_conf.mark_property_mutability(
+        None, "property", "Example.value", readonly_property, None, lines
+    )
+    api_docs_conf.mark_property_mutability(
+        None, "property", "Example.value", readonly_property, None, lines
+    )
+
+    assert lines == ["**read-only**", "", "Property description."]
+
+
+def test_writable_property_is_not_marked_readonly(api_docs_conf):
+    writable_property = property(
+        lambda instance: instance.value,
+        lambda instance, value: setattr(instance, "value", value),
+    )
+    lines = ["**read-only**", "", "Property description."]
+
+    api_docs_conf.mark_property_mutability(
+        None, "property", "Example.value", writable_property, None, lines
+    )
+
+    assert "**read-only**" not in lines

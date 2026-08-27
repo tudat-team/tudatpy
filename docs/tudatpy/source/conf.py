@@ -175,6 +175,30 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         lines.append(f":type: {type(obj).__name__}")
 
 
+READ_ONLY_MARKER = "**read-only**"
+
+
+def mark_property_mutability(app, what, name, obj, options, lines):
+    """Keep rendered property mutability labels consistent with the runtime API."""
+
+    if not isinstance(obj, property):
+        return
+
+    marker_indices = [
+        index
+        for index, line in enumerate(lines)
+        if line.strip().lower() == READ_ONLY_MARKER.lower()
+    ]
+
+    if obj.fset is None:
+        if not marker_indices:
+            lines[:0] = [READ_ONLY_MARKER, ""]
+        return
+
+    for index in reversed(marker_indices):
+        del lines[index]
+
+
 NUMPY_DOCSTRING_SECTION_TITLES = {
     "Parameters",
     "Returns",
@@ -465,6 +489,7 @@ def setup(app):
     app.add_config_value("has_mcd_support", has_mcd_support, "env")
     app.connect("source-read", insert_optional_mcd_documentation)
     app.connect("autodoc-process-docstring", process_constants_docstring)
+    app.connect("autodoc-process-docstring", mark_property_mutability, priority=100)
     # run before default-priority (500) docstring processors
     app.connect("autodoc-process-docstring", fix_docstring_section_title_spacing, priority=200)
     app.connect("autodoc-process-signature", simplify_signature_types)
