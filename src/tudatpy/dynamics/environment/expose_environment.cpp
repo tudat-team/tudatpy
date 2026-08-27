@@ -3059,6 +3059,44 @@ bool
                   py::arg( "inertial_vector" ),
                   py::arg( "time" ) );
 
+    m.def( "is_target_visible_from_ground_station",
+           &tgs::isTargetVisibleFromGroundStation,
+           py::arg( "ground_station_position" ),
+           py::arg( "target_position" ),
+           py::arg( "time_tdb" ),
+           py::arg( "minimum_elevation_angle" ),
+           py::arg( "pointing_angles_calculator" ),
+           R"doc(
+
+         Determine whether a target is above a given elevation angle as seen from a ground station.
+
+         Determines whether a target (e.g. a satellite, or the Sun) is above a given minimum elevation angle as seen from
+         a ground station, given the already-known inertial positions of the station and the target. This is a generic
+         visibility check that avoids retrieving states from a :class:`~SystemOfBodies`, which is useful when the calling
+         code already has these states available (e.g. inside a loop that also uses them for other purposes).
+
+
+         Parameters
+         ----------
+         ground_station_position : numpy.ndarray
+             Inertial position of the ground station.
+         target_position : numpy.ndarray
+             Inertial position of the target.
+         time_tdb : float
+             Time (TDB seconds since J2000) at which the check is to be performed.
+         minimum_elevation_angle : float
+             Elevation angle [rad] at or above which the target is considered visible.
+         pointing_angles_calculator : PointingAnglesCalculator
+             Object used to compute the elevation angle at the ground station.
+
+         Returns
+         -------
+         bool
+             True if the target's elevation angle at the ground station is at or above ``minimum_elevation_angle``, false
+             otherwise.
+
+     )doc" );
+
     py::enum_< tudat::ground_stations::MeteoDataEntries >( m, "MeteoDataEntries" )
             .value( "temperature_meteo_data", tudat::ground_stations::temperature_meteo_data )
             .value( "pressure_meteo_data", tudat::ground_stations::pressure_meteo_data )
