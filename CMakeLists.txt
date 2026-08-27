@@ -164,11 +164,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_JSON_INTERFACE
-    "Build Tudat with json interface."
-    OFF
-)
-option(
     TUDAT_BUILD_WITH_FFTW3
     "Build Tudat with FFTW3."
     OFF
@@ -246,10 +241,6 @@ set(
 )
 set(
     Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}"
-)
-set(
-    Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
 )
 
@@ -295,15 +286,11 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
 
-# Set required boost components.
-set(
-    _TUDAT_REQUIRED_BOOST_LIBS
-    filesystem system date_time thread chrono atomic unit_test_framework
-)
-# if (TUDAT_BUILD_TESTS)
-#     # Add the unit test framework, if needed.
-#     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
-# endif ()
+# Only tests require a compiled Boost library. Tudat itself uses Boost headers.
+set(_TUDAT_REQUIRED_BOOST_LIBS)
+if (TUDAT_BUILD_TESTS)
+    list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
+endif ()
 
 # Set cmake build-type.
 # If not supplied by the user (either directly as an argument of through
@@ -453,11 +440,6 @@ if (TUDAT_BUILD_WITH_FFTW3)
 else( )
     add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
 endif( )
-
-# JSON dependency
-if (TUDAT_BUILD_WITH_JSON_INTERFACE)
-    find_package(nlohmann_json REQUIRED 3.7.3)
-endif ()
 
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language

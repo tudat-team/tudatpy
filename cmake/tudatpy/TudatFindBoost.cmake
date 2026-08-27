@@ -7,8 +7,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} QUIET REQUIRED)
 
-set(_TUDAT_REQUIRED_BOOST_LIBS filesystem system date_time thread
-        serialization chrono atomic)
+set(_TUDAT_REQUIRED_BOOST_LIBS)
 
 # Add the unit test framework, if needed.
 if(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK)
@@ -26,7 +25,9 @@ if(_TUDAT_FIND_BOOST_PYTHON)
     endif()
 endif()
 message(STATUS "Required Boost libraries: ${_TUDAT_REQUIRED_BOOST_LIBS}")
-find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} REQUIRED COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS})
+if(_TUDAT_REQUIRED_BOOST_LIBS)
+    find_package(Boost ${_TUDAT_BOOST_MINIMUM_VERSION} REQUIRED COMPONENTS ${_TUDAT_REQUIRED_BOOST_LIBS})
+endif()
 if(NOT Boost_FOUND)
     message(FATAL_ERROR "Not all requested Boost components were found, exiting.")
 endif()

@@ -1,29 +1,6 @@
 include(CMakeParseArguments)
 
-# TODO: remove this: all tests shoulld be run, if some are omitted, a warning/error should at least be printed
-if (TUDAT_SKIP_JSON_TESTS)
-    # https://github.com/tudat-team/tudat/issues/8
-    set(TEST_TO_BE_SKIPPED
-            test_json_Acceleration
-            test_json_Aerodynamics
-            test_json_Body
-            test_json_Ephemeris
-            test_json_GroundStation
-            test_json_Interpolation
-            test_json_Propagator
-            test_json_SimulationSingleSatellite
-            test_json_SimulationSinglePerturbedSatellite
-            test_json_SimulationInnerSolarSystem
-            test_json_SimulationGalileoConstellation
-            test_json_SimulationThrustAlongVelocityVector
-            test_json_SimulationThrustAccelerationFromFile
-            test_json_State
-            test_json_Thrust
-            )
-else ()
-    set(TEST_TO_BE_SKIPPED
-            )
-endif ()
+set(TEST_TO_BE_SKIPPED)
 
 if (TUDAT_SKIP_BROKEN_MSVC_CLANG_PRECISION_TESTS)
     # https://github.com/tudat-team/tudat/issues/7

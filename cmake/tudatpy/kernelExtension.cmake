@@ -49,7 +49,6 @@ macro (add_module extension import_path)
 
     target_link_libraries(${extension} PRIVATE
         ${Boost_LIBRARIES}
-        ${Boost_SYSTEM_LIBRARY}
         ${tudat_libraries}
     )
 

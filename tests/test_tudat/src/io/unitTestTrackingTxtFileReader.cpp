@@ -22,11 +22,10 @@
 #include <sstream>
 #include <utility>
 
-#include <boost/filesystem.hpp>
-
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/support/testFileUtilities.h"
 
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
@@ -51,9 +50,7 @@ namespace
 
 std::string createTempPath( const std::string& suffix )
 {
-    boost::filesystem::path tempPath =
-            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-tracking-cadence-%%%%%%" + suffix );
-    return tempPath.string( );
+    return createTemporaryFilePath( "tudat-tracking-cadence", suffix );
 }
 
 class CoutRedirect
