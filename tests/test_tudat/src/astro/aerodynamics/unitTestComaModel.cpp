@@ -1,4 +1,3 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
@@ -9,8 +8,8 @@
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/io/basicInputOutput.h"
-#include <boost/test/unit_test.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <filesystem>
 #include <algorithm>
 #include <fstream>

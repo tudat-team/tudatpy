@@ -8,8 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
+
+#include <boost/test/included/unit_test.hpp>
 
 #include <algorithm>
 #include <cstdio>

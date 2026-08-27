@@ -48,7 +48,7 @@ macro (add_module extension import_path)
     list(REMOVE_DUPLICATES tudat_libraries)
 
     target_link_libraries(${extension} PRIVATE
-        ${Boost_LIBRARIES}
+        Boost::boost
         ${tudat_libraries}
     )
 

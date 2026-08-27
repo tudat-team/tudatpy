@@ -77,7 +77,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
 
         target_link_libraries("${target_name}"
                 PUBLIC ${test_private_link_items}
-                PRIVATE "${Boost_LIBRARIES}"
+                PRIVATE "Boost::boost"
                 )
 
         if (TUDAT_BUILD_WITH_PCH)

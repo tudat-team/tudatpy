@@ -6,7 +6,7 @@ dependencies:
   - cmake
   - make
   - eigen
-  - boost-cpp
+  - libboost-headers >=1.84
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00

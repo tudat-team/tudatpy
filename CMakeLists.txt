@@ -26,11 +26,8 @@ cmake_policy(SET CMP0048 NEW)  # Missing documentation
 if(POLICY CMP0148)
     cmake_policy(SET CMP0148 OLD)
 endif()
-# Temporary compatibility setting: keep the legacy Boost discovery behavior while
-# this project still relies on older Boost / Boost.Python package discovery
-# elsewhere in the build.
-# Migration path: update to the modern Boost package/config-based discovery
-# approach and then switch CMP0167 to NEW.
+# libboost-headers does not provide a Boost package configuration file, so use
+# CMake's FindBoost module to discover the header-only dependency.
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
 endif()
@@ -284,12 +281,6 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     # https://stackoverflow.com/questions/30398238/cmake-rpath-not-working-could-not-find-shared-object-file
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-endif ()
-
-# Only tests require a compiled Boost library. Tudat itself uses Boost headers.
-set(_TUDAT_REQUIRED_BOOST_LIBS)
-if (TUDAT_BUILD_TESTS)
-    list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
 endif ()
 
 # Set cmake build-type.

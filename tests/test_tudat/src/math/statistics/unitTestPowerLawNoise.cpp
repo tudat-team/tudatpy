@@ -1,11 +1,10 @@
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
 #include <ctime>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "tudat/math/statistics/powerLawNoiseGeneration.h"

@@ -17,7 +17,7 @@ macro (yacma_extension import_path)
     )
 
     target_link_libraries(${extension_name} PRIVATE
-        ${Boost_LIBRARIES}
+        Boost::boost
         ${Tudat_PROPAGATION_LIBRARIES}
         ${Tudat_ESTIMATION_LIBRARIES}
     )

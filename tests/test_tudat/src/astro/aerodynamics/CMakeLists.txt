@@ -32,7 +32,7 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         ${Tudat_PROPAGATION_LIBRARIES}
     )
     target_link_libraries(tudat_aerodynamics_test_case_support PRIVATE
-        "${Boost_LIBRARIES}"
+        "Boost::boost"
     )
 
     set_target_properties(tudat_aerodynamics_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)
