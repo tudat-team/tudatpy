@@ -149,6 +149,26 @@ double calculateGroundStationAzimuthAngle( const std::shared_ptr< PointingAngles
                                            const std::vector< double > linkEndTimes,
                                            const std::pair< int, int >& linkEndIndices );
 
+//! Function to determine whether a target is above a given elevation angle as seen from a ground station.
+/*!
+ * Function to determine whether a target (e.g. a satellite, or the Sun) is above a given minimum elevation angle as seen
+ * from a ground station, given the already-known inertial positions of the station and the target. This is a generic
+ * visibility check: a target is "visible" if its elevation angle is at or above minimumElevationAngle. Passing the Sun as
+ * target and negating the result (or comparing against a maximum instead) yields a day/night check at the station.
+ * \param groundStationPosition Inertial position of the ground station.
+ * \param targetPosition Inertial position of the target.
+ * \param timeTdb Time (TDB seconds since J2000) at which the check is to be performed.
+ * \param minimumElevationAngle Elevation angle [rad] at or above which the target is considered visible.
+ * \param pointingAnglesCalculator Object used to compute the elevation angle at the ground station (as retrieved from
+ * GroundStation::getPointingAnglesCalculator).
+ * \return True if the target's elevation angle at the ground station is at or above minimumElevationAngle, false otherwise.
+ */
+bool isTargetVisibleFromGroundStation( const Eigen::Vector3d& groundStationPosition,
+                                       const Eigen::Vector3d& targetPosition,
+                                       const double timeTdb,
+                                       const double minimumElevationAngle,
+                                       const std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator );
+
 }  // namespace ground_stations
 
 }  // namespace tudat
