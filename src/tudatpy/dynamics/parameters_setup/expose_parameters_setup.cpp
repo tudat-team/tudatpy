@@ -443,7 +443,7 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
      Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "side_component_scaling",
@@ -486,7 +486,7 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
      Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "lift_component_scaling",
@@ -529,7 +529,7 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
      Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "radiation_pressure_coefficient",

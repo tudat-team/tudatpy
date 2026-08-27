@@ -219,7 +219,7 @@ void expose_radiation_pressure_setup( py::module& m )
  Parameters
  ----------
  luminosity_function : callable[[float], float]
-     Function returning source luminosity (in Watt) as a function of time (Time object)
+     Function returning source luminosity (in Watt) as a function of time in seconds since J2000 TDB.
  Returns
  -------
  LuminosityModelSettings
@@ -248,7 +248,7 @@ void expose_radiation_pressure_setup( py::module& m )
  Parameters
  ----------
  irradiance_function : callable[[float], float]
-     Function returning irradiance at reference distance from center of source (in :math:`W/m^{2}`) as a function of time (Time object)
+     Function returning irradiance at reference distance from the center of the source (in :math:`W/m^{2}`) as a function of time in seconds since J2000 TDB.
  reference_distance : float
      Distance from center of source at which the irradiance is defined
  Returns
@@ -413,7 +413,7 @@ void expose_radiation_pressure_setup( py::module& m )
  constant_degree_two_contribution : float
      Value of :math:`a_{2}` in above formulation.
 reference_epoch : float
-     Reference epoch :math:`t_{0}` of the periodic variation (Time object representing seconds since J2000 TDB).
+     Reference epoch :math:`t_{0}` of the periodic variation, in seconds since J2000 TDB.
  period : float
      Period :math:`T` of the periodic variation.
  Returns
@@ -469,7 +469,7 @@ reference_epoch : float
  Parameters
  ----------
  custom_function : callable[[float, float, float], float]
-     Function providing surface property as a function of latitude, longitude and time (in that order, with time as a Time object).
+     Function providing surface property as a function of latitude, longitude, and time in seconds since J2000 TDB, in that order.
  Returns
  -------
  SurfacePropertyDistributionSettings
@@ -971,7 +971,7 @@ reference_epoch : float
      Names of bodies to occult the source as seen from this target
  Returns
  -------
- RadiationPressureTargetModelSettings
+ CannonballRadiationPressureTargetModelSettings
      Object defining settings for a cannonball radiation pressure target model
 
 

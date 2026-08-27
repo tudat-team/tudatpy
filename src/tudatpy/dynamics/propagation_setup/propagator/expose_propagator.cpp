@@ -1654,7 +1654,7 @@ HybridArcPropagatorSettings
  .. code-block:: python
 
    # Create custom function returning a bool
-   def custom_termination_function(time):  # time is a Time object
+   def custom_termination_function(time):  # time is a float in seconds since J2000 TDB
        # Do something
        set_condition = ...
        # Return bool

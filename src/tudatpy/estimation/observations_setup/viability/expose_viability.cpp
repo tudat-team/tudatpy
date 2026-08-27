@@ -186,8 +186,8 @@ Examples
 
     Returns
     -------
-    ObservationViabilitySettings
-        Settings defining observation-boundary viability for the link end.
+    ObservationBoundariesViabilitySettings
+        Observation-boundary viability settings for the link end.
 
      )doc" );
 
@@ -336,8 +336,8 @@ Examples
 
  Returns
  -------
- list[ObservationViabilitySettings]
-     List of observation viability settings, one for each link end.
+ list[ObservationBoundariesViabilitySettings]
+     List of observation-boundary viability settings, one for each link end.
     )doc" );
 
     m.def( "elevation_angle_viability_list",

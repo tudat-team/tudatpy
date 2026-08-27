@@ -1338,7 +1338,7 @@ Enumeration describing different types of position element types (typically used
  Parameters
  ----------
  epoch : float
-     Time object representing the epoch as seconds since J2000
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray
@@ -1357,7 +1357,7 @@ Enumeration describing different types of position element types (typically used
  Parameters
  ----------
  epoch : float
-     Time object representing the epoch as seconds since J2000
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray

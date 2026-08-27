@@ -429,7 +429,7 @@ reference_epoch:
  linear_velocity : numpy.ndarray([3,1])
      Linear velocity :math:`\dot{\mathbf{r}}` of the station (in m/s)
  reference_epoch : float, default = 0.0
-     Reference epoch :math:`t_{0}` (Time object representing seconds since J2000 TDB)
+     Reference epoch :math:`t_{0}`, in seconds since J2000 TDB.
  Returns
  -------
  GroundStationMotionSettings
@@ -454,7 +454,7 @@ reference_epoch:
  Parameters
  ----------
  displacement_list : dict[float, numpy.ndarray([3, 1])]
-     Dictionary with the epochs :math:`t_{i}` as keys (as Time objects), and the associated displacement :math:`\Delta\mathbf{r}_{i}` as values
+     Dictionary with epochs :math:`t_{i}` in seconds since J2000 TDB as keys, and the associated displacements :math:`\Delta\mathbf{r}_{i}` as values.
  Returns
  -------
  GroundStationMotionSettings
@@ -481,7 +481,7 @@ reference_epoch:
  Parameters
  ----------
  custom_displacement_function : callable[[float], numpy.ndarray([3, 1])]
-     Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` (as Time object) as input.
+     Function returning :math:`\Delta\mathbf{r}`, with time :math:`t` in seconds since J2000 TDB as input.
  Returns
  -------
  GroundStationMotionSettings

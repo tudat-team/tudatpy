@@ -873,8 +873,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
  Returns
  -------
- AerodynamicCoefficientSettings
-     Aerodynamic coefficient settings object for tabulated coefficients.
+ TabulatedAerodynamicCoefficientSettings
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -958,8 +958,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- AerodynamicCoefficientSettings
-     Aerodynamic coefficient settings object for tabulated coefficients.
+ TabulatedAerodynamicCoefficientSettings
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1028,8 +1028,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- AerodynamicCoefficientSettings
-     Aerodynamic coefficient settings object for tabulated coefficients.
+ TabulatedAerodynamicCoefficientSettings
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1144,8 +1144,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
  Returns
  -------
- AerodynamicCoefficientSettings
-     Aerodynamic coefficient settings object for tabulated coefficients.
+ TabulatedAerodynamicCoefficientSettings
+     Tabulated aerodynamic coefficient settings object.
 
 
 

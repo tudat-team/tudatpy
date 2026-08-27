@@ -114,8 +114,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
+ ConstantObservationBiasSettings
+     Settings for a constant, absolute observation bias.
 
  Examples
  --------
@@ -160,9 +160,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` class,
-     defining the settings for a constant, relative observation bias.
+ ConstantObservationBiasSettings
+     Settings for a constant, relative observation bias.
 
  Examples
  --------
@@ -212,8 +211,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant absolute observation biases.
 
  Examples
  --------
@@ -262,8 +261,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant absolute observation biases.
 
  Examples
  --------
@@ -318,8 +317,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant relative observation biases.
 
  Examples
  --------
@@ -368,8 +367,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseConstantObservationBiasSettings
+     Settings for arc-wise constant relative observation biases.
 
  Examples
  --------
@@ -430,9 +429,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.constantTimeDriftBias` class,
-     defining the settings for a constant, relative observation bias.
+ ConstantTimeDriftBiasSettings
+     Settings for a constant time-drift observation bias.
 
  Examples
  --------
@@ -478,8 +476,8 @@ void expose_biases( py::module& m )
  Parameters
  ----------
  bias_value : list[numpy.ndarray]
-     Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
-     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+     List of constant time-drift bias vectors, one for each arc. Each vector should be the same size as the observable to which it is
+     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.).
 
  arc_start_times : list[float]
      List containing starting times for each arc.
@@ -492,8 +490,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseTimeDriftBiasSettings
+     Settings for arc-wise time-drift observation biases.
 
  Examples
  --------
@@ -547,8 +545,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
+ ArcWiseTimeDriftBiasSettings
+     Settings for arc-wise time-drift observation biases.
 
  Examples
  --------
@@ -661,8 +659,8 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`
-     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
+ MultipleObservationBiasSettings
+     Settings combining multiple observation biases.
 
  Examples
  --------

@@ -612,7 +612,7 @@ sine_coefficient_amplitude_sine_time : np.array
 angular_frequency : float
     Angular frequency (in rad/s) at which variations are to be added
 reference_epoch: float
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -656,14 +656,14 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 Parameters
 ----------
 cosine_amplitudes_per_power : dict[int, np.array]
-    Dictionary of cosine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+    Dictionary of cosine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
 sine_amplitudes_per_power : dict[int, np.array]
-    Dictionary of sine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+    Dictionary of sine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 reference_epoch: float
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -702,7 +702,7 @@ sine_amplitudes : np.array
 polynomial_power: int
     Polynomial power :math:`p` used in the computation
 reference_epoch: float
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -740,11 +740,11 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 Parameters
 ----------
 cosine_variations_table : dict[float, np.array]
-    Dictionary of cosine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+    Dictionary of cosine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
 sine_variations_table : dict[float, np.array]
-    Dictionary of sine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+    Dictionary of sine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).

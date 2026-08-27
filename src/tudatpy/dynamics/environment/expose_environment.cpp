@@ -942,7 +942,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -970,7 +970,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -998,7 +998,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -1026,7 +1026,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -1054,7 +1054,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -1086,7 +1086,7 @@ bool
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          time : float
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -1302,7 +1302,7 @@ bool
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
          time : float
-             Time object representing seconds since J2000 (TDB)
+             Epoch in seconds since J2000 (TDB).
 
          Returns
          -------
@@ -1341,12 +1341,12 @@ bool
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
          control_surface_independent_variables : dict[str,list[float]]
-             List of inputs from which the control surface aerodynamic coefficients are to be computed (with dictionary key the control surface name),
+             Dictionary of input lists from which the control surface aerodynamic coefficients are to be computed, keyed by control surface name,
              with each entry corresponding to the
              value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
 
          time : float
-             Time object representing seconds since J2000 (TDB)
+             Epoch in seconds since J2000 (TDB).
 
          check_force_contribution : bool, default = True
              Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
@@ -1708,7 +1708,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) to which this object is to be updated
+             Epoch in seconds since J2000 (TDB) to which this object is to be updated.
 
          Returns
          -------
@@ -2190,7 +2190,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix is evaluated.
 
          Returns
          -------
@@ -2217,7 +2217,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated.
 
          Returns
          -------
@@ -2243,7 +2243,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix is evaluated.
 
 
 
@@ -2265,7 +2265,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated.
 
          Returns
          -------
@@ -2296,7 +2296,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
+             Epoch in seconds since J2000 (TDB) at which the angular velocity vector is evaluated.
 
          Returns
          -------
@@ -2324,7 +2324,7 @@ bool
          Parameters
          ----------
          time : float
-             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
+             Epoch in seconds since J2000 (TDB) at which the angular velocity vector is evaluated.
 
          Returns
          -------
@@ -2381,7 +2381,7 @@ bool
      Cartesian state (position and velocity) in the body-fixed frame
 
  current_time : float
-     Time object representing seconds since J2000 (TDB) at which the transformation is to be computed
+     Epoch in seconds since J2000 (TDB) at which the transformation is to be computed.
 
  rotational_ephemeris : RotationalEphemeris
      Boy rotation model that is to be used to convert the body-fixed state to inertial state
@@ -2838,7 +2838,7 @@ bool
          Parameters
          ----------
          current_time : float
-             Time object representing seconds since J2000 (TDB) at which the position is to be computed.
+             Epoch in seconds since J2000 (TDB) at which the position is to be computed.
 
          target_frame_origin: str, default = ""
              Identifier for the frame origin w.r.t. which the computed position is to be used.
@@ -3024,7 +3024,7 @@ bool
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
          time : float
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+             Epoch in seconds since J2000 (TDB) at which to calculate the angle.
 
          Returns
          -------
@@ -3046,7 +3046,7 @@ bool
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
          time : float
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+             Epoch in seconds since J2000 (TDB) at which to calculate the angle.
 
          Returns
          -------

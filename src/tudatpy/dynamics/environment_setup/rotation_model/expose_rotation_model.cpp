@@ -201,7 +201,7 @@ void expose_rotation_model_setup( py::module& m )
  initial_orientation : numpy.ndarray[numpy.float64[3, 3]]
      Orientation of target frame in base frame at initial time.
  initial_time : float
-     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
+     Initial time used as the reference epoch for the rotation matrices, in seconds since J2000 TDB.
  rotation_rate : float
      Constant rotation rate [rad/s] about rotational axis.
  Returns
@@ -262,7 +262,7 @@ void expose_rotation_model_setup( py::module& m )
  target_frame_spice : str
      Spice reference of target frame - name of the frame in Spice for which the initial orientation and rotation rate are extracted.
  initial_time : float
-     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
+     Initial time used as the reference epoch for the rotation matrices, in seconds since J2000 TDB.
  Returns
  -------
  SimpleRotationModelSettings
@@ -325,7 +325,7 @@ void expose_rotation_model_setup( py::module& m )
      Spice reference of target frame.
  Returns
  -------
- RotationModelSettings
+ SynchronousRotationModelSettings
      Settings for a synchronous rotation model.
 
 
@@ -516,11 +516,11 @@ void expose_rotation_model_setup( py::module& m )
  target_frame : str
      Name of the target frame of rotation model.
  angle_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+     Custom function returning an array of three values as a function of time in seconds since J2000 TDB. The output *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, all three angles are fixed to 0.
  Returns
  -------
- RotationModelSettings
-     Settings for a custom rotation model.
+ AerodynamicAngleRotationSettings
+     Settings for an aerodynamic-angle-based rotation model.
 
 
 
@@ -554,11 +554,11 @@ void expose_rotation_model_setup( py::module& m )
  target_frame : str
      Name of the target frame of rotation model.
  angle_funcion : callable[[float], numpy.ndarray[numpy.float64[2, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+     Custom function returning an array of two values as a function of time in seconds since J2000 TDB. The output *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, both angles are fixed to 0.
  Returns
  -------
- RotationModelSettings
-     Settings for an aerodynamic-angle-based rotation model.
+ PitchTrimRotationSettings
+     Settings for a zero-pitch-moment aerodynamic-angle-based rotation model.
 
 
 
@@ -603,7 +603,7 @@ void expose_rotation_model_setup( py::module& m )
      Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
- RotationModelSettings
+ BodyFixedDirectionBasedRotationSettings
      Settings for a body-fixed-direction-based rotation model.
 
 
@@ -644,10 +644,10 @@ void expose_rotation_model_setup( py::module& m )
  target_frame : str
      Name of the target frame of rotation model.
  free_rotation_angle_function : callable[[float], float], default = None
-     Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time (as Time object). If this input is left empty, this angle is fixed to 0.
+     Custom function returning the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time in seconds since J2000 TDB. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
- RotationModelSettings
+ OrbitalStateBasedRotationSettings
      Settings for an orbital-state-direction-based rotation model.
 
 
@@ -730,13 +730,13 @@ void expose_rotation_model_setup( py::module& m )
  target_frame : str
      Name of the target frame of rotation model.
  custom_rotation_matrix_function: callable[[float], numpy.ndarray[numpy.float64[3, 3]]]
-     Function computing the body-fixed to inertial rotation matrix as a function of time (Time object representing seconds since J2000 TDB)
+     Function computing the body-fixed-to-inertial rotation matrix as a function of time in seconds since J2000 TDB.
  finite_difference_time_step: float
      Step size to use when computing the rotation matrix derivative numerically
  Returns
  -------
- :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings`
-     Settings for a zero-pitch-moment aerodynamic-angle-based rotation model.
+ CustomRotationModelSettings
+     Settings for a custom rotation model.
 
 
 

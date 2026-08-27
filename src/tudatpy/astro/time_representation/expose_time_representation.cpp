@@ -1322,11 +1322,11 @@ datetime.datetime
  Parameters
  ----------
  TCB_time : float
-     Time object representing the epoch as seconds since J2000, in the TCB time scale.
+     Floating-point epoch in seconds since J2000, in the TCB time scale.
  Returns
  -------
  epoch : float
-     Time object representing the epoch as seconds since J2000, in the TDB time scale.
+     Floating-point epoch in seconds since J2000, in the TDB time scale.
 
 
 
@@ -1368,11 +1368,11 @@ datetime.datetime
  Parameters
  ----------
  TDB_time : float
-     Time object representing the epoch as seconds since J2000, in the TDB time scale.
+     Floating-point epoch in seconds since J2000, in the TDB time scale.
  Returns
  -------
  epoch : float
-     Time object representing the epoch as seconds since J2000, in the TCB time scale.
+     Floating-point epoch in seconds since J2000, in the TCB time scale.
 
 
 
@@ -1393,11 +1393,11 @@ datetime.datetime
  Parameters
  ----------
  TCG_time : float
-     Time object representing the epoch as seconds since J2000, in the TCG time scale.
+     Floating-point epoch in seconds since J2000, in the TCG time scale.
  Returns
  -------
  float
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+     Floating-point epoch in seconds since J2000, in the TT time scale.
 
 
 
@@ -1421,11 +1421,11 @@ datetime.datetime
  Parameters
  ----------
  TT_time : float
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+     Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
  float
-    Time object representing the epoch as seconds since J2000, in the TCG time scale.
+    Floating-point epoch in seconds since J2000, in the TCG time scale.
 
 
 
@@ -1446,11 +1446,11 @@ datetime.datetime
  Parameters
  ----------
  TAI_time : float
-    Time object representing the epoch as seconds since J2000, in the TAI time scale.
+    Floating-point epoch in seconds since J2000, in the TAI time scale.
  Returns
  -------
  float
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+     Floating-point epoch in seconds since J2000, in the TT time scale.
 
 
 
@@ -1474,11 +1474,11 @@ datetime.datetime
  Parameters
  ----------
  TT_time : float
-    Time object representing the epoch as seconds since J2000, in the TT time scale.
+    Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
  float
-    Time object representing the epoch as seconds since J2000, in the TAI time scale.
+    Floating-point epoch in seconds since J2000, in the TAI time scale.
 
 
 
@@ -1504,11 +1504,11 @@ datetime.datetime
  Parameters
  ----------
  TT_time : float
-    Time object representing the epoch as seconds since J2000, in the TT time scale.
+    Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
  float
-    Time object representing the epoch as seconds since J2000, in the TDB time scale.
+    Floating-point epoch in seconds since J2000, in the TDB time scale.
 
 
 
