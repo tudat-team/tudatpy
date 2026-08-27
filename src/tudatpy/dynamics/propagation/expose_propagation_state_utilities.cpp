@@ -120,7 +120,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
      List of names of bodies for which the state is to be extracted
  central_bodies : list[str]
      List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
- bodies_to_propagate : SystemOfBodies
+ body_system : SystemOfBodies
      System of bodies that define the environment
  initial_time : astro.time_representation.Time
      Time at which the states are to be extracted from the environment (Time object representing seconds since J2000 TDB)

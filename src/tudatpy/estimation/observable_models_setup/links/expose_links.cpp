@@ -116,11 +116,11 @@ Examples
 
  Parameters
  ----------
- transmitter : tuple[str, str]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
+ transmitter : LinkEndId
+     Identifier for the single transmitter link end.
 
- receivers : List[ tuple[str, str] ]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
+ receivers : list[LinkEndId]
+     List of identifiers for the receiver link ends.
 
  Returns
  -------
@@ -176,11 +176,11 @@ Examples
 
  Parameters
  ----------
- transmitters : List[ tuple[str, str] ]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
+ transmitters : list[LinkEndId]
+     List of identifiers for the transmitter link ends.
 
- receivers : tuple[str, str]
-     List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
+ receiver : LinkEndId
+     Identifier for the single receiver link end.
 
  Returns
  -------

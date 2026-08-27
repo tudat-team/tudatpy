@@ -283,7 +283,7 @@ void expose_estimation_analysis( py::module& m )
  ----------
  parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
      Consolidated set of estimated parameters.
- covariance_diagonal_entries_per_parameter : list
+ covariance_diagonal_entries_per_parameter : list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
  require_all_entries_to_match : bool, default = True
      If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
@@ -324,7 +324,7 @@ void expose_estimation_analysis( py::module& m )
      Existing covariance-like matrix (or a 0x0 matrix).
  parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
      Consolidated set of estimated parameters.
- covariance_diagonal_entries_per_parameter : list
+ covariance_diagonal_entries_per_parameter : list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
  require_all_entries_to_match : bool, default = True
      If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
@@ -1118,7 +1118,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the variational equations,
      which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
@@ -1160,7 +1160,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -1196,7 +1196,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
     Times at which the propagated covariance matrix shall be reported.
     Note that this argument has no impact on the integration time-steps of the variational equations,
     which happens before the call to this function, with results stored in the ``state_transition_interface`` input.

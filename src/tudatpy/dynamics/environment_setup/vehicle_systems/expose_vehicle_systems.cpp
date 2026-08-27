@@ -193,7 +193,7 @@ Panel surface area
 
  Parameters
  ----------
- surface_normal_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], np.ndarray]
+surface_normal_function : callable[[], np.ndarray]
     Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
  area : float
      Panel surface area

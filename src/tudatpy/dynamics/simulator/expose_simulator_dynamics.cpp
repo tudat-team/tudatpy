@@ -321,7 +321,7 @@ void expose_simulator_dynamics_bindings( py::module& m )
             Parameters
             ----------
 
-            predefined_state_history : :dict[ float, numpy.ndarray([m, 1]) ]
+            predefined_state_history : dict[float, numpy.ndarray([m, 1])]
                 State history (with state entry definition as per the propagator settings of this object) along which the dependent variables are to be computed
 
             Returns

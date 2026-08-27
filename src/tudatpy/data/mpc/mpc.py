@@ -73,7 +73,7 @@ DEFAULT_CATALOG_FLAGS = [
 def load_bias_file(
     filepath: str,
     Nside: int | None = None,
-    catalog_flags: list = DEFAULT_CATALOG_FLAGS,
+    catalog_flags: list | None = None,
 ) -> tuple[pd.DataFrame, int]:
     """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
 
@@ -154,7 +154,7 @@ def get_biases_EFCC18(
     catalog: str | np.ndarray | list,
     bias_file: str | None = BIAS_LOWRES_FILE,
     Nside: int | None = None,
-    catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
+    catalog_flags: list[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Calculate and return star catalog bias values as described in:
     "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
@@ -1088,7 +1088,7 @@ class BatchMPC:
         for internal processing.
 
         Args:
-            table (astropy.table.Table):
+            table (astropy.table.QTable | astropy.table.Table):
                 The Astropy Table or QTable containing the observation data. It must
                 include the following columns: 'number', 'epoch', 'RA', 'DEC',
                 'band', 'observatory'.
@@ -1471,7 +1471,7 @@ class BatchMPC:
         station_body : str, optional
             Body to attach ground stations to. Does not need to be changed unless the
             `Earth` body has been renamed, by default "Earth"
-        station_body : bool, optional
+        add_sbdb_gravity_model : bool, optional
             Adds a central_sbdb gravity model to the object, generated using JPL's small body database.
             This option is only available for a limited number of bodies and raises an error if unavailable.
             See tudatpy.dynamics.environment_setup.gravity_field.central_sbdb for more info.

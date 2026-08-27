@@ -67,7 +67,7 @@ def result2array(result: dict[float, np.ndarray]):
 def compare_results(
     baseline_results: dict[float, np.ndarray],
     new_results: dict[float, np.ndarray],
-    difference_epochs: list[float],
+    difference_epochs: list[float] | np.ndarray,
 ):
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
@@ -195,7 +195,7 @@ class redirect_std:
             os.close(link)
 
 
-def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None):
+def pareto_optimums(points: list | np.ndarray, operator: Union[None, list[Callable]] = None):
     """Compute Pareto optimums from a set of points.
 
     These points are all individually optimums, meaning that to be better in one dimension, they have to be worse in another one.
@@ -209,7 +209,7 @@ def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None)
     points : list or numpy.ndarray
         Multi-dimensional list that contains the set of points to compute Pareto optimums from.
         If the points are spread in 3D, this list should have 3 columns, and as many rows as there are points.
-    operator : None or list[min or max], optional, default=None
+    operator : list[Callable] | None, optional, default=None
         If None, it will be considered that the optimums are the minimums of each axis (dimension).
         Otherwise, a list of `min` or `max` functions can be passed in this input, to specify whether a point along a given dimension should be minimum or maximum to be considered optimum.
 
@@ -247,7 +247,7 @@ def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None)
         # Show the plot
         plt.show()
     """
-    points = np.asarray(_points)
+    points = np.asarray(points)
     if operator is None:
         sign = np.ones(points.shape[1])
     else:

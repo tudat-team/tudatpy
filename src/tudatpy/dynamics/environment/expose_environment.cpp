@@ -941,7 +941,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -969,7 +969,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -997,7 +997,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -1025,7 +1025,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -1053,7 +1053,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -1085,7 +1085,7 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
@@ -1301,7 +1301,7 @@ bool
              List of inputs from which the aerodynamic coefficients are to be computed, with each entry corresponding to the
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB)
 
          Returns
@@ -1345,7 +1345,7 @@ bool
              with each entry corresponding to the
              value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
 
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB)
 
          check_force_contribution : bool, default = True
@@ -1404,12 +1404,12 @@ bool
              this constructor. In case the :class:`tudat.geometry.SurfaceGeometry` object is made up of multiple
              sub-shapes, different settings may be used for each
 
-         number_of_lines : List[ float ]
+         number_of_lines : list[int]
              Number of discretization points in the first independent surface variable of each of the subparts of body_shape.
              The size of this list should match the number of parts of which the body_shape is composed. The first independent
              variable of a subpart typically runs along the longitudinal vehicle direction
 
-         number_of_points : List[ float ]
+         number_of_points : list[int]
              Number of discretization points in the second independent surface variable of each of the subparts of body_shape.
              The size of this list should match the number of parts of which the body_shape is composed. The first independent
              variable of a subpart typically runs along the lateral vehicle direction
@@ -1707,7 +1707,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) to which this object is to be updated
 
          Returns
@@ -2189,7 +2189,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
 
          Returns
@@ -2216,7 +2216,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
 
          Returns
@@ -2242,7 +2242,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
 
 
@@ -2264,7 +2264,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
 
          Returns
@@ -2295,7 +2295,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
 
          Returns
@@ -2323,7 +2323,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
 
          Returns
@@ -2380,7 +2380,7 @@ bool
  state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
      Cartesian state (position and velocity) in the body-fixed frame
 
- current_time : astro.time_representation.Time
+ current_time : float
      Time object representing seconds since J2000 (TDB) at which the transformation is to be computed
 
  rotational_ephemeris : RotationalEphemeris
@@ -2837,7 +2837,7 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
+         current_time : float
              Time object representing seconds since J2000 (TDB) at which the position is to be computed.
 
          target_frame_origin: str, default = ""
@@ -3023,7 +3023,7 @@ bool
          ----------
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which to calculate the angle
 
          Returns
@@ -3045,7 +3045,7 @@ bool
          ----------
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
+         time : float
              Time object representing seconds since J2000 (TDB) at which to calculate the angle
 
          Returns
@@ -3801,7 +3801,7 @@ bool
          body_to_add : Body
              Body object that is to be added.
 
-         body_name : numpy.ndarray
+         body_name : str
              Name of the Body that is to be added.
 
          process_body : bool, default=True
@@ -3836,7 +3836,7 @@ bool
 
          Parameters
          ----------
-         body_name : numpy.ndarray
+         body_name : str
              Name of the Body that is to be removed.
 
 

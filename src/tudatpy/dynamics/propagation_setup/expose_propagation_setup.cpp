@@ -95,9 +95,9 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_acceleration_per_body : Dict[str, Dict[str, List[AccelerationSettings]]]
      Key-value container, with key denoting the body undergoing the acceleration, and the value containing an additional key-value container, with the body exerting acceleration, and list of acceleration settings exerted by this body.
- bodies_to_propagate : list
+ bodies_to_propagate : list[str]
      List of bodies to propagate.
- central_bodies : list
+ central_bodies : list[str]
      List of central bodies, each referred to each propagated body in the same order.
  Returns
  -------
@@ -161,7 +161,7 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_torque_per_body : Dict[str, Dict[str, List[TorqueSettings]]]
      Key-value container, with key denoting the body undergoing the torque, and the value containing an additional key-value container, with the body exerting torque, and list of torque settings exerted by this body.
- bodies_to_propagate : list
+ bodies_to_propagate : list[str]
      List of bodies to propagate.
  Returns
  -------
@@ -225,7 +225,7 @@ void expose_propagation_setup( py::module& m )
      System of bodies to be used in the propagation.
  selected_mass_rates_per_body : Dict[str, List[MassRateModelSettings]]
      Key-value container, with key denoting the body with changing mass, and the value containing a list of mass rate settings (in most cases, this list will have only a single entry)
- acceleration_models : dict[str, list[AccelerationModel]]
+ acceleration_models : dict[str, dict[str, list[AccelerationModel]]]
      Sorted list of acceleration models, as created by :func:`create_acceleration_models`
  Returns
  -------

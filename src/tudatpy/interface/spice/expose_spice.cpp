@@ -80,7 +80,7 @@ void expose_spice( py::module& m )
 
  Parameters
  ----------
- julian_date : int
+ julian_date : float
      Julian date that is to be converted to ephemeris time.
  Returns
  -------

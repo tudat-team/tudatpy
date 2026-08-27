@@ -209,9 +209,9 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust force magnitude.
- specific_impulse_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ specific_impulse_function : callable[[float], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
@@ -255,7 +255,7 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust force magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
@@ -286,9 +286,9 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_acceleration_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust acceleration magnitude.
- specific_impulse_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ specific_impulse_function : callable[[float], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
@@ -313,7 +313,7 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_acceleration_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust acceleration magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.

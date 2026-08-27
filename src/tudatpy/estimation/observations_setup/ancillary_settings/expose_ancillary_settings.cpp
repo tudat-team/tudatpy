@@ -197,11 +197,11 @@ void expose_ancillary_settings_types( py::module& m )
 
                 Parameters
                 ----------
-                setting_type : ObservationAncillarySimulationVariable
+                variable : ObservationAncillarySimulationVariable
                    Type of the setting for which the value is to be set
 
-                value : list[float]
-                   List of value that define the provided setting type
+                value : float
+                   Value for the setting
 
                 )doc" )
             .def( "set_float_list_settings",
@@ -214,11 +214,11 @@ void expose_ancillary_settings_types( py::module& m )
 
                 Parameters
                 ----------
-                setting_type : ObservationAncillarySimulationVariable
+                variable : ObservationAncillarySimulationVariable
                    Type of the setting for which the value is to be set
 
-                value : float
-                   Value for the setting
+                value : list[float]
+                   List of values that define the provided setting type
 
                 )doc" )
             .def( "set_intermediate_double_data",

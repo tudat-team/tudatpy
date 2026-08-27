@@ -463,7 +463,7 @@ class SpaceTrackQuery:
 
         Parameters
         ----------
-        filter_oe_dict : dict
+        filter_oe_dict : dict[str, tuple[float | None, float | None]]
             Mapping of orbital element names to ``(min, max)`` bound tuples.
             Either bound may be ``None`` for a one-sided filter.
         limit : int

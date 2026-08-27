@@ -200,7 +200,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  bias_values : list[ numpy.ndarray ]
@@ -253,7 +253,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -306,7 +306,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  bias_values : list[ numpy.ndarray ]
@@ -359,7 +359,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -425,7 +425,7 @@ void expose_biases( py::module& m )
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epoch : astro.time_representation.Time
+ ref_epoch : float
      Defines the reference epoch :math:`t_{0}` at which the effect of the time drift is initialised.
 
  Returns
@@ -477,17 +477,17 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_value : numpy.ndarray
+ bias_value : list[numpy.ndarray]
      Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
      assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
- arc_start_times : list[ astro.time_representation.Time ]
+ arc_start_times : list[float]
      List containing starting times for each arc.
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : list[ astro.time_representation.Time ]
+ ref_epochs : list[float]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -535,14 +535,14 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_value_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_value_per_start_time : dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : list[ astro.time_representation.Time ]
+ ref_epochs : list[float]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -620,7 +620,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[astro.time_representation.Time, float]]
+ time_bias_per_arc_start_time : dict[float, float]
      Dictionary, in which the bias value for each arc are directly mapped to the starting times of the respective arc.
 
  associated_link_end : :class:`LinkEndType`

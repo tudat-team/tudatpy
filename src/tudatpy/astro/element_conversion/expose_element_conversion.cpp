@@ -577,7 +577,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess (for mean-to-eccentric anomaly conversion) is used, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for mean-to-eccentric anomaly conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for mean-to-eccentric anomaly conversion (default is used if this input is left empty)
  Returns
  -------
@@ -725,7 +725,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess is used for conversion, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for conversion (default is used if this input is left empty)
  Returns
  -------
@@ -1337,7 +1337,7 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
+ epoch : float
      Time object representing the epoch as seconds since J2000
  Returns
  -------
@@ -1356,7 +1356,7 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
+ epoch : float
      Time object representing the epoch as seconds since J2000
  Returns
  -------

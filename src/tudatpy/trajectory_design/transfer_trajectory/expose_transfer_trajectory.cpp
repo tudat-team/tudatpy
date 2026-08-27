@@ -601,12 +601,12 @@ void expose_transfer_trajectory( py::module& m )
          ----------
          node_times : list[float]
              List of the time at each node.
-         leg_parameters : list[list[float]]
+         leg_parameters : list[numpy.ndarray]
              List of lists with the parameters characterizing each leg. Each inner list corresponds to the
              parameters of one leg; if a leg does not require any parameter, its list can contain any value(s),
              therefore it is recommended to leave it empty.
 
-         node_parameters : list[list[float]]
+         node_parameters : list[numpy.ndarray]
              List of lists with the parameters characterizing each node. Each inner list corresponds to the
              parameters of one node; if a node does not require any parameter, its list can contain any value(s),
              therefore it is recommended to leave it empty.

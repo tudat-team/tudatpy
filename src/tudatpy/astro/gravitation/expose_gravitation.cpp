@@ -598,7 +598,7 @@ void expose_gravitation( py::module& m )
 
  Parameters
  ----------
- inertia tensor : numpy.ndarray[numpy.float64[3, 3]]
+ inertia_tensor : numpy.ndarray[numpy.float64[3, 3]]
      Full inertia tensor :math:`\mathbf{I}` of the body for which spherical harmonic coefficients are to be computed.
  gravitational_parameter : float
      Gravitational parameter :math:`\mu` of the body for which spherical harmonic coefficients are to be computed.

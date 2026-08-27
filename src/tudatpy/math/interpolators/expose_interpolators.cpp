@@ -588,7 +588,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------
@@ -671,7 +671,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------
@@ -721,7 +721,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
      Parameters
      ----------
-     data_to_interpolate : dict[Time, float]
+     data_to_interpolate : dict[float, float]
          Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
      interpolator_settings : InterpolatorSettings
          Settings that define the type of interpolator that is to be used
