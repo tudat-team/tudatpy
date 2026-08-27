@@ -3879,6 +3879,42 @@ bool
      **************   SUPPORTING FUNCTIONS USED ENVIRONMENT MODELS
      *******************
      */
+
+    m.def( "is_it_dark_at_ground_station",
+           &tss::isItDarkAtGroundStation,
+           py::arg( "ground_station_name" ),
+           py::arg( "time_tdb" ),
+           py::arg( "max_sun_elevation" ),
+           py::arg( "bodies" ),
+           py::arg( "central_body_name" ) = "Earth",
+           R"doc(
+
+         Determine whether the Sun is below a given elevation angle as seen from a ground station.
+
+         Determines whether a ground station is in darkness at a given time, based on the elevation angle of the Sun as
+         seen from that station. The station is considered dark if the Sun's elevation angle is below
+         ``max_sun_elevation`` (e.g. 0 for the geometric horizon, or a negative value for a twilight bound).
+
+
+         Parameters
+         ----------
+         ground_station_name : str
+             Name of the ground station, which must be defined on the body identified by ``central_body_name``.
+         time_tdb : float
+             Time (TDB seconds since J2000) at which the check is to be performed.
+         max_sun_elevation : float
+             Sun elevation angle [rad] below which the ground station is considered to be in darkness.
+         bodies : SystemOfBodies
+             System of bodies, used to retrieve the ground station, and the ephemerides of the central body and the Sun.
+         central_body_name : str, default="Earth"
+             Name of the body on which the ground station is located.
+
+         Returns
+         -------
+         bool
+             True if the Sun's elevation angle at the ground station is below ``max_sun_elevation``, false otherwise.
+
+     )doc" );
 }
 
 }  // namespace environment

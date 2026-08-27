@@ -269,6 +269,39 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //    return elevationAngles;
 //}
 
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName )
+{
+    std::shared_ptr< Body > centralBody = bodies.getBody( centralBodyName );
+
+    if( centralBody->getGroundStationMap( ).count( groundStationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when checking darkness at ground station " + groundStationName + " on body " + centralBodyName +
+                                  ": station not found." );
+    }
+
+    // Inertial state of the ground station, obtained from the central body's ephemeris and rotation model, combined with the
+    // station's body-fixed position.
+    std::function< Eigen::Vector6d( const double ) > groundStationStateFunction = getLinkEndCompleteEphemerisFunction< double, double >(
+            observation_models::LinkEndId( centralBodyName, groundStationName ), bodies );
+    const Eigen::Vector3d groundStationPosition = groundStationStateFunction( timeTdb ).segment( 0, 3 );
+
+    // Inertial position of the Sun.
+    const Eigen::Vector3d sunPosition = bodies.getBody( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double >( timeTdb );
+
+    // Elevation angle of the Sun as seen from the ground station.
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            centralBody->getGroundStation( groundStationName )->getPointingAnglesCalculator( );
+    const double sunElevation =
+            pointingAnglesCalculator->calculateElevationAngleFromInertialVector( sunPosition - groundStationPosition, timeTdb );
+
+    return sunElevation < maxSunElevation;
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
