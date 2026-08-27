@@ -204,7 +204,7 @@ public:
         return resultsSaveFrequencyInSeconds_;
     }
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+    void setClearNumericalSolutions( const bool clearNumericalSolutions ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -215,7 +215,7 @@ public:
         PropagatorProcessingSettings::setClearNumericalSolutions( clearNumericalSolutions );
     }
 
-    virtual void setIntegratedResult( const bool setIntegratedResult )
+    void setIntegratedResult( const bool setIntegratedResult ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -226,7 +226,7 @@ public:
         PropagatorProcessingSettings::setIntegratedResult( setIntegratedResult );
     }
 
-    virtual void setIntegratedVariationalResult( const bool setIntegratedVariationalResult )
+    void setIntegratedVariationalResult( const bool setIntegratedVariationalResult ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -238,7 +238,7 @@ public:
         PropagatorProcessingSettings::setIntegratedVariationalResult( setIntegratedVariationalResult );
     }
 
-    virtual void setCreateStateProcessors( const bool createStateProcessors )
+    void setCreateStateProcessors( const bool createStateProcessors ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -275,12 +275,12 @@ public:
         return saveCurrentStep;
     }
 
-    bool printAnyOutput( )
+    bool printAnyOutput( ) override
     {
         return printSettings_->printAnyOutput( );
     }
 
-    std::string getPropagationStartHeader( )
+    std::string getPropagationStartHeader( ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -292,7 +292,7 @@ public:
         }
     }
 
-    std::string getPropagationEndHeader( )
+    std::string getPropagationEndHeader( ) override
     {
         if( isPartOfMultiArc_ )
         {
@@ -485,7 +485,7 @@ public:
         resetSingleArcSettings( );
     }
 
-    bool printAnyOutput( )
+    bool printAnyOutput( ) override
     {
         bool printOutput = false;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
@@ -498,7 +498,7 @@ public:
         return printOutput;
     }
 
-    std::string getPropagationStartHeader( )
+    std::string getPropagationStartHeader( ) override
     {
         if( isPartOfHybridArc_ )
         {
@@ -510,7 +510,7 @@ public:
         }
     }
 
-    std::string getPropagationEndHeader( )
+    std::string getPropagationEndHeader( ) override
     {
         if( isPartOfHybridArc_ )
         {
@@ -537,7 +537,7 @@ public:
         return singleArcSettings_;
     }
 
-    virtual void setIntegratedResult( const bool setIntegratedResult )
+    void setIntegratedResult( const bool setIntegratedResult ) override
     {
         setIntegratedResult_ = setIntegratedResult;
         createStateProcessors_ = setIntegratedResult;
@@ -680,14 +680,14 @@ public:
 
     virtual ~HybridArcPropagatorProcessingSettings( ) {}
 
-    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+    void setClearNumericalSolutions( const bool clearNumericalSolutions ) override
     {
         this->clearNumericalSolutions_ = clearNumericalSolutions;
         singleArcSettings_->setClearNumericalSolutions( clearNumericalSolutions );
         multiArcSettings_->setClearNumericalSolutions( clearNumericalSolutions );
     }
 
-    virtual void setIntegratedResult( const bool setIntegratedResult )
+    void setIntegratedResult( const bool setIntegratedResult ) override
     {
         setIntegratedResult_ = setIntegratedResult;
         this->setCreateStateProcessors( setIntegratedResult );
@@ -695,14 +695,14 @@ public:
         multiArcSettings_->setIntegratedResult( setIntegratedResult );
     }
 
-    virtual void setIntegratedVariationalResult( const bool setIntegratedVariationalResult )
+    void setIntegratedVariationalResult( const bool setIntegratedVariationalResult ) override
     {
         setIntegratedVariationalResult_ = setIntegratedVariationalResult;
         singleArcSettings_->setIntegratedVariationalResult( setIntegratedVariationalResult );
         multiArcSettings_->setIntegratedVariationalResult( setIntegratedVariationalResult );
     }
 
-    virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
+    void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator ) override
     {
         this->updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
         singleArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
@@ -739,17 +739,17 @@ public:
         }
     }
 
-    bool printAnyOutput( )
+    bool printAnyOutput( ) override
     {
         return singleArcSettings_->printAnyOutput( ) || multiArcSettings_->printAnyOutput( );
     }
 
-    std::string getPropagationStartHeader( )
+    std::string getPropagationStartHeader( ) override
     {
         return "==============  STARTING HYBRID-ARC PROPAGATION  ===============";
     }
 
-    std::string getPropagationEndHeader( )
+    std::string getPropagationEndHeader( ) override
     {
         return "=================================================================";
     }
