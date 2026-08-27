@@ -107,34 +107,10 @@ inline std::string currentProvenance( )
     return s;
 }
 
-//! Metadata read from a serialized file header.
-struct FileMetadata {
-    std::string provenance;
-    std::string rootType;
-};
-
-//! Combine provenance and optional root-type metadata without changing the TED1 framing.
-inline std::string makeBinaryHeaderPayload( const std::string& rootType )
-{
-    return currentProvenance( ) + ( rootType.empty( ) ? "" : std::string( kBinaryRootTypeSeparator ) + rootType );
-}
-
-//! Split a binary header payload. Payloads written before root-type metadata remain valid.
-inline FileMetadata parseBinaryHeaderPayload( const std::string& payload )
-{
-    const auto separatorPosition = payload.find( kBinaryRootTypeSeparator );
-    if( separatorPosition == std::string::npos )
-    {
-        return { payload, "" };
-    }
-    return { payload.substr( 0, separatorPosition ),
-             payload.substr( separatorPosition + std::string( kBinaryRootTypeSeparator ).size( ) ) };
-}
-
 //! Write the binary version header to an output stream.
 inline void writeBinaryHeader( std::ostream& stream, const std::string& rootType = "" )
 {
-    const std::string payload = makeBinaryHeaderPayload( rootType );
+    const std::string payload = currentProvenance( ) + ( rootType.empty( ) ? "" : std::string( kBinaryRootTypeSeparator ) + rootType );
     if( payload.size( ) > kMaximumBinaryProvenanceLength )
     {
         throw std::runtime_error( "Cannot write binary serialization header: metadata exceeds the supported length." );
@@ -179,23 +155,10 @@ inline std::string readBinaryProvenance( std::istream& stream )
     return provenance;
 }
 
-//! Extract the provenance from a raw JSON string by searching for
-//! "tudat_provenance".  Returns empty string if not found.
-inline std::string extractJsonProvenance( const std::string& raw )
+//! Extract a string-valued metadata field from a cereal JSON archive.
+inline std::string extractJsonMetadata( const std::string& raw, const std::string& name )
 {
-    const std::string key = "\"tudat_provenance\": \"";
-    auto pos = raw.find( key );
-    if( pos == std::string::npos ) return {};
-    pos += key.size( );
-    auto end = raw.find( '\"', pos );
-    if( end == std::string::npos ) return {};
-    return raw.substr( pos, end - pos );
-}
-
-//! Extract the optional root type from a JSON archive.
-inline std::string extractJsonRootType( const std::string& raw )
-{
-    const std::string key = "\"tudat_root_type\": \"";
+    const std::string key = "\"" + name + "\": \"";
     auto pos = raw.find( key );
     if( pos == std::string::npos ) return {};
     pos += key.size( );
@@ -306,9 +269,16 @@ T loadFromBinaryFile( const std::string& path, const std::string& requestedRootT
         throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
-    const FileMetadata metadata = parseBinaryHeaderPayload( readBinaryProvenance( inputStream ) );
-    const auto parts = checkProvenance( metadata.provenance );
-    checkRootType( metadata.rootType, requestedRootType );
+    std::string fileProvenance = readBinaryProvenance( inputStream );
+    std::string fileRootType;
+    const auto separatorPosition = fileProvenance.find( kBinaryRootTypeSeparator );
+    if( separatorPosition != std::string::npos )
+    {
+        fileRootType = fileProvenance.substr( separatorPosition + std::string( kBinaryRootTypeSeparator ).size( ) );
+        fileProvenance.resize( separatorPosition );
+    }
+    const auto parts = checkProvenance( fileProvenance );
+    checkRootType( fileRootType, requestedRootType );
 
     try
     {
@@ -374,9 +344,9 @@ T loadFromJsonFile( const std::string& path, const std::string& requestedRootTyp
     std::string raw( ( std::istreambuf_iterator< char >( inputStream ) ), std::istreambuf_iterator< char >( ) );
     inputStream.close( );
 
-    const std::string fileProvenance = extractJsonProvenance( raw );
+    const std::string fileProvenance = extractJsonMetadata( raw, "tudat_provenance" );
     const auto parts = checkProvenance( fileProvenance );
-    checkRootType( extractJsonRootType( raw ), requestedRootType );
+    checkRootType( extractJsonMetadata( raw, "tudat_root_type" ), requestedRootType );
 
     try
     {
