@@ -96,6 +96,9 @@ constexpr std::uint32_t kBinaryMagic = 0x54454431;
 //! Maximum accepted length of the human-readable provenance header.
 constexpr std::uint32_t kMaximumBinaryProvenanceLength = 4096;
 
+//! Separator used to append backward-compatible root-type metadata to the binary header payload.
+inline constexpr char kBinaryRootTypeSeparator[] = "\nroot_type=";
+
 //! Provenance string for the current build: "version@commit@date".
 inline std::string currentProvenance( )
 {
@@ -105,17 +108,17 @@ inline std::string currentProvenance( )
 }
 
 //! Write the binary version header to an output stream.
-inline void writeBinaryHeader( std::ostream& stream )
+inline void writeBinaryHeader( std::ostream& stream, const std::string& rootType = "" )
 {
-    const std::string p = currentProvenance( );
-    if( p.size( ) > kMaximumBinaryProvenanceLength )
+    const std::string payload = currentProvenance( ) + ( rootType.empty( ) ? "" : std::string( kBinaryRootTypeSeparator ) + rootType );
+    if( payload.size( ) > kMaximumBinaryProvenanceLength )
     {
-        throw std::runtime_error( "Cannot write binary serialization header: provenance exceeds the supported length." );
+        throw std::runtime_error( "Cannot write binary serialization header: metadata exceeds the supported length." );
     }
-    const std::uint32_t len = static_cast< std::uint32_t >( p.size( ) );
+    const std::uint32_t len = static_cast< std::uint32_t >( payload.size( ) );
     stream.write( reinterpret_cast< const char* >( &kBinaryMagic ), sizeof( kBinaryMagic ) );
     stream.write( reinterpret_cast< const char* >( &len ), sizeof( len ) );
-    stream.write( p.data( ), len );
+    stream.write( payload.data( ), len );
 }
 
 //! Read and return the provenance from a binary header, or return an
@@ -152,17 +155,26 @@ inline std::string readBinaryProvenance( std::istream& stream )
     return provenance;
 }
 
-//! Extract the provenance from a raw JSON string by searching for
-//! "tudat_provenance".  Returns empty string if not found.
-inline std::string extractJsonProvenance( const std::string& raw )
+//! Extract a string-valued metadata field from a cereal JSON archive.
+inline std::string extractJsonMetadata( const std::string& raw, const std::string& name )
 {
-    const std::string key = "\"tudat_provenance\": \"";
+    const std::string key = "\"" + name + "\": \"";
     auto pos = raw.find( key );
     if( pos == std::string::npos ) return {};
     pos += key.size( );
     auto end = raw.find( '\"', pos );
     if( end == std::string::npos ) return {};
     return raw.substr( pos, end - pos );
+}
+
+//! Reject a mismatched loader before cereal interprets the payload as another type.
+inline void checkRootType( const std::string& fileRootType, const std::string& requestedRootType )
+{
+    if( !fileRootType.empty( ) && !requestedRootType.empty( ) && fileRootType != requestedRootType )
+    {
+        throw std::runtime_error( "Could not deserialize this object.\nThe file contains '" + fileRootType +
+                                  "', but the selected load method expects '" + requestedRootType + "'." );
+    }
 }
 
 //! Parsed components of a provenance string.
@@ -222,7 +234,7 @@ inline ProvenanceParts checkProvenance( const std::string& fileProvenance )
 //! Prepends a header with provenance "version@commit@date".
 //! Appends ".tudat" extension automatically.
 template< typename T >
-void saveToBinaryFile( const T& object, const std::string& path )
+void saveToBinaryFile( const T& object, const std::string& path, const std::string& rootType = "" )
 {
     std::string filePath = path + ".tudat";
     try
@@ -230,7 +242,7 @@ void saveToBinaryFile( const T& object, const std::string& path )
         std::ofstream outputStream;
         outputStream.exceptions( std::ios::failbit | std::ios::badbit );
         outputStream.open( filePath, std::ios::binary );
-        writeBinaryHeader( outputStream );
+        writeBinaryHeader( outputStream, rootType );
         {
             cereal::BinaryOutputArchive archive( outputStream );
             archive( object );
@@ -248,7 +260,7 @@ void saveToBinaryFile( const T& object, const std::string& path )
 //! Warns on provenance mismatch and wraps errors with file provenance.
 //! Appends ".tudat" extension automatically.
 template< typename T >
-T loadFromBinaryFile( const std::string& path )
+T loadFromBinaryFile( const std::string& path, const std::string& requestedRootType = "" )
 {
     std::string filePath = path + ".tudat";
     std::ifstream inputStream( filePath, std::ios::binary );
@@ -257,8 +269,16 @@ T loadFromBinaryFile( const std::string& path )
         throw std::runtime_error( "Unable to open file for binary load: " + filePath );
     }
 
-    const std::string fileProvenance = readBinaryProvenance( inputStream );
+    std::string fileProvenance = readBinaryProvenance( inputStream );
+    std::string fileRootType;
+    const auto separatorPosition = fileProvenance.find( kBinaryRootTypeSeparator );
+    if( separatorPosition != std::string::npos )
+    {
+        fileRootType = fileProvenance.substr( separatorPosition + std::string( kBinaryRootTypeSeparator ).size( ) );
+        fileProvenance.resize( separatorPosition );
+    }
     const auto parts = checkProvenance( fileProvenance );
+    checkRootType( fileRootType, requestedRootType );
 
     try
     {
@@ -283,7 +303,7 @@ T loadFromBinaryFile( const std::string& path )
 //! Embeds provenance "version@commit@date" as archive metadata.
 //! Appends ".json" extension automatically.
 template< typename T >
-void saveToJsonFile( const T& object, const std::string& path )
+void saveToJsonFile( const T& object, const std::string& path, const std::string& rootType = "" )
 {
     std::string filePath = path + ".json";
     try
@@ -294,6 +314,7 @@ void saveToJsonFile( const T& object, const std::string& path )
         {
             cereal::JSONOutputArchive archive( outputStream );
             archive( cereal::make_nvp( "tudat_provenance", currentProvenance( ) ) );
+            archive( cereal::make_nvp( "tudat_root_type", rootType ) );
             archive( cereal::make_nvp( "root", object ) );
         }
         outputStream.flush( );
@@ -309,7 +330,7 @@ void saveToJsonFile( const T& object, const std::string& path )
 //! Warns on provenance mismatch and wraps errors with file provenance.
 //! Appends ".json" extension automatically.
 template< typename T >
-T loadFromJsonFile( const std::string& path )
+T loadFromJsonFile( const std::string& path, const std::string& requestedRootType = "" )
 {
     std::string filePath = path + ".json";
     std::ifstream inputStream( filePath );
@@ -323,8 +344,9 @@ T loadFromJsonFile( const std::string& path )
     std::string raw( ( std::istreambuf_iterator< char >( inputStream ) ), std::istreambuf_iterator< char >( ) );
     inputStream.close( );
 
-    const std::string fileProvenance = extractJsonProvenance( raw );
+    const std::string fileProvenance = extractJsonMetadata( raw, "tudat_provenance" );
     const auto parts = checkProvenance( fileProvenance );
+    checkRootType( extractJsonMetadata( raw, "tudat_root_type" ), requestedRootType );
 
     try
     {
@@ -349,33 +371,33 @@ T loadFromJsonFile( const std::string& path )
 //! Helper function to serialize a shared_ptr to a JSON file (for polymorphic types)
 //! Appends ".json" extension automatically.
 template< typename T >
-void saveSharedPtrToJsonFile( const std::shared_ptr< T >& object, const std::string& path )
+void saveSharedPtrToJsonFile( const std::shared_ptr< T >& object, const std::string& path, const std::string& rootType = "" )
 {
-    saveToJsonFile< std::shared_ptr< T > >( object, path );
+    saveToJsonFile< std::shared_ptr< T > >( object, path, rootType );
 }
 
 //! Helper function to deserialize a shared_ptr from a JSON file (for polymorphic types)
 //! Appends ".json" extension automatically.
 template< typename T >
-std::shared_ptr< T > loadSharedPtrFromJsonFile( const std::string& path )
+std::shared_ptr< T > loadSharedPtrFromJsonFile( const std::string& path, const std::string& requestedRootType = "" )
 {
-    return loadFromJsonFile< std::shared_ptr< T > >( path );
+    return loadFromJsonFile< std::shared_ptr< T > >( path, requestedRootType );
 }
 
 //! Helper function to serialize a shared_ptr to a binary file (for polymorphic types)
 //! Appends ".tudat" extension automatically.
 template< typename T >
-void saveSharedPtrToBinaryFile( const std::shared_ptr< T >& object, const std::string& path )
+void saveSharedPtrToBinaryFile( const std::shared_ptr< T >& object, const std::string& path, const std::string& rootType = "" )
 {
-    saveToBinaryFile< std::shared_ptr< T > >( object, path );
+    saveToBinaryFile< std::shared_ptr< T > >( object, path, rootType );
 }
 
 //! Helper function to deserialize a shared_ptr from a binary file (for polymorphic types)
 //! Appends ".tudat" extension automatically.
 template< typename T >
-std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
+std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path, const std::string& requestedRootType = "" )
 {
-    return loadFromBinaryFile< std::shared_ptr< T > >( path );
+    return loadFromBinaryFile< std::shared_ptr< T > >( path, requestedRootType );
 }
 
 }  // namespace serialization
@@ -400,33 +422,33 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
 // =====================================================================
 
 //! Add both saveToBinary/loadFromBinary and saveToJson/loadFromJson (value types).
-#define TUDAT_DEFINE_FILE_IO( ... )                                               \
-    void saveToBinary( const std::string& path ) const                            \
-    {                                                                             \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                  \
-    }                                                                             \
-    static __VA_ARGS__ loadFromBinary( const std::string& path )                  \
-    {                                                                             \
-        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path ); \
-    }                                                                             \
-    void saveToJson( const std::string& path ) const                              \
-    {                                                                             \
-        ::tudat::serialization::saveToJsonFile( *this, path );                    \
-    }                                                                             \
-    static __VA_ARGS__ loadFromJson( const std::string& path )                    \
-    {                                                                             \
-        return ::tudat::serialization::loadFromJsonFile< __VA_ARGS__ >( path );   \
+#define TUDAT_DEFINE_FILE_IO( ... )                                                             \
+    void saveToBinary( const std::string& path ) const                                          \
+    {                                                                                           \
+        ::tudat::serialization::saveToBinaryFile( *this, path, #__VA_ARGS__ );                  \
+    }                                                                                           \
+    static __VA_ARGS__ loadFromBinary( const std::string& path )                                \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ ); \
+    }                                                                                           \
+    void saveToJson( const std::string& path ) const                                            \
+    {                                                                                           \
+        ::tudat::serialization::saveToJsonFile( *this, path, #__VA_ARGS__ );                    \
+    }                                                                                           \
+    static __VA_ARGS__ loadFromJson( const std::string& path )                                  \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromJsonFile< __VA_ARGS__ >( path, #__VA_ARGS__ );   \
     }
 
 //! Add saveToBinary/loadFromBinary only (value types).
-#define TUDAT_DEFINE_BINARY_IO( ... )                                             \
-    void saveToBinary( const std::string& path ) const                            \
-    {                                                                             \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                  \
-    }                                                                             \
-    static __VA_ARGS__ loadFromBinary( const std::string& path )                  \
-    {                                                                             \
-        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path ); \
+#define TUDAT_DEFINE_BINARY_IO( ... )                                                           \
+    void saveToBinary( const std::string& path ) const                                          \
+    {                                                                                           \
+        ::tudat::serialization::saveToBinaryFile( *this, path, #__VA_ARGS__ );                  \
+    }                                                                                           \
+    static __VA_ARGS__ loadFromBinary( const std::string& path )                                \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ ); \
     }
 
 //! Add saveToBinary/loadFromBinary for polymorphic base (load returns shared_ptr<Base>).
@@ -435,11 +457,11 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
     void saveToBinary( const std::string& path ) const                                                                       \
     {                                                                                                                        \
         auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
-        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                                    \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path, #__VA_ARGS__ );                      \
     }                                                                                                                        \
     static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                          \
     {                                                                                                                        \
-        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                            \
+        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ );              \
         if( !result )                                                                                                        \
         {                                                                                                                    \
             throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from binary file '" + path +                   \
@@ -456,11 +478,11 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
     void saveToBinary( const std::string& path ) const                                                                       \
     {                                                                                                                        \
         auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
-        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                                    \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path, #__VA_ARGS__ );                      \
     }                                                                                                                        \
     static std::shared_ptr< __VA_ARGS__ > loadFromBinary( const std::string& path )                                          \
     {                                                                                                                        \
-        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                            \
+        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ );              \
         if( !result )                                                                                                        \
         {                                                                                                                    \
             throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from binary file '" + path +                   \
@@ -473,11 +495,11 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
     void saveToJson( const std::string& path ) const                                                                         \
     {                                                                                                                        \
         auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} );           \
-        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                                      \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path, #__VA_ARGS__ );                        \
     }                                                                                                                        \
     static std::shared_ptr< __VA_ARGS__ > loadFromJson( const std::string& path )                                            \
     {                                                                                                                        \
-        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                              \
+        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path, #__VA_ARGS__ );                \
         if( !result )                                                                                                        \
         {                                                                                                                    \
             throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from JSON file '" + path +                     \
@@ -491,43 +513,43 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
 // Out-of-line definition counterparts for non-template classes that use the declaration-only
 // macros from file_io_declarations.h. Keep these invocations in the owning model library's
 // implementation files so archive and stream implementations do not leak into model headers.
-#define TUDAT_IMPLEMENT_FILE_IO( ... )                                            \
-    void __VA_ARGS__::saveToBinary( const std::string& path ) const               \
-    {                                                                             \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                  \
-    }                                                                             \
-    __VA_ARGS__ __VA_ARGS__::loadFromBinary( const std::string& path )            \
-    {                                                                             \
-        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path ); \
-    }                                                                             \
-    void __VA_ARGS__::saveToJson( const std::string& path ) const                 \
-    {                                                                             \
-        ::tudat::serialization::saveToJsonFile( *this, path );                    \
-    }                                                                             \
-    __VA_ARGS__ __VA_ARGS__::loadFromJson( const std::string& path )              \
-    {                                                                             \
-        return ::tudat::serialization::loadFromJsonFile< __VA_ARGS__ >( path );   \
+#define TUDAT_IMPLEMENT_FILE_IO( ... )                                                          \
+    void __VA_ARGS__::saveToBinary( const std::string& path ) const                             \
+    {                                                                                           \
+        ::tudat::serialization::saveToBinaryFile( *this, path, #__VA_ARGS__ );                  \
+    }                                                                                           \
+    __VA_ARGS__ __VA_ARGS__::loadFromBinary( const std::string& path )                          \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ ); \
+    }                                                                                           \
+    void __VA_ARGS__::saveToJson( const std::string& path ) const                               \
+    {                                                                                           \
+        ::tudat::serialization::saveToJsonFile( *this, path, #__VA_ARGS__ );                    \
+    }                                                                                           \
+    __VA_ARGS__ __VA_ARGS__::loadFromJson( const std::string& path )                            \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromJsonFile< __VA_ARGS__ >( path, #__VA_ARGS__ );   \
     }
 
-#define TUDAT_IMPLEMENT_BINARY_IO( ... )                                          \
-    void __VA_ARGS__::saveToBinary( const std::string& path ) const               \
-    {                                                                             \
-        ::tudat::serialization::saveToBinaryFile( *this, path );                  \
-    }                                                                             \
-    __VA_ARGS__ __VA_ARGS__::loadFromBinary( const std::string& path )            \
-    {                                                                             \
-        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path ); \
+#define TUDAT_IMPLEMENT_BINARY_IO( ... )                                                        \
+    void __VA_ARGS__::saveToBinary( const std::string& path ) const                             \
+    {                                                                                           \
+        ::tudat::serialization::saveToBinaryFile( *this, path, #__VA_ARGS__ );                  \
+    }                                                                                           \
+    __VA_ARGS__ __VA_ARGS__::loadFromBinary( const std::string& path )                          \
+    {                                                                                           \
+        return ::tudat::serialization::loadFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ ); \
     }
 
 #define TUDAT_IMPLEMENT_BINARY_IO_POLYMORPHIC( ... )                                                               \
     void __VA_ARGS__::saveToBinary( const std::string& path ) const                                                \
     {                                                                                                              \
         auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path );                          \
+        ::tudat::serialization::saveSharedPtrToBinaryFile< __VA_ARGS__ >( shared, path, #__VA_ARGS__ );            \
     }                                                                                                              \
     std::shared_ptr< __VA_ARGS__ > __VA_ARGS__::loadFromBinary( const std::string& path )                          \
     {                                                                                                              \
-        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path );                  \
+        auto result = ::tudat::serialization::loadSharedPtrFromBinaryFile< __VA_ARGS__ >( path, #__VA_ARGS__ );    \
         if( !result )                                                                                              \
         {                                                                                                          \
             throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from binary file '" + path +         \
@@ -541,11 +563,11 @@ std::shared_ptr< T > loadSharedPtrFromBinaryFile( const std::string& path )
     void __VA_ARGS__::saveToJson( const std::string& path ) const                                                  \
     {                                                                                                              \
         auto shared = std::shared_ptr< __VA_ARGS__ >( const_cast< __VA_ARGS__* >( this ), []( __VA_ARGS__* ) {} ); \
-        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path );                            \
+        ::tudat::serialization::saveSharedPtrToJsonFile< __VA_ARGS__ >( shared, path, #__VA_ARGS__ );              \
     }                                                                                                              \
     std::shared_ptr< __VA_ARGS__ > __VA_ARGS__::loadFromJson( const std::string& path )                            \
     {                                                                                                              \
-        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path );                    \
+        auto result = ::tudat::serialization::loadSharedPtrFromJsonFile< __VA_ARGS__ >( path, #__VA_ARGS__ );      \
         if( !result )                                                                                              \
         {                                                                                                          \
             throw std::runtime_error( "Failed to deserialize " #__VA_ARGS__ " from JSON file '" + path +           \
