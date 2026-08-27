@@ -56,7 +56,8 @@ void resetMarsEphemeris( const SystemOfBodies& bodies, const double ephemerisSta
             ->resetInterpolator( defaultMarsStateInterpolator );
 }
 
-//! Test if hybrid-arc orbit propagation is done correctly (single-arc Mars w.r.t. SSB and multi-arc orbiter w.r.t. Mars)
+//! Test if hybrid-arc orbit propagation is done correctly (single-arc Mars w.r.t. SSB and multi-arc orbiter w.r.t. Mars),
+//! including propagation of custom integrated-state interpolator settings to both arc types.
 BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 // int main( )
 {
@@ -257,6 +258,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             bool clearNumericalSolution = processResults > 1 ? true : false;
             hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResults );
             hybridArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( clearNumericalSolution );
+            // Request a non-default order to make forwarding to both hybrid-arc components observable.
             hybridArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 10 ) );
 
             BOOST_CHECK_EQUAL( hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
@@ -288,6 +290,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
                 if( setIntegratedResults )
                 {
+                    // Verify that the single-arc integrated body ephemeris uses the requested interpolation order.
                     std::shared_ptr< TabulatedCartesianEphemeris<> > integratedMarsEphemeris =
                             std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( bodies.at( "Mars" )->getEphemeris( ) );
                     BOOST_REQUIRE( integratedMarsEphemeris != nullptr );
@@ -297,6 +300,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                     BOOST_REQUIRE( marsInterpolator != nullptr );
                     BOOST_CHECK_EQUAL( marsInterpolator->getNumberOfStages( ), 10 );
 
+                    // Verify that every tabulated ephemeris in the multi-arc portion uses the requested order.
                     std::shared_ptr< MultiArcEphemeris > integratedOrbiterEphemeris =
                             std::dynamic_pointer_cast< MultiArcEphemeris >( bodies.at( "Orbiter" )->getEphemeris( ) );
                     BOOST_REQUIRE( integratedOrbiterEphemeris != nullptr );

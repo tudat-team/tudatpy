@@ -47,6 +47,7 @@ using namespace propagators;
 
 BOOST_AUTO_TEST_SUITE( test_multi_arc_dynamics )
 
+//! Test multi-arc propagation variants, including custom interpolation of the integrated state histories.
 BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 {
     // Load spice kernels.
@@ -145,11 +146,13 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             multiArcPrintSettings->reset( true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
 
             multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings( multiArcPrintSettings );
+            // Enable environment updates with a non-default interpolation order for all propagated arcs.
             multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             multiArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 8 ) );
 
             MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
 
+            // Verify that every tabulated arc ephemeris uses the requested interpolation order.
             std::shared_ptr< MultiArcEphemeris > integratedMoonEphemeris =
                     std::dynamic_pointer_cast< MultiArcEphemeris >( bodies.at( "Moon" )->getEphemeris( ) );
             BOOST_REQUIRE( integratedMoonEphemeris != nullptr );

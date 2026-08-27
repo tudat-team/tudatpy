@@ -98,6 +98,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     }
 }
 
+//! Test whether estimation applies custom integrated-state interpolation both initially and when reintegrating the dynamics.
 BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimation )
 {
     std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
@@ -105,9 +106,11 @@ BOOST_AUTO_TEST_CASE( testIntegratedStateInterpolatorAfterPropagationAndEstimati
             podDataOutput;
     std::pair< int, int > interpolatorOrders{ -1, -1 };
 
+    // Run estimation with eighth-order interpolation and record the order of each generated environment ephemeris.
     executeEarthOrbiterParameterEstimation< double, double >(
-            podDataOutput, 1.0E7, 1, 1, false, false, interpolators::lagrangeInterpolation( 8 ), &interpolatorOrders );
+            podDataOutput, interpolatorOrders, 1.0E7, 1, 1, false, false, interpolators::lagrangeInterpolation( 8 ) );
 
+    // Verify that the initial propagation and the estimation reintegration both use the requested order.
     BOOST_CHECK_EQUAL( interpolatorOrders.first, 8 );
     BOOST_CHECK_EQUAL( interpolatorOrders.second, 8 );
 }

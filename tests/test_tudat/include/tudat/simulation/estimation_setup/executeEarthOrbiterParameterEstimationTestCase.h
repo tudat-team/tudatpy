@@ -37,13 +37,13 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,
                    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > >& podData,
+        std::pair< int, int >& integratedStateInterpolatorOrders,
         const TimeType startTime = TimeType( 1.0E7 ),
         const int numberOfDaysOfData = 3,
         const int numberOfIterations = 5,
         const bool useFullParameterSet = true,
         const bool saveDesignMatrix = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr,
-        std::pair< int, int >* integratedStateInterpolatorOrders = nullptr )
+        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -275,10 +275,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         }
         return vehicleInterpolator->getNumberOfStages( );
     };
-    if( integratedStateInterpolatorOrders != nullptr )
-    {
-        integratedStateInterpolatorOrders->first = getIntegratedStateInterpolatorOrder( );
-    }
+    integratedStateInterpolatorOrders.first = getIntegratedStateInterpolatorOrder( );
 
     std::vector< TimeType > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
@@ -337,10 +334,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
 
-    if( integratedStateInterpolatorOrders != nullptr )
-    {
-        integratedStateInterpolatorOrders->second = getIntegratedStateInterpolatorOrder( );
-    }
+    integratedStateInterpolatorOrders.second = getIntegratedStateInterpolatorOrder( );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;
@@ -348,6 +342,28 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     podData = std::make_pair( estimationOutput, estimationInput );
 
     return estimationError;
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::VectorXd executeEarthOrbiterParameterEstimation(
+        std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >,
+                   std::shared_ptr< EstimationInput< StateScalarType, TimeType > > >& podData,
+        const TimeType startTime = TimeType( 1.0E7 ),
+        const int numberOfDaysOfData = 3,
+        const int numberOfIterations = 5,
+        const bool useFullParameterSet = true,
+        const bool saveDesignMatrix = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > integratedStateInterpolatorSettings = nullptr )
+{
+    std::pair< int, int > unusedIntegratedStateInterpolatorOrders;
+    return executeEarthOrbiterParameterEstimation< TimeType, StateScalarType >( podData,
+                                                                                unusedIntegratedStateInterpolatorOrders,
+                                                                                startTime,
+                                                                                numberOfDaysOfData,
+                                                                                numberOfIterations,
+                                                                                useFullParameterSet,
+                                                                                saveDesignMatrix,
+                                                                                integratedStateInterpolatorSettings );
 }
 
 }  // namespace unit_tests
