@@ -262,7 +262,8 @@ void exportResultsOfDynamicsSimulator(
         if( exportSettings->epochsInFirstColumn_ )
         {
             // Write results map to file.
-            writeDataMapToTextFile( results, exportSettings->outputFile_, exportSettings->header_, exportSettings->numericalPrecision_ );
+            writeDataMapToTextFile(
+                    results, exportSettings->outputFile_.string( ), exportSettings->header_, exportSettings->numericalPrecision_ );
         }
         else
         {
@@ -276,7 +277,7 @@ void exportResultsOfDynamicsSimulator(
             writeMatrixToFile( resultsMatrix,
                                exportSettings->outputFile_.filename( ).string( ),
                                exportSettings->numericalPrecision_,
-                               exportSettings->outputFile_.parent_path( ),
+                               exportSettings->outputFile_.parent_path( ).string( ),
                                " ",
                                exportSettings->header_ );
         }
@@ -302,7 +303,7 @@ void exportResultsOfVariationalEquations(
                     {
                         // Write results map to file.
                         writeDataMapToTextFile( variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ],
-                                                exportSettings->outputFile_,
+                                                exportSettings->outputFile_.string( ),
                                                 exportSettings->header_,
                                                 exportSettings->numericalPrecision_ );
                     }
@@ -317,7 +318,7 @@ void exportResultsOfVariationalEquations(
                     {
                         // Write results map to file.
                         writeDataMapToTextFile( variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ],
-                                                exportSettings->outputFile_,
+                                                exportSettings->outputFile_.string( ),
                                                 exportSettings->header_,
                                                 exportSettings->numericalPrecision_ );
                     }

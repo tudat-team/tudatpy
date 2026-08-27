@@ -16,7 +16,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/array.hpp>
+#include <array>
 
 #include <memory>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
     BOOST_CHECK_EQUAL( isVariableIndexTooHigh, 1 );
 
     // Allocate memory for independent variables to pass to analysis for retrieval.
-    boost::array< int, 3 > independentVariables;
+    std::array< int, 3 > independentVariables;
     independentVariables[ 0 ] = 0;
     independentVariables[ 1 ] = 0;
     independentVariables[ 2 ] = 0;
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     std::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface = getApolloCoefficientInterface( );
 
     // Retrieve coefficients at zero angle of attack for comparison.
-    boost::array< int, 3 > independentVariables;
+    std::array< int, 3 > independentVariables;
 
     independentVariables[ 0 ] = coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1;
     independentVariables[ 1 ] = 6;

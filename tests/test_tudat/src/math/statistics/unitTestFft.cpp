@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/statistics/fastFourierTransform.h"

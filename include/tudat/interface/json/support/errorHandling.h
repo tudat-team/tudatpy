@@ -13,7 +13,6 @@
 
 #include <map>
 
-#include <boost/filesystem.hpp>
 #include <boost/core/demangle.hpp>
 
 #include <nlohmann/json.hpp>

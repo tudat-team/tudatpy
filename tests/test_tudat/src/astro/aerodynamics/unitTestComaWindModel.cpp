@@ -7,7 +7,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -23,16 +23,16 @@ using namespace aerodynamics;
 // ==================== Test Fixtures ====================
 
 struct WindTestDataPaths {
-    boost::filesystem::path dataDir;
-    boost::filesystem::path windDataDir;
-    boost::filesystem::path windFileX;
-    boost::filesystem::path windFileY;
-    boost::filesystem::path windFileZ;
-    boost::filesystem::path outputDir;
+    std::filesystem::path dataDir;
+    std::filesystem::path windDataDir;
+    std::filesystem::path windFileX;
+    std::filesystem::path windFileY;
+    std::filesystem::path windFileZ;
+    std::filesystem::path outputDir;
 
     WindTestDataPaths( )
     {
-        dataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
+        dataDir = std::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
         windDataDir = dataDir / "wind";
 
         windFileX = windDataDir / "polynomial" / "input_poly_wind_x.txt";
@@ -41,31 +41,31 @@ struct WindTestDataPaths {
         outputDir = dataDir / "output" / "wind";
 
         // Ensure test files exist
-        if( !boost::filesystem::exists( windFileX ) )
+        if( !std::filesystem::exists( windFileX ) )
         {
             throw std::runtime_error( "Wind test data file not found: " + windFileX.string( ) );
         }
-        if( !boost::filesystem::exists( windFileY ) )
+        if( !std::filesystem::exists( windFileY ) )
         {
             throw std::runtime_error( "Wind test data file not found: " + windFileY.string( ) );
         }
-        if( !boost::filesystem::exists( windFileZ ) )
+        if( !std::filesystem::exists( windFileZ ) )
         {
             throw std::runtime_error( "Wind test data file not found: " + windFileZ.string( ) );
         }
 
         // Clean and create output directory
-        if( boost::filesystem::exists( outputDir ) )
+        if( std::filesystem::exists( outputDir ) )
         {
-            boost::filesystem::remove_all( outputDir );
+            std::filesystem::remove_all( outputDir );
         }
-        boost::filesystem::create_directories( outputDir );
+        std::filesystem::create_directories( outputDir );
     }
 
     ~WindTestDataPaths( )
     {
         // Optional: cleanup output dir after tests
-        // boost::filesystem::remove_all(outputDir);
+        // std::filesystem::remove_all(outputDir);
     }
 };
 
@@ -293,9 +293,9 @@ BOOST_FIXTURE_TEST_CASE( test_wind_processor_create_sh_files, WindTestDataPaths 
     const std::vector< double > solLongitudes_deg = { 0.0, 30.0 };
 
     // Create output directories for each component
-    boost::filesystem::path xOutputDir = outputDir / "wind_x_stokes";
-    boost::filesystem::path yOutputDir = outputDir / "wind_y_stokes";
-    boost::filesystem::path zOutputDir = outputDir / "wind_z_stokes";
+    std::filesystem::path xOutputDir = outputDir / "wind_x_stokes";
+    std::filesystem::path yOutputDir = outputDir / "wind_y_stokes";
+    std::filesystem::path zOutputDir = outputDir / "wind_z_stokes";
 
     // Create SH files
     processor.createSHFiles(
@@ -303,18 +303,18 @@ BOOST_FIXTURE_TEST_CASE( test_wind_processor_create_sh_files, WindTestDataPaths 
     );
 
     // Verify directories were created
-    BOOST_CHECK( boost::filesystem::exists( xOutputDir ) );
-    BOOST_CHECK( boost::filesystem::exists( yOutputDir ) );
-    BOOST_CHECK( boost::filesystem::exists( zOutputDir ) );
+    BOOST_CHECK( std::filesystem::exists( xOutputDir ) );
+    BOOST_CHECK( std::filesystem::exists( yOutputDir ) );
+    BOOST_CHECK( std::filesystem::exists( zOutputDir ) );
 
     // Verify CSV files were created (default prefix is "stokes")
-    boost::filesystem::path xCsvFile = xOutputDir / "stokes_file0.csv";
-    boost::filesystem::path yCsvFile = yOutputDir / "stokes_file0.csv";
-    boost::filesystem::path zCsvFile = zOutputDir / "stokes_file0.csv";
+    std::filesystem::path xCsvFile = xOutputDir / "stokes_file0.csv";
+    std::filesystem::path yCsvFile = yOutputDir / "stokes_file0.csv";
+    std::filesystem::path zCsvFile = zOutputDir / "stokes_file0.csv";
 
-    BOOST_CHECK( boost::filesystem::exists( xCsvFile ) );
-    BOOST_CHECK( boost::filesystem::exists( yCsvFile ) );
-    BOOST_CHECK( boost::filesystem::exists( zCsvFile ) );
+    BOOST_CHECK( std::filesystem::exists( xCsvFile ) );
+    BOOST_CHECK( std::filesystem::exists( yCsvFile ) );
+    BOOST_CHECK( std::filesystem::exists( zCsvFile ) );
 }
 
 BOOST_FIXTURE_TEST_CASE( test_wind_processor_poly_to_stokes, WindTestDataPaths )
@@ -580,9 +580,9 @@ BOOST_FIXTURE_TEST_CASE( test_wind_processor_error_handling, WindTestDataPaths )
 
     // Trying to call createPolyCoefDatasets() on Stokes processor should throw
     // First create some Stokes files
-    boost::filesystem::path xOutputDir = outputDir / "wind_x_sh_test";
-    boost::filesystem::path yOutputDir = outputDir / "wind_y_sh_test";
-    boost::filesystem::path zOutputDir = outputDir / "wind_z_sh_test";
+    std::filesystem::path xOutputDir = outputDir / "wind_x_sh_test";
+    std::filesystem::path yOutputDir = outputDir / "wind_y_sh_test";
+    std::filesystem::path zOutputDir = outputDir / "wind_z_sh_test";
 
     processor.createSHFiles( xOutputDir.string( ), yOutputDir.string( ), zOutputDir.string( ), { 6000.0, 10000.0 }, { 0.0, 30.0 }, 5, 5 );
 
@@ -942,7 +942,7 @@ BOOST_FIXTURE_TEST_CASE( test_wind_model_velocity_validation_from_python, WindTe
     const ComaStokesDataset& zStokes = windDatasets.getZStokesDataset( );
 
     // Construct path to combined density/wind reference values file
-    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
+    const std::filesystem::path referenceFile = dataDir / "reference_values.txt";
 
     // Read reference values file
     std::ifstream file( referenceFile.string( ) );
@@ -1004,7 +1004,7 @@ BOOST_FIXTURE_TEST_CASE( test_wind_model_velocity_validation_from_python, WindTe
 
     // Create a dummy ComaModel for density (required by ComaWindModel)
     // Load density polynomial coefficients
-    const boost::filesystem::path densityPolyFile = dataDir / "density" / "polynomial" / "input_poly_coef_test_file.txt";
+    const std::filesystem::path densityPolyFile = dataDir / "density" / "polynomial" / "input_poly_coef_test_file.txt";
     const std::vector< std::string > densityFiles = { densityPolyFile.string( ) };
     const ComaModelFileProcessor densityProcessor( densityFiles );
     const double molecularWeight = 0.018;  // kg/mol (water vapor)

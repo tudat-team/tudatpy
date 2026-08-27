@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "tudat/interface/json/support/deserialization.h"
 #include "tudat/interface/json/support/keys.h"
@@ -136,19 +136,19 @@ void updatePaths( nlohmann::json& jsonObject,
         std::string str = jsonObject;
 
         // Replace: ${FILE_DIR}, ${FILE_STEM}, ${FILE_NAME}, etc.
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_DIR\})" ), parentFilePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_DIR\})" ), rootFilePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_DIR\})" ), parentFilePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_DIR\})" ), rootFilePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
 
         // Fix relative paths
-        boost::cmatch groups;
-        boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.*)\))" ) );
+        std::cmatch groups;
+        std::regex_match( str.c_str( ), groups, std::regex( R"(@path\((.*)\))" ) );
         if( groups[ 1 ].matched )
         {
             const boost::filesystem::path providedPath = std::string( groups[ 1 ] );

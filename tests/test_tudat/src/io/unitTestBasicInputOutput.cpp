@@ -28,7 +28,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -169,16 +169,16 @@ BOOST_AUTO_TEST_CASE( testPrintingNumberInFormattedScientificNotation )
 BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 {
     // Set path to new directory.
-    const boost::filesystem::path pathToNewDirectory( paths::getTudatTestDataPath( ) + "/ListAllFiles" );
+    const std::filesystem::path pathToNewDirectory( paths::getTudatTestDataPath( ) + "/ListAllFiles" );
 
     // Set number of files in directory.
     const unsigned int numberOfFiles = 10;
 
     // Create new directory.
-    boost::filesystem::create_directory( pathToNewDirectory );
+    std::filesystem::create_directory( pathToNewDirectory );
 
     // List all files in directory and check that there are none.
-    const std::vector< boost::filesystem::path > emptyListOfFilenames =
+    const std::vector< std::filesystem::path > emptyListOfFilenames =
             input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
 
     BOOST_CHECK_EQUAL( emptyListOfFilenames.size( ), 0 );
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     }
 
     // List all files in directory and check that they are as expected.
-    std::vector< boost::filesystem::path > listOfFilenames = input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
+    std::vector< std::filesystem::path > listOfFilenames = input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
     std::sort( listOfFilenames.begin( ), listOfFilenames.end( ) );
 
     for( unsigned int i = 0; i < listOfFilenames.size( ); i++ )
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     }
 
     // Remove new directory.
-    boost::filesystem::remove_all( pathToNewDirectory );
+    std::filesystem::remove_all( pathToNewDirectory );
 }
 
 // TODO: Find out why this is failing with new paths.hpp
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 // BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 //{
 //    // Set path to output directory.
-//    const boost::filesystem::path pathToOutputDirectory(paths::getTudatTestDataPath( ) + "/WriteDataMap" );
+//    const std::filesystem::path pathToOutputDirectory(paths::getTudatTestDataPath( ) + "/WriteDataMap" );
 //
 //    // Case 1: write key=double, value=double map to file.
 //    {
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 //        }
 //
 //        // Remove output directory.
-//        boost::filesystem::remove_all( pathToOutputDirectory );
+//        std::filesystem::remove_all( pathToOutputDirectory );
 //    }
 //
 //    // Case 2: write key=double, value=double map to file with default options.
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 //        }
 //
 //        // Remove output file.
-//        boost::filesystem::remove( paths::getTudatTestDataPath( )
+//        std::filesystem::remove( paths::getTudatTestDataPath( )
 //                                   + "/keyDoubleValueDoubleMapDataFileWithDefaults" );
 //    }
 //
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 //        }
 //
 //        // Remove output directory.
-//        boost::filesystem::remove_all( pathToOutputDirectory );
+//        std::filesystem::remove_all( pathToOutputDirectory );
 //    }
 //
 //    // Case 4: write key=double, value=Vector3d map to file with default options.
@@ -456,7 +456,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 //        }
 //
 //        // Remove output file.
-//        boost::filesystem::remove( paths::getTudatTestDataPath( )
+//        std::filesystem::remove( paths::getTudatTestDataPath( )
 //                                   + "/keyDoubleValueVector3dMapDataFile" );
 //    }
 //
@@ -545,7 +545,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 //        }
 //
 //        // Remove output directory.
-//        boost::filesystem::remove_all( pathToOutputDirectory );
+//        std::filesystem::remove_all( pathToOutputDirectory );
 //    }
 //}
 

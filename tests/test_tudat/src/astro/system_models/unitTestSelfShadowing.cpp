@@ -14,7 +14,6 @@
 #include <iostream>
 #include <ctime>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/environment_setup/body.h"

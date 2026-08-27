@@ -11,7 +11,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/array.hpp>
+#include <array>
 
 #include <memory>
 #include <boost/test/tools/floating_point_comparison.hpp>

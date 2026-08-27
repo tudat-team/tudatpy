@@ -14,7 +14,6 @@
 
 #include <cmath>
 
-#include <boost/assign/std/vector.hpp>
 
 #include <Eigen/Core>
 

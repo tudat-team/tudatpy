@@ -18,7 +18,7 @@
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/math/distributions/lognormal.hpp>
+#include <boost/math/distributions/normal.hpp>
 
 #include "tudat/math/statistics/multiVariateGaussianProbabilityDistributions.h"
 

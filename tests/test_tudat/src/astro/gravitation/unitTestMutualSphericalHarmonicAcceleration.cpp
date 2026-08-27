@@ -13,8 +13,8 @@
 #include <string>
 #include <thread>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/random/uniform_01.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -52,7 +52,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > generateCosineSineCoefficients( co
     cosineCoefficients( 0, 0 ) = 1.0;
 
     basic_mathematics::GlobalRandomNumberGeneratorType randomNumberGenerator( static_cast< unsigned int >( bodyIndex ) );
-    boost::uniform_01< boost::mt19937 > distribution( randomNumberGenerator );
+    boost::uniform_01< basic_mathematics::GlobalRandomNumberGeneratorType > distribution( randomNumberGenerator );
 
     for( int i = 1; i < maximumDegree + 1; i++ )
     {

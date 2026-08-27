@@ -15,7 +15,7 @@
 #include "tudat/io/basicInputOutput.h"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include "tudat/io/readIonexFile.h"
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testReadAllIonexFiles )
         const std::string filePath = ionexTestDir + tc.filename;
         BOOST_TEST_MESSAGE( "Testing: " << tc.filename );
 
-        BOOST_REQUIRE_MESSAGE( boost::filesystem::exists( filePath ), "Test file not found: " << filePath );
+        BOOST_REQUIRE_MESSAGE( std::filesystem::exists( filePath ), "Test file not found: " << filePath );
 
         input_output::IonexTecMap data;
         BOOST_REQUIRE_NO_THROW( input_output::readIonexFile( filePath, data ) );

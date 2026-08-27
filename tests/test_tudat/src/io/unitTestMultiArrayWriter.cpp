@@ -17,11 +17,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/erase.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>

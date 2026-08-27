@@ -11,7 +11,6 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 #define TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 
-#include <boost/math/special_functions/factorials.hpp>
 
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 

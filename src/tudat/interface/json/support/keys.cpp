@@ -11,7 +11,7 @@
 
 #include "tudat/interface/json/support/keys.h"
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "tudat/interface/json/support/utilities.h"
 
@@ -472,8 +472,8 @@ const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFi
 //! Get the int-value of an int-convertible key.
 int indexFromKey( const std::string& key )
 {
-    boost::cmatch groups;
-    boost::regex_match( key.c_str( ), groups, boost::regex( R"(\@(\d+))" ) );
+    std::cmatch groups;
+    std::regex_match( key.c_str( ), groups, std::regex( R"(@(\d+))" ) );
     if( groups[ 1 ].matched )
     {
         try
@@ -492,8 +492,8 @@ KeyPath::KeyPath( const std::string& keyPathStringRepresentation ): std::vector<
     const std::vector< std::string > keys = split( keyPathStringRepresentation, SpecialKeys::dot );
     for( const std::string key : keys )
     {
-        boost::cmatch groups;
-        boost::regex_match( key.c_str( ), groups, boost::regex( R"((.+?)\[(\d+?)\])" ) );
+        std::cmatch groups;
+        std::regex_match( key.c_str( ), groups, std::regex( R"((.+?)\[(\d+?)\])" ) );
         if( groups[ 1 ].matched && groups[ 2 ].matched )
         {
             const std::string arrayKey( groups[ 1 ] );

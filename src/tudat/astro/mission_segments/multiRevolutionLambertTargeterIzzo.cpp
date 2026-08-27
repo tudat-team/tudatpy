@@ -17,8 +17,6 @@
 
 #include <cmath>
 
-#include <boost/math/special_functions.hpp>  // for asinh and acosh
-
 #include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/astro/mission_segments/multiRevolutionLambertTargeterIzzo.h"
@@ -182,7 +180,7 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
     else
     {
         // Alpha parameter in Lagrange's equation (no explanation available).
-        const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
+        const double alphaParameter = 2.0 * std::acosh( xParameter );
 
         // Beta parameter in Lagrange's equation (no explanation available).
         double betaParameter;
@@ -191,13 +189,13 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
         if( isLongway )
         {
             betaParameter =
-                    -2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+                    -2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
         // Otherwise short transfer arc
         else
         {
             betaParameter =
-                    2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
+                    2.0 * std::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
 
         // Time-of-flight according to Lagrange.

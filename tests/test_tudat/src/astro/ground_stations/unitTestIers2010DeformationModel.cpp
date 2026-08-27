@@ -5,7 +5,6 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -65,8 +64,8 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
 {
     double lunarMassRatio = 0.0123000371;
     double solarMassRatio = 332946.0482;
-    std::function< double( ) > lunarMassFunction = boost::lambda::constant( lunarMassRatio );
-    std::function< double( ) > solarMassFunction = boost::lambda::constant( solarMassRatio );
+    std::function< double( ) > lunarMassFunction = [ lunarMassRatio ]( ) { return lunarMassRatio; };
+    std::function< double( ) > solarMassFunction = [ solarMassRatio ]( ) { return solarMassRatio; };
     std::vector< std::function< double( ) > > massFunctions;
     massFunctions.resize( 2 );
     massFunctions[ 0 ] = lunarMassFunction;
@@ -149,7 +148,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
                                                                          ephemerides,
                                                                          rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
+                                                                         [ ]( ) { return 1.0; },
                                                                          massFunctions,
                                                                          earthEquatorialRadius,
                                                                          nominalDisplacementLoveNumbers,
@@ -183,7 +182,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
                                                                          ephemerides,
                                                                          rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
+                                                                         [ ]( ) { return 1.0; },
                                                                          massFunctions,
                                                                          earthEquatorialRadius,
                                                                          nominalDisplacementLoveNumbers,
@@ -216,7 +215,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
                                                                          ephemerides,
                                                                          rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
+                                                                         [ ]( ) { return 1.0; },
                                                                          massFunctions,
                                                                          earthEquatorialRadius,
                                                                          nominalDisplacementLoveNumbers,
@@ -244,7 +243,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                [ ]( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -266,7 +265,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                [ ]( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -307,7 +306,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 earthEphemeris,
                 ephemerides,
                 rotationEphemeris,
-                boost::lambda::constant( 1.0 ),
+                [ ]( ) { return 1.0; },
                 massFunctions,
                 earthEquatorialRadius,
                 nominalDisplacementLoveNumbers,
@@ -355,7 +354,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                         earthEphemeris,
                         ephemerides,
                         rotationEphemeris,
-                        boost::lambda::constant( 1.0 ),
+                        [ ]( ) { return 1.0; },
                         massFunctions,
                         earthEquatorialRadius,
                         nominalDisplacementLoveNumbers,
@@ -373,7 +372,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                         std::make_shared< ConstantEphemeris >( moonState ),
                         std::make_shared< ConstantEphemeris >( sunState ),
                         std::make_shared< ConstantRotationalEphemeris >( orientationQuaternion ),
-                        boost::lambda::constant( 1.0 ),
+                        [ ]( ) { return 1.0; },
                         lunarMassFunction,
                         solarMassFunction,
                         std::bind( &calculateFundamentalArgumentsIersCode, std::placeholders::_1 ) );
@@ -399,7 +398,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
                 std::make_shared< BasicTidalBodyDeformation >( earthEphemeris,
                                                                ephemerides,
                                                                rotationEphemeris,
-                                                               boost::lambda::constant( 1.0 ),
+                                                               [ ]( ) { return 1.0; },
                                                                massFunctions,
                                                                earthEquatorialRadius,
                                                                nominalDisplacementLoveNumbers );
@@ -407,7 +406,7 @@ BOOST_AUTO_TEST_CASE( test_Iers2012DeformationModel )
         deformationModel = std::make_shared< Iers2010EarthDeformation >( earthEphemeris,
                                                                          ephemerides,
                                                                          rotationEphemeris,
-                                                                         boost::lambda::constant( 1.0 ),
+                                                                         [ ]( ) { return 1.0; },
                                                                          massFunctions,
                                                                          earthEquatorialRadius,
                                                                          nominalDisplacementLoveNumbers,

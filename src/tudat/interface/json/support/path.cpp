@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "tudat/interface/json/support/path.h"
 
@@ -28,7 +28,7 @@ std::string pathAddingPlaceholders( std::string path )
     {
         const std::string placeholderId = rit->first;
         const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
-        path = boost::regex_replace( path, boost::regex( placeholderPath ), "${" + placeholderId + "}" );
+        path = std::regex_replace( path, std::regex( placeholderPath ), "${" + placeholderId + "}" );
     }
     const std::string relativePath = boost::filesystem::relative( path, boost::filesystem::current_path( ) ).string( );
     if( !relativePath.empty( ) && relativePath.size( ) < path.size( ) )
@@ -47,7 +47,7 @@ std::string pathRemovingPlaceholders( std::string path )
     {
         const std::string placeholderId = rit->first;
         const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
-        path = boost::regex_replace( path, boost::regex( R"(\$\{)" + placeholderId + R"(\})" ), placeholderPath );
+        path = std::regex_replace( path, std::regex( R"(\$\{)" + placeholderId + R"(\})" ), placeholderPath );
     }
     return path;
 }

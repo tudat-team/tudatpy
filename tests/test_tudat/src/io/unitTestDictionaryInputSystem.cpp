@@ -17,7 +17,6 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <boost/test/unit_test.hpp>

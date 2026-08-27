@@ -12,9 +12,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
+#include <cmath>
 #include <limits>
 
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( test_NAN )
 {
     // Numerical value from:
     // http://www.wolframalpha.com/input/?i=golden+ratio+72+digits
-    BOOST_CHECK( boost::math::isnan( TUDAT_NAN ) );
+    BOOST_CHECK( std::isnan( TUDAT_NAN ) );
 }
 
 BOOST_AUTO_TEST_CASE( test_TemplatedValues )

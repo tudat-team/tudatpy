@@ -11,7 +11,6 @@
 #ifndef TUDAT_JSONINTERFACE_OBSERVATION_H
 #define TUDAT_JSONINTERFACE_OBSERVATION_H
 
-#include <boost/lexical_cast.hpp>
 
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"

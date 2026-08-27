@@ -15,7 +15,6 @@
 #include <set>
 #include <functional>
 
-#include <boost/core/demangle.hpp>
 #include <memory>
 
 #include "tudat/io/basicInputOutput.h"

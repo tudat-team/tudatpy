@@ -22,7 +22,6 @@
 #include <map>
 #include <memory>
 
-#include <boost/math/special_functions/binomial.hpp>
 
 #include "tudat/math/basic/wignerDMatrices.h"
 

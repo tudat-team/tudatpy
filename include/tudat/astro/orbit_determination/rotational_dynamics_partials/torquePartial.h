@@ -15,7 +15,6 @@
 #include <map>
 #include <Eigen/Core>
 
-#include <boost/assign/list_of.hpp>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
