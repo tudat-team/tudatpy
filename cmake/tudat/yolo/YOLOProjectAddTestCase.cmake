@@ -28,6 +28,9 @@ function("TUDAT_ADD_TEST_CASE" arg1)
     else ()
         # Add executable.
         add_executable(${target_name} ${CMAKE_CURRENT_SOURCE_DIR}/unitTest${arg1}.cpp ${PARSED_ARGS_SOURCES})
+        if (WIN32)
+            target_compile_definitions("${target_name}" PRIVATE NOMINMAX)
+        endif ()
         if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
             target_compile_options("${target_name}" PRIVATE
                     -Wno-overloaded-virtual
