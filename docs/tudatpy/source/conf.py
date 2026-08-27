@@ -441,10 +441,13 @@ SCALAR_PROTOCOL_UNIONS = (
     ),
 )
 
+ADDRESS_BEARING_OBJECT_REPR = re.compile(r"<[A-Za-z_][A-Za-z0-9_.]* object at 0x[0-9A-Fa-f]+>")
+
 
 def simplify_type_annotations(text: str) -> str:
     """Replace converter-oriented annotations with public Python types."""
 
+    text = ADDRESS_BEARING_OBJECT_REPR.sub("...", text)
     text = re.sub(r"(?<!\w)~(?=[A-Za-z_])", "", text)
 
     for pattern, replacement in SCALAR_PROTOCOL_UNIONS:

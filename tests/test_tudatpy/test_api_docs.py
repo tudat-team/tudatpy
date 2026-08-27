@@ -46,6 +46,10 @@ def api_docs_conf():
             "numpy.ndarray[numpy.float64[m, n]]",
         ),
         (
+            "settings: tudatpy.Settings = " "<tudatpy.Settings object at 0x7f42A01b9cD0>",
+            "settings: tudatpy.Settings = ...",
+        ),
+        (
             "~tudatpy.kernel.dynamics.environment.SystemOfBodies",
             "tudatpy.kernel.dynamics.environment.SystemOfBodies",
         ),
