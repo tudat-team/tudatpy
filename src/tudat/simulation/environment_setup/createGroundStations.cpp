@@ -270,6 +270,10 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //}
 
 //! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+// Note: this function is just a convenient wrapper that allows the user to check whether it is night or day at a given ground station.
+// It uses isTargetVisibleFromGroundStation and allows the user to avoid extracting the states at a given time for both Sun and Ground
+// Station. The same result could be achieved by extracting the states and using those directly inside isTargetVisibleFromGroundStation
+// (this would also be faster).
 bool isItDarkAtGroundStation( const std::string& groundStationName,
                               const double timeTdb,
                               const double maxSunElevation,
