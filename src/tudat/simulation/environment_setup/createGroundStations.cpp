@@ -293,13 +293,11 @@ bool isItDarkAtGroundStation( const std::string& groundStationName,
     // Inertial position of the Sun.
     const Eigen::Vector3d sunPosition = bodies.getBody( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double >( timeTdb );
 
-    // Elevation angle of the Sun as seen from the ground station.
     const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             centralBody->getGroundStation( groundStationName )->getPointingAnglesCalculator( );
-    const double sunElevation =
-            pointingAnglesCalculator->calculateElevationAngleFromInertialVector( sunPosition - groundStationPosition, timeTdb );
 
-    return sunElevation < maxSunElevation;
+    return !ground_stations::isTargetVisibleFromGroundStation(
+            groundStationPosition, sunPosition, timeTdb, maxSunElevation, pointingAnglesCalculator );
 }
 
 }  // namespace simulation_setup
