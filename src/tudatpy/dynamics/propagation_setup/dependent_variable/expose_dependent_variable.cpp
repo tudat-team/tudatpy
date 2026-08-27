@@ -361,9 +361,8 @@ void expose_dependent_variable_setup( py::module& m )
 
 
 
-    )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings )
-            .def( "__hash__", []( const tp::VariableSettings& ) { return 0; } ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
-                    TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
+    )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
 
     auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
                                                                std::shared_ptr< tp::SingleDependentVariableSaveSettings >,

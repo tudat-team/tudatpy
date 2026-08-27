@@ -41,6 +41,7 @@
 #include <tudat/astro/ephemerides/tabulatedEphemeris.h>
 #include <tudat/astro/ephemerides/timeEphemeris.h>
 #include <tudat/astro/ephemerides/tleEphemeris.h>
+#include <tudat/astro/ephemerides/tleFitting.h>
 #include <tudat/astro/gravitation/gravityFieldModel.h>
 #include <tudat/astro/gravitation/gravityFieldVariations.h>
 #include <tudat/astro/gravitation/polyhedronGravityField.h>
@@ -557,6 +558,39 @@ void expose_environment( py::module& m )
                 :type: str
                 )doc" )
 
+            .def_property_readonly( "international_designator_launch_year",
+                                    &te::Tle::getInternationalDesignatorLaunchYear,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch year of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_launch_number",
+                                    &te::Tle::getInternationalDesignatorLaunchNumber,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch number of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_piece",
+                                    &te::Tle::getInternationalDesignatorPiece,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch piece of the space object, as provided by the TLE.
+
+                :type: str
+                )doc" )
+
             .def_property_readonly( "element_set_number",
                                     &te::Tle::getElementSetNumber,
                                     R"doc(
@@ -633,6 +667,7 @@ void expose_environment( py::module& m )
 
                 :type: str
                 )doc" )
+
             .def( "epoch", &te::Tle::getEpoch )
             .def( "get_b_star", &te::Tle::getBStar )
             .def( "get_epoch", &te::Tle::getEpoch )
@@ -658,6 +693,114 @@ void expose_environment( py::module& m )
                 :type: Tle
                 )doc" );
 
+    // TLE fitting settings
+    py::class_< te::TleFitSettings >( m, "TleFitSettings" )
+            .def( py::init<>( ) )
+            .def_readwrite( "tle_epoch", &te::TleFitSettings::tleEpoch_ )
+            .def_readwrite( "initial_tle", &te::TleFitSettings::initialTle_ )
+            .def_readwrite( "estimate_b_star", &te::TleFitSettings::estimateBStar_ )
+            .def_readwrite( "initial_b_star", &te::TleFitSettings::initialBStar_ )
+            .def_readwrite( "maximum_number_of_iterations", &te::TleFitSettings::maximumNumberOfIterations_ )
+            .def_readwrite( "convergence_tolerance", &te::TleFitSettings::convergenceTolerance_ )
+            .def_readwrite( "initial_damping", &te::TleFitSettings::initialDamping_ )
+            .def_readwrite( "b_star_scale", &te::TleFitSettings::bStarScale_ )
+            .def_readwrite( "logarithmic_mean_motion_step", &te::TleFitSettings::logarithmicMeanMotionStep_ )
+            .def_readwrite( "equinoctial_element_step", &te::TleFitSettings::equinoctialElementStep_ )
+            .def_readwrite( "mean_longitude_step", &te::TleFitSettings::meanLongitudeStep_ )
+            .def_readwrite( "b_star_step", &te::TleFitSettings::bStarStep_ )
+            .def_readwrite( "norad_catalog_number",
+                            &te::TleFitSettings::noradCatalogNumber_,
+                            R"doc(
+                    NORAD catalog number to embed in the fitted TLE's identification fields. This cannot be derived
+                    from the Cartesian state history being fit; it defaults to 0 (serialized as ``"00000"``) when left
+                    unset.
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "classification",
+                            &te::TleFitSettings::classification_,
+                            R"doc(
+                    Security classification character to embed in the fitted TLE, typically ``"U"`` (unclassified),
+                    ``"C"`` or ``"S"``.
+
+                    :type: str
+                    )doc" )
+            .def_readwrite( "international_designator_launch_year",
+                            &te::TleFitSettings::internationalDesignatorLaunchYear_,
+                            R"doc(
+                    International designator launch year to embed in the fitted TLE (either 2- or 4-digit; only the
+                    last two digits are serialized).
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "international_designator_launch_number",
+                            &te::TleFitSettings::internationalDesignatorLaunchNumber_,
+                            R"doc(
+                    International designator launch number to embed in the fitted TLE.
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "international_designator_piece",
+                            &te::TleFitSettings::internationalDesignatorPiece_,
+                            R"doc(
+                    International designator launch piece to embed in the fitted TLE (up to 3 characters,
+                    space-padded if shorter).
+
+                    :type: str
+                    )doc" )
+            .def_readwrite( "element_set_number",
+                            &te::TleFitSettings::elementSetNumber_,
+                            R"doc(
+                    Element set number to embed in the fitted TLE.
+
+                    :type: int
+                    )doc" );
+
+    // TLE fitting result
+    py::class_< te::TleFitResult >( m, "TleFitResult" )
+            .def_readonly( "fitted_tle", &te::TleFitResult::fittedTle_ )
+            .def_readonly( "position_residuals", &te::TleFitResult::positionResiduals_ )
+            .def_readonly( "position_rms", &te::TleFitResult::positionRms_ )
+            .def_readonly( "initial_position_rms", &te::TleFitResult::initialPositionRms_ )
+            .def_readonly( "number_of_iterations", &te::TleFitResult::numberOfIterations_ )
+            .def_readonly( "converged", &te::TleFitResult::converged_ );
+
+    // Fit TLE to Cartesian state history
+    // TLE fitting with default settings
+    m.def(
+            "fit_tle_to_cartesian_state_history",
+            []( const std::map< double, Eigen::Vector6d >& cartesianStateHistory, const std::string& frameOrientation ) {
+                return te::fitTleToCartesianStateHistory( cartesianStateHistory, frameOrientation, te::TleFitSettings( ) );
+            },
+            py::arg( "cartesian_state_history" ),
+            py::arg( "frame_orientation" ) );
+
+    // TLE fitting with explicit settings
+    m.def( "fit_tle_to_cartesian_state_history",
+           &te::fitTleToCartesianStateHistory,
+           py::arg( "cartesian_state_history" ),
+           py::arg( "frame_orientation" ),
+           py::arg( "settings" ),
+           R"doc(
+    Fit a full-precision numerical TLE to an Earth-centred Cartesian
+    state history.
+
+    Parameters
+    ----------
+    cartesian_state_history : dict
+        Mapping from epoch to Cartesian state.
+
+    frame_orientation : str
+        Either "J2000" or "ECLIPJ2000".
+
+    settings : TleFitSettings, optional
+        Configuration settings for the nonlinear fit.
+
+    Returns
+    -------
+    TleFitResult
+        The fitted TLE and residual diagnostics.
+    )doc" );
     /*!
      **************   END EPHEMERIDES  ******************
      */
