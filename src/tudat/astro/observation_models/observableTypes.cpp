@@ -1745,6 +1745,53 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     return singleLinkStateEntries;
 }
 
+//! Function to check if an observable type requires residual wrapping.
+bool isResidualWrappingRequired( const ObservableType observableType )
+{
+    bool wrappingRequired = false;
+    switch( observableType )
+    {
+        case angular_position:
+        case relative_angular_position:
+        case azimuth_elevation_angle:
+        case euler_angle_313_observable:
+            wrappingRequired = true;
+            break;
+        default:
+            break;
+    }
+    return wrappingRequired;
+}
+
+//! Function to get the wrapping ranges per component for an observable type.
+std::vector< ResidualWrappingRange > getResidualWrappingRanges( const ObservableType observableType )
+{
+    std::vector< ResidualWrappingRange > wrappingRanges;
+    switch( observableType )
+    {
+        case angular_position:
+        case relative_angular_position:
+        case azimuth_elevation_angle: {
+            wrappingRanges.resize( 2 );
+            // Component 0 (RA / azimuth): residual wraps to [-pi, pi]
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            // Component 1 (DEC / elevation): residual wraps to [-pi/2, pi/2]
+            wrappingRanges[ 1 ] = ResidualWrappingRange( -0.5 * mathematical_constants::PI, 0.5 * mathematical_constants::PI );
+            break;
+        }
+        case euler_angle_313_observable: {
+            wrappingRanges.resize( 3 );
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            wrappingRanges[ 1 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            wrappingRanges[ 2 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            break;
+        }
+        default:
+            break;
+    }
+    return wrappingRanges;
+}
+
 //! Function retrieving link ends information for all interlinks for a given observable type and link ends
 std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks(
         const ObservableType observableType,

@@ -26,6 +26,7 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -742,6 +743,14 @@ void computeResidualsAndDependentVariables(
     // Retrieve observation residuals and add them to the original observation collection
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
             observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
+
+    // Wrap periodic observable residuals (e.g. angular position) to [-pi, pi]
+    for( auto observableIt : observationCollection->getObservationsSets( ) )
+    {
+        std::pair< int, int > observableStartAndSize = observationCollection->getObservationTypeStartAndSize( ).at( observableIt.first );
+        wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, observableIt.first );
+    }
+
     observationCollection->setResiduals( residuals );
 
     // Parse all observable types
