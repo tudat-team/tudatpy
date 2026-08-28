@@ -114,6 +114,26 @@ public:
         return firstFlattenedRowByObservation_.at( observationId ) + static_cast< int >( componentIndex );
     }
 
+    //! Return the first row occupied by one observation, or -1 if the observation is not present.
+    int getFirstFlattenedRowForObservation( const unsigned int observationId ) const
+    {
+        if( observationId >= firstFlattenedRowByObservation_.size( ) )
+        {
+            return -1;
+        }
+        return firstFlattenedRowByObservation_.at( observationId );
+    }
+
+    //! Return the number of rows occupied by one observation, or 0 if the observation is not present.
+    unsigned int getScalarSizeForObservation( const unsigned int observationId ) const
+    {
+        if( observationId >= scalarSizeByObservation_.size( ) )
+        {
+            return 0;
+        }
+        return scalarSizeByObservation_.at( observationId );
+    }
+
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
     {
         return setIdsInRowOrder_;

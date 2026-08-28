@@ -18,6 +18,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+import pathlib
 import sys
 import importlib
 import re
@@ -50,7 +51,16 @@ else:
     # When building locally, use the Python sources from this checkout and the
     # extension module generated with tudat-bundle.
     local_source_path = os.path.abspath("../../../src")
-    local_build_path = os.path.abspath("../../../cmake-build-release/src")
+
+    # Use the first build directory that actually contains the compiled kernel
+    build_candidates = ["../../../build/src", "../../../cmake-build-release/src"]
+    local_build_path = os.path.abspath(build_candidates[-1])
+    for candidate in build_candidates:
+        candidate = os.path.abspath(candidate)
+        if list(pathlib.Path(candidate, "tudatpy").glob("kernel*.so")):
+            local_build_path = candidate
+            break
+
     sys.path.insert(0, local_build_path)
     sys.path.insert(0, local_source_path)
 

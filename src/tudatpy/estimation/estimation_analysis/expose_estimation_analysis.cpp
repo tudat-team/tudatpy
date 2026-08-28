@@ -650,21 +650,24 @@ void expose_estimation_analysis( py::module& m )
                               std::shared_ptr< tss::EstimationConvergenceChecker > convergenceChecker,
                               const Eigen::MatrixXd considerCovariance,
                               const Eigen::VectorXd considerParametersDeviations,
-                              const bool applyFinalParameterCorrection ) {
+                              const bool applyFinalParameterCorrection,
+                              const std::shared_ptr< tss::OutlierRejectionSettings > outlierRejectionSettings ) {
                     warnLegacyEstimationObservationInterface( "EstimationInput(ObservationCollection)", "EstimationInput" );
                     return std::make_shared< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >( observationsAndTimes,
                                                                                                      inverseAprioriCovariance,
                                                                                                      convergenceChecker,
                                                                                                      considerCovariance,
                                                                                                      considerParametersDeviations,
-                                                                                                     applyFinalParameterCorrection );
+                                                                                                     applyFinalParameterCorrection,
+                                                                                                     outlierRejectionSettings );
                 } ),
                 py::arg( "observations_and_times" ),
                 py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                 py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                 py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                 py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
-                py::arg( "apply_final_parameter_correction" ) = true );
+                py::arg( "apply_final_parameter_correction" ) = true,
+                py::arg( "outlier_rejection_settings" ) = nullptr );
     }
 
     estimationInputClass
@@ -673,13 +676,15 @@ void expose_estimation_analysis( py::module& m )
                             std::shared_ptr< tss::EstimationConvergenceChecker >,
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
-                            const bool >( ),
+                            const bool,
+                            const std::shared_ptr< tss::OutlierRejectionSettings > >( ),
                   py::arg( "observation_dataset" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
+                  py::arg( "outlier_rejection_settings" ) = nullptr,
                   R"doc(
 
          Class constructor using the dataset-backed observation representation.
@@ -701,7 +706,22 @@ void expose_estimation_analysis( py::module& m )
              Deviation vector for considered parameters.
          apply_final_parameter_correction : bool, default = True
              Whether to apply the final estimated parameter update.
+         outlier_rejection_settings : tudatpy.estimation.estimation_analysis.OutlierRejectionSettings, default = None
+             Settings for the algorithm that rejects (and recovers) outlying observations during the estimation. No
+             outlier rejection is performed when this input is left empty.
      )doc" )
+            .def_property( "outlier_rejection_settings",
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getOutlierRejectionSettings,
+                           &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setOutlierRejectionSettings,
+                           R"doc(
+
+         Settings for the algorithm that rejects (and recovers) outlying observations during the estimation, which is
+         applied once per iteration of the estimation. No outlier rejection is performed when this attribute is empty
+         (which is the default). Observations that are rejected during the estimation are marked as rejected in the
+         :class:`~tudatpy.estimation.observations.ObservationDataset` that was provided to this object.
+
+         :type: :class:`~tudatpy.estimation.estimation_analysis.OutlierRejectionSettings`
+      )doc" )
             .def( "define_estimation_settings",
                   &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
