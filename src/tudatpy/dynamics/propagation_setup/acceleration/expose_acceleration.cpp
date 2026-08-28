@@ -1422,7 +1422,7 @@ AccelerationSettings
 
  Parameters
  ----------
- acceleration_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], list]
+ acceleration_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Custom acceleration function with time as an independent variable, returning the acceleration in an inertial frame (*e.g.* with global frame orientation) as a function of time.
  Returns
  -------
@@ -1625,9 +1625,9 @@ through the spherical harmonic gravity:
      Set of middle point in times :math:`t_{i}` in the maneuver denoting the epoch of each maneuver.
  delta_v_values : list[numpy.ndarray]
      Set of delta V values :math:`\Delta \mathbf{V}_{i}`, one for each maneuver.
- total_maneuver_time : astro.time_representation.Time
+total_maneuver_time : float
      Total duration of every maneuver :math:`t_{M}`.
- maneuver_rise_time : astro.time_representation.Time
+maneuver_rise_time : float
      :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
  Returns
  -------

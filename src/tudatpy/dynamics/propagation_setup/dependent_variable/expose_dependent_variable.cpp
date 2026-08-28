@@ -1431,7 +1431,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1480,7 +1480,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1950,7 +1950,7 @@ The type of the acceleration that is to be saved.
      Body whose dependent variable should be saved.
  body_exerting_acceleration : str
      Body exerting the acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  deformation_type : BodyDeformationTypes
      Type of gravity field variation for which the acceleration contribution is to be saved

@@ -1257,7 +1257,7 @@ Parameters
 ----------
 bodies_with_mass_to_propagate : list[str]
     List of bodies whose mass should be numerically propagated.
-mass_rate_models : SelectedMassRateModelMap
+mass_rate_models : dict[str, list[MassRateModel]]
     Mass rates associated to each body, provided as a mass rate settings object.
 initial_body_masses : numpy.ndarray
     Initial masses of the bodies to integrate (one initial mass for each body), provided in the same order as the bodies to integrate.
@@ -1369,7 +1369,7 @@ integrator_settings : IntegratorSettings
 
     .. note:: The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
 
-initial_time : float
+initial_time : astro.time_representation.Time
     Initial epoch of the numerical propagation
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
@@ -1647,7 +1647,7 @@ HybridArcPropagatorSettings
 
  Parameters
  ----------
- custom_condition : callable[[:class:`~tudatpy.astro.time_representation.Time`], bool]
+ custom_condition : callable[[float], bool]
      Function of time (independent variable) which is called during the propagation and returns a boolean value denoting whether the termination condition is verified.
  Returns
  -------
@@ -1664,7 +1664,7 @@ HybridArcPropagatorSettings
  .. code-block:: python
 
    # Create custom function returning a bool
-   def custom_termination_function(time):  # time is a Time object
+   def custom_termination_function(time):  # time is a float in seconds since J2000 TDB
        # Do something
        set_condition = ...
        # Return bool
@@ -1909,7 +1909,7 @@ HybridArcPropagatorSettings
      Name of the central body that defines the body-centered coordinate time scale.
  perturbing_bodies : list[str]
      Bodies whose gravity contributes to the external potential terms in the conversion.
- initial_time : float
+ initial_time : astro.time_representation.Time
      Initial time (seconds since J2000).
  integrator_settings : IntegratorSettings
      Numerical integrator settings used to propagate the relativistic time state.
@@ -2003,7 +2003,7 @@ HybridArcPropagatorSettings
  initial_state : numpy.ndarray
      Initial state of the relativistic time variables.
      Accepted shapes are ``[m]``, ``[m,1]`` or ``[1,m]``.
- initial_time : float
+ initial_time : astro.time_representation.Time
      Initial time (seconds since J2000).
  integrator_settings : IntegratorSettings
      Numerical integrator settings used to propagate the relativistic time state.
@@ -2088,7 +2088,7 @@ HybridArcPropagatorSettings
  reference_point_id : tuple[str, str]
      ``(body_name, reference_point_name)`` identifier of the propagated point.
      Use an empty reference-point name to use the body origin.
- initial_time : float
+ initial_time : astro.time_representation.Time
      Initial time (seconds since J2000).
  integrator_settings : IntegratorSettings
      Numerical integrator settings used to propagate the relativistic time state.

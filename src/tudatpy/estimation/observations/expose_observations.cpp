@@ -536,7 +536,7 @@ return_first_compatible_settings : bool, optional
 
 Returns
 -------
-dict[float, numpy.ndarray]
+dict[astro.time_representation.Time, numpy.ndarray]
     A map from observation time to the value of the specified dependent variable.
 )doc" )
             .def_property_readonly( "dependent_variables_matrix",
@@ -594,7 +594,7 @@ numpy.ndarray
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
-        observation_times : list[float]
+        observation_times : list[astro.time_representation.Time]
             List of observation times.
         reference_link_end : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Reference link end for the observation.

@@ -874,7 +874,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -959,7 +959,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1029,7 +1029,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1145,7 +1145,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 

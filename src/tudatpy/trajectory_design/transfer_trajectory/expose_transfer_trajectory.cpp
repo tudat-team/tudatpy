@@ -601,15 +601,15 @@ void expose_transfer_trajectory( py::module& m )
          ----------
          node_times : list[float]
              List of the time at each node.
-         leg_parameters : list[list[float]]
-             List of lists with the parameters characterizing each leg. Each inner list corresponds to the
-             parameters of one leg; if a leg does not require any parameter, its list can contain any value(s),
-             therefore it is recommended to leave it empty.
+         leg_parameters : list[numpy.ndarray]
+             List of arrays with the parameters characterizing each leg. Each array corresponds to the
+             parameters of one leg; if a leg does not require any parameters, the corresponding array may contain any values,
+             but an empty array is recommended.
 
-         node_parameters : list[list[float]]
-             List of lists with the parameters characterizing each node. Each inner list corresponds to the
-             parameters of one node; if a node does not require any parameter, its list can contain any value(s),
-             therefore it is recommended to leave it empty.
+         node_parameters : list[numpy.ndarray]
+             List of arrays with the parameters characterizing each node. Each array corresponds to the
+             parameters of one node; if a node does not require any parameters, the corresponding array may contain any values,
+             but an empty array is recommended.
 
          Returns
          -------
@@ -682,8 +682,8 @@ void expose_transfer_trajectory( py::module& m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             State history keyed by time.
 
 
 
@@ -708,8 +708,8 @@ void expose_transfer_trajectory( py::module& m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             Inertial thrust acceleration history keyed by time.
 
 
 
@@ -734,8 +734,8 @@ void expose_transfer_trajectory( py::module& m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             RSW-frame thrust acceleration history keyed by time.
 
 
 
@@ -760,8 +760,8 @@ void expose_transfer_trajectory( py::module& m )
              Number of data points used to describe each leg.
          Returns
          -------
-         tuple[numpy.ndarray,numpy.ndarray]
-             Tuple of (state history, time history).
+         dict[float, numpy.ndarray]
+             TNW-frame thrust acceleration history keyed by time.
 
 
 

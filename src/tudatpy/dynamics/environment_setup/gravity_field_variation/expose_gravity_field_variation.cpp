@@ -201,10 +201,10 @@ void expose_gravity_field_variation_setup( py::module& m )
          Parameters
          ----------
 
-         mean_tidal_forcing_cosine_terms : dict{ int, numpy.ndarray}
+         mean_tidal_forcing_cosine_terms : dict[int, list[float]]
              Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the cosine coefficient variations
 
-         mean_tidal_forcing_sine_terms : numpy.ndarray
+         mean_tidal_forcing_sine_terms : dict[int, list[float]]
              Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the sine coefficient variations
 
     )doc" );
@@ -314,7 +314,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, float )
+love_number_per_degree : dict[int, float]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
 
 Returns
@@ -357,7 +357,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, complex )
+love_number_per_degree : dict[int, complex]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself.
 
 Returns
@@ -393,7 +393,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree_and_order : dict( int, list( float ) )
+love_number_per_degree_and_order : dict[int, list[float]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
@@ -438,7 +438,7 @@ Parameters
 ----------
 tide_raising_bodies : list[str]
     Names of bodies raising the tide.
-love_number_per_degree_and_order : dict( int, list( float ) )
+love_number_per_degree_and_order : dict[int, list[float]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
@@ -466,7 +466,7 @@ Parameters
 ----------
 tide_raising_body : str
     Name of body raising the tide.
-love_number_per_degree : dict( int, list( complex ) )
+love_number_per_degree_and_order : dict[int, list[complex]]
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
 
 Returns
@@ -502,9 +502,9 @@ response
 
 Parameters
 ----------
-tide_raising_body : str
-    Name of body raising the tide.
-love_number_per_degree : dict[tuple[int, int], dict[tuple[int,int],float]]
+deforming_bodies : list[str]
+    Names of the bodies raising the tide.
+love_numbers : dict[tuple[int, int], dict[tuple[int, int], float]]
     Double dictionary of Love numbers for each combination for forcing and response degree and order, and the value (``float``) the associated
     mode-coupled Love number :math:`k_{lm}^{l'm'}`. The first tuple is the forcing degree and order :math:`l,m`, the second tuple is the response degree and order :math:`l',m'`
 
@@ -609,10 +609,10 @@ sine_coefficient_amplitude_cosine_time : np.array
 sine_coefficient_amplitude_sine_time : np.array
     Coefficient amplitude block :math:`B_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-angular_frequency : list[float]
-    Angular frequencies (in rad/s) at which variations are to be added
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+angular_frequency : float
+    Angular frequency (in rad/s) at which variations are to be added
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -656,14 +656,14 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 Parameters
 ----------
 cosine_amplitudes_per_power : dict[int, np.array]
-    Dictionary of cosine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+    Dictionary of cosine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-sine_amplitudes_per_power : list[np.array]
-    Dictionary of sine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
+sine_amplitudes_per_power : dict[int, np.array]
+    Dictionary of sine coefficient amplitude blocks, with each key corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -694,15 +694,15 @@ polynomial power :math:`p`.
 
 Parameters
 ----------
-cosine_amplitudes_per_power : np.array
+cosine_amplitudes : np.array
     Cosine coefficient amplitude block :math:`K_{\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-sine_amplitudes_per_power : list[np.array]
+sine_amplitudes : np.array
     Sine coefficient amplitude block :math:`K_{\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
-polynomial_power: float
+polynomial_power: int
     Polynomial power :math:`p` used in the computation
-reference_epoch: astro.time_representation.Time
-    Reference epoch :math:`t_{0}` for the variations (Time object representing seconds since J2000 TDB)
+reference_epoch: float
+    Reference epoch :math:`t_{0}` for the variations, in seconds since J2000 TDB.
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
@@ -739,12 +739,12 @@ amplitudes make of the variations in :math:`l,m=2,0`, :math:`l,m=2,1` and :math:
 
 Parameters
 ----------
-cosine_variations_table : dict[astro.time_representation.Time, np.array]
-    Dictionary of cosine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+cosine_variations_table : dict[float, np.array]
+    Dictionary of cosine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
-sine_amplitudes_per_power : dict[astro.time_representation.Time, np.array]
-    Dictionary of sine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` (as Time object) and the value to the corresponding variation
+sine_variations_table : dict[float, np.array]
+    Dictionary of sine coefficient variations, with each key an epoch :math:`t_{i}` in seconds since J2000 TDB and the value the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
     Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
