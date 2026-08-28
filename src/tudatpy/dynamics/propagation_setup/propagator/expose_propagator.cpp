@@ -567,7 +567,17 @@ Enumeration of available integrated state types.
             .def_property( "create_dependent_variable_interface",
                            &tp::PropagatorProcessingSettings::getUpdateDependentVariableInterpolator,
                            &tp::PropagatorProcessingSettings::setUpdateDependentVariableInterpolator,
-                           R"doc(No propagator documentation found.)doc" );
+                           R"doc(No propagator documentation found.)doc" )
+            .def_property( "interpolator_settings",
+                           &tp::PropagatorProcessingSettings::getInterpolatorSettings,
+                           &tp::PropagatorProcessingSettings::setInterpolatorSettings,
+                           R"doc(
+
+         Settings used to interpolate numerically integrated translational and rotational states when they are written to the environment.
+         By default, a 6th-order Lagrange interpolator with cubic-spline boundary interpolation is used.
+
+         :type: math.interpolators.InterpolatorSettings
+      )doc" );
 
     py::class_< tp::SingleArcPropagatorProcessingSettings,
                 std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >,
