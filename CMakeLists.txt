@@ -26,11 +26,8 @@ cmake_policy(SET CMP0048 NEW)  # Missing documentation
 if(POLICY CMP0148)
     cmake_policy(SET CMP0148 OLD)
 endif()
-# Temporary compatibility setting: keep the legacy Boost discovery behavior while
-# this project still relies on older Boost / Boost.Python package discovery
-# elsewhere in the build.
-# Migration path: update to the modern Boost package/config-based discovery
-# approach and then switch CMP0167 to NEW.
+# libboost-headers does not provide a Boost package configuration file, so use
+# CMake's FindBoost module to discover the header-only dependency.
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
 endif()
@@ -164,11 +161,6 @@ option(
     ON
 )
 option(
-    TUDAT_BUILD_WITH_JSON_INTERFACE
-    "Build Tudat with json interface."
-    OFF
-)
-option(
     TUDAT_BUILD_WITH_FFTW3
     "Build Tudat with FFTW3."
     OFF
@@ -246,10 +238,6 @@ set(
 )
 set(
     Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}"
-)
-set(
-    Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
 )
 
@@ -294,16 +282,6 @@ if (NOT TUDAT_BUILD_STATIC_LIBRARY)
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif ()
-
-# Set required boost components.
-set(
-    _TUDAT_REQUIRED_BOOST_LIBS
-    filesystem system regex date_time thread chrono atomic unit_test_framework
-)
-# if (TUDAT_BUILD_TESTS)
-#     # Add the unit test framework, if needed.
-#     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
-# endif ()
 
 # Set cmake build-type.
 # If not supplied by the user (either directly as an argument of through
@@ -453,11 +431,6 @@ if (TUDAT_BUILD_WITH_FFTW3)
 else( )
     add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
 endif( )
-
-# JSON dependency
-if (TUDAT_BUILD_WITH_JSON_INTERFACE)
-    find_package(nlohmann_json REQUIRED 3.7.3)
-endif ()
 
 if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language

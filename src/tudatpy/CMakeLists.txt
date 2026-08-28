@@ -56,8 +56,7 @@ endif()
 
 # Link against libraries
 target_link_libraries(kernel PRIVATE
-    ${Boost_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARY}
+    Boost::boost
     ${Tudat_PROPAGATION_LIBRARIES}
     ${Tudat_ESTIMATION_LIBRARIES}
 )

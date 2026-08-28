@@ -98,7 +98,7 @@ std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getV
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints = localInclinationAnalysis->getMeshPoints( );
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshSurfaceNormals = localInclinationAnalysis->getPanelSurfaceNormals( );
 
-    //    boost::array< int, 3 > independentVariables;
+    //    std::array< int, 3 > independentVariables;
     //    independentVariables[ 0 ] = 0;
     //    independentVariables[ 1 ] = 6;
     //    independentVariables[ 2 ] = 0;

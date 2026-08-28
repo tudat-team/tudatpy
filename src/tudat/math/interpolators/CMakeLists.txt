@@ -44,6 +44,6 @@ TUDAT_ADD_LIBRARY("interpolators"
         "${interpolators_SOURCES}"
         "${interpolators_HEADERS}"
         PUBLIC_SERIALIZATION
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

@@ -100,7 +100,7 @@ TUDAT_ADD_LIBRARY("input_output"
         PUBLIC_LINKS
         tudat_ephemerides
         tudat_interpolators
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
 

@@ -216,8 +216,13 @@ jobs:
         if "%VSINSTALL%"=="" exit /b 1
         set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
         if not exist "%VCVARS64%" exit /b 1
+        set "MSVC_TOOLSET_VERSION=14.44"
         echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
-        call "%VCVARS64%" >nul 2>nul
+        echo MSVC_TOOLSET_VERSION=%MSVC_TOOLSET_VERSION%>>"%GITHUB_ENV%"
+        rem Match the toolset supplied for Conda's vs2022_win-64 package.
+        rem Visual Studio 18 otherwise selects its incompatible 14.51 toolset.
+        call "%VCVARS64%" -vcvars_ver=%MSVC_TOOLSET_VERSION% >nul 2>nul
+        if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
         set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
@@ -257,7 +262,8 @@ jobs:
       shell: cmd
       run: |
         @echo off
-        call "%VCVARS64%" >nul 2>nul
+        call "%VCVARS64%" -vcvars_ver=%MSVC_TOOLSET_VERSION% >nul 2>nul
+        if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
         "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
