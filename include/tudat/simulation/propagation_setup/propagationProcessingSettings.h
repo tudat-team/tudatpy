@@ -570,7 +570,7 @@ public:
         }
     }
 
-    virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ) override
     {
         PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
@@ -741,7 +741,7 @@ public:
         multiArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
     }
 
-    virtual void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+    void setInterpolatorSettings( const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ) override
     {
         PropagatorProcessingSettings::setInterpolatorSettings( interpolatorSettings );
         if( singleArcSettings_ != nullptr )
