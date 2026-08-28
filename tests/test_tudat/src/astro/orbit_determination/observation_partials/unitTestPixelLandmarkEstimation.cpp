@@ -22,7 +22,6 @@
 //                                           truth-recovery case and an end-to-end case driven by real
 //                                           Rosetta SUM/LMK data of comet 67P.
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
@@ -33,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
