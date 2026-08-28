@@ -194,7 +194,7 @@ public:
      *  \param evaluationTime Time at which to evaluate dependent variables interpolator
      *  \return Dependent variables values
      */
-    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
+    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime ) override
     {
         dependentVariables_.setZero( );
 
@@ -216,7 +216,7 @@ public:
 
     //! Function to get the value of a single dependent variable at a given time.
     Eigen::VectorXd getSingleDependentVariable( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-                                                const TimeType evaluationTime )
+                                                const TimeType evaluationTime ) override
     {
         Eigen::VectorXd dependentVariable = Eigen::VectorXd( 0 );
 
@@ -500,7 +500,7 @@ public:
      *  \param evaluationTime Time at which to evaluate dependent variables interpolators
      *  \return Concatenated dependent variables values.
      */
-    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
+    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime ) override
     {
         Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
         int currentArc = getCurrentArc( evaluationTime ).first;
@@ -516,7 +516,7 @@ public:
 
     //! Function to get the value of a single dependent variable at a given time.
     Eigen::VectorXd getSingleDependentVariable( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-                                                const TimeType evaluationTime )
+                                                const TimeType evaluationTime ) override
     {
         Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
         int currentArc = getCurrentArc( evaluationTime ).first;
@@ -662,7 +662,7 @@ public:
      *  \param evaluationTime Time at which to evaluate matrix interpolators
      *  \return Dependent variable.
      */
-    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
+    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime ) override
     {
         throw std::runtime_error(
                 "Error when retrieving interpolated dependent variables from hybrid-arc interface. This functionality is not supported as "
@@ -672,7 +672,7 @@ public:
     }
 
     Eigen::VectorXd getSingleDependentVariable( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-                                                const TimeType evaluationTime )
+                                                const TimeType evaluationTime ) override
     {
         throw std::runtime_error(
                 "Error when retrieving interpolated dependent variables from hybrid-arc interface. This functionality is not supported as "

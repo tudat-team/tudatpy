@@ -102,10 +102,10 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
     ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
     )
 
-# TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
-#         PRIVATE_LINKS
-#         ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#         )
+TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
+        PRIVATE_LINKS
+        ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+        )
 
 TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
     PRIVATE_LINKS
@@ -167,18 +167,6 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
          )
-# Example application: estimation of Doppler observations from ODF/DSN data
-#TUDAT_ADD_TEST_CASE(EstimationFromDsnData
-#    PRIVATE_LINKS
-#    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#    )
-
-# Example application: estimation of position observables from SPICE data
-#TUDAT_ADD_TEST_CASE(EstimationFromSpiceData
-#    PRIVATE_LINKS
-#    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#    )
-
  TUDAT_ADD_TEST_CASE(ConsiderParameters
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}

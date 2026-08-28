@@ -13,6 +13,7 @@
 
 #include <string>
 #include <thread>
+#include <limits>
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
@@ -35,6 +36,7 @@
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -832,6 +834,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                                          arcStartTimesPerBody,
                                          multiArcCentralBodiesPerBody,
                                          linkEndsJuice );
+        const Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
 
         std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
 
@@ -858,13 +861,34 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > variationalEquationsSolution =
                 multiArcVariationalEquations.getNumericalVariationalEquationsSolution( );
 
+        BOOST_REQUIRE_EQUAL( multiArcStateHistory.size( ), static_cast< unsigned int >( numberArcs ) );
+        BOOST_REQUIRE_EQUAL( variationalEquationsSolution.size( ), static_cast< unsigned int >( numberArcs ) );
+
         std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
                 multiArcVariationalEquations.getStateTransitionMatrixInterface( );
-        std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcStateTransitionInterface =
-                std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >( stateTransitionMatrixInterface );
+        std::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > > multiArcStateTransitionInterface =
+                std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< double > >(
+                        stateTransitionMatrixInterface );
+        BOOST_REQUIRE( multiArcStateTransitionInterface != nullptr );
 
         for( int arc = 0; arc < numberArcs; arc++ )
         {
+            BOOST_REQUIRE( !multiArcStateHistory.at( arc ).empty( ) );
+            BOOST_REQUIRE_EQUAL( variationalEquationsSolution.at( arc ).size( ), 2 );
+            BOOST_REQUIRE( !variationalEquationsSolution.at( arc ).at( 0 ).empty( ) );
+            BOOST_REQUIRE( !variationalEquationsSolution.at( arc ).at( 1 ).empty( ) );
+            BOOST_CHECK_EQUAL( multiArcStateHistory.at( arc ).begin( )->second.rows( ),
+                               6 * static_cast< int >( bodiesToPropagatePerArc.at( arc ).size( ) ) );
+            BOOST_CHECK( multiArcStateHistory.at( arc ).begin( )->second.allFinite( ) );
+            BOOST_CHECK( variationalEquationsSolution.at( arc ).at( 0 ).begin( )->second.allFinite( ) );
+            BOOST_CHECK( variationalEquationsSolution.at( arc ).at( 1 ).begin( )->second.allFinite( ) );
+            BOOST_CHECK_SMALL( ( variationalEquationsSolution.at( arc ).at( 0 ).begin( )->second -
+                                 Eigen::MatrixXd::Identity( variationalEquationsSolution.at( arc ).at( 0 ).begin( )->second.rows( ),
+                                                            variationalEquationsSolution.at( arc ).at( 0 ).begin( )->second.cols( ) ) )
+                                       .norm( ),
+                               1.0E-13 );
+            BOOST_CHECK_SMALL( variationalEquationsSolution.at( arc ).at( 1 ).begin( )->second.norm( ), 1.0E-13 );
+
             std::cout << "ARC " << arc << "\n\n";
             double finalArcEpoch = multiArcStateHistory.at( arc ).rbegin( )->first;
             Eigen::VectorXd finalStates = multiArcStateHistory.at( arc ).rbegin( )->second;
@@ -877,17 +901,15 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 Eigen::Vector6d stateCentralBody =
                         bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-                //                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i )
-                //                )->getEphemeris( )->getReferenceFrameOrigin( ) )
-                //                {
-                //                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                //                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-                //                }
-                //                else
-                //                {
-                //                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                //                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-                //                }
+                Eigen::Vector6d expectedDifference = stateCentralBody;
+                if( centralBodiesPerArc.at( arc ).at( i ) ==
+                    bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    expectedDifference.setZero( );
+                }
+                BOOST_CHECK_SMALL(
+                        ( differenceStateHistoryWrtEphemeris - expectedDifference ).norm( ) / std::max( 1.0, expectedDifference.norm( ) ),
+                        1.0E-11 );
             }
 
             //            if ( arc == 0 ) {
@@ -897,6 +919,13 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             Eigen::MatrixXd fullCombinedStateTransitionMatrix =
                     multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
                             ( arcStartTimes[ arc ] + multiArcEndTimes[ arc ] ) / 2.0, true, std::vector< std::string >( ) );
+            BOOST_CHECK_EQUAL( combinedStateTransitionMatrix.rows( ), 6 * static_cast< int >( bodiesToPropagatePerArc.at( arc ).size( ) ) );
+            BOOST_CHECK_EQUAL( combinedStateTransitionMatrix.cols( ),
+                               combinedStateTransitionMatrix.rows( ) + multiArcStateTransitionInterface->getSensitivityMatrixSize( ) );
+            BOOST_CHECK_EQUAL( fullCombinedStateTransitionMatrix.cols( ), multiArcStateTransitionInterface->getFullParameterVectorSize( ) );
+            BOOST_CHECK( combinedStateTransitionMatrix.allFinite( ) );
+            BOOST_CHECK( fullCombinedStateTransitionMatrix.allFinite( ) );
+            BOOST_CHECK_GT( combinedStateTransitionMatrix.norm( ), 0.0 );
             std::cout << "arc: " << arc << " - size combinedStateTransitionMatrix: " << combinedStateTransitionMatrix.rows( ) << " & "
                       << combinedStateTransitionMatrix.cols( ) << "\n\n";
             std::cout << "arc: " << arc << " - size fullCombinedStateTransitionMatrix: " << fullCombinedStateTransitionMatrix.rows( )
@@ -933,13 +962,20 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
         // Compute observation times
         std::vector< double > observationTimes;
+        std::vector< double > ganymedeObservationTimes;
         double vlbiObservationCadence = 600.0;
         for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
         {
-            double currentTime = arcStartTimes[ i ] + 1000.0;
-            while( currentTime < multiArcEndTimes[ i ] - 1000.0 )
+            constexpr double observationTimeMargin = 10000.0;
+            double currentTime = arcStartTimes[ i ] + observationTimeMargin;
+            while( currentTime < multiArcEndTimes[ i ] - observationTimeMargin )
             {
                 observationTimes.push_back( currentTime );
+                if( std::find( bodiesToPropagatePerArc.at( i ).begin( ), bodiesToPropagatePerArc.at( i ).end( ), "Ganymede" ) !=
+                    bodiesToPropagatePerArc.at( i ).end( ) )
+                {
+                    ganymedeObservationTimes.push_back( currentTime );
+                }
                 currentTime += vlbiObservationCadence;
             }
         }
@@ -949,10 +985,14 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
                 position_observable, linkEndsJuice, observationTimes, observed_body ) );
         measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
-                one_way_range, linkEndsGanymede, observationTimes, receiver ) );
+                one_way_range, linkEndsGanymede, ganymedeObservationTimes, receiver ) );
 
         std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+        BOOST_REQUIRE( !observationTimes.empty( ) );
+        BOOST_REQUIRE( !ganymedeObservationTimes.empty( ) );
+        BOOST_CHECK_EQUAL( observationsAndTimes->getTotalObservableSize( ),
+                           3 * static_cast< int >( observationTimes.size( ) ) + static_cast< int >( ganymedeObservationTimes.size( ) ) );
 
         // Set observations weights.
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
@@ -966,6 +1006,19 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
 
         estimationInput->defineEstimationSettings( false, false, true, true, true, false );
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+        BOOST_REQUIRE( estimationOutput != nullptr );
+        BOOST_CHECK( !estimationOutput->exceptionDuringInversion_ );
+        BOOST_CHECK( estimationOutput->parameterEstimate_.allFinite( ) );
+        BOOST_CHECK( estimationOutput->residuals_.allFinite( ) );
+        Eigen::VectorXd parameterScales = originalParameters.cwiseAbs( );
+        for( int i = 0; i < parameterScales.rows( ); i++ )
+        {
+            parameterScales( i ) = std::max( 1.0, parameterScales( i ) );
+        }
+        BOOST_CHECK_SMALL(
+                ( ( estimationOutput->parameterEstimate_ - originalParameters ).array( ) / parameterScales.array( ) ).abs( ).maxCoeff( ),
+                1.0E-10 );
+        BOOST_CHECK_SMALL( estimationOutput->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-3 );
 
         std::cout << "from OD manager, state transition matrix size: "
                   << orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( )->getStateTransitionMatrixSize( )
@@ -1059,6 +1112,9 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
             // Comparison - variational equations solutions
             std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > perArcVariationalEquationsSolution =
                     perArcVariationalEquations.getNumericalVariationalEquationsSolution( );
+            BOOST_REQUIRE_EQUAL( perArcStateHistory.size( ), 1 );
+            BOOST_REQUIRE_EQUAL( perArcVariationalEquationsSolution.size( ), 1 );
+            BOOST_REQUIRE_EQUAL( perArcVariationalEquationsSolution.at( 0 ).size( ), 2 );
 
             std::map< double, std::vector< std::string > > bodiesToEstimatePerArc;
             std::vector< int > multiArcStateParametersSizePerArc;
@@ -1102,17 +1158,15 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 Eigen::Vector6d stateCentralBody =
                         bodies.at( centralBodiesPerArc.at( arc ).at( i ) )->getEphemeris( )->getCartesianState( finalArcEpoch );
                 Eigen::Vector6d differenceStateHistoryWrtEphemeris = currentSolutionFromEphemeris - finalStates.segment( i * 6, 6 );
-                //                if ( centralBodiesPerArc.at( arc ).at( i )  == bodies.at( bodiesToPropagatePerArc.at( arc ).at( i )
-                //                )->getEphemeris( )->getReferenceFrameOrigin( ) )
-                //                {
-                //                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                //                            differenceStateHistoryWrtEphemeris, Eigen::Vector6d::Zero( ), 1.0E-16);
-                //                }
-                //                else
-                //                {
-                //                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                //                            differenceStateHistoryWrtEphemeris, stateCentralBody, 1.0E-12);
-                //                }
+                Eigen::Vector6d expectedDifference = stateCentralBody;
+                if( centralBodiesPerArc.at( arc ).at( i ) ==
+                    bodies.at( bodiesToPropagatePerArc.at( arc ).at( i ) )->getEphemeris( )->getReferenceFrameOrigin( ) )
+                {
+                    expectedDifference.setZero( );
+                }
+                BOOST_CHECK_SMALL(
+                        ( differenceStateHistoryWrtEphemeris - expectedDifference ).norm( ) / std::max( 1.0, expectedDifference.norm( ) ),
+                        1.0E-11 );
             }
 
             std::shared_ptr< ArcWiseInitialTranslationalStateParameter< double > > arcWiseTranslationalStateParameter =
@@ -1138,19 +1192,31 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                                 arcWiseTranslationalStateParameter->getFrameOrientation( ) );
             }
 
-            //            for (auto itr: multiArcStateHistory.at(arc)) {
-            //                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            //                        itr.second, perArcStateHistory.at(0).at(itr.first), 1.0E-16);
-            //            }
-            //
-            //            for (auto itr: variationalEquationsSolution.at(arc).at(0)) {
-            //                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            //                        itr.second, perArcVariationalEquationsSolution.at(0).at(0).at(itr.first), 1.0E-16);
-            //                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            //                        variationalEquationsSolution.at(arc).at(1).at(itr.first).block(0, 0, 6 * bodiesToPropagatePerArc.at(
-            //                        arc ).size( ), 24), perArcVariationalEquationsSolution.at(0).at(1).at(itr.first).block(0, 0, 6 *
-            //                        bodiesToPropagatePerArc.at( arc ).size( ), 24), 1.0E-16);
-            //            }
+            for( const auto& stateEntry : multiArcStateHistory.at( arc ) )
+            {
+                const Eigen::VectorXd& independentlyPropagatedState = perArcStateHistory.at( 0 ).at( stateEntry.first );
+                BOOST_CHECK_SMALL(
+                        ( stateEntry.second - independentlyPropagatedState ).norm( ) / std::max( 1.0, stateEntry.second.norm( ) ),
+                        1.0E-12 );
+            }
+            constexpr int sharedPhysicalParameterCount = 24;
+            for( const auto& stmEntry : variationalEquationsSolution.at( arc ).at( 0 ) )
+            {
+                const Eigen::MatrixXd& independentlyPropagatedStm = perArcVariationalEquationsSolution.at( 0 ).at( 0 ).at( stmEntry.first );
+                BOOST_CHECK_SMALL( ( stmEntry.second - independentlyPropagatedStm ).norm( ) / std::max( 1.0, stmEntry.second.norm( ) ),
+                                   1.0E-11 );
+
+                const Eigen::MatrixXd& sensitivity = variationalEquationsSolution.at( arc ).at( 1 ).at( stmEntry.first );
+                const Eigen::MatrixXd& independentlyPropagatedSensitivity =
+                        perArcVariationalEquationsSolution.at( 0 ).at( 1 ).at( stmEntry.first );
+                BOOST_REQUIRE_GE( sensitivity.cols( ), sharedPhysicalParameterCount );
+                BOOST_REQUIRE_GE( independentlyPropagatedSensitivity.cols( ), sharedPhysicalParameterCount );
+                BOOST_CHECK_SMALL( ( sensitivity.leftCols( sharedPhysicalParameterCount ) -
+                                     independentlyPropagatedSensitivity.leftCols( sharedPhysicalParameterCount ) )
+                                                   .norm( ) /
+                                           std::max( 1.0, sensitivity.leftCols( sharedPhysicalParameterCount ).norm( ) ),
+                                   1.0E-10 );
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1163,6 +1229,10 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         Eigen::MatrixXd undefinedFullCombinedStateTransitionMatrix =
                 multiArcStateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix(
                         ( arcStartTimes[ 1 ] + multiArcEndTimes[ 0 ] ) / 2.0, true, std::vector< std::string >( ) );
+        BOOST_CHECK( undefinedCombinedStateTransitionMatrix.allFinite( ) );
+        BOOST_CHECK( undefinedFullCombinedStateTransitionMatrix.allFinite( ) );
+        BOOST_CHECK_SMALL( undefinedCombinedStateTransitionMatrix.norm( ), std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( undefinedFullCombinedStateTransitionMatrix.norm( ), std::numeric_limits< double >::epsilon( ) );
         std::cout << "undefined combined STM & SEM: " << undefinedCombinedStateTransitionMatrix << "\n\n";
         std::cout << "undefined full combined STM & SEM: " << undefinedFullCombinedStateTransitionMatrix << "\n\n";
     }

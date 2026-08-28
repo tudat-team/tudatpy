@@ -154,7 +154,7 @@ public:
         return std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
     }
@@ -483,7 +483,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getSingleArcDependentVariablesInterface( );
     }
@@ -686,7 +686,7 @@ public:
         return std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
     }
@@ -785,7 +785,7 @@ public:
         return singleArcDynamicsResults_->getSingleArcDependentVariablesInterface( );
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getSingleArcDependentVariablesInterface( );
     }
@@ -920,7 +920,7 @@ public:
                                                                                                              dependentVariableInterface_ );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return cloneDerived( );
     }
@@ -1115,7 +1115,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getMultiArcDependentVariablesInterface( );
     }
@@ -1254,7 +1254,7 @@ public:
 
     ~HybridArcSimulationResults( ) {}
 
-    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const override
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
                 singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
@@ -1352,7 +1352,7 @@ public:
         return dependentVariableInterface_;
     }
 
-    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( )
+    std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) override
     {
         return getHybridArcDependentVariablesInterface( );
     }

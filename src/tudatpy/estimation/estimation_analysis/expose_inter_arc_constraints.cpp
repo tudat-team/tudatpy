@@ -138,9 +138,9 @@ void expose_inter_arc_constraints( py::module& m )
              Bodies whose position and velocity jumps are constrained.
          epochs : dict[str, list[float]]
              Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
-         position_weights : dict[str, float | array_like[float, 3]]
+         position_weights : dict[str, float | numpy.ndarray]
              Isotropic scalar or three Cartesian diagonal position weights for each body.
-         velocity_weights : dict[str, float | array_like[float, 3]]
+         velocity_weights : dict[str, float | numpy.ndarray]
              Isotropic scalar or three Cartesian diagonal velocity weights for each body.
          constraint_scaling_factor : float, default = 1.0
              Positive factor :math:`\mu_s`; larger values weaken the constraint.
@@ -178,7 +178,7 @@ void expose_inter_arc_constraints( py::module& m )
              Bodies whose position jumps are constrained.
          epochs : dict[str, list[float]]
              Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
-         position_weights : dict[str, float | array_like[float, 3]]
+         position_weights : dict[str, float | numpy.ndarray]
              Isotropic scalar or three Cartesian diagonal position weights for each body.
          constraint_scaling_factor : float, default = 1.0
              Positive factor :math:`\mu_s`; larger values weaken the constraint.
@@ -216,7 +216,7 @@ void expose_inter_arc_constraints( py::module& m )
              Bodies whose velocity jumps are constrained.
          epochs : dict[str, list[float]]
              Connection epochs :math:`t_{c,bk}` for each body, in seconds since J2000.
-         velocity_weights : dict[str, float | array_like[float, 3]]
+         velocity_weights : dict[str, float | numpy.ndarray]
              Isotropic scalar or three Cartesian diagonal velocity weights for each body.
          constraint_scaling_factor : float, default = 1.0
              Positive factor :math:`\mu_s`; larger values weaken the constraint.

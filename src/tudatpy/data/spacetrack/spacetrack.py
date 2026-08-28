@@ -463,7 +463,7 @@ class SpaceTrackQuery:
 
         Parameters
         ----------
-        filter_oe_dict : dict
+        filter_oe_dict : dict[str, tuple[float | None, float | None]]
             Mapping of orbital element names to ``(min, max)`` bound tuples.
             Either bound may be ``None`` for a one-sided filter.
         limit : int
@@ -612,7 +612,7 @@ class OMMUtils:
 
         Returns
         -------
-        dict[str, tuple[str, str]]
+        defaultdict[str, list[tuple[str, str]]]
             Mapping of NORAD ID (str) → (TLE line 1, TLE line 2).
         """
         if isinstance(json_data, dict):
@@ -673,7 +673,7 @@ class OMMUtils:
         return a, e, i, omega, raan, mean_to_true_anomaly(e, mo)
 
     @staticmethod
-    def tle_to_TleEphemeris_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
+    def tle_to_TleEphemeris_object(tle_line_1: str, tle_line_2: str) -> environment.TleEphemeris:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
@@ -686,7 +686,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.Tle
+        environment.TleEphemeris
             Configured TleEphemeris object.
         """
         return environment.TleEphemeris(
@@ -694,7 +694,7 @@ class OMMUtils:
         )
 
     @staticmethod
-    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.TleEphemeris:
+    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 

@@ -67,7 +67,7 @@ void expose_observables_simulation( py::module& m )
          ----------
          link_end_states : List[ numpy.ndarray[numpy.float64[6, 1]] ]
              Vector of states of the link ends involved in the observation.
-         link_end_times : List[:class:`~tudatpy.astro.time_representation.Time`]
+         link_end_times : list[float]
              Vector of times at the link ends involved in the observation.
          observation_value : numpy.ndarray[numpy.float64[]]
              Current simulated observation value.
