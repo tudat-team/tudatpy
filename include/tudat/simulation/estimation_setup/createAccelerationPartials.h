@@ -64,10 +64,12 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
     if( numericalCustomPartialSettings != nullptr )
     {
         if( !( ( parameter->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+               ( parameter->getParameterName( ).first == estimatable_parameters::constrained_initial_body_state ) ||
                ( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) ) )
         {
             throw std::runtime_error(
-                    "Error, only (single-arc or arc-wise) initial cartesian state supported for custom numerical acceleration partial" );
+                    "Error, only (single-arc, constrained, or arc-wise) initial cartesian state supported for custom numerical "
+                    "acceleration partial" );
         }
         std::string bodyName = parameter->getParameterName( ).second.first;
         if( bodies.count( bodyName ) == 0 )
@@ -1002,6 +1004,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == accelerationIterator->first )
             {
                 if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+                    ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
+                      estimatable_parameters::constrained_initial_body_state ) ||
                     ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
                       estimatable_parameters::arc_wise_initial_body_state ) )
                 {

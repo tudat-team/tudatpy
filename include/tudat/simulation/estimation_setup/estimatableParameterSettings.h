@@ -500,6 +500,73 @@ public:
     std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
+//! Class to define settings for estimating a constrained initial translational state (Line of Variations differential correction).
+template< typename InitialStateParameterType = double >
+class ConstrainedTranslationalStateEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial state (w.r.t. centralBody)
+     * \param weakDirection Direction (tangent to the Line of Variations) to which the update of the differential
+     * correction must remain orthogonal. Defaults to the zero vector, to be set later.
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ConstrainedTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue,
+            const Eigen::Matrix< double, 6, 1 >& weakDirection = Eigen::Matrix< double, 6, 1 >::Zero( ),
+            const std::string& centralBody = "SSB",
+            const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, constrained_initial_body_state ), initialTime_( TUDAT_NAN ),
+        initialStateValue_( initialStateValue ), weakDirection_( weakDirection ), centralBody_( centralBody ),
+        frameOrientation_( frameOrientation )
+    {}
+
+    //! Constructor, without initial value of translational state.
+    /*!
+     * Constructor, without initial value of translational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialTime Time at which initial state is defined.
+     * \param weakDirection Direction (tangent to the Line of Variations) to which the update of the differential
+     * correction must remain orthogonal. Defaults to the zero vector, to be set later.
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ConstrainedTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const double initialTime,
+            const Eigen::Matrix< double, 6, 1 >& weakDirection = Eigen::Matrix< double, 6, 1 >::Zero( ),
+            const std::string& centralBody = "SSB",
+            const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, constrained_initial_body_state ), initialTime_( initialTime ),
+        weakDirection_( weakDirection ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+    {}
+
+    //! Time at which initial state is defined (NaN for user-defined initial state value).
+    double initialTime_;
+
+    //! Current value of initial state (w.r.t. centralBody), set manually by used.
+    Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue_;
+
+    //! Direction (tangent to the Line of Variations) to which the update of the differential correction must remain orthogonal.
+    Eigen::Matrix< double, 6, 1 > weakDirection_;
+
+    //! Body w.r.t. which the initial state is to be estimated.
+    std::string centralBody_;
+
+    //! Orientation of the frame in which the state is defined.
+    std::string frameOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
+};
+
 //! Class to define settings for estimating an arcwise initial translational state.
 template< typename InitialStateParameterType >
 class ArcWiseInitialTranslationalStateEstimatableParameterSettings : public EstimatableParameterSettings
@@ -1198,6 +1265,19 @@ inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( c
 inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
+}
+
+//! Settings for estimating a constrained initial translational state (Line of Variations differential correction).
+template< typename InitialStateParameterType = double >
+inline std::shared_ptr< EstimatableParameterSettings > constrainedInitialTranslationalState(
+        const std::string& bodyName,
+        const Eigen::Matrix< InitialStateParameterType, 6, 1 >& initialStateValue,
+        const Eigen::Matrix< double, 6, 1 >& weakDirection = Eigen::Matrix< double, 6, 1 >::Zero( ),
+        const std::string& centralBody = "SSB",
+        const std::string& frameOrientation = "ECLIPJ2000" )
+{
+    return std::make_shared< ConstrainedTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+            bodyName, initialStateValue, weakDirection, centralBody, frameOrientation );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > fullAccelerationScaling(

@@ -985,7 +985,8 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == constrained_initial_body_state ) )
         {
             bodiesToEstimate.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
@@ -1091,6 +1092,7 @@ std::map< propagators::IntegratedStateType, std::vector< std::string > > getList
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == constrained_initial_body_state ) ||
             ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             bodiesToEstimate[ propagators::translational_state ].push_back(
@@ -1129,6 +1131,7 @@ getListOfTranslationalStateParametersToEstimate(
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == constrained_initial_body_state ) ||
             ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             translationalStateParameters.push_back( initialDynamicalParameters.at( i ) );
@@ -1216,6 +1219,7 @@ getListOfInitialDynamicalStateParametersEstimate(
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == constrained_initial_body_state ) ||
             ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::translational_state ].push_back(

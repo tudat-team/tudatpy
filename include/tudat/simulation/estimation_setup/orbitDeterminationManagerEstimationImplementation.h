@@ -184,6 +184,19 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             Eigen::VectorXd constraintRightHandSide;
             parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
 
+            // Constraints are expressed in physical parameter units, but designMatrixEstimatedParameters (and
+            // therefore the normal equations into which the constraint is embedded) has already been rescaled to
+            // normalized units by normalizeDesignMatrix. Since the solved correction relates to the physical one by
+            // deltaXSolved(i) = normalizationTerms(i) * deltaXPhysical(i), the constraint row must be divided
+            // by the same normalizationTerms to remain consistent with that rescaling.
+            if( constraintStateMultiplier.rows( ) > 0 )
+            {
+                for( int i = 0; i < constraintStateMultiplier.cols( ); i++ )
+                {
+                    constraintStateMultiplier.col( i ) /= normalizationTerms( i );
+                }
+            }
+
             double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
             if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
             {

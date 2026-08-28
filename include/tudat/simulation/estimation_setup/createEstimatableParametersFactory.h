@@ -19,6 +19,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/areaToMassScalingFactor.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/constrainedTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
@@ -1044,6 +1045,53 @@ createInitialDynamicalStateParameterToEstimate(
                     initialTranslationalStateParameter->addStateClosureFunctions( initialStateSettings->initialStateGetFunction_,
                                                                                   initialStateSettings->initialStateSetFunction_ );
                     initialStateParameterToEstimate = initialTranslationalStateParameter;
+                }
+                break;
+            case constrained_initial_body_state:
+
+                // Check consistency of input.
+                if( std::dynamic_pointer_cast< ConstrainedTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when making constrained body initial state parameter, settings type is incompatible" );
+                }
+                else
+                {
+                    std::shared_ptr< ConstrainedTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                            constrainedInitialStateSettings = std::dynamic_pointer_cast<
+                                    ConstrainedTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                                    parameterSettings );
+
+                    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState;
+
+                    // If initial time is not defined, use preset initial state
+                    if( !( constrainedInitialStateSettings->initialTime_ == constrainedInitialStateSettings->initialTime_ ) )
+                    {
+                        initialTranslationalState = constrainedInitialStateSettings->initialStateValue_;
+                    }
+                    // Compute initial state from environment
+                    else
+                    {
+                        initialTranslationalState = propagators::getInitialStateOfBody< double, InitialStateParameterType >(
+                                constrainedInitialStateSettings->parameterType_.second.first,
+                                constrainedInitialStateSettings->centralBody_,
+                                bodies,
+                                constrainedInitialStateSettings->initialTime_ );
+                    }
+
+                    // Create constrained translational state estimation interface object
+                    std::shared_ptr< ConstrainedTranslationalStateParameter< InitialStateParameterType > >
+                            constrainedTranslationalStateParameter =
+                                    std::make_shared< ConstrainedTranslationalStateParameter< InitialStateParameterType > >(
+                                            constrainedInitialStateSettings->parameterType_.second.first,
+                                            initialTranslationalState,
+                                            constrainedInitialStateSettings->centralBody_,
+                                            constrainedInitialStateSettings->frameOrientation_ );
+                    constrainedTranslationalStateParameter->addStateClosureFunctions(
+                            constrainedInitialStateSettings->initialStateGetFunction_,
+                            constrainedInitialStateSettings->initialStateSetFunction_ );
+                    constrainedTranslationalStateParameter->setWeakDirection( constrainedInitialStateSettings->weakDirection_ );
+                    initialStateParameterToEstimate = constrainedTranslationalStateParameter;
                 }
                 break;
             case arc_wise_initial_body_state:
