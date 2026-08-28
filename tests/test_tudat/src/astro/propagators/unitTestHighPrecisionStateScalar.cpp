@@ -6,7 +6,6 @@
  *    under the terms of the Modified BSD license.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -17,7 +16,7 @@
 #include <type_traits>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <tudat/config.hpp>
 
