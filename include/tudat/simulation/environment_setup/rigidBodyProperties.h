@@ -57,6 +57,10 @@ public:
 
     Eigen::Matrix3d getCurrentDerivativeInertiaTensor( );
 
+    bool isInertiaTensorAvailable( ) const;
+
+    bool isInertiaTensorDerivativeAvailable( ) const;
+
     virtual void setCurrentMass( const double currentMass ) = 0;
 
     virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
@@ -79,6 +83,10 @@ protected:
     bool isInertiaTensorComputed_;
 
     bool isDerivativeInertiaTensorComputed_;
+
+    bool isInertiaTensorAvailable_;
+
+    bool isDerivativeInertiaTensorAvailable_;
 };
 
 class TimeDependentRigidBodyProperties : public RigidBodyProperties

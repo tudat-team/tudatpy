@@ -13,6 +13,7 @@
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
 #include <memory>
+#include <stdexcept>
 #include <Eigen/Core>
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -109,21 +110,17 @@ public:
         return Eigen::Vector3d::Zero( );
     }
 
+    //! Return whether this gravity field provides sufficient information to derive an inertia tensor.
+    virtual bool hasInertiaTensor( )
+    {
+        return false;
+    }
+
+    //! Derive an inertia tensor from the gravity-field data.
     virtual Eigen::Matrix3d getInertiaTensor( )
     {
-        return Eigen::Matrix3d::Zero( );
+        throw std::runtime_error( "Inertia tensor is not available from this gravity field model." );
     }
-
-    virtual Eigen::Matrix3d getDerivativeInertiaTensor( )
-    {
-        return Eigen::Matrix3d::Zero( );
-    }
-
-    virtual void resetDerivativeInertiaTensor( const double derivativeC20Coefficient,
-                                               const double derivativeC21Coefficient,
-                                               const double derivativeC22Coefficient,
-                                               const double derivativeS21Coefficient,
-                                               const double derivativeS22Coefficient ) {};
 
 protected:
     //! Gravitational parameter.

@@ -280,7 +280,12 @@ public:
         return edgeDyads_;
     }
 
-    virtual Eigen::Matrix3d getInertiaTensor( )
+    bool hasInertiaTensor( ) override
+    {
+        return true;
+    }
+
+    Eigen::Matrix3d getInertiaTensor( ) override
     {
         return inertiaTensor_;
     }

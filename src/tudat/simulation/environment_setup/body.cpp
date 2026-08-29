@@ -303,13 +303,7 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
 {
     gravityFieldModel_ = gravityFieldModel;
 
-    if( massProperties_ != nullptr )
-    {
-        std::cerr << "Warning when settings gravity field model for body, mass interface already found: overrriding existing mass "
-                     "interface"
-                  << std::endl;
-    }
-    else
+    if( massProperties_ == nullptr || std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ ) != nullptr )
     {
         massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
     }

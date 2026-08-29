@@ -17,6 +17,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
+#include <cmath>
 #include <functional>
 #include <memory>
 
@@ -461,7 +462,6 @@ public:
         }
 
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
-        derivativeInertiaTensor_ = Eigen::Matrix3d::Zero( );
     }
 
     //! Virtual destructor.
@@ -773,28 +773,13 @@ public:
         }
     }
 
-    virtual Eigen::Matrix3d getInertiaTensor( );
-
-    void resetDerivativeInertiaTensor( const double derivativeC20Coefficient,
-                                       const double derivativeC21Coefficient,
-                                       const double derivativeC22Coefficient,
-                                       const double derivativeS21Coefficient,
-                                       const double derivativeS22Coefficient )
+    bool hasInertiaTensor( ) override
     {
-        derivativeInertiaTensor_ =
-                computeDerivativeInertiaTensor( derivativeC20Coefficient,
-                                                derivativeC21Coefficient,
-                                                derivativeC22Coefficient,
-                                                derivativeS21Coefficient,
-                                                derivativeS22Coefficient,
-                                                this->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
-                                                referenceRadius_ );
+        return cosineCoefficients_.rows( ) > 2 && cosineCoefficients_.cols( ) > 2 && sineCoefficients_.rows( ) > 2 &&
+                sineCoefficients_.cols( ) > 2 && std::isfinite( scaledMeanMomentOfInertia_ );
     }
 
-    Eigen::Matrix3d getDerivativeInertiaTensor( )
-    {
-        return derivativeInertiaTensor_;
-    }
+    Eigen::Matrix3d getInertiaTensor( ) override;
 
     double getScaledMeanMomentOfInertia( )
     {
@@ -839,8 +824,6 @@ protected:
 
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
-
-    Eigen::Matrix3d derivativeInertiaTensor_;
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients

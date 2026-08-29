@@ -28,20 +28,17 @@ namespace gravitation
 
 Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
 {
-    if( cosineCoefficients_.size( ) > 2 && sineCoefficients_.size( ) > 2 )
+    if( hasInertiaTensor( ) )
     {
         return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
     }
     else
     {
-        return Eigen::Matrix3d::Zero( );
+        throw std::runtime_error(
+                "Inertia tensor cannot be derived from spherical-harmonic gravity field: complete degree-two coefficients and "
+                "a finite scaled mean moment of inertia are required." );
     }
 }
-
-// Eigen::Matrix3d SphericalHarmonicsGravityField::getDerivativeInertiaTensor(  )
-// {
-//     return gravitation::getDerivativeInertiaTensorFromGravityField( shared_from_this() );
-// }
 
 //! Compute gravitational acceleration due to single spherical harmonics term.
 Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
