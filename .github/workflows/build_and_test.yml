@@ -295,6 +295,7 @@ jobs:
       if: steps.cache-resources.outputs.cache-hit != 'true'
       shell: bash -l {0}
       run: |
+        python -m tudatpy.resource_installer --mode manifest
         python -m tudatpy.resource_installer --mode update --files $(cat tests/resource-catalog.txt)
 
     - name: Pack resources
