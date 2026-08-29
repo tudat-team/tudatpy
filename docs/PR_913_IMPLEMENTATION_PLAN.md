@@ -10,6 +10,9 @@ The feature branch must be updated by merging `develop` into
 
 ## 1. Baseline and scope cleanup
 
+Status: completed on the isolated feature branch after merging the 2026-08-29
+`origin/develop` head. No build or tests were run, by explicit instruction.
+
 - Merge the latest `origin/develop` into `feature/coupled_model` and resolve the
   conflicts without rebasing.
 - Remove temporary debug output introduced by the feature work.
