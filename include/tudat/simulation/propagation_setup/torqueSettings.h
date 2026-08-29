@@ -326,7 +326,7 @@ inline std::shared_ptr< TorqueSettings > fourthDegreeFullTwoBodyGravitationalTor
     return std::make_shared< FourthDegreeFullTwoBodyGravitationalTorqueSettings >( );
 }
 
-inline std::shared_ptr< TorqueSettings > dissipativeTorque( )
+inline std::shared_ptr< TorqueSettings > dissipativeTorque( const int maximumDegree, const int maximumOrder )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
 }

@@ -426,8 +426,6 @@ std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType 
     std::vector< std::function< void( const double ) > > updateModelFunctions;
     std::map< StateDerivativeDependency, std::vector< std::string > > updateSettings;
 
-    // std::map< StateDerivativeDependency, std::vector< std::string > > updateSettings2;
-
     std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
             stateDerivativeModelsToUpdate;
 
@@ -439,7 +437,6 @@ std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType 
             std::vector< std::string > currentBodies = it2->getBodiesToIntegrate( );
             for( auto currentBody : currentBodies )
             {
-                // MISSING EXTRA CHECKS!
                 listIntegratedStatesPerBody[ currentBody ].push_back( it.first );
             }
         }
@@ -449,14 +446,6 @@ std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType 
             stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
     checkGravityDeformationDependencies< StateScalarType, TimeType >(
             stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
-
-    for( auto it : updateSettings )
-    {
-        for( auto it2 : it.second )
-        {
-            std::cout << "dependency " << it.first << " for body " << it2 << std::endl;
-        }
-    }
 
     std::map< StateDerivativeDependency,
               std::vector< std::pair< std::string, std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >

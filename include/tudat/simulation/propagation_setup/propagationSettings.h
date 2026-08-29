@@ -1783,30 +1783,15 @@ public:
     //! List of bodies for which the gravity deformation is to be propagated.
     std::vector< std::string > bodiesWithGravityToPropagate_;
 
-    //! Function to create the gravity deformation models with support for thrust-acceleration-based mass-rate models.
+    //! Function to create the gravity deformation models.
     /*!
-     * Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up
-     * mass-rate models determined from thrust accelerations.
+     * Function to create the gravity deformation models from the configured settings.
      * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
-     * \param accelerationMap Map of accelerations in the propagation.
      */
-    void resetIntegratedStateModels(
-        const simulation_setup::SystemOfBodies& bodies/*,
-        const basic_astrodynamics::AccelerationMap& accelerationMap*/ )
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
     {
-        gravityDeformationModels_ =
-                simulation_setup::createGravityDeformationModelsMap( bodies, gravityDeformationSettingsMap_ /*, accelerationMap*/ );
+        gravityDeformationModels_ = simulation_setup::createGravityDeformationModelsMap( bodies, gravityDeformationSettingsMap_ );
     }
-
-    // //! Function to create the gravity deformation models.
-    // /*!
-    //     * Function to create the gravity deformation models.
-    //     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
-    //     */
-    // virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
-    // {
-    //     resetIntegratedStateModels( bodies, basic_astrodynamics::AccelerationMap( ) );
-    // }
 
     //! Function to get the gravity deformation settings map.
     /*!

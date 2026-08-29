@@ -1570,7 +1570,7 @@ inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor
 inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor( const std::string& body,
                                                                                   const std::string& deformingBody )
 {
-    return inverseTidalQualityFactor( body, std::vector< std::string >( { deformingBody } ) );
+    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > meanMomentOfInertia( const std::string& body )

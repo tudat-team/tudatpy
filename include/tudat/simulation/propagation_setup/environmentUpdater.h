@@ -712,7 +712,6 @@ private:
                             break;
                         }
                         case spherical_harmonic_gravity_field_update: {
-                            std::cout << "spherical_harmonic_gravity_field_update detected" << std::endl;
                             // Check if body has time-dependent sh field
                             std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > gravityField =
                                     std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
@@ -967,8 +966,6 @@ public:
     void updateEnvironmentFromStateDerivative( const TimeType currentTime,
                                                const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& integratedStateDerivativesToSet2 )
     {
-        // std::cout << "in updateEnvironmentFromStateDerivative" << std::endl;
-
         for( auto dependencyTypeIt : environmentUpdateFunctions_ )
         {
             for( unsigned int i = 0; i < dependencyTypeIt.second.size( ); i++ )
@@ -979,8 +976,6 @@ public:
                 {
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentGravityStateDerivative =
                             integratedStateDerivativesToSet2.block( indices.first, 0, indices.second, 1 );
-                    // std::cout << "currentGravityStateDerivative " << currentGravityStateDerivative.transpose( ) << std::endl;
-
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > fullDegree2Derivative =
                             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 5 );
                     fullDegree2Derivative[ 0 ] = currentGravityStateDerivative[ 0 ];
@@ -995,8 +990,6 @@ public:
                 {
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentAngularVelocityDerivative =
                             integratedStateDerivativesToSet2.block( indices.first + 4, 0, 3, 1 );
-                    // std::cout << "currentAngularVelocityDerivative " << currentAngularVelocityDerivative.transpose( ) << std::endl;
-
                     dependencyTypeIt.second.at( i ).second( currentAngularVelocityDerivative );
                 }
             }

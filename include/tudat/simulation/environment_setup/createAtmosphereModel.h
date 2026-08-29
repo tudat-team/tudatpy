@@ -613,7 +613,7 @@ public:
         AtmosphereSettings( exponential_atmosphere ), densityScaleHeight_( densityScaleHeight ),
         constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
-        bodyWithPredefinedExponentialAtmosphere_( undefined_body_ea )
+        bodyWithPredefinedExponentialAtmosphere_( undefined_body )
     {}
 
     //  Default constructor.
@@ -629,8 +629,8 @@ public:
         // Check that the body name inserted is available
         switch( bodyWithPredefinedExponentialAtmosphere )
         {
-            case earth_ea:
-            case mars_ea:
+            case earth:
+            case mars:
                 // all is good
                 break;
             default:
@@ -1757,11 +1757,11 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( cons
     BodiesWithPredefinedExponentialAtmospheres bodyId;
     if( bodyName == "Earth" )
     {
-        bodyId = BodiesWithPredefinedExponentialAtmospheres::earth_ea;
+        bodyId = BodiesWithPredefinedExponentialAtmospheres::earth;
     }
     else if( bodyName == "Mars" )
     {
-        bodyId = BodiesWithPredefinedExponentialAtmospheres::mars_ea;
+        bodyId = BodiesWithPredefinedExponentialAtmospheres::mars;
     }
     else
     {

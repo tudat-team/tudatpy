@@ -797,8 +797,6 @@ void resetIntegratedBodyGravity(
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
 
-        std::cout << "WARNING IN resetIntegratedBodyGravity: MISSING IMPLEMENTATION!" << std::endl;
-
         // // Create and set interpolator.
         // bodies.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction(
         //             std::bind(
@@ -1461,9 +1459,7 @@ public:
                                                                         std::make_pair( startIndex, bodiesToIntegrate.size( ) ),
                                                                         bodies,
                                                                         bodiesToIntegrate )
-    {
-        std::cout << "in GravityIntegratedStateProcessor constructor" << std::endl;
-    }
+    {}
 
     //! Destructor
     ~GravityIntegratedStateProcessor( ) {}

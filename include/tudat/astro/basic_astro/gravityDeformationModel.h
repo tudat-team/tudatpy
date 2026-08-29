@@ -17,8 +17,6 @@
 #include <unordered_map>
 
 #include <memory>
-#include <iostream>
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -206,8 +204,6 @@ public:
         nominalCoefficients_[ 2 ] = getCosineHarmonicsCoefficients( )( 2, 2 );
         nominalCoefficients_[ 3 ] = getSineHarmonicsCoefficients( )( 2, 1 );
         nominalCoefficients_[ 4 ] = getSineHarmonicsCoefficients( )( 2, 2 );
-        std::cout << "original nominal coefficients: " << nominalCoefficients_.transpose( ) << std::endl;
-
         equilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
         derivativeEquilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
 
@@ -217,8 +213,6 @@ public:
         staticCoefficients_[ 2 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
         staticCoefficients_[ 3 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
         staticCoefficients_[ 4 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-
-        std::cout << "done creating MaxwellDeformation model" << std::endl;
     }
 
     //! Update class members.

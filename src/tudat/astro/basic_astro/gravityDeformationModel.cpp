@@ -19,8 +19,6 @@ namespace basic_astrodynamics
 
 void MaxwellGravityDeformationModel::updateMembers( const double currentTime )
 {
-    std::cout.precision( 20 );
-
     // Update gravity coefficients
     cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
     sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
@@ -95,8 +93,6 @@ void MaxwellGravityDeformationModel::updateMembers( const double currentTime )
 
 void MaxwellGravityDeformationModel::updateEquilibriumDeformation( const double currentTime )
 {
-    std::cout.precision( 20 );
-
     // Reset equilibrium coefficients and derivatives to zero
     equilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
     derivativeEquilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
