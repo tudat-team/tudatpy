@@ -26,10 +26,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-using namespace basic_astrodynamics;
-using namespace gravitation;
-using namespace ephemerides;
-
 //! Function to create Maxwell gravity deformation model.
 /*!
  *  Function to create Maxwell gravity deformation model from perturbing and deforming bodies.

@@ -1085,7 +1085,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             singleGravityDeformationModelUpdateNeeds.clear( );
 
             // Identify gravity deformation type and set required environment update settings.
-            simulation_setup::GravityDeformationType currentGravityDeformationModelType =
+            basic_astrodynamics::GravityDeformationType currentGravityDeformationModelType =
                     getGravityDeformationModelType( gravityDeformationModelIterator->second.at( i ) );
 
             singleGravityDeformationModelUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
@@ -1093,7 +1093,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 
             switch( currentGravityDeformationModelType )
             {
-                case simulation_setup::maxwell_deformation: {
+                case basic_astrodynamics::maxwell_deformation: {
                     std::shared_ptr< MaxwellGravityDeformationModel > maxwellGravityModel =
                             std::dynamic_pointer_cast< MaxwellGravityDeformationModel >( gravityDeformationModelIterator->second.at( i ) );
                     singleGravityDeformationModelUpdateNeeds[ body_translational_state_update ].push_back(
