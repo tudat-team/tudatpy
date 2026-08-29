@@ -47,8 +47,21 @@ if bool(os.getenv("READTHEDOCS")) is True:
     print("sys.path:", sys.path)
 
 else:
-    # when building locally, use the binaries generated with tudat-bundle
-    sys.path.insert(0, os.path.abspath("../../../build/tudatpy"))
+    # When building locally, use the Python sources from this checkout and the
+    # extension module generated with tudat-bundle.
+    local_source_path = os.path.abspath("../../../src")
+    local_build_path = os.path.abspath("../../../cmake-build-release/src")
+    sys.path.insert(0, local_build_path)
+    sys.path.insert(0, local_source_path)
+
+    try:
+        import tudatpy
+
+        local_build_package_path = os.path.join(local_build_path, "tudatpy")
+        if local_build_package_path not in tudatpy.__path__:
+            tudatpy.__path__.append(local_build_package_path)
+    except Exception as exc:
+        LOGGER.warning("Could not extend local tudatpy package path: %s", exc)
 
 
 def has_mcd_support():
@@ -441,7 +454,10 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = []
+exclude_patterns = [
+    "data.rst",
+    "data/**",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"

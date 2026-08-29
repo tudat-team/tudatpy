@@ -44,6 +44,18 @@ Functions
 
    create_new_observation_collection
 
+   create_observation_collection_from_tracking_data
+
+   create_observation_collection_from_arrays
+
+   create_single_type_observation_collection_from_arrays
+
+   simulate_observations
+
+   simulate_pseudo_observations
+
+   set_tracking_supplementary_data_in_bodies
+
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
@@ -64,6 +76,18 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.split_observation_collection
 
 .. autofunction:: tudatpy.estimation.observations.create_new_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_tracking_data
+
+.. autofunction:: tudatpy.estimation.observations.create_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.create_single_type_observation_collection_from_arrays
+
+.. autofunction:: tudatpy.estimation.observations.simulate_observations
+
+.. autofunction:: tudatpy.estimation.observations.simulate_pseudo_observations
+
+.. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
 
 
 Classes

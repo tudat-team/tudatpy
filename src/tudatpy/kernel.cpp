@@ -14,6 +14,8 @@ void add_trajectory_design_to_kernel( py::module_& m );
 void add_constants_to_kernel( py::module_& m );
 void add_interface_to_kernel( py::module_& m );
 void add_data_to_kernel( py::module_& m );
+void add_data_input_to_kernel( py::module_& m );
+void add_util_to_kernel( py::module_& m );
 void add_dynamics_to_kernel( py::module_& m );
 void add_estimation_to_kernel( py::module_& m );
 void add_exceptions_to_kernel( py::module_& m );
@@ -37,6 +39,12 @@ PYBIND11_MODULE( kernel, m )
 
     auto data = m.def_submodule( "data" );
     add_data_to_kernel( data );
+
+    auto data_input = m.def_submodule( "data_input" );
+    add_data_input_to_kernel( data_input );
+
+    auto util = m.def_submodule( "util" );
+    add_util_to_kernel( util );
 
     auto dynamics = m.def_submodule( "dynamics" );
     add_dynamics_to_kernel( dynamics );

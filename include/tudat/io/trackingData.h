@@ -13,7 +13,12 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
@@ -40,9 +45,11 @@ public:
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                   const std::vector< TimeType > epochs,
                   const std::string referenceLinkEnd,
-                  const std::string timeScale = "TDB" ):
+                  const std::string timeScale = "TDB",
+                  const std::string weighingScheme = "" ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), epochs_( epochs ),
-        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), numberOfObservations_( observations.size( ) ),
+        referenceLinkEnd_( referenceLinkEnd ), timeScale_( timeScale ), weighingScheme_( weighingScheme ),
+        numberOfObservations_( observations.size( ) ),
         singleObservationSize_( !observations.empty( ) ? static_cast< unsigned int >( observations[ 0 ].size( ) ) : 0 )
     {
         // Check inputs size consistency
@@ -62,7 +69,7 @@ public:
     }
 
     //! Function that returns the number of observations
-    unsigned int getNumberOfObservations( )
+    unsigned int getNumberOfObservations( ) const
     {
         return numberOfObservations_;
     }
@@ -80,19 +87,19 @@ public:
     }
 
     //! Function that returns the observable type
-    std::string getObservableType( )
+    const std::string& getObservableType( ) const
     {
         return observableType_;
     }
 
     //! Function that returns the link ends description
-    std::vector< std::pair< std::pair< std::string, std::string >, std::string > > getLinkEnds( )
+    const PlainLinkDefinition& getLinkEnds( ) const
     {
         return linkEnds_;
     }
 
     //! Function that returns the link end used as reference
-    std::string getReferenceLinkEnd( )
+    const std::string& getReferenceLinkEnd( ) const
     {
         return referenceLinkEnd_;
     }
@@ -110,19 +117,25 @@ public:
     }
 
     //! Function that returns the time scale of the observation epochs
-    std::string getTimeScale( )
+    const std::string& getTimeScale( ) const
     {
         return timeScale_;
     }
 
+    //! Function that returns the requested weighing scheme
+    const std::string& getWeighingScheme( ) const
+    {
+        return weighingScheme_;
+    }
+
     //! Function that returns observation values
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservations( ) const
     {
         return observations_;
     }
 
     //! Function that returns a concatenated vector of observations
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationsVector( )
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationsVector( ) const
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector =
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
@@ -184,19 +197,19 @@ public:
     }
 
     //! Function that returns the observation epochs
-    std::vector< TimeType > getObservationEpochs( )
+    const std::vector< TimeType >& getObservationEpochs( ) const
     {
         return epochs_;
     }
 
     //! Function that returns a concatenated vector of observation epochs
-    Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > getObservationEpochsVector( )
+    Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > getObservationEpochsVector( ) const
     {
         Eigen::Matrix< TimeType, Eigen::Dynamic, 1 > epochsVector =
                 Eigen::Matrix< TimeType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
         for( unsigned int i = 0; i < epochs_.size( ); i++ )
         {
-            epochsVector.segment( i * singleObservationSize_, singleObservationSize_ ) = epochs_.at( i );
+            epochsVector.segment( i * singleObservationSize_, singleObservationSize_ ).setConstant( epochs_.at( i ) );
         }
         return epochsVector;
     }
@@ -208,7 +221,7 @@ public:
     }
 
     //! Function that returns map of ancillary settings (string type)
-    std::map< std::string, std::string > getAncillarySettingsString( ) const
+    const std::map< std::string, std::string >& getAncillarySettingsString( ) const
     {
         return ancillarySettingsString_;
     }
@@ -220,7 +233,7 @@ public:
     }
 
     //! Function that returns map of ancillary settings (string type)
-    std::map< std::string, std::vector< std::string > > getAncillarySettingsStringVector( ) const
+    const std::map< std::string, std::vector< std::string > >& getAncillarySettingsStringVector( ) const
     {
         return ancillarySettingsStringVector_;
     }
@@ -232,7 +245,7 @@ public:
     }
 
     //! Function that returns map of ancillary settings (double type)
-    std::map< std::string, double > getAncillarySettingsDouble( ) const
+    const std::map< std::string, double >& getAncillarySettingsDouble( ) const
     {
         return ancillarySettingsDouble_;
     }
@@ -244,7 +257,7 @@ public:
     }
 
     //! Function that returns map of ancillary settings (vector type)
-    std::map< std::string, std::vector< double > > getAncillarySettingsDoubleVector( ) const
+    const std::map< std::string, std::vector< double > >& getAncillarySettingsDoubleVector( ) const
     {
         return ancillarySettingsDoubleVector_;
     }
@@ -313,7 +326,7 @@ public:
     }
 
     //! Function that returns a vector of observation weights (empty if observation weights are not provided)
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservationWeights( ) const
+    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getObservationWeights( ) const
     {
         return weights_;
     }
@@ -397,7 +410,7 @@ public:
     }
 
     //! Function that return a vector of observation corrections (empty of observation corrections are not provided)
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationCorrections( ) const
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getObservationCorrections( ) const
     {
         return observationCorrections_;
     }
@@ -444,6 +457,8 @@ private:
     const std::string referenceLinkEnd_;
 
     const std::string timeScale_;
+
+    const std::string weighingScheme_;
 
     unsigned int numberOfObservations_;
 

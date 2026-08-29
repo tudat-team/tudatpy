@@ -14,6 +14,7 @@
 #ifndef TUDAT_PREPROCESSODFFILE_H
 #define TUDAT_PREPROCESSODFFILE_H
 
+#include <cmath>
 #include <map>
 #include <memory>
 #include <string>
@@ -22,7 +23,6 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/trackingData.h"
@@ -41,6 +41,26 @@ namespace input_output
  * @return Observable name
  */
 std::string getObservableNameForOdfId( const input_output::OdfDataType observable_type_id );
+
+inline bool odfObservableRequiresTransmittingStation( const std::string& observableName )
+{
+    if( observableName == "DsnNWayAveragedDoppler" || observableName == "DsnNWayRange" )
+    {
+        return true;
+    }
+
+    throw std::runtime_error( "Error when determining ODF link ends: observable " + observableName + " not recognized." );
+}
+
+inline bool odfObservableRequiresFirstReceivingStation( const std::string& observableName )
+{
+    if( observableName == "DsnNWayAveragedDoppler" || observableName == "DsnNWayRange" )
+    {
+        return false;
+    }
+
+    throw std::runtime_error( "Error when determining ODF link ends: observable " + observableName + " not recognized." );
+}
 
 /*! Get the frequency band name associated with a given ODF frequency band ID.
  *
@@ -67,12 +87,31 @@ struct OdfAncillaryData {
 
     bool operator==( const OdfAncillaryData& other ) const
     {
+        auto doublesEqual = []( const double left, const double right ) {
+            return left == right || ( std::isnan( left ) && std::isnan( right ) );
+        };
+
+        auto doubleVectorsEqual = [ &doublesEqual ]( const std::vector< double >& left, const std::vector< double >& right ) {
+            if( left.size( ) != right.size( ) )
+            {
+                return false;
+            }
+            for( unsigned int i = 0; i < left.size( ); ++i )
+            {
+                if( !doublesEqual( left.at( i ), right.at( i ) ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
         return frequencyBandIds_ == other.frequencyBandIds_ &&
                 receptionReferenceFrequencyBandId_ == other.receptionReferenceFrequencyBandId_ &&
-                dopplerIntegrationTime_ == other.dopplerIntegrationTime_ &&
-                dopplerReferenceFrequency_ == other.dopplerReferenceFrequency_ &&
-                sequentialRangeLowestRangingComponent_ == other.sequentialRangeLowestRangingComponent_ &&
-                linkEndsDelays_ == other.linkEndsDelays_;
+                doublesEqual( dopplerIntegrationTime_, other.dopplerIntegrationTime_ ) &&
+                doublesEqual( dopplerReferenceFrequency_, other.dopplerReferenceFrequency_ ) &&
+                doublesEqual( sequentialRangeLowestRangingComponent_, other.sequentialRangeLowestRangingComponent_ ) &&
+                doubleVectorsEqual( linkEndsDelays_, other.linkEndsDelays_ );
     }
 };
 
@@ -586,7 +625,7 @@ private:
     {
         input_output::OdfDataType currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
 
-        if( requiresTransmittingStation( observation_models::getObservableType( currentObservableType ) ) )
+        if( odfObservableRequiresTransmittingStation( currentObservableType ) )
         {
             std::string transmittingStation =
                     getStationNameFromStationId( rawDataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
@@ -621,7 +660,7 @@ private:
                 return false;
             }
         }
-        if( requiresFirstReceivingStation( observation_models::getObservableType( currentObservableType ) ) )
+        if( odfObservableRequiresFirstReceivingStation( currentObservableType ) )
         {
             std::string receivingStation = getStationNameFromStationId( 0, rawDataBlock->getCommonDataBlock( )->receivingStationId_ );
 

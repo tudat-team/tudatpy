@@ -1,6 +1,8 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
 
+#include <cmath>
+
 namespace tudat
 {
 
@@ -69,7 +71,45 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
-    return ancillarySetting == "Doppler base frequency";
+    return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
+}
+
+std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
+        const std::map< double, Eigen::Quaterniond >& rotationFromInertialToCameraFrameHistory )
+{
+    if( rotationFromInertialToCameraFrameHistory.empty( ) )
+    {
+        return nullptr;
+    }
+
+    std::map< double, Eigen::Quaterniond > tdbRotationFromInertialToCameraFrameHistory;
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            earth_orientation::createDefaultTimeConverter( );
+    for( const auto& rotationEntry : rotationFromInertialToCameraFrameHistory )
+    {
+        tdbRotationFromInertialToCameraFrameHistory[ timeScaleConverter->getCurrentTime< double >(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, rotationEntry.first, Eigen::Vector3d::Zero( ) ) ] =
+                rotationEntry.second;
+    }
+
+    return [ = ]( const double time ) {
+        auto upperIterator = tdbRotationFromInertialToCameraFrameHistory.lower_bound( time );
+        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.begin( ) )
+        {
+            return upperIterator->second;
+        }
+        if( upperIterator == tdbRotationFromInertialToCameraFrameHistory.end( ) )
+        {
+            return std::prev( upperIterator )->second;
+        }
+
+        auto lowerIterator = std::prev( upperIterator );
+        if( std::fabs( time - lowerIterator->first ) <= std::fabs( upperIterator->first - time ) )
+        {
+            return lowerIterator->second;
+        }
+        return upperIterator->second;
+    };
 }
 
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,
@@ -393,13 +433,13 @@ void setFrequencySupplementaryDataInBodies(
             }
 
             if( i > 0 &&
-                it->second.at( i )->getFrequencySupplementaryDataType( ) != it->second.at( 0 )->getFrequencySupplementaryDataType( ) )
+                it->second.at( i )->getFrequencySupplementaryDataKind( ) != it->second.at( 0 )->getFrequencySupplementaryDataKind( ) )
             {
                 throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
                                           referencePointName + ": all frequency supplementary data entries must have the same type." );
             }
 
-            if( it->second.at( i )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
+            if( it->second.at( i )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
             {
                 std::shared_ptr< data::RampedFrequencySupplementaryData > rampedFrequencySupplementaryData =
                         std::dynamic_pointer_cast< data::RampedFrequencySupplementaryData >( it->second.at( i ) );
@@ -413,8 +453,7 @@ void setFrequencySupplementaryDataInBodies(
                         rampedFrequencySupplementaryData->getFrequencyRamps( );
                 frequencyRamps.insert( frequencyRamps.end( ), currentFrequencyRamps.begin( ), currentFrequencyRamps.end( ) );
             }
-            else if( it->second.at( i )->getFrequencySupplementaryDataType( ) ==
-                     data::FrequencySupplementaryDataType::piecewise_constant_frequency )
+            else if( it->second.at( i )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
             {
                 std::shared_ptr< data::PiecewiseConstantFrequencySupplementaryData > piecewiseConstantFrequencySupplementaryData =
                         std::dynamic_pointer_cast< data::PiecewiseConstantFrequencySupplementaryData >( it->second.at( i ) );
@@ -428,7 +467,7 @@ void setFrequencySupplementaryDataInBodies(
             }
         }
 
-        if( it->second.at( 0 )->getFrequencySupplementaryDataType( ) == data::FrequencySupplementaryDataType::ramped_frequency )
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
         {
             if( frequencyRamps.empty( ) )
             {
@@ -529,7 +568,7 @@ void setInstrumentSupplementaryDataInBodies(
                                           referencePointName + ": instrument data entry is null." );
             }
 
-            if( it->second.at( i )->getInstrumentSupplementaryDataType( ) == data::InstrumentSupplementaryDataType::camera_settings )
+            if( it->second.at( i )->getInstrumentSupplementaryDataKind( ) == "camera_settings" )
             {
                 std::shared_ptr< data::CameraInstrumentSupplementaryData > cameraSupplementaryData =
                         std::dynamic_pointer_cast< data::CameraInstrumentSupplementaryData >( it->second.at( i ) );
@@ -568,7 +607,11 @@ void setInstrumentSupplementaryDataInBodies(
                                                                                      cameraSupplementaryData->getFieldOfViewBounds( ) );
 
                 std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
-                        cameraSupplementaryData->getCameraId( ), Eigen::Vector3d::Zero( ), projectionModel );
+                        cameraSupplementaryData->getCameraId( ),
+                        Eigen::Vector3d::Zero( ),
+                        projectionModel,
+                        Eigen::Vector3d::Zero( ),
+                        createNearestCameraPointingFunction( cameraSupplementaryData->getRotationFromInertialToCameraFrameHistory( ) ) );
                 simulation_setup::createCamera( bodies.at( bodyName ), cameraSettings );
             }
             else

@@ -1,5 +1,5 @@
 import pytest
-from tudatpy.data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
 import requests
 from astroquery.mpc import MPC
 

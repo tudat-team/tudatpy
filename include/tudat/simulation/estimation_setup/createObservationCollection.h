@@ -23,6 +23,7 @@
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/timeType.h"
@@ -31,6 +32,7 @@
 #include "tudat/io/trackingSupplementaryData.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/estimation_setup/trackingDataWeighting.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 
@@ -155,6 +157,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     // Get observations from tracking data
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
+    setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
+
     // Apply corrections if requested (and if they exist)
     if( applyCorrections )
     {
@@ -194,20 +198,28 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
 
     auto epochsInput = trackingData->getObservationEpochs( );
     auto epochsTdb = std::vector< TimeType >( epochsInput.size( ) );
-    auto timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
     std::string referenceLinkEndName = trackingData->getReferencePointName( );
 
     if( trackingData->getTimeScale( ) != "TDB" )
     {
+        auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
         auto const& inputScale = basic_astrodynamics::timeScaleFromString( trackingData->getTimeScale( ) );
+        Eigen::Vector3d timeScaleConversionPosition = Eigen::Vector3d::Zero( );
+        const LinkEndId referenceLinkEndId = rawLinkEnds.at( referenceLinkEnd );
+        if( referenceLinkEndId.bodyName_ == "Earth" && bodies.doesBodyExist( referenceLinkEndId.bodyName_ ) )
+        {
+            const std::shared_ptr< simulation_setup::Body > earthBody = bodies.getBody( referenceLinkEndId.bodyName_ );
+            const std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStations =
+                    earthBody->getGroundStationMap( );
+            auto groundStationIterator = groundStations.find( referenceLinkEndName );
+            if( groundStationIterator != groundStations.end( ) && groundStationIterator->second != nullptr )
+            {
+                timeScaleConversionPosition = groundStationIterator->second->getNominalStationState( )->getNominalCartesianPosition( );
+            }
+        }
 
-        auto const& earthFixedPosition = bodies.getBody( "Earth" )
-                                                 ->getGroundStation( referenceLinkEndName )
-                                                 ->getNominalStationState( )
-                                                 ->getNominalCartesianPosition( );
-
-        epochsTdb = utilities::staticCastVector< TimeType, Time >( timeScaleConverter.getCurrentTimesFromSinglePosition< Time >(
-                inputScale, basic_astrodynamics::tdb_scale, epochsInput, earthFixedPosition ) );
+        epochsTdb = timeScaleConverter->getCurrentTimesFromSinglePosition< TimeType >(
+                inputScale, basic_astrodynamics::tdb_scale, epochsInput, timeScaleConversionPosition );
     }
     else
     {
@@ -261,14 +273,15 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createObservationCollection(
         const std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataList,
-        SystemOfBodies& bodies )
+        SystemOfBodies& bodies,
+        const bool applyCorrections = false )
 {
     // Create list of single observation sets
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets;
     for( auto trackingData : trackingDataList )
     {
         // Convert single tracking data object to a single observation set
-        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies ) );
+        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections ) );
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }
