@@ -229,6 +229,22 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     }
 }
 
+void GravityFieldVariationsSet::addGravityFieldVariation(
+        const std::shared_ptr< GravityFieldVariations > variationObject,
+        const BodyDeformationTypes variationType,
+        const std::string& variationIdentifier )
+{
+    if( variationObject == nullptr )
+    {
+        throw std::runtime_error( "Error when adding gravity field variation: input object is null." );
+    }
+
+    variationObjects_.push_back( variationObject );
+    variationType_.push_back( variationType );
+    variationIdentifier_.push_back( variationIdentifier );
+    identifierPerType_[ variationType ].push_back( variationIdentifier );
+}
+
 //! Function to retrieve list of variation functions.
 std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > > GravityFieldVariationsSet::getVariationFunctions( )
 {
