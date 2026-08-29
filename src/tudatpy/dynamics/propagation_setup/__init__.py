@@ -2,6 +2,7 @@ from tudatpy.kernel.dynamics.propagation_setup import (
     create_acceleration_models,
     create_torque_models,
     create_mass_rate_models,
+    create_gravity_deformation_models,
 )
 from . import (
     acceleration,

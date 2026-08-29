@@ -49,6 +49,7 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 namespace tse = tudat::serialization;
+namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
 {
@@ -801,6 +802,28 @@ Enumeration of available integrated state types.
                                                       std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                                                       tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m, "SingleArcPropagatorSettings" );
 
+    py::enum_< tp::CoupledStateDerivativeFailureHandling >( m, "CoupledStateDerivativeFailureHandling" )
+            .value( "throw_exception", tp::throw_exception_on_coupled_derivative_failure )
+            .value( "accept_last_iteration", tp::accept_last_coupled_derivative_iteration );
+
+    py::class_< tp::CoupledStateDerivativeSolverSettings, std::shared_ptr< tp::CoupledStateDerivativeSolverSettings > >(
+            m, "CoupledStateDerivativeSolverSettings", R"doc(Settings for solving algebraically coupled state derivatives.)doc" )
+            .def( py::init< const bool,
+                            const double,
+                            const double,
+                            const unsigned int,
+                            const tp::CoupledStateDerivativeFailureHandling >( ),
+                  py::arg( "use_direct_affine_solution" ) = true,
+                  py::arg( "relative_tolerance" ) = 1.0e-11,
+                  py::arg( "absolute_scaled_tolerance" ) = 1.0e-13,
+                  py::arg( "maximum_iterations" ) = 25,
+                  py::arg( "failure_handling" ) = tp::throw_exception_on_coupled_derivative_failure )
+            .def_readwrite( "use_direct_affine_solution", &tp::CoupledStateDerivativeSolverSettings::useDirectAffineSolution_ )
+            .def_readwrite( "relative_tolerance", &tp::CoupledStateDerivativeSolverSettings::relativeTolerance_ )
+            .def_readwrite( "absolute_scaled_tolerance", &tp::CoupledStateDerivativeSolverSettings::absoluteTolerance_ )
+            .def_readwrite( "maximum_iterations", &tp::CoupledStateDerivativeSolverSettings::maximumIterations_ )
+            .def_readwrite( "failure_handling", &tp::CoupledStateDerivativeSolverSettings::failureHandling_ );
+
     py::class_< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m,
@@ -898,6 +921,10 @@ Enumeration of available integrated state types.
 
             :type: IntegratorSettings
                            )doc" )
+            .def_property( "coupled_state_derivative_solver_settings",
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getCoupledStateDerivativeSolverSettings,
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::setCoupledStateDerivativeSolverSettings,
+                           R"doc(Settings for solving dependencies between simultaneously propagated state derivatives.)doc" )
             .def_property_readonly( "processing_settings",
                                     &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
                                     R"doc(
@@ -996,6 +1023,9 @@ Enumeration of available integrated state types.
                 std::shared_ptr< tp::GravityDeformationPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "GravityDeformationPropagatorSettings", R"doc(Gravity deformation propagator settings.)doc" );
+
+    py::class_< tss::GravityDeformationSettings, std::shared_ptr< tss::GravityDeformationSettings > >(
+            m, "GravityDeformationSettings", R"doc(Settings for a numerically propagated gravity-deformation model.)doc" );
 
     py::class_< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -1347,9 +1377,60 @@ SingleArcPropagatorSettings
            py::arg( "bodies_to_integrate" ),
            py::arg( "deformation_models" ),
            py::arg( "initial_gravity" ),
+           py::arg( "initial_time" ),
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ) );
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
+           R"doc(Create settings for propagation of unnormalised degree-two gravity-coefficient variations.)doc" );
+
+    m.def( "maxwell_deformation",
+           py::overload_cast< const double,
+                              const double,
+                              const double,
+                              const int,
+                              const int,
+                              const std::string,
+                              const Eigen::VectorXd,
+                              const bool,
+                              const bool >( &tss::maxwellDeformationSettings ),
+           py::arg( "maxwell_relaxation_time" ),
+           py::arg( "global_relaxation_time" ),
+           py::arg( "love_number" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "perturbing_body" ),
+           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
+           py::arg( "include_order_1" ) = true,
+           py::arg( "include_centrifugal_potential" ) = false,
+           R"doc(Create degree-two Maxwell gravity-deformation settings.
+
+``static_coefficients`` are geodesy-normalised coefficients in the order
+``[C20, C21, C22, S21, S22]``. They identify a static contribution already
+contained in the nominal environment field, which is excluded from the
+deformable baseline and is not propagated. The propagated state uses the same
+ordering with unnormalised coefficients and contains only the additive
+variation from the nominal gravity field.)doc" );
+
+    m.def( "maxwell_deformation",
+           py::overload_cast< const double,
+                              const double,
+                              const double,
+                              const int,
+                              const int,
+                              const std::vector< std::string >,
+                              const Eigen::VectorXd,
+                              const bool,
+                              const bool >( &tss::maxwellDeformationSettings ),
+           py::arg( "maxwell_relaxation_time" ),
+           py::arg( "global_relaxation_time" ),
+           py::arg( "love_number" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "perturbing_bodies" ),
+           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
+           py::arg( "include_order_1" ) = true,
+           py::arg( "include_centrifugal_potential" ) = false );
 
     m.def( "multitype",
            &tp::multiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

@@ -1690,10 +1690,10 @@ bool
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
 
-         Object that defines the mass, center of mass, and inertia tensor as a function of time.
+         Object that owns the current mass, center of mass, inertia tensor, and inertia-tensor derivative.
 
-         Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
-         in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass)
+         The properties may be independently prescribed or linked to a body's gravity field. A gravity field does not necessarily
+         provide enough information to define an inertia tensor; use the availability properties before retrieving one.
 
       )doc" )
             .def( "update",
@@ -1731,12 +1731,19 @@ bool
                                     &tss::RigidBodyProperties::getCurrentInertiaTensor,
                                     R"doc(
 
-        Inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to the ``update`` function of this object.
+        Inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to ``update``.
+        Access raises an exception when ``inertia_tensor_available`` is false.
 
       )doc" )
-            .def( "update_inertia_tensor_derivative",
-                  &tss::RigidBodyProperties::updateInertiaTensorDerivative,
-                  py::arg( "derivative_degree_two_coefficients" ) );
+            .def_property_readonly( "current_inertia_tensor_derivative",
+                                    &tss::RigidBodyProperties::getCurrentDerivativeInertiaTensor,
+                                    R"doc(Current body-fixed inertia-tensor derivative. Access raises when unavailable.)doc" )
+            .def_property_readonly( "inertia_tensor_available",
+                                    &tss::RigidBodyProperties::isInertiaTensorAvailable,
+                                    R"doc(Whether a current inertia tensor is available.)doc" )
+            .def_property_readonly( "inertia_tensor_derivative_available",
+                                    &tss::RigidBodyProperties::isInertiaTensorDerivativeAvailable,
+                                    R"doc(Whether an inertia-tensor derivative can be computed.)doc" );
 
     timing_system.doc( ) = R"doc(No documentation found.)doc";
     timing_system
@@ -3602,14 +3609,7 @@ bool
 
 
          :type: dict[str,GroundStation]
-      )doc" )
-            .def( "set_angular_velocity_derivative_in_local_frame",
-                  &tss::Body::setCurrentAngularVelocityDerivativeVectorInLocalFrame,
-                  py::arg( "angular_velocity_derivative" ) )
-            .def( "set_rotation_to_local_frame_from_ephemeris", &tss::Body::setCurrentRotationToLocalFrameFromEphemeris, py::arg( "time" ) )
-            .def( "set_rotational_state_to_local_frame_from_ephemeris",
-                  &tss::Body::setCurrentRotationalStateToLocalFrameFromEphemeris< TIME_TYPE >,
-                  py::arg( "time" ) );
+      )doc" );
 
     py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >( m, "SpaceTimeProperties", R"doc(
 

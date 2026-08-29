@@ -1106,8 +1106,6 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                     {
                         singleGravityDeformationModelUpdateNeeds[ body_translational_state_update ].push_back(
                                 maxwellGravityModel->getPerturbingBody( ).at( k ) );
-                        singleGravityDeformationModelUpdateNeeds[ body_rotational_state_update ].push_back(
-                                maxwellGravityModel->getPerturbingBody( ).at( k ) );
                     }
                     break;
                 }

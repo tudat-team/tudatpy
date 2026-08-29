@@ -25,7 +25,6 @@
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
-#include "tudat/simulation/propagation_setup/gravityDeformationSettings.h"
 #include "tudat/simulation/propagation_setup/createMassRateModels.h"
 #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
 #include "tudat/simulation/propagation_setup/createTorqueModel.h"
@@ -1760,49 +1759,6 @@ maneuver_rise_time : float
            py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
            py::arg( "central_body" ) = "",
            R"doc(No documentation found.)doc" );
-
-    py::class_< tss::GravityDeformationSettings, std::shared_ptr< tss::GravityDeformationSettings > >(
-            m, "GravityDeformationSettings", R"doc(Settings for a gravity deformation model.)doc" );
-
-    m.def( "maxwell_deformation",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string,
-                              const Eigen::VectorXd,
-                              const bool,
-                              const bool >( &tss::maxwellDeformationSettings ),
-           py::arg( "maxwell_relaxation_time" ),
-           py::arg( "global_relaxation_time" ),
-           py::arg( "love_number" ),
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "perturbing_body" ),
-           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
-           py::arg( "include_order_1" ) = true,
-           py::arg( "include_centrifugal_potential" ) = false );
-
-    m.def( "maxwell_deformation",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::vector< std::string >,
-                              const Eigen::VectorXd,
-                              const bool,
-                              const bool >( &tss::maxwellDeformationSettings ),
-           py::arg( "maxwell_relaxation_time" ),
-           py::arg( "global_relaxation_time" ),
-           py::arg( "love_number" ),
-           py::arg( "maximum_degree" ),
-           py::arg( "maximum_order" ),
-           py::arg( "perturbing_bodies" ),
-           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
-           py::arg( "include_order_1" ) = true,
-           py::arg( "include_centrifugal_potential" ) = false );
 }
 
 }  // namespace acceleration

@@ -92,7 +92,8 @@ public:
                                std::placeholders::_2,
                                std::placeholders::_3 ),
                     std::shared_ptr< VariationalEquations >( ),
-                    stateDerivativeUpdater_ );
+                    stateDerivativeUpdater_,
+                    propagatorSettings_->getCoupledStateDerivativeSolverSettings( ) );
         }
         else
         {
@@ -106,7 +107,8 @@ public:
                                std::placeholders::_2,
                                std::placeholders::_3 ),
                     std::shared_ptr< VariationalEquations >( ),
-                    stateDerivativeUpdater_ );
+                    stateDerivativeUpdater_,
+                    propagatorSettings_->getCoupledStateDerivativeSolverSettings( ) );
         }
         stateDerivativeFunction_ = std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
                                               dynamicsStateDerivative_,

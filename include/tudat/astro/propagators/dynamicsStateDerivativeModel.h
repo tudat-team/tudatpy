@@ -265,6 +265,16 @@ public:
         std::pair< int, int > currentIndices;
         if( evaluateDynamicsEquations_ )
         {
+            // Give derivative-dependent environment models a finite seed before their first
+            // evaluation. The algebraic solve below replaces this zero seed with the coupled
+            // solution; without it, e.g. a gravity-linked inertia derivative is undefined when
+            // the inertial torque is evaluated for the first time at an epoch.
+            if( stateDerivativeUpdater_ != nullptr )
+            {
+                stateDerivativeUpdater_->updateEnvironmentFromStateDerivative(
+                        time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( state.rows( ) ) );
+            }
+
             // Iterate over all types of equations.
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );

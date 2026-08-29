@@ -43,6 +43,11 @@ public:
         useDirectAffineSolution_( useDirectAffineSolution ), relativeTolerance_( relativeTolerance ),
         absoluteTolerance_( absoluteTolerance ), maximumIterations_( maximumIterations ), failureHandling_( failureHandling )
     {
+        validate( );
+    }
+
+    void validate( ) const
+    {
         if( relativeTolerance_ < 0.0 || absoluteTolerance_ < 0.0 )
         {
             throw std::invalid_argument( "Coupled state-derivative solver tolerances must be non-negative." );
@@ -114,6 +119,7 @@ CoupledStateDerivativeSolution< ScalarType > solveCoupledStateDerivative(
     using VectorType = Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 >;
     using MatrixType = Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >;
 
+    settings.validate( );
     if( initialDerivative.rows( ) != componentScales.rows( ) )
     {
         throw std::invalid_argument( "Coupled state-derivative values and scales have incompatible sizes." );

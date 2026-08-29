@@ -32,6 +32,11 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/simulation/propagation_setup/createTorqueModel.h"
 #include <limits>
 #include <string>
 
@@ -72,6 +77,100 @@ Eigen::Matrix3d dummyInertiaTensorFunction2( const double mass )
 {
     return 3.0 * Eigen::Matrix3d::Identity( ) -
             ( Eigen::Vector3d::Ones( ) * Eigen::Vector3d::Ones( ).transpose( ) ) * ( 5.0E3 - mass ) / 1000.0;
+}
+
+BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
+{
+    using namespace gravitation;
+    using namespace simulation_setup;
+
+    const std::shared_ptr< Body > body = std::make_shared< Body >( );
+    body->setBodyName( "TestBody" );
+
+    // A gravity model alone is sufficient for mass, but not necessarily for inertia.
+    body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 4.0e5 ) );
+    BOOST_REQUIRE( body->getMassProperties( ) != nullptr );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+    BOOST_CHECK_THROW( body->getBodyInertiaTensor( ), std::runtime_error );
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) = -1.0e-3;
+    cosineCoefficients( 2, 2 ) = 2.0e-4;
+    const std::shared_ptr< SphericalHarmonicsGravityField > sphericalField =
+            std::make_shared< SphericalHarmonicsGravityField >( 4.0e5, 2.0e3, cosineCoefficients, sineCoefficients, "BodyFixed", 0.4 );
+    body->setGravityFieldModel( sphericalField );
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), sphericalField->getInertiaTensor( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), Eigen::Matrix3d::Zero( ), 5.0e-15 );
+
+    // An explicitly configured rigid-body object owns its tensor and is not replaced with the gravity field.
+    const Eigen::Matrix3d explicitInertia = 7.0 * Eigen::Matrix3d::Identity( );
+    const std::shared_ptr< TimeDependentRigidBodyProperties > explicitProperties =
+            std::make_shared< TimeDependentRigidBodyProperties >( 12.0, Eigen::Vector3d::Zero( ), explicitInertia );
+    body->setMassProperties( explicitProperties );
+    body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 9.0e5 ) );
+    BOOST_CHECK( body->getMassProperties( ) == explicitProperties );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagation )
+{
+    using namespace gravitation;
+    using namespace simulation_setup;
+
+    Eigen::MatrixXd nominalCosine = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd nominalSine = Eigen::MatrixXd::Zero( 3, 3 );
+    nominalCosine( 0, 0 ) = 1.0;
+    nominalCosine( 2, 0 ) = -1.0e-3;
+    nominalCosine( 2, 2 ) = 2.0e-4;
+
+    Eigen::MatrixXd cosineRate = Eigen::MatrixXd::Zero( 1, 3 );
+    Eigen::MatrixXd sineRate = Eigen::MatrixXd::Zero( 1, 3 );
+    cosineRate << 2.0e-8, -3.0e-8, 5.0e-8;
+    sineRate << 0.0, 7.0e-8, -11.0e-8;
+    const std::shared_ptr< PolynomialGravityFieldVariations > prescribedVariation = std::make_shared< PolynomialGravityFieldVariations >(
+            std::map< int, Eigen::MatrixXd >( { { 1, cosineRate } } ), std::map< int, Eigen::MatrixXd >( { { 1, sineRate } } ), 0.0, 2, 0 );
+    const std::shared_ptr< GravityFieldVariationsSet > variationSet = std::make_shared< GravityFieldVariationsSet >(
+            std::vector< std::shared_ptr< GravityFieldVariations > >( { prescribedVariation } ),
+            std::vector< BodyDeformationTypes >( { polynomial_variation } ),
+            std::vector< std::string >( { "" } ) );
+    const std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+            std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                    4.0e5, 2.0e3, nominalCosine, nominalSine, variationSet, "BodyFixed", 0.4 );
+
+    const std::shared_ptr< Body > body = std::make_shared< Body >( );
+    body->setBodyName( "TestBody" );
+    body->setGravityFieldModel( gravityField );
+    body->setGravityFieldVariationSet( variationSet );
+    body->setIsBodyInPropagation( true );
+
+    BOOST_CHECK( !body->getGravityFieldVariation( integrated_gravity_field_variation ).first );
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+
+    body->updateCurrentGravityField( 0.0 );
+    const Eigen::Matrix3d initialInertia = body->getBodyInertiaTensor( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialInertia, gravityField->getInertiaTensor( ), 5.0e-15 );
+
+    body->updateCurrentGravityField( 10.0 );
+    const Eigen::Matrix3d variedInertia = body->getBodyInertiaTensor( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( variedInertia, gravityField->getInertiaTensor( ), 5.0e-15 );
+    BOOST_CHECK_GT( ( variedInertia - initialInertia ).norm( ), 0.0 );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+
+    const Eigen::Vector3d angularVelocity = ( Eigen::Vector3d( ) << 1.0e-4, -2.0e-4, 3.0e-4 ).finished( );
+    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+    rotationalState( 0 ) = 1.0;
+    rotationalState.tail( 3 ) = angularVelocity;
+    body->setCurrentRotationalStateToLocalFrame( rotationalState );
+    const std::shared_ptr< basic_astrodynamics::InertialTorqueModel > inertialTorque = createInertialTorqueModel( body, "TestBody" );
+    inertialTorque->updateMembers( 10.0 );
+    const Eigen::Vector3d expectedTorque = -angularVelocity.cross( variedInertia * angularVelocity );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque->getTorque( ), expectedTorque, 5.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

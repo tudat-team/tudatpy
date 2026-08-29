@@ -87,7 +87,9 @@ solve; a configurable fixed-point fallback has an explicit failure policy.
 
 ## 7. Python API, documentation, and validation
 
-Status: in progress.
+Status: completed for the supported single-arc degree-two Maxwell feature.
+The complete configured C++ build and all 360 CTest tests pass, together with
+the 17 focused Python end-to-end and API-documentation tests.
 
 - Expose high-level propagation and environment settings rather than internal
   body mutation functions.
@@ -95,3 +97,12 @@ Status: in progress.
   availability, interpolation behavior, and supported propagation modes.
 - Add unit, coupled-dynamics, regression, multi-body, lifecycle, and Python
   end-to-end tests before merging the complete feature.
+
+## Open follow-up: derivatives of prescribed gravity variations
+
+Existing periodic, polynomial, tabulated, tidal, and custom gravity-field
+variation models provide instantaneous coefficient corrections, but not their
+time derivatives.  Their contribution to the gravity-linked inertia tensor is
+included, while their contribution to the inertia-tensor derivative cannot yet
+be evaluated.  Adding explicit coefficient-rate interfaces to those models is
+left open; no numerical differentiation is introduced by this PR.

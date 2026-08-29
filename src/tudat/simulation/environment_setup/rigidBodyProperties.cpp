@@ -251,7 +251,10 @@ FromGravityFieldRigidBodyProperties::FromGravityFieldRigidBodyProperties(
     isMassComputed_ = true;
     isComComputed_ = true;
     isInertiaTensorAvailable_ = gravityFieldModel_->hasInertiaTensor( );
-    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_;
+    // A static gravity-derived tensor has an identically zero derivative. For a
+    // time-dependent field, availability is enabled when a coefficient-rate provider
+    // (currently an integrated gravity-field variation) supplies its first value.
+    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_ && !modelIsTimeDependent_;
     if( isInertiaTensorAvailable_ )
     {
         currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
@@ -300,7 +303,7 @@ void FromGravityFieldRigidBodyProperties::updateInertiaTensorDerivative( const E
 {
     const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
-    if( !isDerivativeInertiaTensorAvailable_ || sphericalHarmonicsGravityField == nullptr )
+    if( !isInertiaTensorAvailable_ || sphericalHarmonicsGravityField == nullptr )
     {
         throw std::runtime_error(
                 "Error when updating inertia tensor derivative: gravity field does not provide degree-two inertia data." );
@@ -313,6 +316,7 @@ void FromGravityFieldRigidBodyProperties::updateInertiaTensorDerivative( const E
                                                                                    derivativeDegreeTwoCoefficients[ 4 ],
                                                                                    currentMass_,
                                                                                    sphericalHarmonicsGravityField->getReferenceRadius( ) );
+    isDerivativeInertiaTensorAvailable_ = true;
     isDerivativeInertiaTensorComputed_ = true;
 }
 

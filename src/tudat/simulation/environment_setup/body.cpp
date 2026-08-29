@@ -348,7 +348,7 @@ void Body::setCurrentPropagatedGravityFieldVariationDerivative( const Eigen::Vec
 
     const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
-    if( gravityLinkedRigidBodyProperties != nullptr && gravityLinkedRigidBodyProperties->isInertiaTensorDerivativeAvailable( ) )
+    if( gravityLinkedRigidBodyProperties != nullptr && gravityLinkedRigidBodyProperties->isInertiaTensorAvailable( ) )
     {
         gravityLinkedRigidBodyProperties->updateInertiaTensorDerivative( gravityCoefficientCorrectionDerivative );
     }
@@ -373,8 +373,7 @@ void Body::updateCurrentGravityField( const double currentTime )
         gravityLinkedRigidBodyProperties->resetCurrentTime( );
         gravityLinkedRigidBodyProperties->update( currentTime );
 
-        if( !isBodyInPropagation_ && gravityLinkedRigidBodyProperties->isInertiaTensorDerivativeAvailable( ) &&
-            gravityFieldVariationSet_ != nullptr )
+        if( !isBodyInPropagation_ && gravityLinkedRigidBodyProperties->isInertiaTensorAvailable( ) && gravityFieldVariationSet_ != nullptr )
         {
             const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
                     gravityFieldVariationSet_->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );

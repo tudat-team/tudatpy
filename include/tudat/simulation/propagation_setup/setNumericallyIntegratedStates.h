@@ -811,6 +811,11 @@ void resetIntegratedBodyGravity(
                                       ", no compatible integrated gravity-field variation was found." );
         }
         integratedVariation->setCoefficientCorrectionHistory( currentBodyGravityMap, interpolatorSettings );
+
+        // Replace the coefficient cache left by the final integrator stage with an exact saved
+        // state. The integrated variation is already outside propagation here, so this update
+        // also refreshes gravity-linked inertia and its derivative through the new interpolator.
+        bodies.at( bodiesToIntegrate.at( i ) )->updateCurrentGravityField( currentBodyGravityMap.rbegin( )->first );
     }
 }
 

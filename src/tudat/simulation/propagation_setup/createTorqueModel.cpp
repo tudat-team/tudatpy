@@ -28,8 +28,14 @@ std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorque
     std::function< Eigen::Vector3d( ) > angularVelocityFunction =
             std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque );
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, bodyUndergoingTorque );
-    std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction =
-            std::bind( &Body::getBodyInertiaTensorDerivative, bodyUndergoingTorque );
+    std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction = [ bodyUndergoingTorque ]( ) {
+        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties = bodyUndergoingTorque->getMassProperties( );
+        if( rigidBodyProperties == nullptr || !rigidBodyProperties->isInertiaTensorDerivativeAvailable( ) )
+        {
+            return Eigen::Matrix3d::Zero( ).eval( );
+        }
+        return rigidBodyProperties->getCurrentDerivativeInertiaTensor( );
+    };
     return std::make_shared< basic_astrodynamics::InertialTorqueModel >(
             angularVelocityFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
 }
