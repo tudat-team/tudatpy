@@ -126,11 +126,15 @@ public:
             auto it = std::find( bodiesToIntegrate_.begin( ), bodiesToIntegrate_.end( ), gravityDeformationModelIterator_->first );
             if( it != bodiesToIntegrate_.end( ) ) currentIndex = static_cast< int >( it - bodiesToIntegrate_.begin( ) );
 
-            stateDerivative( currentIndex, 0 ) = 0.0;
             for( unsigned int i = 0; i < gravityDeformationModelIterator_->second.size( ); i++ )
             {
-                stateDerivative.block( currentIndex * 5, 0, 5, 1 ) +=
-                        gravityDeformationModelIterator_->second.at( i )->getDeformation( ).template cast< StateScalarType >( );
+                const Eigen::VectorXd currentDeformation = gravityDeformationModelIterator_->second.at( i )->getDeformation( );
+                if( currentDeformation.size( ) != 5 )
+                {
+                    throw std::runtime_error( "Error when evaluating gravity deformation of " + gravityDeformationModelIterator_->first +
+                                              ": model output must contain [C20, C21, C22, S21, S22]." );
+                }
+                stateDerivative.block( currentIndex * 5, 0, 5, 1 ) += currentDeformation.template cast< StateScalarType >( );
             }
         }
     }

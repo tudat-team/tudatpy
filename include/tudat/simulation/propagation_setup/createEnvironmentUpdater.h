@@ -457,12 +457,11 @@ std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType 
             case inertia_tensor_derivative_dependency: {
                 for( auto currentBody : it.second )
                 {
-                    environmentUpdateFunctions[ inertia_tensor_derivative_dependency ].push_back(
-                            std::make_pair( currentBody,
-                                            [ rigidBodyProperties = bodies.at( currentBody )->getMassProperties( ) ](
-                                                    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& derivative ) {
-                                                rigidBodyProperties->updateInertiaTensorDerivative( derivative.template cast< double >( ) );
-                                            } ) );
+                    environmentUpdateFunctions[ inertia_tensor_derivative_dependency ].push_back( std::make_pair(
+                            currentBody,
+                            [ body = bodies.at( currentBody ) ]( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& derivative ) {
+                                body->setCurrentPropagatedGravityFieldVariationDerivative( derivative.template cast< double >( ) );
+                            } ) );
                 };
                 break;
             }

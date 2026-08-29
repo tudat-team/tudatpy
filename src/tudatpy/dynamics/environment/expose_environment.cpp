@@ -3609,8 +3609,7 @@ bool
             .def( "set_rotation_to_local_frame_from_ephemeris", &tss::Body::setCurrentRotationToLocalFrameFromEphemeris, py::arg( "time" ) )
             .def( "set_rotational_state_to_local_frame_from_ephemeris",
                   &tss::Body::setCurrentRotationalStateToLocalFrameFromEphemeris< TIME_TYPE >,
-                  py::arg( "time" ) )
-            .def( "set_static_degree_two_coefficients", &tss::Body::setStaticDegreeTwoCoefficients, py::arg( "degree_two_coefficients" ) );
+                  py::arg( "time" ) );
 
     py::class_< tss::SpaceTimeProperties, std::shared_ptr< tss::SpaceTimeProperties > >( m, "SpaceTimeProperties", R"doc(
 

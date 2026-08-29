@@ -11,7 +11,6 @@
 #include <iterator>
 
 #include "tudat/math/basic/legendrePolynomials.h"
-#include "tudat/math/interpolators/linearInterpolator.h"
 
 namespace tudat
 {
@@ -24,23 +23,17 @@ IntegratedGravityFieldVariations::IntegratedGravityFieldVariations( ):
     currentCoefficientCorrectionDerivative_( Eigen::Vector5d::Zero( ) ), isBodyInPropagation_( false )
 {}
 
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > IntegratedGravityFieldVariations::calculateSphericalHarmonicsCorrections(
-        const double time )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > IntegratedGravityFieldVariations::calculateSphericalHarmonicsCorrections( const double time )
 {
     const Eigen::Vector5d unnormalisedCorrections = getCoefficientCorrections( time );
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( 1, 3 );
     Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( 1, 3 );
 
-    cosineCorrections( 0, 0 ) =
-            unnormalisedCorrections( 0 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
-    cosineCorrections( 0, 1 ) =
-            unnormalisedCorrections( 1 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    cosineCorrections( 0, 2 ) =
-            unnormalisedCorrections( 2 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-    sineCorrections( 0, 1 ) =
-            unnormalisedCorrections( 3 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    sineCorrections( 0, 2 ) =
-            unnormalisedCorrections( 4 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    cosineCorrections( 0, 0 ) = unnormalisedCorrections( 0 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    cosineCorrections( 0, 1 ) = unnormalisedCorrections( 1 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    cosineCorrections( 0, 2 ) = unnormalisedCorrections( 2 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    sineCorrections( 0, 1 ) = unnormalisedCorrections( 3 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    sineCorrections( 0, 2 ) = unnormalisedCorrections( 4 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
     return std::make_pair( cosineCorrections, sineCorrections );
 }
@@ -49,14 +42,12 @@ void IntegratedGravityFieldVariations::setCurrentCoefficientCorrections( const E
 {
     if( coefficientCorrections.size( ) != 5 )
     {
-        throw std::runtime_error(
-                "Error when setting integrated gravity-field variation: expected five degree-two coefficients." );
+        throw std::runtime_error( "Error when setting integrated gravity-field variation: expected five degree-two coefficients." );
     }
     currentCoefficientCorrections_ = coefficientCorrections;
 }
 
-void IntegratedGravityFieldVariations::setCurrentCoefficientCorrectionDerivative(
-        const Eigen::VectorXd& coefficientCorrectionDerivative )
+void IntegratedGravityFieldVariations::setCurrentCoefficientCorrectionDerivative( const Eigen::VectorXd& coefficientCorrectionDerivative )
 {
     if( coefficientCorrectionDerivative.size( ) != 5 )
     {
@@ -67,7 +58,8 @@ void IntegratedGravityFieldVariations::setCurrentCoefficientCorrectionDerivative
 }
 
 void IntegratedGravityFieldVariations::setCoefficientCorrectionHistory(
-        const std::map< double, Eigen::Vector5d >& coefficientCorrectionHistory )
+        const std::map< double, Eigen::Vector5d >& coefficientCorrectionHistory,
+        const std::shared_ptr< interpolators::InterpolatorSettings >& interpolatorSettings )
 {
     if( coefficientCorrectionHistory.empty( ) )
     {
@@ -79,8 +71,10 @@ void IntegratedGravityFieldVariations::setCoefficientCorrectionHistory(
 
     if( coefficientCorrectionHistory_.size( ) > 1 )
     {
+        const std::shared_ptr< interpolators::InterpolatorSettings > settingsToUse =
+                ( interpolatorSettings == nullptr ) ? interpolators::linearInterpolation( ) : interpolatorSettings;
         coefficientCorrectionInterpolator_ =
-                std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector5d > >( coefficientCorrectionHistory_ );
+                interpolators::createOneDimensionalInterpolator< double, Eigen::Vector5d >( coefficientCorrectionHistory_, settingsToUse );
     }
     else
     {

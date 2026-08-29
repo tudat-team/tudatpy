@@ -587,9 +587,11 @@ public:
      */
     void setGravityFieldVariationSet( const std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet );
 
-    void setCurrentPropagatedGravityField( const Eigen::VectorXd gravityCoefficients );
+    void setCurrentPropagatedGravityFieldVariation( const Eigen::VectorXd& gravityCoefficientCorrections, const double currentTime );
 
-    void setStaticDegreeTwoCoefficients( Eigen::VectorXd staticDegreeTwoCoefficients );
+    void setCurrentPropagatedGravityFieldVariationDerivative( const Eigen::VectorXd& gravityCoefficientCorrectionDerivative );
+
+    void updateCurrentGravityField( const double currentTime );
 
     //! Function to get the gravity field model of the body.
     /*!
@@ -971,8 +973,6 @@ private:
     bool isCustomStateSet_;
 
     bool isRotationSet_;
-
-    Eigen::VectorXd staticDegreeTwoCoefficients_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
 

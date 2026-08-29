@@ -1721,6 +1721,7 @@ public:
         {
             gravityDeformationModels_[ deformationModelIt->first ].push_back( deformationModelIt->second );
         }
+        verifyInput( );
     }
 
     //! Constructor of gravity deformation propagator settings, with already-created gravity deformation models.

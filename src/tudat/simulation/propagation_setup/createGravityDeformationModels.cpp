@@ -14,6 +14,7 @@
 
 #include "tudat/simulation/propagation_setup/createGravityDeformationModels.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
+#include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 
 namespace tudat
 {
@@ -47,6 +48,17 @@ std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > createMax
     }
     else
     {
+        if( maxwellDeformationSettings->maximumDegree_ != 2 || maxwellDeformationSettings->maximumOrder_ != 2 )
+        {
+            throw std::runtime_error( "Error when creating Maxwell gravity deformation of " + nameOfDeformingBody +
+                                      ": numerical gravity propagation currently supports degree and order 2 only." );
+        }
+        if( maxwellDeformationSettings->staticCoefficients_.size( ) != 5 )
+        {
+            throw std::runtime_error( "Error when creating Maxwell gravity deformation of " + nameOfDeformingBody +
+                                      ": static degree-two coefficient vector must contain [C20, C21, C22, S21, S22]." );
+        }
+
         // Get pointer to gravity field and rotational ephemeris of deforming body and cast to required type.
         std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( deformingBody->getGravityFieldModel( ) );
@@ -128,6 +140,8 @@ basic_astrodynamics::GravityDeformationModelMap createGravityDeformationModelsMa
          settingsIterator != gravityDeformationSettings.end( );
          settingsIterator++ )
     {
+        ensureIntegratedGravityFieldVariation( bodies.at( settingsIterator->first ), settingsIterator->first );
+
         // Iterate over all mass model settings for current body.
         for( unsigned int i = 0; i < settingsIterator->second.size( ); i++ )
         {

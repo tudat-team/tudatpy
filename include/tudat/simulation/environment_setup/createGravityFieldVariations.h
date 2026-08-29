@@ -27,9 +27,15 @@
 namespace tudat
 {
 
+namespace gravitation
+{
+class IntegratedGravityFieldVariations;
+}
+
 namespace simulation_setup
 {
 
+class Body;
 class SystemOfBodies;
 
 //! Object to define settings to be used for interpolating time-variations computed by an
@@ -1132,6 +1138,15 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
         const std::string& body,
         const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
+
+//! Ensure that a body has an integrated degree-two gravity-field variation.
+/*!
+ * If needed, a static spherical-harmonic gravity field is promoted to a time-dependent field
+ * while preserving its nominal coefficients and physical parameters. The integrated variation
+ * is then added to the field's existing variation set.
+ */
+std::shared_ptr< gravitation::IntegratedGravityFieldVariations > ensureIntegratedGravityFieldVariation( const std::shared_ptr< Body >& body,
+                                                                                                        const std::string& bodyName );
 
 //! Function to create a single gravity field variation object.
 /*!

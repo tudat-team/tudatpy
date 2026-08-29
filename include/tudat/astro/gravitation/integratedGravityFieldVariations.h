@@ -40,7 +40,8 @@ public:
 
     void setCurrentCoefficientCorrectionDerivative( const Eigen::VectorXd& coefficientCorrectionDerivative );
 
-    void setCoefficientCorrectionHistory( const std::map< double, Eigen::Vector5d >& coefficientCorrectionHistory );
+    void setCoefficientCorrectionHistory( const std::map< double, Eigen::Vector5d >& coefficientCorrectionHistory,
+                                          const std::shared_ptr< interpolators::InterpolatorSettings >& interpolatorSettings = nullptr );
 
     Eigen::Vector5d getCoefficientCorrections( const double time ) const;
 

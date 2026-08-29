@@ -108,7 +108,7 @@ public:
         }
 
         // Set integrated state variables in environment.
-        setIntegratedStatesInEnvironment( integratedStatesToSet );
+        setIntegratedStatesInEnvironment( integratedStatesToSet, currentTime );
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
@@ -131,7 +131,8 @@ private:
      * \param integratedStatesToSet Integrated states which are to be set in environment.
      */
     void setIntegratedStatesInEnvironment(
-            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet,
+            const TimeType currentTime )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( ); integratedStateIterator_ != integratedStatesToSet.end( );
@@ -199,8 +200,9 @@ private:
                     for( unsigned int i = 0; i < bodiesWithIntegratedGravity.size( ); i++ )
                     {
                         bodyList_.at( std::get< 0 >( bodiesWithIntegratedGravity[ i ] ) )
-                                ->setCurrentPropagatedGravityField(
-                                        integratedStateIterator_->second.segment( i * 5, 5 ).template cast< double >( ) );
+                                ->setCurrentPropagatedGravityFieldVariation(
+                                        integratedStateIterator_->second.segment( i * 5, 5 ).template cast< double >( ),
+                                        static_cast< double >( currentTime ) );
                     }
                     break;
                 }
@@ -290,8 +292,8 @@ private:
                             integratedStates_.at( gravity_deformation_state );
                     for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                     {
-                        // TO BE MODIFIED
-                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->updateMass( currentTime );
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
+                                ->updateCurrentGravityField( static_cast< double >( currentTime ) );
                     }
                     break;
                 }

@@ -172,7 +172,7 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const std::function< Eigen::Matrix3d( ) > rotationToLocalFrameDerivativeFunction = []( ) { return Eigen::Matrix3d::Zero( ); },
-            const Eigen::VectorXd staticCoefficients = Eigen::VectorXd::Zero( 3 ),
+            const Eigen::VectorXd staticCoefficients = Eigen::VectorXd::Zero( 5 ),
             const bool includeOrder1 = true,
             const bool includeCentrifugalPotential = false ):
         GravityDeformationModel( ), perturbingBody_( perturbingBody ), maxwellRelaxationTime_( maxwellRelaxationTime ),

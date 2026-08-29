@@ -11,6 +11,7 @@
 #include "tudat/math/interpolators/interpolator.h"
 
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/integratedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
@@ -24,6 +25,81 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+std::shared_ptr< gravitation::IntegratedGravityFieldVariations > ensureIntegratedGravityFieldVariation( const std::shared_ptr< Body >& body,
+                                                                                                        const std::string& bodyName )
+{
+    using namespace gravitation;
+
+    if( body == nullptr )
+    {
+        throw std::runtime_error( "Error when creating integrated gravity-field variation for " + bodyName + ": body is null." );
+    }
+
+    std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( body->getGravityFieldModel( ) );
+    if( sphericalHarmonicsGravityField == nullptr )
+    {
+        throw std::runtime_error( "Error when creating integrated gravity-field variation for " + bodyName +
+                                  ": a spherical-harmonic gravity field is required." );
+    }
+    if( sphericalHarmonicsGravityField->getCosineCoefficients( ).rows( ) < 3 ||
+        sphericalHarmonicsGravityField->getCosineCoefficients( ).cols( ) < 3 ||
+        sphericalHarmonicsGravityField->getSineCoefficients( ).rows( ) < 3 ||
+        sphericalHarmonicsGravityField->getSineCoefficients( ).cols( ) < 3 )
+    {
+        throw std::runtime_error( "Error when creating integrated gravity-field variation for " + bodyName +
+                                  ": complete degree-two coefficients are required." );
+    }
+
+    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( sphericalHarmonicsGravityField );
+    if( timeDependentGravityField == nullptr )
+    {
+        timeDependentGravityField = std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                sphericalHarmonicsGravityField->getGravitationalParameter( ),
+                sphericalHarmonicsGravityField->getReferenceRadius( ),
+                sphericalHarmonicsGravityField->getCosineCoefficients( ),
+                sphericalHarmonicsGravityField->getSineCoefficients( ),
+                sphericalHarmonicsGravityField->getFixedReferenceFrame( ),
+                sphericalHarmonicsGravityField->getScaledMeanMomentOfInertia( ) );
+        body->setGravityFieldModel( timeDependentGravityField );
+    }
+
+    std::shared_ptr< GravityFieldVariationsSet > variationSet = timeDependentGravityField->getGravityFieldVariationsSet( );
+    if( variationSet == nullptr )
+    {
+        variationSet = body->getGravityFieldVariationSet( );
+    }
+    if( variationSet == nullptr )
+    {
+        variationSet = std::make_shared< GravityFieldVariationsSet >( std::vector< std::shared_ptr< GravityFieldVariations > >( ),
+                                                                      std::vector< BodyDeformationTypes >( ),
+                                                                      std::vector< std::string >( ) );
+    }
+
+    const std::pair< bool, std::shared_ptr< GravityFieldVariations > > existingVariation =
+            variationSet->getGravityFieldVariation( integrated_gravity_field_variation );
+    std::shared_ptr< IntegratedGravityFieldVariations > integratedVariation;
+    if( existingVariation.first )
+    {
+        integratedVariation = std::dynamic_pointer_cast< IntegratedGravityFieldVariations >( existingVariation.second );
+        if( integratedVariation == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving integrated gravity-field variation for " + bodyName +
+                                      ": registered variation has an incompatible type." );
+        }
+    }
+    else
+    {
+        integratedVariation = std::make_shared< IntegratedGravityFieldVariations >( );
+        variationSet->addGravityFieldVariation( integratedVariation, integrated_gravity_field_variation );
+    }
+
+    timeDependentGravityField->setFieldVariationSettings( variationSet );
+    body->setGravityFieldVariationSet( variationSet );
+    return integratedVariation;
+}
 
 //! Function to create a set of gravity field variations, stored in the associated interface class
 std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(

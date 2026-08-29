@@ -24,6 +24,7 @@
 #include "tudat/astro/ephemerides/timeEphemerisDirectFromMetric.h"
 #include "tudat/astro/ephemerides/timeEphemerisWithFirstOrderDirectConversion.h"
 #include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
+#include "tudat/astro/gravitation/integratedGravityFieldVariations.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
@@ -773,9 +774,10 @@ void resetIntegratedBodyGravity(
         const simulation_setup::SystemOfBodies& bodies,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate,
-        const std::pair< unsigned int, unsigned int > startIndexAndSize )
+        const std::pair< unsigned int, unsigned int > startIndexAndSize,
+        const std::shared_ptr< interpolators::InterpolatorSettings >& interpolatorSettings )
 {
-    if( startIndexAndSize.second != bodiesToIntegrate.size( ) )
+    if( startIndexAndSize.second != 5 * bodiesToIntegrate.size( ) )
     {
         throw std::runtime_error( "Error when resetting body gravity, number of bodies inconsistent with input size." );
     }
@@ -783,7 +785,7 @@ void resetIntegratedBodyGravity(
     // Iterate over all bodies for which gravity deformation is propagated.
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
-        std::map< double, double > currentBodyGravityMap;
+        std::map< double, Eigen::Vector5d > currentBodyGravityMap;
 
         // Create gravity map with double entries.
         for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
@@ -791,19 +793,24 @@ void resetIntegratedBodyGravity(
              stateIterator != equationsOfMotionNumericalSolution.end( );
              stateIterator++ )
         {
+            if( stateIterator->second.rows( ) < static_cast< int >( startIndexAndSize.first + 5 * ( i + 1 ) ) )
+            {
+                throw std::runtime_error( "Error when resetting body gravity, numerical state has insufficient size." );
+            }
             currentBodyGravityMap[ static_cast< double >( stateIterator->first ) ] =
-                    static_cast< double >( stateIterator->second( startIndexAndSize.first + i ) );
+                    stateIterator->second.segment( startIndexAndSize.first + 5 * i, 5 ).template cast< double >( );
         }
 
-        typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-
-        // // Create and set interpolator.
-        // bodies.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction(
-        //             std::bind(
-        //                 static_cast< double( LocalInterpolator::* )( const double ) >
-        //                 ( &LocalInterpolator::interpolate ),
-        //                 std::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), std::placeholders::_1 )
-        //                 );
+        const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
+                bodies.at( bodiesToIntegrate.at( i ) )->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );
+        const std::shared_ptr< gravitation::IntegratedGravityFieldVariations > integratedVariation =
+                std::dynamic_pointer_cast< gravitation::IntegratedGravityFieldVariations >( variation.second );
+        if( !variation.first || integratedVariation == nullptr )
+        {
+            throw std::runtime_error( "Error when resetting body gravity of " + bodiesToIntegrate.at( i ) +
+                                      ", no compatible integrated gravity-field variation was found." );
+        }
+        integratedVariation->setCoefficientCorrectionHistory( currentBodyGravityMap, interpolatorSettings );
     }
 }
 
@@ -1456,7 +1463,7 @@ public:
                                      const simulation_setup::SystemOfBodies& bodies,
                                      const std::vector< std::string >& bodiesToIntegrate ):
         SingleArcIntegratedStateProcessor< TimeType, StateScalarType >( gravity_deformation_state,
-                                                                        std::make_pair( startIndex, bodiesToIntegrate.size( ) ),
+                                                                        std::make_pair( startIndex, 5 * bodiesToIntegrate.size( ) ),
                                                                         bodies,
                                                                         bodiesToIntegrate )
     {}
@@ -1472,7 +1479,8 @@ public:
      */
     void processIntegratedStates( const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
-        resetIntegratedBodyGravity( this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_ );
+        resetIntegratedBodyGravity(
+                this->bodies_, numericalSolution, this->bodiesToIntegrate_, this->startIndexAndSize_, this->getInterpolatorSettings( ) );
     }
 
 private:
