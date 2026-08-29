@@ -337,7 +337,11 @@ void checkTorqueDependencies(
                                             stateType ) )
                             {
                                 // Found torque dependency
-                                updateSettings[ dependency ].push_back( body );
+                                if( std::find( updateSettings[ dependency ].begin( ), updateSettings[ dependency ].end( ), body ) ==
+                                    updateSettings[ dependency ].end( ) )
+                                {
+                                    updateSettings[ dependency ].push_back( body );
+                                }
                                 updateModelFunctions.push_back( std::bind(
                                         &basic_astrodynamics::TorqueModel::updateMembers, singleTorqueModel, std::placeholders::_1 ) );
                                 if( !updateCurrentModel )
@@ -385,6 +389,14 @@ void checkGravityDeformationDependencies(
                             basic_astrodynamics::getGravityDeformationModelType( singleDeformationModel );
                     std::vector< StateDerivativeDependency > dependencies = getGravityStateDerivativeDependencies( deformationType );
 
+                    const std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > maxwellModel =
+                            std::dynamic_pointer_cast< basic_astrodynamics::MaxwellGravityDeformationModel >( singleDeformationModel );
+                    if( maxwellModel != nullptr && !maxwellModel->getIncludeCentrifugalPotential( ) )
+                    {
+                        dependencies.erase( std::remove( dependencies.begin( ), dependencies.end( ), rotation_rate_derivative_dependency ),
+                                            dependencies.end( ) );
+                    }
+
                     for( auto dependency : dependencies )
                     {
                         IntegratedStateType stateType = getStateTypeForDependency( dependency );
@@ -393,7 +405,11 @@ void checkGravityDeformationDependencies(
                                         stateType ) )
                         {
                             // Found gravity deformation dependency
-                            updateSettings[ dependency ].push_back( body );
+                            if( std::find( updateSettings[ dependency ].begin( ), updateSettings[ dependency ].end( ), body ) ==
+                                updateSettings[ dependency ].end( ) )
+                            {
+                                updateSettings[ dependency ].push_back( body );
+                            }
                             updateModelFunctions.push_back( std::bind( &basic_astrodynamics::GravityDeformationModel::updateMembers,
                                                                        singleDeformationModel,
                                                                        std::placeholders::_1 ) );
@@ -446,6 +462,11 @@ std::shared_ptr< propagators::StateDerivativeUpdater< StateScalarType, TimeType 
             stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
     checkGravityDeformationDependencies< StateScalarType, TimeType >(
             stateDerivativeModelsMap, stateDerivativeModelsToUpdate, listIntegratedStatesPerBody, updateSettings, updateModelFunctions );
+
+    if( updateSettings.empty( ) )
+    {
+        return nullptr;
+    }
 
     std::map< StateDerivativeDependency,
               std::vector< std::pair< std::string, std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >

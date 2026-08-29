@@ -23,6 +23,9 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
 
 ## 2. Rigid-body ownership
 
+Status: completed. Rigid-body properties own the current inertia tensor and
+derivative, with explicit availability and an optional gravity-field provider.
+
 - Make `RigidBodyProperties` the sole owner of the current inertia tensor and
   its derivative.
 - Add explicit availability semantics for inertia and inertia derivatives; an
@@ -32,6 +35,8 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
 - Keep gravity-only bodies valid when no inertia tensor is configured.
 
 ## 3. Integrated gravity variation
+
+Status: completed together with the propagation lifecycle in points 4 and 5.
 
 - Add an integrated gravity-field variation object to the existing gravity
   variation system.
@@ -45,6 +50,9 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
 
 ## 4. Propagation and postprocessing
 
+Status: completed. Propagation and postprocessing now route coefficient
+variations through the integrated variation object.
+
 - Replace direct writes to a body's spherical-harmonic coefficient matrices
   with updates to the integrated variation object.
 - Use typed five-component degree-two state slices for each propagated body.
@@ -54,6 +62,8 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
 
 ## 5. Physical derivative models
 
+Status: completed for the supported degree-two Maxwell propagation model.
+
 - Connect the Maxwell deformation model to the integrated variation state.
 - Validate supported degree, order, coefficient count, and component ordering.
 - Define one normalization convention and perform conversions at one explicit
@@ -62,6 +72,9 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
   variation state.
 
 ## 6. Coupled derivative solution
+
+Status: completed. Linear dependency blocks use a scaled direct algebraic
+solve; a configurable fixed-point fallback has an explicit failure policy.
 
 - Formulate the dependency between gravity-coefficient rates, inertia
   derivatives, and angular acceleration explicitly.
@@ -73,6 +86,8 @@ Status: completed on the isolated feature branch after merging the 2026-08-29
   consistent with the final coupled derivative.
 
 ## 7. Python API, documentation, and validation
+
+Status: in progress.
 
 - Expose high-level propagation and environment settings rather than internal
   body mutation functions.

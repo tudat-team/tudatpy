@@ -45,6 +45,7 @@ set(propagators_HEADERS
         "nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
         "nBodyUnifiedStateModelExponentialMapStateDerivative.h"
         "dynamicsStateDerivativeModel.h"
+        "coupledStateDerivativeSolver.h"
         "singleStateTypeDerivative.h"
         "relativisticTimeStateDerivative.h"
         "integrateEquations.h"

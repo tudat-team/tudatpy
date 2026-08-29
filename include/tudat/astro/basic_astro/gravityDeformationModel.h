@@ -242,6 +242,11 @@ public:
         return derivativeEquilibriumCoefficients_;
     }
 
+    bool getIncludeCentrifugalPotential( ) const
+    {
+        return includeCentrifugalPotential_;
+    }
+
 protected:
 private:
     Eigen::Vector6d stateOfDeformingBody_;
