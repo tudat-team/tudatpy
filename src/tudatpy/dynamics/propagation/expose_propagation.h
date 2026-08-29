@@ -22,6 +22,7 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_types( py::module& m );
 void expose_propagation( py::module& m );
 
 }  // namespace propagation

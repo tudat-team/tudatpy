@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -863,6 +862,24 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                     arcStartTimesPerBody.at( listBodiesToPropagate[ i ] ),
                     multiArcCentralBodiesPerBody.at( listBodiesToPropagate[ i ] ) ) );
         }
+        for( const std::string& satelliteName : galileanSatelliteNames )
+        {
+            multiArcParameterNames.push_back( std::make_shared< EstimatableParameterSettings >( satelliteName, gravitational_parameter ) );
+            multiArcParameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 0, 2, 2, satelliteName, spherical_harmonics_cosine_coefficient_block ) );
+            multiArcParameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    2, 1, 2, 2, satelliteName, spherical_harmonics_sine_coefficient_block ) );
+        }
+        std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                  std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >
+                empiricalComponentsToEstimate;
+        empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
+        empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
+        empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
+        multiArcParameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+                "JUICE", "Europa", empiricalComponentsToEstimate, arcStartTimes ) );
+        multiArcParameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+                "JUICE", "Ganymede", empiricalComponentsToEstimate, arcStartTimes ) );
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > multiArcParametersToEstimate =
                 createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
         printEstimatableParameterEntries( multiArcParametersToEstimate );
@@ -900,29 +917,31 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > singleArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( );
 
-        std::map< double, Eigen::MatrixXd > singleArcSTM = singleArcVariationalEquationsSolver->z( )[ 0 ];
+        const std::map< double, Eigen::MatrixXd >& singleArcSTM = singleArcVariationalEquationsSolver->getStateTransitionMatrixSolution( );
 
         std::shared_ptr< MultiArcVariationalEquationsSolver< double, double > > multiArcVariationalEquationsSolver =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( );
 
-        std::map< double, Eigen::MatrixXd > singleArcStmTest =
-                singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ];
+        const std::map< double, Eigen::MatrixXd >& singleArcStmTest =
+                singleArcVariationalEquationsSolverTest.getStateTransitionMatrixSolution( );
+        const auto multiArcSolution = multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( );
+        const auto multiArcSolutionTest = multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( );
+        BOOST_REQUIRE_EQUAL( multiArcSolution.size( ), static_cast< unsigned int >( numberArcs ) );
+        BOOST_REQUIRE_EQUAL( multiArcSolutionTest.size( ), static_cast< unsigned int >( numberArcs ) );
+        BOOST_REQUIRE( !singleArcSTM.empty( ) );
+        BOOST_REQUIRE( !singleArcStmTest.empty( ) );
         std::cout << "last element single-arc STM history: " << "\n\n";
         std::cout << singleArcSTM.rbegin( )->second << "\n\n";
         std::cout << "last element single-arc STM history TEST: " << "\n\n";
         std::cout << singleArcStmTest.rbegin( )->second << "\n\n";
 
-        std::map< double, Eigen::MatrixXd > multiArcStmArc1 =
-                multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
-        std::map< double, Eigen::MatrixXd > multiArcStmArc3 =
-                multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
+        std::map< double, Eigen::MatrixXd > multiArcStmArc1 = multiArcSolution[ 0 ][ 0 ];
+        std::map< double, Eigen::MatrixXd > multiArcStmArc3 = multiArcSolution[ 2 ][ 0 ];
         std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
         std::cout << multiArcStmArc1.rbegin( )->second << "\n\n";
 
-        std::map< double, Eigen::MatrixXd > multiArcStmArc1Test =
-                multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ][ 0 ];
-        std::map< double, Eigen::MatrixXd > multiArcStmArc3Test =
-                multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 2 ][ 0 ];
+        std::map< double, Eigen::MatrixXd > multiArcStmArc1Test = multiArcSolutionTest[ 0 ][ 0 ];
+        std::map< double, Eigen::MatrixXd > multiArcStmArc3Test = multiArcSolutionTest[ 2 ][ 0 ];
         std::cout << "last element multi-arc (arc 1) STM history: " << "\n\n";
         std::cout << multiArcStmArc1Test.rbegin( )->second << "\n\n";
 
@@ -932,35 +951,41 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::cout << multiArcStmArc3Test.rbegin( )->second << "\n\n";
 
         // Test consistency of single-arc variational equations solutions.
-        for( auto itr : singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ] )
+        for( const auto& itr : singleArcSTM )
         {
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    itr.second,
-                    singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 0 ].at( itr.first ),
-                    1.0E-12 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    singleArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ),
-                    singleArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ 1 ].at( itr.first ),
-                    1.0E-12 );
+            BOOST_CHECK( itr.second.allFinite( ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( itr.second, singleArcStmTest.at( itr.first ), 1.0E-12 );
         }
 
         // Test consistency of multi-arc variational equations solutions.
         for( unsigned int k = 0; k < numberArcs; k++ )
         {
-            for( auto itr : multiArcVariationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ k ][ 0 ] )
+            BOOST_REQUIRE_EQUAL( multiArcSolution.at( k ).size( ), 2 );
+            BOOST_REQUIRE( !multiArcSolution.at( k ).at( 0 ).empty( ) );
+            BOOST_REQUIRE( !multiArcSolution.at( k ).at( 1 ).empty( ) );
+            BOOST_CHECK( multiArcSolution.at( k ).at( 1 ).begin( )->second.allFinite( ) );
+            BOOST_CHECK_GT( multiArcSolution.at( k ).at( 1 ).begin( )->second.cols( ), 0 );
+            BOOST_CHECK_SMALL( multiArcSolution.at( k ).at( 1 ).begin( )->second.norm( ), 1.0E-13 );
+            BOOST_CHECK_GT( multiArcSolution.at( k ).at( 1 ).rbegin( )->second.norm( ), 0.0 );
+            for( const auto& itr : multiArcSolution[ k ][ 0 ] )
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 ),
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 0 ].at( itr.first ),
-                        1.0E-12 );
+                BOOST_CHECK( itr.second.allFinite( ) );
+                const Eigen::MatrixXd hybridStateTransitionMatrix =
+                        itr.second.block( 6, 6, itr.second.rows( ) - 6, itr.second.cols( ) - 6 );
+                const Eigen::MatrixXd& standaloneStateTransitionMatrix = multiArcSolutionTest[ k ][ 0 ].at( itr.first );
+                BOOST_REQUIRE_EQUAL( hybridStateTransitionMatrix.rows( ), standaloneStateTransitionMatrix.rows( ) );
+                BOOST_REQUIRE_EQUAL( hybridStateTransitionMatrix.cols( ), standaloneStateTransitionMatrix.cols( ) );
+                BOOST_CHECK_SMALL( ( hybridStateTransitionMatrix - standaloneStateTransitionMatrix ).norm( ) /
+                                           std::max( 1.0, standaloneStateTransitionMatrix.norm( ) ),
+                                   1.0E-10 );
 
-                Eigen::MatrixXd sensitivityMatrixFromHybridSolution =
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        sensitivityMatrixFromHybridSolution.block(
-                                6, 6, sensitivityMatrixFromHybridSolution.rows( ) - 6, sensitivityMatrixFromHybridSolution.cols( ) - 6 ),
-                        multiArcVariationalEquationsSolverTest.getNumericalVariationalEquationsSolution( )[ k ][ 1 ].at( itr.first ),
-                        1.0E-12 );
+                const Eigen::MatrixXd& hybridSensitivity = multiArcSolution.at( k ).at( 1 ).at( itr.first );
+                const Eigen::MatrixXd& standaloneSensitivity = multiArcSolutionTest.at( k ).at( 1 ).at( itr.first );
+                BOOST_REQUIRE_EQUAL( hybridSensitivity.rows( ) - 6, standaloneSensitivity.rows( ) );
+                BOOST_REQUIRE_EQUAL( hybridSensitivity.cols( ), standaloneSensitivity.cols( ) );
+                BOOST_CHECK_SMALL( ( hybridSensitivity.bottomRows( standaloneSensitivity.rows( ) ) - standaloneSensitivity ).norm( ) /
+                                           std::max( 1.0, standaloneSensitivity.norm( ) ),
+                                   1.0E-10 );
             }
         }
 

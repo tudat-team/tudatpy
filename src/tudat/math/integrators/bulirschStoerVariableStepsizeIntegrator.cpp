@@ -24,8 +24,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence( const ExtrapolationMet
     switch( extrapolationMethodStepSequenceType )
     {
         case bulirsch_stoer_sequence:
-            using namespace boost::assign;
-            stepSequence += 2, 4, 6;
+            stepSequence = { 2, 4, 6 };
             for( unsigned int i = 3; i < lengthOfSequence; i++ )
             {
                 stepSequence.push_back( 2 * stepSequence.at( i - 2 ) );

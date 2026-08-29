@@ -41,10 +41,22 @@ update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
 
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    target_link_libraries(kernel PRIVATE
+        mcd_fortran
+        tudat_mcd_interface
+        ${NetCDF_Fortran_LIBRARIES}
+        ${NetCDF_C_LIBRARIES}
+    )
+    target_include_directories(kernel SYSTEM PRIVATE 
+        "${NetCDF_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/third_parties/mcd")
+    message(STATUS "Tudatpy: MCD support linked to kernel")
+endif()
+
 # Link against libraries
 target_link_libraries(kernel PRIVATE
-    ${Boost_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARY}
+    Boost::boost
     ${Tudat_PROPAGATION_LIBRARIES}
     ${Tudat_ESTIMATION_LIBRARIES}
 )
@@ -91,8 +103,13 @@ endif ()
     target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
     target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
-    set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
-    set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY AND TUDAT_BUILD_WITH_SERIALIZATION)
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET default)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN FALSE)
+    else ()
+        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
+        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+    endif ()
 
 # Install
 #################################################################

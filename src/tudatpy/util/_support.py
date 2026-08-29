@@ -6,7 +6,7 @@ import os
 from typing import Union, Callable
 
 
-def result2array(result: dict[float, np.ndarray]):
+def result2array(result: dict[float, np.ndarray]) -> np.ndarray:
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
@@ -67,8 +67,8 @@ def result2array(result: dict[float, np.ndarray]):
 def compare_results(
     baseline_results: dict[float, np.ndarray],
     new_results: dict[float, np.ndarray],
-    difference_epochs: list[float],
-):
+    difference_epochs: list[float] | np.ndarray,
+) -> dict[float, np.ndarray]:
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
     This uses a 8th-order Lagrange interpolator to compute the difference in state of the two simulations at specified epochs.
@@ -195,7 +195,7 @@ class redirect_std:
             os.close(link)
 
 
-def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None):
+def pareto_optimums(points: list | np.ndarray, operator: Union[None, list[Callable]] = None):
     """Compute Pareto optimums from a set of points.
 
     These points are all individually optimums, meaning that to be better in one dimension, they have to be worse in another one.
@@ -209,7 +209,7 @@ def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None)
     points : list or numpy.ndarray
         Multi-dimensional list that contains the set of points to compute Pareto optimums from.
         If the points are spread in 3D, this list should have 3 columns, and as many rows as there are points.
-    operator : None or list[min or max], optional, default=None
+    operator : list[Callable] | None, optional, default=None
         If None, it will be considered that the optimums are the minimums of each axis (dimension).
         Otherwise, a list of `min` or `max` functions can be passed in this input, to specify whether a point along a given dimension should be minimum or maximum to be considered optimum.
 
@@ -247,7 +247,7 @@ def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None)
         # Show the plot
         plt.show()
     """
-    points = np.asarray(_points)
+    points = np.asarray(points)
     if operator is None:
         sign = np.ones(points.shape[1])
     else:
@@ -336,7 +336,7 @@ def pareto_optimums(_points: list, operator: Union[None, list[Callable]] = None)
 #     return state_history_book
 
 
-def vector2matrix(flat_matrix: np.ndarray):
+def vector2matrix(flat_matrix: np.ndarray) -> np.ndarray:
     """Convert a flattened matrix into a matrix.
 
     Following Tudat standards, a rotation matrix is returned as a nine-entry vector in the dependent variable output,

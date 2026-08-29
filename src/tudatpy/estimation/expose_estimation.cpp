@@ -26,6 +26,7 @@
 #include "estimation_analysis/expose_estimation_analysis.h"
 #include "estimation_analysis/expose_estimation_analysis_estimator.h"
 #include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
+#include "estimation_analysis/expose_inter_arc_constraints.h"
 
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
@@ -38,24 +39,55 @@ namespace tudatpy
 namespace estimation
 {
 
-void expose_estimation( py::module& m )
+void expose_estimation_types( py::module& m )
 {
     auto observable_models_setup_submodule = m.def_submodule( "observable_models_setup" );
+    observable_models_setup::expose_observable_models_setup_types( observable_models_setup_submodule );
+
+    auto observations_setup_submodule = m.def_submodule( "observations_setup" );
+    auto ancillary_settings_submodule = observations_setup_submodule.def_submodule( "ancillary_settings" );
+    observations_setup::ancillary_settings::expose_ancillary_settings_types( ancillary_settings_submodule );
+
+    auto observations_dependent_variables_submodule = observations_setup_submodule.def_submodule( "observations_dependent_variables" );
+    observations_setup::observations_dependent_variables::expose_observations_dependent_variable_types(
+            observations_dependent_variables_submodule );
+
+    auto viability_submodule = observations_setup_submodule.def_submodule( "viability" );
+    observations_setup::viability::expose_observation_viability_settings_type( viability_submodule );
+
+    auto observations_simulation_settings_submodule = observations_setup_submodule.def_submodule( "observations_simulation_settings" );
+    observations_setup::observations_simulation_settings::expose_observation_simulation_settings_types(
+            observations_simulation_settings_submodule );
+}
+
+void expose_estimation( py::module& m )
+{
+    auto observable_models_setup_submodule = py::module_::import( "tudatpy.kernel.estimation.observable_models_setup" );
     observable_models_setup::expose_observable_models_setup( observable_models_setup_submodule );
 
     auto observable_models_submodule = m.def_submodule( "observable_models" );
     observable_models::expose_observable_models( observable_models_submodule );
 
+    auto observations_setup_submodule = py::module_::import( "tudatpy.kernel.estimation.observations_setup" );
+
+    auto ancillary_settings_submodule = py::module_::import( "tudatpy.kernel.estimation.observations_setup.ancillary_settings" );
+    observations_setup::ancillary_settings::expose_ancillary_settings( ancillary_settings_submodule );
+    auto observations_dependent_variables_submodule =
+            py::module_::import( "tudatpy.kernel.estimation.observations_setup.observations_dependent_variables" );
+    observations_setup::observations_dependent_variables::expose_observations_dependent_variables(
+            observations_dependent_variables_submodule );
+
     auto observations_submodule = m.def_submodule( "observations" );
     observations::expose_observations( observations_submodule );
 
-    auto observations_setup_submodule = m.def_submodule( "observations_setup" );
     observations_setup::expose_observations_setup( observations_setup_submodule );
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
+    estimation_analysis::expose_estimation_analysis_orbit_determination_helpers( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );
+    estimation_analysis::expose_inter_arc_constraints( estimation_analysis_submodule );
 };
 
 }  // namespace estimation

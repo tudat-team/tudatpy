@@ -34,6 +34,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/numericalDerivative.h"
 #include "tudat/math/basic/rotationRepresentations.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/simulation/environment_setup/baseStateInterface.h"
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
@@ -851,6 +852,16 @@ public:
         return timeScaleConverter_;
     }
 
+    void setClimateModel( std::shared_ptr< environment::ClimateModel > climateModel )
+    {
+        climateModel_ = climateModel;
+    }
+
+    std::shared_ptr< environment::ClimateModel > getClimateModel( )
+    {
+        return climateModel_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -964,6 +975,8 @@ private:
     Eigen::VectorXd staticDegreeTwoCoefficients_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< environment::ClimateModel > climateModel_;
 
     std::shared_ptr< TimeEphemeris > timeScaleConverter_;
 };

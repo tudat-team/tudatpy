@@ -942,6 +942,7 @@ std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair<
 
     return timingSystem;
 }
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

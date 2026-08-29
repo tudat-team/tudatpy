@@ -25,6 +25,7 @@ weights_test_combinations = [
     "observatories_to_filter,use_single_observation", weights_test_combinations
 )
 @pytest.mark.parametrize("use_dummy_weights", [(True,), (False,)])
+@pytest.mark.remote_data
 def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_single_observation):
     """Test if the weights are transfered correctly to observation collection"""
     target_mpc_code = "433"

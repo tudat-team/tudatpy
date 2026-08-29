@@ -27,6 +27,7 @@
 #include <tudat/astro/aerodynamics/hypersonicLocalInclinationAnalysis.h>
 #include <tudat/astro/basic_astro/ionosphereModel.h>
 #include <tudat/astro/earth_orientation/earthOrientationCalculator.h>
+#include <tudat/astro/electromagnetism/radiationPressureInterface.h>
 #include <tudat/astro/electromagnetism/radiationPressureTargetModel.h>
 #include <tudat/astro/electromagnetism/radiationSourceModel.h>
 #include <tudat/astro/ephemerides/aeordynamicAngleRotationalEphemeris.h>
@@ -40,6 +41,7 @@
 #include <tudat/astro/ephemerides/tabulatedEphemeris.h>
 #include <tudat/astro/ephemerides/timeEphemeris.h>
 #include <tudat/astro/ephemerides/tleEphemeris.h>
+#include <tudat/astro/ephemerides/tleFitting.h>
 #include <tudat/astro/gravitation/gravityFieldModel.h>
 #include <tudat/astro/gravitation/gravityFieldVariations.h>
 #include <tudat/astro/gravitation/polyhedronGravityField.h>
@@ -96,7 +98,7 @@ std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getV
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints = localInclinationAnalysis->getMeshPoints( );
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshSurfaceNormals = localInclinationAnalysis->getPanelSurfaceNormals( );
 
-    //    boost::array< int, 3 > independentVariables;
+    //    std::array< int, 3 > independentVariables;
     //    independentVariables[ 0 ] = 0;
     //    independentVariables[ 1 ] = 6;
     //    independentVariables[ 2 ] = 0;
@@ -144,6 +146,21 @@ namespace environment
 
 void expose_environment( py::module& m )
 {
+    // Register types that occur in signatures before their detailed binding
+    // sections below. Keep a class handle only when members are added later.
+    py::class_< ta::ControlSurfaceIncrementAerodynamicInterface, std::shared_ptr< ta::ControlSurfaceIncrementAerodynamicInterface > >(
+            m, "ControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>" );
+    py::class_< te::InertialBodyFixedDirectionCalculator, std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
+            m, "InertialBodyFixedDirectionCalculator" );
+    auto timing_system = py::class_< tsm::TimingSystem, std::shared_ptr< tsm::TimingSystem > >( m, "TimingSystem" );
+    auto engine_model = py::class_< tsm::EngineModel, std::shared_ptr< tsm::EngineModel > >( m, "EngineModel" );
+    auto gravity_field_variations =
+            py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel" );
+    auto camera = py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera" );
+    auto station_frequency_interpolator =
+            py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
+                    m, "TransmittingFrequencyCalculator" );
+
     /*!
      **************   EPHEMERIDES  ******************
      */
@@ -541,6 +558,39 @@ void expose_environment( py::module& m )
                 :type: str
                 )doc" )
 
+            .def_property_readonly( "international_designator_launch_year",
+                                    &te::Tle::getInternationalDesignatorLaunchYear,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch year of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_launch_number",
+                                    &te::Tle::getInternationalDesignatorLaunchNumber,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch number of the space object, as provided by the TLE.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly( "international_designator_piece",
+                                    &te::Tle::getInternationalDesignatorPiece,
+                                    R"doc(
+
+                **read-only**
+
+                International designator (COSPAR ID) launch piece of the space object, as provided by the TLE.
+
+                :type: str
+                )doc" )
+
             .def_property_readonly( "element_set_number",
                                     &te::Tle::getElementSetNumber,
                                     R"doc(
@@ -617,6 +667,7 @@ void expose_environment( py::module& m )
 
                 :type: str
                 )doc" )
+
             .def( "epoch", &te::Tle::getEpoch )
             .def( "get_b_star", &te::Tle::getBStar )
             .def( "get_epoch", &te::Tle::getEpoch )
@@ -631,7 +682,7 @@ void expose_environment( py::module& m )
             .def( py::init< const std::string&, const std::string&, const std::shared_ptr< te::Tle >, const bool >( ),
                   py::arg( "frame_origin" ) = "Earth",
                   py::arg( "frame_orientation" ) = "J2000",
-                  py::arg( "tle" ) = nullptr,
+                  py::arg_v( "tle", std::shared_ptr< te::Tle >( ), "None" ),
                   py::arg( "use_sdp" ) = false )
             .def_property_readonly( "tle", &te::TleEphemeris::getTle, R"doc(
 
@@ -642,6 +693,114 @@ void expose_environment( py::module& m )
                 :type: Tle
                 )doc" );
 
+    // TLE fitting settings
+    py::class_< te::TleFitSettings >( m, "TleFitSettings" )
+            .def( py::init<>( ) )
+            .def_readwrite( "tle_epoch", &te::TleFitSettings::tleEpoch_ )
+            .def_readwrite( "initial_tle", &te::TleFitSettings::initialTle_ )
+            .def_readwrite( "estimate_b_star", &te::TleFitSettings::estimateBStar_ )
+            .def_readwrite( "initial_b_star", &te::TleFitSettings::initialBStar_ )
+            .def_readwrite( "maximum_number_of_iterations", &te::TleFitSettings::maximumNumberOfIterations_ )
+            .def_readwrite( "convergence_tolerance", &te::TleFitSettings::convergenceTolerance_ )
+            .def_readwrite( "initial_damping", &te::TleFitSettings::initialDamping_ )
+            .def_readwrite( "b_star_scale", &te::TleFitSettings::bStarScale_ )
+            .def_readwrite( "logarithmic_mean_motion_step", &te::TleFitSettings::logarithmicMeanMotionStep_ )
+            .def_readwrite( "equinoctial_element_step", &te::TleFitSettings::equinoctialElementStep_ )
+            .def_readwrite( "mean_longitude_step", &te::TleFitSettings::meanLongitudeStep_ )
+            .def_readwrite( "b_star_step", &te::TleFitSettings::bStarStep_ )
+            .def_readwrite( "norad_catalog_number",
+                            &te::TleFitSettings::noradCatalogNumber_,
+                            R"doc(
+                    NORAD catalog number to embed in the fitted TLE's identification fields. This cannot be derived
+                    from the Cartesian state history being fit; it defaults to 0 (serialized as ``"00000"``) when left
+                    unset.
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "classification",
+                            &te::TleFitSettings::classification_,
+                            R"doc(
+                    Security classification character to embed in the fitted TLE, typically ``"U"`` (unclassified),
+                    ``"C"`` or ``"S"``.
+
+                    :type: str
+                    )doc" )
+            .def_readwrite( "international_designator_launch_year",
+                            &te::TleFitSettings::internationalDesignatorLaunchYear_,
+                            R"doc(
+                    International designator launch year to embed in the fitted TLE (either 2- or 4-digit; only the
+                    last two digits are serialized).
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "international_designator_launch_number",
+                            &te::TleFitSettings::internationalDesignatorLaunchNumber_,
+                            R"doc(
+                    International designator launch number to embed in the fitted TLE.
+
+                    :type: int
+                    )doc" )
+            .def_readwrite( "international_designator_piece",
+                            &te::TleFitSettings::internationalDesignatorPiece_,
+                            R"doc(
+                    International designator launch piece to embed in the fitted TLE (up to 3 characters,
+                    space-padded if shorter).
+
+                    :type: str
+                    )doc" )
+            .def_readwrite( "element_set_number",
+                            &te::TleFitSettings::elementSetNumber_,
+                            R"doc(
+                    Element set number to embed in the fitted TLE.
+
+                    :type: int
+                    )doc" );
+
+    // TLE fitting result
+    py::class_< te::TleFitResult >( m, "TleFitResult" )
+            .def_readonly( "fitted_tle", &te::TleFitResult::fittedTle_ )
+            .def_readonly( "position_residuals", &te::TleFitResult::positionResiduals_ )
+            .def_readonly( "position_rms", &te::TleFitResult::positionRms_ )
+            .def_readonly( "initial_position_rms", &te::TleFitResult::initialPositionRms_ )
+            .def_readonly( "number_of_iterations", &te::TleFitResult::numberOfIterations_ )
+            .def_readonly( "converged", &te::TleFitResult::converged_ );
+
+    // Fit TLE to Cartesian state history
+    // TLE fitting with default settings
+    m.def(
+            "fit_tle_to_cartesian_state_history",
+            []( const std::map< double, Eigen::Vector6d >& cartesianStateHistory, const std::string& frameOrientation ) {
+                return te::fitTleToCartesianStateHistory( cartesianStateHistory, frameOrientation, te::TleFitSettings( ) );
+            },
+            py::arg( "cartesian_state_history" ),
+            py::arg( "frame_orientation" ) );
+
+    // TLE fitting with explicit settings
+    m.def( "fit_tle_to_cartesian_state_history",
+           &te::fitTleToCartesianStateHistory,
+           py::arg( "cartesian_state_history" ),
+           py::arg( "frame_orientation" ),
+           py::arg( "settings" ),
+           R"doc(
+    Fit a full-precision numerical TLE to an Earth-centred Cartesian
+    state history.
+
+    Parameters
+    ----------
+    cartesian_state_history : dict
+        Mapping from epoch to Cartesian state.
+
+    frame_orientation : str
+        Either "J2000" or "ECLIPJ2000".
+
+    settings : TleFitSettings, optional
+        Configuration settings for the nonlinear fit.
+
+    Returns
+    -------
+    TleFitResult
+        The fitted TLE and residual diagnostics.
+    )doc" );
     /*!
      **************   END EPHEMERIDES  ******************
      */
@@ -782,8 +941,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -810,8 +969,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -838,8 +997,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -866,8 +1025,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -894,8 +1053,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -926,8 +1085,8 @@ bool
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -1110,7 +1269,7 @@ bool
          Returns
          -------
          numpy.ndarray
-             Contribution from the requested control surface to the aerodynamic moment coefficients
+             Contribution from the requested control surface to the aerodynamic moment coefficients.
 
 
 
@@ -1142,13 +1301,13 @@ bool
              List of inputs from which the aerodynamic coefficients are to be computed, with each entry corresponding to the
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB)
+         time : float
+             Epoch in seconds since J2000 (TDB).
 
          Returns
          -------
-         numpy.ndarray
-             Contribution from the requested control surface to the aerodynamic moment coefficients
+         None
+             This method updates the stored aerodynamic coefficients in place.
 
 
 
@@ -1182,12 +1341,12 @@ bool
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
          control_surface_independent_variables : dict[str,list[float]]
-             List of inputs from which the control surface aerodynamic coefficients are to be computed (with dictionary key the control surface name),
+             Dictionary of input lists from which the control surface aerodynamic coefficients are to be computed, keyed by control surface name,
              with each entry corresponding to the
              value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
 
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB)
+         time : float
+             Epoch in seconds since J2000 (TDB).
 
          check_force_contribution : bool, default = True
              Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
@@ -1245,12 +1404,12 @@ bool
              this constructor. In case the :class:`tudat.geometry.SurfaceGeometry` object is made up of multiple
              sub-shapes, different settings may be used for each
 
-         number_of_lines : List[ float ]
+         number_of_lines : list[int]
              Number of discretization points in the first independent surface variable of each of the subparts of body_shape.
              The size of this list should match the number of parts of which the body_shape is composed. The first independent
              variable of a subpart typically runs along the longitudinal vehicle direction
 
-         number_of_points : List[ float ]
+         number_of_points : list[int]
              Number of discretization points in the second independent surface variable of each of the subparts of body_shape.
              The size of this list should match the number of parts of which the body_shape is composed. The first independent
              variable of a subpart typically runs along the lateral vehicle direction
@@ -1295,9 +1454,6 @@ bool
 
      )doc" )
             .def( "clear_data", &ta::HypersonicLocalInclinationAnalysis::clearData );
-
-    py::class_< ta::ControlSurfaceIncrementAerodynamicInterface, std::shared_ptr< ta::ControlSurfaceIncrementAerodynamicInterface > >(
-            m, "ControlSurfaceIncrementAerodynamicInterface", "<no_doc, only_dec>" );
 
     py::class_< ta::CustomControlSurfaceIncrementAerodynamicInterface,
                 std::shared_ptr< ta::CustomControlSurfaceIncrementAerodynamicInterface >,
@@ -1528,7 +1684,8 @@ bool
 
          Dictionary of all cameras that exist in the body, with dictionary key being the name of the camera,
          and the camera object the value of the dictionary.
-            :type: dict[str,Camera]
+
+         :type: dict[str, Camera]
         )doc" );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >( m, "RigidBodyProperties", R"doc(
@@ -1550,8 +1707,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) to which this object is to be updated
+         time : float
+             Epoch in seconds since J2000 (TDB) to which this object is to be updated.
 
          Returns
          -------
@@ -1581,10 +1738,8 @@ bool
                   &tss::RigidBodyProperties::updateInertiaTensorDerivative,
                   py::arg( "derivative_degree_two_coefficients" ) );
 
-    py::class_< tsm::TimingSystem, std::shared_ptr< tsm::TimingSystem > >( m,
-                                                                           "TimingSystem",
-                                                                           R"doc(No documentation found.)doc" )
-
+    timing_system.doc( ) = R"doc(No documentation found.)doc";
+    timing_system
             .def(  // ctor 1
                     py::init< const std::vector< tudat::Time >,
                               const std::vector< double >,
@@ -1592,7 +1747,9 @@ bool
                               const double >( ),
                     py::arg( "arc_times" ),
                     py::arg( "all_arcs_polynomial_drift_coefficients" ) = std::vector< double >( ),
-                    py::arg( "clock_noise_generation_function" ) = nullptr,
+                    py::arg_v( "clock_noise_generation_function",
+                               std::function< std::function< double( const double ) >( const double, const double, const double ) >( ),
+                               "None" ),
                     py::arg( "clock_noise_time_step" ) = 1.0E-3 )
             .def(  // ctor 2
                     py::init< const std::vector< tudat::Time >,
@@ -1601,7 +1758,9 @@ bool
                               const double >( ),
                     py::arg( "arc_times" ),
                     py::arg( "polynomial_drift_coefficients" ),
-                    py::arg( "clock_noise_generation_function" ) = nullptr,
+                    py::arg_v( "clock_noise_generation_function",
+                               std::function< std::function< double( const double ) >( const double, const double, const double ) >( ),
+                               "None" ),
                     py::arg( "clock_noise_time_step" ) = 1.0E-3 )
             .def(  // ctor 3
                     py::init< const std::vector< std::vector< double > >,
@@ -1611,8 +1770,7 @@ bool
                     py::arg( "stochastic_clock_noise_functions" ),
                     py::arg( "arc_times" ) );
 
-    py::class_< tsm::EngineModel, std::shared_ptr< tsm::EngineModel > >( m, "EngineModel" )
-            .def_property_readonly( "thrust_magnitude_calculator", &tsm::EngineModel::getThrustMagnitudeWrapper );
+    engine_model.def_property_readonly( "thrust_magnitude_calculator", &tsm::EngineModel::getThrustMagnitudeWrapper );
 
     /*!
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY
@@ -2034,8 +2192,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix is evaluated.
 
          Returns
          -------
@@ -2061,8 +2219,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated.
 
          Returns
          -------
@@ -2087,8 +2245,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix is evaluated.
 
 
 
@@ -2109,8 +2267,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated.
 
          Returns
          -------
@@ -2140,8 +2298,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the angular velocity vector is evaluated.
 
          Returns
          -------
@@ -2168,8 +2326,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
+         time : float
+             Epoch in seconds since J2000 (TDB) at which the angular velocity vector is evaluated.
 
          Returns
          -------
@@ -2225,8 +2383,8 @@ bool
  state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
      Cartesian state (position and velocity) in the body-fixed frame
 
- current_time : astro.time_representation.Time
-     Time object representing seconds since J2000 (TDB) at which the transformation is to be computed
+ current_time : float
+     Epoch in seconds since J2000 (TDB) at which the transformation is to be computed.
 
  rotational_ephemeris : RotationalEphemeris
      Boy rotation model that is to be used to convert the body-fixed state to inertial state
@@ -2288,7 +2446,7 @@ bool
 
          Returns
          -------
-         tuple[list[float],float]
+         tuple[numpy.ndarray[numpy.float64[5, 1]], astro.time_representation.Time]
              Pair (tuple of size two) with the first entry a list of orientation angles :math:`X,Y,s,x_{p},y_{p}` (in that order) and the second entry the current UT1.
 
      )doc" );
@@ -2352,9 +2510,6 @@ bool
             m, "CustomInertialDirectionBasedRotationalEphemeris" )
             .def_property_readonly( "inertial_body_axis_calculator",
                                     &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator );
-
-    py::class_< te::InertialBodyFixedDirectionCalculator, std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
-            m, "InertialBodyFixedDirectionCalculator" );
 
     py::class_< te::CustomBodyFixedDirectionCalculator,
                 std::shared_ptr< te::CustomBodyFixedDirectionCalculator >,
@@ -2512,12 +2667,12 @@ bool
             .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
             .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
 
-    py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel", R"doc(
+    gravity_field_variations.doc( ) = R"doc(
 
         Object that computes a single type of gravity field variation.
 
         Object that computes a single type of gravity field variation. This object is typically not used directly, but internally by the :class:`~TimeDependentSphericalHarmonicsGravityField` class.
-    )doc" );
+    )doc";
 
     /*!
      **************   RADIATION MODELS  ******************
@@ -2533,6 +2688,7 @@ bool
                            &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
 
     py::class_< tem::RadiationSourceModel, std::shared_ptr< tem::RadiationSourceModel > >( m, "RadiationSourceModel" );
+    py::class_< tem::RadiationPressureInterface, std::shared_ptr< tem::RadiationPressureInterface > >( m, "RadiationPressureInterface" );
     /*!
      **************   SHAPE MODELS  ******************
      */
@@ -2559,13 +2715,13 @@ bool
 
      )doc" );
 
-    py::class_< tsm::Camera, std::shared_ptr< tsm::Camera > >( m, "Camera", R"doc(
+    camera.doc( ) = R"doc(
         Object that defines a camera for use in observation models.
 
         Object that defines a camera for use in observation models. This object is typically stored inside a :class:`~Body` object,
         and used to define the properties of a camera on a spacecraft, for instance for use in optical observation models.
-     )doc" )
-            .def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
+     )doc";
+    camera.def_property_readonly( "id", &tsm::Camera::getCameraId, R"doc(
 
          **read-only**
 
@@ -2684,8 +2840,8 @@ bool
 
          Parameters
          ----------
-         current_time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which the position is to be computed.
+         current_time : float
+             Epoch in seconds since J2000 (TDB) at which the position is to be computed.
 
          target_frame_origin: str, default = ""
              Identifier for the frame origin w.r.t. which the computed position is to be used.
@@ -2747,12 +2903,7 @@ bool
 
      )doc" );
 
-    py::class_< tgs::StationFrequencyInterpolator, std::shared_ptr< tgs::StationFrequencyInterpolator > >(
-            m, "TransmittingFrequencyCalculator", R"doc(
-
-            Object that computes the current transmitting frequency of a ground station.
-
-            )doc" );
+    station_frequency_interpolator.doc( ) = "Object that computes the current transmitting frequency of a ground station.";
 
     py::enum_< tgs::FrequencyGapHandling >( m, "FrequencyGapHandling" )
             .value( "extrapolate_at_gaps", tgs::extrapolate_at_gaps )
@@ -2875,8 +3026,8 @@ bool
          ----------
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+         time : float
+             Epoch in seconds since J2000 (TDB) at which to calculate the angle.
 
          Returns
          -------
@@ -2897,8 +3048,8 @@ bool
          ----------
          inertial_vector_to_target : numpy.ndarray
              Vector from ground station to target in inertial frame
-         time : astro.time_representation.Time
-             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+         time : float
+             Epoch in seconds since J2000 (TDB) at which to calculate the angle.
 
          Returns
          -------
@@ -3661,7 +3812,7 @@ bool
          body_to_add : Body
              Body object that is to be added.
 
-         body_name : numpy.ndarray
+         body_name : str
              Name of the Body that is to be added.
 
          process_body : bool, default=True
@@ -3696,7 +3847,7 @@ bool
 
          Parameters
          ----------
-         body_name : numpy.ndarray
+         body_name : str
              Name of the Body that is to be removed.
 
 

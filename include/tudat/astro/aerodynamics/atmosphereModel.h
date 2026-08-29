@@ -63,7 +63,7 @@ class AtmosphereModel
 {
 public:
     AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
-        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius )
+        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ), requiresClimateModel_( false )
     {}
 
     //! Default destructor.
@@ -221,6 +221,16 @@ public:
         return useUtc_;
     }
 
+    void setRequiresClimateModel( )
+    {
+        requiresClimateModel_ = true;
+    }
+
+    bool getRequiresClimateModel( ) const
+    {
+        return requiresClimateModel_;
+    }
+
     bool getUseRadius( )
     {
         return useRadius_;
@@ -235,6 +245,8 @@ protected:
     bool useUtc_;
 
     bool useRadius_;
+
+    bool requiresClimateModel_;
 
 private:
 };

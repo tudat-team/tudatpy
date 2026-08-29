@@ -39,6 +39,9 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_acceleration.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -48,6 +51,7 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -224,6 +228,9 @@ void expose_acceleration_setup( py::module& m )
                     tba::AvailableAcceleration::radiation_pressure,
                     R"doc(
       )doc" )
+            .value( "three_coefficient_radiation_pressure_type",
+                    tba::AvailableAcceleration::three_coefficient_radiation_pressure,
+                    R"doc(Three-coefficient solar-radiation-pressure acceleration.)doc" )
             .value( "einstein_infeld_hoffmann_acceleration_type",
                     tba::AvailableAcceleration::einstein_infeld_hoffmann_acceleration,
                     R"doc(
@@ -253,21 +260,29 @@ void expose_acceleration_setup( py::module& m )
          Functional base class to define settings for accelerations.
 
          Class for providing settings for acceleration model. This class is a functional (base) class for
-         settings of acceleration models that  require no information in addition to their type.
+         settings of acceleration models that require no information in addition to their type.
          Classes defining settings for acceleration models requiring additional information must be derived from this class.
          Bodies exerting and undergoing acceleration are set externally from this class.
          This class can be used for the easy setup of acceleration models
          (see createAccelerationModels.h), but users may also chose to do so manually.
          (Derived) Class members are all public, for ease of access and modification.
 
-
-
-
-
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tss::AccelerationSettings ) TUDATPY_DEF_EQ_NE( tss::AccelerationSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::AccelerationSettings );
     //            .def(py::init<const
     //            tudat::basic_astrodynamics::AvailableAcceleration>(),
     //                 py::arg("acceleration_type"));
+
+    py::class_< tss::RadiationPressureAccelerationSettings,
+                std::shared_ptr< tss::RadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "RadiationPressureAccelerationSettings",
+                                             R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the radiation pressure acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RadiationPressureAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RadiationPressureAccelerationSettings );
 
     py::class_< tss::SphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::SphericalHarmonicAccelerationSettings >,
@@ -280,15 +295,27 @@ void expose_acceleration_setup( py::module& m )
          Class for providing settings for spherical harmonics acceleration model,
          including the maximum degree and order up to which the field is to be expanded. Note that
          the minimum degree and order are currently always set to zero.
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::SphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::SphericalHarmonicAccelerationSettings );
 
-
-
-
-
-      )doc" );
     //            .def(py::init<const int, const int>(),
     //            py::arg("maximum_degree"),
     //                 py::arg("maximum_order"));
+
+    py::class_< tss::ThreeCoefficientRadiationPressureAccelerationSettings,
+                std::shared_ptr< tss::ThreeCoefficientRadiationPressureAccelerationSettings >,
+                tss::AccelerationSettings >( m,
+                                             "ThreeCoefficientRadiationPressureAccelerationSettings",
+                                             R"doc(
+
+Settings for the three-coefficient solar-radiation-pressure model.
+
+The three entries are the constant effective areas :math:`(A_1,A_2,A_3)` in square metres, resolved in the
+source/reference-body UVW frame of :cite:t:`mcmahon2015`.
+
+)doc" )
+            .def_readwrite( "coefficients", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::coefficients_ )
+            .def_readwrite( "reference_body", &tss::ThreeCoefficientRadiationPressureAccelerationSettings::referenceBody_ );
 
     py::class_< tss::MutualSphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::MutualSphericalHarmonicAccelerationSettings >,
@@ -306,7 +333,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MutualSphericalHarmonicAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MutualSphericalHarmonicAccelerationSettings );
 
     py::class_< tss::FullTwoBodySphericalHarmonicAccelerationSettings,
                 std::shared_ptr< tss::FullTwoBodySphericalHarmonicAccelerationSettings >,
@@ -344,7 +372,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::EmpiricalAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::EmpiricalAccelerationSettings );
 
     py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -357,7 +386,18 @@ void expose_acceleration_setup( py::module& m )
          force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
          to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RTGAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::RTGAccelerationSettings );
+
+    py::class_< tss::YarkovskyAccelerationSettings, std::shared_ptr< tss::YarkovskyAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "YarkovskyAccelerationSettings",
+            R"doc(
+
+       `AccelerationSettings`-derived class to define settings for the Yarkovsky acceleration.
+
+    )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::YarkovskyAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::YarkovskyAccelerationSettings );
 
     py::class_< tss::RelativisticAccelerationCorrectionSettings,
                 std::shared_ptr< tss::RelativisticAccelerationCorrectionSettings >,
@@ -375,7 +415,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::RelativisticAccelerationCorrectionSettings )
+            TUDATPY_DEF_EQ_NE( tss::RelativisticAccelerationCorrectionSettings );
 
     py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -391,7 +432,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::CustomAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::CustomAccelerationSettings );
 
     py::class_< tss::DirectTidalDissipationAccelerationSettings,
                 std::shared_ptr< tss::DirectTidalDissipationAccelerationSettings >,
@@ -409,7 +451,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::DirectTidalDissipationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::DirectTidalDissipationAccelerationSettings );
 
     py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
                 std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
@@ -426,7 +469,8 @@ void expose_acceleration_setup( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::MomentumWheelDesaturationAccelerationSettings )
+            TUDATPY_DEF_EQ_NE( tss::MomentumWheelDesaturationAccelerationSettings );
 
     py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
             m,
@@ -447,7 +491,9 @@ void expose_acceleration_setup( py::module& m )
                     &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
             .def_property_readonly(
                     "magnitude_settings",
-                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > );
+                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tss::AccelerationSettings, tss::ThrustAccelerationSettings )
+                            TUDATPY_DEF_EQ_NE( tss::ThrustAccelerationSettings );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
@@ -624,6 +670,46 @@ AccelerationSettings
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure",
+           &tss::threeCoefficientRadiationPressureAcceleration,
+           py::arg( "coefficients" ),
+           py::arg( "reference_body" ) = "",
+           R"doc(
+
+Creates settings for the three-coefficient solar-radiation-pressure acceleration.
+
+The acceleration is
+
+.. math::
+   \mathbf{a}=\frac{\Phi}{c m}\left(A_1\hat{\mathbf U}+A_2\hat{\mathbf V}+A_3\hat{\mathbf W}\right),
+
+where :math:`\Phi` is the received irradiance and the UVW basis is tied to the source-centred orbit of the selected
+reference body. If no reference body is selected, the propagation central body is used. For the published Earth/Sun
+model, use Earth as the reference body and Sun as the body exerting the acceleration. All involved body states must
+use a common inertial frame orientation. Specifically, :math:`\hat{\mathbf U}` points from the reference body towards
+the source, :math:`\hat{\mathbf W}` is obtained using the fixed :math:`23.4^\circ` obliquity in the model, and
+:math:`\hat{\mathbf V}=\hat{\mathbf W}\times\hat{\mathbf U}`. See :cite:t:`mcmahon2015` for the model derivation and
+frame convention.
+
+An isotropic point radiation source and a cannonball radiation target must be configured in the environment. The
+cannonball target supplies the occultation configuration; its area and radiation-pressure coefficient are not used
+by this acceleration. Selecting the accelerated body as the reference body and using
+:math:`(-C_R A,0,0)` gives the cannonball model exactly.
+
+Parameters
+----------
+coefficients : numpy.ndarray
+    Three-vector :math:`(A_1,A_2,A_3)` of constant effective areas in square metres.
+reference_body : str, default=""
+    Body defining the source-centred UVW frame. An empty string selects the propagation central body.
+
+Returns
+-------
+ThreeCoefficientRadiationPressureAccelerationSettings
+    Settings for the three-coefficient radiation-pressure acceleration.
+
+)doc" );
 
     m.def( "cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration );
 
@@ -1337,7 +1423,7 @@ AccelerationSettings
 
  Parameters
  ----------
- acceleration_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], list]
+ acceleration_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Custom acceleration function with time as an independent variable, returning the acceleration in an inertial frame (*e.g.* with global frame orientation) as a function of time.
  Returns
  -------
@@ -1540,9 +1626,9 @@ through the spherical harmonic gravity:
      Set of middle point in times :math:`t_{i}` in the maneuver denoting the epoch of each maneuver.
  delta_v_values : list[numpy.ndarray]
      Set of delta V values :math:`\Delta \mathbf{V}_{i}`, one for each maneuver.
- total_maneuver_time : astro.time_representation.Time
+total_maneuver_time : float
      Total duration of every maneuver :math:`t_{M}`.
- maneuver_rise_time : astro.time_representation.Time
+maneuver_rise_time : float
      :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
  Returns
  -------
