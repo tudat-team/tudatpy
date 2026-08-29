@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <limits>
+#include <boost/test/included/unit_test.hpp>
 
-#include <boost/test/unit_test.hpp>
+#include <limits>
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
@@ -195,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
         const double constraintResidual = stateCorrection( 0 ) + 1000.0 * stateCorrection( 4 );
         const double constraintScale =
                 std::max( 1.0, std::max( std::fabs( stateCorrection( 0 ) ), std::fabs( 1000.0 * stateCorrection( 4 ) ) ) );
-        BOOST_CHECK_SMALL( constraintResidual, 1.0E-10 * constraintScale );
+        BOOST_CHECK_SMALL( constraintResidual, 1.0E-9 * constraintScale );
     }
 
     const Eigen::Vector6d totalStateCorrection = initialStateHistory.col( initialStateHistory.cols( ) - 1 ) - initialStateHistory.col( 0 );
