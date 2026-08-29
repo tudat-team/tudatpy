@@ -26,20 +26,6 @@ namespace tudat
 namespace gravitation
 {
 
-Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
-{
-    if( hasInertiaTensor( ) )
-    {
-        return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
-    }
-    else
-    {
-        throw std::runtime_error(
-                "Inertia tensor cannot be derived from spherical-harmonic gravity field: complete degree-two coefficients and "
-                "a finite scaled mean moment of inertia are required." );
-    }
-}
-
 //! Compute gravitational acceleration due to single spherical harmonics term.
 Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,

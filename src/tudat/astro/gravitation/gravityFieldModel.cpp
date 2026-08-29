@@ -16,6 +16,45 @@ namespace tudat
 namespace gravitation
 {
 
+GravityFieldModel::GravityFieldModel( const double gravitationalParameter ): gravitationalParameter_( gravitationalParameter ) {}
+
+void GravityFieldModel::resetGravitationalParameter( const double gravitationalParameter )
+{
+    gravitationalParameter_ = gravitationalParameter;
+    notifyMassUpdate( );
+    notifyMassDistributionUpdate( );
+}
+
+void GravityFieldModel::setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties,
+                                                const std::function< void( ) >& massUpdateFunction,
+                                                const std::function< void( ) >& massDistributionUpdateFunction )
+{
+    rigidBodyProperties_ = rigidBodyProperties;
+    massUpdateFunction_ = massUpdateFunction;
+    massDistributionUpdateFunction_ = massDistributionUpdateFunction;
+}
+
+std::shared_ptr< simulation_setup::RigidBodyProperties > GravityFieldModel::getRigidBodyProperties( ) const
+{
+    return rigidBodyProperties_.lock( );
+}
+
+void GravityFieldModel::notifyMassUpdate( )
+{
+    if( massUpdateFunction_ )
+    {
+        massUpdateFunction_( );
+    }
+}
+
+void GravityFieldModel::notifyMassDistributionUpdate( )
+{
+    if( massDistributionUpdateFunction_ )
+    {
+        massDistributionUpdateFunction_( );
+    }
+}
+
 //! Set predefined central gravity field settings.
 std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
         BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )

@@ -75,8 +75,10 @@ BOOST_AUTO_TEST_CASE( testMultiBodyHistoryAndRigidBodyRefresh )
     nominalCosine( 2, 0 ) = -1.0e-3;
     nominalCosine( 2, 2 ) = 2.0e-4;
 
-    bodies.at( "A" )->setGravityFieldModel(
-            std::make_shared< SphericalHarmonicsGravityField >( 4.0e5, 2.0e3, nominalCosine, nominalSine, "AFixed", 0.4 ) );
+    const std::shared_ptr< SphericalHarmonicsGravityField > originalFieldA =
+            std::make_shared< SphericalHarmonicsGravityField >( 4.0e5, 2.0e3, nominalCosine, nominalSine, "AFixed" );
+    bodies.at( "A" )->setGravityFieldModel( originalFieldA );
+    bodies.at( "A" )->setMassProperties( std::make_shared< FromGravityFieldRigidBodyProperties >( originalFieldA, 0.4 ) );
     bodies.at( "B" )->setGravityFieldModel(
             std::make_shared< SphericalHarmonicsGravityField >( 5.0e5, 3.0e3, nominalCosine, nominalSine, "BFixed" ) );
 
@@ -128,7 +130,8 @@ BOOST_AUTO_TEST_CASE( testMultiBodyHistoryAndRigidBodyRefresh )
                                 expectedB( 4 ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ),
                                 5.0e-15 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodies.at( "A" )->getBodyInertiaTensor( ), fieldA->getInertiaTensor( ), 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            bodies.at( "A" )->getBodyInertiaTensor( ), getInertiaTensorFromGravityField( fieldA, 0.4 ), 5.0e-15 );
     const Eigen::Vector5d expectedDerivativeA = ( a1 - a0 ) / 10.0;
     const Eigen::Matrix3d expectedInertiaDerivative = computeDerivativeInertiaTensor( expectedDerivativeA( 0 ),
                                                                                       expectedDerivativeA( 1 ),

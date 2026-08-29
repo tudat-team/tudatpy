@@ -1,7 +1,8 @@
 import numpy as np
+import pytest
 
 from tudatpy.astro import gravitation
-from tudatpy.dynamics import environment_setup, propagation_setup, simulator
+from tudatpy.dynamics import environment, environment_setup, propagation_setup, simulator
 
 
 def test_gravity_deformation_propagation_and_environment_lifecycle():
@@ -36,8 +37,10 @@ def test_gravity_deformation_propagation_and_environment_lifecycle():
         nominal_sine,
         "MoonFixed",
     )
-    moon_gravity_settings.scaled_mean_moment_of_inertia = 0.4
     body_settings.get("Moon").gravity_field_settings = moon_gravity_settings
+    body_settings.get("Moon").rigid_body_settings = environment_setup.rigid_body.from_gravity_field(
+        0.4
+    )
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     deformation_setting = propagation_setup.propagator.maxwell_deformation(
@@ -99,3 +102,86 @@ def test_gravity_deformation_propagation_and_environment_lifecycle():
     # Integration internals are intentionally not part of the public mutation API.
     assert not hasattr(moon, "set_angular_velocity_derivative_in_local_frame")
     assert not hasattr(moon.rigid_body_properties, "update_inertia_tensor_derivative")
+
+
+def test_scaled_mean_moment_settings_compatibility_and_precedence():
+    nominal_cosine = np.zeros((3, 3))
+    nominal_sine = np.zeros((3, 3))
+    nominal_cosine[0, 0] = 1.0
+    nominal_cosine[1, 0] = 1.0e-5
+    nominal_cosine[1, 1] = -2.0e-5
+    nominal_sine[1, 1] = 3.0e-5
+    nominal_cosine[2, 0] = -1.0e-3
+    nominal_cosine[2, 2] = 2.0e-4
+
+    def gravity_settings():
+        return environment_setup.gravity_field.spherical_harmonic(
+            4.0e5, 1.0e3, nominal_cosine, nominal_sine, "J2000"
+        )
+
+    body_settings = environment_setup.BodyListSettings("SSB", "J2000")
+    for name in ("Legacy", "Canonical", "NoInertia", "Explicit"):
+        body_settings.add_empty_settings(name)
+        body_settings.get(name).gravity_field_settings = gravity_settings()
+
+    legacy_gravity_settings = body_settings.get("Legacy").gravity_field_settings
+    with pytest.warns(DeprecationWarning, match="rigid_body.from_gravity_field"):
+        legacy_gravity_settings.scaled_mean_moment_of_inertia = 0.4
+    with pytest.warns(DeprecationWarning, match="rigid_body.from_gravity_field"):
+        assert legacy_gravity_settings.scaled_mean_moment_of_inertia == 0.4
+
+    body_settings.get("Canonical").rigid_body_settings = (
+        environment_setup.rigid_body.from_gravity_field(0.4)
+    )
+    explicit_center_of_mass = np.array([1.0, 2.0, 3.0])
+    explicit_inertia = 7.0 * np.identity(3)
+    body_settings.get("Explicit").rigid_body_settings = (
+        environment_setup.rigid_body.constant_rigid_body_properties(
+            123.0, explicit_center_of_mass, explicit_inertia
+        )
+    )
+    explicit_gravity_settings = body_settings.get("Explicit").gravity_field_settings
+    with pytest.warns(DeprecationWarning):
+        explicit_gravity_settings.scaled_mean_moment_of_inertia = 0.4
+
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    legacy = bodies.get("Legacy")
+    canonical = bodies.get("Canonical")
+    no_inertia = bodies.get("NoInertia")
+    explicit = bodies.get("Explicit")
+
+    np.testing.assert_allclose(
+        legacy.rigid_body_properties.current_center_of_mass,
+        canonical.rigid_body_properties.current_center_of_mass,
+    )
+    np.testing.assert_allclose(
+        legacy.rigid_body_properties.current_inertia_tensor,
+        canonical.rigid_body_properties.current_inertia_tensor,
+    )
+    assert legacy.rigid_body_properties.current_mass == pytest.approx(
+        canonical.rigid_body_properties.current_mass
+    )
+    assert not no_inertia.rigid_body_properties.inertia_tensor_available
+    assert explicit.rigid_body_properties.current_mass == pytest.approx(123.0)
+    np.testing.assert_allclose(
+        explicit.rigid_body_properties.current_center_of_mass,
+        explicit_center_of_mass,
+    )
+    np.testing.assert_allclose(
+        explicit.rigid_body_properties.current_inertia_tensor, explicit_inertia
+    )
+
+    # The compatibility value is an input carrier only; no runtime gravity object owns it.
+    assert not hasattr(canonical.gravity_field_model, "scaled_mean_moment_of_inertia")
+    assert not hasattr(canonical.gravity_field_model, "inertia_tensor")
+
+
+def test_deprecated_gravity_field_update_callback_remains_functional():
+    callback_calls = []
+    with pytest.warns(DeprecationWarning, match="update_inertia_tensor"):
+        gravity_field = environment.GravityFieldModel(
+            1.0, update_inertia_tensor=lambda: callback_calls.append(True)
+        )
+
+    gravity_field.gravitational_parameter = 2.0
+    assert callback_calls == [True]

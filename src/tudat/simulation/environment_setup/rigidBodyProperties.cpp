@@ -10,8 +10,10 @@
 
 #include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
@@ -234,33 +236,11 @@ void MassDependentRigidBodyProperties::setCurrentMass( const double currentMass 
 }
 
 FromGravityFieldRigidBodyProperties::FromGravityFieldRigidBodyProperties(
-        const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ): gravityFieldModel_( gravityFieldModel )
+        const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel,
+        const double scaledMeanMomentOfInertia ):
+    gravityFieldModel_( nullptr ), scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), modelIsTimeDependent_( false )
 {
-    if( gravityFieldModel_ == nullptr )
-    {
-        throw std::runtime_error( "Error when creating gravity-linked rigid body properties: gravity field is null." );
-    }
-
-    modelIsTimeDependent_ =
-            ( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ ) != nullptr );
-
-    currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-    currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-    currentDerivativeInertiaTensor_ = Eigen::Matrix3d::Zero( );
-
-    isMassComputed_ = true;
-    isComComputed_ = true;
-    isInertiaTensorAvailable_ = gravityFieldModel_->hasInertiaTensor( );
-    // A static gravity-derived tensor has an identically zero derivative. For a
-    // time-dependent field, availability is enabled when a coefficient-rate provider
-    // (currently an integrated gravity-field variation) supplies its first value.
-    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_ && !modelIsTimeDependent_;
-    if( isInertiaTensorAvailable_ )
-    {
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
-        isInertiaTensorComputed_ = true;
-        isDerivativeInertiaTensorComputed_ = !modelIsTimeDependent_;
-    }
+    resetGravityFieldModel( gravityFieldModel );
 }
 
 FromGravityFieldRigidBodyProperties::~FromGravityFieldRigidBodyProperties( ) {}
@@ -280,22 +260,15 @@ void FromGravityFieldRigidBodyProperties::updateMass( const double currentTime )
 {
     if( ( modelIsTimeDependent_ && !isMassComputed_ ) || !isBodyInPropagation_ )
     {
-        currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-        isMassComputed_ = true;
+        synchronizeMassFromGravityField( );
     }
 }
 
 void FromGravityFieldRigidBodyProperties::updateMassDistribution( const double currentTime )
 {
-    if( ( modelIsTimeDependent_ && !isComComputed_ ) || !isBodyInPropagation_ )
+    if( ( modelIsTimeDependent_ && ( !isComComputed_ || !isInertiaTensorComputed_ ) ) || !isBodyInPropagation_ )
     {
-        currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-        isComComputed_ = true;
-    }
-    if( isInertiaTensorAvailable_ && ( ( modelIsTimeDependent_ && !isInertiaTensorComputed_ ) || !isBodyInPropagation_ ) )
-    {
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
-        isInertiaTensorComputed_ = true;
+        synchronizeMassDistributionFromGravityField( );
     }
 }
 
@@ -329,21 +302,104 @@ void FromGravityFieldRigidBodyProperties::setCurrentMass( const double currentMa
 
 void FromGravityFieldRigidBodyProperties::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
-    currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
-    currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
-    isMassComputed_ = true;
-    isComComputed_ = true;
-    if( isInertiaTensorAvailable_ )
+    synchronizeMassFromGravityField( );
+    synchronizeMassDistributionFromGravityField( );
+    isBodyInPropagation_ = isBodyInPropagation;
+}
+
+void FromGravityFieldRigidBodyProperties::resetGravityFieldModel(
+        const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
+{
+    if( gravityFieldModel == nullptr )
     {
-        currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
-        isInertiaTensorComputed_ = true;
-        if( modelIsTimeDependent_ )
+        throw std::runtime_error( "Error when creating gravity-linked rigid body properties: gravity field is null." );
+    }
+
+    gravityFieldModel_ = gravityFieldModel;
+    modelIsTimeDependent_ =
+            ( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ ) != nullptr );
+    currentDerivativeInertiaTensor_.setZero( );
+    synchronizeMassFromGravityField( );
+    synchronizeMassDistributionFromGravityField( );
+}
+
+void FromGravityFieldRigidBodyProperties::synchronizeMassFromGravityField( )
+{
+    currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
+    isMassComputed_ = true;
+}
+
+void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravityField( )
+{
+    // Point-mass and ring fields define their center of mass at the body-fixed origin and do not
+    // provide inertia. More specialized fields override these defaults below.
+    currentCenterOfMass_.setZero( );
+    isComComputed_ = true;
+    isInertiaTensorAvailable_ = false;
+    isInertiaTensorComputed_ = false;
+
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+    if( sphericalHarmonicsGravityField != nullptr )
+    {
+        // Degree-one and degree-two coefficients are geodesy normalized in the environment.
+        // The conversions below preserve the existing Tudat conventions.
+        const Eigen::MatrixXd cosineCoefficients = sphericalHarmonicsGravityField->getCosineCoefficients( );
+        const Eigen::MatrixXd sineCoefficients = sphericalHarmonicsGravityField->getSineCoefficients( );
+        if( cosineCoefficients.rows( ) > 1 && cosineCoefficients.cols( ) > 1 && sineCoefficients.rows( ) > 1 &&
+            sineCoefficients.cols( ) > 1 )
         {
-            isDerivativeInertiaTensorComputed_ = false;
+            currentCenterOfMass_ =
+                    ( Eigen::Vector3d( ) << cosineCoefficients( 1, 1 ), sineCoefficients( 1, 1 ), cosineCoefficients( 1, 0 ) ).finished( ) /
+                    sphericalHarmonicsGravityField->getReferenceRadius( ) * std::sqrt( 3.0 );
+        }
+
+        isInertiaTensorAvailable_ = cosineCoefficients.rows( ) > 2 && cosineCoefficients.cols( ) > 2 && sineCoefficients.rows( ) > 2 &&
+                sineCoefficients.cols( ) > 2 && std::isfinite( scaledMeanMomentOfInertia_ );
+        if( isInertiaTensorAvailable_ )
+        {
+            currentInertiaTensor_ =
+                    gravitation::getInertiaTensorFromGravityField( sphericalHarmonicsGravityField, scaledMeanMomentOfInertia_ );
+            isInertiaTensorComputed_ = true;
+        }
+    }
+    else
+    {
+        const std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
+                std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
+        if( polyhedronGravityField != nullptr )
+        {
+            // A homogeneous polyhedron needs no additional inertia setting: geometry and the
+            // gravity-derived mass uniquely define the tensor.
+            currentInertiaTensor_ =
+                    basic_astrodynamics::computePolyhedronInertiaTensor( polyhedronGravityField->getVerticesCoordinates( ),
+                                                                         polyhedronGravityField->getVerticesDefiningEachFacet( ),
+                                                                         gravityFieldModel_->getGravitationalParameter( ),
+                                                                         physical_constants::GRAVITATIONAL_CONSTANT );
+            isInertiaTensorAvailable_ = true;
+            isInertiaTensorComputed_ = true;
         }
     }
 
-    isBodyInPropagation_ = isBodyInPropagation;
+    // Static gravity-derived inertia has zero derivative. A time-dependent spherical field
+    // obtains derivative availability when a coefficient-rate provider supplies a value.
+    isDerivativeInertiaTensorAvailable_ = isInertiaTensorAvailable_ && !modelIsTimeDependent_;
+    isDerivativeInertiaTensorComputed_ = isDerivativeInertiaTensorAvailable_;
+    if( isDerivativeInertiaTensorAvailable_ )
+    {
+        currentDerivativeInertiaTensor_.setZero( );
+    }
+}
+
+double FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia( ) const
+{
+    return scaledMeanMomentOfInertia_;
+}
+
+void FromGravityFieldRigidBodyProperties::setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
+{
+    scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+    synchronizeMassDistributionFromGravityField( );
 }
 
 }  // namespace simulation_setup

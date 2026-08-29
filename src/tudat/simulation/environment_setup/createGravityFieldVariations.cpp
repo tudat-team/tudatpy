@@ -61,8 +61,7 @@ std::shared_ptr< gravitation::IntegratedGravityFieldVariations > ensureIntegrate
                 sphericalHarmonicsGravityField->getReferenceRadius( ),
                 sphericalHarmonicsGravityField->getCosineCoefficients( ),
                 sphericalHarmonicsGravityField->getSineCoefficients( ),
-                sphericalHarmonicsGravityField->getFixedReferenceFrame( ),
-                sphericalHarmonicsGravityField->getScaledMeanMomentOfInertia( ) );
+                sphericalHarmonicsGravityField->getFixedReferenceFrame( ) );
         body->setGravityFieldModel( timeDependentGravityField );
     }
 

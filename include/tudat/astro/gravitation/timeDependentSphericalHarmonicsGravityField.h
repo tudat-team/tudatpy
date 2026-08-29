@@ -53,21 +53,17 @@ public:
      *  coefficients.
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
      *  fixed (optional).
-     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
-     *  empty)
      */
     TimeDependentSphericalHarmonicsGravityField( const double gravitationalParameter,
                                                  const double referenceRadius,
                                                  const Eigen::MatrixXd& nominalCosineCoefficients,
                                                  const Eigen::MatrixXd& nominalSineCoefficients,
-                                                 const std::string& fixedReferenceFrame = "",
-                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                                 const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField( gravitationalParameter,
                                         referenceRadius,
                                         nominalCosineCoefficients,
                                         nominalSineCoefficients,
-                                        fixedReferenceFrame,
-                                        scaledMeanMomentOfInertia ),
+                                        fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients )
     {}
 
@@ -90,14 +86,12 @@ public:
                                                  const Eigen::MatrixXd& nominalCosineCoefficients,
                                                  const Eigen::MatrixXd& nominalSineCoefficients,
                                                  const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
-                                                 const std::string& fixedReferenceFrame = "",
-                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                                 const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField( gravitationalParameter,
                                         referenceRadius,
                                         nominalCosineCoefficients,
                                         nominalSineCoefficients,
-                                        fixedReferenceFrame,
-                                        scaledMeanMomentOfInertia ),
+                                        fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )
     {

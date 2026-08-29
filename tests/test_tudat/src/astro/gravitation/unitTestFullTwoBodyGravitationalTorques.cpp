@@ -56,8 +56,15 @@ std::shared_ptr< simulation_setup::Body > createBodyForFullTwoBodyTorqueTest( co
                                                                               const double scaledMeanMomentOfInertia = TUDAT_NAN )
 {
     std::shared_ptr< simulation_setup::Body > body = std::make_shared< simulation_setup::Body >( );
-    body->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >(
-            gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "BodyFixed", scaledMeanMomentOfInertia ) );
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField =
+            std::make_shared< gravitation::SphericalHarmonicsGravityField >(
+                    gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "BodyFixed" );
+    body->setGravityFieldModel( gravityField );
+    if( std::isfinite( scaledMeanMomentOfInertia ) )
+    {
+        body->setMassProperties(
+                std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >( gravityField, scaledMeanMomentOfInertia ) );
+    }
 
     Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
     bodyState.segment( 0, 3 ) = position;

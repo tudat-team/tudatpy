@@ -107,6 +107,18 @@ void addGravityFieldModel( const SystemOfBodies& bodies,
     bodies.at( bodyName )
             ->setGravityFieldModel( createGravityFieldModel( gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
 
+    // Keep the legacy settings route functional without copying its value into the runtime
+    // gravity model. Explicit non-gravity rigid-body properties are preserved by Body.
+    const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( bodies.at( bodyName )->getMassProperties( ) );
+    if( sphericalHarmonicsSettings != nullptr && gravityDerivedRigidBodyProperties != nullptr &&
+        std::isfinite( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) ) )
+    {
+        gravityDerivedRigidBodyProperties->setScaledMeanMomentOfInertia( sphericalHarmonicsSettings->getScaledMeanMomentOfInertia( ) );
+    }
+
     if( gravityFieldVariationSettings.size( ) > 0 )
     {
         bodies.at( bodyName )

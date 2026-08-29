@@ -24,7 +24,6 @@
 #include <iostream>
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/polyhedronFuntions.h"
 #include "tudat/math/basic/polyhedron.h"
 
@@ -130,24 +129,19 @@ public:
      * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
      * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
      * @param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
-     * @param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class;
-     * default empty)
      */
     PolyhedronGravityField( const double gravitationalParameter,
                             const Eigen::MatrixXd& verticesCoordinates,
                             const Eigen::MatrixXi& verticesDefiningEachFacet,
-                            const std::string& fixedReferenceFrame = "",
-                            const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
-        GravityFieldModel( gravitationalParameter, updateInertiaTensor ), gravitationalParameter_( gravitationalParameter ),
-        verticesCoordinates_( verticesCoordinates ), verticesDefiningEachFacet_( verticesDefiningEachFacet ),
-        fixedReferenceFrame_( fixedReferenceFrame )
+                            const std::string& fixedReferenceFrame = "" ):
+        GravityFieldModel( gravitationalParameter ), verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ), fixedReferenceFrame_( fixedReferenceFrame )
     {
         // Check if provided arguments are valid
         basic_mathematics::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
 
         // Compute volume
         volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
-        density_ = gravitationalParameter_ / physical_constants::GRAVITATIONAL_CONSTANT / volume_;
 
         // Compute edges in polyhedron
         computeVerticesAndFacetsDefiningEachEdge( );
@@ -161,8 +155,6 @@ public:
         // Create cache object
         polyhedronGravityCache_ =
                 std::make_shared< PolyhedronGravityCache >( verticesCoordinates_, verticesDefiningEachFacet_, verticesDefiningEachEdge_ );
-
-        inertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor( verticesCoordinates_, verticesDefiningEachFacet_, density_ );
     }
 
     /*! Function to calculate the gravitational potential.
@@ -280,16 +272,6 @@ public:
         return edgeDyads_;
     }
 
-    bool hasInertiaTensor( ) override
-    {
-        return true;
-    }
-
-    Eigen::Matrix3d getInertiaTensor( ) override
-    {
-        return inertiaTensor_;
-    }
-
 protected:
 private:
     /*! Function to compute the vertices and facets defining each edge.
@@ -319,15 +301,8 @@ private:
      */
     void computeEdgeDyads( );
 
-    //! Gravitational parameter of the polyhedron.
-    double gravitationalParameter_;
-
     //! Volume of the polyhedron.
     double volume_;
-
-    double density_;
-
-    Eigen::Matrix3d inertiaTensor_;
 
     //! Cartesian coordinates of each vertex (one row per vertex, 3 columns).
     Eigen::MatrixXd verticesCoordinates_;

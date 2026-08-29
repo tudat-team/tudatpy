@@ -145,10 +145,22 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 };
 
+//! Rigid-body properties whose mass distribution is derived from an associated gravity model.
+/*!
+ * This class is the runtime owner of the scaled mean moment of inertia and of all derived
+ * inertia state. The gravity model supplies only gravitational data and keeps a non-owning
+ * reverse link, installed by Body, so changes to that data can trigger synchronization.
+ */
 class FromGravityFieldRigidBodyProperties : public RigidBodyProperties
 {
 public:
-    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
+    //! Create properties from gravity data, optionally enabling spherical-harmonic inertia.
+    /*!
+     * Direct C++ construction of a spherical-harmonic gravity field does not accept or retain a
+     * scaled mean moment. Supply it here and install these properties on the same Body.
+     */
+    FromGravityFieldRigidBodyProperties( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel,
+                                         const double scaledMeanMomentOfInertia = TUDAT_NAN );
 
     virtual ~FromGravityFieldRigidBodyProperties( );
 
@@ -164,8 +176,27 @@ public:
 
     virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
 
+    //! Reset the gravity field from which these properties are derived, retaining their owned configuration.
+    void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
+
+    //! Immediately synchronize mass after the linked gravity field's gravitational parameter changes.
+    void synchronizeMassFromGravityField( );
+
+    //! Immediately synchronize center of mass and inertia after linked gravity data change.
+    void synchronizeMassDistributionFromGravityField( );
+
+    //! Return the mean principal moment divided by mass times squared gravity reference radius.
+    double getScaledMeanMomentOfInertia( ) const;
+
+    //! Reset the owned scaled mean moment and immediately refresh gravity-derived inertia.
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia );
+
 protected:
-    const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+    //! Gravity data source retained by these derived properties.
+    std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+
+    //! Canonical runtime value; the gravity model does not retain a copy.
+    double scaledMeanMomentOfInertia_;
 
     bool modelIsTimeDependent_;
 };

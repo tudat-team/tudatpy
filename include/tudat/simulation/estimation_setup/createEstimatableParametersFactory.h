@@ -1510,12 +1510,20 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 else
                 {
-                    auto gravityFieldModel =
-                            std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) );
+                    const std::shared_ptr< simulation_setup::FromGravityFieldRigidBodyProperties > rigidBodyProperties =
+                            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >(
+                                    currentBody->getMassProperties( ) );
+                    if( rigidBodyProperties == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error, body rigid-body properties are not gravity-derived when making mean moment of "
+                                "inertia parameter." );
+                    }
                     doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >(
-                            std::bind( &SphericalHarmonicsGravityField::getScaledMeanMomentOfInertia, gravityFieldModel ),
-                            std::bind( &SphericalHarmonicsGravityField::setScaledMeanMomentOfInertia,
-                                       gravityFieldModel,
+                            std::bind( &simulation_setup::FromGravityFieldRigidBodyProperties::getScaledMeanMomentOfInertia,
+                                       rigidBodyProperties ),
+                            std::bind( &simulation_setup::FromGravityFieldRigidBodyProperties::setScaledMeanMomentOfInertia,
+                                       rigidBodyProperties,
                                        std::placeholders::_1 ),
                             currentBodyName );
                 }

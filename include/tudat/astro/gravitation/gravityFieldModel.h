@@ -12,6 +12,7 @@
 #ifndef TUDAT_GRAVITY_FIELD_MODEL_H
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
+#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <Eigen/Core>
@@ -21,6 +22,14 @@
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+
+class RigidBodyProperties;
+
+}  // namespace simulation_setup
+
 namespace gravitation
 {
 
@@ -35,12 +44,8 @@ public:
     /*!
      * Default constructor.
      * \param gravitationalParameter Gravitational parameter associated with gravity field
-     * \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default none)
      */
-    GravityFieldModel( const double gravitationalParameter,
-                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
-        gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
-    {}
+    GravityFieldModel( const double gravitationalParameter );
 
     //! Default destructor.
     /*!
@@ -53,14 +58,7 @@ public:
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter New gravitational parameter associated with gravity field.
      */
-    void resetGravitationalParameter( const double gravitationalParameter )
-    {
-        gravitationalParameter_ = gravitationalParameter;
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
-    }
+    void resetGravitationalParameter( const double gravitationalParameter );
 
     //! Get the gravitational parameter.
     /*!
@@ -105,22 +103,19 @@ public:
         throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
     }
 
-    virtual Eigen::Vector3d getCenterOfMass( )
-    {
-        return Eigen::Vector3d::Zero( );
-    }
+    //! Link the gravity field to the rigid-body properties associated with the same body.
+    /*!
+     * The link is non-owning because gravity-derived rigid-body properties retain the gravity
+     * model from which they compute mass, center of mass, and inertia. The two callbacks keep
+     * these quantities synchronized without introducing a dependency from the gravitation
+     * library on the environment-setup implementation.
+     */
+    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties,
+                                 const std::function< void( ) >& massUpdateFunction = std::function< void( ) >( ),
+                                 const std::function< void( ) >& massDistributionUpdateFunction = std::function< void( ) >( ) );
 
-    //! Return whether this gravity field provides sufficient information to derive an inertia tensor.
-    virtual bool hasInertiaTensor( )
-    {
-        return false;
-    }
-
-    //! Derive an inertia tensor from the gravity-field data.
-    virtual Eigen::Matrix3d getInertiaTensor( )
-    {
-        throw std::runtime_error( "Inertia tensor is not available from this gravity field model." );
-    }
+    //! Retrieve the linked rigid-body properties, if these still exist.
+    std::shared_ptr< simulation_setup::RigidBodyProperties > getRigidBodyProperties( ) const;
 
 protected:
     //! Gravitational parameter.
@@ -129,8 +124,18 @@ protected:
      */
     double gravitationalParameter_;
 
-    //!  Function that is to be called to update the inertia tensor (typicaly in Body class)
-    std::function< void( ) > updateInertiaTensor_;
+    //! Notify linked rigid-body properties that gravity-derived mass has changed.
+    void notifyMassUpdate( );
+
+    //! Notify linked rigid-body properties that gravity-derived center of mass or inertia has changed.
+    void notifyMassDistributionUpdate( );
+
+    //! Non-owning link avoids a cycle: gravity-derived rigid-body properties retain their gravity field.
+    std::weak_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
+
+    std::function< void( ) > massUpdateFunction_;
+
+    std::function< void( ) > massDistributionUpdateFunction_;
 
 private:
 };

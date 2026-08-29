@@ -1356,7 +1356,29 @@ SingleArcPropagatorSettings
            py::arg( "termination_settings" ),
            py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
-           R"doc(Create settings for propagation of unnormalised degree-two gravity-coefficient variations.)doc" );
+           R"doc(Create settings for propagation of unnormalised degree-two gravity-coefficient variations.
+
+The numerical state contains additive variations in the order
+``[C20, C21, C22, S21, S22]`` for each body. Nominal environment coefficients
+and other configured gravity variations remain separate. Propagation setup
+automatically creates an internal integrated gravity-field variation for each
+body and promotes a static spherical-harmonic field to a time-dependent field
+when required.
+
+During propagation the environment reads the current variation directly from
+the numerical state. When integrated results are installed in the environment,
+the state-history interpolator is installed in the same variation object and
+is used outside propagation. A later propagation switches back to the live
+state.
+
+Gravity-derived rigid-body properties are refreshed from the resulting total
+field. When the gravity variation is propagated, its current coefficient rate
+also defines the inertia-tensor derivative. Instantaneous non-integrated
+gravity-variation models do not currently provide coefficient derivatives.
+
+This interface supports degree and order two in single-arc propagation, alone
+or in a multi-type propagation, and supports multiple bodies in
+``bodies_to_integrate`` order.)doc" );
 
     m.def( "maxwell_deformation",
            py::overload_cast< const double,

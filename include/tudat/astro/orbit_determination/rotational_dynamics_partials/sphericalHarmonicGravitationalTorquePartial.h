@@ -50,9 +50,11 @@ public:
             const std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel,
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
-            const std::string acceleratingBody ):
+            const std::string acceleratingBody,
+            const std::function< double( ) > perturberGravitationalParameterFunction = std::function< double( ) >( ) ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
-        torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial )
+        torqueModel_( torqueModel ), accelerationPartial_( accelerationPartial ),
+        perturberGravitationalParameterFunction_( perturberGravitationalParameterFunction )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -159,6 +161,14 @@ protected:
             Eigen::MatrixXd& partialMatrix,
             const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
 
+    //! Add the torque partial caused by the gravity-derived perturber mass.
+    void addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix );
+
+    //! Add both acceleration and gravity-derived mass contributions for a gravitational parameter.
+    void getCombinedGravitationalParameterPartial(
+            Eigen::MatrixXd& partialMatrix,
+            const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
+
     //! Current quaternion elements
     Eigen::Vector4d currentQuaternionVector_;
 
@@ -193,6 +203,9 @@ protected:
 
     //! Partial for associated spherical harmonic acceleration
     const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
+
+    //! Perturber gravitational parameter, set only when its mass is derived from that same gravity field.
+    const std::function< double( ) > perturberGravitationalParameterFunction_;
 };
 
 }  // namespace acceleration_partials

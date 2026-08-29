@@ -253,7 +253,7 @@ The following was the original proposal produced directly after the review quest
 3. **Do not change `static_coefficients` semantics based only on the code diff.**
    First reproduce historical workflows and determine whether the new variation state changes their total field or initial-state interpretation.
 
-### Deferred, jointly designed inertia-ownership change
+### Historical deferred, jointly designed inertia-ownership change
 
 Moving `scaled_mean_moment_of_inertia` remains architecturally desirable but is not yet approved for implementation.
 
@@ -278,11 +278,34 @@ Before implementation, this design must satisfy all of the following:
 - direct C++ construction and migration behavior have an agreed policy; and
 - tests demonstrate compatibility rather than relying only on API shape.
 
-Until these conditions are met and the design is jointly approved, the current scaled-mean-moment ownership and related gravity-field inertia API should remain unchanged.
+This was the implementation gate at the time of the review. The design was subsequently approved with the additional reverse-link, update-callback, and Python-deprecation requirements recorded below.
 
 ## Current status
 
 - The report records both the original analysis and subsequent review decisions.
 - The generic coupled solver, its settings and Python API, dependency-keyed index map, large dynamics block, and solver-specific tests have been removed.
 - The comments from commit `066601762` remain.
-- The inertia-ownership design is now separately approved with additional callback and Python-deprecation requirements; it is not part of the solver-removal commit.
+- The solver rollback was finalized separately in commit `420a3987a` (`Remove generic coupled state derivative solver`).
+- The inertia-ownership migration was subsequently approved and implemented as a separate change.
+
+## Implemented inertia-ownership design
+
+The implemented design satisfies the approved ownership and compatibility requirements as follows:
+
+1. `FromGravityFieldRigidBodyPropertiesSettings` is the canonical settings type, exposed in Python as `rigid_body.from_gravity_field(...)`.
+2. `FromGravityFieldRigidBodyProperties` is the sole runtime owner of `scaled_mean_moment_of_inertia`, the derived inertia tensor, and its derivative.
+3. `SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` remains only as a deprecated Python-compatible input carrier. Body-settings reconciliation transfers it to automatically created gravity-derived rigid-body settings; no runtime gravity model receives a copy.
+4. Explicit non-gravity rigid-body settings and the legacy explicit constant-mass input retain precedence. Gravity changes do not overwrite them.
+5. Runtime gravity models have no inertia or center-of-mass accessor. Spherical-harmonic conversion is performed by the gravity-derived rigid-body properties; homogeneous polyhedron inertia moved there as part of the same migration. Ring and point-mass fields provide no inertia.
+6. A gravity model stores a non-owning reverse pointer to the associated rigid-body properties. `Body` installs callbacks so changes to gravitational parameter update gravity-derived mass and inertia normalization, while spherical-harmonic coefficient changes update center of mass and inertia. A weak pointer is used deliberately to avoid a gravity/rigid-body ownership cycle.
+7. Mean-moment estimation now reads and writes the gravity-derived rigid-body properties. The spherical-harmonic gravitational-torque partial also includes the gravitational-parameter contribution caused by the linked relation `M = mu/G`; this contribution is omitted when mass is explicitly configured and independent.
+8. A spherical-harmonic gravity field remains valid without a finite scaled mean moment or inertia tensor. Ordinary instantaneous gravity variations update the current inertia tensor, but do not claim an inertia derivative because those variation models do not currently expose coefficient rates.
+9. Direct C++ construction now has one explicit policy: construct the runtime gravity field without inertia configuration, then install `FromGravityFieldRigidBodyProperties(gravity_field, scaled_mean_moment)` on the same `Body` when gravity-derived inertia is required.
+10. Python deprecation warnings are emitted for the legacy gravity-settings property and the old direct `GravityFieldModel(..., update_inertia_tensor=...)` callback argument. Both compatibility paths remain behaviorally functional.
+
+## Validation outcome
+
+- Full release build in `cmake-build-release`, using the `tudatpy-dev` environment and `-j8`: passed all 745 Ninja actions.
+- Complete C++ CTest registry: 359 passed, 0 failed.
+- Complete `tests/test_tudatpy` suite against the rebuilt extension: 510 passed, 12 skipped because optional external credentials/data were unavailable, and 1 existing expected-failure test unexpectedly passed.
+- Formatting hooks and `git diff --check`: passed.

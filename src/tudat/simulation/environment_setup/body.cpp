@@ -300,12 +300,33 @@ void Body::setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEph
 
 void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
 {
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityFieldModel == nullptr && ( massProperties_ == nullptr || gravityLinkedRigidBodyProperties != nullptr ) )
+    {
+        throw std::runtime_error( "Error when setting a null gravity field on a body with gravity-derived rigid-body properties." );
+    }
+
+    if( gravityFieldModel_ != nullptr )
+    {
+        // Remove the reverse link before replacing the gravity model. This also clears callbacks
+        // that captured the current gravity-derived rigid-body properties.
+        gravityFieldModel_->setRigidBodyProperties( nullptr );
+    }
     gravityFieldModel_ = gravityFieldModel;
 
-    if( massProperties_ == nullptr || std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ ) != nullptr )
+    if( massProperties_ == nullptr )
     {
+        // Direct Body construction remains useful: it creates gravity-derived mass and center of
+        // mass, but spherical-harmonic inertia remains unavailable until an explicit scaled mean
+        // moment is supplied through gravity-derived rigid-body properties.
         massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
     }
+    else if( gravityLinkedRigidBodyProperties != nullptr )
+    {
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel );
+    }
+    linkGravityFieldAndRigidBodyProperties( );
 }
 
 void Body::setCurrentPropagatedGravityFieldVariation( const Eigen::VectorXd& gravityCoefficientCorrections, const double currentTime )
@@ -370,9 +391,6 @@ void Body::updateCurrentGravityField( const double currentTime )
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
     if( gravityLinkedRigidBodyProperties != nullptr )
     {
-        gravityLinkedRigidBodyProperties->resetCurrentTime( );
-        gravityLinkedRigidBodyProperties->update( currentTime );
-
         if( !isBodyInPropagation_ && gravityLinkedRigidBodyProperties->isInertiaTensorAvailable( ) && gravityFieldVariationSet_ != nullptr )
         {
             const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
@@ -585,13 +603,65 @@ std::shared_ptr< RigidBodyProperties > Body::getMassProperties( )
 
 void Body::setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties )
 {
-    if( gravityFieldModel_ != nullptr )
+    const bool replacingAutomaticallyCreatedProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ ) != nullptr &&
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties ) != nullptr;
+    if( gravityFieldModel_ != nullptr && massProperties != nullptr && !replacingAutomaticallyCreatedProperties )
     {
         std::cerr << "Warning, setting body mass distribution, but existing gravity field model and associated mass properties already "
                      "found; overriding existing body mass properties"
                   << std::endl;
     }
     massProperties_ = massProperties;
+    if( massProperties_ == nullptr && gravityFieldModel_ != nullptr )
+    {
+        massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel_ );
+    }
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties != nullptr && gravityFieldModel_ != nullptr )
+    {
+        // Body is authoritative for the association: direct callers cannot accidentally leave
+        // its gravity model linked to rigid-body properties derived from a different field.
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel_ );
+    }
+    linkGravityFieldAndRigidBodyProperties( );
+}
+
+void Body::linkGravityFieldAndRigidBodyProperties( )
+{
+    if( gravityFieldModel_ == nullptr )
+    {
+        return;
+    }
+
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties == nullptr )
+    {
+        // Explicit non-gravity rigid-body properties retain precedence. The gravity model may
+        // inspect them through the reverse link, but gravity changes must not overwrite them.
+        gravityFieldModel_->setRigidBodyProperties( massProperties_ );
+        return;
+    }
+
+    const std::weak_ptr< FromGravityFieldRigidBodyProperties > weakRigidBodyProperties = gravityLinkedRigidBodyProperties;
+    gravityFieldModel_->setRigidBodyProperties(
+            massProperties_,
+            [ weakRigidBodyProperties ]( ) {
+                const std::shared_ptr< FromGravityFieldRigidBodyProperties > rigidBodyProperties = weakRigidBodyProperties.lock( );
+                if( rigidBodyProperties != nullptr )
+                {
+                    rigidBodyProperties->synchronizeMassFromGravityField( );
+                }
+            },
+            [ weakRigidBodyProperties ]( ) {
+                const std::shared_ptr< FromGravityFieldRigidBodyProperties > rigidBodyProperties = weakRigidBodyProperties.lock( );
+                if( rigidBodyProperties != nullptr )
+                {
+                    rigidBodyProperties->synchronizeMassDistributionFromGravityField( );
+                }
+            } );
 }
 
 void Body::setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )

@@ -51,8 +51,7 @@ void expose_rigid_body_setup( py::module& m )
 
          Base class for providing settings for rigid body model creation.
 
-         This class is a functional base class for settings of gravity field models that require no information in addition to their type.
-         Gravity field model classes requiring additional information must be created using an object derived from this class.
+         Derived settings select how mass, center of mass, and inertia are defined for a body.
 
 
 
@@ -69,6 +68,40 @@ void expose_rigid_body_setup( py::module& m )
 
          :type: RigidBodyPropertiesType
       )doc" );
+
+    py::class_< tss::FromGravityFieldRigidBodyPropertiesSettings,
+                std::shared_ptr< tss::FromGravityFieldRigidBodyPropertiesSettings >,
+                tss::RigidBodyPropertiesSettings >(
+            m, "FromGravityFieldRigidBodyPropertiesSettings", R"doc(Settings for properties derived from the body's gravity field.)doc" )
+            .def_property( "scaled_mean_moment_of_inertia",
+                           &tss::FromGravityFieldRigidBodyPropertiesSettings::getScaledMeanMomentOfInertia,
+                           &tss::FromGravityFieldRigidBodyPropertiesSettings::setScaledMeanMomentOfInertia,
+                           R"doc(Mean principal moment divided by mass times squared gravity reference radius.)doc" );
+
+    m.def( "from_gravity_field",
+           tss::fromGravityFieldRigidBodyPropertiesSettings,
+           py::arg( "scaled_mean_moment_of_inertia" ) = TUDAT_NAN,
+           R"doc(
+
+Create rigid-body properties derived from the body's gravity field.
+
+The gravitational parameter defines mass. For a spherical-harmonic field, degree-one coefficients define the center
+of mass, while complete degree-two coefficients and ``scaled_mean_moment_of_inertia`` define the inertia tensor. A
+polyhedron field derives its inertia tensor from its homogeneous geometry. Leaving the scaled mean moment unset keeps
+a spherical-harmonic gravity field valid without defining an inertia tensor.
+
+Parameters
+----------
+scaled_mean_moment_of_inertia : float, default = nan
+    Mean principal moment divided by :math:`MR^2`, equivalently
+    :math:`(I_{xx}+I_{yy}+I_{zz})/(3MR^2)`.
+
+Returns
+-------
+FromGravityFieldRigidBodyPropertiesSettings
+    Canonical settings for gravity-derived mass, center of mass, and inertia.
+
+     )doc" );
 
     m.def( "constant_rigid_body_properties",
            tss::constantRigidBodyPropertiesSettings,

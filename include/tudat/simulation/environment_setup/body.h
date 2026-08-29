@@ -866,6 +866,9 @@ public:
 
 protected:
 private:
+    //! Keep the gravity model's non-owning rigid-body link and change callbacks synchronized.
+    void linkGravityFieldAndRigidBodyProperties( );
+
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
     int bodyIsGlobalFrameOrigin_;
 

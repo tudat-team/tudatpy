@@ -2544,7 +2544,24 @@ bool
 
 
      )doc" )
-            .def( py::init< const double, const std::function< void( ) > >( ),
+            .def( py::init( []( const double gravitationalParameter, const std::function< void( ) >& legacyUpdateFunction ) {
+                      const std::shared_ptr< tg::GravityFieldModel > gravityFieldModel =
+                              std::make_shared< tg::GravityFieldModel >( gravitationalParameter );
+                      if( legacyUpdateFunction )
+                      {
+                          if( PyErr_WarnEx( PyExc_DeprecationWarning,
+                                            "GravityFieldModel(..., update_inertia_tensor=...) is deprecated; rigid-body properties "
+                                            "are linked and synchronized by Body.",
+                                            1 ) < 0 )
+                          {
+                              throw py::error_already_set( );
+                          }
+                          // Preserve the old callback behavior for direct Python construction
+                          // without restoring inertia state to the gravity model.
+                          gravityFieldModel->setRigidBodyProperties( nullptr, std::function< void( ) >( ), legacyUpdateFunction );
+                      }
+                      return gravityFieldModel;
+                  } ),
                   py::arg( "gravitational_parameter" ),
                   py::arg( "update_inertia_tensor" ) = std::function< void( ) >( )  // <pybind11/functional.h>
                   )
