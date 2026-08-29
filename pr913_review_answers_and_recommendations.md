@@ -46,7 +46,7 @@ The method exists because the current implementation uses gravity fields as gene
 
 Architecturally, gravity-linked rigid-body properties should instead retrieve the necessary read-only source data and perform the conversion themselves, possibly through free calculation functions. However, removing `hasInertiaTensor()` and `getInertiaTensor()` must be considered together with the scaled-mean-moment ownership redesign; it should not be performed independently.
 
-### 4. Why does `coupledStateDerivativeSolver.h` exist?
+### 4. Why did `coupledStateDerivativeSolver.h` exist?
 
 There is a genuine same-epoch algebraic feedback loop:
 
@@ -64,23 +64,23 @@ More specifically:
 
 Sequential evaluation would use a stale derivative and make the result depend on model evaluation order.
 
-The current solver represents this as a fixed point `d = F(d)`. It numerically reconstructs a scaled affine coupling matrix, attempts a dense direct solve, validates the result, and falls back to fixed-point iteration. It also returns an implicit multiplier used to keep the variational equations consistent.
+The removed solver represented this as a fixed point `d = F(d)`. It numerically reconstructed a scaled affine coupling matrix, attempted a dense direct solve, validated the result, and fell back to fixed-point iteration. It also returned an implicit multiplier intended to keep the variational equations consistent.
 
-The physical need for a simultaneous solution is real. The current generic global solver may nevertheless be more general than required because the supported Maxwell/inertial-torque loop is affine and body-local.
+The physical need for a simultaneous solution is real. The generic global solver was nevertheless more general than required because the supported Maxwell/inertial-torque loop is affine and body-local. It has now been removed, and the earlier bounded derivative-update loop has been restored pending a focused design.
 
-### 5. Why may `coupledStateDerivativeSolverSettings_` not be null?
+### 5. Why was `coupledStateDerivativeSolverSettings_` not allowed to be null?
 
 There is no domain-level reason for the unconditional restriction. It was added to guarantee that the pointer can be dereferenced in the coupled branch.
 
 Ordinary propagation normally has no coupled state-derivative updater and never uses these settings. In that case, a null pointer is valid and avoids allocating irrelevant configuration.
 
-If the generic solver is retained, a better contract is:
+If such a generic solver were retained, a better contract would be:
 
 - allow null settings when no coupled dependency exists;
 - create internal defaults only after coupling is detected, or require settings only at that point; and
 - do not expose a mandatory solver object on every propagator setting.
 
-If the generic solver is replaced by a direct model-specific solve, the member and its Python API can probably be removed entirely.
+The member, mandatory non-null check, and Python API have now been removed with the generic solver.
 
 ### 6. Why was `stateDerivativeIndices` changed from an `IntegratedStateType` key to a `StateDerivativeDependency` key?
 
@@ -93,7 +93,7 @@ inertia_tensor_derivative_dependency -> gravity_deformation_state
 rotation_rate_derivative_dependency  -> rotational_state
 ```
 
-The key change is therefore structurally defensive, not functionally necessary today. It is reasonable if the generic dependency infrastructure remains. It should not be reverted merely because the current mapping is one-to-one, but it may disappear naturally if the coupling is replaced by explicit per-body descriptors.
+The key change was therefore structurally defensive, not functionally necessary today. It has been reverted together with the generic solver, restoring the `IntegratedStateType` key used by the earlier updater.
 
 ### 7. What is the role of the large coupled block in `DynamicsStateDerivativeModel::computeStateDerivative()`?
 
@@ -107,9 +107,9 @@ The block is the integration layer around the generic coupled solver. It:
 6. re-evaluates with the solution so the environment and full state derivative contain the same final values; and
 7. retains `(I - dF/dd)^{-1}` for the subsequent variational-equation calculation.
 
-The role is necessary under the generic solver design. Its implementation is intrusive: it repeatedly discovers relationships that are static during propagation, constructs a global dense problem, and duplicates some index bookkeeping already performed during setup.
+The role was necessary under the generic solver design. Its implementation was intrusive: it repeatedly discovered relationships that are static during propagation, constructed a global dense problem, and duplicated some index bookkeeping already performed during setup.
 
-A more focused design would construct per-body coupling descriptors once. Runtime evaluation could then use ordered evaluation for one-way dependencies and a compact direct solve only for genuine cycles.
+The block and its implicit variational-equation multiplier have now been removed. The pre-solver bounded derivative-update loop is restored; any later replacement should be a focused physical design rather than another global generic solver.
 
 ### 8. Why are the propagated-gravity setters and `updateCurrentGravityField()` functions on `Body`?
 
@@ -282,6 +282,7 @@ Until these conditions are met and the design is jointly approved, the current s
 
 ## Current status
 
-- This report records analysis and recommendations; it does not authorize the listed code changes.
-- The only already implemented review follow-up is the comment-only commit `066601762`.
-- No build is required for this report.
+- The report records both the original analysis and subsequent review decisions.
+- The generic coupled solver, its settings and Python API, dependency-keyed index map, large dynamics block, and solver-specific tests have been removed.
+- The comments from commit `066601762` remain.
+- The inertia-ownership design is now separately approved with additional callback and Python-deprecation requirements; it is not part of the solver-removal commit.

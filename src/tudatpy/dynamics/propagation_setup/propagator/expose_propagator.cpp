@@ -802,28 +802,6 @@ Enumeration of available integrated state types.
                                                       std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                                                       tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m, "SingleArcPropagatorSettings" );
 
-    py::enum_< tp::CoupledStateDerivativeFailureHandling >( m, "CoupledStateDerivativeFailureHandling" )
-            .value( "throw_exception", tp::throw_exception_on_coupled_derivative_failure )
-            .value( "accept_last_iteration", tp::accept_last_coupled_derivative_iteration );
-
-    py::class_< tp::CoupledStateDerivativeSolverSettings, std::shared_ptr< tp::CoupledStateDerivativeSolverSettings > >(
-            m, "CoupledStateDerivativeSolverSettings", R"doc(Settings for solving algebraically coupled state derivatives.)doc" )
-            .def( py::init< const bool,
-                            const double,
-                            const double,
-                            const unsigned int,
-                            const tp::CoupledStateDerivativeFailureHandling >( ),
-                  py::arg( "use_direct_affine_solution" ) = true,
-                  py::arg( "relative_tolerance" ) = 1.0e-11,
-                  py::arg( "absolute_scaled_tolerance" ) = 1.0e-13,
-                  py::arg( "maximum_iterations" ) = 25,
-                  py::arg( "failure_handling" ) = tp::throw_exception_on_coupled_derivative_failure )
-            .def_readwrite( "use_direct_affine_solution", &tp::CoupledStateDerivativeSolverSettings::useDirectAffineSolution_ )
-            .def_readwrite( "relative_tolerance", &tp::CoupledStateDerivativeSolverSettings::relativeTolerance_ )
-            .def_readwrite( "absolute_scaled_tolerance", &tp::CoupledStateDerivativeSolverSettings::absoluteTolerance_ )
-            .def_readwrite( "maximum_iterations", &tp::CoupledStateDerivativeSolverSettings::maximumIterations_ )
-            .def_readwrite( "failure_handling", &tp::CoupledStateDerivativeSolverSettings::failureHandling_ );
-
     py::class_< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::PropagatorSettings< STATE_SCALAR_TYPE > >( m,
@@ -921,10 +899,6 @@ Enumeration of available integrated state types.
 
             :type: IntegratorSettings
                            )doc" )
-            .def_property( "coupled_state_derivative_solver_settings",
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getCoupledStateDerivativeSolverSettings,
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::setCoupledStateDerivativeSolverSettings,
-                           R"doc(Settings for solving dependencies between simultaneously propagated state derivatives.)doc" )
             .def_property_readonly( "processing_settings",
                                     &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
                                     R"doc(

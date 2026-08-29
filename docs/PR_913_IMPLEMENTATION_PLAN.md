@@ -73,8 +73,8 @@ Status: completed for the supported degree-two Maxwell propagation model.
 
 ## 6. Coupled derivative solution
 
-Status: completed. Linear dependency blocks use a scaled direct algebraic
-solve; a configurable fixed-point fallback has an explicit failure policy.
+Status: open. The generic coupled-state-derivative solver that was initially
+implemented has been removed pending a focused design for this physical loop.
 
 - Formulate the dependency between gravity-coefficient rates, inertia
   derivatives, and angular acceleration explicitly.
@@ -87,9 +87,9 @@ solve; a configurable fixed-point fallback has an explicit failure policy.
 
 ## 7. Python API, documentation, and validation
 
-Status: completed for the supported single-arc degree-two Maxwell feature.
-The complete configured C++ build and all 360 CTest tests pass, together with
-the 17 focused Python end-to-end and API-documentation tests.
+Status: partially completed for the supported single-arc degree-two Maxwell
+feature. The generic coupled-solver settings and their Python API have been
+removed; validation of the final point-6 design remains open.
 
 - Expose high-level propagation and environment settings rather than internal
   body mutation functions.

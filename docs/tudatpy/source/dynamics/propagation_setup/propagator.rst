@@ -141,10 +141,6 @@ Enumerations
 
    PropagationTerminationTypes
 
-   CoupledStateDerivativeFailureHandling
-
-
-
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.TranslationalPropagatorType
    :members:
 
@@ -156,12 +152,6 @@ Enumerations
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationTypes
    :members:
-
-.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.CoupledStateDerivativeFailureHandling
-   :members:
-
-
-
 
 Classes
 -------
@@ -186,8 +176,6 @@ Classes
    GravityDeformationPropagatorSettings
 
    GravityDeformationSettings
-
-   CoupledStateDerivativeSolverSettings
 
    RelativisticTimePropagatorSettings
 
@@ -246,9 +234,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.GravityDeformationSettings
-   :members:
-
-.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.CoupledStateDerivativeSolverSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.RelativisticTimePropagatorSettings

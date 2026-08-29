@@ -26,7 +26,6 @@
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/basic_astro/gravityDeformationModel.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
-#include "tudat/astro/propagators/coupledStateDerivativeSolver.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/propagators/rotationalMotionStateDerivative.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
@@ -245,8 +244,7 @@ public:
                                          std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ), stateType_( stateType ),
         initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
-        integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval ),
-        coupledStateDerivativeSolverSettings_( std::make_shared< CoupledStateDerivativeSolverSettings >( ) )
+        integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval )
     {
         if( stateType_ == custom_state )
         {
@@ -273,8 +271,7 @@ public:
                                          std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ), stateType_( stateType ),
         initialTime_( initialTime ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
-        integratorSettings_( integratorSettings ), outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN ),
-        coupledStateDerivativeSolverSettings_( std::make_shared< CoupledStateDerivativeSolverSettings >( ) )
+        integratorSettings_( integratorSettings ), outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN )
     {
         if( stateType_ == custom_state )
         {
@@ -370,23 +367,6 @@ public:
         integratorSettings_ = integratorSettings;
     }
 
-    //! Retrieve settings for solving algebraically coupled state derivatives.
-    std::shared_ptr< CoupledStateDerivativeSolverSettings > getCoupledStateDerivativeSolverSettings( ) const
-    {
-        return coupledStateDerivativeSolverSettings_;
-    }
-
-    //! Reset settings for solving algebraically coupled state derivatives.
-    void setCoupledStateDerivativeSolverSettings(
-            const std::shared_ptr< CoupledStateDerivativeSolverSettings > coupledStateDerivativeSolverSettings )
-    {
-        if( coupledStateDerivativeSolverSettings == nullptr )
-        {
-            throw std::invalid_argument( "Coupled state-derivative solver settings may not be null." );
-        }
-        coupledStateDerivativeSolverSettings_ = coupledStateDerivativeSolverSettings;
-    }
-
     std::shared_ptr< SingleArcPropagatorProcessingSettings > getOutputSettings( )
     {
         return outputSettings_;
@@ -459,8 +439,6 @@ protected:
     //! Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty variable) the
     //! current state and time are to be printed to console (default never).
     double statePrintInterval_;
-
-    std::shared_ptr< CoupledStateDerivativeSolverSettings > coupledStateDerivativeSolverSettings_;
 
     int singleBodyStateSize_;
 

@@ -21,7 +21,6 @@
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/propagators/bodyMassStateDerivative.h"
-#include "tudat/astro/propagators/coupledStateDerivativeSolver.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
@@ -67,17 +66,10 @@ public:
                           const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                           const std::vector< IntegratedStateType > ) > environmentUpdateFunction,
             const std::shared_ptr< VariationalEquations > variationalEquations = std::shared_ptr< VariationalEquations >( ),
-            const std::shared_ptr< StateDerivativeUpdater< StateScalarType, TimeType > > stateDerivativeUpdater = nullptr,
-            const std::shared_ptr< CoupledStateDerivativeSolverSettings > coupledStateDerivativeSolverSettings =
-                    std::make_shared< CoupledStateDerivativeSolverSettings >( ) ):
+            const std::shared_ptr< StateDerivativeUpdater< StateScalarType, TimeType > > stateDerivativeUpdater = nullptr ):
         environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations ),
-        functionEvaluationCounter_( 0 ), stateDerivativeUpdater_( stateDerivativeUpdater ),
-        coupledStateDerivativeSolverSettings_( coupledStateDerivativeSolverSettings )
+        functionEvaluationCounter_( 0 ), stateDerivativeUpdater_( stateDerivativeUpdater )
     {
-        if( coupledStateDerivativeSolverSettings_ == nullptr )
-        {
-            throw std::invalid_argument( "Coupled state-derivative solver settings may not be null." );
-        }
         std::vector< IntegratedStateType > stateTypeList;
         totalConventionalStateSize_ = 0;
         totalPropagatedStateSize_ = 0;
@@ -136,34 +128,24 @@ public:
         if( stateDerivativeUpdater_ != nullptr )
         {
             auto environmentUpdateFunctions = stateDerivativeUpdater_->getEnvironmentUpdateFunctions( );
-            std::map< StateDerivativeDependency, std::vector< std::pair< int, int > > > stateDerivativeIndices;
+            std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateDerivativeIndices;
 
             for( auto dependencyTypeIt : environmentUpdateFunctions )
             {
-                const IntegratedStateType stateType = getStateTypeForDependency( dependencyTypeIt.first );
-                if( stateDerivativeModels_.count( stateType ) == 0 )
-                {
-                    throw std::runtime_error( "Coupled state-derivative dependency refers to a state type that is not propagated." );
-                }
+                IntegratedStateType stateType = getStateTypeForDependency( dependencyTypeIt.first );
                 std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > currentStateDerivativeModels =
                         stateDerivativeModels_.at( stateType );
 
                 for( unsigned int k = 0; k < dependencyTypeIt.second.size( ); k++ )
                 {
                     std::string bodyToCheck = dependencyTypeIt.second.at( k ).first;
-                    bool bodyFound = false;
-                    for( unsigned int indexCurrentModel = 0; indexCurrentModel < currentStateDerivativeModels.size( ); ++indexCurrentModel )
+                    for( unsigned int indexCurrentModel = 0; indexCurrentModel < currentStateDerivativeModels.size( ); indexCurrentModel++ )
                     {
                         std::vector< std::string > integratedBodies =
                                 currentStateDerivativeModels.at( indexCurrentModel )->getBodiesToIntegrate( );
 
                         if( std::count( integratedBodies.begin( ), integratedBodies.end( ), bodyToCheck ) > 0 )
                         {
-                            if( bodyFound )
-                            {
-                                throw std::runtime_error( "Body " + bodyToCheck +
-                                                          " occurs in multiple derivative models of one coupled state type." );
-                            }
                             unsigned int indexBody =
                                     find( integratedBodies.begin( ), integratedBodies.end( ), bodyToCheck ) - integratedBodies.begin( );
 
@@ -171,24 +153,8 @@ public:
                             int propagatedSingleStateSize = indexFullState.second / integratedBodies.size( );
                             std::pair< int, int > indexSingleStateBody = std::make_pair(
                                     indexFullState.first + propagatedSingleStateSize * indexBody, propagatedSingleStateSize );
-                            stateDerivativeIndices[ dependencyTypeIt.first ].push_back( indexSingleStateBody );
-
-                            const std::pair< int, int > conventionalFullState =
-                                    conventionalStateIndices_.at( stateType ).at( indexCurrentModel );
-                            const int conventionalSingleStateSize = conventionalFullState.second / integratedBodies.size( );
-                            const int componentOffset = ( dependencyTypeIt.first == rotation_rate_derivative_dependency ) ? 4 : 0;
-                            const int componentSize = ( dependencyTypeIt.first == rotation_rate_derivative_dependency ) ? 3 : 5;
-                            for( int component = 0; component < componentSize; ++component )
-                            {
-                                coupledConventionalStateDerivativeIndices_[ indexSingleStateBody.first + componentOffset + component ] =
-                                        conventionalFullState.first + conventionalSingleStateSize * indexBody + componentOffset + component;
-                            }
-                            bodyFound = true;
+                            stateDerivativeIndices[ stateType ].push_back( indexSingleStateBody );
                         }
-                    }
-                    if( !bodyFound )
-                    {
-                        throw std::runtime_error( "Could not locate propagated derivative state for coupled body " + bodyToCheck + "." );
                     }
                 }
             }
@@ -230,6 +196,7 @@ public:
         if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( ) )
         {
             stateDerivative_.resize( state.rows( ), state.cols( ) );
+            oldStateDerivative_.resize( state.rows( ), state.cols( ) );
         }
 
         // If dynamical equations are integrated, update the environment with the current state.
@@ -265,16 +232,6 @@ public:
         std::pair< int, int > currentIndices;
         if( evaluateDynamicsEquations_ )
         {
-            // Give derivative-dependent environment models a finite seed before their first
-            // evaluation. The algebraic solve below replaces this zero seed with the coupled
-            // solution; without it, e.g. a gravity-linked inertia derivative is undefined when
-            // the inertial torque is evaluated for the first time at an epoch.
-            if( stateDerivativeUpdater_ != nullptr )
-            {
-                stateDerivativeUpdater_->updateEnvironmentFromStateDerivative(
-                        time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( state.rows( ) ) );
-            }
-
             // Iterate over all types of equations.
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
@@ -304,163 +261,20 @@ public:
             }
         }
 
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > implicitDerivativeMultiplier;
-        bool implicitDerivativeMultiplierIsValid = true;
-        std::vector< CoupledStateDerivativeComponent > coupledComponents;
-        if( evaluateDynamicsEquations_ && stateDerivativeUpdater_ != nullptr )
-        {
-            using CoupledVector = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >;
-            // The unknowns are the outputs that are recomputed by a dependency. Inputs that are
-            // not themselves recomputed remain fixed at their nominal derivative, while a true
-            // gravity/rotation feedback loop naturally includes both output blocks.
-            std::map< int, StateDerivativeDependency > uniqueCoupledComponents;
-            for( const auto& modelTypeEntry : stateDerivativeUpdater_->getStateDerivativeModelsToUpdate( ) )
-            {
-                const auto& allModelsOfType = stateDerivativeModels_.at( modelTypeEntry.first );
-                for( const auto& model : modelTypeEntry.second )
-                {
-                    const auto modelIterator = std::find( allModelsOfType.begin( ), allModelsOfType.end( ), model );
-                    if( modelIterator == allModelsOfType.end( ) )
-                    {
-                        throw std::runtime_error( "Coupled state-derivative model is not registered in the dynamics model." );
-                    }
-                    const unsigned int modelIndex = static_cast< unsigned int >( modelIterator - allModelsOfType.begin( ) );
-                    const std::pair< int, int > propagatedIndices = propagatedStateIndices_.at( modelTypeEntry.first ).at( modelIndex );
-                    const std::pair< int, int > conventionalIndices = conventionalStateIndices_.at( modelTypeEntry.first ).at( modelIndex );
-                    const int singleStateSize = ( modelTypeEntry.first == rotational_state ) ? 7 : 5;
-                    const int componentOffset = ( modelTypeEntry.first == rotational_state ) ? 4 : 0;
-                    const int componentSize = ( modelTypeEntry.first == rotational_state ) ? 3 : 5;
-                    const StateDerivativeDependency componentType = ( modelTypeEntry.first == rotational_state )
-                            ? rotation_rate_derivative_dependency
-                            : inertia_tensor_derivative_dependency;
-                    if( propagatedIndices.second % singleStateSize != 0 || conventionalIndices.second != propagatedIndices.second )
-                    {
-                        throw std::runtime_error( "Coupled gravity and rotational derivative blocks have inconsistent sizes." );
-                    }
-                    for( int bodyIndex = 0; bodyIndex < propagatedIndices.second / singleStateSize; ++bodyIndex )
-                    {
-                        for( int component = 0; component < componentSize; ++component )
-                        {
-                            const int propagatedIndex = propagatedIndices.first + singleStateSize * bodyIndex + componentOffset + component;
-                            uniqueCoupledComponents[ propagatedIndex ] = componentType;
-                            coupledConventionalStateDerivativeIndices_[ propagatedIndex ] =
-                                    conventionalIndices.first + singleStateSize * bodyIndex + componentOffset + component;
-                        }
-                    }
-                }
-            }
-            coupledComponents.clear( );
-            for( const auto& component : uniqueCoupledComponents )
-            {
-                coupledComponents.push_back( { component.first, component.second } );
-            }
-
-            CoupledVector initialCoupledDerivative( coupledComponents.size( ) );
-            CoupledVector componentScales( coupledComponents.size( ) );
-            for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-            {
-                initialCoupledDerivative( i ) = stateDerivative_( coupledComponents.at( i ).stateDerivativeIndex_, dynamicsStartColumn_ );
-                const StateScalarType minimumScale = static_cast< StateScalarType >( 1.0e-10 );
-                componentScales( i ) = std::max( std::abs( initialCoupledDerivative( i ) ), minimumScale );
-            }
-
-            const StateType uncoupledStateDerivative = stateDerivative_;
-            const auto evaluateCoupledDerivative = [ & ]( const CoupledVector& trialCoupledDerivative,
-                                                          StateType* evaluatedFullDerivative ) -> CoupledVector {
-                StateType currentDerivative = uncoupledStateDerivative;
-                for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-                {
-                    currentDerivative( coupledComponents.at( i ).stateDerivativeIndex_, dynamicsStartColumn_ ) =
-                            trialCoupledDerivative( i );
-                }
-
-                stateDerivativeUpdater_->updateEnvironmentFromStateDerivative(
-                        time, currentDerivative.block( 0, dynamicsStartColumn_, currentDerivative.rows( ), 1 ) );
-                stateDerivativeUpdater_->updateStateDerivativeModels( time );
-
-                for( const auto& modelTypeEntry : stateDerivativeUpdater_->getStateDerivativeModelsToUpdate( ) )
-                {
-                    const auto& allModelsOfType = stateDerivativeModels_.at( modelTypeEntry.first );
-                    for( const auto& model : modelTypeEntry.second )
-                    {
-                        const auto modelIterator = std::find( allModelsOfType.begin( ), allModelsOfType.end( ), model );
-                        if( modelIterator == allModelsOfType.end( ) )
-                        {
-                            throw std::runtime_error( "Coupled state-derivative model is not registered in the dynamics model." );
-                        }
-                        const unsigned int modelIndex = static_cast< unsigned int >( modelIterator - allModelsOfType.begin( ) );
-                        currentIndices = propagatedStateIndices_.at( modelTypeEntry.first ).at( modelIndex );
-                        model->calculateSystemStateDerivative(
-                                time,
-                                state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
-                                currentDerivative.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
-                    }
-                }
-
-                CoupledVector mappedDerivative( coupledComponents.size( ) );
-                for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-                {
-                    mappedDerivative( i ) = currentDerivative( coupledComponents.at( i ).stateDerivativeIndex_, dynamicsStartColumn_ );
-                }
-                if( evaluatedFullDerivative != nullptr )
-                {
-                    *evaluatedFullDerivative = currentDerivative;
-                }
-                return mappedDerivative;
-            };
-
-            const std::function< CoupledVector( const CoupledVector& ) > derivativeMapping = [ & ]( const CoupledVector& derivative ) {
-                return evaluateCoupledDerivative( derivative, nullptr );
-            };
-            const CoupledStateDerivativeSolution< StateScalarType > coupledSolution = solveCoupledStateDerivative< StateScalarType >(
-                    derivativeMapping, initialCoupledDerivative, componentScales, *coupledStateDerivativeSolverSettings_ );
-
-            evaluateCoupledDerivative( coupledSolution.stateDerivative_, &stateDerivative_ );
-            for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-            {
-                stateDerivative_( coupledComponents.at( i ).stateDerivativeIndex_, dynamicsStartColumn_ ) =
-                        coupledSolution.stateDerivative_( i );
-            }
-            implicitDerivativeMultiplier = coupledSolution.implicitDerivativeMultiplier_;
-            implicitDerivativeMultiplierIsValid = coupledSolution.implicitDerivativeMultiplierIsValid_;
-        }
-
-        // Evaluate variational equations only after the environment contains the final coupled derivative.
+        // If variational equations are to be integrated: evaluate and set.
         if( evaluateVariationalEquations_ )
         {
             variationalEquations_->updatePartials( time, currentStatesPerTypeInConventionalRepresentation_ );
-            const int numberOfParameterValues = variationalEquations_->getNumberOfParameterValues( );
+
             variationalEquations_->evaluateVariationalEquations< StateScalarType >(
                     time,
-                    state.block( 0, 0, totalConventionalStateSize_, numberOfParameterValues ),
-                    stateDerivative_.block( 0, 0, totalConventionalStateSize_, numberOfParameterValues ) );
-
-            if( !coupledComponents.empty( ) )
-            {
-                if( !implicitDerivativeMultiplierIsValid )
-                {
-                    throw std::runtime_error(
-                            "Coupled state-derivative solution does not provide a valid implicit variational-equation multiplier." );
-                }
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > coupledVariationalDerivative( coupledComponents.size( ),
-                                                                                                               numberOfParameterValues );
-                for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-                {
-                    coupledVariationalDerivative.row( i ) =
-                            stateDerivative_
-                                    .row( coupledConventionalStateDerivativeIndices_.at( coupledComponents.at( i ).stateDerivativeIndex_ ) )
-                                    .head( numberOfParameterValues );
-                }
-                coupledVariationalDerivative = implicitDerivativeMultiplier * coupledVariationalDerivative;
-                for( unsigned int i = 0; i < coupledComponents.size( ); ++i )
-                {
-                    stateDerivative_.row( coupledConventionalStateDerivativeIndices_.at( coupledComponents.at( i ).stateDerivativeIndex_ ) )
-                            .head( numberOfParameterValues ) = coupledVariationalDerivative.row( i );
-                }
-            }
+                    state.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
+                    stateDerivative_.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ) );
         }
 
-        // A user-defined modifier acts on the final physical and variational derivatives.
+        // Update counters
+        functionEvaluationCounter_++;
+
         if( stateDerivativeModifierFunction_ )
         {
             StateType modifiedStateDerivative = stateDerivativeModifierFunction_( state, stateDerivative_ );
@@ -475,7 +289,55 @@ public:
             stateDerivative_ = modifiedStateDerivative;
         }
 
-        functionEvaluationCounter_++;
+        bool interdependencies = ( stateDerivativeUpdater_ != nullptr );
+        bool convergenceReached = false;
+        int iterations = 1;
+        int maxIterations = 4;
+        double convergenceTolerance = 1.0e-14;
+        while( interdependencies && !convergenceReached )
+        {
+            // Iterate
+            oldStateDerivative_ = stateDerivative_;
+
+            // Update state derivative values in environment and state derivative models
+            stateDerivativeUpdater_->updateEnvironmentFromStateDerivative(
+                    time, stateDerivative_.block( 0, dynamicsStartColumn_, stateDerivative_.rows( ), 1 ) );
+            stateDerivativeUpdater_->updateStateDerivativeModels( time );
+
+            // Recompute state derivative (only when necessary)
+            for( auto modelIt : stateDerivativeUpdater_->getStateDerivativeModelsToUpdate( ) )
+            {
+                for( unsigned int i = 0; i < modelIt.second.size( ); i++ )
+                {
+                    // Evaluate and set current dynamical state derivative
+                    currentIndices = propagatedStateIndices_.at( modelIt.first ).at( i );
+
+                    modelIt.second.at( i )->calculateSystemStateDerivative(
+                            time,
+                            state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
+                            stateDerivative_.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
+                }
+            }
+
+            iterations += 1;
+
+            // Check if convergence is reached or maximum number of iterations is attained
+            convergenceReached = true;
+            for( unsigned int i = 0; i < oldStateDerivative_.rows( ); i++ )
+            {
+                for( unsigned int j = 0; j < oldStateDerivative_.cols( ); j++ )
+                {
+                    if( std::fabs( oldStateDerivative_( i, j ) - stateDerivative_( i, j ) ) > convergenceTolerance )
+                    {
+                        convergenceReached = false;
+                    }
+                }
+            }
+            if( iterations > maxIterations )
+            {
+                convergenceReached = true;
+            }
+        }
 
         return stateDerivative_;
     }
@@ -987,6 +849,8 @@ private:
     //! Current state derivative, as computed by computeStateDerivative.
     StateType stateDerivative_;
 
+    StateType oldStateDerivative_;
+
     //! Current state in 'conventional' representation, computed from current propagated state by
     //! convertCurrentStateToGlobalRepresentationPerType
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
@@ -1001,10 +865,6 @@ private:
     std::function< StateType( const StateType&, const StateType& ) > stateDerivativeModifierFunction_;
 
     std::shared_ptr< StateDerivativeUpdater< StateScalarType, TimeType > > stateDerivativeUpdater_;
-
-    std::shared_ptr< CoupledStateDerivativeSolverSettings > coupledStateDerivativeSolverSettings_;
-
-    std::map< int, int > coupledConventionalStateDerivativeIndices_;
 };
 
 // extern template class DynamicsStateDerivativeModel< double, double >;

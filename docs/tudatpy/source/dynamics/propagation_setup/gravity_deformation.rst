@@ -55,12 +55,6 @@ tensor is available without a supported rate source, rotational propagation
 retains the legacy zero-inertia-derivative behavior while the public derivative
 remains unavailable.
 
-If gravity-coefficient rates and angular acceleration depend on one another,
-Tudat solves the resulting algebraic derivative system.  The default is a
-scaled direct affine solve with a checked fixed-point fallback.  Configure
-tolerances, iteration limits, and non-convergence handling through
-``propagator_settings.coupled_state_derivative_solver_settings``.
-
 Supported modes
 ---------------
 

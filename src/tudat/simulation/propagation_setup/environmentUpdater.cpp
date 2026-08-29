@@ -17,6 +17,10 @@ std::vector< StateDerivativeDependency > getTorqueStateDerivativeDependencies( c
             dependencyList.push_back( inertia_tensor_derivative_dependency );
             break;
         }
+        case basic_astrodynamics::dissipative_torque: {
+            dependencyList.push_back( inertia_tensor_derivative_dependency );
+            break;
+        }
         default: {
             break;
         }

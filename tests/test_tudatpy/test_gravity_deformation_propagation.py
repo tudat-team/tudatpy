@@ -63,12 +63,6 @@ def test_gravity_deformation_propagation_and_environment_lifecycle():
         propagation_setup.propagator.time_termination(20.0),
     )
     propagator_settings.processing_settings.set_integrated_result = True
-    solver_settings = propagation_setup.propagator.CoupledStateDerivativeSolverSettings(
-        relative_tolerance=2.0e-11,
-        absolute_scaled_tolerance=2.0e-13,
-        maximum_iterations=30,
-    )
-    propagator_settings.coupled_state_derivative_solver_settings = solver_settings
 
     dynamics_simulator = simulator.create_dynamics_simulator(bodies, propagator_settings)
     state_history = dynamics_simulator.propagation_results.state_history

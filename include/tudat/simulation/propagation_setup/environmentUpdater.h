@@ -902,12 +902,6 @@ private:
 
 enum StateDerivativeDependency { inertia_tensor_derivative_dependency = 0, rotation_rate_derivative_dependency = 1 };
 
-//! Identification of one scalar entry in the algebraically coupled state derivative.
-struct CoupledStateDerivativeComponent {
-    int stateDerivativeIndex_;
-    StateDerivativeDependency dependencyType_;
-};
-
 std::vector< StateDerivativeDependency > getTorqueStateDerivativeDependencies( const basic_astrodynamics::AvailableTorque torqueType );
 
 std::vector< StateDerivativeDependency > getGravityStateDerivativeDependencies(
@@ -978,23 +972,27 @@ public:
         {
             for( unsigned int i = 0; i < dependencyTypeIt.second.size( ); i++ )
             {
-                const std::pair< int, int > indices = stateDerivativeIndices_.at( dependencyTypeIt.first ).at( i );
+                std::pair< int, int > indices = stateDerivativeIndices_.at( getStateTypeForDependency( dependencyTypeIt.first ) ).at( i );
 
                 if( dependencyTypeIt.first == inertia_tensor_derivative_dependency )
                 {
-                    if( indices.second != 5 )
-                    {
-                        throw std::runtime_error( "Inertia-tensor derivative dependency requires five gravity-coefficient rates." );
-                    }
-                    dependencyTypeIt.second.at( i ).second( integratedStateDerivativesToSet2.segment( indices.first, 5 ) );
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentGravityStateDerivative =
+                            integratedStateDerivativesToSet2.block( indices.first, 0, indices.second, 1 );
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > fullDegree2Derivative =
+                            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 5 );
+                    fullDegree2Derivative[ 0 ] = currentGravityStateDerivative[ 0 ];
+                    fullDegree2Derivative[ 1 ] = currentGravityStateDerivative[ 1 ];
+                    fullDegree2Derivative[ 2 ] = currentGravityStateDerivative[ 2 ];
+                    fullDegree2Derivative[ 3 ] = currentGravityStateDerivative[ 3 ];
+                    fullDegree2Derivative[ 4 ] = currentGravityStateDerivative[ 4 ];
+
+                    dependencyTypeIt.second.at( i ).second( fullDegree2Derivative );
                 }
                 if( dependencyTypeIt.first == rotation_rate_derivative_dependency )
                 {
-                    if( indices.second != 7 )
-                    {
-                        throw std::runtime_error( "Rotation-rate derivative dependency requires a seven-element rotational state." );
-                    }
-                    dependencyTypeIt.second.at( i ).second( integratedStateDerivativesToSet2.segment( indices.first + 4, 3 ) );
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentAngularVelocityDerivative =
+                            integratedStateDerivativesToSet2.block( indices.first + 4, 0, 3, 1 );
+                    dependencyTypeIt.second.at( i ).second( currentAngularVelocityDerivative );
                 }
             }
         }
@@ -1013,13 +1011,12 @@ public:
         return updateSettings_;
     }
 
-    std::map< StateDerivativeDependency, std::vector< std::pair< int, int > > > getStateDerivativeIndices( ) const
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > getStateDerivativeIndices( )
     {
         return stateDerivativeIndices_;
     }
 
-    void setStateDerivativeIndices(
-            const std::map< StateDerivativeDependency, std::vector< std::pair< int, int > > >& stateDerivativeIndices )
+    void setStateDerivativeIndices( std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateDerivativeIndices )
     {
         stateDerivativeIndices_ = stateDerivativeIndices;
     }
@@ -1045,7 +1042,7 @@ private:
 
     std::vector< std::function< void( const double ) > > updateModelFunctions_;
 
-    std::map< StateDerivativeDependency, std::vector< std::pair< int, int > > > stateDerivativeIndices_;
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateDerivativeIndices_;
     std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
             stateDerivativeModelsToUpdate_;
     std::map< StateDerivativeDependency,
