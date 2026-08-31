@@ -183,6 +183,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             Eigen::MatrixXd constraintStateMultiplier;
             Eigen::VectorXd constraintRightHandSide;
             parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+            normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
             double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
             if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
