@@ -244,11 +244,6 @@ jobs:
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
           -DCMAKE_UNITY_BUILD=ON
 
-    - name: Debug
-      run: |
-        conda info
-        conda list
-
     - name: Build C++ kernel
       id: build_kernel_non_windows
       if: runner.os != 'Windows'
@@ -261,6 +256,10 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd
       run: |
+        @echo off
+        rem Activate Conda once so Ninja child cmd.exe processes skip its AutoRun hook.
+        call "%CONDA%\condabin\conda_hook.bat" >nul 2>nul
+        @if errorlevel 1 exit /b 1
         @echo off
         call "%VCVARS64%" -vcvars_ver=%MSVC_TOOLSET_VERSION% >nul 2>nul
         if errorlevel 1 exit /b 1
