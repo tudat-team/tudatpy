@@ -80,5 +80,5 @@ def read_atdf_data(
         range_one_way=range_one_way,
         range_two_way=range_two_way,
     )
-    processor._convert_atdf_to_ascii(output_dir, count_time=count_time)
+    processor.convert_atdf_to_ascii(output_dir, count_time=count_time)
     return processor.process(output_dir)

@@ -3,12 +3,17 @@ from pathlib import Path
 
 import pandas as pd
 from atdf2ascii import main as atdf2ascii_main
+
 from tudatpy.data_input.tracking_data import (
     TrackingData,
     TrackingSupplementaryData,
 )
 
-from ._converters import AtdfNwayDopplerConverter, AtdfRampConverter, AtdfNwayRangeConverter
+from ._converters import (
+    AtdfNwayDopplerConverter,
+    AtdfNwayRangeConverter,
+    AtdfRampConverter,
+)
 
 _DEFAULT_PROC_COUNT = max(1, (os.cpu_count() or 2) // 2)
 
@@ -76,7 +81,7 @@ class AtdfTrackingDataProcessor:
         self.range_one_way = range_one_way
         self.range_two_way = range_two_way
 
-    def _convert_atdf_to_ascii(
+    def convert_atdf_to_ascii(
         self,
         output_dir: Path | None,
         count_time: list[float] | None = None,
@@ -84,11 +89,12 @@ class AtdfTrackingDataProcessor:
         if output_dir is None:
             output_dir = self.output_dir
 
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         if count_time is not None:
             count_time = list(count_time)
 
         for atdf_file in self.atdf_file_path:
-
             atdf2ascii_main(
                 input_file=atdf_file.absolute().as_posix(),
                 output_dir=output_dir.as_posix(),
