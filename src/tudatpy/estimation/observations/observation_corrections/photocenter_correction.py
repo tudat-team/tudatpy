@@ -5,133 +5,13 @@ import numpy as np
 from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
-from numpy.linalg import norm
 from ._correction_utils import _offset_vector_to_corrections, _unit, _apply_corrections_to_observation_collection
 from tudatpy.constants import SPEED_OF_LIGHT
-from collections.abc import Iterable
-
-def _photocenter_offset(diameter : float,
-                        body_wrt_observer : np.ndarray,
-                        body_wrt_sun : np.ndarray,) -> np.ndarray:
-    """Helper function to calculate photocenter offset at one epoch"""
-    # Get unit vectors
-    body_wrt_observer_unit = _unit(body_wrt_observer)
-    body_wrt_sun_unit = _unit(body_wrt_sun)
-
-    # Angle spanned by observer, body and Sun:
-    solar_phase_angle = np.arccos(np.dot(body_wrt_observer_unit, body_wrt_sun_unit))
-
-    offset_direction = - _unit((body_wrt_sun_unit - np.dot(body_wrt_sun_unit, body_wrt_observer_unit)
-                    * body_wrt_observer_unit))
-    # Calculate fraction of radius according to Fuentes-Munoz (2024):
-    cot = lambda x: np.cos(x) / np.sin(x)
-    num = 2 * (np.sin(solar_phase_angle) + (np.pi - solar_phase_angle) * np.cos(solar_phase_angle))
-    denom = 3 * np.pi * (
-            cot(solar_phase_angle / 2) - np.sin(solar_phase_angle / 2) * np.log(cot(solar_phase_angle / 4)))
-    offset_ratio = num / denom # Fraction of body radius
-
-    offset_magnitude = offset_ratio * (diameter/2) / norm(body_wrt_observer)
-
-    return offset_direction * offset_magnitude
-
-
-def photocenter_correction_angular_observations_sphere(
-        observations: np.ndarray ,
-        diameter: float,
-        bodies: SystemOfBodies,
-        body_name: str,
-        observer_body_name: str,
-        observer_reference_name: str | None = None
-) -> np.ndarray:
-    r"""
-    Compute photocenter-barycenter corrections assuming a spherical shape model.
-
-    Compute photocenter-barycenter corrections assuming a spherical shape model, according to Fuentes-Munoz
-    et al. (2024):
-
-    .. math::
-
-        \frac{d_{L-S}}{R} = \frac{2}{3\pi}\frac{\sin{\alpha} + (\pi-\alpha)\cos{\alpha}}{\cot{\frac{\alpha}{2}}-
-        \sin{\frac{\alpha}{2}}\ln{(\cot{\frac{\alpha}{4}})}}
-
-    with :math:`R` the radius of the observed body, and :math:`\alpha` the solar phase angle.
-
-    The SystemOfBodies object must have an apriori ephemeris loaded for the observer, observed body and the sun.
-    The corrections from this function should be added to observations (or the apply_* functions should be used).
-
-    Parameters
-    ----------
-    observations: np.ndarray
-        Array of angular observations with columns [time, RA, DEC], with time in s since J2000, and angles in rad
-    diameter : float
-        Diameter of the body in meter
-    bodies : SystemOfBodies
-        The SystemOfBodies object that contains ephemerides of observer, body and sun in same reference frame
-    body_name : str
-        Name of the body being observed, in the SystemOfBodies object
-    observer_body_name : str
-        Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str
-        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
-            of the observer_body_name body.
-    Returns
-    -------
-    np.ndarray
-        Nx2 array of corrections for RA and DEC, to be added to observations
-    """
-    # Validate inputs
-    body_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
-                for name in (body_name, observer_body_name, 'Sun')]
-    if any(body_undefined):
-        raise ValueError(f'Bodies {body_name}, {observer_body_name}, "Sun" not found in SystemOfBodies object, or their'
-                         f'associated ephemerides do not exist')
-
-    if observations.shape[1] != 3:
-        raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
-
-    if diameter <= 0:
-        raise ValueError('Asteroid diameter must be a positive number')
-
-    # Create ephemeris for the reference point if it is given
-    if observer_reference_name is not None:
-        observer_ephemeris = create_ground_station_ephemeris(
-            bodies.get(observer_body_name),
-            observer_reference_name,
-            bodies
-        ) # -> In global frame origin/orientation
-    else:
-        observer_ephemeris = None
-
-    # Corrections to RA/DEC observations
-    corrections = []
-
-    for epoch, ra, dec in observations:
-
-        # Retrieve body, Sun and observer positions in common frame
-        body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
-        sun_position = bodies.get('Sun').state_in_base_frame_from_ephemeris(epoch)[:3]
-
-        if observer_ephemeris is not None: # Retrieve from reference point's ephemeris
-            observer_position = observer_ephemeris.cartesian_position(epoch)
-        else: # Retrieve from observer body ephemeris
-            observer_position = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
-
-        offset_vector = _photocenter_offset(diameter,
-                                            (body_position - observer_position),
-                                            (body_position - sun_position))
-
-        # Calculate corrections to the astrometry
-        corrections.append(
-            _offset_vector_to_corrections(offset_vector, ra, dec)
-        )
-
-    corrections = np.array(corrections)
-
-    return corrections
+from collections.abc import Sequence
 
 def apply_photocenter_correction_to_observation_collection(
         observation_collection: ObservationCollection,
-        body_size: float | Iterable[float],
+        body_dimensions: float | Sequence[float],
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
@@ -141,20 +21,18 @@ def apply_photocenter_correction_to_observation_collection(
     """
     Computes photocenter corrections and applies them to an observation collection.
 
-    If the body size is given as a float (a diameter in m), the spherical approximation model for the correction,
-    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_sphere`, is used.
-
-    If the body size is given as a list of 3 floats (ellipsoid semi-axes) the ellipsoidal approximation for the
-    correction is called:
-    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_ellipsoid`.
+    Computes photocenter corrections and applies them to an observation collection. Calls the function
+    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`,
+    and applies the resulting corrections to all angular observations in the observation collection with the specified
+    link-ends.
 
     Parameters
     ----------
     observation_collection : ObservationCollection
         Uncorrected observation collection
-    body_size : float | list[float]
-        Body size in m. If a float, it is assumed the diameter. If a list of floats, they are assumed to be ellipsoid
-        semi-axes.
+    body_dimensions : float | list[float]
+        Body size in m. If a float, the body is modeled as a sphere with that radius. If a list of floats, they are
+        assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
         The SystemOfBodies object that contains ephemerides of observer, body and sun in same reference frame
     body_name : str
@@ -172,30 +50,17 @@ def apply_photocenter_correction_to_observation_collection(
     None | ObservationCollection
         Returns None, or the new ObservationCollection depending on the argument 'in_place'
     """
-    if isinstance(body_size, Iterable): # Ellipsoidal correction
-        return _apply_corrections_to_observation_collection(
-            observation_collection=observation_collection,
-            bodies=bodies,
-            body_name=body_name,
-            observer_body_name=observer_body_name,
-            observer_reference_name=observer_reference_name,
-            in_place=in_place,
-            correction_function=photocenter_correction_angular_observations_ellipsoid,
-            semi_axes=body_size
-        )
-    elif isinstance(body_size, (float, int)): # Spherical approximation
-        return _apply_corrections_to_observation_collection(
-            observation_collection=observation_collection,
-            diameter=body_size,
-            bodies=bodies,
-            body_name=body_name,
-            observer_body_name=observer_body_name,
-            observer_reference_name=observer_reference_name,
-            in_place=in_place,
-            correction_function=photocenter_correction_angular_observations_sphere
-        )
-    else:
-        raise TypeError('Body size input type not recognized. Needs to be either float or array of floats')
+    return _apply_corrections_to_observation_collection(
+        observation_collection=observation_collection,
+        body_name=body_name,
+        bodies=bodies,
+        observer_body_name=observer_body_name,
+        observer_reference_name=observer_reference_name,
+        in_place=in_place,
+        correction_function=photocenter_correction_angular_observations,
+        body_dimensions=body_dimensions,
+    )
+
 
 def _photocenter_correction_ellipsoidal(
         semi_axes: list | np.ndarray,
@@ -275,9 +140,9 @@ def _photocenter_correction_ellipsoidal(
     return offset
 
 
-def photocenter_correction_angular_observations_ellipsoid(
+def photocenter_correction_angular_observations(
         observations: np.ndarray ,
-        semi_axes: list | np.ndarray,
+        body_dimensions: float | Sequence[float],
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
@@ -295,17 +160,28 @@ def photocenter_correction_angular_observations_ellipsoid(
         \sqrt{C^{-1}} R_E^T \begin{bmatrix}
         I_1 \\ I_2 \\ 0 \end{bmatrix}
 
-    An apriori ephemeris should be loaded for the observer, observed body and sun. Furthermore, the observed body must
-    have a rotational ephemeris loaded, where the body-fixed X, Y and Z-axes must align with the principal axes of the
-    ellipsoid in the same order as the semi_axes parameter.
+    When the observed body is a sphere, this collapses into:
+
+    .. math::
+
+        \frac{d_{L-S}}{R} = \frac{2}{3\pi}\frac{\sin{\alpha} + (\pi-\alpha)\cos{\alpha}}{\cot{\frac{\alpha}{2}}-
+        \sin{\frac{\alpha}{2}}\ln{(\cot{\frac{\alpha}{4}})}}
+
+    where :math:`R` is the observed body radius, and :math:`\alpha` is the solar phase angle, i.e., the angle spanned
+    by the relative position vector to the sun and observer. For the full derivation, the reader is referred to the
+    original reference paper.
+
+    An apriori ephemeris should be loaded for the observer, observed body and sun. Furthermore, if the observed body
+    is an ellipsoid, it must have a rotational ephemeris loaded, where the body-fixed X, Y and Z-axes must align with
+    the principal axes of the ellipsoid in the same order as the body_dimensions parameter.
 
     Parameters
     ----------
     observations : np.ndarray
         Observations with columns [time, RA, DEC]
-    semi_axes : list | np.ndarray
-        Ellipsoid semi-axes as [a, b, c]. They must be aligned with the body-fixed (principal axis) frame of the
-        ellipsoid, i.e.: a along x-axis, b along y-axis, and c along z-axis.
+    body_dimensions : float | Iterable[float]
+        If a float, the observed body is modeled as a sphere with radius R. If a sequence of floats, the observed body
+        is modeled as an ellipsoid with semi-axes [a,b,c] in the x,y and z-directions of the principal axis frame.
     bodies : SystemOfBodies
         System of Bodies object
     body_name : str
@@ -320,24 +196,31 @@ def photocenter_correction_angular_observations_ellipsoid(
     np.ndarray
         Corrections to RA, DEC
     """
-    # Input validation
-    body_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
+    # Check if all bodies are defined in the SystemOfBodies
+    body_or_ephemeris_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
                 for name in (body_name, observer_body_name, 'Sun')]
-    if any(body_undefined):
+    if any(body_or_ephemeris_undefined):
         raise ValueError(f'Bodies {body_name}, {observer_body_name}, "Sun" not found in SystemOfBodies object, or their'
                          f'associated ephemerides do not exist')
 
-    if bodies.get(body_name).rotation_model is None:
-        raise ValueError(f'Body {body_name} needs a rotation model for the photocenter correction computation')
+    # Check body shape parameters
+    if np.isscalar(body_dimensions): # -> body is a sphere
+        if body_dimensions <= 0:
+            raise ValueError('Observed body radius must be positive')
+        body_dimensions = 3 * [body_dimensions]
+        rotation_inertial_to_body_frame = lambda epoch: np.eye(3) # Rotational state irrelevant for a sphere
+
+    else:
+        if len(body_dimensions) != 3:
+            raise ValueError('body_dimensions must be a float or iterable of length 3')
+        if any([axis <= 0 for axis in body_dimensions]):
+            raise ValueError('Semi-axes must be positive')
+        if bodies.get(body_name).rotation_model is None:
+            raise ValueError(f'Body {body_name} needs a rotation model for the photocenter correction')
+        rotation_inertial_to_body_frame = bodies.get(body_name).rotation_model.inertial_to_body_fixed_rotation
 
     if observations.shape[1] != 3:
         raise ValueError('Observations must be shaped N x 3')
-
-    if len(semi_axes) != 3:
-        raise ValueError('Semi-axes array must be of length 3')
-
-    if any([ax <= 0 for ax in semi_axes]):
-        raise ValueError('Semi-axes must be positive')
 
     # Create ephemeris for the reference point if it is given
     if observer_reference_name is not None:
@@ -368,14 +251,14 @@ def photocenter_correction_angular_observations_ellipsoid(
 
         # Retrieve rotational state of ellipsoid body at time of emission
         light_time = observer_body_distance / SPEED_OF_LIGHT
-        rotation_matrix = bodies.get(body_name).rotation_model.inertial_to_body_fixed_rotation(epoch - light_time)
+        rotation_matrix = rotation_inertial_to_body_frame(epoch - light_time)
 
         e_sun = rotation_matrix @ e_sun_inertial
         e_observer = rotation_matrix @ e_observer_inertial
 
         # Get offset in axes of ellipsoid
         offset = _photocenter_correction_ellipsoidal(
-            semi_axes,
+            body_dimensions,
             e_sun,
             e_observer,
         )

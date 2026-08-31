@@ -8,7 +8,7 @@ from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from ._correction_utils import _offset_vector_to_corrections, _apply_corrections_to_observation_collection
 from tudatpy.constants import SPEED_OF_LIGHT
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 def _light_deflection_single_contribution(
         observer_position: np.ndarray,
@@ -57,7 +57,7 @@ def light_deflection_correction_angular_observations(
         body_name: str,
         observer_body_name: str,
         observer_reference_name: str | None = None,
-        perturbing_bodies_list: Iterable[str] = ('Sun',),
+        perturbing_bodies_list: Sequence[str] = ('Sun',),
 ) -> np.ndarray:
     r"""
     Compute corrections to angular observations for the relativistic deflection of light around massive bodies.
@@ -92,7 +92,7 @@ def light_deflection_correction_angular_observations(
     observer_reference_name : str
         Name of the reference point on the observer body. If not given, it is assumed that the observer location
             coincides with the 'observer_body_name' body center.
-    perturbing_bodies_list : Iterable[str]
+    perturbing_bodies_list : Sequence[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
 
     Returns
@@ -103,9 +103,9 @@ def light_deflection_correction_angular_observations(
     # Input validation
     if observations.shape[1] != 3:
         raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
-    body_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
+    body_or_ephemeris_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
                 for name in list(perturbing_bodies_list) + [body_name, observer_body_name]]
-    if any(body_undefined):
+    if any(body_or_ephemeris_undefined):
         raise ValueError('Some or all included bodies in the relativistic light deflection computation are missing'
                          'from SystemOfBodies or their associated ephemerides are not specified.')
 
@@ -178,7 +178,7 @@ def apply_light_deflection_correction_to_observation_collection(
         body_name: str,
         observer_body_name: str,
         observer_reference_name: str | None = None,
-        perturbing_bodies_list: Iterable[str] = ('Sun',),
+        perturbing_bodies_list: Sequence[str] = ('Sun',),
         in_place: bool = True
 ) -> ObservationCollection | None:
     """
