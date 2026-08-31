@@ -31,7 +31,7 @@ def apply_photocenter_correction_to_observation_collection(
     observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
         ObservationCollection containing angular observations on specified link-ends
     body_dimensions : float | list[float]
-        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of floats, they are
+        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of 3 floats, they are
         assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
         The SystemOfBodies object
@@ -182,7 +182,7 @@ def photocenter_correction_angular_observations(
     observations : np.ndarray
         Observations with columns [time, RA, DEC] in seconds since J2000 and radians, respectively
     body_dimensions : float | list[float]
-        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of floats, they are
+        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of 3 floats, they are
         assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
         The SystemOfBodies object
