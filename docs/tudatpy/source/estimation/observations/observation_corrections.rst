@@ -10,9 +10,23 @@ object should be known to accurately compute the corrections. These can be retri
 e.g. JPL Horizons.
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Modules
+Functions
+---------
 
-   /estimation/observations/observation_corrections/photocenter_correction
-   /estimation/observations/observation_corrections/light_deflection_correction
+.. autosummary::
+
+   ~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations
+
+   ~tudatpy.estimation.observations.observation_corrections.photocenter_correction.apply_photocenter_correction_to_observation_collection
+
+   ~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations
+
+   ~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.apply_light_deflection_correction_to_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations
+
+.. autofunction:: tudatpy.estimation.observations.observation_corrections.photocenter_correction.apply_photocenter_correction_to_observation_collection
+
+.. autofunction:: tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations
+
+.. autofunction:: tudatpy.estimation.observations.observation_corrections.light_deflection_correction.apply_light_deflection_correction_to_observation_collection

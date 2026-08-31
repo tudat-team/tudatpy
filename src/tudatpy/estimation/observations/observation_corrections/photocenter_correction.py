@@ -23,7 +23,7 @@ def apply_photocenter_correction_to_observation_collection(
 
     Computes photocenter corrections and applies them to an observation collection. Calls the function
     :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`,
-    and applies the resulting corrections to all angular observations in the observation collection with the specified
+    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationCollection` with the specified
     link-ends.
 
     Parameters
@@ -31,20 +31,21 @@ def apply_photocenter_correction_to_observation_collection(
     observation_collection : ObservationCollection
         Uncorrected observation collection
     body_dimensions : float | list[float]
-        Body size in m. If a float, the body is modeled as a sphere with that radius. If a list of floats, they are
+        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of floats, they are
         assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
-        The SystemOfBodies object that contains ephemerides of observer, body and sun in same reference frame
+        The SystemOfBodies object
     body_name : str
         Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
     observer_reference_name : str
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
-            of the observer_body_name body.
+        of the observer_body_name body.
     in_place : bool
         Flag if corrections should be applied in-place, or if a new ObservationCollection should be returned. By default,
         True.
+
     Returns
     -------
     None | ObservationCollection
@@ -173,28 +174,30 @@ def photocenter_correction_angular_observations(
 
     An apriori ephemeris should be loaded for the observer, observed body and sun. Furthermore, if the observed body
     is an ellipsoid, it must have a rotational ephemeris loaded, where the body-fixed X, Y and Z-axes must align with
-    the principal axes of the ellipsoid in the same order as the body_dimensions parameter.
+    the principal axes of the ellipsoid in the same order as the body_dimensions parameter. The corrections returned
+    by this function should be added to observations (or the apply_* function should be used).
 
     Parameters
     ----------
     observations : np.ndarray
-        Observations with columns [time, RA, DEC]
-    body_dimensions : float | Iterable[float]
-        If a float, the observed body is modeled as a sphere with radius R. If a sequence of floats, the observed body
-        is modeled as an ellipsoid with semi-axes [a,b,c] in the x,y and z-directions of the principal axis frame.
+        Observations with columns [time, RA, DEC] in seconds since J2000 and radians, respectively
+    body_dimensions : float | list[float]
+        Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of floats, they are
+        assumed to be ellipsoid semi-axes.
     bodies : SystemOfBodies
-        System of Bodies object
+        The SystemOfBodies object
     body_name : str
-        Name of body being observed
+        Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
-        Name of the (base) body acting as observer
-    observer_reference_name : str | None
-        If applicable, the name of the reference point on the observer body
+        Name of the observing (base) body in the SystemOfBodies object
+    observer_reference_name : str
+        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
+        of the observer_body_name body.
 
     Returns
     -------
     np.ndarray
-        Corrections to RA, DEC
+        Nx2 array of corrections to RA and DEC in radians
     """
     # Check if all bodies are defined in the SystemOfBodies
     body_or_ephemeris_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None

@@ -82,16 +82,16 @@ def light_deflection_correction_angular_observations(
     Parameters
     ----------
     observations : np.ndarray
-        Array of angular observations with columns [time, RA, DEC], with time in s since J2000, and angles in rad
+        Observations with columns [time, RA, DEC] in seconds since J2000 and radians, respectively
     bodies : SystemOfBodies
-        SystemOfBodies object
+        The SystemOfBodies object
     body_name : str
-        Name of the observed body object
+        Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
-        Name of the observer body
+        Name of the observing (base) body in the SystemOfBodies object
     observer_reference_name : str
-        Name of the reference point on the observer body. If not given, it is assumed that the observer location
-            coincides with the 'observer_body_name' body center.
+        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
+        of the observer_body_name body.
     perturbing_bodies_list : Sequence[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
 
@@ -182,28 +182,31 @@ def apply_light_deflection_correction_to_observation_collection(
         in_place: bool = True
 ) -> ObservationCollection | None:
     """
-    Computes corrections using
-    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`
-    and applies them to an :class:`~tudatpy.estimation.observations.ObservationCollection` object.
+    Computes relativistic light-deflection corrections and applies them to an observation collection.
+
+    Computes relativistic light-deflection corrections and applies them to an observation collection. Calls the function
+    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection.light_deflection_angular_observations`,
+    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationCollection` with the specified
+    link-ends.
 
     Parameters
     ----------
     observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
         ObservationCollection object containing the angular observations
     bodies : SystemOfBodies
-        SystemOfBodies object
+        The SystemOfBodies object
     body_name : str
-        Name of the observed body object
+        Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
-        Name of the observer body
+        Name of the observing (base) body in the SystemOfBodies object
     observer_reference_name : str
-        Name of the reference point on the observer body. If not given, it is assumed that the observer location
-            coincides with the 'observer_body_name' body center.
-    perturbing_bodies_list : Iterable[str]
+        Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
+        of the observer_body_name body.
+    perturbing_bodies_list : Sequence[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
     in_place : bool
         If true, corrections are applied in-place to the ObservationCollection object. If false, a new ObservationCollection
-            is returned with the corrections applied. By default, true.
+        is returned with the corrections applied. By default, true.
     Returns
     -------
     None | ObservationCollection
