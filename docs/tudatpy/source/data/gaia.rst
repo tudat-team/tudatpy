@@ -24,3 +24,17 @@ Classes
 .. autoclass:: tudatpy.data.gaia.GaiaAsteroids
    :members:
    :special-members: __init__
+
+
+Functions
+---------
+.. autosummary::
+
+   generate_astrometry_parquet
+
+   generate_asteroid_parquet
+
+
+.. autofunction:: tudatpy.data.gaia.generate_astrometry_parquet
+
+.. autofunction:: tudatpy.data.gaia.generate_asteroid_parquet

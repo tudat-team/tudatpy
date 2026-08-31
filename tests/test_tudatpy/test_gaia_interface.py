@@ -63,7 +63,7 @@ def observation_collection(gaia_astrometry, spice_kernels):
     # Gaia must be loaded in bodies with its ephemeris to use to_observation_collection()
     body_settings = get_default_body_settings(['Sun'], 'SSB', 'J2000')
     body_settings.add_empty_settings('Gaia')
-    body_settings.get('Gaia').ephemeris_settings = gaia_astrometry.get_gaia_ephemeris(geocentric=False)
+    body_settings.get('Gaia').ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(geocentric=False)
     bodies = create_system_of_bodies(body_settings)
     return gaia_astrometry.to_observation_collection(bodies)
 
@@ -176,12 +176,12 @@ def test_correct_observations_photocenter(gaia_astrometry):
     fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), offset)
 
     # Corrections are applied to all loaded asteroids
-    diameters = {mpc: 1e3 for mpc in TEST_ASTEROID_MPC}
-    with mock.patch('tudatpy.data.gaia.gaia.photocenter_corrections_from_observations',
+    body_dimensions = {mpc: 1e3 for mpc in TEST_ASTEROID_MPC}
+    with mock.patch('tudatpy.data.gaia.gaia.photocenter_correction_angular_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None, diameters=diameters,
-                                             light_deflection_bodies=[],
-                                             photocenter_correction_model='spherical')
+        gaia_astrometry.correct_observations(bodies=None,
+                                             photocenter_body_dimensions=body_dimensions,
+                                             light_deflection_bodies=None)
     astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
@@ -202,7 +202,7 @@ def test_correct_observations_light_deflection(gaia_astrometry):
     fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), offset)
 
     # Corrections are applied to all loaded asteroids
-    with mock.patch('tudatpy.data.gaia.gaia.relativistic_light_deflection_from_observations',
+    with mock.patch('tudatpy.data.gaia.gaia.light_deflection_correction_angular_observations',
                     side_effect=fake_correction):
         gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
     astrometry_table = gaia_astrometry.table
@@ -217,7 +217,7 @@ def test_correct_observations_twice_raises_error(gaia_astrometry):
     """Applying corrections twice on the same instance must raise an error"""
     fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), 1e-9)
 
-    with mock.patch('tudatpy.data.gaia.gaia.relativistic_light_deflection_from_observations',
+    with mock.patch('tudatpy.data.gaia.gaia.light_deflection_correction_angular_observations',
                     side_effect=fake_correction):
         gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
 
@@ -225,10 +225,10 @@ def test_correct_observations_twice_raises_error(gaia_astrometry):
             gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
 
 
-def test_get_gaia_ephemeris_geocentric(gaia_astrometry, spice_kernels):
+def test_get_gaia_ephemeris_settings_geocentric(gaia_astrometry, spice_kernels):
     """Test if states in catalog and those retrieved from ephemeris match (geocentric case)"""
     # Construct Tudat ephemeris
-    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris(geocentric=True)
+    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(geocentric=True)
     body_settings = get_default_body_settings(['Sun', 'Earth'], 'SSB', 'J2000')
     body_settings.add_empty_settings('Gaia')
     body_settings.get('Gaia').ephemeris_settings = ephemeris_settings
@@ -244,10 +244,10 @@ def test_get_gaia_ephemeris_geocentric(gaia_astrometry, spice_kernels):
     np.testing.assert_array_equal(states_from_table, states_from_tudat)
 
 
-def test_get_gaia_ephemeris_barycentric(gaia_astrometry, spice_kernels):
+def test_get_gaia_ephemeris_settings_barycentric(gaia_astrometry, spice_kernels):
     """Test if states in catalog and those retrieved from ephemeris match (barycentric case)"""
     # Construct Tudat ephemeris
-    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris(geocentric=False)
+    ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(geocentric=False)
     body_settings = get_default_body_settings(['Sun', 'Earth'], 'SSB', 'J2000')
     body_settings.add_empty_settings('Gaia')
     body_settings.get('Gaia').ephemeris_settings = ephemeris_settings
@@ -291,7 +291,7 @@ def test_covariance_matrix_variance_consistency(gaia_astrometry):
     covariance = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
     variance_from_matrix = np.diag(covariance)
 
-    table = gaia_astrometry.table_for_mpc(TEST_ASTEROID_MPC[0])
+    table = gaia_astrometry.table_for_single_object(TEST_ASTEROID_MPC[0])
 
     # By design, the systematic error is constant per transit: use the first entry of each transit_id
     systematic = table.groupby('transit_id', sort=False)[
@@ -410,7 +410,7 @@ def test_asteroid_state_vector_with_jpl_horizons(gaia_asteroids):
                   np.array(STATE_NINA_JPL) * 1e3] # JPL Horizons vectors
     for mpc_number, ref_state in zip(TEST_ASTEROID_MPC, ref_states):
         # Heliocentric state vectors:
-        epoch, state = gaia_asteroids.get_state_for_mpc(mpc_number)
+        epoch, state = gaia_asteroids.get_state_for_object(mpc_number)
 
         np.testing.assert_allclose(state, ref_state, rtol=1e-7, atol=1e-7)
 

@@ -11,9 +11,10 @@ from tudatpy.constants import ASTRONOMICAL_UNIT,JULIAN_DAY
 from tudatpy.dynamics.environment_setup import ephemeris
 from scipy.linalg import block_diag
 from scipy.constants import arcsec
-from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import \
-    photocenter_corrections_from_observations, photocenter_corrections_from_observations_ellipsoidal
-from tudatpy.estimation.observable_models_setup.biases.light_deflection_correction import relativistic_light_deflection_from_observations
+from tudatpy.estimation.observations.observation_corrections import (light_deflection_correction_angular_observations,
+                                                                     photocenter_correction_angular_observations)
+from warnings import warn
+from tudatpy.interface import spice
 import copy
 from pathlib import Path
 from tudatpy.astro.element_conversion import j2000_to_eclipj2000, cartesian_to_keplerian
@@ -37,21 +38,103 @@ _ASTEROID_TABLE_COLUMNS = [
     'h_state_vector_var_covar_matrix'
 ]
 
-_CORRECTION_COLUMNS = ['photocenter_corr_ra', 'photocenter_corr_dec',
-                       'light_deflection_corr_ra', 'light_deflection_corr_dec']
 _STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
 _ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release
 _ASTEROID_CATALOG = 'gaiafpr.sso_source'
 
 
+def _warn_missing_entries(
+        entries: np.ndarray | None,
+        expected: np.ndarray | None,):
+    """Output warning if there are missing entries in retrieved dataset"""
+    if entries is not None and expected is not None:
+        missing_entries = np.setxor1d(entries, expected)
+        if len(missing_entries) > 0:
+            warn(f'No data found for {missing_entries}')
+
+def _as_iterable(data) -> Iterable:
+    """Make sure scalars are iterable"""
+    return [data] if np.isscalar(data) else data
+
+
+def _generate_parquet(archive_dir: Path | str,
+                      dir_to_save: Path | str,
+                      csv_prefix: str,
+                      parquet_name: str) -> None:
+    """Concatenate the 20 numbered Gaia archive CSV files into a single .parquet file."""
+    print('Loading archive from CSV files\n')
+
+    table = pd.DataFrame()
+
+    for i in range(20):
+        print(f'Loading file number {i}/19...')
+        csv_file = Path(archive_dir) / f'{csv_prefix}_{i:02d}.csv'
+        # Concatenate into one dataframe
+        table_chunk = pd.read_csv(csv_file,
+                                  comment='#')
+        table = pd.concat([table, table_chunk], ignore_index=True)
+
+    # Save to parquet
+    table.to_parquet(Path(dir_to_save) / parquet_name)
+
+
+def generate_astrometry_parquet(archive_dir: Path | str,
+                                dir_to_save: Path | str) -> None:
+    """
+    Generate a .parquet file of the Gaia astrometry archive, to be used to retrieve data locally.
+
+    The resulting file is saved as ``gaia_astrometry_archive.parquet`` and can be passed to
+    :meth:`~tudatpy.data.gaia.GaiaAstrometry.load_from_local_archive`.
+
+    Requires all SsoObservation_*.csv files to be stored in the same directory. CSV files can be
+    downloaded from: https://cdn.gea.esac.esa.int/?prefix=Gaia/
+
+    Parameters
+    ----------
+    archive_dir : Path | str
+        Path to the archive directory where the CSV files are stored.
+    dir_to_save : Path | str
+        Directory where the .parquet file should be saved.
+    """
+    _generate_parquet(archive_dir, dir_to_save,
+                      csv_prefix='SsoObservation',
+                      parquet_name='gaia_astrometry_archive.parquet')
+
+
+def generate_asteroid_parquet(archive_dir: Path | str,
+                              dir_to_save: Path | str) -> None:
+    """
+    Generate a .parquet file of the Gaia asteroid archive, to be used to retrieve data locally.
+
+    The resulting file is saved as ``gaia_source_archive.parquet`` and can be passed to
+    :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive`.
+
+    Requires all SsoSource_*.csv files to be stored in the same directory. CSV files can be
+    downloaded from: https://cdn.gea.esac.esa.int/?prefix=Gaia/
+
+    Parameters
+    ----------
+    archive_dir : Path | str
+        Path to the archive directory where the CSV files are stored.
+    dir_to_save : Path | str
+        Directory where the .parquet file should be saved.
+    """
+    _generate_parquet(archive_dir, dir_to_save,
+                      csv_prefix='SsoSource',
+                      parquet_name='gaia_source_archive.parquet')
+
+
+
 class GaiaAstrometry:
-    """Handles retrieval and processing of Gaia solar-system astrometry."""
+    """The class acts as a container for all Gaia astrometric observations and its metadata. It takes care of
+    retrieval, filtering/correcting of observations, applying weights and conversion to a tudat-compatible format."""
     def __init__(self,
                  observations_and_metadata: pd.DataFrame) -> None:
         """Create an empty GaiaAstrometry object.
 
-        Usually the GaiaAstrometry class is instantiated via the classmethods .load_from_astroquery or
-        .load_from_local_archive
+        Usually the GaiaAstrometry class is instantiated via the classmethods:
+        :meth:`~tudatpy.data.gaia.GaiaAstrometry.load_from_astroquery` or
+        :meth:`~tudatpy.data.gaia.GaiaAstrometry.load_from_local_archive`.
         """
         self._table = observations_and_metadata
         self._corrected = False
@@ -76,8 +159,21 @@ class GaiaAstrometry:
         return self._table.copy()
 
 
-    def table_for_mpc(self, mpc_number: int)-> pd.DataFrame:
-        """Return a copy of the observations and metadata filtered for one asteroid by MPC number"""
+    def table_for_single_object(self,
+                                mpc_number: int)-> pd.DataFrame:
+        """
+        Retrieve the astrometry table for a single object, queried by MPC number.
+
+        Parameters
+        ----------
+        mpc_number : int
+            MPC number of the asteroid to retrieve the astrometry for
+
+        Returns
+        -------
+        pd.DataFrame
+            Read-only copy of the astrometry table for one object
+        """
         if mpc_number not in self.mpc_numbers:
             raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
 
@@ -91,49 +187,49 @@ class GaiaAstrometry:
 
 
     def copy(self) -> "GaiaAstrometry":
-        """Get a copy of the GaiaAstrometry object.
+        """Get a copy of the ``GaiaAstrometry`` object.
 
         Returns
         -------
         GaiaAstrometry
-            Deep copy of the current GaiaAstrometry object.
+            Deep copy of the current ``GaiaAstrometry`` object.
         """
         return copy.deepcopy(self)
 
 
-    def copy_for_mpc(self,
-                     mpc_numbers: int | Iterable) -> "GaiaAstrometry":
-        """Return a copy of the astrometry object for a selection of asteroids.
+    def copy_for_single_object(self,
+                               mpc_number: int) -> "GaiaAstrometry":
+        """
+        Get a copy of the ``GaiaAstrometry`` object for one object, queried by MPC number.
 
-        Useful to get the astrometry for just one asteroid in the retrieved data.
+        This may be useful if the user wants to retrieve the astrometry for many asteroids in bulk, and then split
+        the data into individual containers for independent estimations.
 
         Parameters
         ----------
-        mpc_numbers : int | Iterable
-            MPC numbers to keep in the copy.
+        mpc_number : int
+            MPC number to keep in the copy.
 
         Returns
         -------
         GaiaAstrometry
             Copy containing only data for the given mpc_numbers.
         """
-        if not isinstance(mpc_numbers, Iterable):
-            mpc_numbers = [mpc_numbers]
-
-        if any(m not in self.mpc_numbers for m in mpc_numbers):
-            raise ValueError('Requested MPC numbers are not in loaded observation table')
+        if mpc_number not in self.mpc_numbers:
+            raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
 
         new = self.copy()
-        new._table = new._table.query('number_mp in @mpc_numbers').reset_index(drop=True)
+        new._table = new._table.query('number_mp == @mpc_number').reset_index(drop=True)
 
         return new
 
     def get_observation_covariance_matrix(self,
                                           mpc_number: int) -> np.ndarray:
         """
-        From the retrieved astrometry, build the observation covariance matrix for one asteroid.
+        From the retrieved astrometry and metadata, build the observation covariance matrix for one asteroid.
 
-        This matrix is also passed to the observationCollection upon calling to_observation_collection().
+        This matrix is also passed to the :class:`~tudatpy.estimation.observations.ObservationCollection` upon calling
+        :meth:`~tudatpy.data.gaia.GaiaAstrometry.to_observation_collection`.
 
         Parameters
         ----------
@@ -143,9 +239,9 @@ class GaiaAstrometry:
         Returns
         -------
         np.ndarray
-            Observation covariance matrix
+            Observation covariance matrix in the same order as the observations
         """
-        table = self.table_for_mpc(mpc_number)
+        table = self.table_for_single_object(mpc_number)
 
         to_cov = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
         observation_covariance_matrix = []
@@ -177,7 +273,7 @@ class GaiaAstrometry:
 
     def to_observation_collection(self,
                  bodies: SystemOfBodies) -> observations.ObservationCollection:
-        """Collect all Gaia observations into an ObservationCollection and apply the
+        """Collect all Gaia observations into an :class:`~tudatpy.estimation.observations.ObservationCollection` and apply the
         observation weights according to the Gaia weighting scheme. Any filtering or corrections must be done before
         constructing the observation collection.
 
@@ -185,13 +281,13 @@ class GaiaAstrometry:
         ----------
         bodies : SystemOfBodies
             The SystemOfBodies object. Must have the object 'Gaia' loaded along with its
-            ephemeris, retrieved from get_gaia_ephemeris.
+            ephemeris, retrieved from :meth:`~tudatpy.data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`.
 
         Returns
         -------
         ObservationCollection
             Tudat ObservationCollection containing observations of all asteroids organized in SingleObservationSets
-                by link-ends. Asteroids are named by their MPC number.
+            by link-ends. Asteroids are named by their MPC number.
         """
         # Check if Gaia is in bodies
         if not bodies.does_body_exist('Gaia') or bodies.get('Gaia').ephemeris is None:
@@ -214,7 +310,7 @@ class GaiaAstrometry:
        #     link_definition = links.link_definition(link_ends)
 
             # Get the data for current asteroid
-            temp = self.table_for_mpc(mpc_number)
+            temp = self.table_for_single_object(mpc_number)
             observation_angles = temp.loc[:, ['ra', 'dec']].to_numpy()
             observation_times = temp['epoch'].to_numpy()
 
@@ -243,89 +339,79 @@ class GaiaAstrometry:
     def correct_observations(self,
                              bodies: SystemOfBodies,
                              light_deflection_bodies: Iterable | None = ('Sun',),
-                             photocenter_correction_model: str | None = None,
-                             diameters: dict | None = None,
-                             ellipsoid_semi_axes: dict | None = None,) -> None:
-        """Apply photocenter and/or light-deflection corrections to the observations.
+                             photocenter_body_dimensions: dict | None = None) -> None:
+        """
+        Apply photocenter and/or light-deflection corrections to the observations.
 
-        To apply light deflection and photocenter corrections, the bodies object must have an ephemeris loaded for
-        Gaia, planetary bodies involved in light deflection, the Sun, and the asteroid itself (e.g. from an initial guess
-        or JPL Horizons). In addition, to use the ellipsoidal photocenter model variant, a rotation model must be loaded
-        for the asteroid, where the body-fixed frame must be the principal axis frame with x,y,z aligned with the semi-
-        axes a, b and c.
+        Apply photocenter and/or light-deflection corrections to the observations. Calls the functions
+        :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`
+        and :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`.
 
-        After corrections are applied, they are stored on the table property for inspection and post-processing.
+        To apply corrections, the following must be loaded into the environment (SystemOfBodies):
+
+        * Reference ephemeris of each of the objects for which astrometry exists on this instance, covering at least
+          the entire span of observations (typically july 2014 - january 2020, for Gaia FPR and DR4);
+        * Ephemeris of Gaia, retrieved from :meth:`~tudatpy.data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`;
+        * Ephemeris of the Sun (for the photocenter correction);
+        * Ephemeris of each body in ``light_deflection_bodies``;
+        * Rotational model of each object for which the ellipsoid photocenter correction is used. The body-fixed frame
+          must be aligned with the principal axis frame as specified in
+          :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`;
+
+        After corrections are applied, they are stored on the table property for inspection and post-processing. Photocenter
+        corrections are stored on ``photocenter_corr_ra`` and ``photocenter_corr_dec``, light-deflection corrections
+        are stored on ``light_deflection_corr_ra`` and ``light_deflection_corr_dec``.
 
         Parameters
         ----------
         bodies : SystemOfBodies
-            Bodies object which contains (rotational) ephemerides of the asteroid, Sun, planetary bodies and the observer.
+            The SystemOfBodies object
         light_deflection_bodies : list, optional
-            Names of perturber bodies involved in light bending, by default 'Sun'.
-        photocenter_correction_model : str | None, optional
-            Correction model to use for photocenter-barycenter correction. Options: 'spherical', 'ellipsoidal' or None
-            to skip the corrections. If 'spherical', diameters must be provided, if 'ellipsoidal' semi-axes must be provided.
-        diameters : dict, optional
-            Diameters of the asteroids as dict with keys the MPC numbers and values the diameters in meter.
-        ellipsoid_semi_axes : dict, optional
-            Ellipsoid semi-axes as dict with keys the MPC numbers and values the semi-axes in meter.
+            Names of perturber bodies involved in light bending. If None, no correction is applied. By default, 'Sun'.
+        photocenter_body_dimensions : dict, optional
+            Dimensions of bodies (in m) for which photocenter correction must be applied, keyed by MPC number. If the
+            dimension is scalar, the body is assumed spherical with a radius equal to the input. If the dimension is an
+            array of 3 floats as ``[a, b, c]``, it is assumed to be an ellipsoid with semi-axes a, b, and c. If None,
+            no correction is applied.
         """
-        # Input validation
-        if photocenter_correction_model == 'spherical' and diameters is None:
-            raise ValueError('Spherical photocenter model was chosen but diameters are empty')
-
-        if photocenter_correction_model == 'ellipsoidal' and ellipsoid_semi_axes is None:
-            raise ValueError('Ellipsoidal photocenter model was chosen but semi-axes are empty')
-
-        # Guard to protect against correcting more than once
         if self.is_corrected:
             raise RuntimeError('correct_observations cannot be called more than once on the same instance')
 
-        # Apply corrections to all asteroid data currently loaded
-        photocenter_columns = ['photocenter_corr_ra', 'photocenter_corr_dec']
-        light_deflection_columns = ['light_deflection_corr_ra', 'light_deflection_corr_dec']
-
         for mpc_number in self.mpc_numbers:
+            observation_mask = self.table['number_mp'] == mpc_number
+            observations_array = self.table.loc[observation_mask, ['epoch', 'ra', 'dec']].to_numpy()
 
-            mask = self.table['number_mp'] == mpc_number
-            observations_array = self.table.loc[mask, ['epoch', 'ra', 'dec']].to_numpy()
+            # Photocenter corrections
+            if photocenter_body_dimensions is not None:
+                photocenter_corrections = photocenter_correction_angular_observations(
+                    observations=observations_array,
+                    body_dimensions=photocenter_body_dimensions[mpc_number],
+                    bodies=bodies,
+                    body_name=str(mpc_number),
+                    observer_body_name='Gaia',
+                )
+            else:
+                photocenter_corrections = np.zeros((len(observations_array),2))
 
-            # Photocenter
-            if photocenter_correction_model:
-                if photocenter_correction_model.lower() == 'spherical':
-                    photocenter_corrections = photocenter_corrections_from_observations(
-                        observations=observations_array,
-                        diameter=diameters[mpc_number],
-                        bodies=bodies,
-                        body_name=str(mpc_number),
-                        observer_body_name='Gaia'
-                    )
-                elif photocenter_correction_model.lower() == 'ellipsoidal':
-                    photocenter_corrections = photocenter_corrections_from_observations_ellipsoidal(
-                        observations=observations_array,
-                        semi_axes=ellipsoid_semi_axes[mpc_number],
-                        bodies=bodies,
-                        body_name=str(mpc_number),
-                        observer_body_name='Gaia'
-                    )
-                else:
-                    raise ValueError('Photocenter correction model not recognized. Options are: "spherical", "ellipsoidal" or None')
-
-                self._table.loc[mask, photocenter_columns] = photocenter_corrections
-                self._table.loc[mask, ['ra', 'dec']] += photocenter_corrections
-
-            # Apply light-bending corrections
-            if light_deflection_bodies:
-
-                light_bending_corrections = relativistic_light_deflection_from_observations(
+            # Light-bending
+            if light_deflection_bodies is not None:
+                light_bending_corrections = light_deflection_correction_angular_observations(
                     observations=observations_array,
                     bodies=bodies,
                     body_name=str(mpc_number),
                     observer_body_name='Gaia',
-                    perturbing_bodies_list=list(light_deflection_bodies),
+                    perturbing_bodies_list=light_deflection_bodies,
                 )
-                self._table.loc[mask, light_deflection_columns] = light_bending_corrections
-                self._table.loc[mask, ['ra', 'dec']] += light_bending_corrections
+            else:
+                light_bending_corrections = np.zeros((len(observations_array),2))
+
+            self._table.loc[observation_mask, ['ra', 'dec']] += (photocenter_corrections + light_bending_corrections)
+
+            # Store corrections on table
+            self._table.loc[
+                observation_mask, ['photocenter_corr_ra', 'photocenter_corr_dec']] = photocenter_corrections
+            self._table.loc[observation_mask, ['light_deflection_corr_ra', 'light_deflection_corr_dec']] = light_bending_corrections
+
 
         # Wrap RA
         self._table['ra'] = (self._table['ra'] + np.pi) % (2 * np.pi) - np.pi
@@ -338,15 +424,16 @@ class GaiaAstrometry:
                              username: str | None = None,
                              password: str | None = None) -> "GaiaAstrometry":
 
-        """Retrieve the astrometric observations through astroquery.
+        """
+        Retrieve the astrometric observations through astroquery.
 
         Requires an internet connection. Login to the Gaia archive website is optional.
-        Observations and metadata are stored on the table attribute.
+        Observations and metadata are stored on the :meth:`~tudatpy.data.gaia.GaiaAstrometry.table` attribute.
 
         Parameters
         ----------
-        mpc_numbers : int | Iterable[int]
-            MPC numbers of the asteroids to retrieve data for.
+        mpc_numbers : int | list[int]
+            List of asteroid MPC numbers to retrieve data for.
         username : str, optional
             Username for the Gaia archives, by default None.
         password : str, optional
@@ -355,12 +442,11 @@ class GaiaAstrometry:
         Returns
         -------
         GaiaAstrometry
-            A GaiaAstrometry object with observations loaded
+            A ``GaiaAstrometry`` object with observations loaded
         """
         from astroquery.gaia import Gaia # late import because it tends to be slow
 
-        if not isinstance(mpc_numbers, Iterable):
-            mpc_numbers = [mpc_numbers]
+        mpc_numbers = _as_iterable(mpc_numbers)
 
         # Define query to database
         query_mpc_numbers = ", ".join(str(mpc_number) for mpc_number in mpc_numbers)
@@ -388,6 +474,7 @@ class GaiaAstrometry:
         table = table.to_pandas() # Convert astropy table to dataframe
         if table.empty:
             raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
+        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
         # Convert units and reset index
         table = cls._convert_units(table)
@@ -400,25 +487,25 @@ class GaiaAstrometry:
     def load_from_local_archive(cls,
                                 archive_file_path: str | Path,
                                 mpc_numbers: int | Iterable[int],) -> "GaiaAstrometry":
-        """Retrieve astrometry locally from a .parquet file (generated by generate_parquet).
+        """
+        Retrieve astrometry locally from a .parquet file (generated by :func:`~tudatpy.data.gaia.generate_astrometry_parquet`).
 
-        Mirrors load_from_astroquery. This method of loading data can be faster when loading a lot of data or when the Gaia
-        archive connection is slow.
+        Mirrors :meth:`~tudatpy.data.gaia.GaiaAstrometry.load_from_astroquery`. This method of loading data can be
+        faster when loading a lot of data or when the Gaia archive connection is slow.
 
         Parameters
         ----------
-        mpc_numbers : tuple[int] | list[int]
-            List of asteroid MPC numbers to retrieve data for.
         archive_file_path : str | Path
             Path to the .parquet file.
+        mpc_numbers : int | list[int]
+            List of asteroid MPC numbers to retrieve data for.
 
         Returns
         -------
         GaiaAstrometry
-            A GaiaAstrometry object with observations loaded
+            A ``GaiaAstrometry`` object with observations loaded
         """
-        if not isinstance(mpc_numbers, Iterable):
-            mpc_numbers = [mpc_numbers]
+        mpc_numbers = _as_iterable(mpc_numbers)
 
         # Read from parquet
         filters = [
@@ -430,6 +517,7 @@ class GaiaAstrometry:
 
         if table.empty:
             raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
+        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
         table = table[_ASTROMETRY_TABLE_COLUMNS]
 
@@ -441,44 +529,11 @@ class GaiaAstrometry:
 
 
     @staticmethod
-    def generate_parquet(archive_dir: Path | str,
-                         dir_to_save: Path | str) -> None:
-        """Generate a .parquet file of the Gaia archive, to be used to retrieve data locally.
-
-        Requires all .csv files to be stored in the same directory. CSV files can be
-        downloaded from: https://cdn.gea.esac.esa.int/?prefix=Gaia/
-
-        Parameters
-        ----------
-        archive_dir : Path | str
-            Path to the archive directory where the CSV files are stored.
-        dir_to_save : Path | str
-            Directory where the .parquet file should be saved.
-        """
-        print('Loading archive from CSV files\n')
-
-        table = pd.DataFrame()
-
-        for i in range(20):
-            print(f'Loading file number {i}/19...')
-            # Get current file path
-            file_number = str(i) if i >= 10 else '0' + str(i)
-            file_name = 'SsoObservation_' + file_number + '.csv'
-            csv_file = Path(archive_dir) / file_name
-            # Concatenate into one dataframe
-            table_chunk = pd.read_csv(csv_file,
-                                      comment='#')
-            table = pd.concat([table, table_chunk], ignore_index=True)
-
-        # Save to parquet
-        table.to_parquet(Path(dir_to_save) / 'gaia_astrometry_archive.parquet')
-
-    @staticmethod
     def _convert_units(table: pd.DataFrame) -> pd.DataFrame:
         """Convert raw table values into a tudat-compatible format."""
         # Convert epoch to seconds since J2000
-        func = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
-        table['epoch'] = table['epoch'].apply(func)
+        jd2010_to_epoch = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
+        table['epoch'] = table['epoch'].apply(jd2010_to_epoch)
 
         # Convert TCB to TDB epoch
         table['epoch'] = table['epoch'].apply(TCB_to_TDB)
@@ -496,14 +551,11 @@ class GaiaAstrometry:
         table['ra_error_systematic'] /= np.cos(table['dec'])
 
         # Convert Gaia state vectors to SI, apply correction to position vectors due to time scale change
-        pos_names = ['x_gaia', 'y_gaia', 'z_gaia', 'x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric']
-        table.loc[:, pos_names] *= ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION
-        vel_names = ['vx_gaia', 'vy_gaia', 'vz_gaia', 'vx_gaia_geocentric', 'vy_gaia_geocentric',
+        position_labels = ['x_gaia', 'y_gaia', 'z_gaia', 'x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric']
+        table.loc[:, position_labels] *= ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION
+        velocity_labels = ['vx_gaia', 'vy_gaia', 'vz_gaia', 'vx_gaia_geocentric', 'vy_gaia_geocentric',
                      'vz_gaia_geocentric']
-        table.loc[:, vel_names] *= ASTRONOMICAL_UNIT / JULIAN_DAY
-
-        # Initialize correction columns, filled in by correct_observations
-        table[_CORRECTION_COLUMNS] = 0.0
+        table.loc[:, velocity_labels] *= ASTRONOMICAL_UNIT / JULIAN_DAY
 
         return table
 
@@ -524,6 +576,8 @@ class GaiaAstrometry:
             epoch_start = epoch_start.epoch()
         if isinstance(epoch_end, DateTime):
             epoch_end = epoch_end.epoch()
+        if epoch_start > epoch_end:
+            raise ValueError('epoch_start cannot be later than epoch_end')
 
         # Find observations in time span
         epoch_filters = (self._table.epoch >= epoch_start) & (self._table.epoch <= epoch_end)
@@ -544,7 +598,7 @@ class GaiaAstrometry:
 
         for mpc_number in self.mpc_numbers:
 
-            table = self.table_for_mpc(mpc_number)
+            table = self.table_for_single_object(mpc_number)
             denom = table['denomination'].iloc[0]
             number_of_obs = len(table)
             dt_first = DateTime.from_epoch(table['epoch'].min())
@@ -556,9 +610,10 @@ class GaiaAstrometry:
             print(asteroid_data)
 
 
-    def get_gaia_ephemeris(self,
-                           geocentric: bool = True) -> ephemeris.EphemerisSettings:
-        """Get tabulated ephemeris settings generated from the archived Gaia state vectors.
+    def get_gaia_ephemeris_settings(self,
+                                    geocentric: bool = True) -> ephemeris.EphemerisSettings:
+        """
+        Get tabulated ephemeris settings generated from the archived Gaia state vectors.
 
         Uses all reported state vectors in the loaded astrometry table.
 
@@ -566,11 +621,12 @@ class GaiaAstrometry:
         ----------
         geocentric : bool, optional
             If True, use the geocentric variant of the Gaia state vectors, if false, use the barycentric variant.
-            Recommended, because it reduces the dependency on the adopted planetary ephemeris model, by default True.
+            It is recommended to use the geocentric variant, because it reduces the dependency on the adopted planetary
+            ephemeris model, by default True.
 
         Returns
         -------
-        TabulatedEphemerisSettings
+        EphemerisSettings
             Tabulated ephemeris settings of Gaia.
         """
         # Variable names for the state vector
@@ -594,13 +650,16 @@ class GaiaAstrometry:
 
 class GaiaAsteroids:
     """
-    Class that retrieves Gaia-derived asteroid orbits and covariance data, found in the sso_source tables on the Gaia archives
+    Class that acts as a container for Gaia-derived asteroid data, such as state vectors and covariance. It takes care of
+    the retrieval and conversion to a tudat-compatible format.
     """
     def __init__(self,
                  asteroid_orbits_and_covariance: pd.DataFrame) -> None:
         """Create an empty GaiaAsteroids object.
 
-        Usually, this object is created by the classmethods .load_from_astroquery or .load_from_local_archive.
+        Usually, this object is created by the classmethods
+        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_astroquery` or
+        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive`.
         """
         self._table = asteroid_orbits_and_covariance
 
@@ -609,50 +668,83 @@ class GaiaAsteroids:
         """Read-only copy of the asteroid data table which contains orbit and covariance data."""
         return self._table.copy()
 
+
     def copy(self) -> 'GaiaAsteroids':
         """Return a copy of the object itself"""
         return copy.deepcopy(self)
 
+
     @property
     def mpc_numbers(self)->np.ndarray:
-        """List of all asteroid MPC numbers for which data is fetched."""
+        """List of all asteroid MPC numbers for which data is retrieved."""
         return pd.unique(self._table['number_mp'])
 
-    def get_state_for_mpc(self,
-                          mpc_number: int) -> tuple[float, np.ndarray]:
-        """Retrieve the state vector from the table for a single MPC number. State is heliocentric in the J2000 frame.
-        Raises an error if the asteroid is not found in the Gaia source archive.
+
+    def get_state_for_object(self,
+                             mpc_number: int,
+                             frame_origin: str = 'Sun',
+                             frame_orientation: str = 'J2000') -> tuple[float, np.ndarray]:
+        """
+        Retrieve state vector for an object queried by MPC number. An appropriate spice kernel must be loaded to
+        translate the ``frame_origin``.
 
         Parameters
         ----------
         mpc_number : int
             MPC number of asteroid to retrieve state for
+        frame_origin : str
+            Origin of the state vector, by default 'Sun'
+        frame_orientation : str
+            Orientation of the state vector, by default 'J2000'
 
         Returns
         -------
         float
-            Epoch of the state vector in sec since J2000.
+            Epoch of the state vector in seconds since J2000.
         np.ndarray
-            State vector (heliocentric J2000).
+            State vector in SI units.
         """
         if mpc_number not in self.mpc_numbers:
             raise LookupError(f'State requested for {mpc_number}, but no asteroid data found in fetched archive')
 
-        asteroid_data = self.table.query('number_mp == @mpc_number').iloc[0]
-        return asteroid_data.epoch_state_vector, asteroid_data.h_state_vector
+        asteroid_row = self.table.query('number_mp == @mpc_number').iloc[0]
+        epoch, state = asteroid_row['epoch_state_vector'], asteroid_row['h_state_vector'] # Heliocentric J2000
+
+        # Translate origin
+        if frame_origin != 'Sun':
+            origin_state = spice.get_body_cartesian_state_at_epoch(
+                target_body_name = 'Sun',
+                observer_body_name = frame_origin,
+                reference_frame_name = 'J2000',
+                aberration_corrections = 'NONE',
+                ephemeris_time = epoch
+            )
+            state = state + origin_state # Not in-place, to avoid mutating the stored state vector
+
+        # Rotate frame
+        if frame_orientation == 'J2000':
+            pass
+        elif frame_orientation == 'ECLIPJ2000':
+            to_ecliptic = lambda x: np.concatenate((j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:]))
+            state = to_ecliptic(state)
+        else:
+            raise ValueError('frame_orientation must be J2000 or ECLIPJ2000')
+
+        return epoch, state
 
     @classmethod
     def load_from_astroquery(cls,
                              mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
-        """Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection. Note this method of
-        loading the data may be slow or unreliable. For frequent use, it is recommended to use load_from_local_archive
-        instead.
+        """
+        Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection. Note this method of
+        loading the data may be slow or unreliable. For loading large batches of data, it is recommended to use
+        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive` instead.
 
         Parameters
         ----------
-        mpc_numbers : int | Iterable | None
+        mpc_numbers : int | list[int], optional
             MPC numbers of asteroids to retrieve data for. If None, the complete archive of Gaia-derived orbits
-            is retrieved. This may take up several minutes.
+            is retrieved (~150,000 objects for Gaia FPR). This may take several minutes.
 
         Returns
         -------
@@ -661,13 +753,14 @@ class GaiaAsteroids:
         """
         from astroquery.gaia import Gaia  # late import because it tends to be slow
 
-        if not isinstance(mpc_numbers, Iterable):
-            mpc_numbers = [mpc_numbers]
+        mpc_numbers = _as_iterable(mpc_numbers)
 
         # Set up query to DB
         query_columns = ', '.join(_ASTEROID_TABLE_COLUMNS)
-        query_mpc_numbers = ', '.join([str(mpc) for mpc in mpc_numbers])
-        query = f"SELECT {query_columns} FROM {_ASTEROID_CATALOG} WHERE number_mp IN ({query_mpc_numbers})"
+        query = f"SELECT {query_columns} FROM {_ASTEROID_CATALOG}"
+        if mpc_numbers is not None:
+            query_mpc_numbers = ', '.join([str(mpc) for mpc in mpc_numbers])
+            query += f" WHERE number_mp IN ({query_mpc_numbers})"
 
         # Retrieve from astroquery
         try:
@@ -680,6 +773,7 @@ class GaiaAsteroids:
         table = table.to_pandas()
         if table.empty:
             raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
+        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
         table = table[table['epoch_state_vector'] != 0] # Filter entries with missing data
         table = cls._convert_units(table)
@@ -693,28 +787,29 @@ class GaiaAsteroids:
     def load_from_local_archive(cls,
                                 archive_file_path: Path | str,
                                 mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
-        """Retrieve orbit data locally from a .parquet file of the Gaia archive.
+        """
+        Retrieve orbit data locally from a .parquet file of the Gaia archive.
 
         Parameters
         ----------
         archive_file_path : Path | str
             Path to the archive .parquet file.
-        mpc_numbers : int | list | tuple, optional
-            MPC numbers of asteroids to retrieve orbits for. If None, the complete archive of Gaia-derived orbits
-            is retrieved.
+        mpc_numbers : int | list[int], optional
+            MPC numbers of asteroids to retrieve data for. If None, the complete archive of Gaia-derived orbits
+            is retrieved (~150,000 objects for Gaia FPR).
 
         Returns
         -------
         GaiaAsteroids
             Instance with data loaded from a .parquet file of the Gaia archive.
         """
-        if mpc_numbers is not None and not isinstance(mpc_numbers, Iterable):
-            mpc_numbers = [mpc_numbers]
+        mpc_numbers = _as_iterable(mpc_numbers)
 
         filter = [('number_mp', 'in', mpc_numbers)] if mpc_numbers is not None else None
         table = pd.read_parquet(archive_file_path,filters=filter)
         if table.empty:
             raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
+        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
         table = table[_ASTEROID_TABLE_COLUMNS]
         table = table[table['epoch_state_vector'] != 0] # Filter empty datasets
@@ -739,51 +834,19 @@ class GaiaAsteroids:
         return cls(table)
 
     @staticmethod
-    def generate_parquet(archive_dir: Path | str,
-                         dir_to_save: Path | str) -> None:
-        """Generate a .parquet file from CSV files. This file can be passed to load_from_local_acrhive. All CSV files
-        labeled SsoSource_ must be in the archive directory. Files can be downloaded from
-        https://cdn.gea.esac.esa.int/?prefix=Gaia/
-
-        Parameters
-        ----------
-        archive_dir : Path | str
-            Path to the archive directory.
-        dir_to_save : Path | str
-            Path to the directory to save the parquet file.
-        """
-        print('Loading archive from CSV files...\n')
-
-        table = pd.DataFrame()
-
-        for i in range(20):
-            # Get file path
-            print(f'Loading file number {i}/19...')
-            file_number = str(i) if i >= 10 else '0' + str(i)
-            file_name = 'SsoSource_' + file_number + '.csv'
-            csv_file = Path(archive_dir) / file_name
-            # Concatenate into one table
-            table_chunk = pd.read_csv(csv_file,
-                                      comment='#')
-            table = pd.concat([table, table_chunk], ignore_index=True)
-
-        # Save into parquet
-        table.to_parquet(Path(dir_to_save) / 'gaia_source_archive.parquet')
-
-    @staticmethod
     def _convert_units(table: pd.DataFrame) -> pd.DataFrame:
         """Convert units and format to a tudat-compatible format and apply scaling
         corrections to state vectors."""
         # Convert epoch to seconds since J2000
-        jd_to_s = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
-        table['epoch_state_vector'] = table['epoch_state_vector'].apply(jd_to_s)
+        jd2010_to_epoch = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
+        table['epoch_state_vector'] = table['epoch_state_vector'].apply(jd2010_to_epoch)
 
         # Convert TCB to TDB epoch
         table['epoch_state_vector'] = table['epoch_state_vector'].apply(TCB_to_TDB)
 
         # Scaling factors
         length_conversion = ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR # AU to SI
-        velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / 86400 # AU/day to SI
+        velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY # AU/day to SI
 
         # Upper triangle components to matrix
         to_matrix = lambda a: np.array(
@@ -803,8 +866,9 @@ class GaiaAsteroids:
         # Convert orbital element covariance
         a_scaling = np.identity(6)
         a_scaling[0,0] = length_conversion # SMA from AU -> m, rest are angles
-        scale_cov_oe = lambda x: a_scaling @ x @ a_scaling
-        table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(scale_cov_oe)
+        scale_covariance_orbit_elements = lambda x: a_scaling @ x @ a_scaling
+        table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(
+            scale_covariance_orbit_elements)
 
         # Convert state vector elements
         scale_state = lambda x: np.concatenate((length_conversion * x[:3], velocity_conversion * x[3:]))
@@ -813,8 +877,8 @@ class GaiaAsteroids:
         # Convert cartesian covariance
         state_vector_scaling = np.diag((length_conversion, length_conversion, length_conversion,
                                         velocity_conversion, velocity_conversion, velocity_conversion))
-        scale_cov_cart = lambda x: state_vector_scaling @ x @ state_vector_scaling
-        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(scale_cov_cart)
+        scale_covariance_cartesian = lambda x: state_vector_scaling @ x @ state_vector_scaling
+        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(scale_covariance_cartesian)
 
         return table
 
@@ -834,7 +898,6 @@ class GaiaAsteroids:
     @staticmethod
     def _add_orbit_class(table: pd.DataFrame) -> pd.DataFrame:
         """Add orbit class of each asteroid according to JPL SBDB convention."""
-        # Important orbital elements
         orbital_elements = np.vstack(table.orbital_elements)
         a, e, i, _, _, _ = orbital_elements.T
         q = a * (1 - e) # Perihelion
