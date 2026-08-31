@@ -26,6 +26,7 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
@@ -809,6 +810,63 @@ BOOST_AUTO_TEST_CASE( testAutomaticConversionFunctions )
             automaticTnwToRsw, ( automaticRswToTnw.transpose( ) ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             automaticTnwToRsw, Eigen::Matrix3d( manualTnwToInertial * manualInertialToRsw ), std::numeric_limits< double >::epsilon( ) );
+}
+
+//! Verify instantaneous Cartesian-state transformations between multiple ITRF realizations.
+BOOST_AUTO_TEST_CASE( testStateConversionBetweenItrfFrames )
+{
+    // Exercise both position and velocity with values representative of an Earth satellite state.
+    Eigen::Vector6d stateInItrf2014;
+    stateInItrf2014 << 6378137.0, -1200000.0, 2300000.0, 1200.0, -3400.0, 5600.0;
+
+    const std::vector< std::string > targetFrames = { "ITRF2008", "ITRF2000", "ITRF93", "ITRF88" };
+    const std::vector< double > epochs = { 5.0 * physical_constants::JULIAN_YEAR,
+                                           10.0 * physical_constants::JULIAN_YEAR,
+                                           22.5 * physical_constants::JULIAN_YEAR };
+
+    for( const std::string& targetFrame : targetFrames )
+    {
+        for( const double epoch : epochs )
+        {
+            // Assemble the published Helmert relation explicitly so this test checks the generic state-conversion function itself.
+            const double timeFromReferenceEpoch = epoch - 10.0 * physical_constants::JULIAN_YEAR;
+            const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
+            const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
+            const Eigen::Matrix3d rotationAtEpoch = rotationAtReferenceEpoch + rotationDerivative * timeFromReferenceEpoch;
+            const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( targetFrame );
+
+            Eigen::Vector6d expectedForwardState;
+            expectedForwardState.segment< 3 >( 0 ) = translation.segment< 3 >( 0 ) +
+                    translation.segment< 3 >( 3 ) * timeFromReferenceEpoch + rotationAtEpoch * stateInItrf2014.segment< 3 >( 0 );
+            expectedForwardState.segment< 3 >( 3 ) = translation.segment< 3 >( 3 ) +
+                    rotationDerivative * stateInItrf2014.segment< 3 >( 0 ) + rotationAtEpoch * stateInItrf2014.segment< 3 >( 3 );
+
+            const Eigen::Vector6d convertedForwardState = convertStateBetweenItrfFrames( stateInItrf2014, epoch, "ITRF2014", targetFrame );
+            // Confirm the forward conversion applies translations, rotations, and their rates to the position.
+            BOOST_CHECK_SMALL( ( convertedForwardState.segment< 3 >( 0 ) - expectedForwardState.segment< 3 >( 0 ) ).norm( ), 1.0e-9 );
+            // Confirm the forward conversion includes both rotation-rate and translation-rate terms in the velocity.
+            BOOST_CHECK_SMALL( ( convertedForwardState.segment< 3 >( 3 ) - expectedForwardState.segment< 3 >( 3 ) ).norm( ), 1.0e-12 );
+
+            Eigen::Vector6d expectedInverseState;
+            expectedInverseState.segment< 3 >( 0 ) = rotationAtEpoch.inverse( ) *
+                    ( expectedForwardState.segment< 3 >( 0 ) - translation.segment< 3 >( 0 ) -
+                      translation.segment< 3 >( 3 ) * timeFromReferenceEpoch );
+            expectedInverseState.segment< 3 >( 3 ) = rotationAtEpoch.inverse( ) *
+                    ( expectedForwardState.segment< 3 >( 3 ) - translation.segment< 3 >( 3 ) -
+                      rotationDerivative * expectedInverseState.segment< 3 >( 0 ) );
+
+            const Eigen::Vector6d convertedInverseState =
+                    convertStateBetweenItrfFrames( expectedForwardState, epoch, targetFrame, "ITRF2014" );
+            // Confirm the inverse conversion recovers the independently inverted position at every realization and epoch.
+            BOOST_CHECK_SMALL( ( convertedInverseState.segment< 3 >( 0 ) - expectedInverseState.segment< 3 >( 0 ) ).norm( ), 1.0e-9 );
+            // Confirm the inverse conversion recovers the independently inverted velocity, including rate corrections.
+            BOOST_CHECK_SMALL( ( convertedInverseState.segment< 3 >( 3 ) - expectedInverseState.segment< 3 >( 3 ) ).norm( ), 1.0e-12 );
+            // Confirm a complete forward/inverse round trip preserves the original position.
+            BOOST_CHECK_SMALL( ( convertedInverseState.segment< 3 >( 0 ) - stateInItrf2014.segment< 3 >( 0 ) ).norm( ), 1.0e-9 );
+            // Confirm a complete forward/inverse round trip preserves the original velocity.
+            BOOST_CHECK_SMALL( ( convertedInverseState.segment< 3 >( 3 ) - stateInItrf2014.segment< 3 >( 3 ) ).norm( ), 5.0e-12 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

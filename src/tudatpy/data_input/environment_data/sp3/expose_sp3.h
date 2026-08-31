@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2026, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_DATA_INPUT_ENVIRONMENT_DATA_H
-#define TUDATPY_EXPOSE_DATA_INPUT_ENVIRONMENT_DATA_H
+#ifndef TUDATPY_EXPOSE_SP3_H
+#define TUDATPY_EXPOSE_SP3_H
 
 #include <pybind11/pybind11.h>
 
@@ -21,12 +21,15 @@ namespace data_input
 {
 namespace environment_data
 {
+namespace sp3
+{
 
-//! Expose the environment-data submodules, including the SP3 data-input interface.
-void expose_environment_data( py::module& m );
+//! Expose the SP3 file reader and parsed-file container in the data-input SP3 submodule.
+void expose_sp3( py::module& m );
 
+}  // namespace sp3
 }  // namespace environment_data
 }  // namespace data_input
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_DATA_INPUT_ENVIRONMENT_DATA_H
+#endif  // TUDATPY_EXPOSE_SP3_H

@@ -20,6 +20,7 @@
  */
 
 #include <iostream>
+#include <set>
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
@@ -826,23 +827,77 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
     return ( Eigen::Vector6d( ) << t1, t2, t3, t1_d, t2_d, t3_d ).finished( );
 }
 
+//! Check whether the Helmert transformation tables contain parameters for an ITRF realization.
+bool isItrfFrameSupported( const std::string& frameName )
+{
+    // Keep this registry beside the Helmert tables so every caller uses the same supported-frame definition.
+    static const std::set< std::string > supportedFrames = { "ITRF88", "ITRF89", "ITRF90",   "ITRF91",   "ITRF92",   "ITRF93",  "ITRF94",
+                                                             "ITRF96", "ITRF97", "ITRF2000", "ITRF2005", "ITRF2008", "ITRF2014" };
+    return supportedFrames.count( frameName ) > 0;
+}
+
+//! Convert a Cartesian state between ITRF realizations through the common ITRF2014 realization.
+Eigen::Vector6d convertStateBetweenItrfFrames( const Eigen::Vector6d& stateAtEpoch,
+                                               const double epoch,
+                                               const std::string& baseFrame,
+                                               const std::string& targetFrame )
+{
+    // Avoid applying and undoing the same Helmert transformation for an identity conversion.
+    if( baseFrame == targetFrame )
+    {
+        return stateAtEpoch;
+    }
+
+    // Tudat's Helmert parameters are defined at epoch 2010.0 and provide constant parameter rates.
+    const double timeFromReferenceEpoch = epoch - 10.0 * physical_constants::JULIAN_YEAR;
+    Eigen::Vector6d stateInItrf2014 = stateAtEpoch;
+    if( baseFrame != "ITRF2014" )
+    {
+        // Invert the base-frame transformation to use ITRF2014 as the common intermediate frame.
+        const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame );
+        const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame );
+        const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( baseFrame );
+        const Eigen::Matrix3d rotationAtEpoch = rotationAtReferenceEpoch + rotationDerivative * timeFromReferenceEpoch;
+        const Eigen::Matrix3d inverseRotationAtEpoch = rotationAtEpoch.inverse( );
+
+        stateInItrf2014.segment< 3 >( 0 ) = inverseRotationAtEpoch *
+                ( stateAtEpoch.segment< 3 >( 0 ) - translation.segment< 3 >( 0 ) - translation.segment< 3 >( 3 ) * timeFromReferenceEpoch );
+        stateInItrf2014.segment< 3 >( 3 ) = inverseRotationAtEpoch *
+                ( stateAtEpoch.segment< 3 >( 3 ) - translation.segment< 3 >( 3 ) - rotationDerivative * stateInItrf2014.segment< 3 >( 0 ) );
+    }
+
+    if( targetFrame == "ITRF2014" )
+    {
+        return stateInItrf2014;
+    }
+
+    // Apply the target-frame transformation, including translation and rotation rates.
+    const Eigen::Matrix3d rotationAtReferenceEpoch = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
+    const Eigen::Matrix3d rotationDerivative = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
+    const Eigen::Vector6d translation = getItrf2014ToArbitraryItrfTranslation( targetFrame );
+    const Eigen::Matrix3d rotationAtEpoch = rotationAtReferenceEpoch + rotationDerivative * timeFromReferenceEpoch;
+
+    Eigen::Vector6d transformedState;
+    transformedState.segment< 3 >( 0 ) = translation.segment< 3 >( 0 ) + translation.segment< 3 >( 3 ) * timeFromReferenceEpoch +
+            rotationAtEpoch * stateInItrf2014.segment< 3 >( 0 );
+    transformedState.segment< 3 >( 3 ) = translation.segment< 3 >( 3 ) + rotationDerivative * stateInItrf2014.segment< 3 >( 0 ) +
+            rotationAtEpoch * stateInItrf2014.segment< 3 >( 3 );
+    return transformedState;
+}
+
+//! Convert a ground-station state from ITRF2014 to another ITRF realization at the requested epoch.
 Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& groundStationStateAtEpoch,
                                                                   double epoch,
                                                                   const std::string& targetFrame )
 {
-    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+    const double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
 
     Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
     groundStationStateAtReferenceEpoch.segment( 0, 3 ) +=
             groundStationStateAtReferenceEpoch.segment( 3, 3 ) * ( itrf2014ReferenceEpoch - epoch );
 
-    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
-    rotationMatrix.block( 0, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
-    rotationMatrix.block( 3, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
-    rotationMatrix.block( 3, 3, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
-
     Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch =
-            getItrf2014ToArbitraryItrfTranslation( targetFrame ) + rotationMatrix * groundStationStateAtReferenceEpoch;
+            convertStateBetweenItrfFrames( groundStationStateAtReferenceEpoch, itrf2014ReferenceEpoch, "ITRF2014", targetFrame );
 
     Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
     groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -=
@@ -851,30 +906,19 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::V
     return groundStationItrf2014StateAtEpoch;
 }
 
+//! Convert a ground-station state from an arbitrary supported ITRF realization to ITRF2014.
 Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& groundStationStateAtEpoch,
                                                                   double epoch,
                                                                   const std::string& baseFrame )
 {
-    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+    const double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
 
     Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
     groundStationStateAtReferenceEpoch.segment( 0, 3 ) +=
             groundStationStateAtReferenceEpoch.segment( 3, 3 ) * ( itrf2014ReferenceEpoch - epoch );
 
-    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
-    Eigen::Matrix3d itrf2014ToArbitraryItrfRotationMatrixInverse = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame ).inverse( );
-    rotationMatrix.block( 0, 0, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
-    rotationMatrix.block( 3, 0, 3, 3 ) = -itrf2014ToArbitraryItrfRotationMatrixInverse *
-            getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) * itrf2014ToArbitraryItrfRotationMatrixInverse;
-    rotationMatrix.block( 3, 3, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
-
     Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch =
-            rotationMatrix * ( groundStationStateAtReferenceEpoch - getItrf2014ToArbitraryItrfTranslation( baseFrame ) );
-
-    groundStationItrf2014StateAtReferenceEpoch.segment( 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse *
-            ( groundStationStateAtReferenceEpoch.segment( 3, 3 ) - getItrf2014ToArbitraryItrfTranslation( baseFrame ).segment( 3, 3 ) -
-              getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) *
-                      groundStationItrf2014StateAtReferenceEpoch.segment( 0, 3 ) );
+            convertStateBetweenItrfFrames( groundStationStateAtReferenceEpoch, itrf2014ReferenceEpoch, baseFrame, "ITRF2014" );
 
     Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
     groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -=

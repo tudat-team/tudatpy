@@ -14,9 +14,10 @@
 
 #include "coma/expose_coma.h"
 #include "ilrs/expose_ilrs.h"
-#include "space_weather/expose_space_weather.h"
 #include "interface/spice/expose_spice.h"
 #include "missions/expose_missions.h"
+#include "sp3/expose_sp3.h"
+#include "space_weather/expose_space_weather.h"
 
 namespace py = pybind11;
 
@@ -27,6 +28,7 @@ namespace data_input
 namespace environment_data
 {
 
+//! Expose the environment-data submodules, including the SP3 data-input interface.
 void expose_environment_data( py::module& m )
 {
     auto coma_submodule = m.def_submodule( "coma" );
@@ -43,6 +45,9 @@ void expose_environment_data( py::module& m )
 
     auto spice_submodule = m.def_submodule( "spice" );
     tudatpy::interface::spice::expose_spice( spice_submodule );
+
+    auto sp3_submodule = m.def_submodule( "sp3" );
+    sp3::expose_sp3( sp3_submodule );
 }
 
 }  // namespace environment_data

@@ -19,6 +19,7 @@
 #include "environment_setup/createBodiesFactory.h"
 #include "environment_setup/createBodyShapeModel.h"
 #include "environment_setup/createEphemeris.h"
+#include "environment_setup/createSp3Ephemeris.h"
 #include "environment_setup/createFlightConditions.h"
 #include "environment_setup/createGravityField.h"
 #include "environment_setup/createGravityFieldVariations.h"
