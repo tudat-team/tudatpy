@@ -67,6 +67,9 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
         case velocity_observable:
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case differenced_time_of_arrival:
         case differenced_frequency_of_arrival:
             break;
@@ -116,6 +119,11 @@ bool isObservableTypeMultiLink( const ObservableType observableType )
         case velocity_observable:
             break;
         case relative_angular_position:
+            isIntegratedTypeisMultiLink = true;
+            break;
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             isIntegratedTypeisMultiLink = true;
             break;
         case relative_position_observable:
@@ -173,6 +181,11 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
         case relative_angular_position:
             isIntegratedType = false;
             break;
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
+            isIntegratedType = false;
+            break;
         case relative_position_observable:
             isIntegratedType = false;
             break;
@@ -211,6 +224,9 @@ bool requiresTransmittingStation( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case n_way_differenced_range:
         case dsn_one_way_averaged_doppler:
         case pixel_coordinates:
@@ -248,6 +264,9 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_n_way_range:
@@ -284,6 +303,9 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_n_way_range:
@@ -328,6 +350,9 @@ bool isRadiometricObservableType( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             isRadiometric = false;
             break;
         case undefined_observation_model:
@@ -368,6 +393,9 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case differenced_time_of_arrival:
         case pixel_coordinates:
             isPhaseVelocityBased = false;
@@ -403,6 +431,9 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case differenced_time_of_arrival:
         case pixel_coordinates:
         case differenced_frequency_of_arrival:
@@ -449,6 +480,9 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
         case velocity_observable:
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             break;
         case relative_position_observable:
             break;
@@ -607,6 +641,15 @@ std::string getObservableName( const ObservableType observableType, const int nu
         case relative_angular_position:
             observableName = "RelativeAngularPosition";
             break;
+        case position_angle:
+            observableName = "PositionAngle";
+            break;
+        case separation_distance:
+            observableName = "SeparationDistance";
+            break;
+        case position_angle_and_separation:
+            observableName = "PositionAngleAndSeparation";
+            break;
         case relative_position_observable:
             observableName = "RelativeCartesianPosition";
             break;
@@ -697,6 +740,18 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = relative_angular_position;
     }
+    else if( observableName == "PositionAngle" )
+    {
+        observableType = position_angle;
+    }
+    else if( observableName == "SeparationDistance" )
+    {
+        observableType = separation_distance;
+    }
+    else if( observableName == "PositionAngleAndSeparation" )
+    {
+        observableType = position_angle_and_separation;
+    }
     else if( observableName == "RelativeCartesianPosition" )
     {
         observableType = relative_position_observable;
@@ -729,6 +784,9 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
             undifferencedObservableType = n_way_range;
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             undifferencedObservableType = angular_position;
             break;
         default:
@@ -779,6 +837,9 @@ ObservableType getBaseObservableType( const ObservableType observableType )
             break;
         case angular_position:
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             baseObservableType = angular_position;
             break;
         case pixel_coordinates:
@@ -828,6 +889,9 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
             break;
         }
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             firstIndices = { 0, 2 };
             secondIndices = { 1, 2 };
             break;
@@ -849,7 +913,10 @@ std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType d
         case dsn_n_way_averaged_doppler:
             linkEndsPair = { differencedLinkEnds, differencedLinkEnds };
             break;
-        case relative_angular_position: {
+        case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation: {
             LinkEnds firstLinkEnds;
             firstLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter );
             firstLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
@@ -948,6 +1015,13 @@ int getObservableSize( const ObservableType observableType )
             observableSize = 3;
             break;
         case relative_angular_position:
+            observableSize = 2;
+            break;
+        case position_angle:
+        case separation_distance:
+            observableSize = 1;
+            break;
+        case position_angle_and_separation:
             observableSize = 2;
             break;
         case n_way_differenced_range:
@@ -1148,6 +1222,9 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
             }
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             switch( linkEndType )
             {
                 case transmitter:
@@ -1280,6 +1357,9 @@ LinkEndType getDefaultReferenceLinkEndType( const ObservableType observableType 
             referenceLinkEndType = observed_body;
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             referenceLinkEndType = receiver;
             break;
         case n_way_differenced_range:
@@ -1356,6 +1436,9 @@ int getNumberOfLinksInObservable( const ObservableType observableType, const int
             numberOfLinks = 0;
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
         case differenced_frequency_of_arrival:
         case differenced_time_of_arrival:
             numberOfLinks = 3;
@@ -1614,6 +1697,9 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             throw std::runtime_error( "Error, parsed irrelevant position observable link end types for link end indices" );
             break;
         case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
                 ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                   ( linkEndToCheck.getReferencePointName( ) == "" ) ) )
@@ -1737,6 +1823,13 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     {
         singleLinkStateEntries = observedObserverBodiesLinkStateEntries;
     }
+    else if( observableType == position_angle || observableType == separation_distance || observableType == position_angle_and_separation )
+    {
+        // Three-link-end observables: states stored as [transmitter, transmitter2, receiver]
+        singleLinkStateEntries[ transmitter ] = 0;
+        singleLinkStateEntries[ transmitter2 ] = 1;
+        singleLinkStateEntries[ receiver ] = 2;
+    }
     else
     {
         throw std::runtime_error( "Error when getting single link state entries, observable type " + getObservableName( observableType ) +
@@ -1787,7 +1880,10 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         case velocity_observable: {
             break;
         }
-        case relative_angular_position: {
+        case relative_angular_position:
+        case position_angle:
+        case separation_distance:
+        case position_angle_and_separation: {
             interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ),
                                                   std::make_pair( transmitter, linkEnds.at( transmitter ) ) ) );
             interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ),

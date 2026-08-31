@@ -218,6 +218,21 @@ public:
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
                 break;
+            case observation_models::position_angle:
+            case observation_models::separation_distance:
+                if( isPartialForConcatenatedObservable )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting partial creation for position angle/separation distance; concatenated partial not "
+                            "supported" );
+                }
+                observationPartials =
+                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >( observationModel,
+                                                                                                   bodies,
+                                                                                                   parametersToEstimate,
+                                                                                                   isPartialForDifferencedObservable,
+                                                                                                   isPartialForConcatenatedObservable );
+                break;
             case observation_models::n_way_differenced_range:
             case observation_models::dsn_n_way_averaged_doppler:
                 if( isPartialForDifferencedObservable )
@@ -311,6 +326,7 @@ public:
                                                                                                    isPartialForConcatenatedObservable );
                 break;
             case observation_models::relative_angular_position:
+            case observation_models::position_angle_and_separation:
                 observationPartials =
                         createDifferencedObservablePartials< ObservationScalarType, TimeType, 2 >( observationModel,
                                                                                                    bodies,
@@ -780,6 +796,53 @@ public:
                         secondPartial,
                         &getRelativeAngularPositionScalingFactor,
                         getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
+                break;
+            }
+            case position_angle_and_separation: {
+                if( !isParameterObservationLinkTimeProperty(
+                            getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
+                {
+                    if( firstPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating position angle and separation distance partial; first "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial )->getObservableType( ) !=
+                                 angular_position )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating position angle and separation distance partial; first "
+                                    "input observable type is incompatible" );
+                        }
+                    }
+
+                    if( secondPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating position angle and separation distance partial; second "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) !=
+                                 angular_position )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating position angle and separation distance partial; second "
+                                    "input observable type is incompatible" );
+                        }
+                    }
+                }
+
+                differencedPartial = std::make_shared< DifferencedObservablePartial< 2 > >(
+                        firstPartial,
+                        secondPartial,
+                        &observation_models::getPositionAngleAndSeparationScalingFactor,
+                        getUndifferencedTimeAndStateIndices( position_angle_and_separation, linkEnds.size( ) ),
                         &getDefaultDifferencedReferenceLinkEndTypes );
                 break;
             }

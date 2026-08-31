@@ -37,6 +37,9 @@
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
 #include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
+#include "tudat/astro/observation_models/positionAngleObservationModel.h"
+#include "tudat/astro/observation_models/separationObservationModel.h"
+#include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 #include "tudat/astro/observation_models/relativePositionObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
@@ -1725,6 +1728,84 @@ public:
                 observationModel = differencedFrequencyOfArrivalModel;
                 break;
             }
+            case position_angle: {
+                if( linkEnds.size( ) != 3 )
+                {
+                    throw std::runtime_error( "Error when making position angle model, " + std::to_string( linkEnds.size( ) ) +
+                                              " link ends found" );
+                }
+                if( linkEnds.count( receiver ) == 0 )
+                    throw std::runtime_error( "Error when making position angle model, no receiver found" );
+                if( linkEnds.count( transmitter ) == 0 )
+                    throw std::runtime_error( "Error when making position angle model, no transmitter found" );
+                if( linkEnds.count( transmitter2 ) == 0 )
+                    throw std::runtime_error( "Error when making position angle model, no second transmitter found" );
+
+                std::shared_ptr< ObservationBias< 1 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator< 1 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                observationModel = std::make_shared< PositionAngleObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds,
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter2,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        observationBias );
+                break;
+            }
+            case separation_distance: {
+                if( linkEnds.size( ) != 3 )
+                {
+                    throw std::runtime_error( "Error when making separation distance model, " + std::to_string( linkEnds.size( ) ) +
+                                              " link ends found" );
+                }
+                if( linkEnds.count( receiver ) == 0 )
+                    throw std::runtime_error( "Error when making separation distance model, no receiver found" );
+                if( linkEnds.count( transmitter ) == 0 )
+                    throw std::runtime_error( "Error when making separation distance model, no transmitter found" );
+                if( linkEnds.count( transmitter2 ) == 0 )
+                    throw std::runtime_error( "Error when making separation distance model, no second transmitter found" );
+
+                std::shared_ptr< ObservationBias< 1 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator< 1 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                observationModel = std::make_shared< SeparationObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds,
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter2,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        observationBias );
+                break;
+            }
             default:
                 std::string errorMessage = "Error, observable " + std::to_string( observationSettings->observableType_ ) +
                         "  not recognized when making size 1 observation model.";
@@ -1898,6 +1979,47 @@ public:
 
                 // Create observation model
                 observationModel = std::make_shared< RelativeAngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds,
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                      transmitter2,
+                                                                                      receiver,
+                                                                                      bodies,
+                                                                                      topLevelObservableType,
+                                                                                      observationSettings->lightTimeCorrectionsList_,
+                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        observationBias );
+
+                break;
+            }
+            case position_angle_and_separation: {
+                if( linkEnds.size( ) != 3 )
+                {
+                    throw std::runtime_error( "Error when making position angle and separation distance model, " +
+                                              std::to_string( linkEnds.size( ) ) + " link ends found" );
+                }
+                if( linkEnds.count( receiver ) == 0 )
+                    throw std::runtime_error( "Error when making position angle and separation distance model, no receiver found" );
+                if( linkEnds.count( transmitter ) == 0 )
+                    throw std::runtime_error( "Error when making position angle and separation distance model, no transmitter found" );
+                if( linkEnds.count( transmitter2 ) == 0 )
+                    throw std::runtime_error(
+                            "Error when making position angle and separation distance model, no second transmitter found" );
+
+                std::shared_ptr< ObservationBias< 2 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator< 2 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                observationModel = std::make_shared< PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
                                                                                       transmitter,
@@ -2472,6 +2594,31 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                     relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
             break;
         }
+        case observation_models::position_angle: {
+            std::shared_ptr< observation_models::PositionAngleObservationModel< ObservationScalarType, TimeType > > paModel =
+                    std::dynamic_pointer_cast< observation_models::PositionAngleObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            currentLightTimeCorrections.push_back( paModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( paModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            break;
+        }
+        case observation_models::separation_distance: {
+            std::shared_ptr< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > > sepModel =
+                    std::dynamic_pointer_cast< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            currentLightTimeCorrections.push_back( sepModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( sepModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            break;
+        }
+        case observation_models::position_angle_and_separation: {
+            std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > > pasModel =
+                    std::dynamic_pointer_cast<
+                            observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            currentLightTimeCorrections.push_back( pasModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( pasModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            break;
+        }
         case observation_models::relative_position_observable: {
             break;
         }
@@ -2673,6 +2820,19 @@ public:
                         std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
                                 relativeAngularPositionModel->getSecondLinkEnds( ),
                                 relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( ) );
+                break;
+            }
+            case observation_models::position_angle_and_separation: {
+                std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >
+                        pasModel = std::dynamic_pointer_cast<
+                                observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
+                                differencedObservationModel );
+                firstObservationModel =
+                        std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                                pasModel->getFirstLinkEnds( ), pasModel->getLightTimeCalculatorFirstTransmitter( ) );
+                secondObservationModel =
+                        std::make_shared< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType > >(
+                                pasModel->getSecondLinkEnds( ), pasModel->getLightTimeCalculatorSecondTransmitter( ) );
                 break;
             }
             default:
