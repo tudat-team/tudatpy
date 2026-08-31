@@ -89,16 +89,16 @@ def light_deflection_correction_angular_observations(
         Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str
+    observer_reference_name : str | None
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
         of the observer_body_name body.
-    perturbing_bodies_list : Sequence[str]
+    perturbing_bodies_list : list[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
 
     Returns
     -------
     np.ndarray
-        Nx2 array of corrections in RA and DEC. Must be added to observations
+        Nx2 array of corrections to RA and DEC in radians. Must be added to observations
     """
     # Input validation
     if observations.shape[1] != 3:
@@ -185,28 +185,29 @@ def apply_light_deflection_correction_to_observation_collection(
     Computes relativistic light-deflection corrections and applies them to an observation collection.
 
     Computes relativistic light-deflection corrections and applies them to an observation collection. Calls the function
-    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection.light_deflection_angular_observations`,
+    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`,
     and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationCollection` with the specified
     link-ends.
 
     Parameters
     ----------
     observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
-        ObservationCollection object containing the angular observations
+        ObservationCollection containing angular observations on specified link-ends
     bodies : SystemOfBodies
         The SystemOfBodies object
     body_name : str
         Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str
+    observer_reference_name : str | None
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
         of the observer_body_name body.
-    perturbing_bodies_list : Sequence[str]
+    perturbing_bodies_list : list[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
     in_place : bool
         If true, corrections are applied in-place to the ObservationCollection object. If false, a new ObservationCollection
         is returned with the corrections applied. By default, true.
+
     Returns
     -------
     None | ObservationCollection

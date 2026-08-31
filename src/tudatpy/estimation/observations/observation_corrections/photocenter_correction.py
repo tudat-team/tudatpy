@@ -28,8 +28,8 @@ def apply_photocenter_correction_to_observation_collection(
 
     Parameters
     ----------
-    observation_collection : ObservationCollection
-        Uncorrected observation collection
+    observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
+        ObservationCollection containing angular observations on specified link-ends
     body_dimensions : float | list[float]
         Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of floats, they are
         assumed to be ellipsoid semi-axes.
@@ -39,17 +39,17 @@ def apply_photocenter_correction_to_observation_collection(
         Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str
+    observer_reference_name : str | None
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
         of the observer_body_name body.
     in_place : bool
-        Flag if corrections should be applied in-place, or if a new ObservationCollection should be returned. By default,
-        True.
+        If true, corrections are applied in-place to the ObservationCollection object. If false, a new ObservationCollection
+        is returned with the corrections applied. By default, true.
 
     Returns
     -------
     None | ObservationCollection
-        Returns None, or the new ObservationCollection depending on the argument 'in_place'
+        Returns a new observation collection with applied corrections if in_place is False.
     """
     return _apply_corrections_to_observation_collection(
         observation_collection=observation_collection,
@@ -190,14 +190,14 @@ def photocenter_correction_angular_observations(
         Name of the body being observed, in the SystemOfBodies object
     observer_body_name : str
         Name of the observing (base) body in the SystemOfBodies object
-    observer_reference_name : str
+    observer_reference_name : str | None
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
         of the observer_body_name body.
 
     Returns
     -------
     np.ndarray
-        Nx2 array of corrections to RA and DEC in radians
+        Nx2 array of corrections to RA and DEC in radians. Must be added to observations
     """
     # Check if all bodies are defined in the SystemOfBodies
     body_or_ephemeris_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None

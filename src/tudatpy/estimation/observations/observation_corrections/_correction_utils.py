@@ -17,16 +17,8 @@ def _offset_vector_to_corrections(offset_vec: np.ndarray,
                                        ra: float,
                                        dec: float):
     """
-    Calculate corrections in right ascension and declination from a plane-of-sky offset vector.
-
-    Args:
-        offset_vec (np.ndarray): Offset vector such that true dir + offset = observed dir.
-        ra: Right ascension (rad)
-        dec: Declination (rad)
-
-    Returns:
-        float: correction in right ascension
-        float: correction in declination
+    Convert a plane-of-sky offset vector, i.e. the offset that is perpendicular to the line-of-sight, to
+    corrections in right ascension and declination.
     """
     observed_dir = np.array([np.cos(ra)*np.cos(dec), np.sin(ra)*np.cos(dec), np.sin(dec)])
     # true dir. + offset = observed dir.
@@ -40,6 +32,7 @@ def _offset_vector_to_corrections(offset_vec: np.ndarray,
     dec_corr = dec_true - dec
 
     return ra_corr, dec_corr
+
 
 def _apply_corrections_to_observation_collection(
         observation_collection: ObservationCollection,
