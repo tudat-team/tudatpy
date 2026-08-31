@@ -21,6 +21,7 @@
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro/accelerationModel.h>
+#include <tudat/astro/basic_astro/accelerationModelTypes.h>
 #include <tudat/astro/basic_astro/massRateModel.h>
 #include <tudat/astro/basic_astro/torqueModel.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
@@ -73,8 +74,20 @@ void expose_propagation_state_utility_types( py::module& m )
 {
     py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
 
-    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
-            m, "AccelerationModel" );
+    using AccelerationModel = tba::AccelerationModel< Eigen::Vector3d >;
+    py::class_< AccelerationModel, std::shared_ptr< AccelerationModel > >( m, "AccelerationModel" )
+            .def( "update_members", &AccelerationModel::updateMembers, py::arg( "current_time" ) )
+            .def_property_readonly( "acceleration", &AccelerationModel::getAcceleration )
+            .def(
+                    "update_and_get_acceleration",
+                    []( AccelerationModel& accelerationModel, const double currentTime ) {
+                        accelerationModel.updateMembers( currentTime );
+                        return accelerationModel.getAcceleration( );
+                    },
+                    py::arg( "current_time" ) )
+            .def_property_readonly( "acceleration_type", []( const std::shared_ptr< AccelerationModel >& accelerationModel ) {
+                return tba::getAccelerationModelType( accelerationModel );
+            } );
 
     py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
 }
