@@ -35,7 +35,7 @@ def _photocenter_offset(diameter : float,
     return offset_direction * offset_magnitude
 
 
-def photocenter_correction_angular_observations_spherical_approximation(
+def photocenter_correction_angular_observations_sphere(
         observations: np.ndarray ,
         diameter: float,
         bodies: SystemOfBodies,
@@ -44,9 +44,9 @@ def photocenter_correction_angular_observations_spherical_approximation(
         observer_reference_name: str | None = None
 ) -> np.ndarray:
     r"""
-    Calculate corrections to observations to account for the photocenter-barycenter offset.
+    Compute photocenter-barycenter corrections assuming a spherical shape model.
 
-    Calculate corrections to observations to account for the photocenter-barycenter offset, according to Fuentes-Munoz
+    Compute photocenter-barycenter corrections assuming a spherical shape model, according to Fuentes-Munoz
     et al. (2024):
 
     .. math::
@@ -142,11 +142,11 @@ def apply_photocenter_correction_to_observation_collection(
     Computes photocenter corrections and applies them to an observation collection.
 
     If the body size is given as a float (a diameter in m), the spherical approximation model for the correction,
-    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_spherical_approximation`, is used.
+    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_sphere`, is used.
 
     If the body size is given as a list of 3 floats (ellipsoid semi-axes) the ellipsoidal approximation for the
     correction is called:
-    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_ellipsoidal_approximation`.
+    :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations_ellipsoid`.
 
     Parameters
     ----------
@@ -180,7 +180,7 @@ def apply_photocenter_correction_to_observation_collection(
             observer_body_name=observer_body_name,
             observer_reference_name=observer_reference_name,
             in_place=in_place,
-            correction_function=photocenter_correction_angular_observations_ellipsoidal_approximation,
+            correction_function=photocenter_correction_angular_observations_ellipsoid,
             semi_axes=body_size
         )
     elif isinstance(body_size, (float, int)): # Spherical approximation
@@ -192,10 +192,10 @@ def apply_photocenter_correction_to_observation_collection(
             observer_body_name=observer_body_name,
             observer_reference_name=observer_reference_name,
             in_place=in_place,
-            correction_function=photocenter_correction_angular_observations_spherical_approximation
+            correction_function=photocenter_correction_angular_observations_sphere
         )
     else:
-        raise ValueError('Body size input type not recognized. Needs to be either float or array of floats')
+        raise TypeError('Body size input type not recognized. Needs to be either float or array of floats')
 
 def _photocenter_correction_ellipsoidal(
         semi_axes: list | np.ndarray,
@@ -275,7 +275,7 @@ def _photocenter_correction_ellipsoidal(
     return offset
 
 
-def photocenter_correction_angular_observations_ellipsoidal_approximation(
+def photocenter_correction_angular_observations_ellipsoid(
         observations: np.ndarray ,
         semi_axes: list | np.ndarray,
         bodies: SystemOfBodies,
