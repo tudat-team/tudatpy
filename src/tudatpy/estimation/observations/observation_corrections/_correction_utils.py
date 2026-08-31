@@ -1,5 +1,5 @@
 """
-Utility functions for data/
+Utility functions for observation corrections
 """
 import numpy as np
 from numpy.linalg import norm

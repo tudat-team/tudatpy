@@ -8,7 +8,7 @@ import numpy as np
 from numpy.linalg import norm
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import model_settings, links
-from tudatpy.estimation.observable_models_setup.biases.light_deflection_correction import (
+from tudatpy.estimation.observations.observation_corrections.light_deflection_correction import (
     _calculate_light_deflection,
     relativistic_light_deflection_from_observations,
     apply_light_deflection_correction_to_observation_collection,
@@ -17,7 +17,7 @@ from tudatpy.constants import SPEED_OF_LIGHT
 
 # Constants
 MU_SUN = 1.327e20 # Gravitational parameter of sun to use for tests
-_MODULE = 'tudatpy.estimation.observable_models_setup.biases.light_deflection_correction'
+_MODULE = 'tudatpy.estimation.observations.observation_corrections.light_deflection_correction'
 
 
 def _build_angular_observation_collection(observation_pairs, times, body_name, observer_body_name):

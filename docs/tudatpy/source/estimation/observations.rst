@@ -16,6 +16,7 @@ In addition to the top-level classes, this module contains functionality to mani
 
    /estimation/observations/observations_geometry
    /estimation/observations/observations_processing
+   /estimation/observations/observation_corrections
 
 
 Functions

@@ -8,7 +8,7 @@ from tudatpy.estimation.observable_models_setup.model_settings import Observable
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
 from numpy.linalg import norm
-from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections, _unit
+from ._correction_utils import _offset_vector_to_corrections, _unit
 from tudatpy.constants import SPEED_OF_LIGHT
 
 def _photocenter_offset(diameter : float,

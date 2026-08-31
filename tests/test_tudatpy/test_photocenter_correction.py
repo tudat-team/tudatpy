@@ -9,7 +9,7 @@ from numpy.linalg import norm
 from tudatpy.constants import SPEED_OF_LIGHT
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import model_settings, links
-from tudatpy.estimation.observable_models_setup.biases.photocenter_correction import (
+from tudatpy.estimation.observations.observation_corrections.photocenter_correction import (
     _photocenter_offset,
     _photocenter_correction_ellipsoidal,
     photocenter_corrections_from_observations,
@@ -17,7 +17,7 @@ from tudatpy.estimation.observable_models_setup.biases.photocenter_correction im
     apply_photocenter_correction_to_observation_collection,
 )
 
-_MODULE = 'tudatpy.estimation.observable_models_setup.biases.photocenter_correction'
+_MODULE = 'tudatpy.estimation.observations.observation_corrections.photocenter_correction'
 
 
 def _build_angular_observation_collection(observation_pairs, times, body_name, observer_body_name):

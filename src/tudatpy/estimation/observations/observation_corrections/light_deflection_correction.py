@@ -8,7 +8,7 @@ from tudatpy.estimation.observations.observations_processing import observation_
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
-from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections
+from ._correction_utils import _offset_vector_to_corrections
 from tudatpy.constants import SPEED_OF_LIGHT
 from collections.abc import Iterable
 
