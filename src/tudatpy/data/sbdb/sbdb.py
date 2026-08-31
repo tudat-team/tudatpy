@@ -1,8 +1,68 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
-from typing import Any, Union
+from os import PathLike
+from typing import Any, Iterable, Optional, Union
 import math
+import pandas as pd
+import requests
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
+
+
+class SBDBbatch:
+    """Tabular access to the JPL Small-Body Database."""
+
+    api_url = "https://ssd-api.jpl.nasa.gov/sbdb_query.api"
+
+    def __init__(
+        self,
+        csv_path: Optional[Union[str, PathLike]] = None,
+        fields: Optional[Iterable[str]] = None,
+        page_size: int = 100_000,
+        timeout: float = 120,
+    ) -> None:
+        """Load the SBDB catalogue from JPL, or from a previously saved CSV file."""
+        self.dataframe = (
+            pd.read_csv(csv_path, dtype={"pdes": str, "spkid": str})
+            if csv_path is not None
+            else self._download(fields, page_size, timeout)
+        )
+
+    @classmethod
+    def _download(cls, fields, page_size, timeout):
+        if fields is None:
+            response = requests.get(cls.api_url, params={"info": "field"}, timeout=timeout)
+            response.raise_for_status()
+            fields = [
+                field["name"]
+                for group in response.json()["info"]["field"].values()
+                for field in group["list"]
+            ]
+        fields = list(fields)
+
+        rows, offset, columns = [], 0, []
+        while True:
+            response = requests.get(
+                cls.api_url,
+                params={"fields": ",".join(fields), "limit": page_size, "limit-from": offset},
+                timeout=timeout,
+            )
+            response.raise_for_status()
+            result = response.json()
+            columns = result["fields"]
+            rows.extend(result.get("data", []))
+            offset += len(result.get("data", []))
+            if offset >= int(result["count"]) or not result.get("data"):
+                break
+        return pd.DataFrame(rows, columns=columns)
+
+    def get(self, mpc_codes: Union[str, int, Iterable[Union[str, int]]]) -> pd.DataFrame:
+        """Return catalogue rows matching one or more primary MPC designations."""
+        codes = [mpc_codes] if isinstance(mpc_codes, (str, int)) else mpc_codes
+        return self.dataframe[self.dataframe["pdes"].astype(str).isin(map(str, codes))]
+
+    def to_csv(self, path: Union[str, PathLike]) -> None:
+        """Save the loaded catalogue for offline reuse."""
+        self.dataframe.to_csv(path, index=False)
 
 
 class SBDBquery:
