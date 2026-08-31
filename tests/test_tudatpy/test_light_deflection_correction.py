@@ -9,8 +9,8 @@ from numpy.linalg import norm
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import model_settings, links
 from tudatpy.estimation.observations.observation_corrections.light_deflection_correction import (
-    _calculate_light_deflection,
-    relativistic_light_deflection_from_observations,
+    _light_deflection_single_contribution,
+    light_deflection_correction_angular_observations,
     apply_light_deflection_correction_to_observation_collection,
 )
 from tudatpy.constants import SPEED_OF_LIGHT
@@ -36,7 +36,7 @@ def test_light_deflection_zero_when_collinear():
     observer = np.array([1.0e11, 0.0, 0.0])
     asteroid = np.array([3.0e11, 0.0, 0.0])
     perturber = np.array([0.0,    0.0, 0.0])
-    offset_vec = _calculate_light_deflection(observer, asteroid, perturber, MU_SUN)
+    offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
 
     np.testing.assert_allclose(offset_vec, np.zeros(3), rtol=0, atol=1e-15)
 
@@ -53,7 +53,7 @@ def test_light_deflection_magnitude_with_analytical_formula():
                             / (norm(observer_wrt_perturber) * norm(asteroid_wrt_perturber)))
 
     # Offset magnitude from function:
-    offset = norm(_calculate_light_deflection(observer, asteroid, perturber, MU_SUN))
+    offset = norm(_light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN))
     # Eq 72 from Klioner (2003):
     expected_offset = 2 * MU_SUN / (norm(observer_wrt_perturber) * SPEED_OF_LIGHT ** 2) * np.tan(phase_angle/2)
 
@@ -66,7 +66,7 @@ def test_light_deflection_direction_properties():
     asteroid = np.array([3.0e11, 0.0,  0.0])
     perturber = np.array([0.0,    0.0,  0.0])
 
-    offset_vec = _calculate_light_deflection(observer, asteroid, perturber, MU_SUN)
+    offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
     line_of_sight = observer - asteroid
 
     # Check that vector is perpendicular to line of sight
@@ -87,7 +87,7 @@ def test_singularity_at_opposition():
     asteroid = np.array([-1.0e11, 0.0, 0.0])
     perturber = np.array([0.0, 0.0, 0.0])
     with np.errstate(divide='ignore', invalid='ignore'):
-        offset_vec = _calculate_light_deflection(observer, asteroid, perturber, MU_SUN)
+        offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
 
     assert np.all(np.isnan(offset_vec))
 
@@ -117,7 +117,7 @@ def test_light_deflection_integration():
     observations = np.array([[0.0,  np.pi / 2, 0.0],
                              [1.0, -np.pi / 2, 0.0]])
 
-    corrections = relativistic_light_deflection_from_observations(
+    corrections = light_deflection_correction_angular_observations(
         observations = observations,
         bodies = bodies_mock,
         body_name = 'Asteroid',
@@ -144,7 +144,7 @@ def test_apply_light_deflection_correction_to_observation_collection(in_place):
     corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
     collection = _build_angular_observation_collection(observation_pairs, [0.0, 1.0], 'Asteroid', 'Observer')
 
-    with patch(f'{_MODULE}.relativistic_light_deflection_from_observations', return_value=corrections):
+    with patch(f'{_MODULE}.light_deflection_correction_angular_observations', return_value=corrections):
         result = apply_light_deflection_correction_to_observation_collection(
             observation_collection=collection,
             bodies=MagicMock(),

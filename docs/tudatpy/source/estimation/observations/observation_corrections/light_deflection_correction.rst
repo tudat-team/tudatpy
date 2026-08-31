@@ -13,10 +13,10 @@ Functions
 
 .. autosummary::
 
-   relativistic_light_deflection_from_observations
+   light_deflection_correction_angular_observations
 
    apply_light_deflection_correction_to_observation_collection
 
-.. autofunction:: tudatpy.estimation.observations.observation_corrections.light_deflection_correction.relativistic_light_deflection_from_observations
+.. autofunction:: tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations
 
 .. autofunction:: tudatpy.estimation.observations.observation_corrections.light_deflection_correction.apply_light_deflection_correction_to_observation_collection

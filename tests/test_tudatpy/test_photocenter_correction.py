@@ -12,8 +12,8 @@ from tudatpy.estimation.observable_models_setup import model_settings, links
 from tudatpy.estimation.observations.observation_corrections.photocenter_correction import (
     _photocenter_offset,
     _photocenter_correction_ellipsoidal,
-    photocenter_corrections_from_observations,
-    photocenter_corrections_from_observations_ellipsoidal,
+    photocenter_correction_angular_observations_spherical_approximation,
+    photocenter_correction_angular_observations_ellipsoidal_approximation,
     apply_photocenter_correction_to_observation_collection,
 )
 
@@ -106,7 +106,7 @@ def test_photocenter_corrections_integration():
     observations = np.array([[0.0,  np.pi / 2, 0.0],
                              [1.0, -np.pi / 2, 0.0]])
 
-    corrections = photocenter_corrections_from_observations(
+    corrections = photocenter_correction_angular_observations_spherical_approximation(
         observations = observations,
         diameter = 1000.0,
         bodies = bodies_mock,
@@ -129,11 +129,11 @@ def test_input_validation():
 
     # Observations not in N x 3 shape
     with pytest.raises(ValueError, match='shape N x 3'):
-        photocenter_corrections_from_observations(observations[:, :2], 1000.0, bodies_mock, 'Asteroid', 'Observer')
+        photocenter_correction_angular_observations_spherical_approximation(observations[:, :2], 1000.0, bodies_mock, 'Asteroid', 'Observer')
 
     # Non-positive diameter
     with pytest.raises(ValueError, match='diameter'):
-        photocenter_corrections_from_observations(observations, -1.0, bodies_mock, 'Asteroid', 'Observer')
+        photocenter_correction_angular_observations_spherical_approximation(observations, -1.0, bodies_mock, 'Asteroid', 'Observer')
 
 
 @pytest.mark.parametrize('in_place', [True, False])
@@ -144,10 +144,10 @@ def test_apply_photocenter_correction_to_observation_collection(in_place):
     corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
     collection = _build_angular_observation_collection(observation_pairs, [0.0, 1.0], 'Asteroid', 'Observer')
 
-    with patch(f'{_MODULE}.photocenter_corrections_from_observations', return_value=corrections):
+    with patch(f'{_MODULE}.photocenter_correction_angular_observations_spherical_approximation', return_value=corrections):
         result = apply_photocenter_correction_to_observation_collection(
             observation_collection=collection,
-            diameter=1000.0,
+            body_size=1000.0,
             bodies=MagicMock(),
             body_name='Asteroid',
             observer_body_name='Observer',
@@ -307,7 +307,7 @@ def test_ellipsoidal_corrections_integration():
     observations = np.array([[0.0,  np.pi / 2, 0.0],
                              [1.0, -np.pi / 2, 0.0]])
 
-    corrections = photocenter_corrections_from_observations_ellipsoidal(
+    corrections = photocenter_correction_angular_observations_ellipsoidal_approximation(
         observations=observations,
         semi_axes=[radius] * 3,
         bodies=_mock_bodies(rotation_about_z),
@@ -327,7 +327,7 @@ def test_ellipsoidal_corrections_use_rotation_at_emission_time():
     bodies_mock = _mock_bodies()
     observations = np.array([[0.0, np.pi / 2, 0.0]])
 
-    photocenter_corrections_from_observations_ellipsoidal(
+    photocenter_correction_angular_observations_ellipsoidal_approximation(
         observations=observations, semi_axes=[300.0, 200.0, 150.0], bodies=bodies_mock,
         body_name='Asteroid', observer_body_name='Observer')
 
@@ -344,10 +344,10 @@ def test_ellipsoidal_input_validation():
 
     # Observations not in N x 3 shape
     with pytest.raises(ValueError, match='N x 3'):
-        photocenter_corrections_from_observations_ellipsoidal(
+        photocenter_correction_angular_observations_ellipsoidal_approximation(
             observations[:, :2], [300.0, 200.0, 150.0], bodies_mock, 'Asteroid', 'Observer')
 
     # Semi-axes not of length 3
     with pytest.raises(ValueError, match='length 3'):
-        photocenter_corrections_from_observations_ellipsoidal(
+        photocenter_correction_angular_observations_ellipsoidal_approximation(
             observations, [300.0, 200.0], bodies_mock, 'Asteroid', 'Observer')

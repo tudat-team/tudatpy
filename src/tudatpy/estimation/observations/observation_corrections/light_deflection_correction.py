@@ -3,48 +3,55 @@ Functions to calculate light deflection corrections to observations
 """
 import numpy as np
 from numpy.linalg import norm
-from tudatpy.estimation.observations import ObservationCollection, create_new_observation_collection
-from tudatpy.estimation.observations.observations_processing import observation_parser
-from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
+from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
-from ._correction_utils import _offset_vector_to_corrections
+from ._correction_utils import _offset_vector_to_corrections, _apply_corrections_to_observation_collection
 from tudatpy.constants import SPEED_OF_LIGHT
 from collections.abc import Iterable
 
-def _calculate_light_deflection(
-        observer_pos: np.ndarray,
-        body_pos: np.ndarray,
-        perturber_pos: np.ndarray,
+def _light_deflection_single_contribution(
+        observer_position: np.ndarray,
+        body_position: np.ndarray,
+        perturber_position: np.ndarray,
         mu_perturber: float
 ) -> np.ndarray:
     """
     Helper function to calculate post-Newtonian light-bending contribution from one body (delta k_pn in Klioner (2003))
 
-    Args:
-        observer_pos (np.ndarray): Position vector of the observer
-        body_pos (np.ndarray): Position vector of the body being observed
-        perturber_pos (np.ndarray): Position vector of the perturber body
-        mu_perturber (float): Gravitational parameter of the perturber body
+    Parameters
+    ----------
+    observer_position : np.ndarray
+        Position vector of observer at time of observation
+    body_position : np.ndarray
+        Position vector of body being observed at time of emission
+    perturber_position : np.ndarray
+        Position vector of perturber at reference time
+    mu_perturber : float
+        Gravitational parameter of perturber
 
-    Returns:
-        np.ndarray: Individual contribution to total light deflection
+    Returns
+    -------
+    np.ndarray
+        Individual contribution to total light deflection
     """
     # Define vectors from Klioner 2003
-    r_upper = observer_pos - body_pos  # capital R
-    r_ea = body_pos - perturber_pos
-    r_oa = observer_pos - perturber_pos
+    position_observer_wrt_body = observer_position - body_position  # R
+    position_body_wrt_perturber = body_position - perturber_position # r_ea
+    position_observer_wrt_perturber = observer_position - perturber_position # r_oA
 
     # Calculate contribution of deflection from perturber body
-    factor = (2 * mu_perturber) / (SPEED_OF_LIGHT ** 2)
-    num = np.cross(r_upper, np.cross(r_ea, r_oa))
-    denom = norm(r_upper) * norm(r_oa) * (norm(r_ea) * norm(r_oa) + np.dot(r_oa, r_ea))
-    offset_vec = factor * num / denom
+    strength_factor = (2 * mu_perturber) / (SPEED_OF_LIGHT ** 2)
+    num = np.cross(position_observer_wrt_body, np.cross(position_body_wrt_perturber, position_observer_wrt_perturber))
+    denom = norm(position_observer_wrt_body) * norm(position_observer_wrt_perturber) * (
+            norm(position_body_wrt_perturber) * norm(position_observer_wrt_perturber) +
+            np.dot(position_observer_wrt_perturber, position_body_wrt_perturber))
+    offset_vec = strength_factor * num / denom
 
     return offset_vec
 
 
-def relativistic_light_deflection_from_observations(
+def light_deflection_correction_angular_observations(
         observations: np.ndarray,
         bodies: SystemOfBodies,
         body_name: str,
@@ -52,13 +59,25 @@ def relativistic_light_deflection_from_observations(
         observer_reference_name: str | None = None,
         perturbing_bodies_list: Iterable[str] = ('Sun',),
 ) -> np.ndarray:
-    """
-    Compute corrections to observations for the relativstic deflection of light around massive bodies.
+    r"""
+    Compute corrections to angular observations for the relativistic deflection of light around massive bodies.
 
-    Compute corrections to observations for the relativstic deflection of light around massive bodies, according to
-    Klioner (2003). Currently, the implementation requires that a reference ephemeris for the observed body ('body_name')
-    is provided in the bodies object. This can be retrieved from a high accuracy ephemeris source such as JPL Horizons.
-    Corrections that are retrieved from this function should be added to observations.
+    Compute corrections to angular observations for the relativistic deflection of light around massive bodies, according to
+    Klioner (2003) equation 70 (post-Newtonian component only):
+
+    .. math::
+
+        \delta \mathbf{k}_{pN} = - \sum_A \left[\frac{(1+\gamma)GM_A}{c^2} \frac{\mathbf{R} \times
+        (\mathbf{r}_{eA} \times \mathbf{r}_oA)}{|\mathbf{R}||\mathbf{r}_{oA}|(|\mathbf{r}_{eA}||\mathbf{r}_{oA}|+
+        \mathbf{r}_{oA}\cdot \mathbf{r}_eA)}\right]
+
+    where :math:`\mathbf{R}` is the position of the observer w.r.t the observed body, :math:`\mathbf{r}_{eA}` is the
+    position of the observed body w.r.t the perturber, and :math:`\mathbf{r}_{oA}` is the position of
+    the observer w.r.t. the perturber.
+
+    A reference ephemeris of the observed body and all the perturbing bodies should be
+    loaded in the SystemOfBodies object. The corrections from this function should be added to observations (or the
+    apply_* functions should be used).
 
     Parameters
     ----------
@@ -84,9 +103,9 @@ def relativistic_light_deflection_from_observations(
     # Input validation
     if observations.shape[1] != 3:
         raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
-    body_dne = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
+    body_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
                 for name in list(perturbing_bodies_list) + [body_name, observer_body_name]]
-    if any(body_dne):
+    if any(body_undefined):
         raise ValueError('Some or all included bodies in the relativistic light deflection computation are missing'
                          'from SystemOfBodies or their associated ephemerides are not specified.')
 
@@ -97,26 +116,28 @@ def relativistic_light_deflection_from_observations(
             observer_reference_name,
             bodies
         ) # -> in global frame origin/orientation
+    else:
+        observer_ephemeris = None
 
     corrections = []
 
     # Loop over observations
     for epoch, ra, dec in observations:
         # Position of observer at current epoch:
-        if observer_reference_name is not None:
-            observer_pos = observer_ephemeris.cartesian_position(epoch)
+        if observer_ephemeris is not None:
+            observer_position = observer_ephemeris.cartesian_position(epoch)
         else:
-            observer_pos = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+            observer_position = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
-        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
         # One iteration of light-time calculation for light from observed body to observer
         light_time_body_to_observer = np.linalg.norm(
-            observer_pos - body_pos
+            observer_position - body_position
         ) / SPEED_OF_LIGHT
 
         # Observed body position at time of emission of light:
-        body_pos = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch - light_time_body_to_observer)[:3]
+        body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch - light_time_body_to_observer)[:3]
 
         total_offset = np.zeros(3) # Total deflection accumulated from all bodies
 
@@ -124,23 +145,24 @@ def relativistic_light_deflection_from_observations(
         for perturber_name in perturbing_bodies_list:
 
             mu_perturber = bodies.get(perturber_name).gravitational_parameter
-            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+            perturber_position = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch)[:3]
 
             # Compute one iteration of light-time from observer to perturbing body
             light_time_perturber_to_observer = np.linalg.norm(
-                observer_pos - perturber_pos
+                observer_position - perturber_position
             ) / SPEED_OF_LIGHT
 
             # Perturber position at reference time
-            perturber_pos = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch - light_time_perturber_to_observer)[:3]
+            perturber_position = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(
+                epoch - light_time_perturber_to_observer)[:3]
 
-            offset_from_perturber = _calculate_light_deflection(
-                observer_pos = observer_pos,
-                body_pos = body_pos,
-                perturber_pos = perturber_pos,
+            offset_from_perturber = _light_deflection_single_contribution( # Single contribution to light deflection
+                observer_position= observer_position,
+                body_position= body_position,
+                perturber_position= perturber_position,
                 mu_perturber = mu_perturber,
             )
-            total_offset += offset_from_perturber # Note: we omit the minus sign from Klioner eq. 70 since this is just an odd convention in observation directions
+            total_offset += offset_from_perturber # Note: omit minus sign of original eq because of convention
 
 
         corrections.append(
@@ -160,17 +182,13 @@ def apply_light_deflection_correction_to_observation_collection(
         in_place: bool = True
 ) -> ObservationCollection | None:
     """
-    Compute corrections to observations for the relativstic deflection of light around massive bodies, and apply
-    to an observation collection.
-
-    Compute corrections to observations for the relativstic deflection of light around massive bodies, and apply
-    to an observation collection. Currently,the implementation requires that a reference ephemeris for the observed body
-    ('body_name') is provided in the bodies object. This can e.g. be retrieved from a high accuracy ephemeris source
-    such as JPL Horizons.
+    Computes corrections using
+    :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`
+    and applies them to an :class:`~tudatpy.estimation.observations.ObservationCollection` object.
 
     Parameters
     ----------
-    observation_collection : ObservationCollection
+    observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
         ObservationCollection object containing the angular observations
     bodies : SystemOfBodies
         SystemOfBodies object
@@ -184,57 +202,23 @@ def apply_light_deflection_correction_to_observation_collection(
     perturbing_bodies_list : Iterable[str]
         Names of the bodies that light-deflection contribution should be computed for, default = 'Sun'
     in_place : bool
-        If true, corrections are applied in-place to the Observationcollection object. If false, a new Observationcollection
+        If true, corrections are applied in-place to the ObservationCollection object. If false, a new ObservationCollection
             is returned with the corrections applied. By default, true.
     Returns
     -------
     None | ObservationCollection
+        Returns a new observation collection with applied corrections if in_place is False.
     """
-    # Parser to obtain angular observations for specified observer
-    parsers = []
-    parsers.append(observation_parser(ObservableType.angular_position_type))
-    parsers.append(observation_parser(body_name))
-    if observer_reference_name is not None:
-        parsers.append(observation_parser(observer_reference_name, is_reference_point=True))
-    else:
-        parsers.append(observation_parser(observer_body_name))
-    parser = observation_parser(parsers, combine_conditions=True)
-
-    observations, times = observation_collection.get_concatenated_observations_and_times(parser)
-    observations = np.reshape(observations, (-1, 2))
-    observations_array = np.column_stack((np.array(times), observations))
-
-    if len(observations) == 0:
-        raise ValueError(f'ObservationCollection does not contain angular observations with specified link-ends.')
-
-    # Compute corrections
-    corrections = relativistic_light_deflection_from_observations(
-        observations = observations_array,
+    return _apply_corrections_to_observation_collection(
+        observation_collection=observation_collection,
+        body_name=body_name,
         bodies=bodies,
-        body_name= body_name,
-        observer_body_name= observer_body_name,
-        observer_reference_name= observer_reference_name,
-        perturbing_bodies_list= perturbing_bodies_list,
+        observer_body_name=observer_body_name,
+        observer_reference_name=observer_reference_name,
+        correction_function=light_deflection_correction_angular_observations,
+        in_place=in_place,
+        perturbing_bodies_list=perturbing_bodies_list
     )
-
-    corrected_observations = observations + corrections
-
-    # Wrap RA
-    corrected_observations[:,0] = (corrected_observations[:,0] + np.pi) % (2 * np.pi) - np.pi
-
-    if in_place: # Apply to original observation collection
-        observation_collection.set_observations(corrected_observations.flatten(), parser)
-        return None
-
-    else: # Create new observation collection
-        new_observation_collection = create_new_observation_collection(observation_collection)
-        new_observation_collection.set_observations(corrected_observations.flatten(), parser)
-
-        return new_observation_collection
-
-
-
-
 
 
 
