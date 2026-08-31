@@ -1,7 +1,7 @@
 """
-Unit tests for observation correction utilities in observation_correction_utils.py
+Unit tests for observation correction utilities in _correction_utils.py
 """
-from tudatpy.estimation.observable_models_setup.biases.observation_correction_utils import _offset_vector_to_corrections
+from tudatpy.estimation.observations.observation_corrections._correction_utils import _offset_vector_to_corrections
 import numpy as np
 
 def test_corrections_zero_offset_gives_zero():
