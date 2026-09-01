@@ -66,6 +66,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set position independent code [From tudat cmake]
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_link_options("--ld-path=/usr/bin/ld")
+endif()
+
 # Allow access to cmake modules
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat")
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat/yolo")
