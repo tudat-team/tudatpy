@@ -131,6 +131,7 @@ public:
                                                                  integratedStateType ),
                                                       1 );
                 }
+                break;
             }
             case propagators::custom_state: {
                 break;
