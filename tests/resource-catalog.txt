@@ -88,6 +88,3 @@ gravity_models/Moon/lpe200.txt
 gravity_models/Mars/jgmro120d.txt
 gravity_models/Mercury/jgmess_160a_sha.tab
 gravity_models/Venus/shgj180u.a01
-pride_doppler.dat
-pride_residual.dat
-pride_times.dat
