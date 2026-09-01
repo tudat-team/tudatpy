@@ -11,6 +11,7 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observables_simulation.h"
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
 #include "tudat/astro/observation_models/observationManager.h"
