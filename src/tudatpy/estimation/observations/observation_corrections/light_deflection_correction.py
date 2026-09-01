@@ -8,7 +8,7 @@ from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from ._correction_utils import _offset_vector_to_corrections, _apply_corrections_to_observation_collection
 from tudatpy.constants import SPEED_OF_LIGHT
-from collections.abc import Sequence
+from collections.abc import Iterable
 
 def _light_deflection_single_contribution(
         observer_position: np.ndarray,
@@ -57,7 +57,7 @@ def light_deflection_correction_angular_observations(
         body_name: str,
         observer_body_name: str,
         observer_reference_name: str | None = None,
-        perturbing_bodies_list: Sequence[str] = ('Sun',),
+        perturbing_bodies_list: Iterable[str] = ('Sun',),
 ) -> np.ndarray:
     r"""
     Compute corrections to angular observations for the relativistic deflection of light around massive bodies.
@@ -178,7 +178,7 @@ def apply_light_deflection_correction_to_observation_collection(
         body_name: str,
         observer_body_name: str,
         observer_reference_name: str | None = None,
-        perturbing_bodies_list: Sequence[str] = ('Sun',),
+        perturbing_bodies_list: Iterable[str] = ('Sun',),
         in_place: bool = True
 ) -> ObservationCollection | None:
     """
