@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from atdf2ascii import main as atdf2ascii_main
+from atdf2ascii import atdf_to_ascii
 
 from tudatpy.data_input.tracking_data import (
     TrackingData,
@@ -95,7 +95,7 @@ class AtdfTrackingDataProcessor:
             count_time = list(count_time)
 
         for atdf_file in self.atdf_file_path:
-            atdf2ascii_main(
+            atdf_to_ascii(
                 input_file=atdf_file.absolute().as_posix(),
                 output_dir=output_dir.as_posix(),
                 proc_count=self.proc_count,
