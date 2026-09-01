@@ -65,21 +65,29 @@ target_link_libraries(kernel PRIVATE
 # These headers are included by virtually every binding .cpp file.
 # PCH eliminates redundant parsing across all 86+ translation units.
 if (TUDAT_BUILD_WITH_PCH)
-    target_precompile_headers(kernel PRIVATE
-        <pybind11/pybind11.h>
-        <pybind11/stl.h>
-        <pybind11/eigen.h>
-        <pybind11/functional.h>
-        <pybind11/numpy.h>
-        <pybind11/chrono.h>
-        <Eigen/Core>
-        <Eigen/Geometry>
-        <memory>
-        <vector>
-        <string>
-        <map>
-        <functional>
-    )
+    # clang-cl can emit invalid exception copy metadata for types loaded from a
+    # PCH, causing pybind11 exception translation to corrupt the Windows heap.
+    # See https://github.com/llvm/llvm-project/issues/118276.
+    if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+            AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+        message(STATUS "Disabling TudatPy kernel PCH for clang-cl on Windows")
+    else ()
+        target_precompile_headers(kernel PRIVATE
+            <pybind11/pybind11.h>
+            <pybind11/stl.h>
+            <pybind11/eigen.h>
+            <pybind11/functional.h>
+            <pybind11/numpy.h>
+            <pybind11/chrono.h>
+            <Eigen/Core>
+            <Eigen/Geometry>
+            <memory>
+            <vector>
+            <string>
+            <map>
+            <functional>
+        )
+    endif ()
 endif ()
 
 # Disable unity build for binding target (each file exposes unique symbols)
