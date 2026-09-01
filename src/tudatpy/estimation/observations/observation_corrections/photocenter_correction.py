@@ -7,11 +7,11 @@ from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
 from ._correction_utils import _offset_vector_to_corrections, _unit, _apply_corrections_to_observation_collection
 from tudatpy.constants import SPEED_OF_LIGHT
-from collections.abc import Sequence
+from collections.abc import Iterable
 
 def apply_photocenter_correction_to_observation_collection(
         observation_collection: ObservationCollection,
-        body_dimensions: float | Sequence[float],
+        body_dimensions: float | Iterable[float],
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
@@ -143,7 +143,7 @@ def _photocenter_correction_ellipsoidal(
 
 def photocenter_correction_angular_observations(
         observations: np.ndarray ,
-        body_dimensions: float | Sequence[float],
+        body_dimensions: float | Iterable[float],
         bodies: SystemOfBodies,
         body_name: str,
         observer_body_name: str,
