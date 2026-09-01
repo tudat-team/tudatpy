@@ -249,7 +249,17 @@ jobs:
       if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
+      run: |
+        if [ "${{ runner.os }}" = "macOS" ]; then
+          cmake --build "${{ github.workspace }}/build" \
+            --config "${{ matrix.build_type }}" \
+            -j${{ matrix.platform.build_jobs }} \
+            2> >(sed '/^ld: warning: could not create compact unwind for /d' >&2)
+        else
+          cmake --build "${{ github.workspace }}/build" \
+            --config "${{ matrix.build_type }}" \
+            -j${{ matrix.platform.build_jobs }}
+        fi
 
     - name: Build C++ kernel
       id: build_kernel_windows
