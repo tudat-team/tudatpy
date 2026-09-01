@@ -11,6 +11,7 @@
 #ifndef TUDAT_OBSERVATIONVIABILITYCALCULATOR_H
 #define TUDAT_OBSERVATIONVIABILITYCALCULATOR_H
 
+#include <stdexcept>
 #include <vector>
 
 #include <Eigen/Core>
@@ -39,7 +40,9 @@ enum ObservationViabilityType {
     minimum_elevation_angle,  // properties: no string, double = elevation angle
     body_avoidance_angle,     // properties: string = body to avoid, double = avoidance angle
     body_occultation,         // properties: string = occulting body, no double
-    observation_boundaries    // properties: vector of pairs of observation boundaries.
+    observation_boundaries,   // properties: vector of pairs of observation boundaries.
+    ground_station_darkness,  // properties: no string, double = maximum Sun elevation angle
+    body_in_sunlight          // properties: vector of occulting bodies, no double
 };
 
 //! Base class for determining whether an observation is possible or not
@@ -176,6 +179,29 @@ private:
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
 };
 
+//! Function to check whether a ground station is in darkness.
+class GroundStationDarknessCalculator : public ObservationViabilityCalculator
+{
+public:
+    GroundStationDarknessCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                                     const double maximumSunElevationAngle,
+                                     const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator,
+                                     const std::function< Eigen::Vector6d( const double ) > sunStateFunction ):
+        linkEndIndices_( linkEndIndices ), maximumSunElevationAngle_( maximumSunElevationAngle ),
+        pointingAngleCalculator_( pointingAngleCalculator ), sunStateFunction_( sunStateFunction )
+    {}
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
+
+private:
+    std::vector< std::pair< int, int > > linkEndIndices_;
+    double maximumSunElevationAngle_;
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
+    std::function< Eigen::Vector6d( const double ) > sunStateFunction_;
+};
+
 double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
                                           const Eigen::Vector3d& transmittingBody,
                                           const Eigen::Vector3d& relativePoint );
@@ -265,6 +291,34 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
                          const Eigen::Vector3d observer2Position,
                          const Eigen::Vector3d occulterPosition,
                          const double radius );
+
+//! Function to check whether a link-end body is illuminated by the Sun.
+class BodyInSunlightCalculator : public ObservationViabilityCalculator
+{
+public:
+    BodyInSunlightCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                              const std::function< Eigen::Vector6d( const double ) > sunStateFunction,
+                              const std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions,
+                              const std::vector< double > occultingBodyRadii ):
+        linkEndIndices_( linkEndIndices ), sunStateFunction_( sunStateFunction ),
+        occultingBodyStateFunctions_( occultingBodyStateFunctions ), occultingBodyRadii_( occultingBodyRadii )
+    {
+        if( occultingBodyStateFunctions_.size( ) != occultingBodyRadii_.size( ) )
+        {
+            throw std::runtime_error( "Inconsistent number of occulting-body state functions and radii." );
+        }
+    }
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
+
+private:
+    std::vector< std::pair< int, int > > linkEndIndices_;
+    std::function< Eigen::Vector6d( const double ) > sunStateFunction_;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions_;
+    std::vector< double > occultingBodyRadii_;
+};
 
 //! Function to check whether an observation is possible, based on whether a given body is causing an occultation of the link
 /*!

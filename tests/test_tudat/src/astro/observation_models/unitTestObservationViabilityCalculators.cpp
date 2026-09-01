@@ -10,9 +10,9 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
-#include "tudat/simulation/environment_setup/createBodiesFactory.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
 #include <boost/test/included/unit_test.hpp>
@@ -20,6 +20,9 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
@@ -63,6 +66,215 @@ BOOST_AUTO_TEST_CASE( testInterplanetaryOccultationNumericalStability )
     spacecraftPosition( 1 ) =
             std::sqrt( spacecraftOrbitalRadius * spacecraftOrbitalRadius - spacecraftPosition( 0 ) * spacecraftPosition( 0 ) );
     BOOST_CHECK( !computeOccultation( spacecraftPosition, distantBodyPosition, Eigen::Vector3d::Zero( ), earthRadius ) );
+}
+
+// Verify through the observation-simulation setup path that ground-station darkness and body-in-sunlight
+// viability are evaluated at every epoch where the associated link end occurs in one- and two-way range.
+BOOST_AUTO_TEST_CASE( testDarknessAndSunlightViabilityAtAllLinkEndEpochs )
+{
+    // Create an Earth-orbiting spacecraft and retain the Sun and Earth ephemerides in the global frame.
+    spice_interface::loadStandardSpiceKernels( );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Sun" }, "Earth", "J2000" );
+    Eigen::Vector6d spacecraftOrbitalElements;
+    spacecraftOrbitalElements << 8.0E6, 0.0, 0.3, 0.0, 0.0, 0.0;
+    bodySettings.addSettings( "Spacecraft" );
+    bodySettings.at( "Spacecraft" )->ephemerisSettings = keplerEphemerisSettings(
+            spacecraftOrbitalElements, 1.0E7, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "J2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Add the ground station and define one-way and two-way links containing the station and spacecraft.
+    const LinkEndId station( "Earth", "Station" );
+    const LinkEndId spacecraft( "Spacecraft", "" );
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station",
+                         ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    LinkEnds oneWayLinkEnds;
+    oneWayLinkEnds[ transmitter ] = station;
+    oneWayLinkEnds[ receiver ] = spacecraft;
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ transmitter ] = station;
+    twoWayLinkEnds[ retransmitter ] = spacecraft;
+    twoWayLinkEnds[ receiver ] = station;
+
+    // Create the same observation models and simulators used by the observation-simulation machinery.
+    const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings = { oneWayRangeSettings( oneWayLinkEnds ),
+                                                                                                  twoWayRangeSimple( twoWayLinkEnds ) };
+    const std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+            createObservationSimulators( observationModelSettings, bodies );
+
+    // Use a non-default darkness threshold and a resolvable two-way retransmission delay.
+    const double retransmissionDelay = 1.0E3;
+    const double maximumSunElevation = -18.0 * mathematical_constants::PI / 180.0;
+    const double defaultMaximumSunElevation = -12.0 * mathematical_constants::PI / 180.0;
+    std::vector< double > observationTimes;
+    for( double time = 1.0E7; time <= 1.0E7 + 1.0E5; time += 900.0 )
+    {
+        observationTimes.push_back( time );
+    }
+
+    // Test both link geometries using independently evaluated viability histories as references.
+    for( unsigned int modelIndex = 0; modelIndex < observationModelSettings.size( ); modelIndex++ )
+    {
+        const ObservableType observableType = modelIndex == 0 ? one_way_range : n_way_range;
+        const LinkEnds& linkEnds = modelIndex == 0 ? oneWayLinkEnds : twoWayLinkEnds;
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                modelIndex == 0 ? nullptr : getTwoWayRangeAncillarySettings( retransmissionDelay );
+        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+                ObservationModelCreator< 1, double, double >::createObservationModel( observationModelSettings.at( modelIndex ), bodies );
+        const std::vector< std::pair< int, int > > stationIndices =
+                getLinkStateAndTimeIndicesForLinkEnd( linkEnds, observableType, station );
+        const std::vector< std::pair< int, int > > spacecraftIndices =
+                getLinkStateAndTimeIndicesForLinkEnd( linkEnds, observableType, spacecraft );
+
+        // Confirm that every occurrence of each relevant link end is included in the viability check.
+        BOOST_CHECK_EQUAL( stationIndices.size( ), modelIndex == 0 ? 1 : 2 );
+        BOOST_CHECK_EQUAL( spacecraftIndices.size( ), modelIndex == 0 ? 1 : 2 );
+
+        std::vector< double > expectedDarknessTimes;
+        std::vector< double > expectedDefaultDarknessTimes;
+        std::vector< double > expectedSunlightTimes;
+        unsigned int firstStationDarkOnlyCount = 0;
+        unsigned int secondStationDarkOnlyCount = 0;
+        unsigned int firstSpacecraftSunlitOnlyCount = 0;
+        unsigned int secondSpacecraftSunlitOnlyCount = 0;
+
+        // Compute link-end times and states directly from each observation model, including ancillary delays.
+        for( const double observationTime : observationTimes )
+        {
+            std::vector< double > linkEndTimes;
+            std::vector< Eigen::Vector6d > linkEndStates;
+            observationModel->computeObservationsWithLinkEndData(
+                    observationTime, receiver, linkEndTimes, linkEndStates, ancillarySettings );
+
+            // Verify that the requested retransmission delay is represented in the two-way link-end epochs.
+            if( modelIndex == 1 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - retransmissionDelay ), 1.0E-6 );
+            }
+
+            // Independently evaluate station darkness at each station epoch for custom and default thresholds.
+            std::vector< bool > stationIsDark;
+            std::vector< bool > stationIsDarkAtDefaultThreshold;
+            for( const std::pair< int, int >& stationIndex : stationIndices )
+            {
+                const double stationTime = linkEndTimes.at( stationIndex.first );
+                const Eigen::Vector3d sunPosition =
+                        bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris< double, double >( stationTime ).segment( 0, 3 );
+                const Eigen::Vector3d stationPosition = linkEndStates.at( stationIndex.first ).segment( 0, 3 );
+                const double sunElevation =
+                        bodies.at( "Earth" )
+                                ->getGroundStation( "Station" )
+                                ->getPointingAnglesCalculator( )
+                                ->calculateElevationAngleFromInertialVector( sunPosition - stationPosition, stationTime );
+                stationIsDark.push_back( sunElevation <= maximumSunElevation );
+                stationIsDarkAtDefaultThreshold.push_back( sunElevation <= defaultMaximumSunElevation );
+            }
+            const bool darknessIsViable =
+                    std::all_of( stationIsDark.begin( ), stationIsDark.end( ), []( const bool isDark ) { return isDark; } );
+            const bool defaultDarknessIsViable = std::all_of( stationIsDarkAtDefaultThreshold.begin( ),
+                                                              stationIsDarkAtDefaultThreshold.end( ),
+                                                              []( const bool isDark ) { return isDark; } );
+            if( darknessIsViable )
+            {
+                expectedDarknessTimes.push_back( observationTime );
+            }
+            if( defaultDarknessIsViable )
+            {
+                expectedDefaultDarknessTimes.push_back( observationTime );
+            }
+
+            // Record cases that would pass if only one of the two station epochs were checked.
+            if( modelIndex == 1 && stationIsDark.at( 0 ) && !stationIsDark.at( 1 ) )
+            {
+                firstStationDarkOnlyCount++;
+            }
+            if( modelIndex == 1 && !stationIsDark.at( 0 ) && stationIsDark.at( 1 ) )
+            {
+                secondStationDarkOnlyCount++;
+            }
+
+            // Independently evaluate sunlight at each spacecraft epoch using occultation by Earth.
+            std::vector< bool > spacecraftIsSunlit;
+            for( const std::pair< int, int >& spacecraftIndex : spacecraftIndices )
+            {
+                const double spacecraftTime = linkEndTimes.at( spacecraftIndex.first );
+                const Eigen::Vector3d sunPosition =
+                        bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris< double, double >( spacecraftTime ).segment( 0, 3 );
+                const Eigen::Vector3d earthPosition =
+                        bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< double, double >( spacecraftTime ).segment( 0, 3 );
+                const Eigen::Vector3d spacecraftPosition = linkEndStates.at( spacecraftIndex.first ).segment( 0, 3 );
+                spacecraftIsSunlit.push_back( !computeOccultation(
+                        spacecraftPosition, sunPosition, earthPosition, bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ) ) );
+            }
+            const bool sunlightIsViable =
+                    std::all_of( spacecraftIsSunlit.begin( ), spacecraftIsSunlit.end( ), []( const bool isSunlit ) { return isSunlit; } );
+            if( sunlightIsViable )
+            {
+                expectedSunlightTimes.push_back( observationTime );
+            }
+
+            // Record cases that would pass if only one of the two spacecraft epochs were checked.
+            if( modelIndex == 1 && spacecraftIsSunlit.at( 0 ) && !spacecraftIsSunlit.at( 1 ) )
+            {
+                firstSpacecraftSunlitOnlyCount++;
+            }
+            if( modelIndex == 1 && !spacecraftIsSunlit.at( 0 ) && spacecraftIsSunlit.at( 1 ) )
+            {
+                secondSpacecraftSunlitOnlyCount++;
+            }
+        }
+
+        // Simulate observations with each viability setting through the production calculator-creation path.
+        const auto simulateWithViabilitySetting = [ & ]( const std::shared_ptr< ObservationViabilitySettings >& viabilitySetting ) {
+            const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > simulationSettings = {
+                tabulatedObservationSimulationSettings< double >(
+                        observableType, linkEnds, observationTimes, receiver, { viabilitySetting }, nullptr, ancillarySettings )
+            };
+            return simulateObservations( simulationSettings, observationSimulators, bodies )->getConcatenatedTimeVector( );
+        };
+
+        const std::vector< double > simulatedDarknessTimes = simulateWithViabilitySetting(
+                groundStationDarknessViabilitySettings( std::make_pair( "Earth", "Station" ), maximumSunElevation ) );
+        const std::vector< double > simulatedDefaultDarknessTimes =
+                simulateWithViabilitySetting( groundStationDarknessViabilitySettings( std::make_pair( "Earth", "Station" ) ) );
+        const std::vector< double > simulatedSunlightTimes =
+                simulateWithViabilitySetting( bodyInSunlightViabilitySettings( std::make_pair( "Spacecraft", "" ), { "Earth" } ) );
+
+        // Compare the simulation results against the independently evaluated histories.
+        BOOST_CHECK_EQUAL_COLLECTIONS( simulatedDarknessTimes.begin( ),
+                                       simulatedDarknessTimes.end( ),
+                                       expectedDarknessTimes.begin( ),
+                                       expectedDarknessTimes.end( ) );
+        BOOST_CHECK_EQUAL_COLLECTIONS( simulatedDefaultDarknessTimes.begin( ),
+                                       simulatedDefaultDarknessTimes.end( ),
+                                       expectedDefaultDarknessTimes.begin( ),
+                                       expectedDefaultDarknessTimes.end( ) );
+        BOOST_CHECK_EQUAL_COLLECTIONS( simulatedSunlightTimes.begin( ),
+                                       simulatedSunlightTimes.end( ),
+                                       expectedSunlightTimes.begin( ),
+                                       expectedSunlightTimes.end( ) );
+
+        // Ensure that the sample exercises both outcomes and distinguishes the custom threshold from the default.
+        BOOST_CHECK( simulatedDarknessTimes != simulatedDefaultDarknessTimes );
+        BOOST_CHECK_LT( expectedDarknessTimes.size( ), observationTimes.size( ) );
+        BOOST_CHECK( !expectedSunlightTimes.empty( ) );
+        BOOST_CHECK_LT( expectedSunlightTimes.size( ), observationTimes.size( ) );
+        if( modelIndex == 0 )
+        {
+            BOOST_CHECK( !expectedDarknessTimes.empty( ) );
+        }
+        else
+        {
+            // Prove that both occurrences of each link end affect the two-way viability result.
+            BOOST_CHECK_GT( firstStationDarkOnlyCount, 0 );
+            BOOST_CHECK_GT( secondStationDarkOnlyCount, 0 );
+            BOOST_CHECK_GT( firstSpacecraftSunlitOnlyCount, 0 );
+            BOOST_CHECK_GT( secondSpacecraftSunlitOnlyCount, 0 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
