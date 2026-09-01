@@ -495,8 +495,8 @@ def test_ifms_mex_residuals_are_millihertz_level():
         "Earth",
         True,
         True,
-        [1.0, 0.0],
-        0.0,
+        ["X-band", "S-band"],
+        "S-band",
         0.0,
     )
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
