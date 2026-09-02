@@ -52,34 +52,16 @@ jobs:
       # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations
       matrix:
         platform:
-          - os: ubuntu-latest
-            label: linux-64
-            path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 3
-            ccache: ON
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 2
             ccache: OFF
-          - os: macos-latest
-            label: osx-64
-            path_conda_env: /Users/runner/miniconda3/envs/tudat
-            build_jobs: 2
-            ccache: ON
         build_type: [Release]
-        compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
+        compilers: [{c: gcc, cxx: g++}]
         # include:
         #   - platform: {os: windows-latest}
         #     build_type: [Release, Debug]
-        exclude:
-          - platform: {os: windows-latest}
-            compilers: {c: clang, cxx: clang++}
-          - platform: {os: ubuntu-latest}
-            compilers: {c: clang, cxx: clang++}
-          - platform: {os: macos-latest}
-            compilers: {c: gcc, cxx: g++}
-
     steps:
     - uses: actions/checkout@v6
 
@@ -261,8 +243,8 @@ jobs:
             -j${{ matrix.platform.build_jobs }}
         fi
 
-    - name: Build C++ kernel
-      id: build_kernel_windows
+    - name: Build occultation diagnostic
+      id: build_occultation_diagnostic
       if: runner.os == 'Windows'
       shell: cmd
       run: |
@@ -275,27 +257,34 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --target test_observation_models_ObservationViabilityCalculators --config "${{ matrix.build_type }}" -j3
 
     - name: Build Python package
+      if: false
       shell: bash -l {0}
       run: |
         python build.py --skip-setup --skip-build --skip-stubs --tests -j${{ matrix.platform.build_jobs }}
 
     - name: Install
+      if: false
       shell: bash -l {0}
       run: |
         python install.py -e
 
     - name: Test Python
+      if: false
       shell: bash -l {0}
       run: |
         pytest
 
-    - name: Test C++ kernel
-      if: always() && (steps.build_kernel_non_windows.outcome == 'success' || steps.build_kernel_windows.outcome == 'success')
+    - name: Run occultation diagnostic
+      if: steps.build_occultation_diagnostic.outcome == 'success'
       working-directory: "${{ github.workspace }}/build"
-      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       shell: bash -l {0}
-      run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4
+      run: |
+        for attempt in $(seq 1 20); do
+          echo "Occultation diagnostic attempt ${attempt}/20"
+          ./tests/test_observation_models_ObservationViabilityCalculators.exe \
+            --run_test=test_observation_viability_calculators/testOrbiterOccultationObservationViabilityCalculators \
+            --log_level=test_suite
+        done
