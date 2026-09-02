@@ -31,7 +31,7 @@ class CCSDSHeader(BaseModel):
     COMMENT: list[str] | None = []
     CLASSIFICATION: str | None = None
     CREATION_DATE: str
-    ORIGINATOR: str = "Tudat"
+    ORIGINATOR: str = "TU Delft Astrodynamics Toolbox"
     MESSAGE_ID: str | None = None
 
     @field_validator("CREATION_DATE")
