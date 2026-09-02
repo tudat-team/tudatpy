@@ -165,7 +165,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations )
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide )
 {
     // Build weighted right-hand side, including consider-parameter deviations when provided.
     Eigen::VectorXd weightedRightHandSideArgument = observationResiduals;
@@ -187,6 +189,31 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
 
         rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
         rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+    }
+
+    // Soft-constraint additions (e.g. inter-arc continuity) affect only the parameter block,
+    // leaving any Lagrange-multiplier rows from hard equality constraints untouched.
+    const int numberOfParameters = static_cast< int >( designMatrix.cols( ) );
+    if( additionalNormalMatrix.size( ) > 0 )
+    {
+        if( additionalNormalMatrix.rows( ) != numberOfParameters || additionalNormalMatrix.cols( ) != numberOfParameters )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalNormalMatrix has shape " +
+                                      std::to_string( additionalNormalMatrix.rows( ) ) + "x" +
+                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " +
+                                      std::to_string( numberOfParameters ) + "x" + std::to_string( numberOfParameters ) + "." );
+        }
+        inverseOfCovarianceMatrix.topLeftCorner( numberOfParameters, numberOfParameters ) += additionalNormalMatrix;
+    }
+    if( additionalRightHandSide.size( ) > 0 )
+    {
+        if( additionalRightHandSide.size( ) != numberOfParameters )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalRightHandSide has size " +
+                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " +
+                                      std::to_string( numberOfParameters ) + "." );
+        }
+        rightHandSide.head( numberOfParameters ) += additionalRightHandSide;
     }
 
     // Solve normal equations and return both correction and assembled normal matrix.
@@ -269,7 +296,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations )
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide )
 {
     return performLeastSquaresAdjustmentFromDesignMatrixImplementation( designMatrix,
                                                                         observationResiduals,
@@ -279,7 +308,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                                         constraintMultiplier,
                                                                         constraintRightHandside,
                                                                         designMatrixConsiderParameters,
-                                                                        considerParametersDeviations );
+                                                                        considerParametersDeviations,
+                                                                        additionalNormalMatrix,
+                                                                        additionalRightHandSide );
 }
 
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -291,7 +322,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations )
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide )
 {
     return performLeastSquaresAdjustmentFromDesignMatrixImplementation( designMatrix,
                                                                         observationResiduals,
@@ -301,7 +334,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                                         constraintMultiplier,
                                                                         constraintRightHandside,
                                                                         designMatrixConsiderParameters,
-                                                                        considerParametersDeviations );
+                                                                        considerParametersDeviations,
+                                                                        additionalNormalMatrix,
+                                                                        additionalRightHandSide );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals

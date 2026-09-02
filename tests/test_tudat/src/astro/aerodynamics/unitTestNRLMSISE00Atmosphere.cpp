@@ -14,7 +14,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
@@ -25,7 +24,7 @@
 #include <utility>
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
@@ -1334,7 +1333,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
                     systemInitialState,
                     simulationStartEpoch,
                     integratorSettings,
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     cowell,
                     dependentVariables );
 
@@ -1554,7 +1553,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
                     systemInitialState,
                     simulationStartEpoch,
                     integratorSettings,
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     cowell,
                     dependentVariables );
 

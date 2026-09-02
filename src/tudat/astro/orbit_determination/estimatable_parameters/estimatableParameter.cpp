@@ -42,6 +42,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case radiation_pressure_coefficient:
             parameterDescription = "radiation pressure coefficient ";
             break;
+        case three_coefficient_radiation_pressure_coefficients:
+            parameterDescription = "three-coefficient radiation-pressure areas ";
+            break;
         case arc_wise_radiation_pressure_coefficient:
             parameterDescription = "arc-wise radiation pressure coefficient ";
             break;
@@ -287,6 +290,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case radiation_pressure_coefficient:
             isDoubleParameter = true;
+            break;
+        case three_coefficient_radiation_pressure_coefficients:
+            isDoubleParameter = false;
             break;
         case arc_wise_radiation_pressure_coefficient:
             isDoubleParameter = false;

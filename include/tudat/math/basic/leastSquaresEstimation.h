@@ -155,7 +155,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ) );
 
 //! Sparse-weight overload of least-squares adjustment with a priori and optional constraints.
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -167,7 +169,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& additionalNormalMatrix = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& additionalRightHandSide = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!

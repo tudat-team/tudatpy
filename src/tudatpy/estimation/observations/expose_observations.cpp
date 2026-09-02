@@ -20,6 +20,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "observations_processing/expose_observations_processing.h"
 #include "observations_geometry/expose_observations_geometry.h"
@@ -611,7 +613,7 @@ return_first_compatible_settings : bool, optional
 
 Returns
 -------
-dict[float, numpy.ndarray]
+dict[astro.time_representation.Time, numpy.ndarray]
     A map from observation time to the value of the specified dependent variable.
 )doc" )
             .def_property_readonly( "dependent_variables_matrix",
@@ -623,7 +625,9 @@ Returns
 -------
 numpy.ndarray
     A matrix where each row corresponds to an observation and columns to dependent variables.
-)doc" );
+)doc" ) TUDATPY_DEF_PICKLE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.def( "single_observation_set",
            &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -667,7 +671,7 @@ numpy.ndarray
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
-        observation_times : list[float]
+        observation_times : list[astro.time_representation.Time]
             List of observation times.
         reference_link_end : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Reference link end for the observation.
@@ -1784,7 +1788,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          For new simulations, set the default transponder delay on the spacecraft vehicle systems
          before creating the observation model:
-         ``bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay``.
+         ``bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay``.
 
          Parameters
          ----------
@@ -1988,7 +1992,9 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          -------
          dict[Time, numpy.ndarray]
              A map from time to dependent variable value, with times as Time objects.
-     )doc" );
+     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
