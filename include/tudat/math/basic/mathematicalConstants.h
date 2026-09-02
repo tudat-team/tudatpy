@@ -19,6 +19,8 @@
 #include <cmath>
 #include <limits>
 
+#include <tudat/config.hpp>
+
 namespace tudat
 {
 
@@ -116,6 +118,15 @@ constexpr ScalarType getPi( )
 {
     return static_cast< ScalarType >( LONG_PI );
 }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+template< >
+inline HighPrecisionStateScalar getPi< HighPrecisionStateScalar >( )
+{
+    return HighPrecisionStateScalar(
+            "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117068" );
+}
+#endif
 
 }  // namespace mathematical_constants
 

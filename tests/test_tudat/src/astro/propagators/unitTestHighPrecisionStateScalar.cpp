@@ -30,6 +30,7 @@
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatTypeTraits.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
@@ -364,6 +365,16 @@ Scalar computeTwoWayRangeReference( const std::shared_ptr< ephemerides::Ephemeri
 }
 
 BOOST_AUTO_TEST_SUITE( test_high_precision_state_scalar )
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+BOOST_AUTO_TEST_CASE( testHighPrecisionPi )
+{
+    const Scalar expectedPi( "3.1415926535897932384626433832795028841971693993751" );
+
+    BOOST_CHECK_EQUAL( mathematical_constants::getPi< Scalar >( ), expectedPi );
+    BOOST_CHECK( mathematical_constants::getPi< Scalar >( ) != static_cast< Scalar >( mathematical_constants::LONG_PI ) );
+}
+#endif
 
 BOOST_AUTO_TEST_CASE( testEigenStateVectorsAndArithmetic )
 {
