@@ -302,10 +302,34 @@ public:
         TimeType transmissionUtcEndTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
-        const ObservationScalarType transmitterFrequencyIntegral =
+        ObservationScalarType transmitterFrequencyIntegral =
                 frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
                                                                                                                    transmissionUtcEndTime );
         const ObservationScalarType integrationTimeScalar = static_cast< ObservationScalarType >( integrationTime );
+        const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
+                timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
+                        basic_astrodynamics::utc_scale,
+                        basic_astrodynamics::tdb_scale,
+                        receptionUtcStartTime,
+                        receptionUtcEndTime,
+                        nominalReceivingStationState );
+        const ObservationScalarType transmissionTdbDuration = receptionTdbDuration - ( endLightTime - startLightTime );
+        const ObservationScalarType transmissionUtcDuration = transmissionTdbDuration +
+                timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
+                        basic_astrodynamics::tdb_scale,
+                        basic_astrodynamics::utc_scale,
+                        transmissionTdbStartTime,
+                        transmissionTdbEndTime,
+                        nominalTransmittingStationState );
+        const ObservationScalarType representedTransmissionUtcDuration =
+                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcEndTime - transmissionUtcStartTime );
+
+        // The represented start epoch is the integration anchor. Consequently the residual between the independently
+        // computed physical duration and the represented endpoint separation is an end-boundary perturbation only.
+        // From d/dt1 integral(t0,t1) f(t)dt = f(t1), its first-order contribution is f(t1) * delta_t1.
+        const ObservationScalarType endTransmissionFrequency =
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmissionUtcEndTime );
+        transmitterFrequencyIntegral += endTransmissionFrequency * ( transmissionUtcDuration - representedTransmissionUtcDuration );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
