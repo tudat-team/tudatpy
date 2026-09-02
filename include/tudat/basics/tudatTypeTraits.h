@@ -55,8 +55,8 @@ struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::dec
 
 template< typename T >
 struct is_state_scalar {
-    static constexpr bool value =
-            std::is_same_v< T, double > || std::is_same_v< T, long double > || std::is_same_v< T, HighPrecisionStateScalar >;
+    static constexpr bool value = std::is_same_v< T, double > ||
+            ( TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && std::is_same_v< T, HighPrecisionStateScalar > );
 };
 
 template< typename T >

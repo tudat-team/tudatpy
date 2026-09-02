@@ -43,6 +43,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
     return createConfiguredStateInterpolator< double, double, 6 >( stateMap, interpolatorSettings );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > > >
 createStateInterpolator(
@@ -60,6 +61,7 @@ createStateInterpolator(
 {
     return createConfiguredStateInterpolator< Time, HighPrecisionStateScalar, 6 >( stateMap, interpolatorSettings );
 }
+#endif
 
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< double, 6, 1 > > > createStateInterpolator(
@@ -77,6 +79,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
     return createConfiguredStateInterpolator< double, double, 7 >( stateMap, interpolatorSettings );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
 createRotationalStateInterpolator(
@@ -85,6 +88,7 @@ createRotationalStateInterpolator(
 {
     return createConfiguredStateInterpolator< double, HighPrecisionStateScalar, 7 >( stateMap, interpolatorSettings );
 }
+#endif
 
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< double, 7, 1 > > > createRotationalStateInterpolator(
@@ -94,6 +98,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
     return createConfiguredStateInterpolator< Time, double, 7 >( stateMap, interpolatorSettings );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
 createRotationalStateInterpolator(
@@ -102,6 +107,7 @@ createRotationalStateInterpolator(
 {
     return createConfiguredStateInterpolator< Time, HighPrecisionStateScalar, 7 >( stateMap, interpolatorSettings );
 }
+#endif
 
 }  // namespace propagators
 

@@ -55,10 +55,13 @@ using FixedState = Eigen::Matrix< Scalar, 6, 1 >;
 using DynamicState = Eigen::Matrix< Scalar, Eigen::Dynamic, 1 >;
 using StateHistory = std::map< double, DynamicState >;
 
+static_assert( TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR );
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
 static_assert( std::is_same_v< Scalar, boost::multiprecision::cpp_bin_float_quad > );
-#else
+#elif TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE
 static_assert( std::is_same_v< Scalar, long double > );
+#else
+#error "The high-precision state scalar test requires a configured high-precision scalar."
 #endif
 
 static_assert( is_state_scalar< Scalar >::value );

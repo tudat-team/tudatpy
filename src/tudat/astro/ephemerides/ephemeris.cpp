@@ -39,6 +39,7 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const d
     }
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Get state from ephemeris, with state scalar as template type (configured high-precision specialization).
 template<>
 Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
@@ -52,6 +53,7 @@ Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFrom
         throw exceptions::EphemerisError< double >( time, caughtException.what( ) );
     }
 }
+#endif
 
 //! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
 template<>
@@ -67,6 +69,7 @@ Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const T
     }
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Get state from ephemeris, with state scalar as template type (configured high-precision specialization with Time input).
 template<>
 Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
@@ -80,6 +83,7 @@ Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Ephemeris::getTemplatedStateFrom
         throw exceptions::EphemerisError< Time >( time, caughtException.what( ) );
     }
 }
+#endif
 
 //! Function to compute the relative state from two state functions.
 void getRelativeState( Eigen::Vector6d& relativeState,

@@ -99,10 +99,18 @@ cmake --build build
 ```
 
 The supported CMake values are `CPP_BIN_FLOAT_QUAD` (the default) and
-`LONG_DOUBLE`. This selection affects the C++ state API and its binary interface,
-so all libraries and C++ consumers must use the same configuration.
+`LONG_DOUBLE`. Exactly one of these scalar implementations is compiled when
+`TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS` is enabled. This
+selection affects the C++ state API and its binary interface, so all libraries
+and C++ consumers must use the same configuration.
 The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
 limited to their supported scalar types.
+
+To build without high-precision state support or its dedicated tests, configure
+with `-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF`. In that
+configuration, `HighPrecisionStateScalar` and the `hps` Eigen typedefs collapse
+to `double`, and no additional state scalar is accepted by the propagation type
+traits or explicitly instantiated.
 
 Eigen typedefs ending in `ld` always use literal `long double`; typedefs ending
 in `hps` use the configured `HighPrecisionStateScalar`. Quad state arithmetic
