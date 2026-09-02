@@ -20,6 +20,7 @@
 #include <tudat/astro/basic_astro/sphericalStateConversions.h>
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/ephemerides/tleEphemeris.h>
 #include <tudat/interface/spice/spiceInterface.h>
 
 namespace py = pybind11;
@@ -576,7 +577,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess (for mean-to-eccentric anomaly conversion) is used, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for mean-to-eccentric anomaly conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for mean-to-eccentric anomaly conversion (default is used if this input is left empty)
  Returns
  -------
@@ -724,7 +725,7 @@ Enumeration describing different types of position element types (typically used
      Boolean to determine whether the user-defined initial guess is used for conversion, or an automatically generated one.
  non_default_initial_guess : float, default = NaN
      User-defined initial guess for conversion, to be used only if ``use_default_initial_guess`` is set to ``False``.
- root_finder : RootFinder, default = None
+ root_finder : RootFinderCore, default = None
      User-defined root finder, overriding default root-finding algorithm for conversion (default is used if this input is left empty)
  Returns
  -------
@@ -936,7 +937,7 @@ Enumeration describing different types of position element types (typically used
  Returns
  -------
  bool
-     Singularity at 0 degrees inclination if false, 180 degrees if true
+     Singularity at 0 degrees inclination if true, 180 degrees if false
 
 
 
@@ -963,7 +964,7 @@ Enumeration describing different types of position element types (typically used
  modified_equinoctial_elements : numpy.ndarray
      Modified equinoctial elements that are to be converted to Keplerian elements
  singularity_at_zero_inclination : bool
-     Singularity at 0 degrees inclination if false, 180 degrees if true
+     Singularity at 0 degrees inclination if true, 180 degrees if false
  Returns
  -------
  numpy.ndarray
@@ -1031,7 +1032,7 @@ Enumeration describing different types of position element types (typically used
  gravitational_parameter : float
      Gravitational parameter of central body
  singularity_at_zero_inclination : bool
-     Singularity at 0 degrees inclination if false, 180 degrees if true
+     Singularity at 0 degrees inclination if true, 180 degrees if false
  Returns
  -------
  numpy.ndarray
@@ -1065,7 +1066,7 @@ Enumeration describing different types of position element types (typically used
  gravitational_parameter : float
      Gravitational parameter of central body
  singularity_at_zero_inclination : bool
-     Singularity at 0 degrees inclination if false, 180 degrees if true
+     Singularity at 0 degrees inclination if true, 180 degrees if false
  Returns
  -------
  numpy.ndarray
@@ -1301,7 +1302,7 @@ Enumeration describing different types of position element types (typically used
            py::arg( "exponential_map" ),
            R"doc(
 
- Converts modified Rodrigues parameters to the equivalent exponential map (for rotation representation).
+ Converts exponential map rotation elements to the equivalent quaternion elements (for rotation representation).
 
  Parameters
  ----------
@@ -1336,8 +1337,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000
+ epoch : float
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray
@@ -1347,7 +1348,7 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "j2000_to_teme",
-           &te::getRotationMatrixFromTemeToJ2000,
+           &te::getRotationMatrixFromJ2000ToTeme,
            py::arg( "epoch" ),
            R"doc(
 
@@ -1355,8 +1356,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000
+ epoch : float
+     Floating-point epoch in seconds since J2000.
  Returns
  -------
  numpy.ndarray

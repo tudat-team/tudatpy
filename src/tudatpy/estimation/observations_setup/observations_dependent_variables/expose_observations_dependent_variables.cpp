@@ -19,6 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
@@ -103,7 +105,8 @@ void expose_observations_dependent_variable_types( py::module& m )
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_PICKLE( tss::ObservationDependentVariableSettings ) TUDATPY_DEF_EQ_NE( tss::ObservationDependentVariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tss::ObservationDependentVariableSettings );
 
     py::class_< tss::ObservationDependentVariableBookkeeping, std::shared_ptr< tss::ObservationDependentVariableBookkeeping > >(
             m,
@@ -328,6 +331,11 @@ void expose_observations_dependent_variables( py::module& m )
            py::arg( "integrated_observation_handling" ) = tss::interval_start,
            R"doc(
         Function to create a dependent variable for the range between link ends.
+        The range is evaluated from the states of the link ends at the epoch(s) of the observation:
+
+        .. math::
+
+            r = || \mathbf{r}_{end}(t_{end}) - \mathbf{r}_{start}(t_{start}) ||
 
         Parameters
         ----------

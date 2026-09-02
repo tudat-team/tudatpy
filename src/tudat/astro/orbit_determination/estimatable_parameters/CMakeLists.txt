@@ -28,6 +28,7 @@ set(estimatable_parameters_HEADERS
   "initialRotationalState.h"
   "initialMassState.h"
   "radiationPressureCoefficient.h"
+  "threeCoefficientRadiationPressureCoefficients.h"
   "sphericalHarmonicSineCoefficients.h"
   "sphericalHarmonicCosineCoefficients.h"
   "constantRotationRate.h"

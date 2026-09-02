@@ -12,10 +12,14 @@
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "boost/algorithm/string.hpp"
+
+#include <cmath>
+#include <cstdio>
 
 namespace tudat
 {
@@ -139,6 +143,109 @@ void validateTleChecksumOrThrow( const std::string& line )
     {
         throw std::runtime_error( "Invalid TLE checksum: expected " + std::to_string( expected ) + ", got " + std::to_string( provided ) );
     }
+}
+
+namespace
+{
+
+//! Format a value as a fixed-width, space-padded field with the given number of decimals (e.g. degrees fields).
+std::string formatTleFixedField( const double value, const int totalWidth, const int fractionDigits )
+{
+    char buffer[ 32 ];
+    std::snprintf( buffer, sizeof( buffer ), "%*.*f", totalWidth, fractionDigits, value );
+    return std::string( buffer );
+}
+
+//! Format a value in (-1, 1) without the leading zero, e.g. " .00012345" or "-.00012345" (mean motion first derivative).
+std::string formatTleSignedDecimalField( const double value, const int fractionDigits )
+{
+    const char sign = ( value < 0.0 ) ? '-' : ' ';
+    char buffer[ 32 ];
+    std::snprintf( buffer, sizeof( buffer ), "%.*f", fractionDigits, std::fabs( value ) );
+    const std::string digitsString( buffer );
+    return std::string( 1, sign ) + digitsString.substr( digitsString.find( '.' ) );
+}
+
+//! Format a value using the TLE mantissa/exponent convention: value = sign * mantissa * 10^(exponent - 5),
+//! with mantissa a 5-digit integer (columns: sign + 5 digits) and exponent a signed single digit.
+//! Used for the mean motion second derivative and B* fields.
+std::string formatTleExponentialField( const double value )
+{
+    const char sign = ( value < 0.0 ) ? '-' : ' ';
+    const double absoluteValue = std::fabs( value );
+
+    int exponent = 0;
+    int mantissa = 0;
+    if( absoluteValue > 0.0 )
+    {
+        exponent = static_cast< int >( std::floor( std::log10( absoluteValue ) ) ) + 1;
+        double mantissaValue = absoluteValue / std::pow( 10.0, exponent );
+        mantissa = static_cast< int >( std::llround( mantissaValue * 1.0e5 ) );
+        // Guard against rounding a mantissa such as 99999.6 up to 100000 (would overflow the 5-digit field).
+        if( mantissa >= 100000 )
+        {
+            mantissa /= 10;
+            exponent += 1;
+        }
+    }
+    if( std::abs( exponent ) > 9 )
+    {
+        throw std::runtime_error( "Cannot represent value " + std::to_string( value ) +
+                                  " in a TLE mantissa/exponent field: exponent magnitude exceeds the single allotted digit." );
+    }
+
+    char buffer[ 16 ];
+    std::snprintf( buffer, sizeof( buffer ), "%c%05d%+d", sign, mantissa, exponent );
+    return std::string( buffer );
+}
+
+}  // namespace
+
+void Tle::computeRawLines( )
+{
+    // Convert the stored TDB epoch back to UTC to recover the calendar date used by the TLE format. This mirrors,
+    // in reverse, the UTC-to-TT-to-(approximate)TDB conversion performed by the string-parsing constructor.
+    const double ttEpoch = sofa_interface::convertTDBtoTT< double >( epoch_, Eigen::Vector3d::Zero( ) );
+    const double utcEpoch = sofa_interface::convertTTtoUTC< double >( ttEpoch );
+
+    const basic_astrodynamics::DateTime epochDateTime = basic_astrodynamics::DateTime::fromTime< double >( utcEpoch );
+    const int epochYear = epochDateTime.getYear( );
+    const basic_astrodynamics::DateTime startOfYear( epochYear, 1, 1, 0, 0, 0.0L );
+    // TLE day numbering starts at 1 for January 1st, 00:00.
+    const double epochDayFraction = ( utcEpoch - startOfYear.epoch< double >( ) ) / 86400.0 + 1.0;
+    char dayFractionBuffer[ 16 ];
+    std::snprintf( dayFractionBuffer, sizeof( dayFractionBuffer ), "%012.8f", epochDayFraction );
+
+    std::string pieceField = internationalDesignatorPiece_;
+    pieceField.resize( 3, ' ' );
+
+    // Physical rates are stored in radians/minute^{1,2,3}; the TLE fields are in revolutions/day^{1,2,3}.
+    const double revPerDayToRadPerMin = 2.0 * mathematical_constants::PI / 1440.0;
+
+    // ---- Line 1: identification, epoch and drag/ballistic terms ----
+    std::string line1 = "1 " + utilities::paddedZeroIntString( noradCatalogNumber_, 5 ) + std::string( 1, classification_ ) + " " +
+            utilities::paddedZeroIntString( internationalDesignatorLaunchYear_ % 100, 2 ) +
+            utilities::paddedZeroIntString( internationalDesignatorLaunchNumber_, 3 ) + pieceField + " " +
+            utilities::paddedZeroIntString( epochYear % 100, 2 ) + std::string( dayFractionBuffer ) + " " +
+            formatTleSignedDecimalField( meanMotionFirstDerivative_ / revPerDayToRadPerMin, 8 ) + " " +
+            formatTleExponentialField( meanMotionSecondDerivative_ / ( revPerDayToRadPerMin / 1440.0 / 1440.0 ) ) + " " +
+            formatTleExponentialField( bStar_ ) + " " + std::to_string( ephemerisType_ ) + " " +
+            utilities::paddedZeroIntString( elementSetNumber_, 4 );
+    line1 += std::to_string( computeTleChecksum( line1 + "0" ) );
+
+    // ---- Line 2: mean orbital elements ----
+    std::string line2 = "2 " + utilities::paddedZeroIntString( noradCatalogNumber_, 5 ) + " " +
+            formatTleFixedField( unit_conversions::convertRadiansToDegrees( inclination_ ), 8, 4 ) + " " +
+            formatTleFixedField( unit_conversions::convertRadiansToDegrees( rightAscension_ ), 8, 4 ) + " " +
+            utilities::paddedZeroIntString( static_cast< int >( std::llround( eccentricity_ * 1.0e7 ) ), 7 ) + " " +
+            formatTleFixedField( unit_conversions::convertRadiansToDegrees( argOfPerigee_ ), 8, 4 ) + " " +
+            formatTleFixedField( unit_conversions::convertRadiansToDegrees( meanAnomaly_ ), 8, 4 ) + " " +
+            formatTleFixedField( meanMotion_ / revPerDayToRadPerMin, 11, 8 ) +
+            utilities::paddedZeroIntString( revolutionNumberAtEpoch_, 5 );
+    line2 += std::to_string( computeTleChecksum( line2 + "0" ) );
+
+    rawLine1_ = line1;
+    rawLine2_ = line2;
 }
 
 Tle::Tle( const std::string& lines )
