@@ -11,6 +11,7 @@
 #ifndef TUDAT_OBSERVATIONVIABILITYCALCULATOR_H
 #define TUDAT_OBSERVATIONVIABILITYCALCULATOR_H
 
+#include <stdexcept>
 #include <vector>
 
 #include <Eigen/Core>
@@ -176,6 +177,29 @@ private:
 
     //! Object to calculate pointing angles (elevation angle) at ground station
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
+};
+
+//! Function to check whether a ground station is in darkness.
+class GroundStationDarknessCalculator : public ObservationViabilityCalculator
+{
+public:
+    GroundStationDarknessCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                                     const double maximumSunElevationAngle,
+                                     const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator,
+                                     const std::function< Eigen::Vector6d( const double ) > sunStateFunction ):
+        linkEndIndices_( linkEndIndices ), maximumSunElevationAngle_( maximumSunElevationAngle ),
+        pointingAngleCalculator_( pointingAngleCalculator ), sunStateFunction_( sunStateFunction )
+    {}
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
+
+private:
+    std::vector< std::pair< int, int > > linkEndIndices_;
+    double maximumSunElevationAngle_;
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
+    std::function< Eigen::Vector6d( const double ) > sunStateFunction_;
 };
 
 double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,

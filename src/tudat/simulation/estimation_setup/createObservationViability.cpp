@@ -97,6 +97,42 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
             pointingAngleCalculator );
 }
 
+std::shared_ptr< GroundStationDarknessCalculator > createGroundStationDarknessCalculator(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName )
+{
+    if( observationViabilitySettings->observationViabilityType_ != ground_station_darkness )
+    {
+        throw std::runtime_error( "Error when making ground station darkness calculator, inconsistent input" );
+    }
+
+    const std::string bodyName = observationViabilitySettings->getAssociatedLinkEnd( ).first;
+    const std::string requestedStationName = observationViabilitySettings->getAssociatedLinkEnd( ).second;
+    if( requestedStationName != "" && requestedStationName != stationName )
+    {
+        throw std::runtime_error( "Error when making ground station darkness calculator, inconsistent station input" );
+    }
+    if( bodies.count( bodyName ) == 0 || bodies.count( "Sun" ) == 0 )
+    {
+        throw std::runtime_error( "Error when making ground station darkness calculator, required body not found." );
+    }
+
+    const LinkEndId linkEndToCheck( bodyName, requestedStationName == "" ? stationName : requestedStationName );
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
+            bodies.at( bodyName )->getGroundStation( stationName )->getPointingAnglesCalculator( );
+    const std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
+            &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( "Sun" ), std::placeholders::_1 );
+
+    return std::make_shared< GroundStationDarknessCalculator >(
+            getLinkStateAndTimeIndicesForLinkEnd( linkEnds, observationType, linkEndToCheck ),
+            observationViabilitySettings->getDoubleParameter( ),
+            pointingAngleCalculator,
+            sunStateFunction );
+}
+
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
         const simulation_setup::SystemOfBodies& bodies,
@@ -267,7 +303,8 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 linkViabilityCalculators.push_back(
                         createObservationBoundariesCalculator( observationType, relevantObservationViabilitySettings.at( i ) ) );
                 break;
-            case minimum_elevation_angle: {
+            case minimum_elevation_angle:
+            case ground_station_darkness: {
                 // Create list of ground stations for which elevation angle check is to be made.
                 std::vector< std::string > listOfGroundStations;
                 for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
@@ -286,11 +323,24 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 // Create elevation angle check separately for eah ground station: check requires different pointing angles calculator
                 for( unsigned int j = 0; j < listOfGroundStations.size( ); j++ )
                 {
-                    linkViabilityCalculators.push_back( createMinimumElevationAngleCalculator( bodies,
-                                                                                               linkEnds,
-                                                                                               observationType,
-                                                                                               relevantObservationViabilitySettings.at( i ),
-                                                                                               listOfGroundStations.at( j ) ) );
+                    if( relevantObservationViabilitySettings.at( i )->observationViabilityType_ == minimum_elevation_angle )
+                    {
+                        linkViabilityCalculators.push_back(
+                                createMinimumElevationAngleCalculator( bodies,
+                                                                       linkEnds,
+                                                                       observationType,
+                                                                       relevantObservationViabilitySettings.at( i ),
+                                                                       listOfGroundStations.at( j ) ) );
+                    }
+                    else
+                    {
+                        linkViabilityCalculators.push_back(
+                                createGroundStationDarknessCalculator( bodies,
+                                                                       linkEnds,
+                                                                       observationType,
+                                                                       relevantObservationViabilitySettings.at( i ),
+                                                                       listOfGroundStations.at( j ) ) );
+                    }
                 }
                 break;
             }
@@ -303,6 +353,10 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
 
                 linkViabilityCalculators.push_back(
                         createOccultationCalculator( bodies, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+                break;
+            case body_in_sunlight:
+                linkViabilityCalculators.push_back(
+                        createBodyInSunlightCalculator( bodies, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
                 break;
             default:
                 throw std::runtime_error( "Error when making observation viability calculator, type not recognized " +

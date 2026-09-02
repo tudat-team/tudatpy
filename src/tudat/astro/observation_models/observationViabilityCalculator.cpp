@@ -102,6 +102,24 @@ bool MinimumElevationAngleCalculator::isObservationViable( const std::vector< Ei
     return isObservationPossible;
 }
 
+bool GroundStationDarknessCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                           const std::vector< double >& linkEndTimes,
+                                                           const Eigen::VectorXd& )
+{
+    for( const std::pair< int, int >& linkEndIndices : linkEndIndices_ )
+    {
+        const int stationIndex = linkEndIndices.first;
+        const double stationTime = linkEndTimes.at( stationIndex );
+        const Eigen::Vector3d vectorToSun =
+                sunStateFunction_( stationTime ).segment( 0, 3 ) - linkEndStates.at( stationIndex ).segment( 0, 3 );
+        if( pointingAngleCalculator_->calculateElevationAngleFromInertialVector( vectorToSun, stationTime ) > maximumSunElevationAngle_ )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
                                           const Eigen::Vector3d& transmittingBody,
                                           const Eigen::Vector3d& relativePoint )

@@ -17,6 +17,7 @@
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -78,6 +79,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+    normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
     // Compute inverse of updated covariance
     Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
