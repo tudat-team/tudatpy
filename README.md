@@ -87,6 +87,40 @@ python build.py -j <number-of-cores>  # Compile Tudatpy
 This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 
+### Configuring the high-precision C++ state scalar
+
+Tudat's high-precision state interfaces use `tudat::HighPrecisionStateScalar`,
+declared in the generated `tudat/config.hpp` header. It is Boost's
+quad-precision binary float by default:
+
+```sh
+cmake -S . -B build
+cmake --build build
+```
+
+The supported CMake values are `CPP_BIN_FLOAT_QUAD` (the default) and
+`LONG_DOUBLE`. Exactly one of these scalar implementations is compiled when
+`TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS` is enabled. This
+selection affects the C++ state API and its binary interface, so all libraries
+and C++ consumers must use the same configuration.
+The Boost scalar is not exposed as a Python scalar; TudatPy bindings remain
+limited to their supported scalar types.
+
+To build without high-precision state support or its dedicated tests, configure
+with `-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF`. In that
+configuration, `HighPrecisionStateScalar` and the `hps` Eigen typedefs collapse
+to `double`, and no additional state scalar is accepted by the propagation type
+traits or explicitly instantiated.
+
+Eigen typedefs ending in `ld` always use literal `long double`; typedefs ending
+in `hps` use the configured `HighPrecisionStateScalar`. Quad state arithmetic
+does not make every input or external interface quad precision. In particular,
+`Time` retains its split representation with a `long double` fractional field,
+and data or APIs defined as `double` remain limited to that precision. The
+effective epoch resolution therefore depends on the platform's `long double`
+implementation (commonly extended precision on Linux/x86, but equivalent to
+`double` with MSVC).
+
 7. Install
 
 ```

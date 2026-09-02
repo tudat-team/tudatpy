@@ -81,7 +81,7 @@ Eigen::Vector6d MultiArcEphemeris::getCartesianState( const double currentTime )
     }
 }
 
-Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongState( const double currentTime )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > MultiArcEphemeris::getCartesianLongState( const double currentTime )
 {
     std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
     if( currentArc.first )
@@ -127,12 +127,12 @@ Eigen::Vector6d MultiArcEphemeris::getCartesianStateFromExtendedTime( const Time
     }
 }
 
-Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongStateFromExtendedTime( const Time& currentTime )
+Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > MultiArcEphemeris::getCartesianLongStateFromExtendedTime( const Time& currentTime )
 {
     std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
     if( currentArc.first )
     {
-        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( double( currentTime ) );
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( currentTime );
     }
     else
     {

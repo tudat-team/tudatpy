@@ -48,17 +48,19 @@ void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const
 
     // Check that the sum of the b-coefficients for both the integrated order and the
     // error-checking order is one.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::VectorXd::Constant( 2, 1.0 ), coefficients.bCoefficients.rowwise( ).sum( ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            Eigen::VectorXhps::Constant( 2, HighPrecisionStateScalar( 1 ) ), coefficients.bCoefficients.rowwise( ).sum( ), tolerance );
 
     // Check that the first c-coefficient is zero.
-    BOOST_CHECK_SMALL( coefficients.cCoefficients( 0 ), tolerance );
+    BOOST_CHECK_SMALL( coefficients.cCoefficients( 0 ), HighPrecisionStateScalar( tolerance ) );
 
     // Check that the c-coefficient/a-coefficient relation holds.
     for( int i = 1; i < coefficients.cCoefficients.size( ); i++ )
     {
-        if( std::fabs( coefficients.cCoefficients( i ) ) < tolerance )
+        using std::abs;
+        if( abs( coefficients.cCoefficients( i ) ) < tolerance )
         {
-            BOOST_CHECK_SMALL( coefficients.aCoefficients.row( i ).sum( ), tolerance );
+            BOOST_CHECK_SMALL( coefficients.aCoefficients.row( i ).sum( ), HighPrecisionStateScalar( tolerance ) );
         }
 
         else
@@ -67,6 +69,24 @@ void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const
         }
     }
 }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+BOOST_AUTO_TEST_CASE( testCoefficientsAreConstructedBeyondDoublePrecision )
+{
+    const RungeKuttaCoefficients& rk4 = RungeKuttaCoefficients::get( CoefficientSets::rungeKutta4Classic );
+    BOOST_CHECK_EQUAL( rk4.bCoefficients( 0, 0 ), HighPrecisionStateScalar( 1 ) / HighPrecisionStateScalar( 6 ) );
+    BOOST_CHECK_NE( rk4.bCoefficients( 0, 0 ), static_cast< HighPrecisionStateScalar >( static_cast< double >( 1.0 / 6.0 ) ) );
+
+    const RungeKuttaCoefficients& rkf45 = RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg45 );
+    BOOST_CHECK_EQUAL( rkf45.aCoefficients( 3, 0 ), HighPrecisionStateScalar( 1932 ) / HighPrecisionStateScalar( 2197 ) );
+    BOOST_CHECK_NE( rkf45.aCoefficients( 3, 0 ), static_cast< HighPrecisionStateScalar >( static_cast< double >( 1932.0 / 2197.0 ) ) );
+
+    const RungeKuttaCoefficients& feagin108 = RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFeagin108 );
+    const HighPrecisionStateScalar expectedDecimal( "-0.915176561375291440520015019275342154318951387664369720564660" );
+    BOOST_CHECK_EQUAL( feagin108.aCoefficients( 2, 0 ), expectedDecimal );
+    BOOST_CHECK_NE( feagin108.aCoefficients( 2, 0 ), static_cast< HighPrecisionStateScalar >( static_cast< double >( expectedDecimal ) ) );
+}
+#endif
 
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45Coefficients )
 {

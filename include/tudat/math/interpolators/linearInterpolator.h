@@ -279,7 +279,8 @@ public:
             // Interpolation fraction - handle division carefully for custom types
             // For scalar types, this is just t_x / dx
             // For Time types or similar, we use static_cast to convert to ScalarType before division
-            ScalarType t = static_cast< ScalarType >( t_x ) / static_cast< ScalarType >( dx );
+            const ScalarType t =
+                    convertIndependentVariableToScalar< ScalarType >( t_x ) / convertIndependentVariableToScalar< ScalarType >( dx );
 
             // Linear interpolation
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
@@ -288,10 +289,12 @@ public:
         else
         {
             // Standard non-periodic interpolation
+            const ScalarType interpolationFraction = convertIndependentVariableToScalar< ScalarType >(
+                                                             independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
+                    convertIndependentVariableToScalar< ScalarType >( independentValues_[ upperIndex ] -
+                                                                      independentValues_[ newNearestLowerIndex ] );
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
-                    ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                            static_cast< ScalarType >( independentValues_[ upperIndex ] - independentValues_[ newNearestLowerIndex ] ) *
-                            ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
+                    interpolationFraction * ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
         }
 
         return interpolatedValue;

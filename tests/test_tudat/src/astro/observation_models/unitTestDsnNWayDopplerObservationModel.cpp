@@ -86,10 +86,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 std::make_shared< DirectSpiceEphemerisSettings >( ephemeridesOrigin, "J2000" );
 
         // Create bodies
-        SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
 
         // Read and process ODF file data
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection;
+        std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection;
 
         if( testType == 0 )
         {
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                     std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
 
             // Create observed observation collection
-            observedObservationCollection = observation_models::createOdfObservedObservationCollection< long double, Time >(
+            observedObservationCollection = observation_models::createOdfObservedObservationCollection< HighPrecisionStateScalar, Time >(
                     processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
             observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         else if( testType == 1 )
         {
             observedObservationCollection =
-                    createOdfObservedObservationCollectionFromFile< long double, Time >( bodies, odfFiles, spacecraftName );
+                    createOdfObservedObservationCollectionFromFile< HighPrecisionStateScalar, Time >( bodies, odfFiles, spacecraftName );
             observedObservationCollection->removeSingleObservationSets(
                     std::make_shared< ObservationCollectionObservableTypeParser >( dsn_n_way_range ) );
         }
@@ -129,16 +129,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             }
         }
 
-        std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > > observationSimulators =
-                observation_models::createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
+        std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< HighPrecisionStateScalar, Time > > >
+                observationSimulators = observation_models::createObservationSimulators< HighPrecisionStateScalar, Time >(
+                        observationModelSettingsList, bodies );
 
         std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                getObservationSimulationSettingsFromObservations< long double, Time >( observedObservationCollection, bodies );
+                getObservationSimulationSettingsFromObservations< HighPrecisionStateScalar, Time >( observedObservationCollection, bodies );
 
         std::cout << "Pre-simulation " << observationSimulationSettings.size( ) << std::endl;
 
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > simulatedObservationCollection =
-                simulation_setup::simulateObservations< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
+        std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > simulatedObservationCollection =
+                simulation_setup::simulateObservations< HighPrecisionStateScalar, Time >(
+                        observationSimulationSettings, observationSimulators, bodies );
         std::cout << "Post-simulation" << std::endl;
 
         LinkEnds dss45MgsLinkEnds;
@@ -146,9 +148,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         dss45MgsLinkEnds[ retransmitter ] = LinkEndId( "MGS" );
         dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-        std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkSimulatedObservations =
+        std::vector< std::shared_ptr< SingleObservationSet< HighPrecisionStateScalar, Time > > > singleLinkSimulatedObservations =
                 simulatedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
-        std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
+        std::vector< std::shared_ptr< SingleObservationSet< HighPrecisionStateScalar, Time > > > singleLinkObservedObservations =
                 observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
 
         // Compare value of observations
@@ -193,10 +195,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 continue;
             }
 
-            std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > simulatedObservations =
+            std::vector< Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > > simulatedObservations =
                     singleLinkSimulatedObservations.at( i )->getObservations( );
             std::vector< Time > simulatedTimes = singleLinkSimulatedObservations.at( i )->getObservationTimes( );
-            std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observedObservations =
+            std::vector< Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > > observedObservations =
                     singleLinkObservedObservations.at( i )->getObservations( );
             std::vector< Time > observedTimes = singleLinkObservedObservations.at( i )->getObservationTimes( );
 
@@ -236,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                     continue;
                 }
 
-                double residual = observedObservations.at( j )( 0 ) - simulatedObservations.at( j )( 0 );
+                double residual = static_cast< double >( observedObservations.at( j )( 0 ) - simulatedObservations.at( j )( 0 ) );
 
                 if( testType == 0 )
                 {
@@ -299,10 +301,11 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
     // The MRO DSN Doppler fixture is generated from mromagr2012_076_0840xmmmv1.tnf over a one-hour
     // tracking interval, at the Tudat trk234 converter boundary: rows contain the exact values passed
     // to SingleObservationSet creation before the 60 s Doppler compression applied below.
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection =
             createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "doppler_single_observation_set_inputs.csv",
                                                       observation_models::dsn_n_way_averaged_doppler );
-    observedObservationCollection = createCompressedDopplerCollection< long double, Time >( observedObservationCollection, 60, 10 );
+    observedObservationCollection =
+            createCompressedDopplerCollection< HighPrecisionStateScalar, Time >( observedObservationCollection, 60, 10 );
 
     std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
@@ -344,7 +347,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     bodySettings.addSettings( spacecraftName );
     bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< DirectSpiceEphemerisSettings >( ephemeridesOrigin, "J2000" );
 
-    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
 
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for( std::string odfFile : odfFiles )
@@ -355,9 +358,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfDataVector, spacecraftName );
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
-                                                                                             { dsn_n_way_averaged_doppler } );
+    std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection =
+            observation_models::createOdfObservedObservationCollection< HighPrecisionStateScalar, Time >( processedOdfFileContents,
+                                                                                                          { dsn_n_way_averaged_doppler } );
     observation_models::setOdfInformationInBodies< Time >( processedOdfFileContents, bodies );
 
     LinkEnds dss45MgsLinkEnds;
@@ -365,7 +368,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
     dss45MgsLinkEnds[ retransmitter ] = LinkEndId( spacecraftName );
     dss45MgsLinkEnds[ receiver ] = LinkEndId( "Earth", "DSS-45" );
 
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > singleLinkObservedObservations =
+    std::vector< std::shared_ptr< SingleObservationSet< HighPrecisionStateScalar, Time > > > singleLinkObservedObservations =
             observedObservationCollection->getSingleLinkAndTypeObservationSets( dsn_n_way_averaged_doppler, dss45MgsLinkEnds );
     BOOST_REQUIRE( !singleLinkObservedObservations.empty( ) );
     BOOST_REQUIRE( !singleLinkObservedObservations.at( 0 )->getObservationTimes( ).empty( ) );
@@ -386,8 +389,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
 
     std::shared_ptr< observation_models::ObservationModelSettings > observationSettings =
             std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( dss45MgsLinkEnds );
-    std::shared_ptr< observation_models::ObservationModel< 1, long double, Time > > observationModel =
-            observation_models::ObservationModelCreator< 1, long double, Time >::createObservationModel( observationSettings, bodies );
+    std::shared_ptr< observation_models::ObservationModel< 1, HighPrecisionStateScalar, Time > > observationModel =
+            observation_models::ObservationModelCreator< 1, HighPrecisionStateScalar, Time >::createObservationModel( observationSettings,
+                                                                                                                      bodies );
 
     const Time observationTime = singleLinkObservedObservations.at( 0 )->getObservationTimes( ).at( 0 );
     std::vector< double > linkEndTimes;

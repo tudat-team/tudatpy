@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <algorithm>
 #include <limits>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -98,7 +99,7 @@ SystemOfBodies createEnvironment( const double initialTimeEnvironment,
     }
 
     // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
 
     createGroundStation( bodies.at( "Earth" ),
                          "Station1",
@@ -107,16 +108,16 @@ SystemOfBodies createEnvironment( const double initialTimeEnvironment,
     return bodies;
 }
 
-std::shared_ptr< LightTimeCalculator< long double, Time > > getOneWayLightTimeCalculator(
+std::shared_ptr< LightTimeCalculator< HighPrecisionStateScalar, Time > > getOneWayLightTimeCalculator(
         const SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayObservationSettingsList )
 {
     // Create observation simulators
-    std::shared_ptr< ObservationSimulator< 1, long double, Time > > observationSimulator =
-            std::dynamic_pointer_cast< ObservationSimulator< 1, long double, Time > >(
-                    createObservationSimulators< long double, Time >( oneWayObservationSettingsList, bodies ).at( 0 ) );
-    std::shared_ptr< OneWayRangeObservationModel< long double, Time > > oneWayRangeObservationModel =
-            std::dynamic_pointer_cast< OneWayRangeObservationModel< long double, Time > >(
+    std::shared_ptr< ObservationSimulator< 1, HighPrecisionStateScalar, Time > > observationSimulator =
+            std::dynamic_pointer_cast< ObservationSimulator< 1, HighPrecisionStateScalar, Time > >(
+                    createObservationSimulators< HighPrecisionStateScalar, Time >( oneWayObservationSettingsList, bodies ).at( 0 ) );
+    std::shared_ptr< OneWayRangeObservationModel< HighPrecisionStateScalar, Time > > oneWayRangeObservationModel =
+            std::dynamic_pointer_cast< OneWayRangeObservationModel< HighPrecisionStateScalar, Time > >(
                     observationSimulator->getObservationModels( ).begin( )->second );
     return oneWayRangeObservationModel->getLightTimeCalculator( );
 }
@@ -127,27 +128,36 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
                                         const std::vector< int > timeExponents = { 0, -6, -7, -8, -9, -10, -11, -12 } )
 {
     // Compute nominal state at test time
-    Eigen::Vector6ld nominalState =
+    Eigen::Matrix< long double, 6, 1 > nominalState =
             ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime ).template cast< long double >( );
 
-    // Time steps at which the relative numerical error will be around 1
-    Eigen::Vector3ld stateRatio =
+    // Time steps at which the relative numerical error will be around 1. The
+    // state evaluation is limited by both the requested state scalar and the
+    // scalar used internally by the time type (long double for tudat::Time).
+    using TimeScalarType = typename scalar_type< TimeType >::value_type;
+    const long double effectiveScalarEpsilon = std::max( static_cast< long double >( std::numeric_limits< StateScalarType >::epsilon( ) ),
+                                                         static_cast< long double >( std::numeric_limits< TimeScalarType >::epsilon( ) ) );
+    Eigen::Matrix< long double, 3, 1 > stateRatio =
             ( nominalState.segment< 3 >( 0 ).cwiseQuotient( nominalState.segment< 3 >( 3 ) ) ).template cast< long double >( );
-    Eigen::Vector3ld limitTimes = std::numeric_limits< StateScalarType >::epsilon( ) * stateRatio;
+    Eigen::Matrix< long double, 3, 1 > limitTimes = effectiveScalarEpsilon * stateRatio;
 
     // Compute numerical position partial, and compute error w.r.t. computation for Delta t = 1 s
-    Eigen::Vector3ld nominalPartial = Eigen::Vector3ld::Zero( );
+    Eigen::Matrix< long double, 3, 1 > nominalPartial = Eigen::Matrix< long double, 3, 1 >::Zero( );
     for( unsigned int i = 0; i < timeExponents.size( ); i++ )
     {
         // Define time step
         long double perturbationStep = std::pow( 10, timeExponents.at( i ) );
 
         // Calculate numerical partial
-        Eigen::Vector3ld upperturbedState =
-                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime + perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld downperturbedState =
-                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime - perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
+        Eigen::Matrix< long double, 3, 1 > upperturbedState =
+                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime + perturbationStep )
+                        .segment( 0, 3 )
+                        .template cast< long double >( );
+        Eigen::Matrix< long double, 3, 1 > downperturbedState =
+                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime - perturbationStep )
+                        .segment( 0, 3 )
+                        .template cast< long double >( );
+        Eigen::Matrix< long double, 3, 1 > currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
 
         if( i == 0 )
         {
@@ -158,8 +168,8 @@ void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephe
         {
             // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 2 to account for randomness in
             // rounding error)
-            Eigen::Vector3ld expectedRelativeErrorLevel = limitTimes / perturbationStep;
-            Eigen::Vector3ld realRelativeErrorLevels =
+            Eigen::Matrix< long double, 3, 1 > expectedRelativeErrorLevel = limitTimes / perturbationStep;
+            Eigen::Matrix< long double, 3, 1 > realRelativeErrorLevels =
                     ( ( currentPartial - nominalPartial ).cwiseQuotient( nominalPartial ) ).segment( 0, 3 );
             std::cout << timeExponents.at( i ) << " " << expectedRelativeErrorLevel.transpose( ) << std::endl;
             std::cout << timeExponents.at( i ) << " " << realRelativeErrorLevels.transpose( ) << std::endl << std::endl;
@@ -217,19 +227,23 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
 
     // Check state function numerical consistency for observations between centers of mass
     {
-        std::shared_ptr< LightTimeCalculator< long double, Time > > lightTimeCalculator =
+        std::shared_ptr< LightTimeCalculator< HighPrecisionStateScalar, Time > > lightTimeCalculator =
                 getOneWayLightTimeCalculator( barycentricInterpolatedBodies, centerOfMassObservationSettingsList );
 
-        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
-        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
+        checkStateFunctionNumericalErrors< HighPrecisionStateScalar, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ),
+                                                                             testTime );
+        checkStateFunctionNumericalErrors< HighPrecisionStateScalar, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ),
+                                                                             testTime );
     }
 
     // Check state function numerical consistency for observations from ground station
     {
-        std::shared_ptr< LightTimeCalculator< long double, Time > > lightTimeCalculator =
+        std::shared_ptr< LightTimeCalculator< HighPrecisionStateScalar, Time > > lightTimeCalculator =
                 getOneWayLightTimeCalculator( barycentricInterpolatedBodies, stationObservationSettingsList );
-        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
-        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
+        checkStateFunctionNumericalErrors< HighPrecisionStateScalar, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ),
+                                                                             testTime );
+        checkStateFunctionNumericalErrors< HighPrecisionStateScalar, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ),
+                                                                             testTime );
     }
 }
 

@@ -134,7 +134,7 @@ public:
         linkEndStates.push_back( sourceState.template cast< double >( ) );
         linkEndStates.push_back( observerState.template cast< double >( ) );
 
-        linkEndTimes.push_back( static_cast< double >( time - lightTime ) );
+        linkEndTimes.push_back( static_cast< double >( subtractTimeIntervalFromEpoch( time, lightTime ) ) );
         linkEndTimes.push_back( static_cast< double >( time ) );
 
         Eigen::Vector3d inertialDirectionToProject = inertialRelativePosition.template cast< double >( );
