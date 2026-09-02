@@ -1,7 +1,21 @@
 import pytest
 from pydantic import ValidationError
-
 from tudatpy.data_input.tracking_data.ccsds.implementations import common, oem, tdm, omm
+import numpy as np
+from tudatpy.data_input.tracking_data.ccsds import ccsds_utils
+from tudatpy.data_input.tracking_data.ccsds.implementations.common import CCSDSHeader
+from tudatpy.data_input.tracking_data.ccsds.implementations.omm import OMMData, OMMMetadata
+from tudatpy.data_input.tracking_data.ccsds.implementations.oem import OEMMetadata, OEMStateVector
+from tudatpy.data_input.tracking_data.ccsds.implementations.tdm import TDMMetadata
+from tudatpy.data_input.tracking_data.ccsds.model.message import (
+    OEMMessage,
+    OMMMessage,
+    Segment,
+    TDMMessage,
+)
+from tudatpy.data_input.tracking_data.ccsds.model.parser import NDMParser
+from tudatpy.data_input.tracking_data.ccsds.model.writer import NDMWriter
+from tudatpy.data_input.tracking_data.ccsds import tracking_data_conversion as tdc
 
 
 ############### ccsds.implementations ##############
@@ -188,32 +202,12 @@ def test_omm_keyword_sets_derived_from_model_fields():
 def test_ccsds_header_accepts_calendar_and_doy_dates(creation_date):
     header = common.CCSDSHeader(CREATION_DATE=creation_date)
     assert header.CREATION_DATE == creation_date
-    assert header.ORIGINATOR == "Tudat"
+    assert header.ORIGINATOR == "TU Delft Astrodynamics Toolbox (Tudat)"
 
 
 def test_ccsds_header_rejects_malformed_date():
     with pytest.raises(ValidationError, match="Invalid CCSDS date format"):
         common.CCSDSHeader(CREATION_DATE="not-a-date")
-
-
-import numpy as np
-import pandas as pd
-import pytest
-
-from tudatpy.data_input.tracking_data.ccsds import ccsds_utils
-from tudatpy.data_input.tracking_data.ccsds.implementations.common import CCSDSHeader
-from tudatpy.data_input.tracking_data.ccsds.implementations.omm import OMMData, OMMMetadata
-from tudatpy.data_input.tracking_data.ccsds.implementations.oem import OEMMetadata, OEMStateVector
-from tudatpy.data_input.tracking_data.ccsds.implementations.tdm import TDMMetadata
-from tudatpy.data_input.tracking_data.ccsds.model.message import (
-    OEMMessage,
-    OMMMessage,
-    Segment,
-    TDMMessage,
-)
-from tudatpy.data_input.tracking_data.ccsds.model.parser import NDMParser
-from tudatpy.data_input.tracking_data.ccsds.model.writer import NDMWriter
-from tudatpy.data_input.tracking_data.ccsds import tracking_data_conversion as tdc
 
 
 ############################### ccsds.model ###############################
