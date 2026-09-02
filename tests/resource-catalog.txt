@@ -70,6 +70,7 @@ atmosphere_tables/MCDMeanAtmosphereTimeAverage/temperature.dat
 atmosphere_tables/MCDMeanAtmosphereTimeAverage/gasConstant.dat
 atmosphere_tables/USSA1976Until100kmPer100mUntil1000kmPer1000m_wHR_GC.dat
 atmosphere_tables/dtm_mars.dat
+atmosphere_tables/nrlmsise00_validation_data.pkl
 atmosphere_tables/vmf3/anm_bh.txt
 atmosphere_tables/vmf3/bnm_bh.txt
 atmosphere_tables/vmf3/anm_bw.txt
@@ -78,6 +79,7 @@ atmosphere_tables/vmf3/anm_ch.txt
 atmosphere_tables/vmf3/bnm_ch.txt
 atmosphere_tables/vmf3/anm_cw.txt
 atmosphere_tables/vmf3/bnm_cw.txt
+star_catalog_biases/debias_2018/bias.dat
 station_locations/glo.sit
 station_locations/glo.vel
 station_locations/ns_codes.dat
