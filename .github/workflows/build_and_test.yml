@@ -10,7 +10,7 @@ on:
   push:
     branches: [ "master", "develop"]
   pull_request:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "feature/off_diagonal_weights" ]
   workflow_dispatch:
 
 jobs:
