@@ -389,7 +389,10 @@ BOOST_AUTO_TEST_CASE( testStateInterpolationStorageAndRetrieval )
         fixedStateHistory[ static_cast< double >( i ) ] = FixedState::Constant( preciseValue );
     }
 
-    const auto stateInterpolator = propagators::createStateInterpolator( fixedStateHistory );
+    const auto stateInterpolatorSettings = interpolators::lagrangeInterpolation( 8 );
+    const auto stateInterpolator = propagators::createStateInterpolator( fixedStateHistory, stateInterpolatorSettings );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, FixedState, Scalar > >( stateInterpolator ) !=
+                     nullptr ) );
     const FixedState interpolatedAtNode = stateInterpolator->interpolate( 3.0 );
     BOOST_CHECK( interpolatedAtNode( 0 ) == fixedStateHistory.at( 3.0 )( 0 ) );
 
@@ -429,7 +432,8 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
 
     // Exercise the same reset function used when propagated results are selected
     // as the body's post-propagation ephemeris.
-    propagators::resetIntegratedEphemerisOfBody( bodies, stateHistory, "Vehicle" );
+    const auto stateInterpolatorSettings = interpolators::lagrangeInterpolation( 8 );
+    propagators::resetIntegratedEphemerisOfBody( bodies, stateHistory, "Vehicle", stateInterpolatorSettings );
 
     const Time nodeTime = firstEpoch + 3.0L;
     const Time queryTime = nodeTime + 1.0e-12L;
@@ -439,6 +443,8 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     const auto resetEphemeris = std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< Scalar, Time > >(
             bodies.at( "Vehicle" )->getEphemeris( ) );
     BOOST_REQUIRE( resetEphemeris != nullptr );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< Time, FixedState, Scalar > >(
+                             resetEphemeris->getInterpolator( ) ) != nullptr ) );
 
     const Scalar nodePosition = resetEphemeris->getCartesianLongStateFromExtendedTime( nodeTime )( 0 );
     const Scalar offsetPosition = resetEphemeris->getCartesianLongStateFromExtendedTime( queryTime )( 0 );
@@ -462,7 +468,7 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     {
         doubleStateHistory[ stateEntry.first ] = stateEntry.second.template cast< double >( );
     }
-    const auto doubleInterpolator = propagators::createStateInterpolator( doubleStateHistory );
+    const auto doubleInterpolator = propagators::createStateInterpolator( doubleStateHistory, stateInterpolatorSettings );
     ephemerides::TabulatedCartesianEphemeris< double, Time > doubleEphemeris( doubleInterpolator, "SSB", "J2000" );
     const double doublePositionChange = doubleEphemeris.getCartesianStateFromExtendedTime( queryTime )( 0 ) -
             doubleEphemeris.getCartesianStateFromExtendedTime( nodeTime )( 0 );

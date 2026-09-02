@@ -560,6 +560,7 @@ public:
 /*!
  *  Function to create a one-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
+ *  \tparam ScalarType Scalar used for interpolation weights and coefficients.
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
  *      variables, value = dependent variables).
  *  \param interpolatorSettings Settings that are to be used to create interpolator.
@@ -570,7 +571,9 @@ public:
  *      be supplied if the selected interpolator requires this data (e.g. Hermite spline).
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType,
+          typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
@@ -594,14 +597,15 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
     switch( interpolatorSettings->getInterpolatorType( ) )
     {
         case linear_interpolator:
-            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ),
                     defaultExtrapolationValue );
             break;
         case cubic_spline_interpolator: {
-            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator =
+                    std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
@@ -613,7 +617,8 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
                     std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
             if( lagrangeInterpolatorSettings != nullptr )
             {
-                createdInterpolator = std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType > >(
+                createdInterpolator =
+                        std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                         dataToInterpolate,
                         lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                         interpolatorSettings->getSelectedLookupScheme( ),
@@ -632,7 +637,8 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
             {
                 throw std::runtime_error( "Error when creating hermite spline interpolator, derivative size is inconsistent" );
             }
-            createdInterpolator = std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator =
+                    std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     firstDerivativeOfDependentVariables,
                     interpolatorSettings->getSelectedLookupScheme( ),

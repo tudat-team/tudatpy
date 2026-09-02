@@ -28,7 +28,10 @@ createConfiguredStateInterpolator( const std::map< TimeType, Eigen::Matrix< Stat
         throw std::runtime_error( "Error when creating integrated state interpolator, settings are null." );
     }
 
-    return interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings );
+    return interpolators::createOneDimensionalInterpolator<
+            TimeType,
+            Eigen::Matrix< StateScalarType, StateSize, 1 >,
+            StateScalarType >( stateMap, interpolatorSettings );
 }
 }  // namespace
 
