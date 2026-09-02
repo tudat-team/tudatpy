@@ -279,245 +279,246 @@ class TDMMessage(NDMMessage):
         # 3. Return min and max (More efficient than full sort)
         return [min(all_epochs), max(all_epochs)]
 
-    @classmethod
-    def from_dataframe(
-        cls, df: pd.DataFrame, norad_id: str, obs_code: str, angle_type: str = "RADEC"
-    ) -> "TDMMessage":
-        """
-        Factory method to create a TDMMessage directly from a pandas DataFrame
-        (dataframe = output of calculate_pass_data)
 
-        This method standardizes time columns, renames physical measurement columns to
-        CCSDS TDM shorthand, and packages the data into a validated TDMMessage.
+#    @classmethod
+#    def from_dataframe(
+#        cls, df: pd.DataFrame, norad_id: str, obs_code: str, angle_type: str = "RADEC"
+#    ) -> "TDMMessage":
+#        """
+#        Factory method to create a TDMMessage directly from a pandas DataFrame
+#        (dataframe = output of calculate_pass_data)
+#
+#        This method standardizes time columns, renames physical measurement columns to
+#        CCSDS TDM shorthand, and packages the data into a validated TDMMessage.
+#
+#        Time is assumed to be in UTC already.
+#
+#        Parameters
+#        ----------
+#        df : pd.DataFrame
+#            Input data containing tracking observations. Optionally include
+#            'Sigma_Right_Ascension'/'Sigma_Declination' (RADEC) or
+#            'Sigma_Azimuth'/'Sigma_Elevation' (AZEL) columns to also write
+#            per-observation 1-sigma angle uncertainty, in the same units as
+#            the corresponding angle column, as the non-standard
+#            `SIGMA_ANGLE_1`/`SIGMA_ANGLE_2` TDM data keywords.
+#            Omitted entirely if these columns aren't present.
+#        norad_id : str
+#            The ID of the target spacecraft (or observer/station) (i.e. PARTICIPANT_1).
+#        obs_code : str
+#            The ID of the observer/station (or spacecraft) (i.e. PARTICIPANT_2).
+#        angle_type : str, optional
+#            The coordinate system for angles ('RADEC' or 'AZEL'). Defaults to "RADEC".
+#
+#        Returns
+#        -------
+#        TDMMessage
+#            A populated TDMMessage instance.
+#        """
+#        # Create a copy so we don't mutate the user's original DataFrame
+#        working_df = df.copy()
+#
+#        # 1. Standardize Time to be the DatetimeIndex
+#        if "Time" in working_df.columns:
+#            working_df = working_df.set_index(pd.to_datetime(working_df["Time"]))
+#        elif "UTC_TIME" in working_df.columns:
+#            working_df = working_df.set_index(pd.to_datetime(working_df["UTC_TIME"]))
+#
+#        # 2. Standardize Physics Columns to TDM shorthand
+#        working_df = working_df.rename(
+#            columns={
+#                "Right_Ascension": "RA",
+#                "Declination": "DEC",
+#                "Azimuth": "AZ",
+#                "Elevation": "EL",
+#                "Sigma_Right_Ascension": "SIGMA_RA",
+#                "Sigma_Declination": "SIGMA_DEC",
+#                "Sigma_Azimuth": "SIGMA_AZ",
+#                "Sigma_Elevation": "SIGMA_EL",
+#            }
+#        )
+#
+#        grouped_data = defaultdict(dict)
+#
+#        # 3. Group by Index (UTC Time)
+#        for timestamp, row in working_df.iterrows():
+#            # Format the pandas Timestamp index back to a CCSDS-compliant ISO string
+#            if isinstance(timestamp, pd.Timestamp):
+#                time_str = timestamp.isoformat()
+#                # Ensure the UTC 'Z' designation is present if the timestamp is naive
+#                if "+" not in time_str and not time_str.endswith("Z"):
+#                    time_str += "Z"
+#            else:
+#                time_str = str(timestamp)
+#
+#            if angle_type == "RADEC":
+#                grouped_data[time_str]["ANGLE_1"] = row["RA"]
+#                grouped_data[time_str]["ANGLE_2"] = row["DEC"]
+#                if "SIGMA_RA" in working_df.columns:
+#                    grouped_data[time_str]["SIGMA_ANGLE_1"] = row["SIGMA_RA"]
+#                if "SIGMA_DEC" in working_df.columns:
+#                    grouped_data[time_str]["SIGMA_ANGLE_2"] = row["SIGMA_DEC"]
+#            elif angle_type == "AZEL":
+#                grouped_data[time_str]["ANGLE_1"] = row["AZ"]
+#                grouped_data[time_str]["ANGLE_2"] = row["EL"]
+#                if "SIGMA_AZ" in working_df.columns:
+#                    grouped_data[time_str]["SIGMA_ANGLE_1"] = row["SIGMA_AZ"]
+#                if "SIGMA_EL" in working_df.columns:
+#                    grouped_data[time_str]["SIGMA_ANGLE_2"] = row["SIGMA_EL"]
+#            else:
+#                raise ValueError(f"Unsupported angle type: {angle_type}.")
+#
+#        if angle_type == "RADEC":
+#            reference_frame = "ICRF"
+#        else:
+#            reference_frame = None
+#
+#        for time_tag, measurements in grouped_data.items():
+#            for measurement_name, value in measurements.items():
+#                if measurement_name == "ANGLE_1":
+#                    # Extract the raw float, wrap it according to astronomical definitions of RA and Dec
+#                    normalized_az_or_ra_angle = value % 360.0
+#                    grouped_data[time_tag][measurement_name] = normalized_az_or_ra_angle
+#
+#        # 2. Build the Pydantic Metadata object
+#        metadata = TDMMetadata(
+#            TIME_SYSTEM="UTC",
+#            START_TIME=min(grouped_data.keys()),
+#            STOP_TIME=max(grouped_data.keys()),
+#            PARTICIPANT_1=str(norad_id),
+#            PARTICIPANT_2=str(obs_code),
+#            PATH="1,2",  # Choose this path as default
+#            MODE="SEQUENTIAL",
+#            ANGLE_TYPE=angle_type,
+#            REFERENCE_FRAME=reference_frame,
+#        )
+#
+#        # 3. Create the Segment with the now-normalized data
+#        segment = Segment(metadata=metadata, data=dict(grouped_data))
+#        # 6. Create a default Header
+#        header = CCSDSHeader(
+#            CCSDS_VERS="2.0",
+#            CREATION_DATE=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+#        )
+#
+#        return cls(header=header, segments=[segment])
 
-        Time is assumed to be in UTC already.
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Input data containing tracking observations. Optionally include
-            'Sigma_Right_Ascension'/'Sigma_Declination' (RADEC) or
-            'Sigma_Azimuth'/'Sigma_Elevation' (AZEL) columns to also write
-            per-observation 1-sigma angle uncertainty, in the same units as
-            the corresponding angle column, as the non-standard
-            `SIGMA_ANGLE_1`/`SIGMA_ANGLE_2` TDM data keywords.
-            Omitted entirely if these columns aren't present.
-        norad_id : str
-            The ID of the target spacecraft (or observer/station) (i.e. PARTICIPANT_1).
-        obs_code : str
-            The ID of the observer/station (or spacecraft) (i.e. PARTICIPANT_2).
-        angle_type : str, optional
-            The coordinate system for angles ('RADEC' or 'AZEL'). Defaults to "RADEC".
-
-        Returns
-        -------
-        TDMMessage
-            A populated TDMMessage instance.
-        """
-        # Create a copy so we don't mutate the user's original DataFrame
-        working_df = df.copy()
-
-        # 1. Standardize Time to be the DatetimeIndex
-        if "Time" in working_df.columns:
-            working_df = working_df.set_index(pd.to_datetime(working_df["Time"]))
-        elif "UTC_TIME" in working_df.columns:
-            working_df = working_df.set_index(pd.to_datetime(working_df["UTC_TIME"]))
-
-        # 2. Standardize Physics Columns to TDM shorthand
-        working_df = working_df.rename(
-            columns={
-                "Right_Ascension": "RA",
-                "Declination": "DEC",
-                "Azimuth": "AZ",
-                "Elevation": "EL",
-                "Sigma_Right_Ascension": "SIGMA_RA",
-                "Sigma_Declination": "SIGMA_DEC",
-                "Sigma_Azimuth": "SIGMA_AZ",
-                "Sigma_Elevation": "SIGMA_EL",
-            }
-        )
-
-        grouped_data = defaultdict(dict)
-
-        # 3. Group by Index (UTC Time)
-        for timestamp, row in working_df.iterrows():
-            # Format the pandas Timestamp index back to a CCSDS-compliant ISO string
-            if isinstance(timestamp, pd.Timestamp):
-                time_str = timestamp.isoformat()
-                # Ensure the UTC 'Z' designation is present if the timestamp is naive
-                if "+" not in time_str and not time_str.endswith("Z"):
-                    time_str += "Z"
-            else:
-                time_str = str(timestamp)
-
-            if angle_type == "RADEC":
-                grouped_data[time_str]["ANGLE_1"] = row["RA"]
-                grouped_data[time_str]["ANGLE_2"] = row["DEC"]
-                if "SIGMA_RA" in working_df.columns:
-                    grouped_data[time_str]["SIGMA_ANGLE_1"] = row["SIGMA_RA"]
-                if "SIGMA_DEC" in working_df.columns:
-                    grouped_data[time_str]["SIGMA_ANGLE_2"] = row["SIGMA_DEC"]
-            elif angle_type == "AZEL":
-                grouped_data[time_str]["ANGLE_1"] = row["AZ"]
-                grouped_data[time_str]["ANGLE_2"] = row["EL"]
-                if "SIGMA_AZ" in working_df.columns:
-                    grouped_data[time_str]["SIGMA_ANGLE_1"] = row["SIGMA_AZ"]
-                if "SIGMA_EL" in working_df.columns:
-                    grouped_data[time_str]["SIGMA_ANGLE_2"] = row["SIGMA_EL"]
-            else:
-                raise ValueError(f"Unsupported angle type: {angle_type}.")
-
-        if angle_type == "RADEC":
-            reference_frame = "ICRF"
-        else:
-            reference_frame = None
-
-        for time_tag, measurements in grouped_data.items():
-            for measurement_name, value in measurements.items():
-                if measurement_name == "ANGLE_1":
-                    # Extract the raw float, wrap it according to astronomical definitions of RA and Dec
-                    normalized_az_or_ra_angle = value % 360.0
-                    grouped_data[time_tag][measurement_name] = normalized_az_or_ra_angle
-
-        # 2. Build the Pydantic Metadata object
-        metadata = TDMMetadata(
-            TIME_SYSTEM="UTC",
-            START_TIME=min(grouped_data.keys()),
-            STOP_TIME=max(grouped_data.keys()),
-            PARTICIPANT_1=str(norad_id),
-            PARTICIPANT_2=str(obs_code),
-            PATH="1,2",  # Choose this path as default
-            MODE="SEQUENTIAL",
-            ANGLE_TYPE=angle_type,
-            REFERENCE_FRAME=reference_frame,
-        )
-
-        # 3. Create the Segment with the now-normalized data
-        segment = Segment(metadata=metadata, data=dict(grouped_data))
-        # 6. Create a default Header
-        header = CCSDSHeader(
-            CCSDS_VERS="2.0",
-            CREATION_DATE=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        )
-
-        return cls(header=header, segments=[segment])
-
-    def to_dataframe(
-        self,
-        segment_idx: int | None = None,
-    ) -> pd.DataFrame:
-        """
-        Convert TDM segments (assumed to be in CCSDS-compliant units, and in UTC scale)
-        to a pandas DataFrame.
-
-        This method handles both Day-of-Year (DOY) and ISO timestamps, ensuring the
-        resulting DataFrame is indexed by UTC datetime objects.
-
-        Parameters
-        ----------
-        segment_idx : int, optional
-            The index of the segment to convert. If None (default), all segments
-            are concatenated.
-
-        Returns
-        -------
-        pd.DataFrame
-            A DataFrame indexed by 'UTC_TIME' containing the tracking observations.
-        """
-
-        angle_column_map = {
-            "AZEL": {"ANGLE_1": "AZ", "ANGLE_2": "EL"},
-            "RADEC": {"ANGLE_1": "RA", "ANGLE_2": "DEC"},
-            "X_Y": {"ANGLE_1": "X_ANGLE", "ANGLE_2": "Y_ANGLE"},
-        }
-
-        # -------------------------
-        # Unified time parsing
-        # -------------------------
-        def _parse_datetime(series: pd.Series) -> pd.Series:
-            """Parse DOY and ISO timestamps into pandas datetime."""
-
-            def _parse_single(t):
-                if not isinstance(t, str):
-                    return pd.NaT
-                try:
-                    # Try DOY
-                    return pd.to_datetime(t, format="%Y-%jT%H:%M:%S.%f")
-                except Exception:
-                    # ISO Timestamps
-                    return pd.to_datetime(t, errors="coerce")
-
-            return series.map(_parse_single)
-
-        # -------------------------
-        # Segment selection
-        # -------------------------
-        indices = [segment_idx] if segment_idx is not None else range(len(self.segments))
-        all_dfs = []
-
-        for idx in indices:
-            seg = self.segments[idx]
-            if not seg.data:
-                continue
-
-            angle_type = getattr(seg.metadata, "ANGLE_TYPE", None)
-            col_rename = angle_column_map.get(angle_type, {})
-
-            # --- Correct Participant Mapping Based on PATH ---
-            part1 = getattr(seg.metadata, "PARTICIPANT_1", "UNKNOWN")
-            part2 = getattr(seg.metadata, "PARTICIPANT_2", "UNKNOWN")
-
-            # Strip spaces safely and get the standard PATH format
-            path = getattr(seg.metadata, "PATH", "1,2").replace(" ", "")
-
-            # If path starts with "1" (e.g. "1,2"), Participant 1 is RSO and 2 is Station
-            if path.startswith("1"):
-                rso_name = part1
-                station_name = part2
-            else:
-                # E.g., "2,1", so Participant 2 is RSO and 1 is Station
-                rso_name = part2
-                station_name = part1
-
-            rows = []
-            for time_tag, observations in seg.data.items():
-                row = {"UTC_TIME": time_tag}
-                for keyword, value in observations.items():
-                    col_name = col_rename.get(keyword, keyword)
-                    row[col_name] = value
-
-                # Consistently assign the resolved participant names
-                row["PARTICIPANT_1"] = rso_name
-                row["PARTICIPANT_2"] = station_name
-
-                rows.append(row)
-
-            df = pd.DataFrame(rows)
-
-            if df.empty:
-                continue
-
-            # -------------------------
-            # Time handling
-            # -------------------------
-            df["UTC_TIME"] = _parse_datetime(df["UTC_TIME"])
-            df = df.set_index("UTC_TIME")
-
-            # Convert numeric columns
-            for col in df.columns:
-                if col not in ["PARTICIPANT_1", "PARTICIPANT_2"]:
-                    df[col] = pd.to_numeric(df[col], errors="coerce")
-
-            if segment_idx is None:
-                df["segment_index"] = idx
-
-            all_dfs.append(df)
-
-        if not all_dfs:
-            return pd.DataFrame()
-
-        combined = pd.concat(all_dfs)
-        return self._add_time_columns_to_df(combined).sort_index()
+#    def to_dataframe(
+#        self,
+#        segment_idx: int | None = None,
+#    ) -> pd.DataFrame:
+#        """
+#        Convert TDM segments (assumed to be in CCSDS-compliant units, and in UTC scale)
+#        to a pandas DataFrame.
+#
+#        This method handles both Day-of-Year (DOY) and ISO timestamps, ensuring the
+#        resulting DataFrame is indexed by UTC datetime objects.
+#
+#        Parameters
+#        ----------
+#        segment_idx : int, optional
+#            The index of the segment to convert. If None (default), all segments
+#            are concatenated.
+#
+#        Returns
+#        -------
+#        pd.DataFrame
+#            A DataFrame indexed by 'UTC_TIME' containing the tracking observations.
+#        """
+#
+#        angle_column_map = {
+#            "AZEL": {"ANGLE_1": "AZ", "ANGLE_2": "EL"},
+#            "RADEC": {"ANGLE_1": "RA", "ANGLE_2": "DEC"},
+#            "X_Y": {"ANGLE_1": "X_ANGLE", "ANGLE_2": "Y_ANGLE"},
+#        }
+#
+#        # -------------------------
+#        # Unified time parsing
+#        # -------------------------
+#        def _parse_datetime(series: pd.Series) -> pd.Series:
+#            """Parse DOY and ISO timestamps into pandas datetime."""
+#
+#            def _parse_single(t):
+#                if not isinstance(t, str):
+#                    return pd.NaT
+#                try:
+#                    # Try DOY
+#                    return pd.to_datetime(t, format="%Y-%jT%H:%M:%S.%f")
+#                except Exception:
+#                    # ISO Timestamps
+#                    return pd.to_datetime(t, errors="coerce")
+#
+#            return series.map(_parse_single)
+#
+#        # -------------------------
+#        # Segment selection
+#        # -------------------------
+#        indices = [segment_idx] if segment_idx is not None else range(len(self.segments))
+#        all_dfs = []
+#
+#        for idx in indices:
+#            seg = self.segments[idx]
+#            if not seg.data:
+#                continue
+#
+#            angle_type = getattr(seg.metadata, "ANGLE_TYPE", None)
+#            col_rename = angle_column_map.get(angle_type, {})
+#
+#            # --- Correct Participant Mapping Based on PATH ---
+#            part1 = getattr(seg.metadata, "PARTICIPANT_1", "UNKNOWN")
+#            part2 = getattr(seg.metadata, "PARTICIPANT_2", "UNKNOWN")
+#
+#            # Strip spaces safely and get the standard PATH format
+#            path = getattr(seg.metadata, "PATH", "1,2").replace(" ", "")
+#
+#            # If path starts with "1" (e.g. "1,2"), Participant 1 is RSO and 2 is Station
+#            if path.startswith("1"):
+#                rso_name = part1
+#                station_name = part2
+#            else:
+#                # E.g., "2,1", so Participant 2 is RSO and 1 is Station
+#                rso_name = part2
+#                station_name = part1
+#
+#            rows = []
+#            for time_tag, observations in seg.data.items():
+#                row = {"UTC_TIME": time_tag}
+#                for keyword, value in observations.items():
+#                    col_name = col_rename.get(keyword, keyword)
+#                    row[col_name] = value
+#
+#                # Consistently assign the resolved participant names
+#                row["PARTICIPANT_1"] = rso_name
+#                row["PARTICIPANT_2"] = station_name
+#
+#                rows.append(row)
+#
+#            df = pd.DataFrame(rows)
+#
+#            if df.empty:
+#                continue
+#
+#            # -------------------------
+#            # Time handling
+#            # -------------------------
+#            df["UTC_TIME"] = _parse_datetime(df["UTC_TIME"])
+#            df = df.set_index("UTC_TIME")
+#
+#            # Convert numeric columns
+#            for col in df.columns:
+#                if col not in ["PARTICIPANT_1", "PARTICIPANT_2"]:
+#                    df[col] = pd.to_numeric(df[col], errors="coerce")
+#
+#            if segment_idx is None:
+#                df["segment_index"] = idx
+#
+#            all_dfs.append(df)
+#
+#        if not all_dfs:
+#            return pd.DataFrame()
+#
+#        combined = pd.concat(all_dfs)
+#        return self._add_time_columns_to_df(combined).sort_index()
 
 
 class OMMMessage(NDMMessage):
