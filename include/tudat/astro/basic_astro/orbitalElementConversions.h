@@ -39,16 +39,6 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-using std::acos;
-using std::atan2;
-using std::cos;
-using std::cosh;
-using std::fabs;
-using std::pow;
-using std::sin;
-using std::sinh;
-using std::sqrt;
-
 //! Function to compute orbit semi-latus rectum.
 /*!
  * Function to compute orbit semi-latus rectum.
@@ -60,11 +50,13 @@ using std::sqrt;
 template< typename ScalarType = double >
 ScalarType computeSemiLatusRectum( const ScalarType eccentricity, const ScalarType semiMajorAxis, const ScalarType tolerance )
 {
+    using std::abs;
+
     // Declare semi-latus rectum.
     ScalarType semiLatusRectum;
 
     // Compute semi-latus rectum in the case it is not a parabola.
-    if( fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) > tolerance )
+    if( abs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) > tolerance )
     {
         semiLatusRectum = semiMajorAxis * ( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - eccentricity * eccentricity );
     }
@@ -88,6 +80,8 @@ ScalarType computeSemiLatusRectum( const ScalarType eccentricity, const ScalarTy
 template< typename ScalarType = double >
 ScalarType computeOrbitalAngularMomentumPerUnitMass( const ScalarType semiLatusRectum, const ScalarType centralBodyGravitationalParameter )
 {
+    using std::sqrt;
+
     return sqrt( semiLatusRectum * centralBodyGravitationalParameter );
 }
 
@@ -129,6 +123,10 @@ template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements( const Eigen::Matrix< ScalarType, 6, 1 >& keplerianElements,
                                                                        const ScalarType centralBodyGravitationalParameter )
 {
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
+
     // Set tolerance.
     const ScalarType tolerance_ = std::numeric_limits< ScalarType >::epsilon( );
 
@@ -254,6 +252,9 @@ template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements( const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
                                                                        const ScalarType centralBodyGravitationalParameter )
 {
+    using std::abs;
+    using std::acos;
+
     // Set tolerance.
     const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
 
@@ -284,8 +285,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements( const Eig
     // Compute and store semi-major axis.
     // Check if orbit is parabolic. If it is, store the semi-latus rectum instead of the
     // semi-major axis.
-    if( fabs( computedKeplerianElements_( eccentricityIndex ) - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
-        tolerance )
+    if( abs( computedKeplerianElements_( eccentricityIndex ) - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) < tolerance )
     {
         computedKeplerianElements_( semiLatusRectumIndex ) = semiLatusRectum_;
     }
@@ -307,7 +307,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements( const Eig
 
     // Check if the orbit is equatorial. If it is, set the vector to the line of nodes to the
     // x-axis.
-    if( fabs( computedKeplerianElements_( inclinationIndex ) ) < tolerance )
+    if( abs( computedKeplerianElements_( inclinationIndex ) ) < tolerance )
     {
         unitAscendingNodeVector_ = Eigen::Matrix< ScalarType, 3, 1 >::UnitX( );
 
@@ -333,7 +333,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements( const Eig
 
     // Check if the orbit is circular. If it is, set the eccentricity vector to unit vector
     // pointing to the ascending node, i.e. set the argument of periapsis to zero.
-    if( fabs( computedKeplerianElements_( eccentricityIndex ) ) < tolerance )
+    if( abs( computedKeplerianElements_( eccentricityIndex ) ) < tolerance )
     {
         eccentricityVector_ = unitAscendingNodeVector_;
 
@@ -392,17 +392,17 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements( const Eig
 
     // Check if the dot-product is one of the limiting cases: 0.0, -1.0 or 1.0
     // (within prescribed tolerance).
-    if( fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - dotProductPositionAndEccentricityVectors ) < tolerance )
+    if( abs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - dotProductPositionAndEccentricityVectors ) < tolerance )
     {
         dotProductPositionAndEccentricityVectors = mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
 
-    if( fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) + dotProductPositionAndEccentricityVectors ) < tolerance )
+    if( abs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) + dotProductPositionAndEccentricityVectors ) < tolerance )
     {
         dotProductPositionAndEccentricityVectors = -mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
 
-    if( fabs( dotProductPositionAndEccentricityVectors ) < tolerance )
+    if( abs( dotProductPositionAndEccentricityVectors ) < tolerance )
     {
         dotProductPositionAndEccentricityVectors = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
     }
@@ -451,6 +451,11 @@ template< typename ScalarType = double >
 ScalarType convertTrueAnomalyToEllipticalEccentricAnomaly( const ScalarType trueAnomaly, const ScalarType eccentricity )
 
 {
+    using std::atan2;
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
+
     if( eccentricity >= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ||
         eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -481,6 +486,10 @@ ScalarType convertTrueAnomalyToEllipticalEccentricAnomaly( const ScalarType true
 template< typename ScalarType = double >
 ScalarType convertTrueAnomalyToHyperbolicEccentricAnomaly( const ScalarType trueAnomaly, const ScalarType eccentricity )
 {
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
+
     if( eccentricity <= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
     {
         throw std::runtime_error( "Eccentricity is invalid  when converting true to hyperbolic eccentric anomaly." );
@@ -517,6 +526,8 @@ ScalarType convertTrueAnomalyToHyperbolicEccentricAnomaly( const ScalarType true
 template< typename ScalarType = double >
 ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly, const ScalarType eccentricity )
 {
+    using std::abs;
+
     // Declare computed eccentric anomaly.
     ScalarType eccentricAnomaly_ = 0.0;
 
@@ -527,7 +538,7 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly, c
     }
 
     // Check if orbit is parabolic and throw an error if true.
-    else if( fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
+    else if( abs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
              std::numeric_limits< ScalarType >::epsilon( ) )
     {
         throw std::runtime_error( "Parabolic orbits have not yet been implemented when converting true to eccentric anomaly." );
@@ -560,6 +571,11 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly, c
 template< typename ScalarType = double >
 ScalarType convertEllipticalEccentricAnomalyToTrueAnomaly( const ScalarType ellipticEccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::atan2;
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
+
     if( eccentricity >= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ||
         eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -593,6 +609,11 @@ ScalarType convertEllipticalEccentricAnomalyToTrueAnomaly( const ScalarType elli
 template< typename ScalarType = double >
 ScalarType convertHyperbolicEccentricAnomalyToTrueAnomaly( const ScalarType hyperbolicEccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::atan2;
+    using std::cosh;
+    using std::sinh;
+    using std::sqrt;
+
     if( eccentricity <= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
     {
         throw std::runtime_error( "Eccentricity is invalid  when converting hyperbolic eccentric to true anomaly." );
@@ -630,6 +651,8 @@ ScalarType convertHyperbolicEccentricAnomalyToTrueAnomaly( const ScalarType hype
 template< typename ScalarType = double >
 ScalarType convertEccentricAnomalyToTrueAnomaly( const ScalarType eccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::abs;
+
     // Declare computed true anomaly.
     ScalarType trueAnomaly_ = -mathematical_constants::getFloatingInteger< ScalarType >( 0 );
 
@@ -640,7 +663,7 @@ ScalarType convertEccentricAnomalyToTrueAnomaly( const ScalarType eccentricAnoma
     }
 
     // Check if orbit is parabolic and throw an error if true.
-    else if( fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
+    else if( abs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
              std::numeric_limits< ScalarType >::epsilon( ) )
     {
         throw std::runtime_error( "Parabolic orbits have not yet been implemented when converting eccentric to true anomaly." );
@@ -673,6 +696,8 @@ ScalarType convertEccentricAnomalyToTrueAnomaly( const ScalarType eccentricAnoma
 template< typename ScalarType = double >
 ScalarType convertEllipticalEccentricAnomalyToMeanAnomaly( const ScalarType ellipticalEccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::sin;
+
     return ellipticalEccentricAnomaly - eccentricity * sin( ellipticalEccentricAnomaly );
 }
 
@@ -687,6 +712,8 @@ ScalarType convertEllipticalEccentricAnomalyToMeanAnomaly( const ScalarType elli
 template< typename ScalarType = double >
 ScalarType convertHyperbolicEccentricAnomalyToMeanAnomaly( const ScalarType hyperbolicEccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::sinh;
+
     return eccentricity * sinh( hyperbolicEccentricAnomaly ) - hyperbolicEccentricAnomaly;
 }
 
@@ -706,6 +733,8 @@ ScalarType convertHyperbolicEccentricAnomalyToMeanAnomaly( const ScalarType hype
 template< typename ScalarType = double >
 ScalarType convertEccentricAnomalyToMeanAnomaly( const ScalarType eccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::abs;
+
     // Declare computed mean anomaly.
     ScalarType meanAnomaly_ = 0.0;
 
@@ -716,7 +745,7 @@ ScalarType convertEccentricAnomalyToMeanAnomaly( const ScalarType eccentricAnoma
     }
 
     // Check if orbit is parabolic and throw an error if true.
-    else if( fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
+    else if( abs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
              std::numeric_limits< ScalarType >::epsilon( ) )
     {
         throw std::runtime_error( "Parabolic orbits have not yet been implemented when converting eccentric to mean anomaly." );
@@ -753,6 +782,8 @@ ScalarType convertElapsedTimeToEllipticalMeanAnomalyChange( const ScalarType ela
                                                             const ScalarType centralBodyGravitationalParameter,
                                                             const ScalarType semiMajorAxis )
 {
+    using std::sqrt;
+
     // Check if semi-major axis is invalid and throw error if true.
     if( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -781,6 +812,8 @@ ScalarType convertElapsedTimeToHyperbolicMeanAnomalyChange( const ScalarType ela
                                                             const ScalarType centralBodyGravitationalParameter,
                                                             const ScalarType semiMajorAxis )
 {
+    using std::sqrt;
+
     // Check if semi-major axis is invalid and throw error if true.
     if( semiMajorAxis > mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -848,6 +881,8 @@ ScalarType convertEllipticalMeanAnomalyChangeToElapsedTime( const ScalarType ell
                                                             const ScalarType centralBodyGravitationalParameter,
                                                             const ScalarType semiMajorAxis )
 {
+    using std::sqrt;
+
     // Check if semi-major axis is invalid and throw error if true.
     if( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -876,6 +911,8 @@ ScalarType convertHyperbolicMeanAnomalyChangeToElapsedTime( const ScalarType hyp
                                                             const ScalarType centralBodyGravitationalParameter,
                                                             const ScalarType semiMajorAxis )
 {
+    using std::sqrt;
+
     // Check if semi-major axis is invalid and throw error if true.
     if( semiMajorAxis > mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -939,6 +976,8 @@ template< typename ScalarType = double >
 ScalarType convertEllipticalMeanMotionToSemiMajorAxis( const ScalarType ellipticalMeanMotion,
                                                        const ScalarType centralBodyGravitationalParameter )
 {
+    using std::pow;
+
     return pow( centralBodyGravitationalParameter / ( ellipticalMeanMotion * ellipticalMeanMotion ),
                 mathematical_constants::getFloatingFraction< ScalarType >( 1, 3 ) );
 }
@@ -953,6 +992,8 @@ ScalarType convertEllipticalMeanMotionToSemiMajorAxis( const ScalarType elliptic
 template< typename ScalarType = double >
 ScalarType convertSemiMajorAxisToEllipticalMeanMotion( const ScalarType semiMajorAxis, const ScalarType centralBodyGravitationalParameter )
 {
+    using std::sqrt;
+
     // Check if semi-major axis is invalid and throw error if true.
     if( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {

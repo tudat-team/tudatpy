@@ -36,15 +36,6 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-using std::atan;
-using std::atan2;
-using std::cos;
-using std::fabs;
-using std::pow;
-using std::sin;
-using std::sqrt;
-using std::tan;
-
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
 /*!
  * Converts Keplerian to modified equinoctial elements using the prograde/retrograde equation
@@ -76,6 +67,10 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
 {
     using mathematical_constants::getFloatingInteger;
     using mathematical_constants::getPi;
+    using std::abs;
+    using std::cos;
+    using std::sin;
+    using std::tan;
 
     // Declaring eventual output vector.
     Eigen::Matrix< ScalarType, 6, 1 > modifiedEquinoctialState( 6 );
@@ -88,7 +83,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
 
     // If e is (very near) one, then semi-major axis is undefined and thus the first kepler
     // element is the semi-latus rectum.
-    if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < singularityTolerance )
+    if( abs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) < singularityTolerance )
     {
         modifiedEquinoctialState( semiLatusRectumIndex ) = keplerianElements( semiLatusRectumIndex );
     }
@@ -221,6 +216,11 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
 {
     using mathematical_constants::getFloatingInteger;
     using mathematical_constants::getPi;
+    using std::abs;
+    using std::atan;
+    using std::atan2;
+    using std::pow;
+    using std::sqrt;
 
     // Declaration of output vector.
     Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( 6 );
@@ -240,7 +240,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
 
     // Compute semi-major axis.
     // If eccentricity is not near-parabolic.
-    if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) > singularityTolerance )
+    if( abs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) > singularityTolerance )
     {
         // Use semi-latus rectum and eccentricity to calculate semi-major axis with a=p/(1-e^2).
         convertedKeplerianElements( semiMajorAxisIndex ) = modifiedEquinoctialElements( semiLatusRectumIndex ) /
@@ -425,6 +425,9 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElementsV
 // Using unnamed pdf and code archive Bart Rmgens.
 {
     using mathematical_constants::getFloatingInteger;
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
 
     // Creating output vector.
     Eigen::Matrix< ScalarType, 6, 1 > convertedCartesianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( 6 );
@@ -525,6 +528,10 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElements(
         const ScalarType centralBodyGravitationalParameter,
         const bool flipSingularityToZeroInclination )
 {
+    using std::cos;
+    using std::sin;
+    using std::sqrt;
+
     if( flipSingularityToZeroInclination )
     {
         throw std::runtime_error(
