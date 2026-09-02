@@ -27,7 +27,7 @@ class CCSDSHeader(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    CCSDS_VERS: str = Field(default="2.0")
+    CCSDS_VERS: str = Field(default="1.0")
     COMMENT: list[str] | None = []
     CLASSIFICATION: str | None = None
     CREATION_DATE: str
