@@ -84,8 +84,17 @@
      endif ()
  endif ()
 
+ # clang-cl identifies itself as Clang, but accepts the MSVC command-line
+ # interface. Keep it in the Clang code path while selecting MSVC-style flags.
+ set(TUDAT_BUILD_CLANG_CL OFF)
+ if (TUDAT_BUILD_CLANG AND WIN32
+         AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+         AND "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
+     set(TUDAT_BUILD_CLANG_CL ON)
+ endif ()
+
  macro(tudat_apply_optimization_policy)
-     if (TUDAT_BUILD_MSVC)
+     if (TUDAT_BUILD_MSVC OR TUDAT_BUILD_CLANG_CL)
          set(TUDAT_OPTIMIZATION_REGEX "(^| )[/-]O[d123x]?([ ]|$)")
 
         if (TUDAT_BUILD_FOR_REDUCED_COMPILE_TIME)
@@ -146,20 +155,41 @@
  if (TUDAT_BUILD_CLANG)
      # add compile definition and print status
      add_compile_definitions(TUDAT_BUILD_CLANG)
-     message(STATUS "Using clang compiler.")
+     if (TUDAT_BUILD_CLANG_CL)
+         message(STATUS "Using clang-cl compiler.")
+     else ()
+         message(STATUS "Using clang compiler.")
+     endif ()
 
      # Optimization is configured centrally via tudat_apply_optimization_policy().
-     set(CMAKE_CXX_FLAGS_DEBUG "-g")
-     set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
-     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+     if (TUDAT_BUILD_CLANG_CL)
+         set(CMAKE_CXX_FLAGS_DEBUG "/Zi")
+         set(CMAKE_CXX_FLAGS_MINSIZEREL "/DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELEASE "/DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/Zi")
 
-     # set default cmake c flags for clang
-     set(CMAKE_C_FLAGS "-Wall -std=c11")
-     set(CMAKE_C_FLAGS_DEBUG "-g")
-     set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
-     set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
-     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
+         # Let CMake select clang-cl's /std:c11 spelling.
+         set(CMAKE_C_STANDARD 11)
+         set(CMAKE_C_STANDARD_REQUIRED ON)
+         set(CMAKE_C_EXTENSIONS OFF)
+         set(CMAKE_C_FLAGS "/W4")
+         set(CMAKE_C_FLAGS_DEBUG "/Zi")
+         set(CMAKE_C_FLAGS_MINSIZEREL "/DNDEBUG")
+         set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG")
+         set(CMAKE_C_FLAGS_RELWITHDEBINFO "/Zi")
+     else ()
+         set(CMAKE_CXX_FLAGS_DEBUG "-g")
+         set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+
+         # set default cmake c flags for clang
+         set(CMAKE_C_FLAGS "-Wall -std=c11")
+         set(CMAKE_C_FLAGS_DEBUG "-g")
+         set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG")
+         set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
+         set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g")
+     endif ()
      set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
      if (APPLE)
@@ -192,20 +222,34 @@
          # fixes an issue [reference this]
          add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
 
-         # standard windows clang c++ compiler flags
-         set(CMAKE_CXX_FLAGS
-                 "${CMAKE_CXX_FLAGS}"
-                 " -std=c++1z"
-                 " -Wall"
-                 " -Wextra"
-                 " -Wno-unused-parameter"
-                 " -Wno-unused-variable"
-                 " -Wno-unused-result"
-                 )
-         string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         if (TUDAT_BUILD_CLANG_CL)
+             # In clang-cl, -Wall is the spelling of MSVC's /Wall and enables
+             # -Weverything. /W4 provides Clang's intended -Wall -Wextra level.
+             # CMAKE_CXX_STANDARD supplies the correct /std:c++17 option.
+             set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
+                     " /W4"
+                     " -Wno-unused-parameter"
+                     " -Wno-unused-variable"
+                     " -Wno-unused-result"
+                     )
+             string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         else ()
+             # standard windows clang c++ compiler flags
+             set(CMAKE_CXX_FLAGS
+                     "${CMAKE_CXX_FLAGS}"
+                     " -std=c++1z"
+                     " -Wall"
+                     " -Wextra"
+                     " -Wno-unused-parameter"
+                     " -Wno-unused-variable"
+                     " -Wno-unused-result"
+                     )
+             string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+         endif ()
 
          # if the clang msvc-like command line interface is being used
-         if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+         if (TUDAT_BUILD_CLANG_CL)
              if (NOT TUDAT_DISABLE_MSVC_CLANG_CL_FLAGS)
 #                 set(CMAKE_CXX_FLAGS
 #                          "${CMAKE_CXX_FLAGS}"
