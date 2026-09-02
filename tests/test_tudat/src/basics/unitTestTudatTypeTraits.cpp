@@ -63,8 +63,7 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
     BOOST_CHECK_EQUAL( isStateType, true );
 
     isStateType = is_state_scalar< long double >::value;
-    BOOST_CHECK_EQUAL( isStateType,
-                       TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE );
+    BOOST_CHECK_EQUAL( isStateType, TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE );
 
     isStateType = is_state_scalar< HighPrecisionStateScalar >::value;
     BOOST_CHECK_EQUAL( isStateType, true );

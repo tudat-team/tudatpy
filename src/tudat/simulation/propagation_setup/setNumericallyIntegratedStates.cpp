@@ -28,10 +28,8 @@ createConfiguredStateInterpolator( const std::map< TimeType, Eigen::Matrix< Stat
         throw std::runtime_error( "Error when creating integrated state interpolator, settings are null." );
     }
 
-    return interpolators::createOneDimensionalInterpolator<
-            TimeType,
-            Eigen::Matrix< StateScalarType, StateSize, 1 >,
-            StateScalarType >( stateMap, interpolatorSettings );
+    return interpolators::createOneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, StateSize, 1 >, StateScalarType >(
+            stateMap, interpolatorSettings );
 }
 }  // namespace
 
@@ -46,18 +44,16 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 #if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > > >
-createStateInterpolator(
-        const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+createStateInterpolator( const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap,
+                         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     return createConfiguredStateInterpolator< double, HighPrecisionStateScalar, 6 >( stateMap, interpolatorSettings );
 }
 
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > > >
-createStateInterpolator(
-        const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+createStateInterpolator( const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > >& stateMap,
+                         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     return createConfiguredStateInterpolator< Time, HighPrecisionStateScalar, 6 >( stateMap, interpolatorSettings );
 }
@@ -82,9 +78,8 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 #if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
-createRotationalStateInterpolator(
-        const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     return createConfiguredStateInterpolator< double, HighPrecisionStateScalar, 7 >( stateMap, interpolatorSettings );
 }
@@ -101,9 +96,8 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 #if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > > >
-createRotationalStateInterpolator(
-        const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+createRotationalStateInterpolator( const std::map< Time, Eigen::Matrix< HighPrecisionStateScalar, 7, 1 > >& stateMap,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     return createConfiguredStateInterpolator< Time, HighPrecisionStateScalar, 7 >( stateMap, interpolatorSettings );
 }

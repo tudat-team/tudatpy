@@ -120,7 +120,7 @@ constexpr ScalarType getPi( )
 }
 
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
-template< >
+template<>
 inline HighPrecisionStateScalar getPi< HighPrecisionStateScalar >( )
 {
     return HighPrecisionStateScalar(

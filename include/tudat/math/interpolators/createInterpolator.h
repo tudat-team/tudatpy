@@ -604,8 +604,7 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
                     defaultExtrapolationValue );
             break;
         case cubic_spline_interpolator: {
-            createdInterpolator =
-                    std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
+            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
@@ -619,12 +618,12 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
             {
                 createdInterpolator =
                         std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
-                        dataToInterpolate,
-                        lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                        interpolatorSettings->getSelectedLookupScheme( ),
-                        lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
-                        interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                        defaultExtrapolationValue );
+                                dataToInterpolate,
+                                lagrangeInterpolatorSettings->getInterpolatorOrder( ),
+                                interpolatorSettings->getSelectedLookupScheme( ),
+                                lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
+                                interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                                defaultExtrapolationValue );
             }
             else
             {
@@ -639,11 +638,11 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
             }
             createdInterpolator =
                     std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
-                    dataToInterpolate,
-                    firstDerivativeOfDependentVariables,
-                    interpolatorSettings->getSelectedLookupScheme( ),
-                    interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                    defaultExtrapolationValue );
+                            dataToInterpolate,
+                            firstDerivativeOfDependentVariables,
+                            interpolatorSettings->getSelectedLookupScheme( ),
+                            interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                            defaultExtrapolationValue );
             break;
         }
         case piecewise_constant_interpolator:
