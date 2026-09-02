@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <Eigen/SparseCore>
 
 #include <cereal/access.hpp>
 #include <cereal/types/base_class.hpp>
@@ -427,6 +428,18 @@ public:
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
         return observationCollection_->getConcatenatedWeights( );
+    }
+
+    //! Function to return the full sparse observation weight matrix.
+    Eigen::SparseMatrix< double > getWeightsMatrix( )
+    {
+        return observationCollection_->getConcatenatedWeightMatrix( );
+    }
+
+    //! Function to check whether current observation weights contain off-diagonal terms.
+    bool hasOffDiagonalWeights( )
+    {
+        return observationCollection_->hasOffDiagonalWeights( );
     }
 
     void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )

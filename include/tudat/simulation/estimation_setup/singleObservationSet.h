@@ -11,9 +11,14 @@
 #ifndef TUDAT_SINGLE_OBSERVATION_SET_H
 #define TUDAT_SINGLE_OBSERVATION_SET_H
 
+#include <cmath>
+#include <algorithm>
+#include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <cereal/access.hpp>
@@ -40,6 +45,14 @@ namespace observation_models
 
 using namespace simulation_setup;
 
+//! Enumeration of supported base weight representations in a single observation set.
+enum ObservationWeightsMatrixType {
+    //! Independent per-component weights per observation.
+    diagonal_weights_matrix = 0,
+    //! Dense per-observation blocks, with no coupling between different observations.
+    block_diagonal_weights_matrix = 1
+};
+
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -61,7 +74,7 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
-        numberOfObservations_( observations_.size( ) ), weights_( weights ), residuals_( residuals )
+        numberOfObservations_( observations_.size( ) ), residuals_( residuals )
     {
         if( dependentVariableBookkeeping_ != nullptr )
         {
@@ -81,55 +94,28 @@ public:
             }
         }
 
-        if( observations_.size( ) != observationTimes_.size( ) )
-        {
-            throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
-                                      std::to_string( observations_.size( ) ) + ", " + std::to_string( observationTimes_.size( ) ) );
-        }
-
-        for( unsigned int i = 1; i < observations.size( ); i++ )
-        {
-            if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
-            {
-                throw std::runtime_error(
-                        "Error when making SingleObservationSet, input observables not of "
-                        "consistent size." );
-            }
-        }
+        validateObservationsAndTimesSize( observations_.size( ), observationTimes_.size( ), "making SingleObservationSet" );
+        validateConsistentObservationDimensions( observations_, "making SingleObservationSet" );
 
         singleObservationSize_ = getObservableSize( observableType );
         if( getObservableSize( observableType ) > 0 && !observations_.empty( ) )
         {
-            if( static_cast< unsigned int >( observations_.at( 0 ).rows( ) ) != singleObservationSize_ )
-            {
-                throw std::runtime_error( "Error when making SingleObservationSet, input observable size (" +
-                                          std::to_string( observations_.at( 0 ).rows( ) ) + ") is inconsistent with observable type " +
-                                          getObservableName( observableType ) + " (expected size " +
-                                          std::to_string( singleObservationSize_ ) + ")." );
-            }
+            validateObservationDimensionsAgainstSingleSize( observations_, "making SingleObservationSet" );
         }
         // Initialise weights
         if( weights.size( ) == 0 )
         {
+            weightState_.diagonalWeights.reserve( numberOfObservations_ );
             for( unsigned int k = 0; k < numberOfObservations_; k++ )
             {
-                weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
+                weightState_.diagonalWeights.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
             }
         }
         else
         {
-            if( weights.size( ) != observationTimes.size( ) )
-            {
-                throw std::runtime_error( "Error when creating observation set with weights; size is incompatible" );
-            }
-
-            for( std::size_t k = 0; k < weights.size( ); ++k )
-            {
-                if( weights.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
-                {
-                    throw std::runtime_error( "Error when creating observation set with weights; individual weight size is incompatible" );
-                }
-            }
+            validateOptionalBatchSize( weights, observationTimes.size( ), "weights", "creating observation set with weights" );
+            validatePerObservationVectorSize( weights, "weight", "creating observation set with weights" );
+            weightState_.diagonalWeights = weights;
         }
 
         if( residuals.size( ) == 0 )
@@ -142,39 +128,11 @@ public:
         }
         else
         {
-            if( residuals.size( ) != observationTimes.size( ) )
-            {
-                throw std::runtime_error( "Error when creating observation set with residuals; size is incompatible" );
-            }
-
-            for( std::size_t k = 0; k < residuals.size( ); ++k )
-            {
-                if( residuals.at( k ).size( ) != static_cast< int >( singleObservationSize_ ) )
-                {
-                    throw std::runtime_error(
-                            "Error when creating observation set with residuals; individual residual size is incompatible" );
-                }
-            }
+            validateOptionalBatchSize( residuals, observationTimes.size( ), "residuals", "creating observation set with residuals" );
+            validatePerObservationVectorSize( residuals, "residual", "creating observation set with residuals" );
         }
 
-        // Check observation dependent variables size
-        if( observationsDependentVariables_.size( ) > 0 )
-        {
-            if( observationsDependentVariables_.size( ) != numberOfObservations_ )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input should be consistent "
-                        "with the number of observations." );
-            }
-            if( observationsDependentVariables_[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input "
-                        "should be consistent with the total dependent variable size." );
-            }
-        }
+        validateDependentVariableBatch( observationsDependentVariables_, numberOfObservations_, true, "creating SingleObservationSet" );
 
         // Sort observations and metadata per observation time
         orderObservationsAndMetadata( );
@@ -530,27 +488,72 @@ public:
         return ancillarySettings_;
     }
 
+    //! Returns per-observation diagonal weights including any full-matrix diagonal contribution.
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
     {
-        return weights_;
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > combinedWeights;
+        Eigen::VectorXd combinedDiagonal = getWeightsDiagonalVector( );
+        combinedWeights.reserve( numberOfObservations_ );
+        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        {
+            combinedWeights.push_back( combinedDiagonal.segment( i * singleObservationSize_, singleObservationSize_ ) );
+        }
+        return combinedWeights;
     }
 
+    //! Returns a reference to stored base diagonal weights (diagonal base mode only).
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
     {
-        return weights_;
+        if( weightState_.matrixType != diagonal_weights_matrix )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving diagonal weight vectors by reference, base weight matrix type is not diagonal." );
+        }
+        return weightState_.diagonalWeights;
     }
 
-    Eigen::VectorXd getWeightsVector( ) const
+    //! Returns the diagonal vector of the base weights (without full-matrix contribution).
+    Eigen::VectorXd getBaseWeightsDiagonalVector( ) const
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+
+        if( weightState_.matrixType == diagonal_weights_matrix )
         {
-            weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
+            if( weightState_.diagonalWeights.size( ) != numberOfObservations_ )
+            {
+                throw std::runtime_error(
+                        "Error when retrieving base diagonal weights vector, number of stored diagonal weights is inconsistent." );
+            }
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weightState_.diagonalWeights.at( i );
+            }
+        }
+        else if( weightState_.matrixType == block_diagonal_weights_matrix )
+        {
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) =
+                        weightState_.blockWeights.at( i ).diagonal( );
+            }
+        }
+
+        return weightsVector;
+    }
+
+    //! Returns the diagonal vector of the combined weights matrix.
+    Eigen::VectorXd getWeightsDiagonalVector( ) const
+    {
+        Eigen::VectorXd weightsVector = getBaseWeightsDiagonalVector( );
+        if( weightState_.fullWeights.rows( ) > 0 )
+        {
+            weightsVector += weightState_.fullWeights.diagonal( );
         }
         return weightsVector;
     }
 
+    //! Returns the diagonal-weight segment for a single observation index.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > getWeight( unsigned int index ) const
     {
         if( index >= numberOfObservations_ )
@@ -559,7 +562,94 @@ public:
                     "Error when retrieving single observation weight, required index incompatible "
                     "with number of observations." );
         }
-        return weights_.at( index );
+        return getWeightsDiagonalVector( ).segment( index * singleObservationSize_, singleObservationSize_ );
+    }
+
+    //! Returns which base representation is currently used for the weights.
+    ObservationWeightsMatrixType getWeightsMatrixType( ) const
+    {
+        return weightState_.matrixType;
+    }
+
+    //! Checks whether the combined weights matrix currently contains off-diagonal terms.
+    bool hasOffDiagonalWeights( ) const
+    {
+        if( weightState_.matrixType == block_diagonal_weights_matrix )
+        {
+            return true;
+        }
+
+        if( weightState_.fullWeights.rows( ) > 0 )
+        {
+            Eigen::MatrixXd offDiagonalContribution = weightState_.fullWeights;
+            offDiagonalContribution.diagonal( ).setZero( );
+            return !( offDiagonalContribution.isZero( 0.0 ) );
+        }
+
+        return false;
+    }
+
+    //! Returns per-observation dense blocks for block-diagonal base mode.
+    std::vector< Eigen::MatrixXd > getBlockDiagonalWeightMatrices( ) const
+    {
+        if( weightState_.matrixType != block_diagonal_weights_matrix )
+        {
+            throw std::runtime_error( "Error when retrieving block-diagonal weights, current weight matrix type is not block-diagonal." );
+        }
+        return weightState_.blockWeights;
+    }
+
+    //! Returns the optional full-matrix contribution added to the base weights.
+    Eigen::MatrixXd getFullWeightMatrix( ) const
+    {
+        if( weightState_.fullWeights.rows( ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving full weights matrix contribution, contribution is not set." );
+        }
+        return weightState_.fullWeights;
+    }
+
+    //! Indicates whether an additional full-matrix weight contribution is present.
+    bool hasFullWeightMatrixContribution( ) const
+    {
+        return ( weightState_.fullWeights.rows( ) > 0 );
+    }
+
+    //! Builds and returns the full combined weight matrix for active observations.
+    Eigen::MatrixXd getWeightMatrix( ) const
+    {
+        const int totalObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
+        Eigen::MatrixXd weightMatrix = Eigen::MatrixXd::Zero( totalObservationSetSize, totalObservationSetSize );
+
+        if( weightState_.matrixType == diagonal_weights_matrix )
+        {
+            if( weightState_.diagonalWeights.size( ) != numberOfObservations_ )
+            {
+                throw std::runtime_error(
+                        "Error when retrieving weights matrix in single observation set, number of diagonal weights is inconsistent." );
+            }
+            weightMatrix.diagonal( ) = Eigen::VectorXd::Zero( totalObservationSetSize );
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                weightMatrix.block( i * singleObservationSize_, i * singleObservationSize_, singleObservationSize_, singleObservationSize_ )
+                        .diagonal( ) = weightState_.diagonalWeights.at( i );
+            }
+        }
+        else if( weightState_.matrixType == block_diagonal_weights_matrix )
+        {
+            for( unsigned int i = 0; i < numberOfObservations_; i++ )
+            {
+                const int startIndex = static_cast< int >( i * singleObservationSize_ );
+                weightMatrix.block( startIndex, startIndex, singleObservationSize_, singleObservationSize_ ) =
+                        weightState_.blockWeights.at( i );
+            }
+        }
+
+        if( weightState_.fullWeights.rows( ) > 0 )
+        {
+            weightMatrix += weightState_.fullWeights;
+        }
+        return weightMatrix;
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResiduals( ) const
@@ -625,14 +715,15 @@ public:
         return meanResiduals;
     }
 
+    //! Sets one constant diagonal-weight vector for all observations.
     void setConstantWeight( const double weight )
     {
-        for( unsigned int k = 0; k < numberOfObservations_; k++ )
-        {
-            weights_.at( k ) = weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
-        }
+        setDiagonalWeightState(
+                createUniformDiagonalWeights( weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) ) );
+        validateCombinedWeightsMatrix( );
     }
 
+    //! Sets one component-wise diagonal-weight vector for all observations.
     void setConstantWeight( const Eigen::Matrix< double, Eigen::Dynamic, 1 >& weight )
     {
         if( weight.size( ) != singleObservationSize_ )
@@ -641,12 +732,11 @@ public:
                     "Error when setting constant weight in single observation set, weight size is "
                     "inconsistent with single observation size." );
         }
-        for( unsigned int k = 0; k < weights_.size( ); k++ )
-        {
-            weights_.at( k ) = weight;
-        }
+        setDiagonalWeightState( createUniformDiagonalWeights( weight ) );
+        validateCombinedWeightsMatrix( );
     }
 
+    //! Sets per-observation diagonal weights from one concatenated vector.
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
     {
         if( weightsVector.rows( ) != static_cast< int >( singleObservationSize_ * observations_.size( ) ) )
@@ -655,13 +745,68 @@ public:
                     "Error when setting weights in single observation set, sizes are "
                     "incompatible." );
         }
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        diagonalWeights.reserve( numberOfObservations_ );
         for( unsigned int k = 0; k < numberOfObservations_; k++ )
         {
+            Eigen::Matrix< double, Eigen::Dynamic, 1 > currentWeights =
+                    Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 );
             for( unsigned int i = 0; i < singleObservationSize_; i++ )
             {
-                weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
+                currentWeights[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
+            diagonalWeights.push_back( currentWeights );
         }
+        setDiagonalWeightState( std::move( diagonalWeights ) );
+        validateCombinedWeightsMatrix( );
+    }
+
+    //! Sets per-observation dense blocks as the base block-diagonal weight model.
+    void setBlockDiagonalWeights( const std::vector< Eigen::MatrixXd >& blockDiagonalWeights )
+    {
+        if( blockDiagonalWeights.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error(
+                    "Error when setting block-diagonal weights in single observation set, number of blocks is inconsistent." );
+        }
+
+        for( unsigned int i = 0; i < numberOfObservations_; i++ )
+        {
+            if( blockDiagonalWeights.at( i ).rows( ) != static_cast< int >( singleObservationSize_ ) ||
+                blockDiagonalWeights.at( i ).cols( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error(
+                        "Error when setting block-diagonal weights in single observation set, block size is inconsistent." );
+            }
+            validateWeightMatrixPositiveDefinite(
+                    blockDiagonalWeights.at( i ),
+                    "Error when setting block-diagonal weights in single observation set, block matrix is invalid." );
+        }
+        weightState_.diagonalWeights.clear( );
+        weightState_.blockWeights = blockDiagonalWeights;
+        weightState_.matrixType = block_diagonal_weights_matrix;
+        validateCombinedWeightsMatrix( );
+    }
+
+    //! Sets or clears the additional full-matrix weight contribution.
+    void setFullWeightMatrix( const Eigen::MatrixXd& fullWeightMatrix )
+    {
+        if( fullWeightMatrix.rows( ) == 0 && fullWeightMatrix.cols( ) == 0 )
+        {
+            weightState_.fullWeights.resize( 0, 0 );
+            return;
+        }
+
+        const int totalObservationSetSize = static_cast< int >( getTotalObservationSetSize( ) );
+        if( fullWeightMatrix.rows( ) != totalObservationSetSize || fullWeightMatrix.cols( ) != totalObservationSetSize )
+        {
+            throw std::runtime_error( "Error when setting full weights matrix in single observation set, matrix size is inconsistent." );
+        }
+
+        validateSymmetricWeightMatrix( fullWeightMatrix,
+                                       "Error when setting full weights matrix in single observation set, matrix is invalid." );
+        weightState_.fullWeights = fullWeightMatrix;
+        validateCombinedWeightsMatrix( );
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservations( ) const
@@ -715,7 +860,64 @@ public:
         observations_.erase( observations_.begin( ) + indexToRemove );
         observationTimes_.erase( observationTimes_.begin( ) + indexToRemove );
         residuals_.erase( residuals_.begin( ) + indexToRemove );
-        weights_.erase( weights_.begin( ) + indexToRemove );
+        if( weightState_.matrixType == diagonal_weights_matrix )
+        {
+            weightState_.diagonalWeights.erase( weightState_.diagonalWeights.begin( ) + indexToRemove );
+        }
+        if( weightState_.matrixType == block_diagonal_weights_matrix )
+        {
+            weightState_.blockWeights.erase( weightState_.blockWeights.begin( ) + indexToRemove );
+        }
+        if( weightState_.fullWeights.rows( ) > 0 )
+        {
+            const int startIndex = static_cast< int >( indexToRemove * singleObservationSize_ );
+            const int reducedSize = weightState_.fullWeights.rows( ) - static_cast< int >( singleObservationSize_ );
+            Eigen::MatrixXd reducedWeights = Eigen::MatrixXd::Zero( reducedSize, reducedSize );
+
+            if( startIndex > 0 )
+            {
+                reducedWeights.block( 0, 0, startIndex, startIndex ) = weightState_.fullWeights.block( 0, 0, startIndex, startIndex );
+            }
+
+            const int trailingSize = reducedSize - startIndex;
+            if( trailingSize > 0 )
+            {
+                reducedWeights.block( startIndex, startIndex, trailingSize, trailingSize ) = weightState_.fullWeights.block(
+                        startIndex + singleObservationSize_, startIndex + singleObservationSize_, trailingSize, trailingSize );
+            }
+            if( startIndex > 0 && trailingSize > 0 )
+            {
+                reducedWeights.block( 0, startIndex, startIndex, trailingSize ) =
+                        weightState_.fullWeights.block( 0, startIndex + singleObservationSize_, startIndex, trailingSize );
+                reducedWeights.block( startIndex, 0, trailingSize, startIndex ) =
+                        weightState_.fullWeights.block( startIndex + singleObservationSize_, 0, trailingSize, startIndex );
+            }
+
+            weightState_.fullWeights = reducedWeights;
+        }
+        if( fullWeightCrossCorrelationWithFilteredSet_.rows( ) > 0 )
+        {
+            const int startIndex = static_cast< int >( indexToRemove * singleObservationSize_ );
+            const int reducedRows = fullWeightCrossCorrelationWithFilteredSet_.rows( ) - static_cast< int >( singleObservationSize_ );
+            Eigen::MatrixXd reducedCrossWeights = Eigen::MatrixXd::Zero( reducedRows, fullWeightCrossCorrelationWithFilteredSet_.cols( ) );
+
+            if( startIndex > 0 )
+            {
+                reducedCrossWeights.block( 0, 0, startIndex, fullWeightCrossCorrelationWithFilteredSet_.cols( ) ) =
+                        fullWeightCrossCorrelationWithFilteredSet_.block(
+                                0, 0, startIndex, fullWeightCrossCorrelationWithFilteredSet_.cols( ) );
+            }
+
+            const int trailingRows = reducedRows - startIndex;
+            if( trailingRows > 0 )
+            {
+                reducedCrossWeights.block( startIndex, 0, trailingRows, fullWeightCrossCorrelationWithFilteredSet_.cols( ) ) =
+                        fullWeightCrossCorrelationWithFilteredSet_.block(
+                                startIndex + singleObservationSize_, 0, trailingRows, fullWeightCrossCorrelationWithFilteredSet_.cols( ) );
+            }
+
+            fullWeightCrossCorrelationWithFilteredSet_ = reducedCrossWeights;
+        }
 
         if( observationsDependentVariables_.size( ) > 0 )
         {
@@ -770,299 +972,14 @@ public:
         }
     }
 
-    void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true )
-    {
-        if( observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
-        {
-            // Initialise empty filtered observation set
-            filteredObservationSet_ = std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    observableType_,
-                    linkEnds_,
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                    std::vector< TimeType >( ),
-                    referenceLinkEnd_,
-                    std::vector< Eigen::VectorXd >( ),
-                    dependentVariableBookkeeping_,
-                    ancillarySettings_ );
-        }
-        if( !observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when attempting to un-filter observations, filtered observation set is "
-                    "empty." );
-        }
-
-        unsigned int nbObservationsToTest =
-                ( observationFilter->filterOut( ) ? numberOfObservations_ : filteredObservationSet_->getNumberOfObservables( ) );
-        bool useOppositeCondition = observationFilter->useOppositeCondition( );
-
-        std::vector< unsigned int > indicesToRemove;
-        switch( observationFilter->getFilterType( ) )
-        {
-            case residual_filtering: {
-                Eigen::VectorXd residualCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
-                if( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
-                {
-                    residualCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) *
-                            Eigen::VectorXd::Ones( singleObservationSize_ );
-                }
-                else if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
-                {
-                    if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) !=
-                        singleObservationSize_ )
-                    {
-                        throw std::runtime_error(
-                                "Error when performing residual filtering, size of the residual "
-                                "cut off vector inconsistent with observable size." );
-                    }
-                    residualCutOff =
-                            std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
-                }
-
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
-                {
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
-                            ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < singleObservationSize_; k++ )
-                    {
-                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
-                        {
-                            removeObservation = true;
-                        }
-                    }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
-                break;
-            }
-            case absolute_value_filtering: {
-                Eigen::VectorXd absoluteValueCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
-                if( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
-                {
-                    absoluteValueCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) *
-                            Eigen::VectorXd::Ones( singleObservationSize_ );
-                }
-                else if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
-                {
-                    if( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) !=
-                        singleObservationSize_ )
-                    {
-                        throw std::runtime_error(
-                                "Error when performing observation value filtering, size of the "
-                                "filter value inconsistent with observable size." );
-                    }
-                    absoluteValueCutOff =
-                            std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
-                }
-
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
-                {
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
-                            ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < singleObservationSize_; k++ )
-                    {
-                        if( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
-                        {
-                            removeObservation = true;
-                        }
-                    }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
-                break;
-            }
-            case epochs_filtering: {
-                std::vector< double > filterEpochs =
-                        std::dynamic_pointer_cast< ObservationFilter< std::vector< double > > >( observationFilter )->getFilterValue( );
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
-                {
-                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j )
-                                                                                       : filteredObservationSet_->getObservationTime( j ) );
-                    if( ( !useOppositeCondition &&
-                          ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) > 0 ) ) ||
-                        ( useOppositeCondition &&
-                          ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) == 0 ) ) )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
-                break;
-            }
-            case time_bounds_filtering: {
-                std::pair< double, double > timeBounds =
-                        std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )
-                                ->getFilterValue( );
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
-                {
-                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j )
-                                                                                       : filteredObservationSet_->getObservationTime( j ) );
-                    if( ( !useOppositeCondition &&
-                          ( ( singleObservationTime >= timeBounds.first ) && ( singleObservationTime <= timeBounds.second ) ) ) ||
-                        ( useOppositeCondition &&
-                          ( ( singleObservationTime < timeBounds.first ) || ( singleObservationTime > timeBounds.second ) ) ) )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
-                break;
-            }
-            case dependent_variable_filtering: {
-                if( std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when performing dependent variable filtering, inconsistent "
-                            "filter input (should be ObservationDependentVariableFilter object)." );
-                }
-
-                // Retrieve dependent variable settings and size
-                std::shared_ptr< ObservationDependentVariableSettings > settings =
-                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )
-                                ->getDependentVariableSettings( );
-                unsigned int dependentVariableSize = getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
-
-                // Retrieve dependent variable cut-off value
-                Eigen::VectorXd dependentVariableCutOff =
-                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )->getFilterValue( );
-                if( dependentVariableCutOff.size( ) != dependentVariableSize )
-                {
-                    throw std::runtime_error(
-                            "Error when performing dependent variable filtering, size of the "
-                            "dependent variable cut off vector inconsistent with dependent "
-                            "variable size." );
-                }
-
-                // Retrieve dependent variable values
-                Eigen::MatrixXd singleDependentVariableValues =
-                        ( observationFilter->filterOut( ) ? getSingleDependentVariable( settings )
-                                                          : filteredObservationSet_->getSingleDependentVariable( settings ) );
-                if( ( singleDependentVariableValues.rows( ) != nbObservationsToTest ) ||
-                    ( singleDependentVariableValues.cols( ) != dependentVariableSize ) )
-                {
-                    throw std::runtime_error(
-                            "Error when performing dependent variable filtering, size of "
-                            "observation dependent variables is inconsistent with the "
-                            "number of observations and presupposed dependent variable size." );
-                }
-
-                // Check dependent variable values against cut-off value
-                for( unsigned int j = 0; j < nbObservationsToTest; j++ )
-                {
-                    bool removeObservation = false;
-                    for( unsigned int k = 0; k < dependentVariableSize; k++ )
-                    {
-                        if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
-                            ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
-                        {
-                            removeObservation = true;
-                        }
-                    }
-                    if( removeObservation )
-                    {
-                        indicesToRemove.push_back( j );
-                    }
-                }
-                break;
-            }
-            default:
-                throw std::runtime_error( "Observation filter type not recognised." );
-        }
-
-        if( observationFilter->filterOut( ) )
-        {
-            moveObservationsInOutFilteredSet( indicesToRemove, true, saveFilteredObservations );
-        }
-        else
-        {
-            moveObservationsInOutFilteredSet( indicesToRemove, false, true );
-        }
-    }
+    void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true );
 
     void addObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
                           const std::vector< TimeType >& times,
                           const std::vector< Eigen::VectorXd >& dependentVariables = {},
                           const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = {},
                           const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
-                          const bool sortObservations = true )
-    {
-        if( ( observations.size( ) != times.size( ) ) || ( weights.size( ) > 0 && ( observations.size( ) != weights.size( ) ) ) ||
-            ( residuals.size( ) > 0 && ( observations.size( ) != residuals.size( ) ) ) ||
-            ( dependentVariables.size( ) > 0 && ( observations.size( ) != dependentVariables.size( ) ) ) )
-        {
-            throw std::runtime_error(
-                    "Error when adding observations to SingleObservationSet, input sizes are "
-                    "inconsistent." );
-        }
-
-        for( unsigned int k = 0; k < observations.size( ); k++ )
-        {
-            if( observations.at( k ).size( ) != singleObservationSize_ )
-            {
-                throw std::runtime_error(
-                        "Error when adding observations to SingleObservationSet, new observation "
-                        "size is inconsistent." );
-            }
-
-            observations_.push_back( observations.at( k ) );
-            observationTimes_.push_back( times.at( k ) );
-
-            // If residuals are provided as inputs
-            if( residuals.size( ) > 0 )
-            {
-                if( residuals.at( k ).size( ) != singleObservationSize_ )
-                {
-                    throw std::runtime_error(
-                            "Error when adding observations to SingleObservationSet, new residual "
-                            "size is inconsistent." );
-                }
-                residuals_.push_back( residuals.at( k ) );
-            }
-            else  // Otherwise, set to zero by default
-            {
-                residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 ) );
-            }
-
-            // If weights are provided as inputs
-            if( weights.size( ) > 0 )
-            {
-                if( weights.at( k ).size( ) != singleObservationSize_ )
-                {
-                    throw std::runtime_error(
-                            "Error when adding observations to SingleObservationSet, new weight "
-                            "size is inconsistent." );
-                }
-                weights_.push_back( weights.at( k ) );
-            }
-            else  // Otherwise, set to one by default
-            {
-                weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
-            }
-
-            // if dependent variables are set
-            if( ( observationsDependentVariables_.size( ) > 0 || numberOfObservations_ == 0 ) && dependentVariables.size( ) > 0 )
-            {
-                observationsDependentVariables_.push_back( dependentVariables.at( k ) );
-            }
-
-            numberOfObservations_ += 1;
-        }
-
-        // Sort observations
-        if( sortObservations )
-        {
-            orderObservationsAndMetadata( );
-        }
-
-        // Update time bounds
-        updateTimeBounds( );
-    }
+                          const bool sortObservations = true );
 
     void addDependentVariables(
             const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings )
@@ -1087,6 +1004,155 @@ public:
     }
 
 private:
+    //! Canonical weight state stored for the currently active observations.
+    struct WeightState {
+        //! Base matrix representation used for per-observation weights.
+        ObservationWeightsMatrixType matrixType = diagonal_weights_matrix;
+        //! Per-observation diagonal weight vectors (used when matrixType is diagonal).
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        //! Per-observation dense blocks (used when matrixType is block-diagonal).
+        std::vector< Eigen::MatrixXd > blockWeights;
+        //! Optional additional full contribution over the complete active observation set.
+        Eigen::MatrixXd fullWeights;
+    };
+
+    //! Validates that the number of observations matches the number of epochs.
+    void validateObservationsAndTimesSize( const std::size_t numberOfObservations,
+                                           const std::size_t numberOfTimes,
+                                           const std::string& context ) const
+    {
+        if( numberOfObservations != numberOfTimes )
+        {
+            throw std::runtime_error( "Error when " + context + ", input sizes are inconsistent." );
+        }
+    }
+
+    //! Validates that an optional per-observation batch is either empty or has the expected size.
+    template< typename DataType >
+    void validateOptionalBatchSize( const std::vector< DataType >& data,
+                                    const std::size_t expectedSize,
+                                    const std::string& dataLabel,
+                                    const std::string& context ) const
+    {
+        if( !data.empty( ) && data.size( ) != expectedSize )
+        {
+            throw std::runtime_error( "Error when " + context + ", number of " + dataLabel + " is inconsistent." );
+        }
+    }
+
+    //! Validates that all observation vectors in the batch have the same dimension.
+    void validateConsistentObservationDimensions(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::string& context ) const
+    {
+        for( unsigned int i = 1; i < observations.size( ); i++ )
+        {
+            if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", input observables are not of consistent size." );
+            }
+        }
+    }
+
+    //! Validates that each observation vector matches the configured single-observation size.
+    void validateObservationDimensionsAgainstSingleSize(
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::string& context ) const
+    {
+        for( unsigned int i = 0; i < observations.size( ); i++ )
+        {
+            if( observations.at( i ).size( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", observation size is inconsistent." );
+            }
+        }
+    }
+
+    //! Validates that each per-observation vector in a batch has the expected component size.
+    template< typename ScalarType >
+    void validatePerObservationVectorSize( const std::vector< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& data,
+                                           const std::string& dataLabel,
+                                           const std::string& context ) const
+    {
+        for( unsigned int i = 0; i < data.size( ); i++ )
+        {
+            if( data.at( i ).size( ) != static_cast< int >( singleObservationSize_ ) )
+            {
+                throw std::runtime_error( "Error when " + context + ", " + dataLabel + " size is inconsistent." );
+            }
+        }
+    }
+
+    //! Validates cross-batch consistency for observations, times, residuals and dependent variables.
+    void validateObservationBatchSizes( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+                                        const std::vector< TimeType >& times,
+                                        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+                                        const std::vector< Eigen::VectorXd >& dependentVariables,
+                                        const std::string& context ) const
+    {
+        validateObservationsAndTimesSize( observations.size( ), times.size( ), context );
+        validateOptionalBatchSize( residuals, observations.size( ), "residuals", context );
+        validateOptionalBatchSize( dependentVariables, observations.size( ), "dependent variable entries", context );
+    }
+
+    //! Validates dependent-variable batch size and bookkeeping compatibility.
+    void validateDependentVariableBatch( const std::vector< Eigen::VectorXd >& dependentVariables,
+                                         const std::size_t expectedObservations,
+                                         const bool requireBookkeeping,
+                                         const std::string& context ) const
+    {
+        validateOptionalBatchSize( dependentVariables, expectedObservations, "dependent variable entries", context );
+        if( dependentVariables.empty( ) )
+        {
+            return;
+        }
+
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            if( requireBookkeeping )
+            {
+                throw std::runtime_error( "Error when " + context +
+                                          ", dependent variable bookkeeping is required when dependent variables are provided." );
+            }
+            return;
+        }
+
+        const int expectedDependentVariableSize = dependentVariableBookkeeping_->getTotalDependentVariableSize( );
+        for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
+        {
+            if( dependentVariables.at( i ).size( ) != expectedDependentVariableSize )
+            {
+                throw std::runtime_error( "Error when " + context + ", dependent variable vector size is inconsistent." );
+            }
+        }
+    }
+
+    //! Resets base weights to unit diagonal and clears the optional full-matrix contribution.
+    void resetWeightsToUnitDiagonal( )
+    {
+        setDiagonalWeightState(
+                createUniformDiagonalWeights( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) ) );
+        weightState_.fullWeights.resize( 0, 0 );
+    }
+
+    //! Creates one identical diagonal-weight vector per currently active observation.
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > createUniformDiagonalWeights(
+            const Eigen::Matrix< double, Eigen::Dynamic, 1 >& singleWeight ) const
+    {
+        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights;
+        diagonalWeights.assign( numberOfObservations_, singleWeight );
+        return diagonalWeights;
+    }
+
+    //! Stores diagonal base weights and clears block-diagonal storage.
+    void setDiagonalWeightState( std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > diagonalWeights )
+    {
+        weightState_.matrixType = diagonal_weights_matrix;
+        weightState_.diagonalWeights = std::move( diagonalWeights );
+        weightState_.blockWeights.clear( );
+    }
+
+    //! Builds the permutation that sorts observation indices by ascending epoch.
     static std::vector< std::size_t > getTimeSortingPermutation( const std::vector< TimeType >& observationTimes )
     {
         const std::size_t numberOfObservations = observationTimes.size( );
@@ -1104,6 +1170,7 @@ private:
         return permutation;
     }
 
+    //! Applies a precomputed permutation to a vector in-place.
     template< typename T >
     void reorderVectorInPlace( std::vector< T >& data, const std::vector< std::size_t >& permutation )
     {
@@ -1118,6 +1185,39 @@ private:
         data.swap( reorderedData );
     }
 
+    //! Reorders a square matrix interpreted as observation-sized blocks.
+    void reorderSquareMatrixInObservationBlocksInPlace( Eigen::MatrixXd& matrix, const std::vector< std::size_t >& permutation )
+    {
+        if( matrix.rows( ) == 0 )
+        {
+            return;
+        }
+
+        const int blockSize = static_cast< int >( singleObservationSize_ );
+        const int numberOfObservations = static_cast< int >( permutation.size( ) );
+        const int matrixSize = numberOfObservations * blockSize;
+        if( matrix.rows( ) != matrixSize || matrix.cols( ) != matrixSize )
+        {
+            throw std::runtime_error(
+                    "Error when reordering full weights matrix in SingleObservationSet, matrix size is incompatible with "
+                    "observation metadata." );
+        }
+
+        Eigen::MatrixXd reorderedMatrix = Eigen::MatrixXd::Zero( matrixSize, matrixSize );
+        for( int i = 0; i < numberOfObservations; i++ )
+        {
+            const int sourceI = static_cast< int >( permutation.at( i ) );
+            for( int j = 0; j < numberOfObservations; j++ )
+            {
+                const int sourceJ = static_cast< int >( permutation.at( j ) );
+                reorderedMatrix.block( i * blockSize, j * blockSize, blockSize, blockSize ) =
+                        matrix.block( sourceI * blockSize, sourceJ * blockSize, blockSize, blockSize );
+            }
+        }
+        matrix.swap( reorderedMatrix );
+    }
+
+    //! Sorts all active observation-aligned containers by ascending observation epoch.
     void orderObservationsAndMetadata( )
     {
         const std::size_t numberOfObservations = observationTimes_.size( );
@@ -1131,7 +1231,18 @@ private:
 
         reorderVectorInPlace( observationTimes_, permutation );
         reorderVectorInPlace( observations_, permutation );
-        reorderVectorInPlace( weights_, permutation );
+        if( weightState_.matrixType == diagonal_weights_matrix )
+        {
+            reorderVectorInPlace( weightState_.diagonalWeights, permutation );
+        }
+        else if( weightState_.matrixType == block_diagonal_weights_matrix )
+        {
+            reorderVectorInPlace( weightState_.blockWeights, permutation );
+        }
+        if( weightState_.fullWeights.rows( ) > 0 )
+        {
+            reorderSquareMatrixInObservationBlocksInPlace( weightState_.fullWeights, permutation );
+        }
         reorderVectorInPlace( residuals_, permutation );
 
         if( !observationsDependentVariables_.empty( ) )
@@ -1140,6 +1251,7 @@ private:
         }
     }
 
+    //! Updates cached minimum/maximum epochs for the active observation set.
     void updateTimeBounds( )
     {
         if( observationTimes_.size( ) == 0 )
@@ -1153,77 +1265,362 @@ private:
         }
     }
 
-    void moveObservationsInOutFilteredSet( const std::vector< unsigned int >& indices,
-                                           const bool moveInFilteredSet = true,
-                                           const bool saveFilteredObservations = true )
+    //! Creates consecutive observation indices [0, ..., N-1].
+    std::vector< unsigned int > createSequentialObservationIndices( const unsigned int numberOfObservations ) const
     {
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
-        std::vector< TimeType > times;
-        std::vector< Eigen::VectorXd > dependentVariables;
-        std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights;
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
-
-        if( moveInFilteredSet )
+        std::vector< unsigned int > indices( numberOfObservations );
+        for( unsigned int i = 0; i < numberOfObservations; i++ )
         {
-            for( auto index : indices )
+            indices.at( i ) = i;
+        }
+        return indices;
+    }
+
+    //! Creates consecutive observation indices with a constant offset.
+    std::vector< unsigned int > createSequentialObservationIndicesWithOffset( const unsigned int numberOfObservations,
+                                                                              const unsigned int offset ) const
+    {
+        std::vector< unsigned int > indices( numberOfObservations );
+        for( unsigned int i = 0; i < numberOfObservations; i++ )
+        {
+            indices.at( i ) = i + offset;
+        }
+        return indices;
+    }
+
+    //! Applies a constant offset to each observation index in the input list.
+    std::vector< unsigned int > applyOffsetToObservationIndices( const std::vector< unsigned int >& indices,
+                                                                 const unsigned int offset ) const
+    {
+        std::vector< unsigned int > offsetIndices;
+        offsetIndices.reserve( indices.size( ) );
+        for( const unsigned int index : indices )
+        {
+            offsetIndices.push_back( index + offset );
+        }
+        return offsetIndices;
+    }
+
+    //! Concatenates two observation-index lists in-order.
+    std::vector< unsigned int > concatenateObservationIndices( const std::vector< unsigned int >& firstIndices,
+                                                               const std::vector< unsigned int >& secondIndices ) const
+    {
+        std::vector< unsigned int > concatenatedIndices;
+        concatenatedIndices.reserve( firstIndices.size( ) + secondIndices.size( ) );
+        concatenatedIndices.insert( concatenatedIndices.end( ), firstIndices.begin( ), firstIndices.end( ) );
+        concatenatedIndices.insert( concatenatedIndices.end( ), secondIndices.begin( ), secondIndices.end( ) );
+        return concatenatedIndices;
+    }
+
+    //! Applies a permutation to an index list and returns the permuted indices.
+    std::vector< unsigned int > applyPermutationToObservationIndices( const std::vector< unsigned int >& indices,
+                                                                      const std::vector< std::size_t >& permutation ) const
+    {
+        if( indices.size( ) != permutation.size( ) )
+        {
+            throw std::runtime_error( "Error when applying permutation to observation indices, sizes are inconsistent." );
+        }
+
+        std::vector< unsigned int > permutedIndices( indices.size( ) );
+        for( unsigned int i = 0; i < indices.size( ); i++ )
+        {
+            permutedIndices.at( i ) = indices.at( permutation.at( i ) );
+        }
+        return permutedIndices;
+    }
+
+    //! Returns all observation indices not present in the selected set.
+    std::vector< unsigned int > getComplementObservationIndices( const unsigned int totalNumberOfObservations,
+                                                                 const std::vector< unsigned int >& selectedIndices ) const
+    {
+        std::vector< bool > isSelected( totalNumberOfObservations, false );
+        for( const unsigned int index : selectedIndices )
+        {
+            if( index >= totalNumberOfObservations )
             {
-                if( index >= numberOfObservations_ )
-                {
-                    throw std::runtime_error(
-                            "Error when moving observation to filtered observation set, index "
-                            "incompatible with number of observations." );
-                }
-
-                observations.push_back( observations_.at( index ) );
-                times.push_back( observationTimes_.at( index ) );
-                weights.push_back( weights_.at( index ) );
-                residuals.push_back( residuals_.at( index ) );
-
-                // If dependent variables not empty
-                if( observationsDependentVariables_.size( ) > 0 )
-                {
-                    dependentVariables.push_back( observationsDependentVariables_.at( index ) );
-                }
+                throw std::runtime_error( "Error when creating complement observation index set, input index is out of bounds." );
             }
+            isSelected.at( index ) = true;
+        }
 
-            if( saveFilteredObservations )
+        std::vector< unsigned int > complementIndices;
+        complementIndices.reserve( totalNumberOfObservations - selectedIndices.size( ) );
+        for( unsigned int i = 0; i < totalNumberOfObservations; i++ )
+        {
+            if( !isSelected.at( i ) )
             {
-                filteredObservationSet_->addObservations( observations, times, dependentVariables, weights, residuals, true );
+                complementIndices.push_back( i );
             }
-            removeObservations( indices );
+        }
+        return complementIndices;
+    }
+
+    //! Extracts a block matrix using observation indices as block selectors.
+    Eigen::MatrixXd extractObservationBlockMatrix( const Eigen::MatrixXd& matrix,
+                                                   const std::vector< unsigned int >& rowObservationIndices,
+                                                   const std::vector< unsigned int >& columnObservationIndices ) const
+    {
+        const int blockSize = static_cast< int >( singleObservationSize_ );
+        const int extractedRows = static_cast< int >( rowObservationIndices.size( ) ) * blockSize;
+        const int extractedColumns = static_cast< int >( columnObservationIndices.size( ) ) * blockSize;
+        Eigen::MatrixXd extractedMatrix = Eigen::MatrixXd::Zero( extractedRows, extractedColumns );
+        if( extractedRows == 0 || extractedColumns == 0 || matrix.rows( ) == 0 || matrix.cols( ) == 0 )
+        {
+            return extractedMatrix;
+        }
+
+        for( unsigned int i = 0; i < rowObservationIndices.size( ); i++ )
+        {
+            const int sourceRow = static_cast< int >( rowObservationIndices.at( i ) ) * blockSize;
+            for( unsigned int j = 0; j < columnObservationIndices.size( ); j++ )
+            {
+                const int sourceColumn = static_cast< int >( columnObservationIndices.at( j ) ) * blockSize;
+                extractedMatrix.block( static_cast< int >( i ) * blockSize, static_cast< int >( j ) * blockSize, blockSize, blockSize ) =
+                        matrix.block( sourceRow, sourceColumn, blockSize, blockSize );
+            }
+        }
+        return extractedMatrix;
+    }
+
+    //! Returns the full-weight contribution for one state (or a size-compatible zero matrix if absent).
+    Eigen::MatrixXd getEffectiveFullWeightContributionMatrix( const WeightState& weightState,
+                                                              const unsigned int numberOfObservations ) const
+    {
+        const int totalObservationSize = static_cast< int >( numberOfObservations * singleObservationSize_ );
+        if( totalObservationSize == 0 )
+        {
+            return Eigen::MatrixXd( 0, 0 );
+        }
+        if( weightState.fullWeights.rows( ) == 0 )
+        {
+            return Eigen::MatrixXd::Zero( totalObservationSize, totalObservationSize );
+        }
+        if( weightState.fullWeights.rows( ) != totalObservationSize || weightState.fullWeights.cols( ) != totalObservationSize )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving full weight matrix contribution, size is inconsistent with observation metadata." );
+        }
+        return weightState.fullWeights;
+    }
+
+    //! Returns the active-filtered cross-correlation block (or zeros if absent).
+    Eigen::MatrixXd getEffectiveCrossWeightContributionMatrix( const unsigned int currentNumberOfObservations,
+                                                               const unsigned int filteredNumberOfObservations ) const
+    {
+        const int currentObservationSize = static_cast< int >( currentNumberOfObservations * singleObservationSize_ );
+        const int filteredObservationSize = static_cast< int >( filteredNumberOfObservations * singleObservationSize_ );
+        if( currentObservationSize == 0 || filteredObservationSize == 0 )
+        {
+            return Eigen::MatrixXd::Zero( currentObservationSize, filteredObservationSize );
+        }
+        if( fullWeightCrossCorrelationWithFilteredSet_.rows( ) == 0 )
+        {
+            return Eigen::MatrixXd::Zero( currentObservationSize, filteredObservationSize );
+        }
+        if( fullWeightCrossCorrelationWithFilteredSet_.rows( ) != currentObservationSize ||
+            fullWeightCrossCorrelationWithFilteredSet_.cols( ) != filteredObservationSize )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving cross weight matrix contribution with filtered set, size is inconsistent "
+                    "with observation metadata." );
+        }
+        return fullWeightCrossCorrelationWithFilteredSet_;
+    }
+
+    //! Builds the combined full-weight matrix over [active; filtered] observations.
+    Eigen::MatrixXd getCombinedFullWeightContributionMatrix( const unsigned int currentNumberOfObservations,
+                                                             const unsigned int filteredNumberOfObservations ) const
+    {
+        const int currentObservationSize = static_cast< int >( currentNumberOfObservations * singleObservationSize_ );
+        const int filteredObservationSize = static_cast< int >( filteredNumberOfObservations * singleObservationSize_ );
+        Eigen::MatrixXd combinedFullWeights =
+                Eigen::MatrixXd::Zero( currentObservationSize + filteredObservationSize, currentObservationSize + filteredObservationSize );
+
+        const Eigen::MatrixXd currentFullWeights = getEffectiveFullWeightContributionMatrix( weightState_, currentNumberOfObservations );
+        const Eigen::MatrixXd filteredFullWeights =
+                getEffectiveFullWeightContributionMatrix( filteredObservationSet_->weightState_, filteredNumberOfObservations );
+        const Eigen::MatrixXd crossWeights =
+                getEffectiveCrossWeightContributionMatrix( currentNumberOfObservations, filteredNumberOfObservations );
+
+        if( currentObservationSize > 0 )
+        {
+            combinedFullWeights.block( 0, 0, currentObservationSize, currentObservationSize ) = currentFullWeights;
+        }
+        if( filteredObservationSize > 0 )
+        {
+            combinedFullWeights.block( currentObservationSize, currentObservationSize, filteredObservationSize, filteredObservationSize ) =
+                    filteredFullWeights;
+        }
+        if( currentObservationSize > 0 && filteredObservationSize > 0 )
+        {
+            combinedFullWeights.block( 0, currentObservationSize, currentObservationSize, filteredObservationSize ) = crossWeights;
+            combinedFullWeights.block( currentObservationSize, 0, filteredObservationSize, currentObservationSize ) =
+                    crossWeights.transpose( );
+        }
+        return combinedFullWeights;
+    }
+
+    //! Splits a combined [active; filtered] full-weight matrix back into internal storage blocks.
+    void setCombinedFullWeightContributionMatrix( const Eigen::MatrixXd& combinedFullWeights,
+                                                  const unsigned int currentNumberOfObservations,
+                                                  const unsigned int filteredNumberOfObservations )
+    {
+        const int currentObservationSize = static_cast< int >( currentNumberOfObservations * singleObservationSize_ );
+        const int filteredObservationSize = static_cast< int >( filteredNumberOfObservations * singleObservationSize_ );
+        const int combinedObservationSize = currentObservationSize + filteredObservationSize;
+        if( combinedFullWeights.rows( ) != combinedObservationSize || combinedFullWeights.cols( ) != combinedObservationSize )
+        {
+            throw std::runtime_error(
+                    "Error when setting combined full weight contribution matrix, size is inconsistent with "
+                    "current/filtered observation metadata." );
+        }
+
+        if( currentObservationSize > 0 )
+        {
+            weightState_.fullWeights =
+                    compressWeightContributionMatrix( combinedFullWeights.block( 0, 0, currentObservationSize, currentObservationSize ) );
         }
         else
         {
-            for( auto index : indices )
-            {
-                if( getNumberOfFilteredObservations( ) == 0 )
-                {
-                    throw std::runtime_error(
-                            "Error when moving observation back from filtered observation set, "
-                            "filtered observation set is empty." );
-                }
-                if( index >= getNumberOfFilteredObservations( ) )
-                {
-                    throw std::runtime_error(
-                            "Error when moving observation back from filtered observation set, "
-                            "index incompatible with number of observations." );
-                }
+            weightState_.fullWeights.resize( 0, 0 );
+        }
 
-                observations.push_back( filteredObservationSet_->getObservations( ).at( index ) );
-                times.push_back( filteredObservationSet_->getObservationTimes( ).at( index ) );
-                weights.push_back( filteredObservationSet_->getWeights( ).at( index ) );
-                residuals.push_back( filteredObservationSet_->getResiduals( ).at( index ) );
+        if( filteredObservationSize > 0 )
+        {
+            filteredObservationSet_->weightState_.fullWeights = compressWeightContributionMatrix( combinedFullWeights.block(
+                    currentObservationSize, currentObservationSize, filteredObservationSize, filteredObservationSize ) );
+        }
+        else
+        {
+            filteredObservationSet_->weightState_.fullWeights.resize( 0, 0 );
+        }
 
-                // If dependent variables are set
-                if( filteredObservationSet_->getObservationsDependentVariables( ).size( ) > 0 )
-                {
-                    dependentVariables.push_back( filteredObservationSet_->getObservationsDependentVariables( ).at( index ) );
-                }
-            }
-            addObservations( observations, times, dependentVariables, weights, residuals, true );
-            filteredObservationSet_->removeObservations( indices );
+        if( currentObservationSize > 0 && filteredObservationSize > 0 )
+        {
+            fullWeightCrossCorrelationWithFilteredSet_ = compressWeightContributionMatrix(
+                    combinedFullWeights.block( 0, currentObservationSize, currentObservationSize, filteredObservationSize ) );
+        }
+        else
+        {
+            fullWeightCrossCorrelationWithFilteredSet_.resize( 0, 0 );
+        }
+
+        validateCombinedWeightsMatrix( );
+        filteredObservationSet_->validateCombinedWeightsMatrix( );
+    }
+
+    //! Stores an empty matrix when the contribution is numerically zero to keep sparse semantics.
+    Eigen::MatrixXd compressWeightContributionMatrix( const Eigen::MatrixXd& matrix ) const
+    {
+        if( matrix.rows( ) == 0 || matrix.cols( ) == 0 || matrix.isZero( 0.0 ) )
+        {
+            return Eigen::MatrixXd( 0, 0 );
+        }
+        return matrix;
+    }
+
+    //! Validates that a weight matrix is square and symmetric.
+    void validateSymmetricWeightMatrix( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
+    {
+        if( weightMatrix.rows( ) != weightMatrix.cols( ) )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not square." );
+        }
+        if( !weightMatrix.isApprox( weightMatrix.transpose( ), 1.0E-14 ) )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not symmetric." );
         }
     }
+
+    //! Validates that a weight matrix is symmetric positive definite.
+    void validateWeightMatrixPositiveDefinite( const Eigen::MatrixXd& weightMatrix, const std::string& errorPrefix ) const
+    {
+        validateSymmetricWeightMatrix( weightMatrix, errorPrefix );
+        Eigen::LLT< Eigen::MatrixXd > llt( weightMatrix );
+        if( llt.info( ) != Eigen::Success )
+        {
+            throw std::runtime_error( errorPrefix + " Weights matrix is not positive definite." );
+        }
+    }
+
+    //! Validates internal consistency and definiteness of the currently active combined weight model.
+    void validateCombinedWeightsMatrix( ) const
+    {
+        if( numberOfObservations_ == 0 )
+        {
+            return;
+        }
+
+        if( weightState_.fullWeights.rows( ) == 0 )
+        {
+            if( weightState_.matrixType == diagonal_weights_matrix )
+            {
+                if( weightState_.diagonalWeights.size( ) != numberOfObservations_ )
+                {
+                    throw std::runtime_error(
+                            "Error when setting weights in single observation set, number of diagonal weights is inconsistent." );
+                }
+                for( unsigned int i = 0; i < numberOfObservations_; i++ )
+                {
+                    if( weightState_.diagonalWeights.at( i ).rows( ) != static_cast< int >( singleObservationSize_ ) )
+                    {
+                        throw std::runtime_error(
+                                "Error when setting weights in single observation set, diagonal weights size is inconsistent." );
+                    }
+
+                    for( unsigned int j = 0; j < singleObservationSize_; j++ )
+                    {
+                        const double currentWeight = weightState_.diagonalWeights.at( i )( j );
+                        if( !std::isfinite( currentWeight ) || currentWeight < 0.0 )
+                        {
+                            throw std::runtime_error(
+                                    "Error when setting weights in single observation set, diagonal weights must be finite and "
+                                    "non-negative." );
+                        }
+                    }
+                }
+                return;
+            }
+            else if( weightState_.matrixType == block_diagonal_weights_matrix )
+            {
+                if( weightState_.blockWeights.size( ) != numberOfObservations_ )
+                {
+                    throw std::runtime_error(
+                            "Error when setting weights in single observation set, number of block-diagonal weights is inconsistent." );
+                }
+
+                for( unsigned int i = 0; i < numberOfObservations_; i++ )
+                {
+                    validateWeightMatrixPositiveDefinite(
+                            weightState_.blockWeights.at( i ),
+                            "Error when setting weights in single observation set, block-diagonal weights are invalid." );
+                }
+                return;
+            }
+        }
+
+        validateWeightMatrixPositiveDefinite( getWeightMatrix( ),
+                                              "Error when setting weights in single observation set, combined weights matrix is invalid." );
+    }
+
+    //! Extracts the full-weight submatrix corresponding to the selected observation indices.
+    Eigen::MatrixXd extractFullWeightMatrixSubset( const std::vector< unsigned int >& indices ) const;
+
+    //! Extracts base/full weight data for a selected observation subset.
+    WeightState extractWeightSubsetData( const std::vector< unsigned int >& indices ) const;
+
+    //! Appends a batch of observations together with explicit pre-validated weight payload data.
+    void addObservationsWithWeightData( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+                                        const std::vector< TimeType >& times,
+                                        const std::vector< Eigen::VectorXd >& dependentVariables,
+                                        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+                                        const WeightState& weightSubsetData,
+                                        const bool sortObservations );
+
+    //! Moves observations between active and filtered sets while preserving weight/residual/dependent-variable consistency.
+    void moveObservationsInOutFilteredSet( const std::vector< unsigned int >& indices,
+                                           const bool moveInFilteredSet = true,
+                                           const bool saveFilteredObservations = true );
 
     //! Function extracting the values of a single dependent variable
     Eigen::MatrixXd getSingleDependentVariable( std::pair< int, int > dependentVariableIndexAndSize ) const
@@ -1249,35 +1646,52 @@ private:
         return singleDependentVariable;
     }
 
+    //! Observable type shared by all observations in this set.
     ObservableType observableType_;
 
+    //! Link-end definition shared by all observations in this set.
     LinkDefinition linkEnds_;
 
+    //! Cached minimum/maximum epoch over the active observations.
     std::pair< TimeType, TimeType > timeBounds_;
 
+    //! Active observed values, one vector per observation epoch.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
+    //! Active observation epochs, aligned with observations_.
     std::vector< TimeType > observationTimes_;
 
+    //! Reference link end used when interpreting the observable.
     LinkEndType referenceLinkEnd_;
 
+    //! Optional dependent-variable vectors, aligned with observations_.
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
+    //! Bookkeeping object describing dependent-variable layout per observation.
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
+    //! Ancillary settings shared by all observations in this set.
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
+    //! Number of active observations currently stored.
     unsigned int numberOfObservations_;
 
+    //! Observable size (number of components) per observation.
     unsigned int singleObservationSize_;
 
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
+    //! Weight state for active observations only.
+    WeightState weightState_;
 
     //    Eigen::VectorXd weightsVector_;
 
+    //! Active residual vectors, aligned with observations_.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
+    //! Storage for observations currently filtered out of this set.
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
+
+    //! Full-weight cross block coupling active observations to filtered observations.
+    Eigen::MatrixXd fullWeightCrossCorrelationWithFilteredSet_;
 
 public:
     bool operator==( const SingleObservationSet& rhs ) const
@@ -1296,14 +1710,36 @@ public:
         const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
             return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
         };
+        const auto matricesEqual = []( const auto& lhs, const auto& rhs ) {
+            return lhs.rows( ) == rhs.rows( ) && lhs.cols( ) == rhs.cols( ) && lhs.isApprox( rhs, 0.0 );
+        };
+        const auto matrixVectorsEqual = [ &matricesEqual ]( const auto& lhs, const auto& rhs ) {
+            if( lhs.size( ) != rhs.size( ) )
+            {
+                return false;
+            }
+            for( unsigned int i = 0; i < lhs.size( ); i++ )
+            {
+                if( !matricesEqual( lhs.at( i ), rhs.at( i ) ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+        const bool weightStatesEqual = weightState_.matrixType == rhs.weightState_.matrixType &&
+                matrixVectorsEqual( weightState_.diagonalWeights, rhs.weightState_.diagonalWeights ) &&
+                matrixVectorsEqual( weightState_.blockWeights, rhs.weightState_.blockWeights ) &&
+                matricesEqual( weightState_.fullWeights, rhs.weightState_.fullWeights );
 
         return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
                 observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
                 referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
                 pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
                 pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
-                singleObservationSize_ == rhs.singleObservationSize_ && weights_ == rhs.weights_ && residuals_ == rhs.residuals_ &&
-                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+                singleObservationSize_ == rhs.singleObservationSize_ && weightStatesEqual && residuals_ == rhs.residuals_ &&
+                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ ) &&
+                matricesEqual( fullWeightCrossCorrelationWithFilteredSet_, rhs.fullWeightCrossCorrelationWithFilteredSet_ );
     }
 
     TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
@@ -1332,9 +1768,13 @@ private:
         ar( CEREAL_NVP( ancillarySettings_ ) );
         ar( CEREAL_NVP( numberOfObservations_ ) );
         ar( CEREAL_NVP( singleObservationSize_ ) );
-        ar( CEREAL_NVP( weights_ ) );
+        ar( cereal::make_nvp( "weightMatrixType", weightState_.matrixType ) );
+        ar( cereal::make_nvp( "diagonalWeights", weightState_.diagonalWeights ) );
+        ar( cereal::make_nvp( "blockWeights", weightState_.blockWeights ) );
+        ar( cereal::make_nvp( "fullWeights", weightState_.fullWeights ) );
         ar( CEREAL_NVP( residuals_ ) );
         ar( CEREAL_NVP( filteredObservationSet_ ) );
+        ar( CEREAL_NVP( fullWeightCrossCorrelationWithFilteredSet_ ) );
     }
 
     template< class Archive >
@@ -1351,198 +1791,39 @@ private:
         ar( CEREAL_NVP( ancillarySettings_ ) );
         ar( CEREAL_NVP( numberOfObservations_ ) );
         ar( CEREAL_NVP( singleObservationSize_ ) );
-        ar( CEREAL_NVP( weights_ ) );
+        ar( cereal::make_nvp( "weightMatrixType", weightState_.matrixType ) );
+        ar( cereal::make_nvp( "diagonalWeights", weightState_.diagonalWeights ) );
+        ar( cereal::make_nvp( "blockWeights", weightState_.blockWeights ) );
+        ar( cereal::make_nvp( "fullWeights", weightState_.fullWeights ) );
         ar( CEREAL_NVP( residuals_ ) );
         ar( CEREAL_NVP( filteredObservationSet_ ) );
+        ar( CEREAL_NVP( fullWeightCrossCorrelationWithFilteredSet_ ) );
     }
 };
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//! Returns a filtered copy of the input single observation set.
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filterObservations(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet,
         const std::shared_ptr< ObservationFilterBase > observationFilter,
-        const bool saveFilteredObservations = false )
-{
-    if( !observationFilter->filterOut( ) )
-    {
-        throw std::runtime_error(
-                "Error when creating new single observation set post-filtering, the filterOut "
-                "option should be set to true" );
-    }
-    // Create new observation set
-    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    singleObservationSet->getObservableType( ),
-                    singleObservationSet->getLinkEnds( ),
-                    singleObservationSet->getObservationsReference( ),
-                    singleObservationSet->getObservationTimesReference( ),
-                    singleObservationSet->getReferenceLinkEnd( ),
-                    singleObservationSet->getObservationsDependentVariablesReference( ),
-                    singleObservationSet->getDependentVariableBookkeeping( ),
-                    singleObservationSet->getAncillarySettings( ) );
-    newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
-    newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
-
-    // Filter observations from new observation set
-    newObservationSet->filterObservations( observationFilter, saveFilteredObservations );
-
-    return newObservationSet;
-}
+        const bool saveFilteredObservations = false );
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+//! Splits one single observation set into multiple sets according to a splitter configuration.
 std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
         const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,
-        const bool printWarning = true )
-{
-    if( printWarning && observationSet->getFilteredObservationSet( ) != nullptr )
-    {
-        std::cerr << "Warning when splitting single observation set, the filtered observation set "
-                     "pointer is not empty and "
-                     " any filtered observation will be lost after splitting."
-                  << std::endl;
-    }
-
-    std::vector< int > rawStartIndicesNewSets = { 0 };
-    std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
-    std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getWeightsVector( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
-
-    switch( observationSetSplitter->getSplitterType( ) )
-    {
-        case time_tags_splitter: {
-            std::vector< double > timeTags =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )
-                            ->getSplitterValue( );
-            for( auto currentTimeTag : timeTags )
-            {
-                if( currentTimeTag > observationSet->getTimeBounds( ).first )
-                {
-                    bool detectedStartSet = false;
-                    int indexObs = rawStartIndicesNewSets.at( rawStartIndicesNewSets.size( ) - 1 );
-                    while( !detectedStartSet && indexObs < static_cast< int >( observationTimes.size( ) ) )
-                    {
-                        if( observationTimes.at( indexObs ) > currentTimeTag )
-                        {
-                            rawStartIndicesNewSets.push_back( indexObs );
-                            detectedStartSet = true;
-                        }
-                        indexObs++;
-                    }
-                }
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        case time_interval_splitter: {
-            double maxTimeInterval =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-            for( unsigned int i = 1; i < observationTimes.size( ); i++ )
-            {
-                if( ( observationTimes.at( i ) - observationTimes.at( i - 1 ) ) > maxTimeInterval )
-                {
-                    rawStartIndicesNewSets.push_back( i );
-                }
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        case time_span_splitter: {
-            double maxTimeSpan =
-                    std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-            if( observationSet->getNumberOfObservables( ) > 0 )
-            {
-                double referenceEpoch = observationTimes.at( 0 );
-                for( unsigned int i = 1; i < observationTimes.size( ); i++ )
-                {
-                    if( ( observationTimes.at( i ) - referenceEpoch ) > maxTimeSpan )
-                    {
-                        rawStartIndicesNewSets.push_back( i );
-                        referenceEpoch = observationTimes.at( i );
-                    }
-                }
-                rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            }
-            break;
-        }
-        case nb_observations_splitter: {
-            int maxNbObs = std::dynamic_pointer_cast< ObservationSetSplitter< int > >( observationSetSplitter )->getSplitterValue( );
-            if( maxNbObs < observationSetSplitter->getMinNumberObservations( ) )
-            {
-                throw std::runtime_error(
-                        "Error when splitting observation sets, the maximum number of observations "
-                        "cannot be smaller than the minimum number of observations." );
-            }
-            for( int ind = maxNbObs; ind < static_cast< int >( observationSet->getNumberOfObservables( ) ); ind += maxNbObs )
-            {
-                rawStartIndicesNewSets.push_back( ind );
-            }
-            rawStartIndicesNewSets.push_back( static_cast< int >( observationTimes.size( ) ) );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Observation set splitter type not recognised." );
-    }
-
-    // Check that the minimum number of observations is met
-    std::vector< std::pair< int, int > > indicesNewSets;
-    for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
-    {
-        if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
-        {
-            indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j - 1 ),
-                                                      rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) );
-        }
-    }
-
-    // Split current observation set based on indices
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets;
-    for( unsigned int k = 0; k < indicesNewSets.size( ); k++ )
-    {
-        int startIndex = indicesNewSets.at( k ).first;
-        int sizeCurrentSet = indicesNewSets.at( k ).second;
-
-        std::vector< Eigen::VectorXd > newDependentVariables;
-        if( !dependentVariables.empty( ) )
-        {
-            newDependentVariables = utilities::getStlVectorSegment(
-                    observationSet->getObservationsDependentVariablesReference( ), startIndex, sizeCurrentSet );
-        }
-
-        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet =
-                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                        observationSet->getObservableType( ),
-                        observationSet->getLinkEnds( ),
-                        utilities::getStlVectorSegment( observationSet->getObservationsReference( ), startIndex, sizeCurrentSet ),
-                        utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
-                        observationSet->getReferenceLinkEnd( ),
-                        newDependentVariables,
-                        observationSet->getDependentVariableBookkeeping( ),
-                        observationSet->getAncillarySettings( ) );
-
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-        newSet->setTabulatedWeights( newWeightsVector );
-
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
-                utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
-        newSet->setResiduals( newResiduals );
-
-        newObsSets.push_back( newSet );
-    }
-
-    return newObsSets;
-}
+        const bool printWarning = true );
 
 }  // namespace observation_models
 
 }  // namespace tudat
+
+#include "tudat/simulation/estimation_setup/singleObservationSetFilteringAndAppending.h"
+#include "tudat/simulation/estimation_setup/singleObservationSetUtilities.h"
 
 #endif  // TUDAT_SINGLE_OBSERVATION_SET_H

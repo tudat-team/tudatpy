@@ -48,11 +48,25 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                   << std::endl;
     }
 
-    const Eigen::VectorXd weightsMatrixDiagonals = estimationInput->getWeightsMatrixDiagonals( );
-    if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
+    const Eigen::VectorXd weightsMatrixDiagonal = estimationInput->getWeightsMatrixDiagonals( );
+    const bool hasOffDiagonalWeights = estimationInput->hasOffDiagonalWeights( );
+    // Retrieve either the sparse full matrix (correlated case) or validate diagonal-only input.
+    Eigen::SparseMatrix< double > weightsMatrix;
+    if( hasOffDiagonalWeights )
+    {
+        weightsMatrix = estimationInput->getWeightsMatrix( );
+        if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights matrix (" +
+                                      std::to_string( weightsMatrix.rows( ) ) + ", " + std::to_string( weightsMatrix.cols( ) ) +
+                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
+                                      ")" );
+        }
+    }
+    else if( weightsMatrixDiagonal.rows( ) != totalNumberOfObservations )
     {
         throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
-                                  std::to_string( weightsMatrixDiagonals.rows( ) ) + ") is not compatible with number of observations (" +
+                                  std::to_string( weightsMatrixDiagonal.rows( ) ) + ") is not compatible with number of observations (" +
                                   std::to_string( totalNumberOfObservations ) + ")" );
     }
     // Declare variables to be returned (i.e. results from best iteration)
@@ -190,19 +204,37 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             {
                 conditionNumberCheck = TUDAT_NAN;
             }
-            // Perform LSQ inversion
-            leastSquaresOutput = std::move(
-                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                   residuals.template cast< double >( ),
-                                                                                   weightsMatrixDiagonals,
-                                                                                   normalizedInverseAprioriCovarianceMatrix,
-                                                                                   conditionNumberCheck,
-                                                                                   constraintStateMultiplier,
-                                                                                   constraintRightHandSide,
-                                                                                   designMatrixConsiderParameters,
-                                                                                   normalizedConsiderParametersDeviation,
-                                                                                   interArcContribution.additionalNormalMatrix,
-                                                                                   interArcContribution.additionalRightHandSide ) );
+            // Perform LSQ inversion using either sparse full weights or diagonal weights.
+            if( hasOffDiagonalWeights )
+            {
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrix,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
+            }
+            else
+            {
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrixDiagonal,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
+            }
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -226,12 +258,25 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
         {
-            covarianceContributionConsiderParameters =
-                    linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
-                                                                                       designMatrixEstimatedParameters,
-                                                                                       weightsMatrixDiagonals,
-                                                                                       designMatrixConsiderParameters,
-                                                                                       normalizedConsiderCovariance );
+            // Compute consider-parameter contribution with the same weight representation used in the normal matrix.
+            if( hasOffDiagonalWeights )
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrix,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
+            else
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrixDiagonal,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
         }
         else
         {
@@ -240,7 +285,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
-        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        if( hasOffDiagonalWeights )
+        {
+            costFunction =
+                    linear_algebra::computeLeastSquaresCostFunctionFromFullWeights( weightsMatrix, residuals.template cast< double >( ) );
+        }
+        else
+        {
+            costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonal, residuals.template cast< double >( ) );
+        }
         // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
         // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
         // remain meaningful.
@@ -292,7 +345,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
                 bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
             }
-            bestWeightsMatrixDiagonal = weightsMatrixDiagonals;
+            bestWeightsMatrixDiagonal = weightsMatrixDiagonal;
             bestTransformationData = std::move( normalizationTerms );
             bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
             bestIteration = numberOfIterations;
