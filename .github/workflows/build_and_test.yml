@@ -287,6 +287,31 @@ jobs:
       run: |
         python install.py -e
 
+    - name: Restore resources cache
+      id: cache-resources
+      uses: actions/cache@v4
+      with:
+        path: resources.tar.gz
+        key: tudat-resources-${{ hashFiles('tests/resource-catalog.txt') }}
+
+    - name: Extract resources
+      if: steps.cache-resources.outputs.cache-hit == 'true'
+      run: |
+        mkdir -p $HOME/.tudat/resource/
+        tar -xzf resources.tar.gz -C $HOME/.tudat/resource/
+
+    - name: Download resources
+      if: steps.cache-resources.outputs.cache-hit != 'true'
+      shell: bash -l {0}
+      run: |
+        python -m tudatpy.resource_installer --mode manifest
+        python -m tudatpy.resource_installer --mode update --files $(cat tests/resource-catalog.txt)
+
+    - name: Pack resources
+      if: steps.cache-resources.outputs.cache-hit != 'true'
+      run: |
+        tar -czf resources.tar.gz -C $HOME/.tudat/resource/ -T tests/resource-catalog.txt
+
     - name: Test Python
       shell: bash -l {0}
       run: |
