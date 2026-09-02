@@ -40,10 +40,11 @@ namespace integrator_detail
 {
 
 template< typename ScalarType >
-ScalarType getAbsoluteTolerance( const ScalarType& tolerance )
+ScalarType getAbsoluteValue( const ScalarType& value )
 {
+    // Unqualified lookup with std::abs as a fallback also finds multiprecision overloads through ADL.
     using std::abs;
-    return abs( tolerance );
+    return abs( value );
 }
 
 }  // namespace integrator_detail
@@ -212,9 +213,9 @@ public:
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
                 StateType::Constant(
-                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteValue( relativeErrorTolerance ) ),
                 StateType::Constant(
-                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
+                        initialState.rows( ), initialState.cols( ), integrator_detail::getAbsoluteValue( absoluteErrorTolerance ) ),
                 static_cast< double >( safetyFactorForNextStepSize ),
                 coefficients_.lowerOrder + 1,
                 static_cast< double >( minimumFactorDecreaseForNextStepSize ),

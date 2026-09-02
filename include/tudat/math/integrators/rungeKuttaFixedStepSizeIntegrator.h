@@ -19,7 +19,6 @@
 #define TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
 
 #include <memory>
-#include <type_traits>
 
 #include <Eigen/Core>
 

@@ -737,10 +737,6 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
     const Time offsetRoundTripTdbTime = timeScaleConverter->getCurrentTime< Time >(
             basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, offsetUtcTime, stationPosition );
     const Scalar roundTripTdbTimeIncrement = convertIndependentVariableToScalar< Scalar >( offsetRoundTripTdbTime - roundTripTdbTime );
-    const Scalar tdbToUtcCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
-            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, offsetObservationTime, stationPosition );
-    const Scalar utcToTdbCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, offsetUtcTime, stationPosition );
 
     // The SOFA TDB-TT model is evaluated in double, but it is added to a Time.
     // At epochs away from a leap-second boundary, the common correction must
@@ -749,15 +745,11 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
                                                                              : scalarFromDecimalString< Scalar >( "7.5e-13" );
     std::cout << "TDB->UTC increment error [s]: " << getAbsoluteValue( utcTimeIncrement - representedTimeIncrement )
               << ", UTC->TDB round-trip increment error [s]: " << getAbsoluteValue( roundTripTdbTimeIncrement - representedTimeIncrement )
-              << ", time increment tolerance [s]: " << timeIncrementTolerance
-              << ", TDB->UTC correction change [s]: " << tdbToUtcCorrectionChange
-              << ", UTC->TDB correction change [s]: " << utcToTdbCorrectionChange << std::endl;
+              << ", time increment tolerance [s]: " << timeIncrementTolerance << std::endl;
     BOOST_CHECK( utcTimeIncrement > static_cast< Scalar >( 0 ) );
     BOOST_CHECK( roundTripTdbTimeIncrement > static_cast< Scalar >( 0 ) );
     BOOST_CHECK( getAbsoluteValue( utcTimeIncrement - representedTimeIncrement ) < timeIncrementTolerance );
     BOOST_CHECK( getAbsoluteValue( roundTripTdbTimeIncrement - representedTimeIncrement ) < timeIncrementTolerance );
-    BOOST_CHECK( getAbsoluteValue( tdbToUtcCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
-    BOOST_CHECK( getAbsoluteValue( utcToTdbCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
 
     observation_models::LinkEnds dsnLinkEnds;
     dsnLinkEnds[ observation_models::transmitter ] = observation_models::linkEndId( "Earth", stationName );

@@ -16,7 +16,6 @@
 
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/eopReader.h"
@@ -182,50 +181,6 @@ public:
     {
         Time convertedTime = getCurrentTime< Time >( inputScale, outputScale, Time( inputTimeValue ), earthFixedPosition );
         return static_cast< TimeType >( convertedTime - Time( inputTimeValue ) );
-    }
-
-    //! Difference between the conversion corrections at two epochs.
-    /*!
-     * This function evaluates only the change in the additive time-scale
-     * correction. It avoids subtracting two converted absolute Time values,
-     * whose independent long-double normalization can dominate very short
-     * intervals in compressed Doppler observables.
-     */
-    template< typename OutputScalarType, typename TimeType >
-    OutputScalarType getTimeScaleConversionCorrectionDifference( const basic_astrodynamics::TimeScales inputScale,
-                                                                 const basic_astrodynamics::TimeScales outputScale,
-                                                                 const TimeType& startTime,
-                                                                 const TimeType& endTime,
-                                                                 const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
-    {
-        if( inputScale == basic_astrodynamics::tdb_scale && outputScale == basic_astrodynamics::utc_scale )
-        {
-            const TimeType startUtc = getCurrentTime< TimeType >( inputScale, outputScale, startTime, earthFixedPosition );
-            const TimeType endUtc = getCurrentTime< TimeType >( inputScale, outputScale, endTime, earthFixedPosition );
-            const double startDeltaAt =
-                    sofa_interface::getDeltaAtFromUtc( static_cast< double >( startUtc ) / physical_constants::JULIAN_DAY );
-            const double endDeltaAt = sofa_interface::getDeltaAtFromUtc( static_cast< double >( endUtc ) / physical_constants::JULIAN_DAY );
-            return -getInterpolatedTdbMinusTtDifference< OutputScalarType >( startTime, endTime, earthFixedPosition ) -
-                    ( static_cast< OutputScalarType >( endDeltaAt ) - static_cast< OutputScalarType >( startDeltaAt ) );
-        }
-        else if( inputScale == basic_astrodynamics::utc_scale && outputScale == basic_astrodynamics::tdb_scale )
-        {
-            const double startDeltaAt =
-                    sofa_interface::getDeltaAtFromUtc( static_cast< double >( startTime ) / physical_constants::JULIAN_DAY );
-            const double endDeltaAt =
-                    sofa_interface::getDeltaAtFromUtc( static_cast< double >( endTime ) / physical_constants::JULIAN_DAY );
-            const TimeType startTt = basic_astrodynamics::convertTAItoTT< TimeType >( startTime + static_cast< TimeType >( startDeltaAt ) );
-            const TimeType endTt = basic_astrodynamics::convertTAItoTT< TimeType >( endTime + static_cast< TimeType >( endDeltaAt ) );
-            return ( static_cast< OutputScalarType >( endDeltaAt ) - static_cast< OutputScalarType >( startDeltaAt ) ) +
-                    getInterpolatedTdbMinusTtDifference< OutputScalarType >( startTt, endTt, earthFixedPosition );
-        }
-        else
-        {
-            const TimeType convertedStart = getCurrentTime< TimeType >( inputScale, outputScale, startTime, earthFixedPosition );
-            const TimeType convertedEnd = getCurrentTime< TimeType >( inputScale, outputScale, endTime, earthFixedPosition );
-            return convertIndependentVariableToScalar< OutputScalarType >( convertedEnd - convertedStart ) -
-                    convertIndependentVariableToScalar< OutputScalarType >( endTime - startTime );
-        }
     }
 
     //! Function to convert a vector of time values from the input to the output scale.
@@ -455,34 +410,6 @@ public:
     }
 
 private:
-    template< typename OutputScalarType, typename TimeType >
-    OutputScalarType getInterpolatedTdbMinusTtDifference( const TimeType& startTime,
-                                                          const TimeType& endTime,
-                                                          const Eigen::Vector3d& earthFixedPosition )
-    {
-        const long double interval = static_cast< long double >( endTime - startTime );
-        const long double midpoint = static_cast< long double >( startTime ) + interval / 2.0L;
-
-        // SOFA returns the correction in double. Interpolate the correction
-        // difference on a fixed grid so that sub-double epoch changes vary
-        // continuously instead of jumping between adjacent double epochs.
-        constexpr long double correctionGridSize = 1.0e-3L;
-        const long double lowerGridMidpoint = std::floor( midpoint / correctionGridSize ) * correctionGridSize;
-        const OutputScalarType interpolationFraction =
-                static_cast< OutputScalarType >( ( midpoint - lowerGridMidpoint ) / correctionGridSize );
-
-        const auto getDifferenceAtMidpoint = [ & ]( const long double evaluationMidpoint ) {
-            return static_cast< OutputScalarType >(
-                           getTDBminusTT( static_cast< double >( evaluationMidpoint + interval / 2.0L ), earthFixedPosition ) ) -
-                    static_cast< OutputScalarType >(
-                            getTDBminusTT( static_cast< double >( evaluationMidpoint - interval / 2.0L ), earthFixedPosition ) );
-        };
-
-        const OutputScalarType lowerDifference = getDifferenceAtMidpoint( lowerGridMidpoint );
-        const OutputScalarType upperDifference = getDifferenceAtMidpoint( lowerGridMidpoint + correctionGridSize );
-        return lowerDifference + interpolationFraction * ( upperDifference - lowerDifference );
-    }
-
     double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d earthFixedPosition )
     {
         auto tupleToCheck = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
