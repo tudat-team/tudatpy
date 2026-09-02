@@ -2,7 +2,7 @@
 Unit tests for photocenter correction calculations in photocenter_correction.py
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 import numpy as np
@@ -378,22 +378,25 @@ def test_spherical_corrections_integration():
     )
 
 
-def test_ellipsoidal_corrections_use_rotation_at_emission_time():
-    """Test that the body orientation is evaluated at the time of emission, i.e. one light time before reception"""
-    bodies_mock = _mock_bodies()
+def test_ellipsoidal_corrections_use_target_state_and_rotation_at_emission_time():
+    """Test that the target state and orientation use the same approximate emission time, while the Sun uses reception."""
+    bodies = _mock_bodies()
     observations = np.array([[0.0, np.pi / 2, 0.0]])
 
     photocenter_correction_angular_observations(
         observations=observations,
         body_dimensions=[300.0, 200.0, 150.0],
-        bodies=bodies_mock,
+        bodies=bodies,
         body_name="Asteroid",
         observer_body_name="Observer",
     )
 
     # Observer and asteroid are 1e11 m apart in the mocked geometry
     expected_epoch = 0.0 - 1e11 / SPEED_OF_LIGHT
-    rotation_model = bodies_mock.get("Asteroid").rotation_model
+    asteroid = bodies.get("Asteroid")
+    asteroid.state_in_base_frame_from_ephemeris.assert_has_calls([call(0.0), call(expected_epoch)])
+    bodies.get("Sun").state_in_base_frame_from_ephemeris.assert_called_once_with(0.0)
+    rotation_model = asteroid.rotation_model
     rotation_model.inertial_to_body_fixed_rotation.assert_called_once_with(expected_epoch)
 
 

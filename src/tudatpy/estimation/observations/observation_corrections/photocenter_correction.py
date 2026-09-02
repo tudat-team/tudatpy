@@ -267,6 +267,11 @@ def photocenter_correction_angular_observations(
     the principal axes of the ellipsoid in the same order as the body_dimensions parameter. The corrections returned
     by this function should be added to observations (or the apply_* function should be used).
 
+    The observation epochs are assumed to be reception times. A one-step geometric light-time approximation is used
+    to determine the emission epoch: the target and observer positions at reception are used to estimate the light
+    time, after which the target's translational and rotational states are evaluated at the approximate emission epoch.
+    The observer and Sun positions remain evaluated at reception time; no solar light-time correction is applied.
+
     Parameters
     ----------
     observations : np.ndarray
@@ -337,7 +342,7 @@ def photocenter_correction_angular_observations(
 
     for observation_epoch, right_ascension, declination in observations:
 
-        # Get inertial positions of sun, body and observer
+        # Get inertial positions of Sun, target, and observer at reception time
         if observer_ephemeris is not None:
             observer_inertial_position = observer_ephemeris.cartesian_position(observation_epoch)
         else:
@@ -347,12 +352,19 @@ def photocenter_correction_angular_observations(
         sun_inertial_position = bodies.get("Sun").state_in_base_frame_from_ephemeris(
             observation_epoch
         )[:3]
-        observed_body_inertial_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(
-            observation_epoch
-        )[:3]
+        observed_body_inertial_position_at_reception = bodies.get(
+            body_name
+        ).state_in_base_frame_from_ephemeris(observation_epoch)[:3]
         observer_to_observed_body_distance = np.linalg.norm(
-            observer_inertial_position - observed_body_inertial_position
+            observer_inertial_position - observed_body_inertial_position_at_reception
         )
+
+        # Use one geometric light-time iteration to approximate the target's emission epoch
+        observed_body_to_observer_light_time = observer_to_observed_body_distance / SPEED_OF_LIGHT
+        approximate_emission_epoch = observation_epoch - observed_body_to_observer_light_time
+        observed_body_inertial_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(
+            approximate_emission_epoch
+        )[:3]
 
         # Inertial directions of sun and observer from observed body
         unit_vector_to_sun_inertial = _unit(sun_inertial_position - observed_body_inertial_position)
@@ -360,10 +372,9 @@ def photocenter_correction_angular_observations(
             observer_inertial_position - observed_body_inertial_position
         )
 
-        # Retrieve rotational state of ellipsoid body at time of emission
-        observed_body_to_observer_light_time = observer_to_observed_body_distance / SPEED_OF_LIGHT
+        # Retrieve rotational state of ellipsoid body at the same approximate emission epoch
         inertial_to_body_fixed_rotation_matrix = inertial_to_body_fixed_rotation(
-            observation_epoch - observed_body_to_observer_light_time
+            approximate_emission_epoch
         )
 
         unit_vector_to_sun_body_fixed = (
