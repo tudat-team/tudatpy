@@ -210,6 +210,35 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
     return distanceToLink < radius;
 }
 
+bool BodyInSunlightCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                    const std::vector< double >& linkEndTimes,
+                                                    const Eigen::VectorXd& )
+{
+    for( const std::pair< int, int >& linkEndIndices : linkEndIndices_ )
+    {
+        const int bodyIndex = linkEndIndices.first;
+        const double bodyTime = linkEndTimes.at( bodyIndex );
+        const Eigen::Vector3d bodyPosition = linkEndStates.at( bodyIndex ).segment( 0, 3 );
+        const Eigen::Vector3d sunPosition = sunStateFunction_( bodyTime ).segment( 0, 3 );
+
+        for( unsigned int i = 0; i < occultingBodyStateFunctions_.size( ); i++ )
+        {
+            const double shadowFunction =
+                    mission_geometry::computeShadowFunction( sunPosition,
+                                                             sunRadius_,
+                                                             occultingBodyStateFunctions_.at( i )( bodyTime ).segment( 0, 3 ),
+                                                             occultingBodyRadii_.at( i ),
+                                                             bodyPosition );
+
+            if( shadowFunction < minimumShadowFunctionValue_ )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 //! Function for determining whether the link is occulted during the observataion.
 bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
                                                  const std::vector< double >& linkEndTimes,

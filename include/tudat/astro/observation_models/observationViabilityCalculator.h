@@ -39,7 +39,9 @@ enum ObservationViabilityType {
     minimum_elevation_angle,  // properties: no string, double = elevation angle
     body_avoidance_angle,     // properties: string = body to avoid, double = avoidance angle
     body_occultation,         // properties: string = occulting body, no double
-    observation_boundaries    // properties: vector of pairs of observation boundaries.
+    observation_boundaries,   // properties: vector of pairs of observation boundaries.
+    ground_station_darkness,  // properties: no string, double = maximum Sun elevation angle
+    body_in_sunlight          // properties: vector of occulting bodies, double = minimum shadow function value
 };
 
 //! Base class for determining whether an observation is possible or not
@@ -265,6 +267,46 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
                          const Eigen::Vector3d observer2Position,
                          const Eigen::Vector3d occulterPosition,
                          const double radius );
+
+//! Function to check whether a link-end body is illuminated by the Sun.
+/*!
+ *  Function to check whether a link-end body is illuminated by the Sun. Unlike OccultationCalculator, which treats the Sun as a
+ *  point source and only checks for full occultation, this class treats the Sun as an extended source and computes the shadow
+ *  function (see mission_geometry::computeShadowFunction) for each occulting body. The observation is viable if the shadow
+ *  function value, for every occulting body, is at least minimumShadowFunctionValue_ (e.g. a value of 1 requires the body to be
+ *  fully exposed to the Sun, excluding any degree of penumbra/antumbra/umbra).
+ */
+class BodyInSunlightCalculator : public ObservationViabilityCalculator
+{
+public:
+    BodyInSunlightCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                              const std::function< Eigen::Vector6d( const double ) > sunStateFunction,
+                              const double sunRadius,
+                              const std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions,
+                              const std::vector< double > occultingBodyRadii,
+                              const double minimumShadowFunctionValue ):
+        linkEndIndices_( linkEndIndices ), sunStateFunction_( sunStateFunction ), sunRadius_( sunRadius ),
+        occultingBodyStateFunctions_( occultingBodyStateFunctions ), occultingBodyRadii_( occultingBodyRadii ),
+        minimumShadowFunctionValue_( minimumShadowFunctionValue )
+    {
+        if( occultingBodyStateFunctions_.size( ) != occultingBodyRadii_.size( ) )
+        {
+            throw std::runtime_error( "Inconsistent number of occulting-body state functions and radii." );
+        }
+    }
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes,
+                              const Eigen::VectorXd& observationValue = Eigen::VectorXd( ) );
+
+private:
+    std::vector< std::pair< int, int > > linkEndIndices_;
+    std::function< Eigen::Vector6d( const double ) > sunStateFunction_;
+    double sunRadius_;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions_;
+    std::vector< double > occultingBodyRadii_;
+    double minimumShadowFunctionValue_;
+};
 
 //! Function to check whether an observation is possible, based on whether a given body is causing an occultation of the link
 /*!

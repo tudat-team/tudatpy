@@ -167,6 +167,54 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
             occultingBodyRadius );
 }
 
+std::shared_ptr< BodyInSunlightCalculator > createBodyInSunlightCalculator(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+{
+    if( observationViabilitySettings->observationViabilityType_ != body_in_sunlight )
+    {
+        throw std::runtime_error( "Error when making body-in-sunlight calculator, inconsistent input" );
+    }
+    const std::shared_ptr< BodyInSunlightViabilitySettings > sunlightSettings =
+            std::dynamic_pointer_cast< BodyInSunlightViabilitySettings >( observationViabilitySettings );
+    if( sunlightSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when making body-in-sunlight calculator, inconsistent settings type" );
+    }
+    if( bodies.count( "Sun" ) == 0 || bodies.at( "Sun" )->getShapeModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when making body-in-sunlight calculator, Sun or Sun shape model not found." );
+    }
+
+    const double sunRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
+    const std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
+            &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( "Sun" ), std::placeholders::_1 );
+    std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions;
+    std::vector< double > occultingBodyRadii;
+    for( const std::string& occultingBody : sunlightSettings->getOccultingBodies( ) )
+    {
+        if( bodies.count( occultingBody ) == 0 || bodies.at( occultingBody )->getShapeModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when making body-in-sunlight calculator, body or shape model for " + occultingBody +
+                                      " not found." );
+        }
+        occultingBodyStateFunctions.push_back( std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                                                          bodies.at( occultingBody ),
+                                                          std::placeholders::_1 ) );
+        occultingBodyRadii.push_back( bodies.at( occultingBody )->getShapeModel( )->getAverageRadius( ) );
+    }
+
+    return std::make_shared< BodyInSunlightCalculator >(
+            getLinkStateAndTimeIndicesForLinkEnd( linkEnds, observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
+            sunStateFunction,
+            sunRadius,
+            occultingBodyStateFunctions,
+            occultingBodyRadii,
+            sunlightSettings->getDoubleParameter( ) );
+}
+
 std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBoundariesCalculator(
         const ObservableType observationType,
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
