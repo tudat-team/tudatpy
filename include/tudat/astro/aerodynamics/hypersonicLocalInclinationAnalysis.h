@@ -18,11 +18,11 @@
 #ifndef TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 #define TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
 
-#include <boost/array.hpp>
 #include <boost/multi_array.hpp>
 #include <memory>
 
@@ -125,7 +125,7 @@ public:
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    Eigen::Vector6d getAerodynamicCoefficientsDataPoint( const boost::array< int, 3 > independentVariables );
+    Eigen::Vector6d getAerodynamicCoefficientsDataPoint( const std::array< int, 3 > independentVariables );
 
     //! Determine inclination angles of panels on a given part.
     /*!
@@ -197,7 +197,7 @@ public:
         return paneSurfaceNormalList;
     }
 
-    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList( const boost::array< int, 3 > independentVariables )
+    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList( const std::array< int, 3 > independentVariables )
     {
         return pressureCoefficientList_.at( independentVariables );
     }
@@ -210,7 +210,7 @@ public:
             vehicleParts_.at( i )->clear( );
         }
 
-        boost::array< int, 3 > numberOfPointsPerIndependentVariables;
+        std::array< int, 3 > numberOfPointsPerIndependentVariables;
         numberOfPointsPerIndependentVariables[ 0 ] = 0;
         numberOfPointsPerIndependentVariables[ 1 ] = 0;
         numberOfPointsPerIndependentVariables[ 2 ] = 0;
@@ -256,7 +256,7 @@ private:
      * \param independentVariableIndices Array of indices from lists of Mach number,
      *          angle of attack and angle of sideslip points at which to perform analysis.
      */
-    void determineVehicleCoefficients( const boost::array< int, 3 > independentVariableIndices );
+    void determineVehicleCoefficients( const std::array< int, 3 > independentVariableIndices );
 
     //! Determine aerodynamic coefficients for a single LaWGS part.
     /*!
@@ -266,7 +266,7 @@ private:
      * \param independentVariableIndices Array of indices of independent variables.
      * \return Force and moment coefficients for requested vehicle part.
      */
-    Eigen::Vector6d determinePartCoefficients( const int partNumber, const boost::array< int, 3 > independentVariableIndices );
+    Eigen::Vector6d determinePartCoefficients( const int partNumber, const std::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -275,7 +275,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    void determinePressureCoefficients( const int partNumber, const boost::array< int, 3 > independentVariableIndices );
+    void determinePressureCoefficients( const int partNumber, const std::array< int, 3 > independentVariableIndices );
 
     //! Determine force coefficients of a part.
     /*!
@@ -347,7 +347,7 @@ private:
      */
     std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
 
-    std::map< boost::array< int, 3 >, std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
+    std::map< std::array< int, 3 >, std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
 
     //! Stagnation pressure coefficient.
     /*!

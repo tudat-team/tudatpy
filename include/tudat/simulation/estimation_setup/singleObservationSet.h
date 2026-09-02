@@ -21,12 +21,19 @@
 #include <utility>
 #include <vector>
 
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -1640,7 +1647,7 @@ private:
     }
 
     //! Observable type shared by all observations in this set.
-    const ObservableType observableType_;
+    ObservableType observableType_;
 
     //! Link-end definition shared by all observations in this set.
     LinkDefinition linkEnds_;
@@ -1655,7 +1662,7 @@ private:
     std::vector< TimeType > observationTimes_;
 
     //! Reference link end used when interpreting the observable.
-    const LinkEndType referenceLinkEnd_;
+    LinkEndType referenceLinkEnd_;
 
     //! Optional dependent-variable vectors, aligned with observations_.
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
@@ -1664,7 +1671,7 @@ private:
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
     //! Ancillary settings shared by all observations in this set.
-    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     //! Number of active observations currently stored.
     unsigned int numberOfObservations_;
@@ -1685,6 +1692,113 @@ private:
 
     //! Full-weight cross block coupling active observations to filtered observations.
     Eigen::MatrixXd fullWeightCrossCorrelationWithFilteredSet_;
+
+public:
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
+            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
+        };
+        const auto matricesEqual = []( const auto& lhs, const auto& rhs ) {
+            return lhs.rows( ) == rhs.rows( ) && lhs.cols( ) == rhs.cols( ) && lhs.isApprox( rhs, 0.0 );
+        };
+        const auto matrixVectorsEqual = [ &matricesEqual ]( const auto& lhs, const auto& rhs ) {
+            if( lhs.size( ) != rhs.size( ) )
+            {
+                return false;
+            }
+            for( unsigned int i = 0; i < lhs.size( ); i++ )
+            {
+                if( !matricesEqual( lhs.at( i ), rhs.at( i ) ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+        const bool weightStatesEqual = weightState_.matrixType == rhs.weightState_.matrixType &&
+                matrixVectorsEqual( weightState_.diagonalWeights, rhs.weightState_.diagonalWeights ) &&
+                matrixVectorsEqual( weightState_.blockWeights, rhs.weightState_.blockWeights ) &&
+                matricesEqual( weightState_.fullWeights, rhs.weightState_.fullWeights );
+
+        return observableType_ == rhs.observableType_ && linkEnds_ == rhs.linkEnds_ && timeBounds_ == rhs.timeBounds_ &&
+                observations_ == rhs.observations_ && observationTimes_ == rhs.observationTimes_ &&
+                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observationsDependentVariables_ == rhs.observationsDependentVariables_ &&
+                pointedObjectsEqual( dependentVariableBookkeeping_, rhs.dependentVariableBookkeeping_ ) &&
+                pointedObjectsEqual( ancillarySettings_, rhs.ancillarySettings_ ) && numberOfObservations_ == rhs.numberOfObservations_ &&
+                singleObservationSize_ == rhs.singleObservationSize_ && weightStatesEqual && residuals_ == rhs.residuals_ &&
+                pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ ) &&
+                matricesEqual( fullWeightCrossCorrelationWithFilteredSet_, rhs.fullWeightCrossCorrelationWithFilteredSet_ );
+    }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
+
+protected:
+    // Default constructor for serialization
+    SingleObservationSet( ):
+        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), numberOfObservations_( 0 ),
+        singleObservationSize_( 0 )
+    {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( cereal::make_nvp( "weightMatrixType", weightState_.matrixType ) );
+        ar( cereal::make_nvp( "diagonalWeights", weightState_.diagonalWeights ) );
+        ar( cereal::make_nvp( "blockWeights", weightState_.blockWeights ) );
+        ar( cereal::make_nvp( "fullWeights", weightState_.fullWeights ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+        ar( CEREAL_NVP( fullWeightCrossCorrelationWithFilteredSet_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( observableType_ ) );
+        ar( CEREAL_NVP( linkEnds_ ) );
+        ar( CEREAL_NVP( timeBounds_ ) );
+        ar( CEREAL_NVP( observations_ ) );
+        ar( CEREAL_NVP( observationTimes_ ) );
+        ar( CEREAL_NVP( referenceLinkEnd_ ) );
+        ar( CEREAL_NVP( observationsDependentVariables_ ) );
+        ar( CEREAL_NVP( dependentVariableBookkeeping_ ) );
+        ar( CEREAL_NVP( ancillarySettings_ ) );
+        ar( CEREAL_NVP( numberOfObservations_ ) );
+        ar( CEREAL_NVP( singleObservationSize_ ) );
+        ar( cereal::make_nvp( "weightMatrixType", weightState_.matrixType ) );
+        ar( cereal::make_nvp( "diagonalWeights", weightState_.diagonalWeights ) );
+        ar( cereal::make_nvp( "blockWeights", weightState_.blockWeights ) );
+        ar( cereal::make_nvp( "fullWeights", weightState_.fullWeights ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( filteredObservationSet_ ) );
+        ar( CEREAL_NVP( fullWeightCrossCorrelationWithFilteredSet_ ) );
+    }
 };
 
 template< typename ObservationScalarType = double,

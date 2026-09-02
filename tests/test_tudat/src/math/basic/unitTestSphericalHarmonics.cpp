@@ -9,7 +9,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 // Deal with deprecation past boost version 1.67.
@@ -20,7 +19,7 @@
 // #endif
 #include <boost/test/tools/floating_point_comparison.hpp>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 

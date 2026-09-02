@@ -14,8 +14,6 @@
 
 #include <map>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"

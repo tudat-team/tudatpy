@@ -1,20 +1,25 @@
 """
 Functions to calculate light deflection corrections to observations
 """
+
 import numpy as np
 from numpy.linalg import norm
 from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.dynamics.environment import SystemOfBodies
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
-from ._correction_utils import _offset_vector_to_corrections, _apply_corrections_to_observation_collection
+from ._correction_utils import (
+    _offset_vector_to_corrections,
+    _apply_corrections_to_observation_collection,
+)
 from tudatpy.constants import SPEED_OF_LIGHT
 from collections.abc import Iterable
 
+
 def _light_deflection_single_contribution(
-        observer_position: np.ndarray,
-        body_position: np.ndarray,
-        perturber_position: np.ndarray,
-        mu_perturber: float
+    observer_position: np.ndarray,
+    observed_body_position: np.ndarray,
+    perturbing_body_position: np.ndarray,
+    perturbing_body_gravitational_parameter: float,
 ) -> np.ndarray:
     """
     Helper function to calculate post-Newtonian light-bending contribution from one body (delta k_pn in Klioner (2003))
@@ -23,11 +28,11 @@ def _light_deflection_single_contribution(
     ----------
     observer_position : np.ndarray
         Position vector of observer at time of observation
-    body_position : np.ndarray
+    observed_body_position : np.ndarray
         Position vector of body being observed at time of emission
-    perturber_position : np.ndarray
+    perturbing_body_position : np.ndarray
         Position vector of perturber at reference time
-    mu_perturber : float
+    perturbing_body_gravitational_parameter : float
         Gravitational parameter of perturber
 
     Returns
@@ -35,29 +40,52 @@ def _light_deflection_single_contribution(
     np.ndarray
         Individual contribution to total light deflection
     """
-    # Define vectors from Klioner 2003
-    position_observer_wrt_body = observer_position - body_position  # R
-    position_body_wrt_perturber = body_position - perturber_position # r_ea
-    position_observer_wrt_perturber = observer_position - perturber_position # r_oA
+    # Relative-position vectors from Klioner (2003), Eq. 70: R, r_eA, and r_oA.
+    position_observer_with_respect_to_observed_body = (
+        observer_position - observed_body_position
+    )  # Represents R in Klioner (2003), Eq. 70.
+    position_observed_body_with_respect_to_perturbing_body = (
+        observed_body_position - perturbing_body_position
+    )  # Represents r_eA in Klioner (2003), Eq. 70.
+    position_observer_with_respect_to_perturbing_body = (
+        observer_position - perturbing_body_position
+    )  # Represents r_oA in Klioner (2003), Eq. 70.
 
     # Calculate contribution of deflection from perturber body
-    strength_factor = (2 * mu_perturber) / (SPEED_OF_LIGHT ** 2)
-    num = np.cross(position_observer_wrt_body, np.cross(position_body_wrt_perturber, position_observer_wrt_perturber))
-    denom = norm(position_observer_wrt_body) * norm(position_observer_wrt_perturber) * (
-            norm(position_body_wrt_perturber) * norm(position_observer_wrt_perturber) +
-            np.dot(position_observer_wrt_perturber, position_body_wrt_perturber))
-    offset_vec = strength_factor * num / denom
+    relativistic_strength_factor = (2 * perturbing_body_gravitational_parameter) / SPEED_OF_LIGHT**2
+    cross_product_numerator = np.cross(
+        position_observer_with_respect_to_observed_body,
+        np.cross(
+            position_observed_body_with_respect_to_perturbing_body,
+            position_observer_with_respect_to_perturbing_body,
+        ),
+    )
+    normalization_denominator = (
+        norm(position_observer_with_respect_to_observed_body)
+        * norm(position_observer_with_respect_to_perturbing_body)
+        * (
+            norm(position_observed_body_with_respect_to_perturbing_body)
+            * norm(position_observer_with_respect_to_perturbing_body)
+            + np.dot(
+                position_observer_with_respect_to_perturbing_body,
+                position_observed_body_with_respect_to_perturbing_body,
+            )
+        )
+    )
+    light_deflection_offset = (
+        relativistic_strength_factor * cross_product_numerator / normalization_denominator
+    )
 
-    return offset_vec
+    return light_deflection_offset
 
 
 def light_deflection_correction_angular_observations(
-        observations: np.ndarray,
-        bodies: SystemOfBodies,
-        body_name: str,
-        observer_body_name: str,
-        observer_reference_name: str | None = None,
-        perturbing_bodies_list: Iterable[str] = ('Sun',),
+    observations: np.ndarray,
+    bodies: SystemOfBodies,
+    body_name: str,
+    observer_body_name: str,
+    observer_reference_name: str | None = None,
+    perturbing_bodies_list: Iterable[str] = ("Sun",),
 ) -> np.ndarray:
     r"""
     Compute corrections to angular observations for the relativistic deflection of light around massive bodies.
@@ -102,84 +130,105 @@ def light_deflection_correction_angular_observations(
     """
     # Input validation
     if observations.shape[1] != 3:
-        raise ValueError(f'Observations must be in shape N x 3 with columns time, RA, DEC')
-    body_or_ephemeris_undefined = [not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
-                for name in list(perturbing_bodies_list) + [body_name, observer_body_name]]
+        raise ValueError(f"Observations must be in shape N x 3 with columns time, RA, DEC")
+    body_or_ephemeris_undefined = [
+        not bodies.does_body_exist(name) or bodies.get(name).ephemeris is None
+        for name in list(perturbing_bodies_list) + [body_name, observer_body_name]
+    ]
     if any(body_or_ephemeris_undefined):
-        raise ValueError('Some or all included bodies in the relativistic light deflection computation are missing'
-                         'from SystemOfBodies or their associated ephemerides are not specified.')
+        raise ValueError(
+            "Some or all included bodies in the relativistic light deflection computation are missing"
+            "from SystemOfBodies or their associated ephemerides are not specified."
+        )
 
     # Get observer reference point ephemeris if it exists
     if observer_reference_name is not None:
         observer_ephemeris = create_ground_station_ephemeris(
-            bodies.get(observer_body_name),
-            observer_reference_name,
-            bodies
-        ) # -> in global frame origin/orientation
+            bodies.get(observer_body_name), observer_reference_name, bodies
+        )  # -> in global frame origin/orientation
     else:
         observer_ephemeris = None
 
-    corrections = []
+    angular_corrections = []
 
     # Loop over observations
-    for epoch, ra, dec in observations:
+    for observation_epoch, right_ascension, declination in observations:
         # Position of observer at current epoch:
         if observer_ephemeris is not None:
-            observer_position = observer_ephemeris.cartesian_position(epoch)
+            observer_position = observer_ephemeris.cartesian_position(observation_epoch)
         else:
-            observer_position = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+            observer_position = bodies.get(observer_body_name).state_in_base_frame_from_ephemeris(
+                observation_epoch
+            )[:3]
 
-        body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch)[:3]
+        observed_body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(
+            observation_epoch
+        )[:3]
 
         # One iteration of light-time calculation for light from observed body to observer
-        light_time_body_to_observer = np.linalg.norm(
-            observer_position - body_position
-        ) / SPEED_OF_LIGHT
-
-        # Observed body position at time of emission of light:
-        body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(epoch - light_time_body_to_observer)[:3]
-
-        total_offset = np.zeros(3) # Total deflection accumulated from all bodies
-
-        # Loop over light-deflecting bodies
-        for perturber_name in perturbing_bodies_list:
-
-            mu_perturber = bodies.get(perturber_name).gravitational_parameter
-            perturber_position = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(epoch)[:3]
-
-            # Compute one iteration of light-time from observer to perturbing body
-            light_time_perturber_to_observer = np.linalg.norm(
-                observer_position - perturber_position
-            ) / SPEED_OF_LIGHT
-
-            # Perturber position at reference time
-            perturber_position = bodies.get(perturber_name).state_in_base_frame_from_ephemeris(
-                epoch - light_time_perturber_to_observer)[:3]
-
-            offset_from_perturber = _light_deflection_single_contribution( # Single contribution to light deflection
-                observer_position= observer_position,
-                body_position= body_position,
-                perturber_position= perturber_position,
-                mu_perturber = mu_perturber,
-            )
-            total_offset += offset_from_perturber # Note: omit minus sign of original eq because of convention
-
-
-        corrections.append(
-            _offset_vector_to_corrections(total_offset, ra, dec)
+        observed_body_to_observer_light_time = (
+            np.linalg.norm(observer_position - observed_body_position) / SPEED_OF_LIGHT
         )
 
-    return np.array(corrections)
+        # Observed body position at time of emission of light:
+        observed_body_position = bodies.get(body_name).state_in_base_frame_from_ephemeris(
+            observation_epoch - observed_body_to_observer_light_time
+        )[:3]
+
+        total_light_deflection_offset = np.zeros(3)
+
+        # Loop over light-deflecting bodies
+        for perturbing_body_name in perturbing_bodies_list:
+
+            perturbing_body_gravitational_parameter = bodies.get(
+                perturbing_body_name
+            ).gravitational_parameter
+            perturbing_body_position = bodies.get(
+                perturbing_body_name
+            ).state_in_base_frame_from_ephemeris(observation_epoch)[:3]
+
+            # Compute one iteration of light-time from observer to perturbing body
+            perturbing_body_to_observer_light_time = (
+                np.linalg.norm(observer_position - perturbing_body_position) / SPEED_OF_LIGHT
+            )
+
+            # Perturber position at reference time
+            perturbing_body_position = bodies.get(
+                perturbing_body_name
+            ).state_in_base_frame_from_ephemeris(
+                observation_epoch - perturbing_body_to_observer_light_time
+            )[
+                :3
+            ]
+
+            perturbing_body_light_deflection_offset = _light_deflection_single_contribution(
+                observer_position=observer_position,
+                observed_body_position=observed_body_position,
+                perturbing_body_position=perturbing_body_position,
+                perturbing_body_gravitational_parameter=perturbing_body_gravitational_parameter,
+            )
+            # Omit the minus sign in the original equation because of the correction convention.
+            total_light_deflection_offset += perturbing_body_light_deflection_offset
+
+        angular_corrections.append(
+            _offset_vector_to_corrections(
+                total_light_deflection_offset,
+                right_ascension,
+                declination,
+            )
+        )
+
+    return np.array(angular_corrections)
 
 
 def apply_light_deflection_correction_to_observation_collection(
-        observation_collection: ObservationCollection,
-        bodies: SystemOfBodies,
-        body_name: str,
-        observer_body_name: str,
-        observer_reference_name: str | None = None,
-        perturbing_bodies_list: Iterable[str] = ('Sun',),
-        in_place: bool = True
+    observation_collection: ObservationCollection,
+    bodies: SystemOfBodies,
+    body_name: str,
+    observer_body_name: str,
+    observer_reference_name: str | None = None,
+    perturbing_bodies_list: Iterable[str] = ("Sun",),
+    in_place: bool = True,
 ) -> ObservationCollection | None:
     """
     Computes relativistic light-deflection corrections and applies them to an observation collection.
@@ -221,13 +270,5 @@ def apply_light_deflection_correction_to_observation_collection(
         observer_reference_name=observer_reference_name,
         correction_function=light_deflection_correction_angular_observations,
         in_place=in_place,
-        perturbing_bodies_list=perturbing_bodies_list
+        perturbing_bodies_list=perturbing_bodies_list,
     )
-
-
-
-
-
-
-
-

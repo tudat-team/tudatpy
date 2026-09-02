@@ -1,6 +1,7 @@
 """
 Unit tests for light deflection correction calculations in light_deflection_correction.py
 """
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,8 +17,8 @@ from tudatpy.estimation.observations.observation_corrections.light_deflection_co
 from tudatpy.constants import SPEED_OF_LIGHT
 
 # Constants
-MU_SUN = 1.327e20 # Gravitational parameter of sun to use for tests
-_MODULE = 'tudatpy.estimation.observations.observation_corrections.light_deflection_correction'
+MU_SUN = 1.327e20  # Gravitational parameter of sun to use for tests
+_MODULE = "tudatpy.estimation.observations.observation_corrections.light_deflection_correction"
 
 
 def _build_angular_observation_collection(observation_pairs, times, body_name, observer_body_name):
@@ -27,69 +28,121 @@ def _build_angular_observation_collection(observation_pairs, times, body_name, o
         links.receiver: links.body_origin_link_end_id(observer_body_name),
     }
     observation_set = observations.create_single_observation_set(
-        model_settings.angular_position_type, link_ends, list(observation_pairs), list(times), links.receiver)
+        model_settings.angular_position_type,
+        link_ends,
+        list(observation_pairs),
+        list(times),
+        links.receiver,
+    )
     return observations.ObservationCollection([observation_set])
+
 
 def test_light_deflection_zero_when_collinear():
     """Test that light deflection is zero when observer, asteroid and light bending body are in-line"""
     # Define positions to be on 1 line
-    observer = np.array([1.0e11, 0.0, 0.0])
-    asteroid = np.array([3.0e11, 0.0, 0.0])
-    perturber = np.array([0.0,    0.0, 0.0])
-    offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
+    observer_position = np.array([1.0e11, 0.0, 0.0])
+    observed_body_position = np.array([3.0e11, 0.0, 0.0])
+    perturbing_body_position = np.array([0.0, 0.0, 0.0])
+    light_deflection_offset = _light_deflection_single_contribution(
+        observer_position,
+        observed_body_position,
+        perturbing_body_position,
+        MU_SUN,
+    )
 
-    np.testing.assert_allclose(offset_vec, np.zeros(3), rtol=0, atol=1e-15)
+    np.testing.assert_allclose(light_deflection_offset, np.zeros(3), rtol=0, atol=1e-15)
 
 
 def test_light_deflection_magnitude_with_analytical_formula():
     """Test that magnitude of calculated deflection vector corresponds to analytical formula for magnitude"""
     # Some arbitrary geometry:
-    observer = np.array([1.5e11, 1e10, 0.0])
-    asteroid = np.array([3.0e11, 0.0,  0.0])
-    perturber = np.array([0.0,    0.0,  0.0])
-    observer_wrt_perturber = observer - perturber
-    asteroid_wrt_perturber = asteroid - perturber
-    phase_angle = np.arccos(np.dot(observer_wrt_perturber, asteroid_wrt_perturber)
-                            / (norm(observer_wrt_perturber) * norm(asteroid_wrt_perturber)))
+    observer_position = np.array([1.5e11, 1e10, 0.0])
+    observed_body_position = np.array([3.0e11, 0.0, 0.0])
+    perturbing_body_position = np.array([0.0, 0.0, 0.0])
+    position_observer_with_respect_to_perturbing_body = observer_position - perturbing_body_position
+    position_observed_body_with_respect_to_perturbing_body = (
+        observed_body_position - perturbing_body_position
+    )
+    phase_angle = np.arccos(
+        np.dot(
+            position_observer_with_respect_to_perturbing_body,
+            position_observed_body_with_respect_to_perturbing_body,
+        )
+        / (
+            norm(position_observer_with_respect_to_perturbing_body)
+            * norm(position_observed_body_with_respect_to_perturbing_body)
+        )
+    )
 
     # Offset magnitude from function:
-    offset = norm(_light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN))
+    light_deflection_offset_magnitude = norm(
+        _light_deflection_single_contribution(
+            observer_position,
+            observed_body_position,
+            perturbing_body_position,
+            MU_SUN,
+        )
+    )
     # Eq 72 from Klioner (2003):
-    expected_offset = 2 * MU_SUN / (norm(observer_wrt_perturber) * SPEED_OF_LIGHT ** 2) * np.tan(phase_angle/2)
+    expected_light_deflection_offset_magnitude = (
+        2
+        * MU_SUN
+        / (norm(position_observer_with_respect_to_perturbing_body) * SPEED_OF_LIGHT**2)
+        * np.tan(phase_angle / 2)
+    )
 
-    assert np.isclose(offset, expected_offset, rtol=1e-10, atol=0)
+    assert np.isclose(
+        light_deflection_offset_magnitude,
+        expected_light_deflection_offset_magnitude,
+        rtol=1e-10,
+        atol=0,
+    )
+
 
 def test_light_deflection_direction_properties():
     """Test properties of light deflection vector direction"""
     # Some arbitrary geometry:
-    observer = np.array([1.5e11, 1e10, 0.0])
-    asteroid = np.array([3.0e11, 0.0,  0.0])
-    perturber = np.array([0.0,    0.0,  0.0])
+    observer_position = np.array([1.5e11, 1e10, 0.0])
+    observed_body_position = np.array([3.0e11, 0.0, 0.0])
+    perturbing_body_position = np.array([0.0, 0.0, 0.0])
 
-    offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
-    line_of_sight = observer - asteroid
+    light_deflection_offset = _light_deflection_single_contribution(
+        observer_position,
+        observed_body_position,
+        perturbing_body_position,
+        MU_SUN,
+    )
+    line_of_sight = observer_position - observed_body_position
 
     # Check that vector is perpendicular to line of sight
-    assert np.isclose(np.dot(line_of_sight, offset_vec), 0, rtol=0, atol=1e-14)
+    assert np.isclose(np.dot(line_of_sight, light_deflection_offset), 0, rtol=0, atol=1e-14)
 
     # Check that vector points away from light deflecting body
-    assert np.dot(offset_vec, observer) > 0
+    assert np.dot(light_deflection_offset, observer_position) > 0
 
     # Check that the vector is in the common plane by checking if triple product is zero.
-    triple_prod = np.dot(offset_vec, np.cross(observer, asteroid))
-    assert np.allclose(triple_prod, 0.0, rtol=0, atol=1e-15)
+    common_plane_triple_product = np.dot(
+        light_deflection_offset,
+        np.cross(observer_position, observed_body_position),
+    )
+    assert np.allclose(common_plane_triple_product, 0.0, rtol=0, atol=1e-15)
 
 
 def test_singularity_at_opposition():
     """Deflection vector becomes undef. when source and observer are at opposite sides of deflecting body"""
     # Set observer position at +x, asteroid at -x
-    observer = np.array([1.0e11, 0, 0.0])
-    asteroid = np.array([-1.0e11, 0.0, 0.0])
-    perturber = np.array([0.0, 0.0, 0.0])
-    with np.errstate(divide='ignore', invalid='ignore'):
-        offset_vec = _light_deflection_single_contribution(observer, asteroid, perturber, MU_SUN)
+    observer_position = np.array([1.0e11, 0, 0.0])
+    observed_body_position = np.array([-1.0e11, 0.0, 0.0])
+    perturbing_body_position = np.array([0.0, 0.0, 0.0])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        light_deflection_offset = _light_deflection_single_contribution(
+            observer_position,
+            observed_body_position,
+            perturbing_body_position,
+            MU_SUN,
+        )
 
-    assert np.all(np.isnan(offset_vec))
+    assert np.all(np.isnan(light_deflection_offset))
 
 
 def test_light_deflection_integration():
@@ -100,8 +153,10 @@ def test_light_deflection_integration():
     sun_mock = MagicMock()
     observer_mock = MagicMock()
     # What bodies.get() should return:
-    to_return = lambda body_name: {'Sun': sun_mock, 'Observer': observer_mock}.get(body_name, asteroid_mock)
-    bodies_mock.get.side_effect = to_return
+    select_body_mock = lambda body_name: {"Sun": sun_mock, "Observer": observer_mock}.get(
+        body_name, asteroid_mock
+    )
+    bodies_mock.get.side_effect = select_body_mock
     bodies_mock.does_body_exist.return_value = True
 
     # Static geometry: asteroid on +x axis, Sun in origin (positions constant, so light-time iteration has no effect)
@@ -111,59 +166,83 @@ def test_light_deflection_integration():
 
     # Observer position is mirrored over the x-axis between the two epochs
     observer_mock.state_in_base_frame_from_ephemeris.side_effect = lambda epoch: (
-        np.array([1e11, -1e11, 0, 0, 0, 0]) if epoch < 0.5 else np.array([1e11, 1e11, 0, 0, 0, 0]))
+        np.array([1e11, -1e11, 0, 0, 0, 0]) if epoch < 0.5 else np.array([1e11, 1e11, 0, 0, 0, 0])
+    )
 
     # Observations [time, RA, DEC] consistent with the mocked geometry
-    observations = np.array([[0.0,  np.pi / 2, 0.0],
-                             [1.0, -np.pi / 2, 0.0]])
+    observations = np.array([[0.0, np.pi / 2, 0.0], [1.0, -np.pi / 2, 0.0]])
 
-    corrections = light_deflection_correction_angular_observations(
-        observations = observations,
-        bodies = bodies_mock,
-        body_name = 'Asteroid',
-        observer_body_name = 'Observer',
-        perturbing_bodies_list = ['Sun'],
+    angular_corrections = light_deflection_correction_angular_observations(
+        observations=observations,
+        bodies=bodies_mock,
+        body_name="Asteroid",
+        observer_body_name="Observer",
+        perturbing_bodies_list=["Sun"],
     )
 
     # We check whether hand-calculated corrections to RA/DEC match those returned by the function
     # Observer-Sun-asteroid phase angle is 45 deg at both epochs; eq 72 from Klioner (2003):
-    observer_wrt_sun_norm = norm(np.array([1e11, 1e11, 0]))
-    expected_offset = 2 * MU_SUN / (observer_wrt_sun_norm * SPEED_OF_LIGHT ** 2) * np.tan(np.pi / 8)
-    expected_ra_corr = [expected_offset, -expected_offset]
-    expected_dec_corr = [0, 0]
+    observer_with_respect_to_sun_distance = norm(np.array([1e11, 1e11, 0]))
+    expected_light_deflection_offset = (
+        2 * MU_SUN / (observer_with_respect_to_sun_distance * SPEED_OF_LIGHT**2) * np.tan(np.pi / 8)
+    )
+    expected_right_ascension_corrections = [
+        expected_light_deflection_offset,
+        -expected_light_deflection_offset,
+    ]
+    expected_declination_corrections = [0, 0]
 
-    np.testing.assert_allclose(corrections[:, 0], expected_ra_corr, rtol=1e-8, atol=0) # RA
-    np.testing.assert_allclose(corrections[:, 1], expected_dec_corr, rtol=0, atol=1e-15) # DEC
+    np.testing.assert_allclose(
+        angular_corrections[:, 0],
+        expected_right_ascension_corrections,
+        rtol=1e-8,
+        atol=0,
+    )
+    np.testing.assert_allclose(
+        angular_corrections[:, 1],
+        expected_declination_corrections,
+        rtol=0,
+        atol=1e-15,
+    )
 
 
-@pytest.mark.parametrize('in_place', [True, False])
+@pytest.mark.parametrize("in_place", [True, False])
 def test_apply_light_deflection_correction_to_observation_collection(in_place):
     """Test that the wrapper adds computed corrections to a real collection's observations and wraps RA"""
     # First observation RA sits just below +pi so its correction pushes it over the boundary (tests RA wrapping)
-    observation_pairs = [np.array([np.pi - 1e-9, 0.2]), np.array([0.3, 0.4])] # [RA, DEC]
-    corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
-    collection = _build_angular_observation_collection(observation_pairs, [0.0, 1.0], 'Asteroid', 'Observer')
+    observation_pairs = [np.array([np.pi - 1e-9, 0.2]), np.array([0.3, 0.4])]  # [RA, DEC]
+    angular_corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])
+    collection = _build_angular_observation_collection(
+        observation_pairs, [0.0, 1.0], "Asteroid", "Observer"
+    )
 
-    with patch(f'{_MODULE}.light_deflection_correction_angular_observations', return_value=corrections):
+    with patch(
+        f"{_MODULE}.light_deflection_correction_angular_observations",
+        return_value=angular_corrections,
+    ):
         result = apply_light_deflection_correction_to_observation_collection(
             observation_collection=collection,
             bodies=MagicMock(),
-            body_name='Asteroid',
-            observer_body_name='Observer',
+            body_name="Asteroid",
+            observer_body_name="Observer",
             in_place=in_place,
         )
 
     # Corrected observations, with RA (column 0) wrapped to (-pi, pi]
-    expected = np.array(observation_pairs) + corrections
-    expected[:, 0] = (expected[:, 0] + np.pi) % (2 * np.pi) - np.pi
-    assert expected[0, 0] < 0 # Wrapping mapped the RA to the negative side of the boundary
+    expected_observations = np.array(observation_pairs) + angular_corrections
+    expected_observations[:, 0] = (expected_observations[:, 0] + np.pi) % (2 * np.pi) - np.pi
+    assert (
+        expected_observations[0, 0] < 0
+    )  # Wrapping mapped the RA to the negative side of the boundary
 
     if in_place:
         assert result is None
-        target = collection
+        target_collection = collection
     else:
         assert result is not None
-        target = result
+        target_collection = result
 
-    corrected, _ = target.get_concatenated_observations_and_times()
-    np.testing.assert_allclose(np.array(corrected).reshape(-1, 2), expected)
+    corrected_observations, _ = target_collection.get_concatenated_observations_and_times()
+    np.testing.assert_allclose(
+        np.array(corrected_observations).reshape(-1, 2), expected_observations
+    )

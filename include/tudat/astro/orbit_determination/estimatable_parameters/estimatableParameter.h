@@ -109,7 +109,8 @@ enum EstimatebleParametersEnum {
     energy_accommodation_coefficient,
     normal_accommodation_coefficient,
     tangential_accommodation_coefficient,
-    normal_velocity_at_wall_ratio
+    normal_velocity_at_wall_ratio,
+    three_coefficient_radiation_pressure_coefficients
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
