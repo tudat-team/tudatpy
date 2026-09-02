@@ -857,10 +857,9 @@ def test_tdm_message_to_tracking_data_wraps_angle_1_to_minus_pi_pi():
     assert observation[1] == pytest.approx(np.radians(20.0))
 
 
-def test_tdm_message_to_tracking_data_sets_weights_only_when_sigma_present_everywhere():
+def test_tdm_message_to_tracking_data_raises_when_sigma_partially_present():
+    """Sigma present at only one of two epochs: partial coverage must raise, not silently drop weights."""
     metadata = _tdm_metadata(ANGLE_TYPE="RADEC")
-
-    # Sigma present at only one of two epochs: partial coverage, weights not set.
     partial_data = {
         "2025-001T00:00:00Z": {
             "ANGLE_1": 10.0,
@@ -871,8 +870,18 @@ def test_tdm_message_to_tracking_data_sets_weights_only_when_sigma_present_every
         "2025-001T00:01:00Z": {"ANGLE_1": 11.0, "ANGLE_2": 21.0},
     }
     partial_msg = TDMMessage(header=_header(), segments=[Segment(metadata, partial_data)])
-    partial_td, _ = tdc.tdm_message_to_tracking_data(partial_msg)
-    assert list(partial_td[0].get_observation_weights()) == []
+    with pytest.raises(ValueError, match="inconsistent"):
+        tdc.tdm_message_to_tracking_data(partial_msg)
+
+
+def test_tdm_message_to_tracking_data_sets_weights_only_when_sigma_present_everywhere():
+    metadata = _tdm_metadata(ANGLE_TYPE="RADEC")
+
+    # No sigma at all: not an error, weights simply aren't set.
+    no_sigma_data = {"2025-001T00:00:00Z": {"ANGLE_1": 10.0, "ANGLE_2": 20.0}}
+    no_sigma_msg = TDMMessage(header=_header(), segments=[Segment(metadata, no_sigma_data)])
+    no_sigma_td, _ = tdc.tdm_message_to_tracking_data(no_sigma_msg)
+    assert list(no_sigma_td[0].get_observation_weights()) == []
 
     # Sigma present at every epoch: weights set as 1/sigma^2 (rad^-2).
     full_data = {

@@ -162,8 +162,8 @@ def _convert_angle_group(
         angle_1_rad = (np.radians(obs["ANGLE_1"]) + np.pi) % (2 * np.pi) - np.pi
         angle_2_rad = np.radians(obs["ANGLE_2"])
         observations.append(np.array([angle_1_rad, angle_2_rad]))
-
-        if "SIGMA_ANGLE_1" in obs and "SIGMA_ANGLE_2" in obs:
+        weights_present = "SIGMA_ANGLE_1" in obs and "SIGMA_ANGLE_2" in obs
+        if weights_present:
             sigma_1_rad = np.radians(obs["SIGMA_ANGLE_1"])
             sigma_2_rad = np.radians(obs["SIGMA_ANGLE_2"])
             weights.append(np.array([1.0 / sigma_1_rad**2, 1.0 / sigma_2_rad**2]))
@@ -171,8 +171,17 @@ def _convert_angle_group(
     tracking_data = TrackingData(
         observable_name, link_ends, observations, epochs, "receiver", "UTC"
     )
+
     if len(weights) == len(observations):
+        # Every epoch had SIGMA_ANGLE_1/SIGMA_ANGLE_2 -- set per-observation weights.
+        # (This also covers the "no epoch had sigma" case: weights == observations == [].)
         tracking_data.set_observation_weights(weights)
+    elif weights:
+        # Some, but not all, epochs had sigma -- a partial weight vector would
+        # silently misalign with the observations, so raise instead.
+        raise ValueError(
+            "Weights are present in the TDM, but their length is inconsistent with the number of observations."
+        )
     return tracking_data
 
 
