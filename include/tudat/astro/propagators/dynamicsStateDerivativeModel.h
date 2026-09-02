@@ -522,6 +522,7 @@ public:
                                 break;
                         }
                     }
+                    break;
                 }
                 case rotational_state:
                     break;

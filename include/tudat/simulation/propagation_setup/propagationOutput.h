@@ -33,6 +33,7 @@
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/rotational_dynamics_partials/torquePartial.h"
@@ -2997,6 +2998,15 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
                 if( radiationPressureAccelerationList.empty( ) )
                 {
+                    radiationPressureAccelerationList =
+                            getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
+                                                          dependentVariableSettings->secondaryBody_,
+                                                          stateDerivativeModels,
+                                                          basic_astrodynamics::three_coefficient_radiation_pressure );
+                }
+
+                if( radiationPressureAccelerationList.empty( ) )
+                {
                     std::string errorMessage = "Error, radiation pressure acceleration with target " +
                             dependentVariableSettings->associatedBody_ + " and source " + dependentVariableSettings->secondaryBody_ +
                             " not found";
@@ -3018,16 +3028,28 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
                 if( radiationPressureAccelerationList.empty( ) )
                 {
+                    radiationPressureAccelerationList =
+                            getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
+                                                          dependentVariableSettings->secondaryBody_,
+                                                          stateDerivativeModels,
+                                                          basic_astrodynamics::three_coefficient_radiation_pressure );
+                }
+
+                if( radiationPressureAccelerationList.empty( ) )
+                {
                     std::string errorMessage = "Error, radiation pressure acceleration with target " +
                             dependentVariableSettings->associatedBody_ + " and source " + dependentVariableSettings->secondaryBody_ +
                             " not found";
                     throw std::runtime_error( errorMessage );
                 }
 
-                auto radiationPressureAcceleration =
+                auto isotropicRadiationPressureAcceleration =
                         std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >(
                                 radiationPressureAccelerationList.front( ) );
-                if( radiationPressureAcceleration == nullptr )
+                auto threeCoefficientRadiationPressureAcceleration =
+                        std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                radiationPressureAccelerationList.front( ) );
+                if( isotropicRadiationPressureAcceleration == nullptr && threeCoefficientRadiationPressureAcceleration == nullptr )
                 {
                     throw std::runtime_error(
                             "Error, source body " + dependentVariableSettings->secondaryBody_ +
@@ -3035,7 +3057,16 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             "variable" );
                 }
 
-                variableFunction = [ = ]( ) { return radiationPressureAcceleration->getSourceToTargetReceivedFraction( ); };
+                if( isotropicRadiationPressureAcceleration != nullptr )
+                {
+                    variableFunction = [ = ]( ) { return isotropicRadiationPressureAcceleration->getSourceToTargetReceivedFraction( ); };
+                }
+                else
+                {
+                    variableFunction = [ = ]( ) {
+                        return threeCoefficientRadiationPressureAcceleration->getSourceToTargetReceivedFraction( );
+                    };
+                }
 
                 break;
             }

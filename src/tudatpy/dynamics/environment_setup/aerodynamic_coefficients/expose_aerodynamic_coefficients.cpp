@@ -874,7 +874,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -959,7 +959,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1029,7 +1029,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 
@@ -1084,6 +1084,33 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
  (tabulated w.r.t. independent variable), obtained from data files.
 
+ File format
+ -----------
+ Each coefficient component is stored in a separate plain-text file. Empty lines and lines whose first non-whitespace
+ character is ``#`` are ignored. Values may be separated by whitespace, commas, or semicolons. The remaining lines are:
+
+ 1. The number :math:`N` of independent variables (an integer from 1 through 3).
+ 2. :math:`N` lines containing the grid values of the independent variables, in the same order as
+    ``independent_variable_names``.
+ 3. The coefficient values on the resulting structured grid.
+
+ For one independent variable, write one coefficient value per row. For two independent variables, rows correspond to
+ successive values of the first independent variable and columns to values of the second. For three independent variables,
+ append such two-dimensional blocks for successive values of the third variable. All force and moment component files
+ supplied in one call must use identical independent-variable grids. Omitted component indices are set to zero.
+
+ For example, a coefficient depending on angle of attack ``[0.0, 0.1]`` and Mach number ``[2.0, 3.0, 4.0]`` is written as:
+
+ .. code-block:: text
+
+    2
+    0.0 0.1
+    2.0 3.0 4.0
+    0.20 0.25 0.30
+    0.22 0.27 0.32
+
+ The repository's ``examples/tudatpy/propagation/input/STS_CD.dat`` file provides a complete two-dimensional example.
+
 
  Parameters
  ----------
@@ -1118,7 +1145,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Tabulated aerodynamic coefficient settings object.
 
 
 

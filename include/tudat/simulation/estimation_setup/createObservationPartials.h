@@ -233,6 +233,20 @@ public:
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate );
                 break;
+            case observation_models::dsn_n_way_range:
+                if( isPartialForDifferencedObservable )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting partial creation for DSN n-way range; differenced partial not supported" );
+                }
+                if( isPartialForConcatenatedObservable )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting partial creation for DSN n-way range; concatenated partial not supported" );
+                }
+                observationPartials =
+                        createDsnNWayRangePartials< ObservationScalarType, TimeType >( observationModel, bodies, parametersToEstimate );
+                break;
             default:
                 std::string errorMessage = "Error when making observation partial set, could not recognize observable " +
                         std::to_string( observationModel->getObservableType( ) ) + " of size 1 ";

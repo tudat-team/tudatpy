@@ -1120,7 +1120,7 @@ public:
             previousLightTimeEstimate = calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, true );
         }
 
-        ObservationScalarType newLightTimeEstimate;
+        ObservationScalarType newLightTimeEstimate = previousLightTimeEstimate;
 
         // Iterate light times only if necessary, i.e. don't iterate if the model is constituted by a single leg or if
         // it is consituted by multiple legs but doesn't require multiple leg iterations.

@@ -19,6 +19,9 @@
 #include <tudat/math/root_finders/secantRootFinder.h>
 #include <tudat/math/root_finders/terminationConditions.h>
 
+#include <tudat/io/serialization/core.h>
+#include <tudat/io/serialization/file_io_declarations.h>
+
 namespace tudat
 {
 
@@ -53,6 +56,20 @@ public:
     //! Destructor
     ~RootFinderSettings( ) {}
 
+    //! @get_docstring(RootFinderSettings.__operator_equal__)
+    bool operator==( const RootFinderSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const RootFinderSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save root finder settings to a JSON file
+    TUDAT_DECLARE_FILE_IO( RootFinderSettings )
+
     //! Type of root finder to be used
     RootFinderType rootFinderType_;
 
@@ -65,6 +82,53 @@ public:
     unsigned int maximumNumberOfIterations_;
 
     MaximumIterationHandling maximumIterationHandling_;
+
+protected:
+    //! Default constructor for cereal deserialization
+    RootFinderSettings( ):
+        rootFinderType_( bisection_root_finder ), relativeIndependentVariableTolerance_( TUDAT_NAN ),
+        absoluteIndependentVariableTolerance_( TUDAT_NAN ), rootFunctionTolerance_( TUDAT_NAN ), maximumNumberOfIterations_( 0 ),
+        maximumIterationHandling_( throw_exception )
+    {}
+
+    // Used for serialization testing
+    bool equals( const RootFinderSettings& other ) const
+    {
+        return rootFinderType_ == other.rootFinderType_ &&
+                ( relativeIndependentVariableTolerance_ == other.relativeIndependentVariableTolerance_ ||
+                  ( std::isnan( relativeIndependentVariableTolerance_ ) && std::isnan( other.relativeIndependentVariableTolerance_ ) ) ) &&
+                ( absoluteIndependentVariableTolerance_ == other.absoluteIndependentVariableTolerance_ ||
+                  ( std::isnan( absoluteIndependentVariableTolerance_ ) && std::isnan( other.absoluteIndependentVariableTolerance_ ) ) ) &&
+                ( rootFunctionTolerance_ == other.rootFunctionTolerance_ ||
+                  ( std::isnan( rootFunctionTolerance_ ) && std::isnan( other.rootFunctionTolerance_ ) ) ) &&
+                maximumNumberOfIterations_ == other.maximumNumberOfIterations_ &&
+                maximumIterationHandling_ == other.maximumIterationHandling_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP_( "rootFinderType_", rootFinderType_ ),
+            CEREAL_NVP_( "relativeIndependentVariableTolerance_", relativeIndependentVariableTolerance_ ),
+            CEREAL_NVP_( "absoluteIndependentVariableTolerance_", absoluteIndependentVariableTolerance_ ),
+            CEREAL_NVP_( "rootFunctionTolerance_", rootFunctionTolerance_ ),
+            CEREAL_NVP_( "maximumNumberOfIterations_", maximumNumberOfIterations_ ),
+            CEREAL_NVP_( "maximumIterationHandling_", maximumIterationHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( rootFinderType_ ),
+            CEREAL_NVP( relativeIndependentVariableTolerance_ ),
+            CEREAL_NVP( absoluteIndependentVariableTolerance_ ),
+            CEREAL_NVP( rootFunctionTolerance_ ),
+            CEREAL_NVP( maximumNumberOfIterations_ ),
+            CEREAL_NVP( maximumIterationHandling_ ) );
+    }
 };
 
 inline std::shared_ptr< RootFinderSettings > bisectionRootFinderSettings(

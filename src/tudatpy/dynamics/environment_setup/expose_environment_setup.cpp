@@ -701,10 +701,10 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a System of bodies from associated settings.
 
- Function that creates a class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
+ Function that creates a :class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a :class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
  This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
- objects and stores them in a ``SystemOfBodies`` object. This ``SystemOfBodies`` object represents the full
- physical environment in the simulation, and this function is responsible for creating this envitronent from the user-defined settings
+ objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This :class:`~tudatpy.dynamics.environment.SystemOfBodies` object represents the full
+ physical environment in the simulation, and this function is responsible for creating this environment from the user-defined settings.
 
 
  Parameters

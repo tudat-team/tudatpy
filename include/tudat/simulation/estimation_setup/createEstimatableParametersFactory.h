@@ -31,6 +31,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicCosineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/sphericalHarmonicSineCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/radiationPressureCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/threeCoefficientRadiationPressureCoefficients.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
@@ -298,6 +299,22 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                         {
                             accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
                         }
+                    }
+                }
+            }
+            break;
+        }
+        case three_coefficient_radiation_pressure_coefficients: {
+            const std::string& acceleratedBody = parameterSettings->parameterType_.second.first;
+            const std::string& sourceBody = parameterSettings->parameterType_.second.second;
+            if( accelerationModelMap.count( acceleratedBody ) > 0 && accelerationModelMap.at( acceleratedBody ).count( sourceBody ) > 0 )
+            {
+                for( const auto& accelerationModel : accelerationModelMap.at( acceleratedBody ).at( sourceBody ) )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                        basic_astrodynamics::three_coefficient_radiation_pressure )
+                    {
+                        accelerationModelList.push_back( accelerationModel );
                     }
                 }
             }
@@ -2344,6 +2361,40 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             empiricalAccelerationSettings->parameterType_.second.second,
                             empiricalAccelerationSettings->componentsToEstimate_ );
                 }
+                break;
+            }
+            case three_coefficient_radiation_pressure_coefficients: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating three-coefficient radiation-pressure parameter: no propagator settings provided." );
+                }
+                const auto associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               vectorParameterName );
+                std::vector< std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > >
+                        threeCoefficientAccelerationModels;
+                for( const auto& accelerationModel : associatedAccelerationModels )
+                {
+                    const auto threeCoefficientAcceleration =
+                            std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                    accelerationModel );
+                    if( threeCoefficientAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error when creating three-coefficient radiation-pressure parameter: acceleration type is inconsistent." );
+                    }
+                    threeCoefficientAccelerationModels.push_back( threeCoefficientAcceleration );
+                }
+                if( threeCoefficientAccelerationModels.empty( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating three-coefficient radiation-pressure parameter: no matching acceleration was found." );
+                }
+                vectorParameterToEstimate = std::make_shared< ThreeCoefficientRadiationPressureCoefficients >(
+                        threeCoefficientAccelerationModels,
+                        vectorParameterName->parameterType_.second.first,
+                        vectorParameterName->parameterType_.second.second );
                 break;
             }
             case rtg_force_vector: {

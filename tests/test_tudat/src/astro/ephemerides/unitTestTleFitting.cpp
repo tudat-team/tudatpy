@@ -2,12 +2,11 @@
  *    All rights reserved
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/equinoctialElementConversions.h"
 #include "tudat/astro/ephemerides/tleFitting.h"
