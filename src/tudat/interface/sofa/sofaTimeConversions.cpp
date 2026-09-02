@@ -37,9 +37,9 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     // Get number of leap seconds and check feasibility of calculation
     double deltaAt;
     int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt );
-    if( deltaAtReturn != 0 )
+    if( deltaAtReturn < 0 )
     {
-        throw std::runtime_error( "Provided caledar date cannot properly give Delta AT" + std::to_string( year ) + " " +
+        throw std::runtime_error( "Provided calendar date cannot properly give Delta AT: " + std::to_string( year ) + " " +
                                   std::to_string( month ) + " " + std::to_string( day ) );
     }
 
@@ -62,9 +62,9 @@ double getDeltaAtFromTai( const double taiInJulianDays )
     // Estimate number of leap seconds (by assuming TAI = UTC for Sofa input) and check feasibility of calculation
     double deltaAt;
     int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt );
-    if( deltaAtReturn != 0 )
+    if( deltaAtReturn < 0 )
     {
-        throw std::runtime_error( "Provided caledar date cannot properly give Delta AT" );
+        throw std::runtime_error( "Provided calendar date cannot properly give Delta AT" );
     }
 
     // Reperform calculation with converted utc time and check consistency with previous calculation.
