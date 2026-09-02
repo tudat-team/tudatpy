@@ -215,13 +215,13 @@ struct EpochIntervalArithmetic< Time > {
     template< typename ScalarType >
     static Time add( const Time& epoch, const ScalarType& timeInterval )
     {
-        return epoch + static_cast< long double >( timeInterval );
+        return epoch + Time( timeInterval );
     }
 
     template< typename ScalarType >
     static Time subtract( const Time& epoch, const ScalarType& timeInterval )
     {
-        return epoch - static_cast< long double >( timeInterval );
+        return epoch - Time( timeInterval );
     }
 };
 }  // namespace light_time_solution_detail

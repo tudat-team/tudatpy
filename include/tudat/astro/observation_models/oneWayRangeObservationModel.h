@@ -117,8 +117,8 @@ public:
                     basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.front( ), nominalTransmittingStationState );
             TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
                     basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.back( ), nominalReceivingStationState );
-            observation += static_cast< ObservationScalarType >( static_cast< long double >( receptionTimeDifference ) );
-            observation -= static_cast< ObservationScalarType >( static_cast< long double >( transmissionTimeDifference ) );
+            observation += convertIndependentVariableToScalar< ObservationScalarType >( receptionTimeDifference );
+            observation -= convertIndependentVariableToScalar< ObservationScalarType >( transmissionTimeDifference );
         }
 
         // Convert light time to range.

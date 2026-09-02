@@ -13,6 +13,7 @@
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
+#include "tudat/basics/tudatTypeTraits.h"
 
 #include "tudat/math/root_finders/rootFinder.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -229,7 +230,7 @@ private:
                 orbital_element_conversions::convertKeplerianToCartesianElements< StateScalarType >(
                         orbital_element_conversions::propagateKeplerOrbit< StateScalarType >(
                                 initialKeplerElements_.at( bodyIndex ),
-                                static_cast< StateScalarType >( static_cast< long double >( time - initialTime_ ) ),
+                                convertIndependentVariableToScalar< StateScalarType >( time - initialTime_ ),
                                 static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ),
                                 rootFinder_ ),
                         static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ) );
