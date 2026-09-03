@@ -82,8 +82,6 @@ function(add_tudatpy_state_scalar_bindings target_name scalar_type binding_names
     )
     set_target_properties(${target_name} PROPERTIES
         POSITION_INDEPENDENT_CODE ON
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN TRUE
         UNITY_BUILD OFF
     )
     target_compile_definitions(${target_name} PRIVATE
@@ -242,13 +240,22 @@ endif ()
     target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
     target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
     target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
-    if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY AND TUDAT_BUILD_WITH_SERIALIZATION)
-        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET default)
-        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN FALSE)
-    else ()
-        set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
-        set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
-    endif ()
+    foreach(tudatpy_binding_target
+            kernel
+            kernel_double_state_scalar_bindings
+            kernel_quad_state_scalar_bindings)
+        if(TARGET ${tudatpy_binding_target})
+            if (APPLE AND TUDAT_BUILD_STATIC_LIBRARY AND TUDAT_BUILD_WITH_SERIALIZATION)
+                set_target_properties(${tudatpy_binding_target} PROPERTIES
+                    CXX_VISIBILITY_PRESET default
+                    VISIBILITY_INLINES_HIDDEN FALSE)
+            else ()
+                set_target_properties(${tudatpy_binding_target} PROPERTIES
+                    CXX_VISIBILITY_PRESET hidden
+                    VISIBILITY_INLINES_HIDDEN TRUE)
+            endif ()
+        endif()
+    endforeach()
 
 # Install
 #################################################################
