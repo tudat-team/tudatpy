@@ -59,8 +59,6 @@ class AtdfTrackingDataProcessor:
         range_two_way: bool = True,
     ):
         self.atdf_file_path = atdf_file_path
-
-        self.output_dir = Path("output")
         self.spacecraft_name = spacecraft_name
         self.proc_count = proc_count
 
@@ -83,12 +81,9 @@ class AtdfTrackingDataProcessor:
 
     def convert_atdf_to_ascii(
         self,
-        output_dir: Path | None,
+        output_dir: Path,
         count_time: list[float] | None = None,
     ):
-        if output_dir is None:
-            output_dir = self.output_dir
-
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if count_time is not None:

@@ -21,7 +21,7 @@ from tudatpy.data_input.tracking_data import TrackingData, TrackingSupplementary
 def read_atdf_data(
     atdf_file_path: list[Path],
     spacecraft_name: str,
-    output_dir: Path = Path("output"),
+    output_dir: Path = Path("output/atdf2ascii"),
     count_time: list[float] | None = None,
     proc_count: int = _DEFAULT_PROC_COUNT,
     doppler_one_way: bool = False,
@@ -49,7 +49,7 @@ def read_atdf_data(
     spacecraft_name : str
         Spacecraft body name used in generated link definitions (to be used
         for all files).
-    output_dir : pathlib.Path, default Path("output")
+    output_dir : pathlib.Path, default Path("output/atdf2ascii")
         Directory in which ``atdf2ascii`` writes the intermediate ASCII
         tables.
     count_time : list[float] | None, default None
