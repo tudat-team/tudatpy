@@ -59,6 +59,8 @@ void add_data_to_kernel( py::module_& m )
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
+           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation(
+                   tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
+                   tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
            py::arg( "body_with_ground_stations_name" ) = "Earth" );
 }

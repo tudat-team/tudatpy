@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 "Earth",
                 true,
                 true,
-                std::vector< double >( { convertFrequencyBandToDouble( x_band ), convertFrequencyBandToDouble( currentReceptionBand ) } ),
-                convertFrequencyBandToDouble( currentReceptionBand ),
+                std::vector< std::string >( { getFrequencyBandString( x_band ), getFrequencyBandString( currentReceptionBand ) } ),
+                getFrequencyBandString( currentReceptionBand ),
                 0.0 );
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );

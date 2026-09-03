@@ -807,53 +807,6 @@ void expose_observations( py::module& m )
     auto observations_geometry = m.def_submodule( "observations_geometry" );
     observations_geometry::expose_observations_geometry( observations_geometry );
 
-    m.def( "create_observation_dataset_from_tracking_data",
-           &tom::createObservationDatasetFromTrackingData< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "tracking_data" ),
-           py::arg( "bodies" ),
-           py::arg( "apply_corrections" ) = false,
-           R"doc(
-Create an observation dataset from source-loaded tracking data.
-
-Each input tracking-data object becomes one logical set in the returned dataset.
-Ground-station positions in ``bodies`` are used when converting observation epochs
-to TDB. Corrections stored with the source data are applied only when requested.
-
-Parameters
-----------
-tracking_data : list[tudatpy.data_input.tracking_data.TrackingData]
-    Tracking-data objects to convert.
-bodies : tudatpy.dynamics.environment.SystemOfBodies
-    Bodies used to resolve ground-station positions during time conversion.
-apply_corrections : bool, optional
-    Apply corrections stored in the tracking data. Defaults to ``False``.
-
-Returns
--------
-tudatpy.estimation.observations.ObservationDataset
-    Dataset containing one logical observation set per input object.
-)doc" );
-
-    m.def(
-            "create_observation_collection_from_tracking_data",
-            []( const std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >& trackingData,
-                tss::SystemOfBodies& bodies,
-                const bool applyCorrections ) {
-                warnLegacyObservationInterface( "create_observation_collection_from_tracking_data",
-                                                "create_observation_dataset_from_tracking_data" );
-                return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( trackingData, bodies, applyCorrections );
-            },
-            py::arg( "tracking_data" ),
-            py::arg( "bodies" ),
-            py::arg( "apply_corrections" ) = false );
-
-    m.def( "set_tracking_supplementary_data_in_bodies",
-           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
-                   &tom::setTrackingSupplementaryDataInBodies ),
-           py::arg( "bodies" ),
-           py::arg( "supplementary_data" ),
-           R"doc(Apply source-loaded tracking supplementary data to a system of bodies.)doc" );
-
     // OBSERVATION DATASET
 
     py::class_< tom::ObservationSetMetadata< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
@@ -1748,6 +1701,40 @@ the corresponding reference point in the system of bodies separately.
                       py::arg( "include_rejected" ) = true,
                       observationDatasetDoc( "computation_flattened_observation_data" ) );
     }
+
+    m.def( "create_observation_dataset_from_tracking_data",
+           &tom::createObservationDatasetFromTrackingData< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "tracking_data" ),
+           py::arg( "bodies" ),
+           py::arg( "apply_corrections" ) = false,
+           R"doc(
+Create an observation dataset from source-loaded tracking data.
+
+Each input tracking-data object becomes one logical set in the returned dataset.
+Ground-station positions in ``bodies`` are used when converting observation epochs
+to TDB. Corrections stored with the source data are applied only when requested.
+
+Parameters
+----------
+tracking_data : list[tudatpy.data_input.tracking_data.TrackingData]
+    Tracking-data objects to convert.
+bodies : tudatpy.dynamics.environment.SystemOfBodies
+    Bodies used to resolve ground-station positions during time conversion.
+apply_corrections : bool, optional
+    Apply corrections stored in the tracking data. Defaults to ``False``.
+
+Returns
+-------
+tudatpy.estimation.observations.ObservationDataset
+    Dataset containing one logical observation set per input object.
+)doc" );
+
+    m.def( "set_tracking_supplementary_data_in_bodies",
+           py::overload_cast< tss::SystemOfBodies&, const std::vector< std::shared_ptr< tdat::TrackingSupplementaryData > >& >(
+                   &tom::setTrackingSupplementaryDataInBodies ),
+           py::arg( "bodies" ),
+           py::arg( "supplementary_data" ),
+           R"doc(Apply source-loaded tracking supplementary data to a system of bodies.)doc" );
 
     {
         py::options legacyDocOptions;
@@ -3598,6 +3585,19 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         py::options legacyDocOptions;
         legacyDocOptions.disable_user_defined_docstrings( );
         legacyDocOptions.disable_function_signatures( );
+
+        m.def(
+                "create_observation_collection_from_tracking_data",
+                []( const std::vector< std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >& trackingData,
+                    tss::SystemOfBodies& bodies,
+                    const bool applyCorrections ) {
+                    warnLegacyObservationInterface( "create_observation_collection_from_tracking_data",
+                                                    "create_observation_dataset_from_tracking_data" );
+                    return tom::createObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >( trackingData, bodies, applyCorrections );
+                },
+                py::arg( "tracking_data" ),
+                py::arg( "bodies" ),
+                py::arg( "apply_corrections" ) = false );
 
         m.def(
                 "compute_residuals_and_dependent_variables",

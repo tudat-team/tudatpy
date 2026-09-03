@@ -265,7 +265,9 @@ reference_epoch:
            py::arg( "ground_station_settings_list" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
+           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation(
+                   tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
+                   tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
            R"doc(
 
  Add ESTRACK weather data settings to a ground station in a list of ground station settings.
