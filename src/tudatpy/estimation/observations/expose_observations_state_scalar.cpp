@@ -551,9 +551,9 @@ Returns
 -------
 numpy.ndarray
     A matrix where each row corresponds to an observation and columns to dependent variables.
-)doc" ) TUDATPY_DEF_PICKLE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
+)doc" ) TUDATPY_DEF_STATE_SCALAR_PICKLE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
                     TUDATPY_DEF_EQ_NE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
+                            TUDATPY_DEF_STATE_SCALAR_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.def( "single_observation_set",
            &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1807,9 +1807,9 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          -------
          dict[Time, numpy.ndarray]
              A map from time to dependent variable value, with times as Time objects.
-     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
+     )doc" ) TUDATPY_DEF_STATE_SCALAR_PICKLE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
                     TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
-                            TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
+                            TUDATPY_DEF_STATE_SCALAR_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,

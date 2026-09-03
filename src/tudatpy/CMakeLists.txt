@@ -76,7 +76,7 @@ target_compile_definitions(kernel PRIVATE
     TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=$<BOOL:${TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE}>
 )
 
-function(add_tudatpy_state_scalar_bindings target_name scalar_type binding_namespace)
+function(add_tudatpy_state_scalar_bindings target_name scalar_type binding_namespace supports_serialization)
     add_library(${target_name} OBJECT
         ${TUDATPY_STATE_SCALAR_BINDING_SOURCES}
     )
@@ -90,6 +90,7 @@ function(add_tudatpy_state_scalar_bindings target_name scalar_type binding_names
         TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=$<BOOL:${TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE}>
         TUDATPY_ENABLE_DETAILED_PYBIND11_ERRORS=$<BOOL:${TUDATPY_BUILD_WITH_DETAILED_PYBIND11_ERRORS}>
         TUDATPY_STATE_SCALAR_BINDING_NAMESPACE=${binding_namespace}
+        TUDATPY_STATE_SCALAR_SUPPORTS_SERIALIZATION=${supports_serialization}
         STATE_SCALAR_TYPE=${scalar_type}
         "${pybind11_DEFINITIONS}"
     )
@@ -122,6 +123,7 @@ add_tudatpy_state_scalar_bindings(
     kernel_double_state_scalar_bindings
     double
     double_precision
+    1
 )
 target_sources(kernel PRIVATE
     $<TARGET_OBJECTS:kernel_double_state_scalar_bindings>
@@ -132,6 +134,7 @@ if(TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE)
         kernel_quad_state_scalar_bindings
         tudat::HighPrecisionStateScalar
         quad_precision
+        0
     )
     target_sources(kernel PRIVATE
         $<TARGET_OBJECTS:kernel_quad_state_scalar_bindings>

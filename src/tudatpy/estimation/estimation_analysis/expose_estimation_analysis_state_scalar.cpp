@@ -982,8 +982,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          analysis. See :class:`InterArcStateContinuityConstraintSettings` for their definition and ordering inputs.
 
          :type: list[numpy.ndarray[numpy.float64[6, 1]]]
-      )doc" ) TUDATPY_DEF_BINARY_IO( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+      )doc" ) TUDATPY_DEF_STATE_SCALAR_BINARY_IO( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_STATE_SCALAR_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_EQ_NE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1074,8 +1074,8 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          discrepancy has six entries.
 
          :type: list[list[numpy.ndarray[numpy.float64[6, 1]]]]
-      )doc" ) TUDATPY_DEF_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
-                    TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+      )doc" ) TUDATPY_DEF_STATE_SCALAR_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_STATE_SCALAR_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
                             TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
