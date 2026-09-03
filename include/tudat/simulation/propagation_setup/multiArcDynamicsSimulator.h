@@ -634,6 +634,7 @@ public:
                                 bodies_, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
                 for( auto itr : multiArcStateProcessors )
                 {
+                    itr.second->setInterpolatorSettings( multiArcPropagatorSettings_->getOutputSettings( )->getInterpolatorSettings( ) );
                     itr.second->processIntegratedMultiArcStates(
                             propagationResults_->getConcatenatedEquationsOfMotionResults(
                                     multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( ) ),

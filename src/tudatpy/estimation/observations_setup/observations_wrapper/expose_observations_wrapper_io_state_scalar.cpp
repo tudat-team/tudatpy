@@ -257,7 +257,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             System of bodies.
         body_with_ground_stations_name : str, optional
             Name of the body in which the ground stations are located, by default "Earth".
-        turnaround_ratio_function : function, default = :func:`~tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios`
+        turnaround_ratio_function : Callable[[FrequencyBands, FrequencyBands], float], default = :func:`~tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios`
             Function returning the turnaround ratio as a function of the uplink and downlink bands.
         )doc" );
 
@@ -278,7 +278,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             Processed ODF data.
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
-        start_and_end_times_to_process : tuple[float, float]
+        start_and_end_times_to_process : tuple[astro.time_representation.Time, astro.time_representation.Time]
             Start and end times of the data to process.
         allow_duplicate_observations_within_single_set: bool
             Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.

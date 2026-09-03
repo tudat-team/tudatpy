@@ -217,7 +217,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ tuple[int, int] ]
+         list[tuple[int, int]]
              Matching ``(start_index, size)`` entries in parameter-set order.
 
      )doc" )
@@ -264,7 +264,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ tuple[int, int] ]
+         tuple[int, int]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
@@ -289,7 +289,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+         list[tuple[:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str]]]
              List of parameter identifiers. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
 
 
@@ -312,8 +312,8 @@ void expose_parameters( py::module& m )
 
  Returns
  -------
- List[]
-     Verbose List of all parameters that shall be estimated. Consider parameters are listed separately.
+ None
+     This function prints the parameter names to standard output.
 
  Examples
  --------

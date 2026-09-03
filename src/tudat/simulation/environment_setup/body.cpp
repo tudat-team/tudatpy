@@ -697,11 +697,13 @@ Eigen::Matrix< double, 6, 1 > Body::getTemplatedState( )
     return getState( );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > Body::getTemplatedState( )
 {
     return getLongState( );
 }
+#endif
 
 //! Templated function to set the state manually.
 template<>
@@ -710,12 +712,14 @@ void Body::setTemplatedState( const Eigen::Matrix< double, 6, 1 >& state )
     setState( state );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Templated function to set the state manually.
 template<>
 void Body::setTemplatedState( const Eigen::Matrix< HighPrecisionStateScalar, 6, 1 >& state )
 {
     setLongState( state );
 }
+#endif
 
 //! Function to define whether the body is currently being propagated, or not
 void Body::setIsBodyInPropagation( const bool isBodyInPropagation )

@@ -102,6 +102,24 @@ bool MinimumElevationAngleCalculator::isObservationViable( const std::vector< Ei
     return isObservationPossible;
 }
 
+bool GroundStationDarknessCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                           const std::vector< double >& linkEndTimes,
+                                                           const Eigen::VectorXd& )
+{
+    for( const std::pair< int, int >& linkEndIndices : linkEndIndices_ )
+    {
+        const int stationIndex = linkEndIndices.first;
+        const double stationTime = linkEndTimes.at( stationIndex );
+        const Eigen::Vector3d vectorToSun =
+                sunStateFunction_( stationTime ).segment( 0, 3 ) - linkEndStates.at( stationIndex ).segment( 0, 3 );
+        if( pointingAngleCalculator_->calculateElevationAngleFromInertialVector( vectorToSun, stationTime ) > maximumSunElevationAngle_ )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
                                           const Eigen::Vector3d& transmittingBody,
                                           const Eigen::Vector3d& relativePoint )
@@ -208,6 +226,31 @@ bool computeOccultation( const Eigen::Vector3d observer1Position,
     // link end is many orders of magnitude farther from the occulter than the other.
     const double distanceToLink = observer1ToOcculter.cross( linkVector.normalized( ) ).norm( );
     return distanceToLink < radius;
+}
+
+bool BodyInSunlightCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                    const std::vector< double >& linkEndTimes,
+                                                    const Eigen::VectorXd& )
+{
+    for( const std::pair< int, int >& linkEndIndices : linkEndIndices_ )
+    {
+        const int bodyIndex = linkEndIndices.first;
+        const double bodyTime = linkEndTimes.at( bodyIndex );
+        const Eigen::Vector3d bodyPosition = linkEndStates.at( bodyIndex ).segment( 0, 3 );
+        const Eigen::Vector3d sunPosition = sunStateFunction_( bodyTime ).segment( 0, 3 );
+
+        for( unsigned int i = 0; i < occultingBodyStateFunctions_.size( ); i++ )
+        {
+            if( computeOccultation( bodyPosition,
+                                    sunPosition,
+                                    occultingBodyStateFunctions_.at( i )( bodyTime ).segment( 0, 3 ),
+                                    occultingBodyRadii_.at( i ) ) )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 //! Function for determining whether the link is occulted during the observataion.

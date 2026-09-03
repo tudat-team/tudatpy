@@ -42,43 +42,57 @@ class ResourceInstallationError(RuntimeError):
     """Raised after all resources have been attempted and some have failed."""
 
     def __init__(self, failures: List[str]):
+        """Create an aggregate installation error.
+
+        Parameters
+        ----------
+        failures : List[str]
+            Diagnostics for the individual resources that could not be installed.
+        """
         self.failures = failures
         details = "\n".join(f"- {failure}" for failure in failures)
         super().__init__(f"Failed to install {len(failures)} resource(s):\n{details}")
 
 
 def _has_progressbar() -> bool:
+    """Return whether the optional tqdm progress-bar dependency is available.
+
+    Returns
+    -------
+    bool
+        Whether tqdm was imported successfully.
+    """
     return tqdm is not None
 
 
 def find_in_catalog(search_string: str) -> Dict[str, str]:
-    """Return catalog entries whose keys contain ``search_string``.
+    """Return catalog entries whose keys contain a search string.
 
     Parameters
     ----------
-    search_string:
-        Substring to search for in catalog keys.
+    search_string : str
+        Substring to match against catalog keys.
 
     Returns
     -------
     Dict[str, str]
-        Mapping of matching catalog keys to their URLs.
+        Matching resource paths mapped to their download URLs.
     """
     return {key: url for key, url in RESOURCE_CATALOG.items() if search_string in key}
 
 
 def resolve_catalog_keys(keys: List[str]) -> Dict[str, str]:
-    """Resolve catalog keys by substring matching.
+    """Combine catalog entries matching any supplied substring.
 
     Parameters
     ----------
-    keys:
-        Substrings to search for in catalog keys.
+    keys : List[str]
+        Substrings to match against catalog keys.
 
     Returns
     -------
     Dict[str, str]
-        Mapping of matched catalog keys to their URLs.
+        All matching resource paths mapped to their download URLs.
     """
     resolved: Dict[str, str] = {}
     for key in keys:
@@ -88,6 +102,18 @@ def resolve_catalog_keys(keys: List[str]) -> Dict[str, str]:
 
 
 def _tarball_cache_name(url: str) -> str:
+    """Derive the local archive name from a regular or Zenodo content URL.
+
+    Parameters
+    ----------
+    url : str
+        Archive download URL.
+
+    Returns
+    -------
+    str
+        File name to use in the download cache.
+    """
     parsed = urlparse(url)
     name = Path(parsed.path).name
     if name == "content":
@@ -98,6 +124,18 @@ def _tarball_cache_name(url: str) -> str:
 
 
 def _is_tarball_url(url: str) -> bool:
+    """Return whether a URL identifies a supported tar archive.
+
+    Parameters
+    ----------
+    url : str
+        Resource download URL.
+
+    Returns
+    -------
+    bool
+        Whether the URL represents a ``.tar``, ``.tar.gz``, or ``.tgz`` file.
+    """
     parsed = urlparse(url)
     name = Path(parsed.path).name
     if name.endswith((".tar.gz", ".tgz", ".tar")):
@@ -108,6 +146,18 @@ def _is_tarball_url(url: str) -> bool:
 
 
 def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
+    """Separate individual downloads from resources grouped by archive URL.
+
+    Parameters
+    ----------
+    files : Dict[str, str]
+        Resource paths mapped to their download URLs.
+
+    Returns
+    -------
+    Tuple[Dict[str, str], Dict[str, List[str]]]
+        Individual resources and archive URLs mapped to their member paths.
+    """
     regular: Dict[str, str] = {}
     tarball_groups: Dict[str, List[str]] = {}
     for path, url in files.items():
@@ -119,7 +169,17 @@ def _split_tarball_files(files: Dict[str, str]) -> Tuple[Dict[str, str], Dict[st
 
 
 def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None:
-    """Download ``url`` atomically, retrying failed transfers."""
+    """Download a URL atomically, retrying failed transfers.
+
+    Parameters
+    ----------
+    url : str
+        URL from which to download the file.
+    dest_path : Path
+        Local destination of the completed download.
+    retries : int, default=3
+        Maximum number of download attempts.
+    """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = dest_path.with_name(f".{dest_path.name}.part")
 
@@ -155,7 +215,18 @@ def _download_with_requests(url: str, dest_path: Path, retries: int = 3) -> None
 
 
 def _sha256_file(path: Path) -> str:
-    """Return the SHA256 hex digest of a file."""
+    """Return the SHA-256 hexadecimal digest of a file.
+
+    Parameters
+    ----------
+    path : Path
+        File whose contents are hashed.
+
+    Returns
+    -------
+    str
+        Lowercase hexadecimal digest.
+    """
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -164,19 +235,62 @@ def _sha256_file(path: Path) -> str:
 
 
 def _verify_sha256(path: Path, expected_hash: str) -> bool:
-    """Return whether a file matches its expected SHA-256 digest."""
+    """Return whether a file matches its expected SHA-256 digest.
+
+    Parameters
+    ----------
+    path : Path
+        File to verify.
+    expected_hash : str
+        Expected hexadecimal SHA-256 digest.
+
+    Returns
+    -------
+    bool
+        Whether the actual and expected digests match.
+    """
     return _sha256_file(path).lower() == expected_hash.lower()
 
 
 def _checksum_mismatch_message(path: Path, expected_hash: str) -> str:
-    """Return a diagnostic for a file that failed checksum verification."""
+    """Return a diagnostic for a file that failed checksum verification.
+
+    Parameters
+    ----------
+    path : Path
+        File that failed verification.
+    expected_hash : str
+        Expected hexadecimal SHA-256 digest.
+
+    Returns
+    -------
+    str
+        Human-readable checksum mismatch diagnostic.
+    """
     return f"SHA256 mismatch for {path}: expected {expected_hash}"
 
 
 def _download_failure_message(
     paths: List[str], url: str, error: BaseException, cache_path: Optional[Path] = None
 ) -> str:
-    """Return an actionable diagnostic for a failed resource download."""
+    """Return an actionable diagnostic for a failed resource download.
+
+    Parameters
+    ----------
+    paths : List[str]
+        Resource paths affected by the failed download.
+    url : str
+        URL from which the resources were requested.
+    error : BaseException
+        Exception that caused the download to fail.
+    cache_path : Path, optional
+        Expected cache location for a manually downloaded archive.
+
+    Returns
+    -------
+    str
+        Diagnostic containing the failure and suggested recovery actions.
+    """
     file_description = ", ".join(paths)
     archive_advice = (
         f"download the tarball manually from the URL above and save it as {cache_path}"
@@ -195,6 +309,24 @@ def _download_failure_message(
 def _download_file(
     url: str, dest_path: Path, force: bool = False, expected_hash: Optional[str] = None
 ) -> bool:
+    """Download and optionally verify one file.
+
+    Parameters
+    ----------
+    url : str
+        URL from which to download the file.
+    dest_path : Path
+        Local destination path.
+    force : bool, default=False
+        Whether to replace an existing destination file.
+    expected_hash : str, optional
+        Expected SHA-256 digest of the downloaded file.
+
+    Returns
+    -------
+    bool
+        ``True`` when downloaded, or ``False`` when an existing file was kept.
+    """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     if dest_path.exists():
         if not force:
@@ -214,6 +346,24 @@ def _download_file(
 def _download_tarball(
     url: str, cache_dir: Path, force: bool = False, expected_hash: Optional[str] = None
 ) -> Path:
+    """Return a downloaded or checksum-verified cached resource archive.
+
+    Parameters
+    ----------
+    url : str
+        Archive download URL.
+    cache_dir : Path
+        Directory in which downloaded archives are cached.
+    force : bool, default=False
+        Whether to replace an existing cached archive.
+    expected_hash : str, optional
+        Expected SHA-256 digest of the archive.
+
+    Returns
+    -------
+    Path
+        Path to the downloaded or verified archive.
+    """
     cache_dir.mkdir(parents=True, exist_ok=True)
     tar_path = cache_dir / _tarball_cache_name(url)
     if tar_path.exists() and not force:
@@ -242,6 +392,20 @@ def _download_tarball(
 
 
 def _find_tar_member(tar: tarfile.TarFile, target: str) -> tarfile.TarInfo:
+    """Find an archive member by relative path, falling back to its basename.
+
+    Parameters
+    ----------
+    tar : tarfile.TarFile
+        Open archive to search.
+    target : str
+        Requested member path.
+
+    Returns
+    -------
+    tarfile.TarInfo
+        Metadata for the matching archive member.
+    """
     normalized_target = Path(target).as_posix()
     fallback = None
     for member in tar.getmembers():
@@ -264,6 +428,26 @@ def _extract_tarball_members(
     force: bool = False,
     hashes: Optional[Dict[str, str]] = None,
 ) -> Tuple[int, List[str]]:
+    """Extract requested archive members and report successes and failures.
+
+    Parameters
+    ----------
+    tar_path : Path
+        Path to the resource archive.
+    targets : List[str]
+        Member paths to extract.
+    dest_root : Path
+        Root directory below which members are installed.
+    force : bool, default=False
+        Whether to replace existing destination files.
+    hashes : Dict[str, str], optional
+        Resource paths mapped to expected SHA-256 digests.
+
+    Returns
+    -------
+    Tuple[int, List[str]]
+        Number of installed members and diagnostics for failed members.
+    """
     installed = 0
     verified = 0
     failures: List[str] = []
@@ -309,6 +493,39 @@ def _extract_tarball_members(
     return installed, failures
 
 
+def _required_tarball_targets(
+    targets: List[str], dest_root: Path, hashes: Optional[Dict[str, str]] = None
+) -> List[str]:
+    """Return archive members that are absent or fail their known checksum.
+
+    Parameters
+    ----------
+    targets : List[str]
+        Requested member paths.
+    dest_root : Path
+        Root directory containing installed resources.
+    hashes : Dict[str, str], optional
+        Resource paths mapped to expected SHA-256 digests.
+
+    Returns
+    -------
+    List[str]
+        Members that still need to be installed.
+    """
+    required = []
+    for target in targets:
+        dest_path = dest_root / target
+        if not dest_path.exists():
+            required.append(target)
+            continue
+        # Presence alone is sufficient for resources without a catalog hash;
+        # hashed resources must also be valid to count as already installed.
+        if hashes and (expected_hash := hashes.get(target)):
+            if not _verify_sha256(dest_path, expected_hash):
+                required.append(target)
+    return required
+
+
 def install_files(
     files: Dict[str, str],
     dest_path: Path,
@@ -316,7 +533,26 @@ def install_files(
     force: bool = False,
     hashes: Optional[Dict[str, str]] = None,
 ) -> int:
-    """Install files from URLs and tarballs to destination directory."""
+    """Install catalog files and archive members into a destination directory.
+
+    Parameters
+    ----------
+    files : Dict[str, str]
+        Resource paths mapped to individual file or shared archive URLs.
+    dest_path : Path
+        Root directory into which resources are installed.
+    cache_dir : Path
+        Directory used to cache downloaded archives.
+    force : bool, default=False
+        Whether to replace existing resources and cached archives.
+    hashes : Dict[str, str], optional
+        Resource paths or archive identifiers mapped to SHA-256 digests.
+
+    Returns
+    -------
+    int
+        Number of resources installed.
+    """
     dest_path = dest_path.expanduser()
     cache_dir = cache_dir.expanduser()
     dest_path.mkdir(parents=True, exist_ok=True)
@@ -340,6 +576,16 @@ def install_files(
             failures.append(failure)
 
     for tarball_url, targets in tarball_groups.items():
+        # In missing mode, inspect the destination before obtaining the shared
+        # archive. Force mode deliberately bypasses this optimisation so every
+        # requested member is downloaded and replaced.
+        required_targets = (
+            targets if force else _required_tarball_targets(targets, dest_path, hashes)
+        )
+        # All requested members of this archive are already present and, where
+        # checksums are available, valid. No download or extraction is needed.
+        if not required_targets:
+            continue
         expected = None
         if hashes:
             expected = hashes.get(tarball_url) or hashes.get(_tarball_cache_name(tarball_url))
@@ -348,7 +594,7 @@ def install_files(
                 tarball_url, cache_dir, force=force, expected_hash=expected
             )
             extracted, extraction_failures = _extract_tarball_members(
-                tar_path, targets, dest_path, force=force, hashes=hashes
+                tar_path, required_targets, dest_path, force=force, hashes=hashes
             )
         except (
             ChecksumMismatchError,
@@ -357,7 +603,7 @@ def install_files(
             tarfile.TarError,
         ) as error:
             cache_path = cache_dir / _tarball_cache_name(tarball_url)
-            failure = _download_failure_message(targets, tarball_url, error, cache_path)
+            failure = _download_failure_message(required_targets, tarball_url, error, cache_path)
             warnings.warn(failure, RuntimeWarning, stacklevel=2)
             failures.append(failure)
             continue
@@ -377,10 +623,25 @@ def download_extra_file(
     force: bool = False,
     hashes: Optional[Dict[str, str]] = None,
 ) -> Path:
-    """Download an extra file to the destination path.
+    """Download an uncatalogued file, deriving its name for directory targets.
 
-    If dest_path is a directory, the filename is derived from the URL.
-    The destination directory is created if it does not exist.
+    Parameters
+    ----------
+    url : str
+        URL from which to download the file.
+    dest_path : Path
+        Destination file or existing directory.
+    cache_dir : Path
+        Cache directory retained for API consistency with catalog downloads.
+    force : bool, default=False
+        Whether to replace an existing destination file.
+    hashes : Dict[str, str], optional
+        URLs or file names mapped to expected SHA-256 digests.
+
+    Returns
+    -------
+    Path
+        Destination path of the downloaded or existing file.
     """
     dest_path = dest_path.expanduser()
     if dest_path.is_dir():
@@ -395,7 +656,15 @@ def download_extra_file(
 
 
 def list_catalog(dest_path: Path, keys: Optional[List[str]] = None) -> None:
-    """Print manifest entries and highlight local files absent from the manifest."""
+    """Print catalog entries and highlight local files absent from the catalog.
+
+    Parameters
+    ----------
+    dest_path : Path
+        Root directory containing installed resources.
+    keys : List[str], optional
+        Substrings used to restrict both catalog and local-file output.
+    """
     entries = resolve_catalog_keys(keys) if keys else RESOURCE_CATALOG
     for key in sorted(entries):
         print(key)
@@ -414,7 +683,18 @@ def list_catalog(dest_path: Path, keys: Optional[List[str]] = None) -> None:
 
 
 def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
-    """Load a user-supplied SHA-256 hash file."""
+    """Load a user-supplied SHA-256 hash file.
+
+    Parameters
+    ----------
+    hash_file : str
+        Path to a JSON file mapping resource identifiers to digests.
+
+    Returns
+    -------
+    Tuple[Dict[str, str], str]
+        Loaded hash mapping and expanded source path.
+    """
     path = Path(hash_file).expanduser()
     if path.exists():
         return json.loads(path.read_text()), str(path)
@@ -422,7 +702,18 @@ def _load_hash_file(hash_file: str) -> Tuple[Dict[str, str], str]:
 
 
 def _automatic_hash_file(catalog_path: Optional[Path]) -> Optional[Path]:
-    """Return the checksum file associated with the selected local catalog."""
+    """Return the checksum file associated with the selected local catalog.
+
+    Parameters
+    ----------
+    catalog_path : Path, optional
+        Explicit catalog path, or ``None`` to use the default user catalog.
+
+    Returns
+    -------
+    Path or None
+        Existing associated checksum file, if one is available.
+    """
     if catalog_path is not None:
         candidate = catalog_path.with_name(USER_RESOURCE_HASHES.name)
     elif USER_RESOURCE_CATALOG.exists():
@@ -433,7 +724,13 @@ def _automatic_hash_file(catalog_path: Optional[Path]) -> Optional[Path]:
 
 
 def parse_arguments() -> argparse.Namespace:
-    """Parse command-line arguments for the resource installer."""
+    """Parse command-line arguments for the resource installer.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed installer mode, paths, resource selection, and checksum options.
+    """
     parser = argparse.ArgumentParser(
         description="Install or update TudatPy common resource files with cache and progress support.",
         formatter_class=argparse.RawDescriptionHelpFormatter,

@@ -23,12 +23,14 @@ Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const doubl
     return getBaseFrameDoubleState( time );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template<>
 Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameLongDoubleState( time );
 }
+#endif
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template<>
@@ -37,12 +39,14 @@ Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time 
     return getBaseFrameDoubleState( time );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template<>
 Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
     return getBaseFrameLongDoubleState( time );
 }
+#endif
 
 }  // namespace simulation_setup
 

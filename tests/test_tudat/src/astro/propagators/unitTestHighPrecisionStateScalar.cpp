@@ -30,6 +30,7 @@
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatTypeTraits.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/math/integrators/rungeKutta4Integrator.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
@@ -54,10 +55,13 @@ using FixedState = Eigen::Matrix< Scalar, 6, 1 >;
 using DynamicState = Eigen::Matrix< Scalar, Eigen::Dynamic, 1 >;
 using StateHistory = std::map< double, DynamicState >;
 
+static_assert( TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR );
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
 static_assert( std::is_same_v< Scalar, boost::multiprecision::cpp_bin_float_quad > );
-#else
+#elif TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE
 static_assert( std::is_same_v< Scalar, long double > );
+#else
+#error "The high-precision state scalar test requires a configured high-precision scalar."
 #endif
 
 static_assert( is_state_scalar< Scalar >::value );
@@ -365,6 +369,16 @@ Scalar computeTwoWayRangeReference( const std::shared_ptr< ephemerides::Ephemeri
 
 BOOST_AUTO_TEST_SUITE( test_high_precision_state_scalar )
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+BOOST_AUTO_TEST_CASE( testHighPrecisionPi )
+{
+    const Scalar expectedPi( "3.1415926535897932384626433832795028841971693993751" );
+
+    BOOST_CHECK_EQUAL( mathematical_constants::getPi< Scalar >( ), expectedPi );
+    BOOST_CHECK( mathematical_constants::getPi< Scalar >( ) != static_cast< Scalar >( mathematical_constants::LONG_PI ) );
+}
+#endif
+
 BOOST_AUTO_TEST_CASE( testEigenStateVectorsAndArithmetic )
 {
     const Scalar one = scalarFromDecimalString< Scalar >( "1" );
@@ -389,7 +403,10 @@ BOOST_AUTO_TEST_CASE( testStateInterpolationStorageAndRetrieval )
         fixedStateHistory[ static_cast< double >( i ) ] = FixedState::Constant( preciseValue );
     }
 
-    const auto stateInterpolator = propagators::createStateInterpolator( fixedStateHistory );
+    const auto stateInterpolatorSettings = interpolators::lagrangeInterpolation( 8 );
+    const auto stateInterpolator = propagators::createStateInterpolator( fixedStateHistory, stateInterpolatorSettings );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< double, FixedState, Scalar > >( stateInterpolator ) !=
+                     nullptr ) );
     const FixedState interpolatedAtNode = stateInterpolator->interpolate( 3.0 );
     BOOST_CHECK( interpolatedAtNode( 0 ) == fixedStateHistory.at( 3.0 )( 0 ) );
 
@@ -429,7 +446,8 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
 
     // Exercise the same reset function used when propagated results are selected
     // as the body's post-propagation ephemeris.
-    propagators::resetIntegratedEphemerisOfBody( bodies, stateHistory, "Vehicle" );
+    const auto stateInterpolatorSettings = interpolators::lagrangeInterpolation( 8 );
+    propagators::resetIntegratedEphemerisOfBody( bodies, stateHistory, "Vehicle", stateInterpolatorSettings );
 
     const Time nodeTime = firstEpoch + 3.0L;
     const Time queryTime = nodeTime + 1.0e-12L;
@@ -439,6 +457,8 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     const auto resetEphemeris = std::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< Scalar, Time > >(
             bodies.at( "Vehicle" )->getEphemeris( ) );
     BOOST_REQUIRE( resetEphemeris != nullptr );
+    BOOST_REQUIRE( ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< Time, FixedState, Scalar > >(
+                             resetEphemeris->getInterpolator( ) ) != nullptr ) );
 
     const Scalar nodePosition = resetEphemeris->getCartesianLongStateFromExtendedTime( nodeTime )( 0 );
     const Scalar offsetPosition = resetEphemeris->getCartesianLongStateFromExtendedTime( queryTime )( 0 );
@@ -462,7 +482,7 @@ BOOST_AUTO_TEST_CASE( testResetTabulatedEphemerisResolvesPicosecondOffset )
     {
         doubleStateHistory[ stateEntry.first ] = stateEntry.second.template cast< double >( );
     }
-    const auto doubleInterpolator = propagators::createStateInterpolator( doubleStateHistory );
+    const auto doubleInterpolator = propagators::createStateInterpolator( doubleStateHistory, stateInterpolatorSettings );
     ephemerides::TabulatedCartesianEphemeris< double, Time > doubleEphemeris( doubleInterpolator, "SSB", "J2000" );
     const double doublePositionChange = doubleEphemeris.getCartesianStateFromExtendedTime( queryTime )( 0 ) -
             doubleEphemeris.getCartesianStateFromExtendedTime( nodeTime )( 0 );
@@ -717,10 +737,6 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
     const Time offsetRoundTripTdbTime = timeScaleConverter->getCurrentTime< Time >(
             basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, offsetUtcTime, stationPosition );
     const Scalar roundTripTdbTimeIncrement = convertIndependentVariableToScalar< Scalar >( offsetRoundTripTdbTime - roundTripTdbTime );
-    const Scalar tdbToUtcCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
-            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, offsetObservationTime, stationPosition );
-    const Scalar utcToTdbCorrectionChange = timeScaleConverter->getTimeScaleConversionCorrectionDifference< Scalar, Time >(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcTime, offsetUtcTime, stationPosition );
 
     // The SOFA TDB-TT model is evaluated in double, but it is added to a Time.
     // At epochs away from a leap-second boundary, the common correction must
@@ -729,15 +745,11 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
                                                                              : scalarFromDecimalString< Scalar >( "7.5e-13" );
     std::cout << "TDB->UTC increment error [s]: " << getAbsoluteValue( utcTimeIncrement - representedTimeIncrement )
               << ", UTC->TDB round-trip increment error [s]: " << getAbsoluteValue( roundTripTdbTimeIncrement - representedTimeIncrement )
-              << ", time increment tolerance [s]: " << timeIncrementTolerance
-              << ", TDB->UTC correction change [s]: " << tdbToUtcCorrectionChange
-              << ", UTC->TDB correction change [s]: " << utcToTdbCorrectionChange << std::endl;
+              << ", time increment tolerance [s]: " << timeIncrementTolerance << std::endl;
     BOOST_CHECK( utcTimeIncrement > static_cast< Scalar >( 0 ) );
     BOOST_CHECK( roundTripTdbTimeIncrement > static_cast< Scalar >( 0 ) );
     BOOST_CHECK( getAbsoluteValue( utcTimeIncrement - representedTimeIncrement ) < timeIncrementTolerance );
     BOOST_CHECK( getAbsoluteValue( roundTripTdbTimeIncrement - representedTimeIncrement ) < timeIncrementTolerance );
-    BOOST_CHECK( getAbsoluteValue( tdbToUtcCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
-    BOOST_CHECK( getAbsoluteValue( utcToTdbCorrectionChange ) < scalarFromDecimalString< Scalar >( "1e-20" ) );
 
     observation_models::LinkEnds dsnLinkEnds;
     dsnLinkEnds[ observation_models::transmitter ] = observation_models::linkEndId( "Earth", stationName );

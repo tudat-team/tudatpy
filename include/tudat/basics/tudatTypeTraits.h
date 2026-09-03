@@ -55,8 +55,8 @@ struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::dec
 
 template< typename T >
 struct is_state_scalar {
-    static constexpr bool value =
-            std::is_same_v< T, double > || std::is_same_v< T, long double > || std::is_same_v< T, HighPrecisionStateScalar >;
+    static constexpr bool value = std::is_same_v< T, double > ||
+            ( TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && std::is_same_v< T, HighPrecisionStateScalar > );
 };
 
 template< typename T >
@@ -91,15 +91,22 @@ struct scalar_type< Time > {
 
 //! Convert an independent-variable value or difference to an arithmetic scalar.
 /*!
- * The intermediate cast through scalar_type preserves the native resolution of
- * composite independent-variable types such as tudat::Time, while allowing the
- * interpolation arithmetic to use a different (possibly multiprecision) scalar.
+ * For tudat::Time, the split epoch components are converted directly to the output
+ * scalar so that a multiprecision result does not first collapse to long double.
+ * Other types are converted through their native scalar representation.
  */
 template< typename OutputScalarType, typename IndependentVariableType >
 OutputScalarType convertIndependentVariableToScalar( const IndependentVariableType& value )
 {
-    using NativeScalarType = typename scalar_type< std::decay_t< IndependentVariableType > >::value_type;
-    return static_cast< OutputScalarType >( static_cast< NativeScalarType >( value ) );
+    if constexpr( std::is_same_v< std::decay_t< IndependentVariableType >, Time > )
+    {
+        return value.template getSeconds< OutputScalarType >( );
+    }
+    else
+    {
+        using NativeScalarType = typename scalar_type< std::decay_t< IndependentVariableType > >::value_type;
+        return static_cast< OutputScalarType >( static_cast< NativeScalarType >( value ) );
+    }
 }
 
 template< typename T >

@@ -305,7 +305,7 @@ public:
         ObservationScalarType transmitterFrequencyIntegral =
                 frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
                                                                                                                    transmissionUtcEndTime );
-        const ObservationScalarType integrationTimeScalar = convertIndependentVariableToScalar< ObservationScalarType >( integrationTime );
+        const ObservationScalarType integrationTimeScalar = static_cast< ObservationScalarType >( integrationTime );
         const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
                 timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
                         basic_astrodynamics::utc_scale,

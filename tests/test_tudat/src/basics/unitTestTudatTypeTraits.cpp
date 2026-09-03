@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <iostream>
 #include <type_traits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Geometry>
 
@@ -64,6 +63,9 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
     BOOST_CHECK_EQUAL( isStateType, true );
 
     isStateType = is_state_scalar< long double >::value;
+    BOOST_CHECK_EQUAL( isStateType, TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE );
+
+    isStateType = is_state_scalar< HighPrecisionStateScalar >::value;
     BOOST_CHECK_EQUAL( isStateType, true );
 
     isStateType = is_state_scalar< Time >::value;
@@ -86,7 +88,8 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
     BOOST_CHECK_EQUAL( isStateAndTimeType, false );
 
     isStateAndTimeType = is_state_scalar_and_time_type< long double, Time >::value;
-    BOOST_CHECK_EQUAL( isStateAndTimeType, true );
+    BOOST_CHECK_EQUAL( isStateAndTimeType,
+                       TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

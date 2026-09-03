@@ -125,7 +125,7 @@ void expose_simulator_variational_bindings( py::module& m )
              Boolean defining whether equations of motion and variational equations are to be propagated concurrently
              (if true) or sequentially (of false).
 
-         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`, default = []
+         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettingsFloat`, default = None
              Settings to create the numerical integrator that is to be used for integration the variational equations.
              If none is given (default), the numerical integration settings are taken to be the same as the ones applied
              in the integration of the equations of motions (specified by the `integrator_settings` parameter).

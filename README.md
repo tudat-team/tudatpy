@@ -99,11 +99,14 @@ cmake --build build
 ```
 
 The supported CMake values are `CPP_BIN_FLOAT_QUAD` (the default) and
-`LONG_DOUBLE`. This selection affects the C++ state API and its binary interface,
-so all libraries and C++ consumers must use the same configuration.
+`LONG_DOUBLE`. Exactly one of these scalar implementations is compiled when
+`TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS` is enabled. This
+selection affects the C++ state API and its binary interface, so all libraries
+and C++ consumers must use the same configuration.
+
 When TudatPy is built with `TUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=ON`
-(the default), Python can select the C++ state scalar before importing the
-kernel:
+(the default for `CPP_BIN_FLOAT_QUAD`), Python can select the C++ state scalar
+before importing the kernel:
 
 ```python
 import tudatpy
@@ -124,6 +127,12 @@ NumPy inputs and outputs remain binary64; selecting `"quad"` instantiates the
 supported internal C++ state, propagation, observation, and estimation paths
 with `HighPrecisionStateScalar`.
 
+To build without high-precision state support or its dedicated tests, configure
+with `-DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF`. In that
+configuration, `HighPrecisionStateScalar` and the `hps` Eigen typedefs collapse
+to `double`, and no additional state scalar is accepted by the propagation type
+traits or explicitly instantiated.
+
 Eigen typedefs ending in `ld` always use literal `long double`; typedefs ending
 in `hps` use the configured `HighPrecisionStateScalar`. Quad state arithmetic
 does not make every input or external interface quad precision. In particular,
@@ -137,12 +146,14 @@ implementation (commonly extended precision on Linux/x86, but equivalent to
 
 ```
 python install.py -h                 # Show help and available flags
-python install.py -e                 # Install in "editable mode"
+python install.py -e                 # Editable development installation
+python install.py                    # Frozen installation of the current build
 ```
 
 > **Note**\
-> This script installs Tudatpy in your active conda environment. If you install with the `-e` flag, you will not have to re-install every time you update the source code of the library.
-> And that's it! The next step shows you what to do if you want to uninstall the libraries.
+> This script installs Tudatpy in your active conda environment. Editable mode links the Python files in the environment directly to this source checkout. Source edits and branch switches therefore affect the installed package immediately, while the compiled kernel remains the one in the selected build directory. Use editable mode for active development and keep the checkout on a compatible revision.
+>
+> Run `python install.py` without `-e` when the environment must remain independent of later source edits or branch switches. This installs a snapshot of the current build through CMake. Unlike editable installations, regular installations are not tracked by `uninstall.py` and must currently be removed manually.
 
 8. Uninstall
 

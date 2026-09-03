@@ -16,7 +16,6 @@
 
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/basics/timeType.h"
-#include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/eopReader.h"

@@ -1402,10 +1402,10 @@ subtract_doppler_signature : bool, default = true
 
 Returns
 -------
-:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+ObservationModelSettings
     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived class defining the settings for doppler observable.
 
-.)doc" );
+)doc" );
 
     m.def( "two_way_doppler_instantaneous_frequency",
            py::overload_cast< const tom::LinkDefinition&,

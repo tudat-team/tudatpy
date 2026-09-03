@@ -48,15 +48,6 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-using std::abs;
-using std::cos;
-using std::cosh;
-using std::fabs;
-using std::log;
-using std::sin;
-using std::sinh;
-using std::sqrt;
-
 //! Compute Kepler's function for elliptical orbits.
 /*!
  * Computes Kepler's function, given as:
@@ -75,6 +66,7 @@ ScalarType computeKeplersFunctionForEllipticalOrbits( const ScalarType eccentric
                                                       const ScalarType eccentricity,
                                                       const ScalarType meanAnomaly )
 {
+    using std::sin;
     return eccentricAnomaly - eccentricity * sin( eccentricAnomaly ) - meanAnomaly;
 }
 
@@ -93,6 +85,7 @@ ScalarType computeKeplersFunctionForEllipticalOrbits( const ScalarType eccentric
 template< typename ScalarType = double >
 ScalarType computeFirstDerivativeKeplersFunctionForEllipticalOrbits( const ScalarType eccentricAnomaly, const ScalarType eccentricity )
 {
+    using std::cos;
     return mathematical_constants::getFloatingInteger< ScalarType >( 1 ) - eccentricity * cos( eccentricAnomaly );
 }
 
@@ -114,6 +107,7 @@ ScalarType computeKeplersFunctionForHyperbolicOrbits( const ScalarType hyperboli
                                                       const ScalarType eccentricity,
                                                       const ScalarType hyperbolicMeanAnomaly )
 {
+    using std::sinh;
     return eccentricity * sinh( hyperbolicEccentricAnomaly ) - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly;
 }
 
@@ -133,6 +127,7 @@ template< typename ScalarType = double >
 ScalarType computeFirstDerivativeKeplersFunctionForHyperbolicOrbits( const ScalarType hyperbolicEccentricAnomaly,
                                                                      const ScalarType eccentricity )
 {
+    using std::cosh;
     return eccentricity * cosh( hyperbolicEccentricAnomaly ) - mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 }
 
@@ -165,6 +160,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly( const ScalarType eccentricity,
 {
     using namespace mathematical_constants;
     using namespace root_finders;
+    using std::abs;
 
     // Set mean anomaly to region between 0 and 2 PI.
     ScalarType meanAnomaly =
@@ -176,7 +172,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly( const ScalarType eccentricity,
         ScalarType tolerance = 10.0 * std::numeric_limits< ScalarType >::epsilon( );
 
         // Loosen tolerance for near-parabolic orbits
-        if( fabs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) <
+        if( abs( eccentricity - getFloatingInteger< ScalarType >( 1 ) ) <
             getFloatingInteger< ScalarType >( 100000 ) * std::numeric_limits< ScalarType >::epsilon( ) )
         {
             tolerance *= 2.5;
@@ -301,6 +297,10 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly( const ScalarType ecce
 {
     using namespace mathematical_constants;
     using namespace root_finders;
+    using std::abs;
+    using std::log;
+    using std::sinh;
+    using std::sqrt;
 
     std::shared_ptr< RootFinder< ScalarType > > rootFinder = aRootFinder;
 

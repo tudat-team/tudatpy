@@ -482,7 +482,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------
@@ -565,7 +565,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------

@@ -28,6 +28,7 @@ double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& l
     return getCurrentFrequency( lookupTime );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
@@ -39,6 +40,7 @@ HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedCurrentFreque
 {
     return getCurrentLongFrequency( lookupTime );
 }
+#endif
 
 template<>
 double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime, const double& quadratureEndTime )
@@ -52,6 +54,7 @@ double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& 
     return getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template<>
 HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime,
                                                                                       const double& quadratureEndTime )
@@ -65,6 +68,7 @@ HighPrecisionStateScalar StationFrequencyInterpolator::getTemplatedFrequencyInte
 {
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
+#endif
 
 void PiecewiseLinearFrequencyInterpolator::initialize( )
 {

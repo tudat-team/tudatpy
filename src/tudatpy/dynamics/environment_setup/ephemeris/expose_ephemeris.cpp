@@ -452,8 +452,8 @@ void expose_ephemeris_setup( py::module& m )
  initial_state_in_keplerian_elements : numpy.ndarray[numpy.float64[6, 1]]
      Kepler elements at epoch given by ``initial_state_epoch``.
 
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which ``initial_state_in_keplerian_elements`` represents the Keplerian state, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Effective gravitational parameter of the central body that is used in the computations. Note that when
@@ -526,8 +526,8 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  body : str
      Name of body for which to create ephemeris settings and infer initial state from Spice.
- initial_state_epoch : astro.time_representation.Time
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
+ initial_state_epoch : float
+     Epoch at which the initial state is defined, in seconds since J2000 TDB.
 
  central_body_gravitational_parameter : float
      Gravitational parameter of the central body that is used in the computations.
@@ -706,10 +706,10 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- initial_time : astro.time_representation.Time
-     Initial time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
- final_time : astro.time_representation.Time
-     Final time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
+ initial_time : float
+     Initial epoch from which interpolated data from Spice should be created, in seconds since J2000 TDB.
+ final_time : float
+     Final epoch through which interpolated data from Spice should be created, in seconds since J2000 TDB.
  time_step : float
      Time step with which interpolated data from Spice should be created.
  frame_origin : str, default="SSB"
@@ -770,7 +770,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- body_state_history : dict
+ body_state_history : dict[float, numpy.ndarray[numpy.float64[6, 1]]]
      Dictionary of the discrete state history data from which ephemeris is to be created. Keys representing the time (float) and values representing Cartesian states (numpy.ndarray).
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
@@ -837,10 +837,10 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  ephemeris_settings : tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
      Existing ephemeris settings that have to be tabulated.
- start_time : astro.time_representation.Time
-     Initial time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
- end_time : astro.time_representation.Time
-     Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
+ start_time : float
+     Initial epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
+ end_time : float
+     Final epoch for which to create the tabulated ephemeris, in seconds since J2000 TDB.
  time_step : float
      Time step to use to tabulate the existing ephemeris.
  interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(8, boundary_interpolation=tudatpy.math.interpolators.extrapolate_at_boundary)

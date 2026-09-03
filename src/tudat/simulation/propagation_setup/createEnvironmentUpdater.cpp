@@ -15,6 +15,7 @@
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
@@ -586,6 +587,35 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                             {
                                 singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
                             }
+                        }
+                        break;
+                    }
+                    case three_coefficient_radiation_pressure: {
+                        const auto threeCoefficientAcceleration =
+                                std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( threeCoefficientAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating environment updates for three-coefficient radiation pressure: model type is "
+                                    "inconsistent." );
+                        }
+
+                        const std::string& sourceName = accelerationModelIterator->first;
+                        const std::string& targetName = acceleratedBodyIterator->first;
+                        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( targetName );
+                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( sourceName );
+                        singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back( targetName );
+
+                        if( translationalAccelerationModels.count( threeCoefficientAcceleration->getReferenceBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    threeCoefficientAcceleration->getReferenceBodyName( ) );
+                        }
+                        for( const std::string& occultingBody :
+                             threeCoefficientAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( ) )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( occultingBody );
                         }
                         break;
                     }
@@ -1593,6 +1623,7 @@ template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< double, tudat::Time >(
         const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, tudat::Time > >,
         const simulation_setup::SystemOfBodies& );
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< HighPrecisionStateScalar, double >(
         const std::shared_ptr< RelativisticTimeStatePropagatorSettings< HighPrecisionStateScalar, double > >,
@@ -1601,6 +1632,7 @@ template std::map< tudat::propagators::EnvironmentModelsToUpdate, std::vector< s
 createProperTimeEquationEnvironmentUpdaterSettings< HighPrecisionStateScalar, tudat::Time >(
         const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< HighPrecisionStateScalar, tudat::Time > >,
         const tudat::simulation_setup::SystemOfBodies& );
+#endif
 
 }  // namespace propagators
 

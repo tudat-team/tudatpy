@@ -227,7 +227,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ TabulatedObservationSimulationSettings ]
+ list[TabulatedObservationSimulationSettings]
      List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
 
 
@@ -303,8 +303,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
- :class:`TabulatedObservationSimulationSettings`
-     Instance of the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` class.
+ ObservationSimulationSettings
+     Settings defining continuous observation arcs.
 
 
 
@@ -361,8 +361,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ :class:`TabulatedObservationSimulationSettings` ]
-     List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
+ list[ObservationSimulationSettings]
+     List of settings defining continuous observation arcs.
 
 
 

@@ -24,12 +24,14 @@ double getDefaultLightTimeTolerance< double >( )
     return 1.0E-12;
 }
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_LONG_DOUBLE
 //! Function to retrieve the default tolerance for the light-time equation solution.
 template<>
 long double getDefaultLightTimeTolerance< long double >( )
 {
     return 1.0E-15L;
 }
+#endif
 
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
 //! Quad-precision light-time iterations must converge well below picosecond effects.

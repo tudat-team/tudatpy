@@ -90,12 +90,12 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
 
     // Make a simple list to iterate over with the FieldType arguments and respective regex
     // expressions.
-    std::map< FieldType, boost::regex > checkForFieldTypes;
+    std::map< FieldType, std::regex > checkForFieldTypes;
     for( int i = 0; i < nrFields; i++ )
     {
         FieldType type = va_arg( argumentList, FieldType );
-        boost::regex regex = boost::regex( va_arg( argumentList, char* ) );
-        checkForFieldTypes.insert( std::pair< FieldType, boost::regex >( type, regex ) );
+        std::regex regex = std::regex( va_arg( argumentList, char* ) );
+        checkForFieldTypes.insert( std::pair< FieldType, std::regex >( type, regex ) );
     }
 
     // Clean up the system stack.
@@ -109,7 +109,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
         bool found = true;
 
         // Loop over each FieldType to check if it exists.
-        for( std::map< FieldType, boost::regex >::iterator currentFieldCheck = checkForFieldTypes.begin( );
+        for( std::map< FieldType, std::regex >::iterator currentFieldCheck = checkForFieldTypes.begin( );
              currentFieldCheck != checkForFieldTypes.end( );
              currentFieldCheck++ )
         {
@@ -127,7 +127,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
             const std::string str = entry->second->getTransformed( );
 
             // Check if the field value regex matches.
-            if( !boost::regex_search( str.begin( ), str.end( ), currentFieldCheck->second ) )
+            if( !std::regex_search( str.begin( ), str.end( ), currentFieldCheck->second ) )
             {
                 // If not, mark this, and stop searching for others.
                 found = false;

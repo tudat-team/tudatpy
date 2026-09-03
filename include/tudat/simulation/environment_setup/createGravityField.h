@@ -14,8 +14,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include <memory>
 
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"

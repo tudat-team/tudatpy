@@ -68,6 +68,8 @@ void expose_parameters_setup_types( py::module& m )
             .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
             .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
             .value( "radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient )
+            .value( "three_coefficient_radiation_pressure_coefficients_type",
+                    tep::EstimatebleParametersEnum::three_coefficient_radiation_pressure_coefficients )
             .value( "arc_wise_radiation_pressure_coefficient_type",
                     tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient )
             .value( "spherical_harmonics_cosine_coefficient_block_type",
@@ -331,8 +333,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "side_component_scaling",
            &tep::sideComponentScaling,
@@ -374,8 +376,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "lift_component_scaling",
            &tep::liftComponentScaling,
@@ -417,8 +419,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
-     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+ ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings
+     Settings for the arc-wise acceleration scaling parameter. )doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
@@ -446,6 +448,32 @@ void expose_parameters_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "three_coefficient_radiation_pressure_coefficients",
+           &tep::threeCoefficientRadiationPressureCoefficients,
+           py::arg( "body" ),
+           py::arg( "radiation_source" ),
+           R"doc(
+
+Creates settings for estimating the three constants of a three-coefficient radiation-pressure acceleration.
+
+The resulting single vector parameter has size three and contains :math:`(A_1,A_2,A_3)` in square metres. It is
+linked to every matching three-coefficient acceleration from ``radiation_source`` acting on ``body`` in the supplied
+propagator settings.
+
+Parameters
+----------
+body : str
+    Body undergoing the three-coefficient radiation-pressure acceleration.
+radiation_source : str
+    Body emitting the radiation and exerting the acceleration.
+
+Returns
+-------
+EstimatableParameterSettings
+    Settings for the size-three coefficient parameter.
+
+)doc" );
 
     m.def( "arcwise_radiation_pressure_coefficient",
            &tep::arcwiseRadiationPressureCoefficient,
@@ -1447,7 +1475,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1484,7 +1512,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1535,7 +1563,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1574,7 +1602,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1752,7 +1780,7 @@ deformed_body : str
     Name of the body that is undergoing tidal deformation
 degree : int
     Degree :math:`l` of the Love numbers :math:`k_{lm}` that are to be estimated
-degree : list[int]
+orders : list[int]
     Orders :math:`m` of the Love numbers :math:`k_{lm}` that are to be estimated
 deforming_bodies : list[str]
     List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be identical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
@@ -1789,7 +1817,7 @@ Parameters
 ----------
 deformed_body : str
     Name of the body that is undergoing tidal deformation
-love_number_per_degree : dict[tuple[int, int], list[int,int]]]
+love_number_indices : dict[tuple[int, int], list[tuple[int, int]]]
     Dictionary of Love number indices for each combination for forcing and response degree and order.
     The first tuple (key) is the forcing degree and order :math:`l,m`, the list of tuples (key) is the list of associated response degrees and orders :math:`l',m'`
     for which the Love numbers are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
@@ -1826,9 +1854,9 @@ Parameters
 ----------
 body_name : str
     Name of the body that is undergoing gravity field variation
-cosine_indices_per_power : dict[int, list[int,int]]
+cosine_indices_per_power : dict[int, list[tuple[int, int]]]
     Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
-sine_indices_per_power : dict[int, list[int,int]]
+sine_indices_per_power : dict[int, list[tuple[int, int]]]
     Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
@@ -1863,9 +1891,9 @@ Parameters
 ----------
 body_name : str
     Name of the body that is undergoing gravity field variation
-cosine_indices_per_period : dict[int, list[int,int]]
+cosine_indices_per_period : dict[int, list[tuple[int, int]]]
     Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{C}_{lm}}` and :math:`B_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
-sine_indices_per_period : dict[int, list[int,int]]
+sine_indices_per_period : dict[int, list[tuple[int, int]]]
     Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
 
 Returns
@@ -1892,9 +1920,9 @@ body_name : str
     Name of the body that is undergoing gravity field variation
 power: int
     Power :math:`i` for which to estimate polynomial gravity field variations
-cosine_indices: list[int,int]
+cosine_indices: list[tuple[int, int]]
     List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
-sine_indices: list[int,int]
+sine_indices: list[tuple[int, int]]
     List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns

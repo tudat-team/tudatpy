@@ -170,10 +170,10 @@ public:
                                          initialStepSize,
                                          StateType::Constant( initialState.rows( ),
                                                               initialState.cols( ),
-                                                              integrator_detail::getAbsoluteTolerance( relativeErrorTolerance ) ),
+                                                              integrator_detail::getAbsoluteValue( relativeErrorTolerance ) ),
                                          StateType::Constant( initialState.rows( ),
                                                               initialState.cols( ),
-                                                              integrator_detail::getAbsoluteTolerance( absoluteErrorTolerance ) ),
+                                                              integrator_detail::getAbsoluteValue( absoluteErrorTolerance ) ),
                                          bandwidth )
     {}
 

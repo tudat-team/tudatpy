@@ -43,6 +43,10 @@ HighPrecisionStateScalar operator""_hps( )
     {
         return std::strtold( value, nullptr );
     }
+    else if constexpr( std::is_same_v< HighPrecisionStateScalar, double > )
+    {
+        return std::strtod( value, nullptr );
+    }
     else
     {
         return HighPrecisionStateScalar( value );

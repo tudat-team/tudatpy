@@ -26,6 +26,9 @@
 
 #include "tudat/io/mapTextFileReader.h"
 
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
+
 namespace tudat
 {
 
@@ -143,7 +146,39 @@ public:
         }
     }
 
+    //! Equality operator for serialization testing
+    bool operator==( const InterpolatorSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const InterpolatorSettings& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Virtual equals function to be overridden by derived classes. Base class implementation
+     * compares base class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    virtual bool equals( const InterpolatorSettings& rhs ) const
+    {
+        return interpolatorType_ == rhs.interpolatorType_ && selectedLookupScheme_ == rhs.selectedLookupScheme_ &&
+                boundaryHandling_ == rhs.boundaryHandling_;
+    }
+
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( InterpolatorSettings )
+
 protected:
+    //! Default constructor for serialization.
+    InterpolatorSettings( ):
+        interpolatorType_( linear_interpolator ), selectedLookupScheme_( huntingAlgorithm ),
+        boundaryHandling_( std::vector< BoundaryInterpolationType >( 1, extrapolate_at_boundary ) )
+    {}
+
     //! Selected type of interpolator.
     InterpolatorTypes interpolatorType_;
 
@@ -152,6 +187,25 @@ protected:
 
     //! Boundary handling method.
     std::vector< BoundaryInterpolationType > boundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( interpolatorType_ ) );
+        ar( CEREAL_NVP( selectedLookupScheme_ ) );
+        ar( CEREAL_NVP( boundaryHandling_ ) );
+    }
 };
 
 //! Class for providing settings to creating a Lagrange interpolator.
@@ -203,12 +257,50 @@ public:
         return lagrangeBoundaryHandling_;
     }
 
+    //! Virtual equals function for polymorphic comparison.
+    /*!
+     * Compares base and derived class members.
+     * \param rhs The object to compare against.
+     * \return True if the objects are equal.
+     */
+    bool equals( const InterpolatorSettings& rhs ) const override
+    {
+        const auto* derivedRhs = dynamic_cast< const LagrangeInterpolatorSettings* >( &rhs );
+        if( !derivedRhs ) return false;
+        return InterpolatorSettings::equals( rhs ) && interpolatorOrder_ == derivedRhs->interpolatorOrder_ &&
+                lagrangeBoundaryHandling_ == derivedRhs->lagrangeBoundaryHandling_;
+    }
+
 protected:
+    //! Default constructor for serialization.
+    LagrangeInterpolatorSettings( ):
+        InterpolatorSettings( ), interpolatorOrder_( 6 ), lagrangeBoundaryHandling_( lagrange_cubic_spline_boundary_interpolation )
+    {}
+
     //! Order of the Lagrange interpolator that is to be created.
     int interpolatorOrder_;
 
     //! Lagrange boundary handling method.
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< InterpolatorSettings >( this ) );
+        ar( CEREAL_NVP( interpolatorOrder_ ) );
+        ar( CEREAL_NVP( lagrangeBoundaryHandling_ ) );
+    }
 };
 
 inline std::shared_ptr< InterpolatorSettings > linearInterpolation(
@@ -468,6 +560,7 @@ public:
 /*!
  *  Function to create a one-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
+ *  \tparam ScalarType Scalar used for interpolation weights and coefficients.
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
  *      variables, value = dependent variables).
  *  \param interpolatorSettings Settings that are to be used to create interpolator.
@@ -478,7 +571,9 @@ public:
  *      be supplied if the selected interpolator requires this data (e.g. Hermite spline).
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType,
+          typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
@@ -502,14 +597,14 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
     switch( interpolatorSettings->getInterpolatorType( ) )
     {
         case linear_interpolator:
-            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ),
                     defaultExtrapolationValue );
             break;
         case cubic_spline_interpolator: {
-            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
@@ -521,13 +616,14 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
                     std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
             if( lagrangeInterpolatorSettings != nullptr )
             {
-                createdInterpolator = std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType > >(
-                        dataToInterpolate,
-                        lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                        interpolatorSettings->getSelectedLookupScheme( ),
-                        lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
-                        interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                        defaultExtrapolationValue );
+                createdInterpolator =
+                        std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
+                                dataToInterpolate,
+                                lagrangeInterpolatorSettings->getInterpolatorOrder( ),
+                                interpolatorSettings->getSelectedLookupScheme( ),
+                                lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
+                                interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                                defaultExtrapolationValue );
             }
             else
             {
@@ -540,12 +636,13 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
             {
                 throw std::runtime_error( "Error when creating hermite spline interpolator, derivative size is inconsistent" );
             }
-            createdInterpolator = std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
-                    dataToInterpolate,
-                    firstDerivativeOfDependentVariables,
-                    interpolatorSettings->getSelectedLookupScheme( ),
-                    interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                    defaultExtrapolationValue );
+            createdInterpolator =
+                    std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
+                            dataToInterpolate,
+                            firstDerivativeOfDependentVariables,
+                            interpolatorSettings->getSelectedLookupScheme( ),
+                            interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                            defaultExtrapolationValue );
             break;
         }
         case piecewise_constant_interpolator:

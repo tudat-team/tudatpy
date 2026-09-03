@@ -87,13 +87,9 @@ void expose_estimation_analysis_estimator( py::module& m )
              Object defining a consolidated set of estimatable parameters,
              linked to the environment and acceleration settings of the simulation.
 
-         observation_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+         observation_settings : list[:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`]
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
-
-         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
-             Settings to create the numerical integrator that is to be
-             used for the integration of the equations of motion
 
          propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be
@@ -174,12 +170,26 @@ void expose_estimation_analysis_estimator( py::module& m )
          :math:`\mathbf{h}(\mathbf{p}_{i})` the vector of all observations, as computed from the current
          estimate of the parameters (computed data). The above procedure is performed iteratively, until convergence has been reached.
 
+         If soft inter-arc continuity constraints have been attached to the ``estimation_input`` through
+         :meth:`~tudatpy.estimation.estimation_analysis.EstimationInput.set_inter_arc_continuity_constraints`, the least-squares solve
+         uses the augmented normalized normal matrix and right-hand side defined by
+         :class:`~tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings`. The iteration
+         selected as best minimizes the implemented total cost
+
+         .. math::
+
+            J_i=\frac{1}{2}\Delta\mathbf{z}_i^T\mathbf{W}\Delta\mathbf{z}_i+J_{d,i},
+
+         where :math:`J_{d,i}` is the continuity cost defined by that settings class. Observation residual RMS
+         remains observation-only. If no continuity constraints are attached, :math:`J_{d,i}=0` and the normal
+         equation is unchanged.
+
          The results of the estimation are stored in an :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` object
-         (which by default contains the results from the iteration where the residual was lowest), with
+         (which contains the results from the iteration with the lowest cost defined above), with
          two key quantities being:
 
-         * The residual vector of the iteration that had the lowest residual, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
-         * The values of the parameters at the iteration that had the lowest residual, from the :attr:`~tudatpyestimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+         * The residual vector of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_residuals` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
+         * The parameter values of the selected iteration, from the :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.final_parameters` attribute of the :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput` class
 
          After the estimation is finished, the properties of both the environment (in the ``bodies``) and the estimated parameters
          (in the ``parameters_to_estimate``) are modified as follows:
@@ -222,6 +232,20 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          .. math::
             \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}\right)^{-1}
+
+         If soft inter-arc continuity constraints have been attached to the ``covariance_analysis_input`` through
+         :meth:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput.set_inter_arc_continuity_constraints`, the covariance
+         is computed from the augmented normalized normal matrix defined by
+         :class:`~tudatpy.estimation.estimation_analysis.InterArcStateContinuityConstraintSettings`. Equivalently,
+         the unnormalized covariance expression includes the sum of continuity information terms:
+
+         .. math::
+
+            \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}
+            +\sum_{b,k}\mathbf{D}_{bk}^{T}\mathbf{W}_{d,bk}\mathbf{D}_{bk}\right)^{-1}.
+
+         The implementation forms the normalized equivalent of this equation. If no continuity constraints are
+         attached, the added sum is zero.
 
          In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed that denotes the contribution
          of the consider covariance to the parameter uncertainties, which is computed from the above as:

@@ -89,6 +89,7 @@ Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< dou
     }
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Get cartesian state in double precision, for HighPrecisionStateScalar StateScalarType
 template<>
 Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianState( const double ephemerisTime )
@@ -162,6 +163,7 @@ TabulatedCartesianEphemeris< HighPrecisionStateScalar, double >::getCartesianLon
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
 }
+#endif
 
 //! Get cartesian state from ephemeris (in double precision), double StateScalarType
 template<>
@@ -237,6 +239,7 @@ Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > TabulatedCartesianEphemeris< dou
     }
 }
 
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 //! Get cartesian state in double precision, for HighPrecisionStateScalar StateScalarType
 template<>
 Eigen::Vector6d TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianState( const double ephemerisTime )
@@ -310,14 +313,17 @@ TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time >::getCartesianLongS
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
 }
+#endif
 
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris
 bool isTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemeris )
 {
     bool objectIsTabulated = 0;
     if( ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != nullptr ) ||
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
         ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) != nullptr ) ||
         ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris ) != nullptr ) ||
+#endif
         ( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr ) )
     {
         objectIsTabulated = 1;
@@ -343,6 +349,7 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
         safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )
                                ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris ) != nullptr )
     {
         safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >( ephemeris )
@@ -353,6 +360,7 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
         safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >( ephemeris )
                                ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
+#endif
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
     {
         safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )

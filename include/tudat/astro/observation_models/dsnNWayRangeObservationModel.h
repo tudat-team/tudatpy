@@ -31,6 +31,31 @@ namespace tudat
 namespace observation_models
 {
 
+/*! Get the factor to convert a transmitter frequency integral to DSN n-way range observables in range units.
+ *
+ * Get the factor C_b by which the integral of the transmitted frequency over the round-trip light time is
+ * multiplied to obtain the DSN n-way (sequential) range observable in range units (Moyer (2003), section
+ * 13.5.2). The factor depends on the uplink frequency band.
+ *
+ * @param uplinkBand Frequency band of the uplink signal.
+ * @return Conversion factor from transmitter frequency integral (cycles) to range units.
+ */
+inline double getDsnRangeUnitConversionFactor( const FrequencyBands uplinkBand )
+{
+    switch( uplinkBand )
+    {
+        case s_band:
+            return 0.5;
+        case x_band:
+            return 221.0 / ( 749.0 * 2.0 );
+        case ka_band:
+            return 221.0 / ( 3599.0 * 2.0 );
+        default:
+            throw std::runtime_error( "Error when computing DSN range unit conversion factor: unsupported uplink frequency band " +
+                                      getFrequencyBandString( uplinkBand ) );
+    }
+}
+
 template< typename ObservationScalarType = double, typename TimeType = Time >
 class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScalarType, TimeType >
 {
@@ -156,23 +181,7 @@ public:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Define the conversion factor based on the value of the uplink frequency band
-        double conversionFactor;
-        if( uplinkBand == 0 )  // S-band
-        {
-            conversionFactor = 0.5;
-        }
-        else if( uplinkBand == 1 )  // X-band
-        {
-            conversionFactor = 221.0 / ( 749.0 * 2.0 );
-        }
-        else if( uplinkBand == 2 )  // Ka-band
-        {
-            conversionFactor = 221 / ( 3599 * 2.0 );
-        }
-        else
-        {
-            throw std::runtime_error( "Unsupported uplink frequency band" );
-        }
+        double conversionFactor = getDsnRangeUnitConversionFactor( uplinkBand );
 
         // Set approximate up- and down-link frequencies.
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );

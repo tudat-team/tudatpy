@@ -3,7 +3,7 @@
 
 import sys
 
-__version__ = "1.0.0.dev70"
+__version__ = "1.0.0.dev71"
 
 _quad_precision_available = True
 _requested_state_scalar_type = "double"

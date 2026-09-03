@@ -30,6 +30,21 @@ PYTHON_DATETIME_CASES = [
     datetime(2012, 10, 28, 2, 30, 0),  # ambiguous local time
 ]
 
+TUDAT_DATETIME_MICROSECONDS_OVERFLOW = [
+    (
+        DateTime(
+            2024, 12, 31, 23, 59, 59.9999996
+        ),  # probe (with microsecond overflow, last day of year)
+        datetime(2025, 1, 1, 0, 0, 0, 0),  # expected result
+    ),
+    (
+        DateTime(
+            2024, 12, 30, 22, 51, 59.9999996
+        ),  # probe (with microsecond overflow, random day of year)
+        datetime(2024, 12, 30, 22, 52, 0, 0),
+    ),
+]
+
 
 @pytest.mark.parametrize("dt", PYTHON_DATETIME_CASES)
 def test_from_python_datetime_preserves_fields(dt):
@@ -97,3 +112,26 @@ def test_datetime_conversions():
         time_representation.DateTime.from_julian_day(julian_day).to_python_datetime()
     )
     assert julian_day == pytest.approx(tudat_datettime.to_julian_day(), abs=1e-9)
+
+
+@pytest.mark.parametrize(
+    ("dt", "expected"),
+    TUDAT_DATETIME_MICROSECONDS_OVERFLOW,
+)
+def test_to_python_datetime_microseconds_overflow(dt, expected):
+    """Verify that to_python_datetime correctly handles microsecond overflow."""
+    result = dt.to_python_datetime()
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        DateTime(2016, 12, 31, 23, 59, 60.5),
+        DateTime(2016, 12, 31, 23, 59, 59.9999996),
+    ],
+)
+def test_to_python_datetime_rejects_leap_seconds(dt):
+    """Python datetime cannot represent explicit or rounded leap seconds."""
+    with pytest.raises(ValueError, match="leap second"):
+        dt.to_python_datetime()
