@@ -21,7 +21,6 @@ class AtdfConverter(abc.ABC):
     frequency_bands_mapping = {
         "S": "S-band",
         "X": "X-band",
-        # "K": "Ku-band",
         "Ka": "Ka-band",
     }
 
@@ -141,46 +140,51 @@ class AtdfNwayRangeConverter(AtdfConverter):
     def process(self, df: pd.DataFrame, earth_name: str = "Earth") -> list[TrackingData]:
 
         tracking_data_list = []
-        for link_end in df["link_ends"].unique():
-            link_ends = self.build_link_ends(link_end, earth_name)
-            df_le = df[df["link_ends"] == link_end]
-            for band in df_le["band"].unique():
-                df_band = df_le[df_le["band"] == band]
-                for ttd in df_band["link_end_delays"].unique():
-                    df_ttd = df_band[df_band["link_end_delays"] == ttd]
-                    for lrc in df_ttd["lowest_ranging_component"].unique():
-                        df_lrc = df_ttd[df_ttd["lowest_ranging_component"] == lrc]
-                        # NOTE - we force to build a tracking data object per observable in order
-                        # to store the conversion factor calculated in the
-                        # dsnNWayRangeObservationModel.h. A faster approach would be to use the
-                        # dataframe apply method as done in the doppler converter.
-                        for _, row in df_lrc.iterrows():
-                            obs_values = [np.array([row["obs"]], dtype=float).reshape((-1, 1))]
-                            epoch_seconds = [self.to_utc_epoch(row["epoch"])]
 
-                            tracking_data = TrackingData(
-                                "DsnNWayRange",
-                                link_ends,
-                                obs_values,
-                                epoch_seconds,
-                                "receiver",
-                                "UTC",
-                            )
-                            tracking_data.add_string_vector_ancillary_setting(
-                                "frequency bands",
-                                [
-                                    self.frequency_bands_mapping[band[0]],
-                                    self.frequency_bands_mapping[band[1]],
-                                ],
-                            )
-                            tracking_data.add_double_ancillary_setting(
-                                "DSN sequential range lowest ranging component",
-                                float(lrc),
-                            )
-                            tracking_data.add_double_vector_ancillary_setting(
-                                "link ends time delays", list(ttd)
-                            )
-                            tracking_data_list.append(tracking_data)
+        group_columns = [
+            "link_ends",
+            "band",
+            "link_end_delays",
+            "lowest_ranging_component",
+        ]
+
+        for (link_end, band, ttd, lrc), group in df.groupby(
+            group_columns,
+            sort=False,
+            dropna=False,
+        ):
+            link_ends = self.build_link_ends(link_end, earth_name)
+
+            # We force to build a tracking data object per observable in order
+            # to store the conversion factor calculated in the
+            # dsnNWayRangeObservationModel.h
+            for row in group.itertuples(index=False):
+                obs_values = [np.array([[row.obs]], dtype=float)]
+                epoch_seconds = [self.to_utc_epoch(row.epoch)]
+
+                tracking_data = TrackingData(
+                    "DsnNWayRange",
+                    link_ends,
+                    obs_values,
+                    epoch_seconds,
+                    "receiver",
+                    "UTC",
+                )
+                tracking_data.add_string_vector_ancillary_setting(
+                    "frequency bands",
+                    [
+                        self.frequency_bands_mapping[band[0]],
+                        self.frequency_bands_mapping[band[1]],
+                    ],
+                )
+                tracking_data.add_double_ancillary_setting(
+                    "DSN sequential range lowest ranging component",
+                    float(lrc),
+                )
+                tracking_data.add_double_vector_ancillary_setting(
+                    "link ends time delays", list(ttd)
+                )
+                tracking_data_list.append(tracking_data)
 
         return tracking_data_list
 
@@ -222,53 +226,52 @@ class AtdfNwayDopplerConverter(AtdfConverter):
 
         tracking_data_list = []
 
-        for link_end in df["link_ends"].unique():
-            link_ends = self.build_link_ends(link_end, earth_name)
-            df_le = df[df["link_ends"] == link_end]
-            for band in df_le["band"].unique():
-                df_band = df_le[df_le["band"] == band]
-                for ref_freq in df_band["ref_freq"].unique():
-                    df_ref_freq = df_band[df_band["ref_freq"] == ref_freq]
-                    for ttd in df_ref_freq["link_end_delays"].unique():
-                        df_ttd = df_ref_freq[df_ref_freq["link_end_delays"] == ttd]
-                        for ct in df_ttd["count_time"].unique():
-                            df_ct = df_ttd[df_ttd["count_time"] == ct]
-                            for ex in df_ct["ex"].unique():
-                                df_ex = df_ct[df_ct["ex"] == ex]
-                                obs_values = df_ex["obs"].to_numpy(dtype=float).reshape((-1, 1))
-                                epoch_seconds = [
-                                    self.to_utc_epoch(dt) for dt in df_ex["epoch"].to_list()
-                                ]
+        group_columns = [
+            "link_ends",
+            "band",
+            "ref_freq",
+            "link_end_delays",
+            "count_time",
+            "ex",
+        ]
 
-                                tracking_data = TrackingData(
-                                    "DsnNWayAveragedDoppler",
-                                    link_ends,
-                                    obs_values,
-                                    epoch_seconds,
-                                    "receiver",
-                                    "UTC",
-                                )
-                                tracking_data.add_string_vector_ancillary_setting(
-                                    "frequency bands",
-                                    [
-                                        self.frequency_bands_mapping[band[0]],
-                                        self.frequency_bands_mapping[band[1]],
-                                    ],
-                                )
-                                tracking_data.add_string_ancillary_setting(
-                                    "DSN reference frequency band at reception",
-                                    self.frequency_bands_mapping[ex],
-                                )
-                                tracking_data.add_double_ancillary_setting(
-                                    "DSN Doppler reference frequency", float(ref_freq)
-                                )
-                                tracking_data.add_double_ancillary_setting(
-                                    "Doppler observable integration time", float(ct)
-                                )
-                                tracking_data.add_double_vector_ancillary_setting(
-                                    "link ends time delays", list(ttd)
-                                )
-                                tracking_data_list.append(tracking_data)
+        for (link_end, band, ref_freq, ttd, ct, ex), group in df.groupby(
+            group_columns,
+            sort=False,
+            dropna=False,
+        ):
+            link_ends = self.build_link_ends(link_end, earth_name)
+
+            obs_values = group["obs"].to_numpy(dtype=float).reshape((-1, 1))
+            epoch_seconds = [self.to_utc_epoch(dt) for dt in group["epoch"]]
+
+            tracking_data = TrackingData(
+                "DsnNWayAveragedDoppler",
+                link_ends,
+                obs_values,
+                epoch_seconds,
+                "receiver",
+                "UTC",
+            )
+            tracking_data.add_string_vector_ancillary_setting(
+                "frequency bands",
+                [
+                    self.frequency_bands_mapping[band[0]],
+                    self.frequency_bands_mapping[band[1]],
+                ],
+            )
+            tracking_data.add_string_ancillary_setting(
+                "DSN reference frequency band at reception",
+                self.frequency_bands_mapping[ex],
+            )
+            tracking_data.add_double_ancillary_setting(
+                "DSN Doppler reference frequency", float(ref_freq)
+            )
+            tracking_data.add_double_ancillary_setting(
+                "Doppler observable integration time", float(ct)
+            )
+            tracking_data.add_double_vector_ancillary_setting("link ends time delays", list(ttd))
+            tracking_data_list.append(tracking_data)
 
         return tracking_data_list
 
