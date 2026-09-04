@@ -151,7 +151,7 @@ class GaiaAstrometry:
 
 
     @property
-    def mpc_numbers(self) -> np.ndarray:
+    def mpc_numbers_in_table(self) -> np.ndarray:
         """Array of asteroid MPC numbers that have data in the astrometry table."""
         return pd.unique(self._table['number_mp'])
 
@@ -192,11 +192,11 @@ class GaiaAstrometry:
         np.ndarray
             Observation covariance matrix in the same order as the observations
         """
-        if mpc_number not in self.mpc_numbers:
+        if mpc_number not in self.mpc_numbers_in_table:
             raise RuntimeError(f'Requested observation covariance for {mpc_number}, but no observations were found.')
         table = self._table_for_single_object(mpc_number)
 
-        to_cov = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
+        components_to_matrix = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
         observation_covariance_matrix = []
 
         # Transit ID must be increasing with epoch to build a matrix consistent with the observations:
@@ -212,11 +212,12 @@ class GaiaAstrometry:
             uncertainty_sys = transit_obs[['ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic']]
 
             # Random and systematic components of covariance for current transit
-            covariance_random = block_diag(*[to_cov(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy()])
-            covariance_sys_sub = to_cov(*uncertainty_sys.iloc[0]) # Systematic component is constant over transit
-            covariance_sys = np.tile(covariance_sys_sub, (transit_length, transit_length))
+            covariance_random = block_diag(
+                *[components_to_matrix(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy()])
+            covariance_systematic_submatrix = components_to_matrix(*uncertainty_sys.iloc[0]) # Systematic component is constant over transit
+            covariance_systematic = np.tile(covariance_systematic_submatrix, (transit_length, transit_length))
 
-            observation_covariance_matrix.append(covariance_random + covariance_sys)
+            observation_covariance_matrix.append(covariance_random + covariance_systematic)
 
         # Combine individual transits into one block diagonal matrix, with blocks being the transits.
         observation_covariance_matrix = block_diag(*observation_covariance_matrix)
@@ -250,7 +251,7 @@ class GaiaAstrometry:
         force_symmetric = lambda mat: (mat + mat.T) / 2
 
         observation_set_list = []
-        for mpc_number in self.mpc_numbers:
+        for mpc_number in self.mpc_numbers_in_table:
 
             # Add asteroids to bodies
             if not bodies.does_body_exist(str(mpc_number)):
@@ -330,9 +331,9 @@ class GaiaAstrometry:
         if self._corrected:
             raise RuntimeError('correct_observations cannot be called more than once on the same instance')
 
-        for mpc_number in self.mpc_numbers:
-            observation_mask = self.table['number_mp'] == mpc_number
-            observations_array = self.table.loc[observation_mask, ['epoch', 'ra', 'dec']].to_numpy()
+        for mpc_number in self.mpc_numbers_in_table:
+            observation_mask = self._table['number_mp'] == mpc_number
+            observations_array = self._table.loc[observation_mask, ['epoch', 'ra', 'dec']].to_numpy()
 
             # Photocenter corrections
             if photocenter_body_dimensions is not None:
@@ -557,20 +558,20 @@ class GaiaAstrometry:
     def print_summary(self) -> None:
         """Print a summary of the loaded observations."""
         print('GAIA OBSERVATIONS SUMMARY: \n')
-        print(f'Observations loaded for {len(self.mpc_numbers)} object(s):')
+        print(f'Observations loaded for {len(self.mpc_numbers_in_table)} object(s):')
         print('MPC | DENOMINATION | NUMBER OF OBSERVATIONS | FIRST OBSERVATION TIME | LAST OBSERVATION TIME')
 
-        for mpc_number in self.mpc_numbers:
+        for mpc_number in self.mpc_numbers_in_table:
 
             table = self._table_for_single_object(mpc_number)
-            denom = table['denomination'].iloc[0]
+            object_name = table['denomination'].iloc[0]
             number_of_obs = len(table)
             dt_first = DateTime.from_epoch(table['epoch'].min())
             dt_final = DateTime.from_epoch(table['epoch'].max())
             first_epoch = f'{dt_first.year}/{dt_first.month}/{dt_first.day}'
             last_epoch = f'{dt_final.year}/{dt_final.month}/{dt_final.day}'
 
-            asteroid_data = f'{mpc_number}   {denom}   {number_of_obs}   {first_epoch}   {last_epoch}\n'
+            asteroid_data = f'{mpc_number}   {object_name}   {number_of_obs}   {first_epoch}   {last_epoch}\n'
             print(asteroid_data)
 
 
@@ -599,9 +600,8 @@ class GaiaAstrometry:
             state_vector_labels = [label + '_geocentric' for label in state_vector_labels]
 
         # Create dict of state vectors
-        table = self.table
-        epochs = table['epoch'].to_numpy()
-        states = table[state_vector_labels].to_numpy()
+        epochs = self._table['epoch'].to_numpy()
+        states = self._table[state_vector_labels].to_numpy()
         gaia_state_history = dict(zip(epochs, states))
 
         settings = ephemeris.tabulated(
