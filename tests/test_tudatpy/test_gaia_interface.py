@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pandas.testing as pdt
 import pytest
+from scipy.linalg import block_diag
 from tudatpy.data.gaia.gaia import (
     GaiaAstrometry,
     gaia_object_catalog,
@@ -298,7 +299,8 @@ def test_weight_matrix_symmetry(observation_collection):
 def test_covariance_matrix_variance_consistency(gaia_astrometry):
     """Test that the covariance matrix diagonal matches the per-observation variances in the
     astrometry table, ordered by epoch (RA then DEC per observation)."""
-    covariance = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
+    # Concatenate the per-transit covariance blocks into one matrix over all observations
+    covariance = block_diag(*gaia_astrometry._get_observation_covariance(TEST_ASTEROID_MPC[0]))
     variance_from_matrix = np.diag(covariance)
 
     table = gaia_astrometry.table
@@ -322,7 +324,8 @@ def test_covariance_weight_matrix_consistency(observation_collection, gaia_astro
     parser = observation_parser(str(TEST_ASTEROID_MPC[0]))  # We check for one asteroid
     weight_matrix = observation_collection.get_concatenated_weight_matrix(parser).toarray()
     covariance_from_obscol = np.linalg.inv(weight_matrix)
-    covariance_from_table = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
+    covariance_from_table = block_diag(
+        *gaia_astrometry._get_observation_covariance(TEST_ASTEROID_MPC[0]))
 
     # NOTE: loose tolerance because of high condition number so much precision is lost during 2 inversions
     np.testing.assert_allclose(covariance_from_obscol, covariance_from_table, rtol=1e-5, atol=0)
