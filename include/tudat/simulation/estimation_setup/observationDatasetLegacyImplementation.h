@@ -388,11 +388,28 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
         const std::vector< unsigned int >& indices,
         const bool removeFromSource )
 {
+    if( this == &targetDataset && sourceSetId == targetSetId )
+    {
+        throw std::runtime_error( "Error when moving observations in dataset, source and target sets are identical." );
+    }
+    const ObservationSetMetadata< ObservationScalarType, TimeType >& sourceMetadata = getObservationSetMetadata( sourceSetId );
+    const ObservationSetMetadata< ObservationScalarType, TimeType >& targetMetadata =
+            targetDataset.getObservationSetMetadata( targetSetId );
+    if( sourceMetadata.observableType_ != targetMetadata.observableType_ ||
+        sourceMetadata.referenceLinkEnd_ != targetMetadata.referenceLinkEnd_ ||
+        !( getLinkDefinition( sourceMetadata.linkDefinitionId_ ) == targetDataset.getLinkDefinition( targetMetadata.linkDefinitionId_ ) ) )
+    {
+        throw std::runtime_error( "Error when moving observations in dataset, source and target set metadata are incompatible." );
+    }
+
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::vector< TimeType > times;
     std::vector< Eigen::VectorXd > dependentVariables;
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights;
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
+    std::vector< unsigned int > sourceObservationIds;
+    std::vector< std::size_t > selectedSourceScalarRows;
+    const FlattenedObservationData< ObservationScalarType, TimeType > sourceFlattenedData =
+            createComputationFlattenedObservationData( true );
 
     const bool hasDependentVariables = !getDependentVariablesForSet( sourceSetId ).empty( );
     for( const unsigned int index : indices )
@@ -402,17 +419,71 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
             throw std::runtime_error( "Error when moving observations in dataset, index is out of bounds." );
         }
         const unsigned int observationId = observationIdsBySet_.at( sourceSetId ).at( index );
+        sourceObservationIds.push_back( observationId );
         observations.push_back( getObservationValue( observationId ) );
         times.push_back( getObservationTime( observationId ) );
-        weights.push_back( getWeightValue( observationId ) );
         residuals.push_back( getResidualValue( observationId ) );
+        for( unsigned int componentIndex = 0; componentIndex < sourceMetadata.observableSize_; ++componentIndex )
+        {
+            selectedSourceScalarRows.push_back( sourceFlattenedData.getFlattenedRow( observationId, componentIndex ) );
+        }
         if( hasDependentVariables )
         {
             dependentVariables.push_back( getDependentVariables( observationId ) );
         }
     }
 
-    targetDataset.addObservationsToSet( targetSetId, observations, times, dependentVariables, weights, residuals, true );
+    const Eigen::MatrixXd selectedWeightMatrix =
+            selectSubmatrix( sourceFlattenedData.getSparseWeightMatrix( ).toDense( ), selectedSourceScalarRows, selectedSourceScalarRows );
+    std::vector< TimeType > combinedTimes = targetDataset.getObservationTimesForSet( targetSetId );
+    std::vector< int > sourceIndicesAfterSorting( combinedTimes.size( ), -1 );
+    combinedTimes.insert( combinedTimes.end( ), times.begin( ), times.end( ) );
+    for( std::size_t i = 0; i < times.size( ); ++i )
+    {
+        sourceIndicesAfterSorting.push_back( static_cast< int >( i ) );
+    }
+    const std::vector< std::size_t > sortingPermutation = getTimeSortingPermutation( combinedTimes );
+    reorderVector( sourceIndicesAfterSorting, sortingPermutation );
+
+    targetDataset.addObservationsToSet( targetSetId, observations, times, dependentVariables, {}, residuals, true );
+    const std::vector< unsigned int >& targetObservationIds = targetDataset.getObservationIdsForSet( targetSetId );
+    std::vector< unsigned int > addedTargetObservationIds( observations.size( ) );
+    for( std::size_t i = 0; i < sourceIndicesAfterSorting.size( ); ++i )
+    {
+        if( sourceIndicesAfterSorting.at( i ) >= 0 )
+        {
+            addedTargetObservationIds.at( sourceIndicesAfterSorting.at( i ) ) = targetObservationIds.at( i );
+        }
+    }
+
+    bool hasCrossObservationWeight = false;
+    for( std::size_t i = 0; i < sourceObservationIds.size( ); ++i )
+    {
+        const unsigned int targetObservationId = addedTargetObservationIds.at( i );
+        targetDataset.copyObservationStateAndWeightFrom( *this, sourceObservationIds.at( i ), targetObservationId );
+        targetDataset.setWeightMatrixForObservation( targetObservationId,
+                                                     selectedWeightMatrix.block( i * sourceMetadata.observableSize_,
+                                                                                 i * sourceMetadata.observableSize_,
+                                                                                 sourceMetadata.observableSize_,
+                                                                                 sourceMetadata.observableSize_ ) );
+        for( std::size_t j = 0; j < sourceObservationIds.size( ); ++j )
+        {
+            if( i != j &&
+                !selectedWeightMatrix
+                         .block( i * sourceMetadata.observableSize_,
+                                 j * sourceMetadata.observableSize_,
+                                 sourceMetadata.observableSize_,
+                                 sourceMetadata.observableSize_ )
+                         .isZero( 0.0 ) )
+            {
+                hasCrossObservationWeight = true;
+            }
+        }
+    }
+    if( hasCrossObservationWeight )
+    {
+        targetDataset.setWeightBlock( addedTargetObservationIds, addedTargetObservationIds, selectedWeightMatrix );
+    }
     if( removeFromSource )
     {
         removeObservationsFromSet( sourceSetId, indices );

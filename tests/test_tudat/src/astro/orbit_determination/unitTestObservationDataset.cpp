@@ -1960,6 +1960,30 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
             { 1.0, 2.0, 3.0 },
             receiver,
             ObservationWeightSettings::setBlock( setWeightBlock ) );
+
+    const std::shared_ptr< ObservationDataset< double, double > > setBlockDatasetPointer =
+            std::make_shared< ObservationDataset< double, double > >( setBlockDataset );
+    const std::vector< std::shared_ptr< SingleObservationSet< double, double > > > splitSets =
+            splitObservationSet( createSingleObservationSet( setBlockDatasetPointer, setBlockSetId ),
+                                 observationSetSplitter( nb_observations_splitter, 2, 1 ),
+                                 false );
+    BOOST_REQUIRE_EQUAL( splitSets.size( ), 2 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            splitSets.at( 0 )->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            setWeightBlock.topLeftCorner( 2, 2 ),
+            1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            splitSets.at( 1 )->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            Eigen::MatrixXd::Constant( 1, 1, setWeightBlock( 2, 2 ) ),
+            1.0E-15 );
+
+    const std::shared_ptr< ObservationCollection< double, double > > copiedCollection = createNewObservationCollection(
+            createObservationCollection( std::make_shared< ObservationDataset< double, double > >( setBlockDataset ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            copiedCollection->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            setWeightBlock,
+            1.0E-15 );
+
     setBlockDataset.removeObservationsFromSet( setBlockSetId, std::vector< unsigned int >( { 1 } ) );
     const Eigen::Matrix2d expectedSubsetSetWeightBlock = ( Eigen::Matrix2d( ) << 1.0, 0.2, 0.2, 3.0 ).finished( );
 
@@ -1971,6 +1995,26 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     // Appending to a full set-level block has no unique correlation extension and must be rejected explicitly.
     BOOST_CHECK_THROW( setBlockDataset.addObservationsToSet( setBlockSetId, { Eigen::Vector1d::Constant( 40.0 ) }, { 4.0 } ),
                        std::runtime_error );
+
+    ObservationDataset< double, double > moveSourceDataset;
+    const unsigned int moveSourceSetId = moveSourceDataset.addObservationSet(
+            one_way_range,
+            linkDefinition,
+            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
+            { 1.0, 2.0, 3.0 },
+            receiver );
+    const std::vector< unsigned int > moveSourceObservationIds = moveSourceDataset.getObservationIdsForSet( moveSourceSetId );
+    const Eigen::Matrix2d movedWeightBlock = ( Eigen::Matrix2d( ) << 5.0, 0.4, 0.4, 7.0 ).finished( );
+    moveSourceDataset.setWeightBlock( { moveSourceObservationIds.at( 0 ), moveSourceObservationIds.at( 2 ) },
+                                      { moveSourceObservationIds.at( 0 ), moveSourceObservationIds.at( 2 ) },
+                                      movedWeightBlock );
+    ObservationDataset< double, double > moveTargetDataset;
+    const unsigned int moveTargetSetId = moveTargetDataset.addObservationSet(
+            one_way_range, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );
+    moveSourceDataset.moveObservationsToSet( moveSourceSetId, moveTargetDataset, moveTargetSetId, { 0, 2 }, false );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            moveTargetDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ), movedWeightBlock, 1.0E-15 );
 }
 
 /*!

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -2397,25 +2398,31 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > oldObservationSets =
             observationCollection->getSingleObservationSets( observationParser );
 
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newSingleObservationSets;
-    for( auto oldObsSet : oldObservationSets )
+    const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > sourceDataset =
+            observationCollection->getObservationDataset( );
+    std::set< unsigned int > selectedObservationIds;
+    std::vector< unsigned int > selectedEmptySetIds;
+    for( const auto& oldObservationSet : oldObservationSets )
     {
-        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObsSet =
-                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                        oldObsSet->getObservableType( ),
-                        oldObsSet->getLinkEnds( ),
-                        oldObsSet->getObservations( ),
-                        oldObsSet->getObservationTimes( ),
-                        oldObsSet->getReferenceLinkEnd( ),
-                        oldObsSet->getObservationsDependentVariablesReference( ),
-                        oldObsSet->getDependentVariableBookkeeping( ),
-                        oldObsSet->getAncillarySettings( ) );
-        newObsSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
-        newObsSet->setResiduals( oldObsSet->getResiduals( ) );
-
-        newSingleObservationSets.push_back( newObsSet );
+        const unsigned int setId = oldObservationSet->getObservationSetId( );
+        const std::vector< unsigned int >& observationIds = sourceDataset->getObservationIdsForSet( setId );
+        selectedObservationIds.insert( observationIds.begin( ), observationIds.end( ) );
+        if( observationIds.empty( ) )
+        {
+            selectedEmptySetIds.push_back( setId );
+        }
     }
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( newSingleObservationSets );
+    const ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRowsCondition(
+            [ selectedObservationIds ]( const ObservationDataset< ObservationScalarType, TimeType >&, const int observationId ) {
+                return selectedObservationIds.count( observationId ) > 0;
+            } );
+    const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > newDataset =
+            sourceDataset->createNewAndKeep( selectedRowsCondition );
+    for( const unsigned int emptySetId : selectedEmptySetIds )
+    {
+        newDataset->addObservationSetFromDataset( *sourceDataset, emptySetId );
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( newDataset );
 }
 
 template< typename ObservationScalarType = double,

@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -716,20 +717,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                 "Error when creating new single observation set post-filtering, the filterOut "
                 "option should be set to true" );
     }
-    // Create new observation set
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    singleObservationSet->getObservableType( ),
-                    singleObservationSet->getLinkEnds( ),
-                    singleObservationSet->getObservationsReference( ),
-                    singleObservationSet->getObservationTimesReference( ),
-                    singleObservationSet->getReferenceLinkEnd( ),
-                    singleObservationSet->getObservationsDependentVariablesReference( ),
-                    singleObservationSet->getDependentVariableBookkeeping( ),
-                    singleObservationSet->getAncillarySettings( ) );
-    newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
-    newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
+            createSingleObservationSet( createObservationDataset( singleObservationSet ) );
 
     // Filter observations from new observation set
     newObservationSet->filterObservations( observationFilter, saveFilteredObservations );
@@ -755,10 +744,6 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
 
     std::vector< int > rawStartIndicesNewSets = { 0 };
     std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
-    std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getWeightsVector( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
 
     switch( observationSetSplitter->getSplitterType( ) )
     {
@@ -854,31 +839,20 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
         int startIndex = indicesNewSets.at( k ).first;
         int sizeCurrentSet = indicesNewSets.at( k ).second;
 
-        std::vector< Eigen::VectorXd > newDependentVariables;
-        if( !dependentVariables.empty( ) )
+        const std::vector< unsigned int >& sourceObservationIds =
+                observationSet->getObservationDataset( )->getObservationIdsForSet( observationSet->getObservationSetId( ) );
+        std::set< unsigned int > selectedObservationIds;
+        for( int i = startIndex; i < startIndex + sizeCurrentSet; ++i )
         {
-            newDependentVariables = utilities::getStlVectorSegment(
-                    observationSet->getObservationsDependentVariablesReference( ), startIndex, sizeCurrentSet );
+            selectedObservationIds.insert( sourceObservationIds.at( i ) );
         }
-
-        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet =
-                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                        observationSet->getObservableType( ),
-                        observationSet->getLinkEnds( ),
-                        utilities::getStlVectorSegment( observationSet->getObservationsReference( ), startIndex, sizeCurrentSet ),
-                        utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
-                        observationSet->getReferenceLinkEnd( ),
-                        newDependentVariables,
-                        observationSet->getDependentVariableBookkeeping( ),
-                        observationSet->getAncillarySettings( ) );
-
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-        newSet->setTabulatedWeights( newWeightsVector );
-
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
-                utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
-        newSet->setResiduals( newResiduals );
+        const ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRowsCondition(
+                [ selectedObservationIds ]( const ObservationDataset< ObservationScalarType, TimeType >&, const int observationId ) {
+                    return selectedObservationIds.count( observationId ) > 0;
+                } );
+        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > splitDataset =
+                observationSet->getObservationDataset( )->createNewAndKeep( selectedRowsCondition );
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet = createSingleObservationSet( splitDataset );
 
         newObsSets.push_back( newSet );
     }
