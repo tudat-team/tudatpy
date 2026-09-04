@@ -273,8 +273,7 @@ public:
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
         refreshFromDatasetIfNeeded( );
-        return std::make_pair( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
-                               *std::max_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ) );
+        return observationDataset_->getTimeBounds( );
     }
 
     std::pair< double, double > getTimeBoundsDouble( )

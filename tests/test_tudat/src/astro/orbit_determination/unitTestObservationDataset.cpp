@@ -925,6 +925,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
     BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), 0 );
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).first ) );
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).second ) );
+    ObservationCollection< double, double > emptyCollection( std::make_shared< ObservationDataset< double, double > >( dataset ) );
+    BOOST_CHECK( std::isnan( emptyCollection.getTimeBounds( ).first ) );
+    BOOST_CHECK( std::isnan( emptyCollection.getTimeBounds( ).second ) );
 
     dataset.setLinkEndReferencePoint( "Earth", "RenamedStation", transmitter, ObservationSelectionCondition< double, double >::all( ) );
     BOOST_CHECK_EQUAL( dataset.getLinkDefinition( dataset.getObservationSetMetadata( emptySetId ).linkDefinitionId_ )
@@ -1497,6 +1500,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_viewer_lifetime_and_legacy_cache_invalidation
     const std::vector< LinkDefinition > refreshedLinkDefinitions = collection.getLinkDefinitionsForSingleObservable( one_way_range );
     BOOST_REQUIRE_EQUAL( refreshedLinkDefinitions.size( ), 1 );
     BOOST_CHECK( refreshedLinkDefinitions.front( ) == station2LinkDefinition );
+
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > elevationSettings =
+            simulation_setup::elevationAngleDependentVariable( receiver, LinkEndId( "Vehicle", "" ) );
+    collectionDataset->addDependentVariableToSets( elevationSettings );
+    const std::shared_ptr< SingleObservationSet< double, double > > refreshedSet = collection.getSingleObservationSets( ).front( );
+    BOOST_REQUIRE( refreshedSet->getDependentVariableBookkeeping( ) != nullptr );
+    BOOST_CHECK_EQUAL( refreshedSet->getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ), 1 );
 }
 
 /*!

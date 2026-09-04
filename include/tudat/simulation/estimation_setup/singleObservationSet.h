@@ -394,6 +394,8 @@ public:
         }
         dataset_ = dataset;
         setId_ = setId;
+        dependentVariableBookkeeping_ =
+                dataset_->getDependentVariableBookkeeping( dataset_->getObservationSetMetadata( setId_ ).dependentVariableLayoutId_ );
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
