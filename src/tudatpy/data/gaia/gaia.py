@@ -174,26 +174,12 @@ class GaiaAstrometry:
         return self._table[self._table['number_mp'] == mpc_number].reset_index(drop=True)
 
 
-    def get_observation_covariance_matrix(self,
-                                          mpc_number: int) -> np.ndarray:
+    def _get_observation_covariance(self,
+                                    mpc_number: int) -> list:
         """
-        From the retrieved astrometry and metadata, build the observation covariance matrix for one asteroid.
-
-        This matrix is also passed to the :class:`~tudatpy.estimation.observations.ObservationCollection` upon calling
-        :meth:`~tudatpy.data.gaia.GaiaAstrometry.to_observation_collection`.
-
-        Parameters
-        ----------
-        mpc_number : int
-            MPC Number of asteroid to obtain covariance for
-
-        Returns
-        -------
-        np.ndarray
-            Observation covariance matrix in the same order as the observations
+        Build observation covariance matrix for one asteroid. Returns a list of blocks that represent the covariance
+        over single transits, in the same order as  the observations
         """
-        if mpc_number not in self.mpc_numbers_in_table:
-            raise RuntimeError(f'Requested observation covariance for {mpc_number}, but no observations were found.')
         table = self._table_for_single_object(mpc_number)
 
         components_to_matrix = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
@@ -203,24 +189,21 @@ class GaiaAstrometry:
         if not table['transit_id'].is_monotonic_increasing:
             raise RuntimeError('Error while building observation covariance matrix: possible broken observation entries')
 
-        for transit_id, transit_obs in table.groupby('transit_id', sort=False):
+        for transit_id, transit_rows in table.groupby('transit_id', sort=False):
 
-            transit_length = len(transit_obs)
+            transit_length = len(transit_rows)
 
             # Sigma's and correlation for current transit:
-            uncertainty_random = transit_obs[['ra_error_random', 'dec_error_random', 'ra_dec_correlation_random']]
-            uncertainty_sys = transit_obs[['ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic']]
+            uncertainty_random = transit_rows[['ra_error_random', 'dec_error_random', 'ra_dec_correlation_random']]
+            uncertainty_systematic = transit_rows[['ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic']]
 
             # Random and systematic components of covariance for current transit
             covariance_random = block_diag(
                 *[components_to_matrix(ra, dec, corr) for ra, dec, corr in uncertainty_random.to_numpy()])
-            covariance_systematic_submatrix = components_to_matrix(*uncertainty_sys.iloc[0]) # Systematic component is constant over transit
+            covariance_systematic_submatrix = components_to_matrix(*uncertainty_systematic.iloc[0]) # Systematic component is constant over transit
             covariance_systematic = np.tile(covariance_systematic_submatrix, (transit_length, transit_length))
 
             observation_covariance_matrix.append(covariance_random + covariance_systematic)
-
-        # Combine individual transits into one block diagonal matrix, with blocks being the transits.
-        observation_covariance_matrix = block_diag(*observation_covariance_matrix)
 
         return observation_covariance_matrix
 
@@ -276,10 +259,14 @@ class GaiaAstrometry:
                 links.receiver
             )
 
-            measurement_covariance_matrix = self.get_observation_covariance_matrix(mpc_number)
-            weight_matrix = np.linalg.inv(measurement_covariance_matrix)
+            observation_covariance_matrices = self._get_observation_covariance(mpc_number)
+            weight_matrices = [
+                force_symmetric(np.linalg.inv(block))
+                for block in observation_covariance_matrices
+            ]
+            weight_matrix = block_diag(*weight_matrices) # Concatenate transit-components into one matrix over all observations
 
-            observation_set.set_full_weight_matrix(force_symmetric(weight_matrix))
+            observation_set.set_full_weight_matrix(weight_matrix)
 
             # Add SingleObservationSet to list
             observation_set_list.append(observation_set)
