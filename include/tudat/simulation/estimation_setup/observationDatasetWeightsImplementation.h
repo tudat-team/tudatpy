@@ -67,6 +67,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
     {
         throw std::runtime_error( "Error when setting dataset set weight matrix, matrix size is inconsistent." );
     }
+    if( !weightMatrix.isApprox( weightMatrix.transpose( ) ) )
+    {
+        throw std::runtime_error( "Error when setting dataset set weight matrix, matrix is not symmetric." );
+    }
     observationWeights_.setSetWeightBlock( setId, weightMatrix );
 }
 
@@ -80,7 +84,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
 {
     // Validate against the observable dimension once before applying the block repeatedly.
     if( weight.rows( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) ||
-        weight.cols( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) )
+        weight.cols( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) ||
+        !weight.isApprox( weight.transpose( ) ) )
     {
         throw std::runtime_error( "Error when setting dataset observation weight matrix, matrix size is inconsistent." );
     }
@@ -114,6 +119,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
     if( weightMatrix.rows( ) != static_cast< int >( row.scalarSize_ ) || weightMatrix.cols( ) != static_cast< int >( row.scalarSize_ ) )
     {
         throw std::runtime_error( "Error when setting dataset observation weight matrix, matrix size is inconsistent." );
+    }
+    if( !weightMatrix.isApprox( weightMatrix.transpose( ) ) )
+    {
+        throw std::runtime_error( "Error when setting dataset observation weight matrix, matrix is not symmetric." );
     }
     observationWeights_.setWeightBlock( observationId, weightMatrix );
 }
@@ -240,7 +249,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
     for( const unsigned int observationId : observationIds )
     {
         if( weight.rows( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) ||
-            weight.cols( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) )
+            weight.cols( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) ||
+            !weight.isApprox( weight.transpose( ) ) )
         {
             throw std::runtime_error( "Error when setting dataset weight matrices by condition, matrix size is inconsistent." );
         }

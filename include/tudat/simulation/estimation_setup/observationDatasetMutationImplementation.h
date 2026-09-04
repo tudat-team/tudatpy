@@ -58,6 +58,10 @@ void validateObservationWeightBlock( const ObservableType observableType,
     {
         throw std::runtime_error( "Error when adding observation set with weight block, matrix size is inconsistent." );
     }
+    if( !weightBlock.isApprox( weightBlock.transpose( ) ) )
+    {
+        throw std::runtime_error( "Error when adding observation set with weight block, matrix is not symmetric." );
+    }
 }
 
 template< typename ObservationScalarType, typename TimeType >
@@ -76,6 +80,10 @@ void validateObservationWeightBlocks( const ObservableType observableType,
         {
             throw std::runtime_error( "Error when adding observation set with weight blocks, matrix size is inconsistent." );
         }
+        if( !weightBlocks.at( i ).isApprox( weightBlocks.at( i ).transpose( ) ) )
+        {
+            throw std::runtime_error( "Error when adding observation set with weight blocks, matrix is not symmetric." );
+        }
     }
 }
 
@@ -88,6 +96,10 @@ void validateSetWeightBlock( const ObservableType observableType,
     if( setWeightBlock.rows( ) != totalScalarSize || setWeightBlock.cols( ) != totalScalarSize )
     {
         throw std::runtime_error( "Error when adding observation set with set weight block, matrix size is inconsistent." );
+    }
+    if( !setWeightBlock.isApprox( setWeightBlock.transpose( ) ) )
+    {
+        throw std::runtime_error( "Error when adding observation set with set weight block, matrix is not symmetric." );
     }
 }
 

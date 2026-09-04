@@ -273,6 +273,16 @@ public:
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
         const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting observation dependent-variable matrix, no dependent-variable bookkeeping is available." );
+        }
+        if( observationsDependentVariables.empty( ) && dataset_->getNumberOfObservationsForSet( setId_ ) > 0 )
+        {
+            throw std::runtime_error(
+                    "Error when getting observation dependent-variable matrix, no dependent-variable values are available." );
+        }
         Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
                                                                           dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables.size( ); i++ )
@@ -327,30 +337,7 @@ public:
     //! Function to reset the observation dependent variable values
     void setObservationsDependentVariables( std::vector< Eigen::VectorXd >& dependentVariables )
     {
-        if( dependentVariables.size( ) > 0 )
-        {
-            if( dependentVariables.size( ) != dataset_->getNumberOfObservationsForSet( setId_ ) )
-            {
-                throw std::runtime_error(
-                        "Error when resetting observation dependent variables in "
-                        "SingleObservationSet, the input size should be consistent "
-                        "with the number of observations." );
-            }
-            if( ( dependentVariableBookkeeping_ != nullptr ) &&
-                ( dependentVariables[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) )
-            {
-                throw std::runtime_error(
-                        "Error when resetting observation dependent variables in "
-                        "SingleObservationSet, the size of the observation dependent variables "
-                        "input "
-                        "should be consistent with the total dependent variable size." );
-            }
-            dataset_->setDependentVariablesForSet( setId_, dependentVariables );
-        }
-        else
-        {
-            dataset_->clearDependentVariablesForSet( setId_ );
-        }
+        dataset_->setDependentVariablesForSet( setId_, dependentVariables );
     }
 
     std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > getDependentVariableBookkeeping( )

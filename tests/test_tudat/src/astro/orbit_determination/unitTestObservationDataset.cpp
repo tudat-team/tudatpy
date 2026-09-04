@@ -1270,6 +1270,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
             dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan(
                     elevationSettings, ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
             std::runtime_error );
+    BOOST_CHECK_THROW( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( nullptr, 0.3 ), std::runtime_error );
 
     dataset.rejectObservations( ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
                                         ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
@@ -1575,6 +1576,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     BOOST_CHECK_THROW(
             setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, Eigen::Matrix3d::Identity( ) ),
             std::runtime_error );
+    const Eigen::Matrix2d nonSymmetricObservationWeight = ( Eigen::Matrix2d( ) << 1.0, 0.5, 0.25, 2.0 ).finished( );
+    BOOST_CHECK_THROW(
+            setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, nonSymmetricObservationWeight ),
+            std::runtime_error );
+    BOOST_CHECK_THROW( blockWeightDataset.setWeightMatrixForObservation( blockWeightDataset.getObservationIdsForSet( blockSetId ).front( ),
+                                                                         nonSymmetricObservationWeight ),
+                       std::runtime_error );
 
     ObservationDataset< double, double > conditionWeightDataset;
     const int conditionRangeSetId =
@@ -1619,6 +1627,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { 1.0, 2.0 },
             receiver,
             ObservationWeightSettings::setBlock( setWeightBlock ) );
+    Eigen::Matrix4d nonSymmetricSetWeight = Eigen::Matrix4d::Identity( );
+    nonSymmetricSetWeight( 0, 1 ) = 0.5;
+    BOOST_CHECK_THROW( setBlockWeightDataset.setWeightMatrixForSet( setBlockSetId, nonSymmetricSetWeight ), std::runtime_error );
 
     // A set-level weight block must be stored as one matrix spanning the full scalar range of the set.
     BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
