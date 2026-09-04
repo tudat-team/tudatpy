@@ -500,6 +500,33 @@ private:
               typename std::enable_if< is_state_scalar_and_time_type< SetObservationScalarType, SetTimeType >::value, int >::type >
     friend class SingleObservationSet;
 
+    struct LifetimeToken {
+        LifetimeToken( ): value_( std::make_shared< const int >( 0 ) ) {}
+        LifetimeToken( const LifetimeToken& ): LifetimeToken( ) {}
+        LifetimeToken( LifetimeToken&& other ) noexcept: LifetimeToken( )
+        {
+            other.value_ = std::make_shared< const int >( 0 );
+        }
+        LifetimeToken& operator=( const LifetimeToken& )
+        {
+            value_ = std::make_shared< const int >( 0 );
+            return *this;
+        }
+        LifetimeToken& operator=( LifetimeToken&& other ) noexcept
+        {
+            value_ = std::make_shared< const int >( 0 );
+            other.value_ = std::make_shared< const int >( 0 );
+            return *this;
+        }
+
+        std::shared_ptr< const int > value_;
+    };
+
+    std::weak_ptr< const int > getLifetimeToken( ) const
+    {
+        return lifetimeToken_.value_;
+    }
+
     void resetLinkDefinitionForSet( const unsigned int setId, const LinkDefinition& linkDefinition );
 
     void resetDependentVariableBookkeepingForSet(
@@ -688,6 +715,8 @@ private:
     ObservationWeights observationWeights_;
     //! Monotonic counter used to invalidate viewers after structural mutations.
     std::size_t structuralVersion_ = 0;
+    //! Object-lifetime marker used by non-owning viewers to detect destruction or replacement before dereferencing the dataset.
+    LifetimeToken lifetimeToken_;
 };
 }  // namespace observation_models
 

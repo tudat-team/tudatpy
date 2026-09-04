@@ -422,11 +422,13 @@ public:
 
     std::map< ObservableType, std::vector< LinkDefinition > > getLinkDefinitionsPerObservable( )
     {
+        refreshFromDatasetIfNeeded( );
         return linkDefinitionsPerObservable_;
     }
 
     std::vector< LinkDefinition > getLinkDefinitionsForSingleObservable( const ObservableType observableType )
     {
+        refreshFromDatasetIfNeeded( );
         if( linkDefinitionsPerObservable_.count( observableType ) > 0 )
         {
             return linkDefinitionsPerObservable_.at( observableType );
@@ -440,6 +442,7 @@ public:
     std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
     getSortedObservationSets( )
     {
+        refreshFromDatasetIfNeeded( );
         std::map< ObservableType,
                   std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
                 observationSetListIndexSorted;
@@ -455,6 +458,7 @@ public:
 
     std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > getSortedObservationSetsTimeBounds( )
     {
+        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationSetTimeBounds;
         for( auto it1 : observationSetList_ )
         {
@@ -474,6 +478,7 @@ public:
 
     std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( )
     {
+        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
 
         for( auto observableTypeIt = observationSetList_.begin( ); observableTypeIt != observationSetList_.end( ); ++observableTypeIt )
@@ -1356,7 +1361,7 @@ public:
             const std::shared_ptr< ObservationCollectionParser > observationParser =
                     std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        ensureObservationDataset( );
+        refreshFromDatasetIfNeeded( );
 
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices;
         for( const int setId : observationDataset_->getObservationSetIds( observationParser ) )
@@ -1908,6 +1913,7 @@ public:
 
     std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndEndIndices( ) const
     {
+        refreshFromDatasetIfNeeded( );
         std::map< ObservableType, std::pair< int, int > > observableTypeIndices;
 
         int currentIndex = 0;

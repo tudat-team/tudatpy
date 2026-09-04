@@ -926,6 +926,12 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).first ) );
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).second ) );
 
+    dataset.setLinkEndReferencePoint( "Earth", "RenamedStation", transmitter, ObservationSelectionCondition< double, double >::all( ) );
+    BOOST_CHECK_EQUAL( dataset.getLinkDefinition( dataset.getObservationSetMetadata( emptySetId ).linkDefinitionId_ )
+                               .linkEnds_.at( transmitter )
+                               .getReferencePointName( ),
+                       "Station1" );
+
     // Inconsistent dimensions or mutating a nonexistent row in an empty set must be rejected.
     BOOST_CHECK_THROW(
             dataset.addObservationSet(
@@ -1458,6 +1464,38 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_viewer_rejection_and_reduced_datase
                                .linkEnds_.at( transmitter )
                                .getReferencePointName( ),
                        "StationX" );
+}
+
+BOOST_AUTO_TEST_CASE( test_dataset_viewer_lifetime_and_legacy_cache_invalidation )
+{
+    const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
+    const LinkDefinition station2LinkDefinition = createOneWayLinkDefinition( "Station2" );
+
+    const ObservationDatasetViewer< double, double > expiredViewer = [ station1LinkDefinition ]( ) {
+        ObservationDataset< double, double > localDataset;
+        localDataset.addObservationSet( one_way_range, station1LinkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
+        return localDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
+    }( );
+    BOOST_CHECK_THROW( expiredViewer.getNumberOfObservations( ), std::runtime_error );
+
+    ObservationDataset< double, double > assignedDataset;
+    assignedDataset.addObservationSet( one_way_range, station1LinkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
+    const ObservationDatasetViewer< double, double > preAssignmentViewer =
+            assignedDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
+    ObservationDataset< double, double > replacementDataset;
+    replacementDataset.addObservationSet( one_way_range, station1LinkDefinition, { Eigen::Vector1d::Constant( 2.0 ) }, { 2.0 }, receiver );
+    assignedDataset = replacementDataset;
+    BOOST_CHECK_THROW( preAssignmentViewer.getNumberOfObservations( ), std::runtime_error );
+
+    const std::shared_ptr< ObservationDataset< double, double > > collectionDataset =
+            std::make_shared< ObservationDataset< double, double > >( );
+    collectionDataset->addObservationSet( one_way_range, station1LinkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
+    ObservationCollection< double, double > collection( collectionDataset );
+    collection.getSingleObservationSets( ).front( )->resetLinkEnds( station2LinkDefinition );
+
+    const std::vector< LinkDefinition > refreshedLinkDefinitions = collection.getLinkDefinitionsForSingleObservable( one_way_range );
+    BOOST_REQUIRE_EQUAL( refreshedLinkDefinitions.size( ), 1 );
+    BOOST_CHECK( refreshedLinkDefinitions.front( ) == station2LinkDefinition );
 }
 
 /*!
