@@ -136,47 +136,13 @@ class GaiaAstrometry:
         :meth:`~tudatpy.data.gaia.GaiaAstrometry.load_from_local_archive`.
         """
         self._table = observations_and_metadata
-        self._corrected = False
-        self._filtered = False
-
-    @property
-    def is_corrected(self) -> bool:
-        """Boolean flag indicating if the astrometry in this instance has been corrected for relativity
-        and/or the photocenter offset"""
-        return self._corrected
-
-
-    @property
-    def is_filtered(self) -> bool:
-        """Boolean flag indicating if the astrometry in this instance has been filtered by epochs or not."""
-        return self._filtered
+        self._corrected = False # Flag to prevent apply_corrections from being called twice
 
 
     @property
     def table(self) -> pd.DataFrame:
         """Read-only copy of the astrometry table."""
         return self._table.copy()
-
-
-    def table_for_single_object(self,
-                                mpc_number: int)-> pd.DataFrame:
-        """
-        Retrieve the astrometry table for a single object, queried by MPC number.
-
-        Parameters
-        ----------
-        mpc_number : int
-            MPC number of the asteroid to retrieve the astrometry for
-
-        Returns
-        -------
-        pd.DataFrame
-            Read-only copy of the astrometry table for one object
-        """
-        if mpc_number not in self.mpc_numbers:
-            raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
-
-        return self.table.query('number_mp == @mpc_number').reset_index(drop=True)
 
 
     @property
@@ -195,32 +161,13 @@ class GaiaAstrometry:
         """
         return copy.deepcopy(self)
 
-
-    def copy_for_single_object(self,
-                               mpc_number: int) -> "GaiaAstrometry":
+    def _table_for_single_object(self,
+                                 mpc_number: int)-> pd.DataFrame:
         """
-        Get a copy of the ``GaiaAstrometry`` object for one object, queried by MPC number.
-
-        This may be useful if the user wants to retrieve the astrometry for many asteroids in bulk, and then split
-        the data into individual containers for independent estimations.
-
-        Parameters
-        ----------
-        mpc_number : int
-            MPC number to keep in the copy.
-
-        Returns
-        -------
-        GaiaAstrometry
-            Copy containing only data for the given mpc_numbers.
+        Retrieve the astrometry table for a single object, queried by MPC number.
         """
-        if mpc_number not in self.mpc_numbers:
-            raise ValueError(f'Observations requested for {mpc_number}, but no observations were found')
+        return self._table[self._table['number_mp'] == mpc_number].reset_index(drop=True)
 
-        new = self.copy()
-        new._table = new._table.query('number_mp == @mpc_number').reset_index(drop=True)
-
-        return new
 
     def get_observation_covariance_matrix(self,
                                           mpc_number: int) -> np.ndarray:
@@ -240,7 +187,9 @@ class GaiaAstrometry:
         np.ndarray
             Observation covariance matrix in the same order as the observations
         """
-        table = self.table_for_single_object(mpc_number)
+        if mpc_number not in self.mpc_numbers:
+            raise RuntimeError(f'Requested observation covariance for {mpc_number}, but no observations were found.')
+        table = self._table_for_single_object(mpc_number)
 
         to_cov = lambda ra, dec, corr: np.array([[ra**2, ra*dec*corr], [ra*dec*corr, dec**2]])
         observation_covariance_matrix = []
@@ -309,7 +258,7 @@ class GaiaAstrometry:
        #     link_definition = links.link_definition(link_ends)
 
             # Get the data for current asteroid
-            temp = self.table_for_single_object(mpc_number)
+            temp = self._table_for_single_object(mpc_number)
             observation_angles = temp.loc[:, ['ra', 'dec']].to_numpy()
             observation_times = temp['epoch'].to_numpy()
 
@@ -335,10 +284,10 @@ class GaiaAstrometry:
 
         return observation_collection
 
-    def correct_observations(self,
-                             bodies: SystemOfBodies,
-                             light_deflection_bodies: Iterable | None = ('Sun',),
-                             photocenter_body_dimensions: dict | None = None) -> None:
+    def apply_corrections(self,
+                          bodies: SystemOfBodies,
+                          light_deflection_bodies: Iterable | None = ('Sun',),
+                          photocenter_body_dimensions: dict | None = None) -> None:
         """
         Apply photocenter and/or light-deflection corrections to the observations.
 
@@ -373,7 +322,7 @@ class GaiaAstrometry:
             array of 3 floats as ``[a, b, c]``, it is assumed to be an ellipsoid with semi-axes a, b, and c. If None,
             no correction is applied.
         """
-        if self.is_corrected:
+        if self._corrected:
             raise RuntimeError('correct_observations cannot be called more than once on the same instance')
 
         for mpc_number in self.mpc_numbers:
@@ -463,8 +412,6 @@ class GaiaAstrometry:
             SELECT *
             FROM {_ASTROMETRY_CATALOG}
             WHERE number_mp IN ({query_mpc_numbers}) 
-            AND astrometric_outcome_ccd = 1
-            AND astrometric_outcome_transit = 1
             """
             job = Gaia.launch_job_async(query)
             table = job.get_results()
@@ -511,8 +458,6 @@ class GaiaAstrometry:
         # Read from parquet
         filters = [
             ('number_mp', 'in', mpc_numbers),
-            ('astrometric_outcome_ccd', '==', 1),
-            ('astrometric_outcome_transit', '==', 1),
         ]
         table = pd.read_parquet(archive_file_path, filters=filters)
 
@@ -559,34 +504,55 @@ class GaiaAstrometry:
         return table
 
 
-    def filter(self,
-               epoch_start: float | DateTime,
-               epoch_end: float | DateTime) -> None:
-        """Filter observations (in-place) by epoch.
+    def apply_filters(self,
+                      exclude_poor_observations: bool = True,
+                      mpc_numbers: int | Iterable[int] | None = None,
+                      epoch_start: float | DateTime | None = None,
+                      epoch_end: float | DateTime | None = None, ) -> None:
+        """
+        Apply filters to the set of observations in-place. This modifies the dataset.
 
         Parameters
         ----------
-        epoch_start : float | DateTime
-            Lower bound for epoch.
-        epoch_end : float | DateTime
-            Upper bound for epoch.
+        exclude_poor_observations : bool
+            Exclude observations which have ``astrometric_outcome_ccd != 1`` or ``astrometric_outcome_transit != 1``.
+            These observations may be affected by one of several issues and can be unreliable. See Gaia documentation
+            for more information.
+        mpc_numbers : int | Iterable[int], optional
+            Retain only objects with these MPC numbers
+        epoch_start : float | DateTime, optional
+            Remove observations before this epoch
+        epoch_end : float | DateTime, optional
+            Remove observations later than this epoch.
         """
+        # Filter observations
+        if exclude_poor_observations:
+            poor_observation_filter = (
+                    (self._table['astrometric_outcome_ccd'] != 1) |
+                    (self._table['astrometric_outcome_transit'] != 1))
+            self._table = self._table[~poor_observation_filter]
+
+        # Filter by epoch
         if isinstance(epoch_start, DateTime):
             epoch_start = epoch_start.epoch()
         if isinstance(epoch_end, DateTime):
             epoch_end = epoch_end.epoch()
-        if epoch_start > epoch_end:
-            raise ValueError('epoch_start cannot be later than epoch_end')
 
-        # Find observations in time span
-        epoch_filters = (self._table.epoch >= epoch_start) & (self._table.epoch <= epoch_end)
-        filtered_table = self._table[epoch_filters]
+        if epoch_start is not None:
+            epoch_start_filter = (self._table['epoch'] >= epoch_start)
+            self._table = self._table[epoch_start_filter]
+        if epoch_end is not None:
+            epoch_end_filter = (self._table['epoch'] <= epoch_end)
+            self._table = self._table[epoch_end_filter]
 
-        if filtered_table.empty:
-            raise RuntimeError('No observations left after filtering by epochs')
+        # Filter MPC numbers
+        if mpc_numbers is not None:
+            mpc_numbers = _as_iterable(mpc_numbers)
+            mpc_number_filter = self._table['number_mp'].isin(mpc_numbers)
+            self._table = self._table[mpc_number_filter]
 
-        self._table = filtered_table
-        self._filtered = True
+        if self._table.empty:
+            raise RuntimeError('No observations left after applying filters')
 
 
     def print_summary(self) -> None:
@@ -597,7 +563,7 @@ class GaiaAstrometry:
 
         for mpc_number in self.mpc_numbers:
 
-            table = self.table_for_single_object(mpc_number)
+            table = self._table_for_single_object(mpc_number)
             denom = table['denomination'].iloc[0]
             number_of_obs = len(table)
             dt_first = DateTime.from_epoch(table['epoch'].min())
