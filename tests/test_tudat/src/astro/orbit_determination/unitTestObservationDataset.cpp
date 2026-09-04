@@ -13,6 +13,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -1762,8 +1763,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     {
         for( int column = 0; column < fullSetWeightBlock.cols( ); ++column )
         {
-            fullSetWeightBlock( row, column ) =
-                    row == column ? static_cast< double >( row + 1 ) : 0.01 * static_cast< double >( 10 * ( row + 1 ) + column + 1 );
+            fullSetWeightBlock( row, column ) = row == column
+                    ? static_cast< double >( row + 1 )
+                    : 0.01 * static_cast< double >( 10 * ( std::min( row, column ) + 1 ) + std::max( row, column ) + 1 );
         }
     }
     rejectedSetBlockDataset.addObservationSetWithWeights( angular_position,
@@ -1826,7 +1828,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_precedence_and_conflict_warnings )
     dataset.setWeightMatrixForSet( setId, setWeightBlock );
 
     Eigen::Matrix2d perObservationWeightBlock;
-    perObservationWeightBlock << 10.0, 0.7, 0.8, 11.0;
+    perObservationWeightBlock << 10.0, 0.7, 0.7, 11.0;
     dataset.setWeightMatrixForObservation( observationIds.at( 0 ), perObservationWeightBlock );
     const Eigen::Vector2d perObservationDiagonalWeights = ( Eigen::Vector2d( ) << 12.0, 13.0 ).finished( );
     dataset.setConstantSingleObservationDiagonalWeight( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ),
