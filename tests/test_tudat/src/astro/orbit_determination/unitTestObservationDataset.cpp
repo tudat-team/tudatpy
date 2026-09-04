@@ -1273,7 +1273,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
             dataset.getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan(
                     elevationSettings, ( Eigen::Vector2d( ) << 0.1, 0.2 ).finished( ) ) ),
             std::runtime_error );
-    BOOST_CHECK_THROW( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( nullptr, 0.3 ), std::runtime_error );
+    BOOST_CHECK_THROW( ( ObservationSelectionCondition< double, double >::dependentVariableGreaterThan( nullptr, 0.3 ) ),
+                       std::runtime_error );
 
     dataset.rejectObservations( ObservationSelectionCondition< double, double >::observableType( one_way_range ) &&
                                         ObservationSelectionCondition< double, double >::residualAbsoluteValueGreaterThan(
@@ -1495,7 +1496,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_viewer_lifetime_and_legacy_cache_invalidation
             std::make_shared< ObservationDataset< double, double > >( );
     collectionDataset->addObservationSet( one_way_range, station1LinkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver );
     ObservationCollection< double, double > collection( collectionDataset );
-    collection.getSingleObservationSets( ).front( )->resetLinkEnds( station2LinkDefinition );
+    collection.getSingleObservationSets( ).front( )->setLinkEnds( station2LinkDefinition );
 
     const std::vector< LinkDefinition > refreshedLinkDefinitions = collection.getLinkDefinitionsForSingleObservable( one_way_range );
     BOOST_REQUIRE_EQUAL( refreshedLinkDefinitions.size( ), 1 );
