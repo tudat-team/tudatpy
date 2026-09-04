@@ -49,7 +49,9 @@ def spice_kernels():
 def _gaia_astrometry():
     """Create a GaiaAstrometry object for asteroids 673 and 779 from the local test archive.
     Runs once per module"""
-    return GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, TEST_ASTEROID_MPC)
+    gaia_astrometry = GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, TEST_ASTEROID_MPC)
+    gaia_astrometry.apply_filters()
+    return gaia_astrometry
 
 
 @pytest.fixture
@@ -79,6 +81,7 @@ def observation_collection(gaia_astrometry, spice_kernels):
 def test_local_astroquery_consistency(astrometry_table):
     """Test whether data obtained from the local archive and astroquery are consistent"""
     astrometry_from_astroquery = GaiaAstrometry.load_from_astroquery(TEST_ASTEROID_MPC)
+    astrometry_from_astroquery.apply_filters()
     astrometry_table_from_astroquery = astrometry_from_astroquery.table
 
     pdt.assert_frame_equal(astrometry_table, astrometry_table_from_astroquery, check_dtype=False)
@@ -90,10 +93,10 @@ def test_astrometry_retrieval_no_data():
     asteroid_no_data = 250000
 
     # Online variant
-    with pytest.raises(LookupError):
+    with pytest.raises(RuntimeError):
         GaiaAstrometry.load_from_astroquery([asteroid_no_data])
     # Local variant
-    with pytest.raises(LookupError):
+    with pytest.raises(RuntimeError):
         GaiaAstrometry.load_from_local_archive(ASTROMETRY_ARCHIVE_PATH, [asteroid_no_data])
 
 
@@ -165,14 +168,14 @@ def test_observation_table_epoch_filter(gaia_astrometry):
     assert gaia_astrometry.table['epoch'].min() < filter_start
     assert gaia_astrometry.table['epoch'].max() > filter_end
 
-    gaia_astrometry.filter(epoch_start=filter_start, epoch_end=filter_end)
+    gaia_astrometry.apply_filters(epoch_start=filter_start, epoch_end=filter_end)
 
     assert gaia_astrometry.table['epoch'].min() >= filter_start
     assert gaia_astrometry.table['epoch'].max() <= filter_end
 
 
-def test_correct_observations_photocenter(gaia_astrometry):
-    """Tests that correct_observations correctly modifies observation by calculated photocenter offset"""
+def test_apply_corrections_photocenter(gaia_astrometry):
+    """Tests that apply_corrections correctly modifies observation by calculated photocenter offset"""
     get_obs = lambda table, mpc: table.loc[table['number_mp'] == mpc, ['ra', 'dec']].to_numpy()
 
     astrometry_table = gaia_astrometry.table
@@ -186,9 +189,9 @@ def test_correct_observations_photocenter(gaia_astrometry):
     body_dimensions = {mpc: 1e3 for mpc in TEST_ASTEROID_MPC}
     with mock.patch('tudatpy.data.gaia.gaia.photocenter_correction_angular_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None,
-                                             photocenter_body_dimensions=body_dimensions,
-                                             light_deflection_bodies=None)
+        gaia_astrometry.apply_corrections(bodies=None,
+                                          photocenter_body_dimensions=body_dimensions,
+                                          light_deflection_bodies=None)
     astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
@@ -197,8 +200,8 @@ def test_correct_observations_photocenter(gaia_astrometry):
                                    np.full_like(observations_corr, offset), rtol=1e-7, atol=0)
 
 
-def test_correct_observations_light_deflection(gaia_astrometry):
-    """Test that correct_observations correctly applies a light deflection offset to the observations"""
+def test_apply_corrections_light_deflection(gaia_astrometry):
+    """Test that apply_corrections correctly applies a light deflection offset to the observations"""
     get_obs = lambda table, mpc: table.loc[table['number_mp'] == mpc, ['ra', 'dec']].to_numpy()
 
     astrometry_table = gaia_astrometry.table
@@ -211,7 +214,7 @@ def test_correct_observations_light_deflection(gaia_astrometry):
     # Corrections are applied to all loaded asteroids
     with mock.patch('tudatpy.data.gaia.gaia.light_deflection_correction_angular_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
+        gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=['Sun'])
     astrometry_table = gaia_astrometry.table
 
     for mpc in TEST_ASTEROID_MPC:
@@ -220,16 +223,16 @@ def test_correct_observations_light_deflection(gaia_astrometry):
                                    np.full_like(observations_corr, offset), rtol=1e-7, atol=0)
 
 
-def test_correct_observations_twice_raises_error(gaia_astrometry):
+def test_apply_corrections_twice_raises_error(gaia_astrometry):
     """Applying corrections twice on the same instance must raise an error"""
     fake_correction = lambda observations, **kwargs: np.full((len(observations), 2), 1e-9)
 
     with mock.patch('tudatpy.data.gaia.gaia.light_deflection_correction_angular_observations',
                     side_effect=fake_correction):
-        gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
+        gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=['Sun'])
 
         with pytest.raises(RuntimeError):
-            gaia_astrometry.correct_observations(bodies=None, light_deflection_bodies=['Sun'])
+            gaia_astrometry.apply_corrections(bodies=None, light_deflection_bodies=['Sun'])
 
 
 def test_get_gaia_ephemeris_settings_geocentric(gaia_astrometry, spice_kernels):
@@ -298,7 +301,8 @@ def test_covariance_matrix_variance_consistency(gaia_astrometry):
     covariance = gaia_astrometry.get_observation_covariance_matrix(TEST_ASTEROID_MPC[0])
     variance_from_matrix = np.diag(covariance)
 
-    table = gaia_astrometry.table_for_single_object(TEST_ASTEROID_MPC[0])
+    table = gaia_astrometry.table
+    table = table[table['number_mp'] == TEST_ASTEROID_MPC[0]].reset_index(drop=True)
 
     # By design, the systematic error is constant per transit: use the first entry of each transit_id
     systematic = table.groupby('transit_id', sort=False)[
