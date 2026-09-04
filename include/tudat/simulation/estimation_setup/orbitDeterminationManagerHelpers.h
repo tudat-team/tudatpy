@@ -65,13 +65,12 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
+        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
         const std::map< observation_models::ObservableType,
                         std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulator,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > flattenedObservationData =
-            observationDataset->createComputationFlattenedObservationData( true );
     residuals =
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( flattenedObservationData.getObservationVector( ).size( ), 1 );
 
@@ -135,6 +134,20 @@ template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
+        const std::map< observation_models::ObservableType,
+                        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+                observationSimulator,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
+{
+    calculateResiduals< ObservationScalarType, TimeType >(
+            observationDataset, observationDataset->createComputationFlattenedObservationData( true ), observationSimulator, residuals );
+}
+
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+void calculateResiduals(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
         const std::map< observation_models::ObservableType,
                         std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
@@ -142,7 +155,10 @@ void calculateResiduals(
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
     calculateResiduals< ObservationScalarType, TimeType >(
-            observationsCollection->getObservationDataset( ), observationSimulator, residuals );
+            observationsCollection->getObservationDataset( ),
+            observationsCollection->getObservationDataset( )->createOrderedFlattenedObservationData( true ),
+            observationSimulator,
+            residuals );
 }
 
 //! Function to calculate the observation partials matrix and residuals

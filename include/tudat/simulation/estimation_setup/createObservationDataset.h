@@ -261,7 +261,9 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
                                                  std::vector< Eigen::VectorXd >( ),
                                                  nullptr,
                                                  ancillarySettings,
-                                                 weights );
+                                                 weights,
+                                                 std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                                 true );
 }
 
 template< typename ObservationScalarType = double,

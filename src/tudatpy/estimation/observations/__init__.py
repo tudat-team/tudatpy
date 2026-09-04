@@ -129,22 +129,6 @@ def _add_single_observation_set_to_dataset(dataset, observation_set):
     return dataset.add_observation_set_from_dataset(single_set_dataset, 0)
 
 
-def _add_legacy_component_observation_set_to_dataset(dataset, values):
-    # Only the 5 legacy required args plus ancillary_settings reach this path;
-    # extended options are routed to the dataset-native component overload.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        observation_set = create_single_observation_set(
-            values["observable_type"],
-            values["link_definition"].link_ends,
-            values["observations"],
-            values["times"],
-            values["reference_link_end"],
-            values.get("ancillary_settings"),
-        )
-    return _add_single_observation_set_to_dataset(dataset, observation_set)
-
-
 def _native_component_add_observation_set(dataset, values):
     defaulted_values = {
         "dependent_variables": [],
@@ -193,11 +177,7 @@ def _object_deprecation_add_observation_set_python_compatibility(self, *args, **
             )
         return _add_single_observation_set_to_dataset(self, observation_set)
 
-    component_values, component_provided = _normalized_component_add_observation_set_arguments(
-        args, kwargs
-    )
-    if component_provided <= set(_ADD_OBSERVATION_SET_ARGUMENTS[:5]) | {"ancillary_settings"}:
-        return _add_legacy_component_observation_set_to_dataset(self, component_values)
+    component_values, _ = _normalized_component_add_observation_set_arguments(args, kwargs)
     return _native_component_add_observation_set(self, component_values)
 
 

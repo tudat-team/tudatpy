@@ -1313,6 +1313,20 @@ BOOST_AUTO_TEST_CASE( test_dataset_viewer_ordered_flattening_reorders_selected_r
 
     // Ordered flattening must instead follow legacy ordered output: one-way range before angular position.
     checkIds( viewer.createOrderedFlattenedObservationData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
+
+    std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > simulators;
+    simulators[ one_way_range ] = std::make_shared< ZeroObservationSimulator >( one_way_range, 1 );
+    simulators[ angular_position ] = std::make_shared< ZeroObservationSimulator >( angular_position, 2 );
+    Eigen::VectorXd legacyResiduals;
+    simulation_setup::calculateResiduals< double, double >(
+            createObservationCollection( std::make_shared< ObservationDataset< double, double > >( dataset ) ),
+            simulators,
+            legacyResiduals );
+    Eigen::VectorXd expectedLegacyResiduals( 6 );
+    expectedLegacyResiduals << 10.0, 11.0, 20.0, 21.0, 22.0, 23.0;
+
+    // Legacy collections expose residuals in their observable/link ordered layout, independent of dataset insertion order.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyResiduals, expectedLegacyResiduals, 1.0E-15 );
 }
 
 /*!
