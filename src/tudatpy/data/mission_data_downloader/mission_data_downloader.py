@@ -9,6 +9,7 @@ from urllib.request import urlretrieve
 from datetime import datetime, timedelta
 import glob
 import re
+import json
 from tudatpy.interface import spice
 from dateutil.relativedelta import relativedelta
 import subprocess
@@ -494,6 +495,112 @@ class LoadPDS:
             print("Format key not supported")
         #########################################################################################################
 
+    # ------------------------------------------------------------------ #
+    # Offline / listing-cache helpers
+    # ------------------------------------------------------------------ #
+
+    def _manifest_path(self, local_folder):
+        """Path to the JSON manifest caching directory listings and resolved URLs."""
+        return os.path.join(local_folder, ".mission_data_cache.json")
+
+    def _load_manifest(self, local_folder):
+        """Load the listing-cache manifest, returning a dict (empty if missing/corrupt)."""
+        path = self._manifest_path(local_folder)
+        if not os.path.exists(path):
+            return {}
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+            return data if isinstance(data, dict) else {}
+        except (ValueError, OSError):
+            return {}
+
+    def _save_manifest(self, local_folder, data):
+        """Atomically write the listing-cache manifest."""
+        try:
+            os.makedirs(local_folder, exist_ok=True)
+            path = self._manifest_path(local_folder)
+            tmp_path = path + ".tmp"
+            with open(tmp_path, "w") as f:
+                json.dump(data, f, indent=2, sort_keys=True)
+            os.replace(tmp_path, path)
+        except OSError as e:
+            print(f"Warning: could not write download cache manifest: {e}")
+
+    @staticmethod
+    def _parse_listing_html(html):
+        """Extract filenames from an HTML directory listing.
+
+        Uses the same link-parsing rules as the download loops so that a cached
+        listing is interchangeable with a freshly fetched one.
+        """
+        filenames = []
+        for link in BeautifulSoup(html, "html.parser").find_all("a"):
+            if "[To Parent Directory]" in link:
+                continue
+            full_link = link.get("href")
+            if not isinstance(full_link, str):
+                continue
+            filename = os.path.basename(full_link) if "/" in full_link else full_link
+            if filename:
+                filenames.append(filename)
+        return filenames
+
+    def _fetch_listing(self, url, local_folder, *, offline=False, refresh=False):
+        """Return the list of filenames at a directory URL, using a JSON manifest cache.
+
+        Cache-first: if the URL is already cached and ``refresh`` is False, the cached
+        listing is returned with no network access.  ``offline`` never touches the
+        network (returns the cached listing, or an empty list if absent).  On a network
+        error the cached listing is used as a fallback if available, otherwise the
+        error is re-raised (preserving the original online behaviour).
+        """
+        manifest = self._load_manifest(local_folder)
+        listings = manifest.setdefault("listings", {})
+        cached = listings.get(url)
+
+        if offline:
+            if cached is None:
+                print(f"[offline] No cached listing for {url}; relying on local files only.")
+                return []
+            return cached
+
+        if cached is not None and not refresh:
+            return cached
+
+        try:
+            reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
+        except Exception as e:
+            # Genuine network failure (timeout / connection error): fall back to
+            # cache if we have one, otherwise surface the error.
+            if cached is not None:
+                print(f"Warning: could not reach {url} ({e}); using cached listing.")
+                return cached
+            raise ValueError(f"Error fetching data from {url}: {e}")
+
+        if reqs.status_code == 404:
+            # Folder does not exist for this archive (e.g. DSN/MET absent when only
+            # IFMS/MET is published). Cache an empty listing and skip — this matches
+            # the pre-cache behaviour where a non-200 response was simply skipped.
+            listings[url] = []
+            self._save_manifest(local_folder, manifest)
+            return []
+
+        try:
+            reqs.raise_for_status()  # other HTTP errors (5xx, 403, ...) still raise
+        except Exception as e:
+            if cached is not None:
+                print(f"Warning: could not reach {url} ({e}); using cached listing.")
+                return cached
+            raise ValueError(f"Error fetching data from {url}: {e}")
+
+        filenames = self._parse_listing_html(reqs.text)
+        listings[url] = filenames
+        self._save_manifest(local_folder, manifest)
+        return filenames
+
+    #########################################################################################################
+
     def _download_file(self, url, local_path, timeout=60):
         """Download a file via requests with timeout and atomic write.
 
@@ -563,6 +670,8 @@ class LoadPDS:
         wanted_files=None,
         wanted_files_patterns=None,
         custom_output=None,
+        offline=False,
+        refresh=False,
     ):
         """
         Downloads specific SPICE kernel files or files matching a pattern from a given URL to a local directory
@@ -616,17 +725,16 @@ class LoadPDS:
         # Retrieve files matching pattern if specified
         matched_files_list = []
         if wanted_files_patterns:
-            # Parse the URL to find matching files
-            reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
-            soup = BeautifulSoup(reqs.text, "html.parser")
+            # Parse the URL to find matching files (cache-first; offline-aware)
+            listing_filenames = self._fetch_listing(
+                url, custom_output or base_folder, offline=offline, refresh=refresh
+            )
 
             for wanted_files_pattern in wanted_files_patterns:
-                # Extract all links that match the pattern
+                # Extract all files that match the pattern
                 regex_pattern = re.escape(wanted_files_pattern).replace(r"\*", ".*")
                 matched_files = [
-                    os.path.basename(link.get("href"))
-                    for link in soup.find_all("a", href=True)
-                    if re.match(regex_pattern, link.get("href"))
+                    filename for filename in listing_filenames if re.match(regex_pattern, filename)
                 ]
                 matched_files_list.extend(matched_files)
 
@@ -852,6 +960,8 @@ class LoadPDS:
         end_date,
         url,
         verbose=True,
+        offline=False,
+        refresh=False,
     ):
         """
         Description:
@@ -896,84 +1006,66 @@ class LoadPDS:
         # Initialize a dictionary to hold files from the HTML response
         files_url_dict = {}
 
-        try:
-            reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
-            reqs.raise_for_status()
-        except Exception as e:
-            raise ValueError(f"Error fetching data from {url}: {e}")
+        # Fetch the directory listing (cache-first; offline-aware)
+        listing_filenames = self._fetch_listing(url, local_path, offline=offline, refresh=refresh)
 
-        # Parse links from the HTML response
-        for link in BeautifulSoup(reqs.text, "html.parser").find_all("a"):
-            if not "[To Parent Directory]" in link:
-                full_link = link.get("href")  # Extract the href attribute
-                if isinstance(full_link, str):
-                    # Check if the link is a full URL or a relative path
-                    if ("/") in full_link:
-                        # It's a full URL
-                        filename = os.path.basename(full_link)  # Get the filename from the URL
-                    else:
-                        # It's a relative path
-                        filename = full_link
+        # In offline mode, also seed candidate filenames from the files already on
+        # disk, so the returned list is robust even if the cached listing is missing
+        # or incomplete.
+        if offline:
+            listing_filenames = list(listing_filenames) + [
+                os.path.basename(f) for f in existing_files
+            ]
 
-                    # Check if the filename matches the specified format
-                    if self.match_type_extension(data_type, filename):
-                        try:
-                            RS_dict, RS_underscores = self.parse_filename(
-                                input_mission, data_type, filename
-                            )
-                            filename_to_download = self.reconstruct_filename(
-                                RS_dict, RS_underscores
-                            )
-                            # Determine the date string format
-                            date_key = (
-                                RS_dict["date_file"][:5]
-                                if input_mission in ("mex", "ro")
-                                else RS_dict["date_file"][:8]
-                            )
-                            files_url_dict[date_key] = filename_to_download
-
-                            # Downloading only the latest version of a file
-                            version = RS_dict.get(
-                                "version"
-                            )  # Define default version if not provided
-                            if not version:
-                                files_url_dict[(start_date, end_date)] = filename_to_download
-
-                            else:
-                                ext = RS_dict.get("extension")
-                                # Extract the base filename without the version
-                                base_name_no_version_no_ext = filename_to_download.replace(
-                                    version, ""
-                                ).replace(ext, "")
-                                current_version = int(
-                                    version[1:]
-                                )  # Extract numeric version (e.g., v02 -> 2)
-                                # Only store the highest version
-                                if not any(
-                                    base_name_no_version_no_ext in value
-                                    for value in files_url_dict.values()
-                                ):
-                                    files_url_dict[date_key] = filename_to_download
-                                else:
-                                    stored_filename = files_url_dict[date_key]
-                                    stored_version_str = stored_filename.replace(
-                                        base_name_no_version_no_ext, ""
-                                    ).replace(ext, "")
-                                    stored_version = int(stored_version_str[1:])
-                                    if current_version >= stored_version:
-                                        latest_filename_to_download = (
-                                            f"{base_name_no_version_no_ext}{version}{ext}"
-                                        )
-                                        files_url_dict[date_key] = latest_filename_to_download
-
-                        except Exception as e:
-                            if input_mission != "grail-a" and input_mission != "grail-b":
-                                print(f"Could not parse file: {filename} - Error: {e}")
-                                continue
-                    else:
-                        continue
-            else:
+        # Parse the listing filenames
+        for filename in listing_filenames:
+            # Check if the filename matches the specified format
+            if not self.match_type_extension(data_type, filename):
                 continue
+            try:
+                RS_dict, RS_underscores = self.parse_filename(input_mission, data_type, filename)
+                filename_to_download = self.reconstruct_filename(RS_dict, RS_underscores)
+                # Determine the date string format
+                date_key = (
+                    RS_dict["date_file"][:5]
+                    if input_mission in ("mex", "ro")
+                    else RS_dict["date_file"][:8]
+                )
+                files_url_dict[date_key] = filename_to_download
+
+                # Downloading only the latest version of a file
+                version = RS_dict.get("version")  # Define default version if not provided
+                if not version:
+                    files_url_dict[(start_date, end_date)] = filename_to_download
+
+                else:
+                    ext = RS_dict.get("extension")
+                    # Extract the base filename without the version
+                    base_name_no_version_no_ext = filename_to_download.replace(version, "").replace(
+                        ext, ""
+                    )
+                    current_version = int(version[1:])  # Extract numeric version (e.g., v02 -> 2)
+                    # Only store the highest version
+                    if not any(
+                        base_name_no_version_no_ext in value for value in files_url_dict.values()
+                    ):
+                        files_url_dict[date_key] = filename_to_download
+                    else:
+                        stored_filename = files_url_dict[date_key]
+                        stored_version_str = stored_filename.replace(
+                            base_name_no_version_no_ext, ""
+                        ).replace(ext, "")
+                        stored_version = int(stored_version_str[1:])
+                        if current_version >= stored_version:
+                            latest_filename_to_download = (
+                                f"{base_name_no_version_no_ext}{version}{ext}"
+                            )
+                            files_url_dict[date_key] = latest_filename_to_download
+
+            except Exception as e:
+                if input_mission != "grail-a" and input_mission != "grail-b":
+                    print(f"Could not parse file: {filename} - Error: {e}")
+                    continue
 
         # Download missing files and collect existing ones that match the date range
         for date in all_dates:
@@ -1063,7 +1155,14 @@ class LoadPDS:
     #########################################################################################################
 
     def dynamic_download_url_files_time_interval(
-        self, input_mission, local_path, start_date, end_date, url
+        self,
+        input_mission,
+        local_path,
+        start_date,
+        end_date,
+        url,
+        offline=False,
+        refresh=False,
     ):
         """
         Description:
@@ -1120,78 +1219,69 @@ class LoadPDS:
         # Initialize a dictionary to hold files from the HTML response
         files_url_dict = {}
 
-        # Get the content of the URL
-        reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
+        # Fetch the directory listing (cache-first; offline-aware)
+        listing_filenames = self._fetch_listing(url, local_path, offline=offline, refresh=refresh)
 
-        # Parse links from the HTML response
-        for link in BeautifulSoup(reqs.text, "html.parser").find_all("a"):
-            full_link = link.get("href")  # Extract the href attribute
-            if isinstance(full_link, str):
-                # Check if the link is a full URL or a relative path
-                if ("/") in full_link:
-                    # It's a full URL
-                    filename = os.path.basename(full_link)  # Get the filename from the URL
+        # In offline mode, also seed candidate filenames from the files already on
+        # disk, so the returned list is robust even if the cached listing is missing
+        # or incomplete.
+        if offline:
+            listing_filenames = list(listing_filenames) + [
+                os.path.basename(f) for f in existing_files
+            ]
+
+        # Parse the listing filenames
+        for filename in listing_filenames:
+            # Check if the filename matches the specified format
+            if not self.match_type_extension(data_type, filename):
+                continue
+            try:
+                # Parse the information from the filename
+                dictionary, underscores = self.parse_filename(input_mission, data_type, filename)
+                # Reconstruct the filename and get time intervals
+                filename_to_download = self.reconstruct_filename(dictionary, underscores)
+                start_time = dictionary["start_date_utc"]
+                end_time = dictionary["end_date_utc"]
+
+                # Downloading only the latest version of a file
+                version = dictionary.get("version")  # Define default version if not provided
+
+                if not version:
+                    files_url_dict[(start_time, end_time)] = filename_to_download
+
                 else:
-                    # It's a relative path
-                    filename = full_link
-                    # Check if the filename matches the specified format
-                if self.match_type_extension(data_type, filename):
-                    try:
-                        # Parse the information from the filename
-                        dictionary, underscores = self.parse_filename(
-                            input_mission, data_type, filename
+                    ext = dictionary.get("extension")
+
+                    if start_time is None or end_time is None:
+                        print(
+                            f"Unwanted filename found: {filename_to_download}. Skipping... [Do not worry! ;)]"
                         )
-                        # Reconstruct the filename and get time intervals
-                        filename_to_download = self.reconstruct_filename(dictionary, underscores)
-                        start_time = dictionary["start_date_utc"]
-                        end_time = dictionary["end_date_utc"]
+                        continue
 
-                        # Downloading only the latest version of a file
-                        version = dictionary.get(
-                            "version"
-                        )  # Define default version if not provided
+                    # Extract the base filename without the version
+                    base_name_no_version_no_ext = filename_to_download.replace(version, "").replace(
+                        ext, ""
+                    )
+                    current_version = int(version[1:])  # Extract numeric version (e.g., v02 -> 2)
+                    # Only store the highest version
+                    if not any(
+                        base_name_no_version_no_ext in value for value in files_url_dict.values()
+                    ):
+                        files_url_dict[(start_time, end_time)] = filename_to_download
+                    else:
+                        stored_filename = files_url_dict[(start_time, end_time)]
+                        stored_version_str = stored_filename.replace(
+                            base_name_no_version_no_ext, ""
+                        ).replace(ext, "")
+                        stored_version = int(stored_version_str[1:])
+                        if current_version >= stored_version:
+                            latest_filename_to_download = (
+                                f"{base_name_no_version_no_ext}{version}{ext}"
+                            )
+                            files_url_dict[(start_time, end_time)] = latest_filename_to_download
 
-                        if not version:
-                            files_url_dict[(start_time, end_time)] = filename_to_download
-
-                        else:
-                            ext = dictionary.get("extension")
-
-                            if start_time is None or end_time is None:
-                                print(
-                                    f"Unwanted filename found: {filename_to_download}. Skipping... [Do not worry! ;)]"
-                                )
-                                continue
-
-                            # Extract the base filename without the version
-                            base_name_no_version_no_ext = filename_to_download.replace(
-                                version, ""
-                            ).replace(ext, "")
-                            current_version = int(
-                                version[1:]
-                            )  # Extract numeric version (e.g., v02 -> 2)
-                            # Only store the highest version
-                            if not any(
-                                base_name_no_version_no_ext in value
-                                for value in files_url_dict.values()
-                            ):
-                                files_url_dict[(start_time, end_time)] = filename_to_download
-                            else:
-                                stored_filename = files_url_dict[(start_time, end_time)]
-                                stored_version_str = stored_filename.replace(
-                                    base_name_no_version_no_ext, ""
-                                ).replace(ext, "")
-                                stored_version = int(stored_version_str[1:])
-                                if current_version >= stored_version:
-                                    latest_filename_to_download = (
-                                        f"{base_name_no_version_no_ext}{version}{ext}"
-                                    )
-                                    files_url_dict[(start_time, end_time)] = (
-                                        latest_filename_to_download
-                                    )
-
-                    except Exception:
-                        continue  # Skip to the next link
+            except Exception:
+                continue  # Skip to the next file
 
         # Download files for all intervals from the HTML response
         # Use direct interval overlap test: [new_start, new_end] overlaps [start_date, end_date]
@@ -4007,6 +4097,8 @@ class LoadPDS:
         end_date,
         radio_observation_type=None,
         skip_kernel_downloads=False,
+        offline=False,
+        refresh=False,
     ):
         """
         Description:
@@ -4022,6 +4114,9 @@ class LoadPDS:
             - start_date (`datetime`): The start date for downloading data. This will filter the data to include only those within the date range.
             - end_date (`datetime`): The end date for downloading data. This will filter the data to include only those within the date range.
             - radio_observation_type (`str`): The type of radio science files to download (e.g. commissioning, checkout, solar conjunction, Lutetia, Global Gravity etc...)
+            - skip_kernel_downloads (`bool`): If True, only radio science / tropospheric files are processed (no SPICE kernel discovery/downloads).
+            - offline (`bool`): If True, never access the network. Directory listings and resolved archive URLs are read from the local JSON cache (``<local_folder>/.mission_data_cache.json``) and on-disk files are used directly. Files not already present locally cannot be retrieved.
+            - refresh (`bool`): If True, ignore the cached listings/URLs and re-query the server, refreshing the cache. By default cached results are reused without any network access.
 
         Outputs:
             (`dict`, `dict`, `dict`): A tuple containing:
@@ -4042,7 +4137,12 @@ class LoadPDS:
         print("================================================================")
         print(f"Discovering {input_mission.upper()} Radio Science Archive URLs:")
         cached_radio_science_urls = self.get_url_ro_radio_science_files(
-            start_date, end_date, radio_observation_type
+            start_date,
+            end_date,
+            radio_observation_type,
+            local_folder=local_folder,
+            offline=offline,
+            refresh=refresh,
         )
         print(f"Found {len(cached_radio_science_urls)} Radio Science archive URL(s).")
 
@@ -4055,22 +4155,19 @@ class LoadPDS:
                 "CALIB/CLOSED_LOOP/DSN/MET/",
             ]:
                 url_tropo_file = url_tropo_file_new + folder_type
-                response = requests.get(url_tropo_file, timeout=_REQUEST_TIMEOUT)
-                if response.status_code == 200:
-                    html = response.text
-                    # Parse the HTML with BeautifulSoup
-                    soup = BeautifulSoup(html, "html.parser")
-                    # Extract file links and their names
-                    wanted_tropo_files = []
-                    for link in soup.find_all("a"):
-                        href = link.get("href")
-                        if href.endswith(".TAB") or href.endswith(".AUX"):
-                            wanted_tropo_files.append(href.split("/")[-1])
+                # Probe/cache the directory listing (cache-first; offline-aware).
+                # An empty listing means the folder is absent or unreachable -> skip.
+                tropo_listing = self._fetch_listing(
+                    url_tropo_file, local_folder, offline=offline, refresh=refresh
+                )
+                if tropo_listing:
                     tropo_files_to_load = self.get_kernels(
                         input_mission=input_mission,
                         url=url_tropo_file,
                         wanted_files_patterns=["*L3L1B*.TAB"],
                         custom_output=local_folder,
+                        offline=offline,
+                        refresh=refresh,
                     )
                 else:
                     continue
@@ -4110,6 +4207,8 @@ class LoadPDS:
                     end_date=end_date,
                     url=url_radio_science_file,
                     verbose=False,
+                    offline=offline,
+                    refresh=refresh,
                 )
                 key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
                 if key not in self.radio_science_files_to_load:
@@ -4150,6 +4249,8 @@ class LoadPDS:
                 url=url_clock_files,
                 wanted_files=wanted_clock_files,
                 custom_output=local_folder,
+                offline=offline,
+                refresh=refresh,
             )
 
             if clock_files_to_load:
@@ -4174,6 +4275,8 @@ class LoadPDS:
                 url=url_frame_files,
                 wanted_files=wanted_frame_files,
                 custom_output=local_folder,
+                offline=offline,
+                refresh=refresh,
             )
 
             if frame_files_to_load:
@@ -4195,6 +4298,8 @@ class LoadPDS:
                         start_date=start_date,
                         end_date=end_date,
                         url=url_spk_file,
+                        offline=offline,
+                        refresh=refresh,
                     )
                 )
 
@@ -4217,6 +4322,8 @@ class LoadPDS:
                         start_date=start_date,
                         end_date=end_date,
                         url=url_ck_file,
+                        offline=offline,
+                        refresh=refresh,
                     )
                 )
 
@@ -4238,77 +4345,120 @@ class LoadPDS:
 
     #########################################################################################################
     def get_url_ro_radio_science_files(
-        self, start_date_ro, end_date_ro, radio_observation_type=None
+        self,
+        start_date_ro,
+        end_date_ro,
+        radio_observation_type=None,
+        local_folder=None,
+        offline=False,
+        refresh=False,
     ):
+
+        # Resolved archive volume URLs are cached per (start, end, observation type)
+        # so that repeated or offline runs do not have to re-query the PSA archive.
+        cache_key = (
+            f"{start_date_ro.isoformat()}|{end_date_ro.isoformat()}|"
+            f"{radio_observation_type or ''}"
+        )
+        manifest = self._load_manifest(local_folder) if local_folder else {}
+        cached_urls = manifest.get("ro_rs_urls", {}).get(cache_key)
+
+        if offline:
+            if cached_urls:
+                self.radio_science_urls = list(cached_urls)
+                return self.radio_science_urls
+            raise ValueError(
+                "[offline] No cached RO radio science archive URLs for the requested "
+                "period. Run online once (or with refresh=True) to populate the cache."
+            )
+
+        if cached_urls is not None and not refresh:
+            self.radio_science_urls = list(cached_urls)
+            return self.radio_science_urls
 
         url = "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-C-RSI-1-2-3-EXT3-1881-V1.0/AAREADME.TXT"
         radio_science_base_url = (
             "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/"
         )
 
-        mapping_dict = self.get_ro_rsi_volume_ID_mapping(url)
-        mapping_dict = self.add_ro_mission_phase_designation(mapping_dict)
+        try:
+            mapping_dict = self.get_ro_rsi_volume_ID_mapping(url)
+            mapping_dict = self.add_ro_mission_phase_designation(mapping_dict)
 
-        if radio_observation_type:
-            mapping_dict = self.filter_mapping_dict_by_radio_observation_type(
-                mapping_dict,
-                radio_observation_type,
-                start_date_ro,
-                end_date_ro,
-            )
+            if radio_observation_type:
+                mapping_dict = self.filter_mapping_dict_by_radio_observation_type(
+                    mapping_dict,
+                    radio_observation_type,
+                    start_date_ro,
+                    end_date_ro,
+                )
 
-        self.radio_science_urls = []
+            self.radio_science_urls = []
 
-        rsi_volume_ID_list = self.get_ro_rsi_volume_ID(start_date_ro, end_date_ro, mapping_dict)
+            rsi_volume_ID_list = self.get_ro_rsi_volume_ID(start_date_ro, end_date_ro, mapping_dict)
 
-        if rsi_volume_ID_list:
-            # Iterate all entries for each volume ID (not just the first)
-            for rsi_id in rsi_volume_ID_list:
-                for entry in mapping_dict[rsi_id]:
-                    try:
-                        # Extract target and mission phase abbreviation (Abbn)
-                        target = entry.get("target")
-                        abbn = entry.get("abbn")
-                        rsi_volume_ID_num = entry.get("rsi_volume_id_num", "").strip()
+            if rsi_volume_ID_list:
+                # Iterate all entries for each volume ID (not just the first)
+                for rsi_id in rsi_volume_ID_list:
+                    for entry in mapping_dict[rsi_id]:
+                        try:
+                            # Extract target and mission phase abbreviation (Abbn)
+                            target = entry.get("target")
+                            abbn = entry.get("abbn")
+                            rsi_volume_ID_num = entry.get("rsi_volume_id_num", "").strip()
 
-                        # Guard against None or empty values
-                        if not target or not abbn or not rsi_volume_ID_num:
-                            print(
-                                f"Warning: Incomplete mapping for volume {rsi_id} "
-                                f"(target={target!r}, abbn={abbn!r}, "
-                                f"num={rsi_volume_ID_num!r}). Skipping."
+                            # Guard against None or empty values
+                            if not target or not abbn or not rsi_volume_ID_num:
+                                print(
+                                    f"Warning: Incomplete mapping for volume {rsi_id} "
+                                    f"(target={target!r}, abbn={abbn!r}, "
+                                    f"num={rsi_volume_ID_num!r}). Skipping."
+                                )
+                                continue
+
+                            target = target.strip()
+                            abbn = abbn.strip()
+
+                            # Construct the URL using the target, Abbn and rsi_volume_id.
+                            # The URL pattern:
+                            # "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-X-RSI-1-2-3-PPP-RRRR-V1.0/"
+                            volume_ID_url = (
+                                radio_science_base_url
+                                + "RO-"
+                                + target
+                                + "-RSI-1-2-3-"
+                                + abbn
+                                + "-"
+                                + rsi_volume_ID_num
+                                + "-V1.0/"
                             )
+                            # Check if URL exists with a HEAD request
+                            response = requests.head(volume_ID_url, timeout=_REQUEST_TIMEOUT)
+                            if response.status_code == 200:
+                                print(f"URL Exists: {volume_ID_url}")
+                                if volume_ID_url not in self.radio_science_urls:
+                                    self.radio_science_urls.append(volume_ID_url)
+                            else:
+                                print(f"URL does not exist: {volume_ID_url}")
+                        except Exception as e:
+                            print(f"Error occurred for rsi_volume_id {rsi_id}: {e}")
                             continue
-
-                        target = target.strip()
-                        abbn = abbn.strip()
-
-                        # Construct the URL using the target, Abbn and rsi_volume_id.
-                        # The URL pattern:
-                        # "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-X-RSI-1-2-3-PPP-RRRR-V1.0/"
-                        volume_ID_url = (
-                            radio_science_base_url
-                            + "RO-"
-                            + target
-                            + "-RSI-1-2-3-"
-                            + abbn
-                            + "-"
-                            + rsi_volume_ID_num
-                            + "-V1.0/"
-                        )
-                        # Check if URL exists with a HEAD request
-                        response = requests.head(volume_ID_url, timeout=_REQUEST_TIMEOUT)
-                        if response.status_code == 200:
-                            print(f"URL Exists: {volume_ID_url}")
-                            if volume_ID_url not in self.radio_science_urls:
-                                self.radio_science_urls.append(volume_ID_url)
-                        else:
-                            print(f"URL does not exist: {volume_ID_url}")
-                    except Exception as e:
-                        print(f"Error occurred for rsi_volume_id {rsi_id}: {e}")
-                        continue
+        except Exception as e:
+            # Auto-fallback: if discovery fails (e.g. no connection) but we have a
+            # cached result for this period, use it instead of failing.
+            if cached_urls:
+                print(
+                    f"Warning: could not discover RO radio science archive URLs ({e}); "
+                    f"using cached URLs."
+                )
+                self.radio_science_urls = list(cached_urls)
+                return self.radio_science_urls
+            raise
 
         if len(self.radio_science_urls) > 0:
+            if local_folder:
+                manifest.setdefault("ro_rs_urls", {})[cache_key] = self.radio_science_urls
+                self._save_manifest(local_folder, manifest)
             return self.radio_science_urls
         else:
             raise ValueError(
