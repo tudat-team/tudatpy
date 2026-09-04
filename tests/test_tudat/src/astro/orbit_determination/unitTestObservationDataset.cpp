@@ -2061,6 +2061,93 @@ BOOST_AUTO_TEST_CASE( test_add_observation_set_from_dataset_preserves_status_and
             copiedDenseWeightMatrix.block( copiedThirdRowStart, copiedFirstRowStart, 2, 2 ), sourceExtraWeightBlock.transpose( ), 1.0E-15 );
 }
 
+BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_copy )
+{
+    const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > elevationSettings =
+            simulation_setup::elevationAngleDependentVariable( receiver, LinkEndId( "Vehicle", "" ) );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > bookkeeping =
+            std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( one_way_range, linkDefinition );
+    bookkeeping->addDependentVariable( elevationSettings );
+    const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, 10.0 );
+
+    ObservationDataset< double, double > sourceDataset;
+    const unsigned int sourceSetId = sourceDataset.addObservationSet(
+            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver, {}, bookkeeping, ancillarySettings );
+    const unsigned int angularSetId =
+            sourceDataset.addObservationSet( angular_position, linkDefinition, { Eigen::Vector2d( 2.0, 3.0 ) }, { 2.0 }, receiver );
+
+    ObservationDataset< double, double > copiedDataset;
+    const unsigned int copiedSetId = copiedDataset.addObservationSetFromDataset( sourceDataset, sourceSetId );
+    copiedDataset.getDependentVariableBookkeeping( copiedDataset.getObservationSetMetadata( copiedSetId ).dependentVariableLayoutId_ )
+            ->clearSettings( );
+    copiedDataset.getAncillarySettings( copiedDataset.getObservationSetMetadata( copiedSetId ).ancillarySettingsId_ )
+            ->setAncillaryDoubleData( doppler_integration_time, 20.0 );
+
+    BOOST_CHECK_EQUAL(
+            sourceDataset
+                    .getDependentVariableBookkeeping( sourceDataset.getObservationSetMetadata( sourceSetId ).dependentVariableLayoutId_ )
+                    ->getTotalDependentVariableSize( ),
+            1 );
+    BOOST_CHECK_EQUAL( sourceDataset.getAncillarySettings( sourceDataset.getObservationSetMetadata( sourceSetId ).ancillarySettingsId_ )
+                               ->getAncillaryDoubleData( doppler_integration_time ),
+                       10.0 );
+
+    const std::shared_ptr< ObservationDataset< double, double > > reducedDataset =
+            sourceDataset.createNewAndKeep( ObservationSelectionCondition< double, double >::observableType( one_way_range ) );
+    reducedDataset->getDependentVariableBookkeeping( reducedDataset->getObservationSetMetadata( 0 ).dependentVariableLayoutId_ )
+            ->clearSettings( );
+    BOOST_CHECK_EQUAL(
+            sourceDataset
+                    .getDependentVariableBookkeeping( sourceDataset.getObservationSetMetadata( sourceSetId ).dependentVariableLayoutId_ )
+                    ->getTotalDependentVariableSize( ),
+            1 );
+
+    const std::shared_ptr< ObservationDataset< double, double > > singleSetDataset = createObservationDataset(
+            createSingleObservationSet( std::make_shared< ObservationDataset< double, double > >( sourceDataset ), angularSetId ) );
+    BOOST_CHECK_EQUAL( singleSetDataset->getNumberOfObservationSets( ), 1 );
+    BOOST_CHECK_EQUAL( singleSetDataset->getObservationSetMetadata( 0 ).observableType_, angular_position );
+
+    ObservationDataset< double, double > copyOnWriteDataset;
+    copyOnWriteDataset.addObservationSet(
+            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver, {}, bookkeeping );
+    copyOnWriteDataset.addObservationSet(
+            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 2.0 ) }, { 2.0 }, receiver, {}, bookkeeping );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > transmitterElevationSettings =
+            simulation_setup::elevationAngleDependentVariable( transmitter, LinkEndId( "Earth", "Station1" ) );
+    copyOnWriteDataset.addDependentVariableToSets( transmitterElevationSettings,
+                                                   ObservationSelectionCondition< double, double >::timeBounds( 0.5, 1.5 ) );
+
+    BOOST_CHECK_EQUAL(
+            copyOnWriteDataset
+                    .getDependentVariableBookkeeping( copyOnWriteDataset.getObservationSetMetadata( 0 ).dependentVariableLayoutId_ )
+                    ->getTotalDependentVariableSize( ),
+            2 );
+    BOOST_CHECK_EQUAL(
+            copyOnWriteDataset
+                    .getDependentVariableBookkeeping( copyOnWriteDataset.getObservationSetMetadata( 1 ).dependentVariableLayoutId_ )
+                    ->getTotalDependentVariableSize( ),
+            1 );
+    BOOST_CHECK_EQUAL( bookkeeping->getTotalDependentVariableSize( ), 1 );
+
+    ObservationDataset< double, double > selfCopyDataset;
+    const unsigned int selfCopySetId = selfCopyDataset.addObservationSet(
+            one_way_range, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) }, { 1.0, 2.0 }, receiver );
+    const std::vector< unsigned int > selfCopyObservationIds = selfCopyDataset.getObservationIdsForSet( selfCopySetId );
+    selfCopyDataset.setWeightBlock(
+            selfCopyObservationIds, selfCopyObservationIds, ( Eigen::Matrix2d( ) << 3.0, 0.25, 0.25, 4.0 ).finished( ) );
+    const unsigned int newSelfCopiedSetId = selfCopyDataset.addObservationSetFromDataset( selfCopyDataset, selfCopySetId );
+
+    BOOST_CHECK_EQUAL( newSelfCopiedSetId, 1 );
+    BOOST_CHECK_EQUAL( selfCopyDataset.getNumberOfObservationSets( ), 2 );
+    BOOST_CHECK_EQUAL( selfCopyDataset.getExtraWeightBlocks( ).size( ), 2 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( selfCopyDataset.getObservationVectorForSet( newSelfCopiedSetId ),
+                                       selfCopyDataset.getObservationVectorForSet( selfCopySetId ),
+                                       1.0E-15 );
+}
+
 /*!
  * Verifies the sparse-weight least-squares overload.
  *

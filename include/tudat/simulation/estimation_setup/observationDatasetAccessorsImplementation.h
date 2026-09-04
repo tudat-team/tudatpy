@@ -350,10 +350,14 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when adding dependent variable settings to observation dataset, settings are null." );
+    }
     for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
     {
         const std::vector< unsigned int >& observationIds = getObservationIdsForSet( setId );
-        bool setMatchesCondition = observationIds.empty( );
+        bool setMatchesCondition = false;
         for( const unsigned int observationId : observationIds )
         {
             if( condition( *this, observationId ) )
@@ -389,6 +393,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
         {
             throw std::runtime_error(
                     "Error when adding dependent variable settings to observation dataset, dependent-variable values already exist." );
+        }
+        else
+        {
+            bookkeeping = std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( *bookkeeping );
+            setMetadata_.at( setId ).dependentVariableLayoutId_ = registerDependentVariableLayout( bookkeeping );
         }
         bookkeeping->addDependentVariables( allSettingsToCreate );
     }
@@ -436,6 +445,17 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
         if( !selectedObservationIds.empty( ) )
         {
             const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = setMetadata_.at( setId );
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& sourceBookkeeping =
+                    dependentVariableLayoutRegistry_.at( metadata.dependentVariableLayoutId_ );
+            const std::shared_ptr< ObservationAncillarySimulationSettings >& sourceAncillarySettings =
+                    ancillarySettingsRegistry_.at( metadata.ancillarySettingsId_ );
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > copiedBookkeeping =
+                    sourceBookkeeping == nullptr
+                    ? nullptr
+                    : std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( *sourceBookkeeping );
+            const std::shared_ptr< ObservationAncillarySimulationSettings > copiedAncillarySettings = sourceAncillarySettings == nullptr
+                    ? nullptr
+                    : std::make_shared< ObservationAncillarySimulationSettings >( *sourceAncillarySettings );
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
             std::vector< TimeType > times;
             std::vector< Eigen::VectorXd > dependentVariables;
@@ -459,17 +479,16 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createNewAndKeep(
                 }
             }
 
-            const unsigned int newSetId =
-                    reducedDataset->addObservationSet( metadata.observableType_,
-                                                       linkDefinitionRegistry_.at( metadata.linkDefinitionId_ ),
-                                                       observations,
-                                                       times,
-                                                       metadata.referenceLinkEnd_,
-                                                       dependentVariables,
-                                                       dependentVariableLayoutRegistry_.at( metadata.dependentVariableLayoutId_ ),
-                                                       ancillarySettingsRegistry_.at( metadata.ancillarySettingsId_ ),
-                                                       weights,
-                                                       residuals );
+            const unsigned int newSetId = reducedDataset->addObservationSet( metadata.observableType_,
+                                                                             linkDefinitionRegistry_.at( metadata.linkDefinitionId_ ),
+                                                                             observations,
+                                                                             times,
+                                                                             metadata.referenceLinkEnd_,
+                                                                             dependentVariables,
+                                                                             copiedBookkeeping,
+                                                                             copiedAncillarySettings,
+                                                                             weights,
+                                                                             residuals );
 
             if( hasSetWeightBlock )
             {

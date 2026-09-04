@@ -624,6 +624,11 @@ public:
                     "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated "
                     "already" );
         }
+        else
+        {
+            dependentVariableBookkeeping_ = std::make_shared< ObservationDependentVariableBookkeeping >( *dependentVariableBookkeeping_ );
+            dataset_->resetDependentVariableBookkeepingForSet( setId_, dependentVariableBookkeeping_ );
+        }
         dependentVariableBookkeeping_->addDependentVariables( dependentVariableSettings );
     }
 
@@ -677,7 +682,10 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createO
         throw std::runtime_error( "Error when creating observation dataset, input set is null." );
     }
 
-    return observationSet->getObservationDataset( );
+    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > dataset =
+            std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+    dataset->addObservationSetFromDataset( *observationSet->getObservationDataset( ), observationSet->getObservationSetId( ) );
+    return dataset;
 }
 
 template< typename ObservationScalarType = double,

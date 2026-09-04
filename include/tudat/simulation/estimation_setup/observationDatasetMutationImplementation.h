@@ -359,19 +359,34 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
         const unsigned int sourceSetId )
 {
+    if( &sourceDataset == this )
+    {
+        const ObservationDataset< ObservationScalarType, TimeType > sourceSnapshot( sourceDataset );
+        return addObservationSetFromDataset( sourceSnapshot, sourceSetId );
+    }
+
     const ObservationSetMetadata< ObservationScalarType, TimeType >& sourceMetadata =
             sourceDataset.getObservationSetMetadata( sourceSetId );
-    const unsigned int newSetId =
-            addObservationSet( sourceMetadata.observableType_,
-                               sourceDataset.getLinkDefinition( sourceMetadata.linkDefinitionId_ ),
-                               sourceDataset.getObservationsForSet( sourceSetId ),
-                               sourceDataset.getObservationTimesForSet( sourceSetId ),
-                               sourceMetadata.referenceLinkEnd_,
-                               sourceDataset.getDependentVariablesForSet( sourceSetId ),
-                               sourceDataset.getDependentVariableBookkeeping( sourceMetadata.dependentVariableLayoutId_ ),
-                               sourceDataset.getAncillarySettings( sourceMetadata.ancillarySettingsId_ ),
-                               sourceDataset.getWeightsForSet( sourceSetId ),
-                               sourceDataset.getResidualsForSet( sourceSetId ) );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& sourceBookkeeping =
+            sourceDataset.getDependentVariableBookkeeping( sourceMetadata.dependentVariableLayoutId_ );
+    const std::shared_ptr< ObservationAncillarySimulationSettings >& sourceAncillarySettings =
+            sourceDataset.getAncillarySettings( sourceMetadata.ancillarySettingsId_ );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > copiedBookkeeping = sourceBookkeeping == nullptr
+            ? nullptr
+            : std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( *sourceBookkeeping );
+    const std::shared_ptr< ObservationAncillarySimulationSettings > copiedAncillarySettings = sourceAncillarySettings == nullptr
+            ? nullptr
+            : std::make_shared< ObservationAncillarySimulationSettings >( *sourceAncillarySettings );
+    const unsigned int newSetId = addObservationSet( sourceMetadata.observableType_,
+                                                     sourceDataset.getLinkDefinition( sourceMetadata.linkDefinitionId_ ),
+                                                     sourceDataset.getObservationsForSet( sourceSetId ),
+                                                     sourceDataset.getObservationTimesForSet( sourceSetId ),
+                                                     sourceMetadata.referenceLinkEnd_,
+                                                     sourceDataset.getDependentVariablesForSet( sourceSetId ),
+                                                     copiedBookkeeping,
+                                                     copiedAncillarySettings,
+                                                     sourceDataset.getWeightsForSet( sourceSetId ),
+                                                     sourceDataset.getResidualsForSet( sourceSetId ) );
 
     const std::vector< unsigned int >& sourceObservationIds = sourceDataset.getObservationIdsForSet( sourceSetId );
     const std::vector< unsigned int >& targetObservationIds = getObservationIdsForSet( newSetId );
