@@ -18,7 +18,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
-#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
+#include "tudat/io/dsnStationData.h"
 
 namespace tudat
 {
@@ -248,15 +248,15 @@ std::vector< std::string > getGroundStationsNames( const std::string& groundStat
 
     if( groundStationIdentifier == "C10" )
     {
-        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 10 );
+        groundStations = getDefaultDsnStationNamesPerComplex( ).at( 10 );
     }
     else if( groundStationIdentifier == "C40" )
     {
-        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 40 );
+        groundStations = getDefaultDsnStationNamesPerComplex( ).at( 40 );
     }
     else if( groundStationIdentifier == "C60" )
     {
-        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 60 );
+        groundStations = getDefaultDsnStationNamesPerComplex( ).at( 60 );
     }
     else
     {

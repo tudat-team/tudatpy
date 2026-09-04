@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
     for( unsigned int test = 0; test < 8; test++ )
     {
         // Create bodies
-        SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+        SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
         addRadiationPressureTargetModel(
                 bodies, "GRAIL-A", paneledRadiationPressureTargetModelSettingsWithOccultationMap( sourceToTargetOccultingBodies ) );
         addRadiationPressureTargetModel( bodies,
@@ -159,35 +159,35 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
                                                .finished( );
 
         // Define propagator settings
-        std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< long double, Time > >(
+        std::shared_ptr< TranslationalStatePropagatorSettings< HighPrecisionStateScalar, Time > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< HighPrecisionStateScalar, Time > >(
                         centralBodies,
                         accelerationModelMap,
                         bodiesToEstimate,
-                        initialState.template cast< long double >( ),
+                        initialState.template cast< HighPrecisionStateScalar >( ),
                         Time( initialTime ),
                         numerical_integrators::rungeKuttaFixedStepSettings< Time >( 10.0, numerical_integrators::rungeKuttaFehlberg78 ),
                         std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
 
         // Create parameters
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-                getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
+                getInitialStateParameterSettings< HighPrecisionStateScalar, Time >( propagatorSettings, bodies );
         if( test < 3 || test > 5 )
         {
             std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > additionalParameterNames;
             parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ) );
         }
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
-                createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< HighPrecisionStateScalar > > parametersToEstimate =
+                createParametersToEstimate< HighPrecisionStateScalar, Time >( parameterNames, bodies, propagatorSettings );
 
         // Propagate variational equations
-        SingleArcVariationalEquationsSolver< long double, Time > variationalEquationsSolver(
+        SingleArcVariationalEquationsSolver< HighPrecisionStateScalar, Time > variationalEquationsSolver(
                 bodies, propagatorSettings, parametersToEstimate );
         auto stateTransitionResults = variationalEquationsSolver.getStateTransitionMatrixSolution( );
         auto sensitivityResults = variationalEquationsSolver.getSensitivityMatrixSolution( );
 
         // Iterate over all parameters
-        auto nominalParameters = parametersToEstimate->getFullParameterValues< long double >( );
+        auto nominalParameters = parametersToEstimate->getFullParameterValues< HighPrecisionStateScalar >( );
         for( unsigned int parameterIndex = 0; parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) );
              parameterIndex++ )
         {
@@ -195,11 +195,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
 
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
-            double toleranceStates = 1E-3;
-            //            if( test == 0 || test == 3 )
-            //            {
-            //                toleranceStates /= 100.0;
-            //            }
+            double toleranceStates = 2E-3;
             double toleranceParameter = 1E-12;
             if( test % 3 > 0 || test == 6 )
             {
@@ -229,7 +225,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             perturbedParameters( parameterIndex ) += parameterPerturbation;
             parametersToEstimate->resetParameterValues( perturbedParameters );
             propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 ) );
-            SingleArcDynamicsSimulator< long double, Time > upperturbedDynamics( bodies, propagatorSettings );
+            SingleArcDynamicsSimulator< HighPrecisionStateScalar, Time > upperturbedDynamics( bodies, propagatorSettings );
             auto upperturbedResults = upperturbedDynamics.getEquationsOfMotionNumericalSolution( );
 
             // Propagate with down-perturbed parameters
@@ -237,7 +233,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             perturbedParameters( parameterIndex ) -= parameterPerturbation;
             parametersToEstimate->resetParameterValues( perturbedParameters );
             propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 ) );
-            SingleArcDynamicsSimulator< long double, Time > downperturbedDynamics( bodies, propagatorSettings );
+            SingleArcDynamicsSimulator< HighPrecisionStateScalar, Time > downperturbedDynamics( bodies, propagatorSettings );
             auto downperturbedResults = downperturbedDynamics.getEquationsOfMotionNumericalSolution( );
 
             // Reset
@@ -269,7 +265,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
                 // Modify tolernace for geometrically poor term
                 if( ( test == 1 && parameterIndex == 3 ) || ( test == 3 && parameterIndex == 4 ) )
                 {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 20.0 ) );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 10.0 ) );
                 }
                 else
                 {

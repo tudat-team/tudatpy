@@ -26,8 +26,6 @@
 #include "simulator/expose_simulator.h"
 #include "parameters_setup/expose_parameters_setup.h"
 #include "parameters/expose_parameters.h"
-#include "scalarTypes.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

@@ -34,6 +34,9 @@ namespace dynamics
 {
 namespace simulator
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 void expose_simulator_variational_bindings( py::module& m )
 {
@@ -537,6 +540,7 @@ void expose_simulator_variational_bindings( py::module& m )
   )doc" );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace simulator
 }  // namespace dynamics
 }  // namespace tudatpy

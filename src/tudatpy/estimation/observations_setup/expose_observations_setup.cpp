@@ -19,8 +19,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "scalarTypes.h"
-
 namespace py = pybind11;
 
 namespace tudatpy

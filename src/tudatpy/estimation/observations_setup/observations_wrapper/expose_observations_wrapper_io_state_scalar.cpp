@@ -37,6 +37,9 @@ namespace observations_setup
 {
 namespace observations_wrapper
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 void expose_observations_wrapper_io_bindings( py::module& m )
 {
@@ -562,6 +565,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
         )doc" );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace observations_wrapper
 }  // namespace observations_setup
 }  // namespace estimation

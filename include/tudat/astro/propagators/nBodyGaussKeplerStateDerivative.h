@@ -236,7 +236,7 @@ public:
                     currentKeplerianState( 5 ) = currentTrueAnomaly;
                 }
 
-                currentTrueAnomalies_[ i ] = currentTrueAnomaly;
+                currentTrueAnomalies_[ i ] = static_cast< double >( currentTrueAnomaly );
                 currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
                         currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
             }

@@ -143,7 +143,22 @@ public:
 
         if( state.hasNaN( ) )
         {
-            std::cout << "State with NaN " << std::endl << state << std::endl;
+            std::cout << "State with NaN" << std::endl;
+            // Some Eigen versions require NumTraits::max_digits10( ) when formatting a full matrix,
+            // which Boost's multiprecision Eigen adapter does not provide. Stream the coefficients
+            // directly so this diagnostic remains available for every state scalar.
+            for( Eigen::Index row = 0; row < state.rows( ); ++row )
+            {
+                for( Eigen::Index column = 0; column < state.cols( ); ++column )
+                {
+                    std::cout << state( row, column );
+                    if( column + 1 < state.cols( ) )
+                    {
+                        std::cout << " ";
+                    }
+                }
+                std::cout << std::endl;
+            }
             throw std::invalid_argument( "Error when computing system state derivative. State vector contains NaN" );
         }
 

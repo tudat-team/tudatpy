@@ -19,7 +19,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "scalarTypes.h"
 #include "biases/expose_biases.h"
 #include "links/expose_links.h"
 #include "light_time_corrections/expose_light_time_corrections.h"

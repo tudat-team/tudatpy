@@ -10,6 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <type_traits>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -46,6 +48,10 @@ BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
                                     std::numeric_limits< long double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION(
                 static_cast< double >( testTime ), 2.0 * TIME_NORMALIZATION_TERM + PI, std::numeric_limits< double >::epsilon( ) );
+
+        const Time negativeTime( -25540040.8144906L );
+        BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), -25540040 );
+        BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), static_cast< int >( static_cast< long double >( negativeTime ) ) );
     }
 
     // Test if Time pre-/post-multiplies Eigen vectors at expected level of precision
@@ -78,6 +84,50 @@ BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
         }
     }
 }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+//! Test construction from the configured quad-precision state scalar.
+BOOST_AUTO_TEST_CASE( testTimeQuadPrecisionConstruction )
+{
+    static_assert( std::is_constructible_v< Time, const HighPrecisionStateScalar& > );
+    static_assert( !std::is_convertible_v< HighPrecisionStateScalar, Time > );
+    static_assert( std::is_constructible_v< Time, int > );
+    static_assert( std::is_constructible_v< Time, double > );
+    static_assert( std::is_constructible_v< Time, long double > );
+
+    const int numberOfFullPeriods = 1000000000;
+    const HighPrecisionStateScalar normalizationTerm = static_cast< HighPrecisionStateScalar >( TIME_NORMALIZATION_INTEGER_TERM );
+    const HighPrecisionStateScalar remainder( "1234.5678901234567890123456789" );
+    const HighPrecisionStateScalar absoluteEpoch =
+            static_cast< HighPrecisionStateScalar >( numberOfFullPeriods ) * normalizationTerm + remainder;
+
+    const Time quadTime( absoluteEpoch );
+    BOOST_CHECK_EQUAL( quadTime.getFullPeriods( ), numberOfFullPeriods );
+    BOOST_CHECK_EQUAL( quadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( remainder ) );
+    const HighPrecisionStateScalar reconstructedEpoch = static_cast< HighPrecisionStateScalar >( numberOfFullPeriods ) * normalizationTerm +
+            static_cast< HighPrecisionStateScalar >( quadTime.getSecondsIntoFullPeriod( ) );
+    BOOST_CHECK_EQUAL( quadTime.getSeconds< HighPrecisionStateScalar >( ), reconstructedEpoch );
+    BOOST_CHECK_NE( quadTime.getSeconds< HighPrecisionStateScalar >( ),
+                    static_cast< HighPrecisionStateScalar >( static_cast< long double >( numberOfFullPeriods ) * TIME_NORMALIZATION_TERM +
+                                                             quadTime.getSecondsIntoFullPeriod( ) ) );
+
+    const Time quadExpressionTime( absoluteEpoch + HighPrecisionStateScalar( "0.125" ) );
+    BOOST_CHECK_EQUAL( quadExpressionTime.getFullPeriods( ), numberOfFullPeriods );
+    BOOST_CHECK_EQUAL( quadExpressionTime.getSecondsIntoFullPeriod( ),
+                       static_cast< long double >( remainder + HighPrecisionStateScalar( "0.125" ) ) );
+
+    const Time prematurelyNarrowedTime( static_cast< long double >( absoluteEpoch ) );
+    BOOST_CHECK_NE( prematurelyNarrowedTime.getSecondsIntoFullPeriod( ), quadTime.getSecondsIntoFullPeriod( ) );
+
+    const Time negativeQuadTime( -absoluteEpoch );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getFullPeriods( ), -numberOfFullPeriods - 1 );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getSecondsIntoFullPeriod( ), static_cast< long double >( normalizationTerm - remainder ) );
+    const HighPrecisionStateScalar reconstructedNegativeEpoch =
+            static_cast< HighPrecisionStateScalar >( negativeQuadTime.getFullPeriods( ) ) * normalizationTerm +
+            static_cast< HighPrecisionStateScalar >( negativeQuadTime.getSecondsIntoFullPeriod( ) );
+    BOOST_CHECK_EQUAL( negativeQuadTime.getSeconds< HighPrecisionStateScalar >( ), reconstructedNegativeEpoch );
+}
+#endif
 
 //! Test if time saves/retrieves entries at the expected level of precision.
 BOOST_AUTO_TEST_CASE( testTimeContentsPrecision )

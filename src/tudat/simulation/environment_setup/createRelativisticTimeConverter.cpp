@@ -109,13 +109,16 @@ template void setRelativisticTimeConverters< double, Time >(
         const SystemOfBodies& bodyMap,
         const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< double, Time > > >& converterSettings );
 
-template void setRelativisticTimeConverter< long double, Time >(
-        const std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > >& conversionSettings,
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
+template void setRelativisticTimeConverter< HighPrecisionStateScalar, Time >(
+        const std::shared_ptr< DirectRelativisticTimeConverterSettings< HighPrecisionStateScalar, Time > >& conversionSettings,
         const SystemOfBodies& bodyMap );
 
-template void setRelativisticTimeConverters< long double, Time >(
+template void setRelativisticTimeConverters< HighPrecisionStateScalar, Time >(
         const SystemOfBodies& bodyMap,
-        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > > >& converterSettings );
+        const std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< HighPrecisionStateScalar, Time > > >&
+                converterSettings );
+#endif
 
 }  // namespace simulation_setup
 }  // namespace tudat

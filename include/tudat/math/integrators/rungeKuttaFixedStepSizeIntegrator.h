@@ -105,15 +105,15 @@ public:
             if( orderToUse_ == RungeKuttaCoefficients::OrderEstimateToIntegrate::lower )
             {
                 // Keep the first row of bCoefficients.
-                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
+                Eigen::MatrixXhps oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXhps::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 0 );
             }
             else
             {
                 // Keep the second row of bCoefficients.
-                Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
+                Eigen::MatrixXhps oldBCoefficients = butcherTableau_.bCoefficients;
+                butcherTableau_.bCoefficients = Eigen::MatrixXhps::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
             }
         }
@@ -176,7 +176,8 @@ public:
                 if( this->butcherTableau_.aCoefficients( stage, column ) !=
                     mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
                 {
-                    stateUpdate += this->butcherTableau_.aCoefficients( stage, column ) * currentScaledStateDerivatives_[ column ];
+                    stateUpdate += static_cast< typename StateType::Scalar >( this->butcherTableau_.aCoefficients( stage, column ) ) *
+                            currentScaledStateDerivatives_[ column ];
                 }
             }
 
@@ -184,8 +185,8 @@ public:
             StateType intermediateState = this->currentState_ + stateUpdate;
 
             // Compute the state derivative.
-            const IndependentVariableType time =
-                    this->currentIndependentVariable_ + this->butcherTableau_.cCoefficients( stage ) * stepSize;
+            const IndependentVariableType time = this->currentIndependentVariable_ +
+                    static_cast< TimeStepType >( this->butcherTableau_.cCoefficients( stage ) ) * stepSize;
             currentScaledStateDerivatives_[ stage ] = stepSize * this->stateDerivativeFunction_( time, intermediateState );
 
             // Check if propagation should terminate because the propagation termination condition has been reached
@@ -205,8 +206,8 @@ public:
             if( this->butcherTableau_.bCoefficients( 0, stage ) !=
                 mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
             {
-                // Update the estimate.
-                stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
+                stateUpdate += static_cast< typename StateType::Scalar >( this->butcherTableau_.bCoefficients( 0, stage ) ) *
+                        currentScaledStateDerivatives_[ stage ];
             }
         }
 
