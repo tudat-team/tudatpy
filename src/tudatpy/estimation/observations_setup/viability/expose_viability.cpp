@@ -220,7 +220,7 @@ Examples
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
 
  elevation_angle : float
-     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. Note: this
+     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.estimation.observations.simulate_observations` function. Note: this
      value must be in radians.
 
  Returns
@@ -291,7 +291,7 @@ Examples
      Name of the body which the signal path should not pass 'too close' to.
 
  avoidance_angle : float
-     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. Note: this
+     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.estimation.observations.simulate_observations` function. Note: this
      value must be in radians.
 
  Returns
@@ -419,7 +419,7 @@ Examples
      link end violates the minimum elevation angle constraint.
 
  elevation_angle : float
-     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. Note: this
+     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.estimation.observations.simulate_observations` function. Note: this
      value must be in radians.
 
  Returns
@@ -455,7 +455,7 @@ Examples
      Name of the body which the signal path should not pass 'too close' to.
 
  avoidance_angle : float
-     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. Note: this
+     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.estimation.observations.simulate_observations` function. Note: this
      value must be in radians.
 
  Returns

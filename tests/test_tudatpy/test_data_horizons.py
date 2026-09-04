@@ -1,9 +1,13 @@
-from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
-from tudatpy.dynamics.environment_setup.ephemeris import jpl_horizons
+from tudatpy.data_input.environment_data.horizons import HorizonsBatch, HorizonsQuery
+from tudatpy.dynamics.environment_setup.ephemeris import (
+    add_horizons_batch_ephemerides,
+    jpl_horizons_from_query,
+    jpl_horizons,
+)
 from tudatpy.dynamics import environment_setup
 
 
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 from contextlib import nullcontext as does_not_raise
 
 import numpy as np
@@ -239,7 +243,8 @@ def test_JPL_methods(
         )
 
         query.cartesian(frame_orientation=frame_orientation)
-        query.create_ephemeris_tabulated(
+        jpl_horizons_from_query(
+            query,
             frame_orientation=frame_orientation,
             frame_origin=frame_origin,
         )
@@ -314,7 +319,8 @@ def test_horizons_batch(
         bodies_to_create, global_frame_origin, global_frame_orientation
     )
 
-    batch.add_batch_ephemerides(
+    add_horizons_batch_ephemerides(
+        batch,
         body_settings=body_settings,
         frame_origin=frame_origin,
         frame_orientation=frame_orientation,

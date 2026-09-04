@@ -32,8 +32,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/readPsfFile.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createCameras.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
 
@@ -79,12 +78,6 @@ public:
 
     //! USE flag retained when filterByUseFlag_ is true.
     int requiredUseFlag_ = 0;
-
-    //! Body-fixed camera reference point position used when adding PSF cameras to the receiver body.
-    Eigen::Vector3d bodyFixedCameraPosition_ = Eigen::Vector3d::Zero( );
-
-    //! Use picture-specific RA/DEC/TWIST as a direct inertial-to-camera pointing source.
-    bool usePicturePointing_ = true;
 };
 
 inline std::string convertStringToUpperCase( const std::string& input )
@@ -204,7 +197,7 @@ std::function< Eigen::Quaterniond( const double ) > createNearestPsfPicturePoint
         {
             picturePointing[ static_cast< double >(
                     getPsfPictureObservationTime< TimeType >( imageContents, useMidExposureTime, convertUtcToTdb ) ) ] =
-                    getPsfPictureRotationFromInertialToCameraFrame( imageContents );
+                    detail::getPsfPictureRotationFromInertialToCameraFrame( imageContents );
         }
     }
 
@@ -261,42 +254,6 @@ std::function< Eigen::Quaterniond( const double ) > createNearestPsfPicturePoint
         const bool useMidExposureTime = true )
 {
     return detail::createNearestPsfPicturePointingFunction< TimeType >( psfFileContents, cameraId, useMidExposureTime, true );
-}
-
-inline void addPsfCamerasToBody( const input_output::psf::RawPsfFileContents& psfFileContents,
-                                 const std::shared_ptr< simulation_setup::Body >& receiverBody,
-                                 const PsfFileObservationConversionSettings& conversionSettings )
-{
-    if( receiverBody == nullptr )
-    {
-        throw std::runtime_error( "Error when adding PSF cameras to body: receiver body is nullptr." );
-    }
-
-    for( const auto& cameraEntry : psfFileContents.cameraProperties_ )
-    {
-        const std::string& cameraId = cameraEntry.first;
-        std::function< Eigen::Quaterniond( const double ) > pointingFunction = nullptr;
-        if( conversionSettings.usePicturePointing_ )
-        {
-            pointingFunction =
-                    createNearestPsfPicturePointingFunction< double >( psfFileContents, cameraId, conversionSettings.useMidExposureTime_ );
-        }
-
-        std::shared_ptr< simulation_setup::CameraSettings > cameraSettings = std::make_shared< simulation_setup::CameraSettings >(
-                cameraId,
-                Eigen::Vector3d::Zero( ),
-                input_output::psf::createPsfCameraProjectionModel( cameraEntry.second ),
-                conversionSettings.bodyFixedCameraPosition_,
-                pointingFunction );
-        simulation_setup::createCamera( receiverBody, cameraSettings );
-    }
-}
-
-inline void addPsfCamerasToBodies( const input_output::psf::RawPsfFileContents& psfFileContents,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const PsfFileObservationConversionSettings& conversionSettings )
-{
-    addPsfCamerasToBody( psfFileContents, bodies.at( conversionSettings.receiverBodyName_ ), conversionSettings );
 }
 
 inline bool shouldConvertPsfMeasurement( const input_output::psf::RawPsfMeasurement& measurement,
@@ -426,15 +383,8 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         const std::string& psfFile,
         const PsfFileObservationConversionSettings& conversionSettings )
 {
-    return createPsfFileObservationCollection< ObservationScalarType, TimeType >( input_output::psf::readPsfFile( psfFile ),
+    return createPsfFileObservationCollection< ObservationScalarType, TimeType >( input_output::psf::readRawPsfFile( psfFile ),
                                                                                   conversionSettings );
-}
-
-inline void addPsfCamerasToBodies( const std::string& psfFile,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const PsfFileObservationConversionSettings& conversionSettings )
-{
-    addPsfCamerasToBodies( input_output::psf::readPsfFile( psfFile ), bodies, conversionSettings );
 }
 
 }  // namespace observation_models

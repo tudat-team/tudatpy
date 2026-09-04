@@ -140,6 +140,38 @@ reference_epoch:
 
       )doc" );
 
+    py::enum_< tss::WeatherDataSettingsType >( m, "WeatherDataSettingsType" )
+            .value( "dsn", tss::WeatherDataSettingsType::dsn_weather_data )
+            .value( "estrack", tss::WeatherDataSettingsType::estrack_weather_data );
+
+    py::class_< tss::WeatherDataSettings, std::shared_ptr< tss::WeatherDataSettings > >( m,
+                                                                                         "WeatherDataSettings",
+                                                                                         R"doc(
+
+         Base class for defining tabulated weather data used by a ground station.
+
+      )doc" )
+            .def_property_readonly( "weather_data_type", &tss::WeatherDataSettings::getWeatherDataType )
+            .def_property_readonly( "interpolator_settings", &tss::WeatherDataSettings::getInterpolatorSettings );
+
+    py::class_< tss::DsnWeatherDataSettings, std::shared_ptr< tss::DsnWeatherDataSettings >, tss::WeatherDataSettings >(
+            m,
+            "DsnWeatherDataSettings",
+            R"doc(
+
+         Settings for DSN tabulated weather data.
+
+      )doc" );
+
+    py::class_< tss::EstrackWeatherDataSettings, std::shared_ptr< tss::EstrackWeatherDataSettings >, tss::WeatherDataSettings >(
+            m,
+            "EstrackWeatherDataSettings",
+            R"doc(
+
+         Settings for ESTRACK tabulated weather data.
+
+      )doc" );
+
     py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >( m,
                                                                                              "GroundStationSettings",
                                                                                              R"doc(
@@ -181,6 +213,16 @@ reference_epoch:
                 :type: list[ GroundStationMotionSettings ]
                     
                     )doc" )
+            .def_property( "weather_data_settings",
+                           &tss::GroundStationSettings::getWeatherDataSettings,
+                           &tss::GroundStationSettings::setWeatherDataSettings,
+                           R"doc(
+
+                Settings for tabulated weather data to load when the ground station is created.
+
+                :type: WeatherDataSettings
+
+                    )doc" )
             .def( "add_station_motion_settings",
                   &tss::GroundStationSettings::addStationMotionSettings,
                   py::arg( "station_motion_settings" ),
@@ -199,12 +241,50 @@ reference_epoch:
            py::arg( "ground_station_settings_list" ),
            py::arg( "station_motion_setting" ) );
 
+    m.def( "set_dsn_weather_data_in_ground_station_settings",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::GroundStationSettings > >&,
+                              const std::vector< std::string >&,
+                              std::shared_ptr< tudat::interpolators::InterpolatorSettings >,
+                              const std::map< int, std::vector< std::string > >& >( &tss::setDsnWeatherDataInGroundStationSettings ),
+           py::arg( "ground_station_settings_list" ),
+           py::arg( "weather_file_names" ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
+           py::arg_v( "ground_stations_per_complex",
+                      tss::getDefaultDsnStationNamesPerComplex( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
+           R"doc(
+
+ Add DSN weather data settings to a list of ground station settings.
+
+      )doc" );
+
+    m.def( "set_estrack_weather_data_in_ground_station_settings",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::GroundStationSettings > >&,
+                              const std::vector< std::string >&,
+                              const std::string,
+                              std::shared_ptr< tudat::interpolators::InterpolatorSettings > >(
+                   &tss::setEstrackWeatherDataInGroundStationSettings ),
+           py::arg( "ground_station_settings_list" ),
+           py::arg( "weather_file_names" ),
+           py::arg( "ground_station_name" ),
+           py::arg_v( "interpolator_settings",
+                      tudat::interpolators::cubicSplineInterpolation(
+                              tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
+                              tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
+                      "..." ),
+           R"doc(
+
+ Add ESTRACK weather data settings to a ground station in a list of ground station settings.
+
+      )doc" );
+
     m.def( "basic_station",
            &tss::groundStationSettings,
            py::arg( "station_name" ),
            py::arg( "station_nominal_position" ),
            py::arg( "station_position_element_type" ) = tcc::cartesian_position,
            py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           py::arg( "weather_data_settings" ) = nullptr,
            R"doc(
 
  Function for creating settings for a ground station
