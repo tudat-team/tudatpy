@@ -55,7 +55,9 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 3
+            # Bound peak memory while compiling the template-heavy state-scalar
+            # pybind translation units, matching the Windows and macOS jobs.
+            build_jobs: 2
             ccache: ON
           - os: windows-latest
             label: win-64
@@ -279,7 +281,7 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
     - name: Build Python package
       shell: bash -l {0}
