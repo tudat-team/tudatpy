@@ -24,6 +24,7 @@ namespace environment_setup
 namespace radiation_pressure
 {
 
+void expose_radiation_pressure_types( py::module& m );
 void expose_radiation_pressure_setup( py::module& m );
 
 }  // namespace radiation_pressure

@@ -12,8 +12,6 @@
 #ifndef TUDAT_READ_GENERIC_TXT_FILE_H
 #define TUDAT_READ_GENERIC_TXT_FILE_H
 
-#include <boost/algorithm/string.hpp>
-#include <boost/any.hpp>
 #include <string>
 #include <cstdarg>
 #include <fstream>

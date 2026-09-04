@@ -8,6 +8,7 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+from sys import platform
 
 
 @dataclass
@@ -175,6 +176,50 @@ class StubGenerator:
 
     # Default indentation length in pybind11-stubgen
     indentation: str = " " * 4
+
+    # Locations used to resolve the abbreviated ``<Enum.member: value>``
+    # representations emitted by pybind11 for default argument values.
+    enum_class_locations: dict[str, str] = {
+        "AerodynamicCoefficientFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AerodynamicsReferenceFrames": (
+            "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients"
+        ),
+        "AvailableLookupScheme": "tudatpy.kernel.math.interpolators",
+        "BoundaryInterpolationType": "tudatpy.kernel.math.interpolators",
+        "FdetDateFormat": "tudatpy.kernel.data",
+        "FrequencyGapHandling": "tudatpy.kernel.dynamics.environment",
+        "IAUConventions": ("tudatpy.kernel.dynamics.environment_setup.rotation_model"),
+        "IntegratedObservationPropertyHandling": (
+            "tudatpy.kernel.estimation.observations_setup." "observations_dependent_variables"
+        ),
+        "LagrangeInterpolatorBoundaryHandling": ("tudatpy.kernel.math.interpolators"),
+        "LightTimeFailureHandling": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "LinkEndType": ("tudatpy.kernel.estimation.observable_models_setup.links"),
+        "MaximumIterationHandling": "tudatpy.kernel.math.root_finders",
+        "MinimumIntegrationTimeStepHandling": (
+            "tudatpy.kernel.dynamics.propagation_setup.integrator"
+        ),
+        "OrderToIntegrate": ("tudatpy.kernel.dynamics.propagation_setup.integrator"),
+        "PositionElementTypes": "tudatpy.kernel.astro.element_conversion",
+        "RadiationPressureTargetModelType": (
+            "tudatpy.kernel.dynamics.environment_setup.radiation_pressure"
+        ),
+        "RotationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "ThrustFrames": "tudatpy.kernel.dynamics.propagation_setup.thrust",
+        "TimeScales": "tudatpy.kernel.astro.time_representation",
+        "TrackingTxtFileReadFilterType": "tudatpy.kernel.data",
+        "TranslationalPropagatorType": ("tudatpy.kernel.dynamics.propagation_setup.propagator"),
+        "TroposphericMappingModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+        "WaterVaporPartialPressureModel": (
+            "tudatpy.kernel.estimation.observable_models_setup." "light_time_corrections"
+        ),
+    }
 
     # Ignored modules and methods
     ignored_modules: list[str] = ["temp", "io", "numerical_simulation", "_deprecation.py", "data"]
@@ -377,6 +422,124 @@ class StubGenerator:
 
         return module
 
+    def __annotation_name(self, annotation: ast.expr) -> str | None:
+        """Return dotted annotation name if expression is a name or attribute."""
+
+        if isinstance(annotation, ast.Name):
+            return annotation.id
+        if isinstance(annotation, ast.Attribute):
+            base_name = self.__annotation_name(annotation.value)
+            if base_name is None:
+                return None
+            return f"{base_name}.{annotation.attr}"
+        return None
+
+    def __annotation_contains_none(self, annotation: ast.expr) -> bool:
+        """Check whether an annotation already allows None."""
+
+        if isinstance(annotation, ast.Constant):
+            return annotation.value is None
+
+        if isinstance(annotation, ast.Name):
+            return annotation.id == "None"
+
+        if isinstance(annotation, ast.BinOp) and isinstance(annotation.op, ast.BitOr):
+            # Python 3.10 union syntax: `Type | None`.
+            return self.__annotation_contains_none(
+                annotation.left
+            ) or self.__annotation_contains_none(annotation.right)
+
+        if isinstance(annotation, ast.Subscript):
+            annotation_name = self.__annotation_name(annotation.value)
+            if annotation_name in ("Optional", "typing.Optional"):
+                return True
+            if annotation_name in ("Union", "typing.Union"):
+                # Classic typing syntax: `typing.Union[Type, None]`.
+                if isinstance(annotation.slice, ast.Tuple):
+                    return any(
+                        self.__annotation_contains_none(item) for item in annotation.slice.elts
+                    )
+                return self.__annotation_contains_none(annotation.slice)
+
+        return False
+
+    def __default_is_none(self, default: ast.expr | None) -> bool:
+        """Check whether a default value is explicitly None."""
+
+        return isinstance(default, ast.Constant) and default.value is None
+
+    def __make_annotation_optional(self, annotation: ast.expr) -> ast.expr:
+        """Wrap an annotation as typing.Optional[annotation]."""
+
+        # Construct `typing.Optional[annotation]`.
+        optional_annotation = ast.Subscript(
+            value=ast.Attribute(
+                value=ast.Name(id="typing", ctx=ast.Load()),
+                attr="Optional",
+                ctx=ast.Load(),
+            ),
+            slice=annotation,
+            ctx=ast.Load(),
+        )
+        return ast.copy_location(optional_annotation, annotation)
+
+    def __make_none_defaults_optional_in_function(
+        self,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+    ) -> None:
+        """Mark annotated arguments with a None default as optional."""
+
+        # ast stores defaults only for the trailing positional arguments.
+        # Align the default list with the arguments it applies to.
+        positional_arguments = function.args.posonlyargs + function.args.args
+        default_start = len(positional_arguments) - len(function.args.defaults)
+
+        for argument, default in zip(
+            positional_arguments[default_start:],
+            function.args.defaults,
+        ):
+            self.__make_none_default_optional_in_argument(argument, default)
+
+        for argument, default in zip(
+            function.args.kwonlyargs,
+            function.args.kw_defaults,
+        ):
+            self.__make_none_default_optional_in_argument(argument, default)
+
+    def __make_none_default_optional_in_argument(
+        self,
+        argument: ast.arg,
+        default: ast.expr | None,
+    ) -> None:
+        """Mark a single annotated argument with a None default as optional."""
+
+        if argument.annotation is None:
+            return
+        if not self.__default_is_none(default):
+            return
+        if self.__annotation_contains_none(argument.annotation):
+            return
+
+        # Replace `argument: Type = None` with
+        # `argument: typing.Optional[Type] = None`.
+        argument.annotation = self.__make_annotation_optional(argument.annotation)
+
+    def __make_none_defaults_optional(self, module: ast.Module) -> ast.Module:
+        """Rewrite None-default stub annotations to Optional.
+
+        Converts `argument: Type = None` to `argument: Optional[Type] = None`.
+        """
+
+        def update_body(body: list[ast.stmt]) -> None:
+            for statement in body:
+                if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    self.__make_none_defaults_optional_in_function(statement)
+                elif isinstance(statement, ast.ClassDef):
+                    update_body(statement.body)
+
+        update_body(module.body)
+        return ast.fix_missing_locations(module)
+
     def __remove_autogenerated_methods(self, module: ast.Module) -> ast.Module:
         """Remove autogenerated methods from the stub
 
@@ -475,8 +638,12 @@ class StubGenerator:
 
         for item in self.python_source_dir.rglob("*"):
 
-            # Skip if not a directory or if it is a cache directory
-            if not item.is_dir() or item.name == "__pycache__":
+            # Only Python packages require a stub directory.
+            if (
+                not item.is_dir()
+                or item.name == "__pycache__"
+                or not (item / "__init__.py").is_file()
+            ):
                 continue
 
             # Make path relative to source directory
@@ -492,15 +659,24 @@ class StubGenerator:
 
         print("Generating stubs for tudatpy.kernel...")
 
+        stubgen_command = [
+            "pybind11-stubgen",
+            "tudatpy.kernel",
+            "-o",
+            str(self.mock_env.tmp),
+            "--numpy-array-wrap-with-annotated",
+        ]
+        for enum_name, module_path in self.enum_class_locations.items():
+            stubgen_command.extend(
+                [
+                    "--enum-class-locations",
+                    f"^{enum_name}$:{module_path}",
+                ]
+            )
+
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
-            [
-                "pybind11-stubgen",
-                "tudatpy.kernel",
-                "-o",
-                str(self.mock_env.tmp),
-                "--numpy-array-wrap-with-annotated",
-            ],
+            stubgen_command,
             env=self.mock_env.variables,
         )
         if outcome.returncode:
@@ -581,6 +757,8 @@ class StubGenerator:
             module = self.__parse_script(stub)
             module = self.__fix_external_imports(module)
             module = self.__fix_tudatpy_imports(module, stub)
+            # Update annotations for arguments that have None as default value.
+            module = self.__make_none_defaults_optional(module)
             module = self.__remove_autogenerated_methods(module)
             module = self.__adjust_docstring_indentation(module)
             content = self.__unparse_script(module)
@@ -1065,9 +1243,26 @@ class Builder:
                 self.python_source_dir,
                 mock_prefix / "tudatpy",
             )
+            ext = ".pyd" if platform == "win32" else ".so"
+            kernel_candidates = [self.extension_source_dir / f"kernel{ext}"]
+            if platform == "win32":
+                # Multi-config generators (Visual Studio) add the build
+                # configuration directory, while single-config generators
+                # (Ninja) write the extension directly to the output directory.
+                kernel_candidates.insert(
+                    0,
+                    self.extension_source_dir / self.args.build_type / f"kernel{ext}",
+                )
+            kernel_source = next(
+                (candidate for candidate in kernel_candidates if candidate.is_file()),
+                None,
+            )
+            if kernel_source is None:
+                checked_paths = ", ".join(str(path) for path in kernel_candidates)
+                raise FileNotFoundError(f"Compiled kernel not found. Checked: {checked_paths}")
             shutil.copy(
-                self.extension_source_dir / "kernel.so",
-                mock_prefix / "tudatpy/kernel.so",
+                kernel_source,
+                mock_prefix / f"tudatpy/kernel{ext}",
             )
 
             # Create mock environment with tudatpy in PYTHONPATH
@@ -1140,8 +1335,8 @@ class Builder:
                     "-DBoost_NO_BOOST_CMAKE=ON",
                     f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                     f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                    f"-DTUDAT_BUILD_WITH_MCD_INTERFACE={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_EXPLICIT_INSTANTIATIONS={'ON' if self.args.build_tests else 'OFF'}",
-                    f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
                     f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                 ]
 

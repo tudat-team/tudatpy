@@ -506,7 +506,7 @@ def read_astropy_optical_data(
 def load_bias_file(
     filepath: str,
     Nside: int | None = None,
-    catalog_flags: list = DEFAULT_CATALOG_FLAGS,
+    catalog_flags: list | None = None,
 ) -> tuple[pd.DataFrame, int]:
     """Load a HEALPix star-catalog debias file.
 
@@ -595,7 +595,7 @@ def get_biases_EFCC18(
     mpc_table: pd.DataFrame,
     bias_file: str | None = BIAS_LOWRES_FILE,
     Nside: int | None = None,
-    catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
+    catalog_flags: list[str] | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Calculate and return star catalog bias values as described by
     :cite:t:`eggl2020`.

@@ -9,11 +9,10 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/streamFilters.h"
 
@@ -161,7 +160,7 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_noEmptyLines )
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '-.*-' is everything between two dashes and replace with nothing.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( "-.*-" ), "", false ) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( std::regex( "-.*-" ), "", false ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -187,7 +186,7 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_emptyLines )
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '-.*-' is everything between two dashes and replace with nothing.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( "-.*-" ), "", false ) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( std::regex( "-.*-" ), "", false ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -213,7 +212,7 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_replace )
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '>.*<' is everything between two angle brackets and replace with 'foobar'.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( ">.*<" ), "foobar", true ) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( std::regex( ">.*<" ), "foobar", true ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );

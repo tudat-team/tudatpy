@@ -345,7 +345,7 @@ class RosettaMixin:
 
     #########################################################################################################
 
-    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict):
+    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict) -> list[str]:
         """
         Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
         and return a list of rsi_volume_id values whose associated record's start_date_utc falls within the interval.

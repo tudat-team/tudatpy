@@ -421,6 +421,41 @@ std::vector< std::pair< std::string, std::string > > getGroundStationsLinkEndLis
 //    return elevationAngles;
 //}
 
+//! Function to determine whether the Sun is below a given elevation angle as seen from a ground station.
+// Note: this function is just a convenient wrapper that allows the user to check whether it is night or day at a given ground station.
+// It uses isTargetVisibleFromGroundStation and allows the user to avoid extracting the states at a given time for both Sun and Ground
+// Station. The same result could be achieved by extracting the states and using those directly inside isTargetVisibleFromGroundStation
+// (this would also be faster).
+bool isItDarkAtGroundStation( const std::string& groundStationName,
+                              const double timeTdb,
+                              const double maxSunElevation,
+                              const SystemOfBodies& bodies,
+                              const std::string& centralBodyName )
+{
+    std::shared_ptr< Body > centralBody = bodies.getBody( centralBodyName );
+
+    if( centralBody->getGroundStationMap( ).count( groundStationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when checking darkness at ground station " + groundStationName + " on body " + centralBodyName +
+                                  ": station not found." );
+    }
+
+    // Inertial state of the ground station, obtained from the central body's ephemeris and rotation model, combined with the
+    // station's body-fixed position.
+    std::function< Eigen::Vector6d( const double ) > groundStationStateFunction = getLinkEndCompleteEphemerisFunction< double, double >(
+            observation_models::LinkEndId( centralBodyName, groundStationName ), bodies );
+    const Eigen::Vector3d groundStationPosition = groundStationStateFunction( timeTdb ).segment( 0, 3 );
+
+    // Inertial position of the Sun.
+    const Eigen::Vector3d sunPosition = bodies.getBody( "Sun" )->getPositionInBaseFrameFromEphemeris< double, double >( timeTdb );
+
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            centralBody->getGroundStation( groundStationName )->getPointingAnglesCalculator( );
+
+    return !ground_stations::isTargetVisibleFromGroundStation(
+            groundStationPosition, sunPosition, timeTdb, maxSunElevation, pointingAnglesCalculator );
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

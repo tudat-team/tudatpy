@@ -24,6 +24,7 @@ namespace environment_setup
 namespace space_time
 {
 
+void expose_space_time_types( py::module& m );
 void expose_space_time_setup( py::module& m );
 
 }  // namespace space_time

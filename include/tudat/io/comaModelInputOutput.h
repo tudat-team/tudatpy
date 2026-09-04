@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -26,15 +27,13 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/date_time/posix_time/time_period.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/variant.hpp>
 
 #include "tudat/basics/identityElements.h"
 #include "tudat/io/basicInputOutput.h"
@@ -792,8 +791,8 @@ public:
             os << '"';
         };
 
-        boost::filesystem::path p( outputPath );
-        if( p.has_parent_path( ) ) boost::filesystem::create_directories( p.parent_path( ) );
+        std::filesystem::path p( outputPath );
+        if( p.has_parent_path( ) ) std::filesystem::create_directories( p.parent_path( ) );
 
         std::ofstream os( outputPath, std::ios::binary );
         if( !os ) throw std::runtime_error( "writeCsvForFile: cannot open " + outputPath );
@@ -907,10 +906,10 @@ public:
 
     static void writeCsvAll( const ComaStokesDataset& dataset, const std::string& outputDir, const std::string& prefix = "stokes" )
     {
-        boost::filesystem::create_directories( outputDir );
+        std::filesystem::create_directories( outputDir );
         for( std::size_t f = 0; f < dataset.nFiles( ); ++f )
         {
-            boost::filesystem::path path = boost::filesystem::path( outputDir ) / ( prefix + "_file" + std::to_string( f ) + ".csv" );
+            std::filesystem::path path = std::filesystem::path( outputDir ) / ( prefix + "_file" + std::to_string( f ) + ".csv" );
             writeCsvForFile( dataset, f, path.string( ) );
         }
     }
@@ -1083,14 +1082,14 @@ public:
 
     static ComaStokesDataset readFromCsvFolder( const std::string& dir, const std::string& prefix = "stokes" )
     {
-        namespace bf = boost::filesystem;
+        namespace fs = std::filesystem;
 
-        if( !bf::exists( dir ) || !bf::is_directory( dir ) )
+        if( !fs::exists( dir ) || !fs::is_directory( dir ) )
             throw std::runtime_error( "readFromCsvFolder: directory does not exist: " + dir );
 
         // Find all CSV files with the given prefix
         std::vector< std::string > csvFiles;
-        for( bf::directory_iterator it( dir ); it != bf::directory_iterator( ); ++it )
+        for( fs::directory_iterator it( dir ); it != fs::directory_iterator( ); ++it )
         {
             const std::string filename = it->path( ).filename( ).string( );
             if( filename.find( prefix + "_file" ) == 0 && filename.substr( filename.length( ) - 4 ) == ".csv" )
@@ -1102,7 +1101,7 @@ public:
         // Sort files by number
         std::sort( csvFiles.begin( ), csvFiles.end( ), [ &prefix ]( const std::string& a, const std::string& b ) {
             auto extractNum = [ &prefix ]( const std::string& path ) -> int {
-                bf::path p( path );
+                fs::path p( path );
                 std::string name = p.stem( ).string( );
                 std::string numStr = name.substr( prefix.length( ) + 5 );  // +5 for "_file"
                 return std::stoi( numStr );
@@ -1687,7 +1686,7 @@ class ComaWindDatasetCollection
 {
 public:
     //! Type alias for the dataset variant
-    using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
+    using DataVariant = std::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /*!
      * \brief Factory method to create collection from polynomial datasets.
@@ -1752,7 +1751,7 @@ public:
      */
     const ComaPolyDataset& getXPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain polynomial dataset" );
     }
 
@@ -1763,7 +1762,7 @@ public:
      */
     const ComaPolyDataset& getYPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain polynomial dataset" );
     }
 
@@ -1774,7 +1773,7 @@ public:
      */
     const ComaPolyDataset& getZPolyDataset( ) const
     {
-        if( auto* p = boost::get< ComaPolyDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaPolyDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain polynomial dataset" );
     }
 
@@ -1785,7 +1784,7 @@ public:
      */
     const ComaStokesDataset& getXStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &xData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &xData_ ) ) return *p;
         throw std::runtime_error( "X-component data does not contain Stokes dataset" );
     }
 
@@ -1796,7 +1795,7 @@ public:
      */
     const ComaStokesDataset& getYStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &yData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &yData_ ) ) return *p;
         throw std::runtime_error( "Y-component data does not contain Stokes dataset" );
     }
 
@@ -1807,7 +1806,7 @@ public:
      */
     const ComaStokesDataset& getZStokesDataset( ) const
     {
-        if( auto* p = boost::get< ComaStokesDataset >( &zData_ ) ) return *p;
+        if( auto* p = std::get_if< ComaStokesDataset >( &zData_ ) ) return *p;
         throw std::runtime_error( "Z-component data does not contain Stokes dataset" );
     }
 

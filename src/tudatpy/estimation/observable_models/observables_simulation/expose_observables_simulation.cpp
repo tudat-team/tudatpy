@@ -11,8 +11,10 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #endif
 #include "expose_observables_simulation.h"
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
+#include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tom = tudat::observation_models;
@@ -29,6 +31,9 @@ namespace observables_simulation
 
 void expose_observables_simulation( py::module& m )
 {
+    py::class_< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationManagerBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m, "ObservationManager" );
+
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
             "ObservationViabilityCalculator",
@@ -63,7 +68,7 @@ void expose_observables_simulation( py::module& m )
          ----------
          link_end_states : List[ numpy.ndarray[numpy.float64[6, 1]] ]
              Vector of states of the link ends involved in the observation.
-         link_end_times : List[:class:`~tudatpy.astro.time_representation.Time`]
+         link_end_times : list[float]
              Vector of times at the link ends involved in the observation.
          observation_value : numpy.ndarray[numpy.float64[]]
              Current simulated observation value.

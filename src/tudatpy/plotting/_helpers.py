@@ -5,6 +5,95 @@ from typing import List, Dict, Union
 from ..util import result2array, pareto_optimums
 
 
+def covariance_ellipsoid(
+    covariance: np.ndarray,
+    center: np.ndarray | None = None,
+    sigma: float = 1.0,
+    resolution: int = 50,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate a three-dimensional covariance-ellipsoid surface.
+
+    The returned arrays can be passed directly to
+    :meth:`matplotlib.axes.Axes.plot_surface`.
+
+    Parameters
+    ----------
+    covariance : numpy.ndarray
+        Symmetric 3-by-3 covariance matrix.
+    center : numpy.ndarray, optional
+        Three-element ellipsoid center. The origin is used by default.
+    sigma : float, default = 1.0
+        Number of standard deviations represented by the surface.
+    resolution : int, default = 50
+        Number of samples in each angular direction. Must be at least 4.
+
+    Returns
+    -------
+    x : numpy.ndarray
+        Ellipsoid x-coordinates with shape ``(resolution, resolution)``.
+    y : numpy.ndarray
+        Ellipsoid y-coordinates with shape ``(resolution, resolution)``.
+    z : numpy.ndarray
+        Ellipsoid z-coordinates with shape ``(resolution, resolution)``.
+
+    Raises
+    ------
+    ValueError
+        If the inputs have invalid dimensions or the covariance matrix is not
+        symmetric and positive semidefinite.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        covariance = np.diag([4.0, 1.0, 0.25])
+        x, y, z = plotting.covariance_ellipsoid(covariance, sigma=3.0)
+        ax.plot_surface(x, y, z, alpha=0.4)
+    """
+    covariance = np.asarray(covariance, dtype=float)
+    if covariance.shape != (3, 3):
+        raise ValueError("covariance must be a 3-by-3 matrix")
+    if not np.all(np.isfinite(covariance)):
+        raise ValueError("covariance must contain only finite values")
+    if not np.allclose(covariance, covariance.T):
+        raise ValueError("covariance must be symmetric")
+    if sigma <= 0.0:
+        raise ValueError("sigma must be positive")
+    if resolution < 4:
+        raise ValueError("resolution must be at least 4")
+
+    if center is None:
+        center = np.zeros(3)
+    else:
+        center = np.asarray(center, dtype=float)
+        if center.shape != (3,):
+            raise ValueError("center must contain exactly three values")
+        if not np.all(np.isfinite(center)):
+            raise ValueError("center must contain only finite values")
+
+    eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+    tolerance = np.finfo(float).eps * max(1.0, np.max(np.abs(eigenvalues))) * 10.0
+    if np.any(eigenvalues < -tolerance):
+        raise ValueError("covariance must be positive semidefinite")
+    eigenvalues = np.maximum(eigenvalues, 0.0)
+
+    azimuth = np.linspace(0.0, 2.0 * np.pi, resolution)
+    polar = np.linspace(0.0, np.pi, resolution)
+    azimuth, polar = np.meshgrid(azimuth, polar)
+    unit_sphere = np.stack(
+        (
+            np.sin(polar) * np.cos(azimuth),
+            np.sin(polar) * np.sin(azimuth),
+            np.cos(polar),
+        )
+    )
+
+    transform = eigenvectors @ np.diag(np.sqrt(eigenvalues))
+    surface = sigma * np.einsum("ij,jkl->ikl", transform, unit_sphere)
+    surface += center[:, np.newaxis, np.newaxis]
+    return surface[0], surface[1], surface[2]
+
+
 def dual_y_axis(
     x_data: list,
     y_data_1: list,

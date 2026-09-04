@@ -102,7 +102,7 @@ void expose_observations_simulation_bindings( py::module& m )
            py::arg( "observations_list" ),
            py::arg( "times_list" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings" ) = nullptr,
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
            R"doc(No documentation found.)doc" );
 }
 

@@ -588,7 +588,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------
@@ -671,7 +671,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
 
         Parameters
         ----------
-        independent_variable_value : float
+        independent_variable_value : astro.time_representation.Time
             Value of independent variable at which the interpolation is to be performed.
         Returns
         -------
@@ -717,11 +717,11 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
            py::arg( "data_first_derivatives" ) = std::vector< double >( ),
            R"doc(
 
-     Same as :func:`~create_one_dimensional_scalar_interpolator`, but using the high-resolution :func:`~Time` type used as independent variable for interpolation
+     Creates a one-dimensional scalar interpolator with floating-point independent variables.
 
      Parameters
      ----------
-     data_to_interpolate : dict[Time, float]
+     data_to_interpolate : dict[float, float]
          Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
      interpolator_settings : InterpolatorSettings
          Settings that define the type of interpolator that is to be used
@@ -729,7 +729,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
          List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in ``data_to_interpolate``. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
      Returns
      -------
-     OneDimensionalInterpolatorScalarTimeObject
+     OneDimensionalInterpolatorScalar
          Interpolator object
 
     )doc" );

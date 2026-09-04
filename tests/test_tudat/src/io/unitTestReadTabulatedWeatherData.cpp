@@ -12,6 +12,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include "tudat/basics/testMacros.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 

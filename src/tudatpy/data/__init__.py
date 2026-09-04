@@ -51,6 +51,7 @@ _ALIASES = {
     "read_solar_activity_data": "tudatpy.data_input.environment_data.space_weather.read_solar_activity_data",
     "OdfDataType": "tudatpy.data_input.tracking_data.odf.OdfDataType",
     "OdfCommonDataBlock": "tudatpy.data_input.tracking_data.odf.OdfCommonDataBlock",
+    "OdfClockOffsetBlock": "tudatpy.data_input.tracking_data.odf.OdfClockOffsetBlock",
     "OdfDataSpecificBlock": "tudatpy.data_input.tracking_data.odf.OdfDataSpecificBlock",
     "OdfDopplerDataBlock": "tudatpy.data_input.tracking_data.odf.OdfDopplerDataBlock",
     "OdfDataBlock": "tudatpy.data_input.tracking_data.odf.OdfDataBlock",
