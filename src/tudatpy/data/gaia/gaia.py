@@ -24,22 +24,8 @@ from collections.abc import Iterable
 # Constants
 _J2010 = 2455197.5  # Reference time J2010.0 in Julian days
 _TIME_SCALE_CORRECTION = 1 - 1.550519768e-8 # See e.g. Klioner (2003)
-_ASTROMETRY_TABLE_COLUMNS = ['epoch', 'ra', 'dec', 'number_mp', 'transit_id', 'position_angle_scan', 'denomination',
-                   'ra_error_systematic', 'dec_error_systematic', 'ra_dec_correlation_systematic',
-                   'ra_error_random', 'dec_error_random', 'ra_dec_correlation_random',
-                   'x_gaia', 'y_gaia', 'z_gaia', 'vx_gaia', 'vy_gaia', 'vz_gaia',
-                   'x_gaia_geocentric', 'y_gaia_geocentric', 'z_gaia_geocentric',
-                   'vx_gaia_geocentric', 'vy_gaia_geocentric', 'vz_gaia_geocentric']
-_ASTEROID_TABLE_COLUMNS = [
-    'number_mp', # MPC number
-    'epoch_state_vector', # Epoch in TCB
-    'orbital_elements_var_covar_matrix', # Cov. matrix of heliocentric orbital elements as (a, e, i, node, peri, M)
-    'h_state_vector',
-    'h_state_vector_var_covar_matrix'
-]
-
 _STATE_SCALING_FACTOR = 1.0000000051686297 # account for Gaia FPR state vector inconsistency (see Gaia Collaboration 2023)
-_ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release
+_ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release as of sep. 2026
 _ASTEROID_CATALOG = 'gaiafpr.sso_source'
 
 
@@ -466,7 +452,6 @@ class GaiaAstrometry:
 
         # Define query to database
         query_mpc_numbers = ", ".join(str(mpc_number) for mpc_number in mpc_numbers)
-        query_columns = ', '.join(_ASTROMETRY_TABLE_COLUMNS)
 
         login_provided = username and password
 
@@ -475,7 +460,7 @@ class GaiaAstrometry:
 
         try:
             query = f"""
-            SELECT {query_columns}
+            SELECT *
             FROM {_ASTROMETRY_CATALOG}
             WHERE number_mp IN ({query_mpc_numbers}) 
             AND astrometric_outcome_ccd = 1
@@ -529,7 +514,7 @@ class GaiaAstrometry:
             ('astrometric_outcome_ccd', '==', 1),
             ('astrometric_outcome_transit', '==', 1),
         ]
-        table = pd.read_parquet(archive_file_path, filters=filters, columns=_ASTROMETRY_TABLE_COLUMNS)
+        table = pd.read_parquet(archive_file_path, filters=filters)
 
         if table.empty:
             raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
@@ -770,8 +755,7 @@ class GaiaAsteroids:
         mpc_numbers = _as_iterable(mpc_numbers)
 
         # Set up query to DB
-        query_columns = ', '.join(_ASTEROID_TABLE_COLUMNS)
-        query = f"SELECT {query_columns} FROM {_ASTEROID_CATALOG}"
+        query = f"SELECT * FROM {_ASTEROID_CATALOG}"
         if mpc_numbers is not None:
             query_mpc_numbers = ', '.join([str(mpc) for mpc in mpc_numbers])
             query += f" WHERE number_mp IN ({query_mpc_numbers})"
@@ -825,7 +809,7 @@ class GaiaAsteroids:
         mpc_numbers = _as_iterable(mpc_numbers)
 
         filter = [('number_mp', 'in', mpc_numbers)] if mpc_numbers is not None else None
-        table = pd.read_parquet(archive_file_path, filters=filter, columns=_ASTEROID_TABLE_COLUMNS)
+        table = pd.read_parquet(archive_file_path, filters=filter)
         if table.empty:
             raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
         _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
