@@ -140,7 +140,7 @@ public:
         return dataset_->getLinkDefinition( dataset_->getObservationSetMetadata( setId_ ).linkDefinitionId_ );
     }
 
-    void setLinkEnds( LinkDefinition& linkEnds )
+    void setLinkEnds( const LinkDefinition& linkEnds )
     {
         dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
     }
