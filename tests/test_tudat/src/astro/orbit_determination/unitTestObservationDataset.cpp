@@ -941,6 +941,37 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
                                                   nullptr,
                                                   { ( Eigen::Vector2d( ) << 1.0, 2.0 ).finished( ) } ),
                        std::runtime_error );
+    BOOST_CHECK_THROW(
+            dataset.addObservationSet( angular_position, linkDefinition, { Eigen::Vector1d::Constant( 1.0 ) }, { 1.0 }, receiver ),
+            std::runtime_error );
+
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > elevationSettings =
+            simulation_setup::elevationAngleDependentVariable( receiver, LinkEndId( "Vehicle", "" ) );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > bookkeeping =
+            std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( one_way_range, linkDefinition );
+    bookkeeping->addDependentVariable( elevationSettings );
+    BOOST_CHECK_THROW( dataset.addObservationSet( one_way_range,
+                                                  linkDefinition,
+                                                  { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) },
+                                                  { 1.0, 2.0 },
+                                                  receiver,
+                                                  { Eigen::Vector1d::Constant( 3.0 ), Eigen::Vector2d::Constant( 4.0 ) },
+                                                  bookkeeping ),
+                       std::runtime_error );
+
+    const unsigned int layoutOnlySetId = dataset.addObservationSet( one_way_range,
+                                                                    linkDefinition,
+                                                                    { Eigen::Vector1d::Constant( 1.0 ) },
+                                                                    { 1.0 },
+                                                                    receiver,
+                                                                    std::vector< Eigen::VectorXd >( ),
+                                                                    bookkeeping );
+    BOOST_CHECK_THROW( dataset.getSingleDependentVariableForSet( layoutOnlySetId, elevationSettings ), std::runtime_error );
+    BOOST_CHECK( dataset.getAllCompatibleDependentVariablesForSet( layoutOnlySetId, elevationSettings ).empty( ) );
+    BOOST_CHECK_THROW( dataset.setDependentVariablesForSet( layoutOnlySetId, { Eigen::Vector2d::Ones( ) } ), std::runtime_error );
+    BOOST_CHECK_THROW( dataset.addObservationsToSet(
+                               layoutOnlySetId, { Eigen::Vector1d::Constant( 2.0 ) }, { 2.0 }, { Eigen::Vector1d::Constant( 3.0 ) } ),
+                       std::runtime_error );
     BOOST_CHECK_THROW( dataset.setObservationVectorForSet( emptySetId, ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ) ), std::runtime_error );
     BOOST_CHECK_THROW( dataset.removeObservationsFromSet( emptySetId, std::vector< unsigned int >( { 0 } ) ), std::runtime_error );
 }
@@ -1027,7 +1058,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
             one_way_range,
             linkDefinition,
             { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ), Eigen::Vector1d::Constant( 3.0 ) },
-            { 1.0, 1.0, 2.0 },
+            { 1.0, 2.0, 1.0 },
             receiver );
     const ObservationDatasetViewer< double, double > staleDuplicateViewer =
             duplicateDataset.createViewer( ObservationSelectionCondition< double, double >::all( ) );
@@ -1036,7 +1067,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
     duplicateDataset.eraseDuplicateObservationsFromSet( duplicateSetId, false );
     std::cerr.rdbuf( originalWarningBuffer );
 
-    // Direct duplicate erasure must remove adjacent duplicate epochs, optionally suppress warnings, and invalidate old viewers.
+    // Direct duplicate erasure must remove duplicate epochs even when they are not adjacent, optionally suppress warnings, and invalidate
+    // old viewers.
     BOOST_CHECK_EQUAL( duplicateDataset.getNumberOfObservationsForSet( duplicateSetId ), 2 );
     BOOST_CHECK( duplicateWarningStream.str( ).empty( ) );
     BOOST_CHECK_THROW( staleDuplicateViewer.getNumberOfObservations( ), std::runtime_error );

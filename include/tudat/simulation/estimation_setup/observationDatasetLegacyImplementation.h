@@ -426,10 +426,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::eraseDuplicat
                                                                                                       const bool printWarning )
 {
     const std::vector< TimeType > observationTimes = getObservationTimesForSet( setId );
+    std::set< TimeType > retainedTimes;
     std::vector< unsigned int > indicesToRemove;
-    for( unsigned int i = 1; i < observationTimes.size( ); ++i )
+    for( unsigned int i = 0; i < observationTimes.size( ); ++i )
     {
-        if( observationTimes.at( i ) == observationTimes.at( i - 1 ) )
+        if( !retainedTimes.insert( observationTimes.at( i ) ).second )
         {
             indicesToRemove.push_back( i );
         }

@@ -27,6 +27,10 @@ Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
         const bool returnFirstCompatibleSettings ) const
 {
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting dependent variable from observation dataset, settings are null." );
+    }
     const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
     const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping =
             getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
@@ -68,6 +72,10 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getCompatibleDepen
         const unsigned int setId,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
 {
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when finding compatible dependent variables, settings are null." );
+    }
     const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
     const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping =
             getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
@@ -94,6 +102,14 @@ std::vector< Eigen::MatrixXd > ObservationDataset< ObservationScalarType, TimeTy
         const unsigned int setId,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
 {
+    if( dependentVariableSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when getting compatible dependent variables, settings are null." );
+    }
+    if( getDependentVariablesForSet( setId ).empty( ) )
+    {
+        return std::vector< Eigen::MatrixXd >( );
+    }
     const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
     const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping =
             getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
@@ -124,9 +140,30 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setDependentV
         const std::vector< Eigen::VectorXd >& dependentVariables )
 {
     const std::vector< unsigned int >& observationIds = observationIdsBySet_.at( setId );
+    if( dependentVariables.empty( ) )
+    {
+        clearDependentVariablesForSet( setId );
+        return;
+    }
     if( dependentVariables.size( ) != observationIds.size( ) )
     {
         throw std::runtime_error( "Error when setting dataset dependent variables, size is inconsistent." );
+    }
+    int dependentVariableSize = dependentVariables.front( ).size( );
+    const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& bookkeeping =
+            getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
+    if( bookkeeping != nullptr )
+    {
+        dependentVariableSize = bookkeeping->getTotalDependentVariableSize( );
+    }
+    for( const Eigen::VectorXd& dependentVariable : dependentVariables )
+    {
+        if( dependentVariable.size( ) != dependentVariableSize )
+        {
+            throw std::runtime_error(
+                    "Error when setting dataset dependent variables, dependent-variable component size is inconsistent." );
+        }
     }
     for( std::size_t i = 0; i < observationIds.size( ); ++i )
     {
