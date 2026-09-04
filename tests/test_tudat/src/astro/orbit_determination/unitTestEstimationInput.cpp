@@ -13,6 +13,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <Eigen/LU>
 
+#include <cmath>
 #include <limits>
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -119,27 +120,48 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
     BOOST_CHECK_SMALL( ( leastSquaresOutput.second - expectedNormalMatrix ).norm( ), 1.0E-14 );
     BOOST_CHECK_SMALL( ( leastSquaresOutput.first - expectedParameterCorrection ).norm( ), 1.0E-14 );
 
-    // Exercise the same constraint through a complete iterative estimation. With zero acceleration and a position
-    // observation at the initial epoch, the estimation problem is linear. The first update therefore reaches the MAP
-    // solution. Although an observation residual remains, the second update must be zero because the growing deviation
-    // from the fixed initial parameter vector supplies an equal and opposite a priori contribution.
+    // Exercise the constraint through a realistic iterative orbit determination. Simulate one day of position data for
+    // a low Earth orbiter subject to gravity and atmospheric drag, then estimate its initial state and drag coefficient.
+    // The a priori parameter vector is deliberately offset from truth. The converged MAP estimate must move toward the
+    // data while retaining a non-zero offset from truth due to the prior.
     using namespace observation_models;
+    using namespace orbital_element_conversions;
 
     const double initialTime = 1.0E7;
-    const double finalTime = initialTime + 60.0;
-    SystemOfBodies bodies( "SSB", "ECLIPJ2000" );
+    const double finalTime = initialTime + physical_constants::JULIAN_DAY;
+    const double trueDragCoefficient = 2.2;
+    const double positionAprioriStandardDeviation = 0.02;
+    const double dragCoefficientAprioriStandardDeviation = 0.05;
+
+    spice_interface::loadStandardSpiceKernels( );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" }, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< ExponentialAtmosphereSettings >( aerodynamics::earth );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Satellite" );
-    bodies.at( "Satellite" )->setConstantBodyMass( 100.0 );
+    bodies.at( "Satellite" )->setConstantBodyMass( 400.0 );
+    const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    4.0, trueDragCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
+    bodies.at( "Satellite" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Satellite", bodies ) );
 
     const std::vector< std::string > bodiesToPropagate = { "Satellite" };
-    const std::vector< std::string > centralBodies = { "SSB" };
-    AccelerationMap accelerationModels;
-    accelerationModels[ "Satellite" ] = basic_astrodynamics::SingleBodyAccelerationMap( );
+    const std::vector< std::string > centralBodies = { "Earth" };
+    SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Satellite" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationSettings[ "Satellite" ][ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+    const AccelerationMap accelerationModels =
+            createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
 
-    Eigen::Vector6d trueInitialState;
-    trueInitialState << 7.0E6, 2.0E6, -1.0E6, 100.0, 200.0, -50.0;
+    Eigen::Vector6d initialKeplerianState;
+    initialKeplerianState << bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ) + 240.0E3, 1.0E-3,
+            unit_conversions::convertDegreesToRadians( 45.0 ), unit_conversions::convertDegreesToRadians( 20.0 ),
+            unit_conversions::convertDegreesToRadians( 40.0 ), unit_conversions::convertDegreesToRadians( 10.0 );
+    const Eigen::Vector6d trueInitialState = convertKeplerianToCartesianElements(
+            initialKeplerianState, bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) );
     const std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            rungeKuttaFixedStepSettings( 10.0, CoefficientSets::rungeKuttaFehlberg78 );
+            rungeKuttaFixedStepSettings( 60.0, CoefficientSets::rungeKuttaFehlberg78 );
     const std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double, double > >( centralBodies,
                                                                                         accelerationModels,
@@ -150,10 +172,11 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
                                                                                         propagationTimeTerminationSettings( finalTime ),
                                                                                         cowell );
 
-    const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings =
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings =
             getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
+    parameterSettings.push_back( estimatable_parameters::constantDragCoefficient( "Satellite" ) );
     const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double, double >( parameterSettings, bodies );
+            createParametersToEstimate< double, double >( parameterSettings, bodies, propagatorSettings );
 
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = LinkEndId( "Satellite", "" );
@@ -163,39 +186,83 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
     OrbitDeterminationManager< double, double > orbitDeterminationManager(
             bodies, parametersToEstimate, observationModelSettings, propagatorSettings );
 
+    std::vector< double > observationTimes;
+    for( double observationTime = initialTime; observationTime <= finalTime; observationTime += 60.0 )
+    {
+        observationTimes.push_back( observationTime );
+    }
+    BOOST_REQUIRE_EQUAL( observationTimes.size( ), 1441 );
     const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings = {
         std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                position_observable, linkEnds, std::vector< double >{ finalTime }, observed_body )
+                position_observable, linkEnds, observationTimes, observed_body )
     };
     const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    BOOST_REQUIRE_EQUAL( simulatedObservations->getTotalObservableSize( ), 3 * 1441 );
     simulatedObservations->setConstantWeight( 1.0 );
 
-    Eigen::Vector6d aprioriInitialState = trueInitialState;
-    aprioriInitialState( 0 ) += 10.0;
-    orbitDeterminationManager.resetParameterEstimate( aprioriInitialState, true );
+    const Eigen::VectorXd trueParameters = parametersToEstimate->getFullParameterValues< double >( );
+    BOOST_REQUIRE_EQUAL( trueParameters.size( ), 7 );
+    Eigen::VectorXd aprioriParameters = trueParameters;
+    aprioriParameters.segment( 0, 3 ).array( ) += 1.0;
+    aprioriParameters( 6 ) += 0.5;
+    orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
 
-    const Eigen::MatrixXd fullEstimationInverseAprioriCovariance = 1.0E4 * Eigen::MatrixXd::Identity( 6, 6 );
+    Eigen::MatrixXd fullEstimationInverseAprioriCovariance = Eigen::MatrixXd::Zero( 7, 7 );
+    fullEstimationInverseAprioriCovariance.diagonal( ).segment( 0, 3 ).setConstant(
+            1.0 / ( positionAprioriStandardDeviation * positionAprioriStandardDeviation ) );
+    fullEstimationInverseAprioriCovariance( 6, 6 ) =
+            1.0 / ( dragCoefficientAprioriStandardDeviation * dragCoefficientAprioriStandardDeviation );
     const std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-            simulatedObservations, fullEstimationInverseAprioriCovariance, estimationConvergenceChecker( 2, -1.0, -1.0, 100 ) );
+            simulatedObservations, fullEstimationInverseAprioriCovariance, estimationConvergenceChecker( 6, -1.0, -1.0, 100 ) );
     estimationInput->defineEstimationSettings( true, true, true, false, true, false );
 
     const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
     BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
     BOOST_REQUIRE( !estimationOutput->exceptionDuringPropagation_ );
-    BOOST_REQUIRE_EQUAL( estimationOutput->residualHistory_.size( ), 2 );
+    BOOST_REQUIRE_EQUAL( estimationOutput->residualHistory_.size( ), 6 );
 
     const Eigen::MatrixXd parameterHistory = estimationOutput->getParameterHistoryMatrix( );
-    BOOST_REQUIRE_EQUAL( parameterHistory.rows( ), 6 );
-    BOOST_REQUIRE_EQUAL( parameterHistory.cols( ), 3 );
-    const Eigen::Vector6d deviationAfterFirstIteration = parameterHistory.col( 1 ) - parameterHistory.col( 0 );
-    const Eigen::Vector6d secondParameterCorrection = parameterHistory.col( 2 ) - parameterHistory.col( 1 );
+    BOOST_REQUIRE_EQUAL( parameterHistory.rows( ), 7 );
+    BOOST_REQUIRE_EQUAL( parameterHistory.cols( ), 7 );
+    BOOST_CHECK_SMALL( ( parameterHistory.col( 0 ) - aprioriParameters ).norm( ), 1.0E-12 );
 
-    BOOST_CHECK_GT( deviationAfterFirstIteration.norm( ), 1.0E-3 );
-    BOOST_CHECK_GT( estimationOutput->residualHistory_.at( 1 ).norm( ), 1.0 );
-    BOOST_CHECK_LT( estimationOutput->residualHistory_.at( 1 ).norm( ), estimationOutput->residualHistory_.at( 0 ).norm( ) );
-    BOOST_CHECK_SMALL( secondParameterCorrection.norm( ), 1.0E-6 * deviationAfterFirstIteration.norm( ) );
+    const Eigen::VectorXd finalParameters = parameterHistory.col( parameterHistory.cols( ) - 1 );
+    const double initialPositionError = ( aprioriParameters.segment( 0, 3 ) - trueParameters.segment( 0, 3 ) ).norm( );
+    const double finalPositionError = ( finalParameters.segment( 0, 3 ) - trueParameters.segment( 0, 3 ) ).norm( );
+    const double finalPositionDeviationFromApriori = ( finalParameters.segment( 0, 3 ) - aprioriParameters.segment( 0, 3 ) ).norm( );
+    const double finalDragCoefficientOffset = finalParameters( 6 ) - trueParameters( 6 );
+    const double finalDragCoefficientDeviationFromApriori = aprioriParameters( 6 ) - finalParameters( 6 );
+    const double initialResidualRms = linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.front( ) );
+    const double finalResidualRms = linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.back( ) );
+
+    BOOST_TEST_MESSAGE( "Final initial-position offset from truth: "
+                        << ( finalParameters.segment( 0, 3 ) - trueParameters.segment( 0, 3 ) ).transpose( ) << " m; error norm: "
+                        << finalPositionError << " m; deviation from prior: " << finalPositionDeviationFromApriori << " m" );
+    BOOST_TEST_MESSAGE( "Final drag coefficient offset from truth: " << finalDragCoefficientOffset << "; deviation from prior: "
+                                                                     << finalDragCoefficientDeviationFromApriori );
+    BOOST_TEST_MESSAGE( "Position-observation residual RMS reduced from " << initialResidualRms << " m to " << finalResidualRms << " m" );
+
+    // Every constrained parameter settles strictly between truth and its a priori value: the data move the estimate
+    // toward truth, while the prior prevents convergence to the data-only solution.
+    BOOST_CHECK_LT( finalPositionError, initialPositionError );
+    for( int positionIndex = 0; positionIndex < 3; positionIndex++ )
+    {
+        const double finalPositionOffset = finalParameters( positionIndex ) - trueParameters( positionIndex );
+        BOOST_CHECK_GT( finalPositionOffset, positionAprioriStandardDeviation );
+        BOOST_CHECK_LT( finalPositionOffset, 1.0 - positionAprioriStandardDeviation );
+    }
+    BOOST_CHECK_GT( finalDragCoefficientOffset, 0.5 * dragCoefficientAprioriStandardDeviation );
+    BOOST_CHECK_LT( finalDragCoefficientOffset, 0.5 - dragCoefficientAprioriStandardDeviation );
+    BOOST_CHECK_GT( finalDragCoefficientDeviationFromApriori, dragCoefficientAprioriStandardDeviation );
+
+    BOOST_CHECK_LT( finalResidualRms, initialResidualRms );
+    BOOST_CHECK_GT( finalResidualRms, 1.0E-3 );
+    const Eigen::VectorXd finalCorrection =
+            parameterHistory.col( parameterHistory.cols( ) - 1 ) - parameterHistory.col( parameterHistory.cols( ) - 2 );
+    BOOST_CHECK_SMALL( finalCorrection.segment( 0, 3 ).norm( ), 1.0E-5 );
+    BOOST_CHECK_SMALL( finalCorrection( 6 ), 1.0E-6 );
 }
 
 //! Test a constrained least-squares orbit estimation with position and velocity corrections at different scales.
