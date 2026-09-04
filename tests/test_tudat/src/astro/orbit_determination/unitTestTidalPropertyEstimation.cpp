@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                 position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
         // Simulate observations
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Perturb parameter values
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
             std::make_shared< TabulatedObservationSimulationSettings<> >( position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate

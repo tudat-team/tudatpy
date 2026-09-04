@@ -267,15 +267,17 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             getObservationSimulationSettings< TimeType >( linkEndsPerObservable, baseTimeList, receiver );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-    weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( angular_position ), 1.0 / ( 1.0E-5 * 1.0E-5 ) );
+    simulatedObservations->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_doppler ),
+            1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT ) );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =

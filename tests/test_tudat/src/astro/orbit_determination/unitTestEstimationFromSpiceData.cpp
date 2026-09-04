@@ -288,15 +288,13 @@ void runEstimation( std::string saveDirectory,
     writeDataMapToTextFile( propagatedStateHistory, "stateHistoryPropagatedPreFit_" + fileTag + ".txt", saveDirectory, "", 18, 18 );
     writeDataMapToTextFile( spiceStateHistory, "stateHistorySpice_" + fileTag + ".txt", saveDirectory, "", 18, 18 );
 
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > observationSetList;
-    observationSetList.push_back( std::make_shared< SingleObservationSet< long double, Time > >(
-            position_observable, linkEnds, observations, observationTimes, observed_body ) );
-    std::shared_ptr< ObservationCollection< long double, Time > > observedObservationCollection =
-            std::make_shared< ObservationCollection< long double, Time > >( observationSetList );
+    std::shared_ptr< ObservationDataset< long double, Time > > observedObservationDataset =
+            std::make_shared< ObservationDataset< long double, Time > >( );
+    observedObservationDataset->addObservationSet( position_observable, linkEnds, observations, observationTimes, observed_body );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< long double, Time > > estimationInput = std::make_shared< EstimationInput< long double, Time > >(
-            observedObservationCollection,
+            observedObservationDataset,
             Eigen::MatrixXd::Zero( 0, 0 ),
             std::make_shared< EstimationConvergenceChecker >( estimationMaxIterations ) );
     estimationInput->saveStateHistoryForEachIteration_ = true;
@@ -339,10 +337,11 @@ void runEstimation( std::string saveDirectory,
     residualsWithTime.resize( residualHistory.rows( ), residualHistory.cols( ) + 1 );
     residualsWithTime.rightCols( residualHistory.cols( ) ) = residualHistory;
 
-    for( unsigned int i = 0; i < observedObservationCollection->getObservationVector( ).size( ); ++i )
+    const FlattenedObservationData< long double, Time > flattenedObservationData =
+            observedObservationDataset->createEstimationFlattenedObservationData( );
+    for( unsigned int i = 0; i < flattenedObservationData.getObservationVector( ).size( ); ++i )
     {
-        residualsWithTime( i, 0 ) =
-                static_cast< Time >( observedObservationCollection->getConcatenatedTimeVector( ).at( i ) ).getSeconds< long double >( );
+        residualsWithTime( i, 0 ) = static_cast< Time >( flattenedObservationData.getTimes( ).at( i ) ).getSeconds< long double >( );
     }
 
     std::ofstream file( saveDirectory + "residuals_" + fileTag + ".txt" );
@@ -363,20 +362,14 @@ void runEstimation( std::string saveDirectory,
     file4.close( );
 
     std::ofstream file2( saveDirectory + "observationsStartAndSize_" + fileTag + ".txt" );
-    std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
-            observedObservationCollection->getObservationSetStartAndSizePerLinkEndIndex( );
-    for( auto it = observationSetStartAndSize.begin( ); it != observationSetStartAndSize.end( ); ++it )
+    unsigned int observationSetStartIndex = 0;
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        ObservableType observable = it->first;
-        for( auto it2 = it->second.begin( ); it2 != it->second.end( ); ++it2 )
-        {
-            int linkEnd = it2->first;
-            for( unsigned int i = 0; i < it2->second.size( ); ++i )
-            {
-                file2 << std::setprecision( 15 ) << observable << " " << linkEnd << " " << it2->second.at( i ).first << " "
-                      << it2->second.at( i ).second << std::endl;
-            }
-        }
+        const ObservationSetMetadata< long double, Time >& metadata = observedObservationDataset->getObservationSetMetadata( setId );
+        const unsigned int setSize = observedObservationDataset->getObservationsForSet( setId ).size( ) * metadata.observableSize_;
+        file2 << std::setprecision( 15 ) << metadata.observableType_ << " " << metadata.linkDefinitionId_ << " " << observationSetStartIndex
+              << " " << setSize << std::endl;
+        observationSetStartIndex += setSize;
     }
     file2.close( );
 }

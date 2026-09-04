@@ -24,6 +24,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
+#include "tudat/simulation/estimation_setup/flattenedObservationData.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 
 namespace tudat
@@ -266,12 +267,14 @@ protected:
             const bool propagateOnCreation = true );
 
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-    performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-                               const ParameterVectorType& newParameterEstimate,
-                               const bool calculateResiduals,
-                               const int numberOfIterations,
-                               bool& exceptionDuringPropagation,
-                               std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
+    performPreEstimationSteps(
+            std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+            const ParameterVectorType& newParameterEstimate,
+            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+            const bool calculateResiduals,
+            const int numberOfIterations,
+            bool& exceptionDuringPropagation,
+            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults );
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
                                                                                               const int numberObservations );

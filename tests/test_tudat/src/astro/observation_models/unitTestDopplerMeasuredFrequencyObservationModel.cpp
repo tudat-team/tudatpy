@@ -19,11 +19,12 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/preProcessFdetsFile.h"
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
-#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -132,25 +133,27 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         LinkEndType referenceLinkEnd = receiver;
 
         // Ancillary Settings
-        std::shared_ptr< observation_models::ObservationCollection< double, Time > > observationCollection;
         std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
+        std::pair< std::vector< std::shared_ptr< data::TrackingData< double, Time > > >,
+                   std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+                trackingDataAndSupplementaryData;
         if( testType == 0 )
         {
             std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( juiceDataFile, FdetDateFormat::datetime_string );
-            fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
-            fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
-            fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6 );
-
-            observationCollection = createTrackingTxtFileObservationCollection< double, Time >( fdetsFileContents, "JUICE" );
+            trackingDataAndSupplementaryData =
+                    convertRawFdetsFiles< double, Time >( { fdetsFileContents }, { 8422.49E6 }, "JUICE", { "NWNORCIA" }, { "YARRAGAD" } );
         }
         else
         {
-            observationCollection = createFdetsObservedObservationCollectionFromFile(
-                    juiceDataFile, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD", x_band, x_band );
+            trackingDataAndSupplementaryData = readFdetsFiles< double, Time >(
+                    { juiceDataFile }, 8422.49E6, FdetDateFormat::datetime_string, "JUICE", "NWNORCIA", "YARRAGAD" );
         }
+        std::shared_ptr< observation_models::ObservationDataset< double, Time > > observationDataset =
+                createObservationDatasetFromTrackingData< double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        auto observationTimes = observationCollection->getConcatenatedObservationTimes( );
-        auto observations = observationCollection->getConcatenatedObservations( );
+        auto flattenedData = observationDataset->createEstimationFlattenedObservationData( );
+        auto observationTimes = flattenedData.getTimes( );
+        auto observations = flattenedData.getObservationVector( );
 
         // Compute observables
         std::vector< double > linkEndTimes;

@@ -38,7 +38,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
-#include "tudat/simulation/estimation_setup/simulateObservations.h"
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 
@@ -971,7 +971,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
                 one_way_range, linkEndsGanymede, observationTimesGanymede, receiver ) );
 
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         //        std::vector< double > timeVector = observationsAndTimes->getSingleLinkTimes( one_way_range, linkEndsGanymede );

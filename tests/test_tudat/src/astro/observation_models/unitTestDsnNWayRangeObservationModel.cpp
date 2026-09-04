@@ -38,17 +38,17 @@ BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayRangeModel )
 
     // The MRO DSN range fixture is generated from mromagr2012_076_0840xmmmv1.tnf over the same
     // one-hour interval as the Doppler fixture, at the Tudat trk234 converter boundary. The CSV
-    // stores the exact values that are otherwise passed directly to SingleObservationSet creation.
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "range_single_observation_set_inputs.csv",
-                                                      observation_models::dsn_n_way_range );
+    // stores the exact values that are otherwise passed directly to dataset creation.
+    std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+            createObservationDatasetFromTrk234Csv( trk234InputsDirectory + "range_single_observation_set_inputs.csv",
+                                                   observation_models::dsn_n_way_range );
 
-    std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
+    std::pair< Time, Time > timeBounds = observedObservationDataset->getTimeBounds( );
     SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
     setRampFrequencyInterpolatorsInBodies( bodies );
-    applyMroNotebookObservationCollectionPostProcessing( observedObservationCollection, bodies );
+    observedObservationDataset = applyMroNotebookObservationDatasetPostProcessing( observedObservationDataset, bodies );
 
-    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationCollection, bodies, true );
+    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationDataset, bodies, true );
     BOOST_CHECK_EQUAL( residuals.rows( ), 18 );
     BOOST_TEST_MESSAGE( "MRO DSN range residuals: " << residuals.transpose( ) );
 

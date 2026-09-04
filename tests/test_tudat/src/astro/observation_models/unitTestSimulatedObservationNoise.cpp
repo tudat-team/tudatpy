@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     // Simulate noise-free observations
-    std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
-            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< ObservationDataset<> > idealObservationsAndTimes =
+            simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > observationDifference;
     std::map< ObservableType, std::map< LinkEnds, double > > meanObservationDifference;
@@ -202,8 +202,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         // Simulate noisy observables
         addNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, noiseFunction );
-        std::shared_ptr< ObservationCollection<> > constantNoiseObservationsAndTimes =
-                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationDataset<> > constantNoiseObservationsAndTimes =
+                simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
         for( auto observableIterator : linkEndsPerObservable )
@@ -215,9 +215,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 LinkEnds currentLinkEnds = linkEndsList.at( k );
 
                 // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
-                Eigen::VectorXd dataDifference =
-                        constantNoiseObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
-                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
+                Eigen::VectorXd dataDifference = constantNoiseObservationsAndTimes->getSingleLinkObservations(
+                                                         currentObservable, LinkDefinition( currentLinkEnds ) ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, LinkDefinition( currentLinkEnds ) );
 
                 meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
                 standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
@@ -263,8 +263,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         }
 
         // Simulate noisy observables
-        std::shared_ptr< ObservationCollection<> > noisyPerObservableObservationsAndTimes =
-                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationDataset<> > noisyPerObservableObservationsAndTimes =
+                simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
         for( auto observableIterator : linkEndsPerObservable )
@@ -276,9 +276,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 LinkEnds currentLinkEnds = linkEndsList.at( k );
 
                 // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
-                Eigen::VectorXd dataDifference =
-                        noisyPerObservableObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
-                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
+                Eigen::VectorXd dataDifference = noisyPerObservableObservationsAndTimes->getSingleLinkObservations(
+                                                         currentObservable, LinkDefinition( currentLinkEnds ) ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, LinkDefinition( currentLinkEnds ) );
 
                 meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
                 standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
@@ -347,8 +347,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         }
 
         // Simulate noisy observables
-        std::shared_ptr< ObservationCollection<> > noisyPerObservableAndLinkEndsObservationsAndTimes =
-                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationDataset<> > noisyPerObservableAndLinkEndsObservationsAndTimes =
+                simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
         for( auto observableIterator : linkEndsPerObservable )
@@ -360,9 +360,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 LinkEnds currentLinkEnds = linkEndsList.at( k );
 
                 // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
-                Eigen::VectorXd dataDifference =
-                        noisyPerObservableAndLinkEndsObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
-                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
+                Eigen::VectorXd dataDifference = noisyPerObservableAndLinkEndsObservationsAndTimes->getSingleLinkObservations(
+                                                         currentObservable, LinkDefinition( currentLinkEnds ) ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, LinkDefinition( currentLinkEnds ) );
                 meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
                 standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
                         computeStandardDeviationOfVectorComponents( dataDifference );

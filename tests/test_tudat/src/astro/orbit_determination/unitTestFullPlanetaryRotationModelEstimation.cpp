@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
 
         // Simulate observations
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Define perturbation of parameter estimate

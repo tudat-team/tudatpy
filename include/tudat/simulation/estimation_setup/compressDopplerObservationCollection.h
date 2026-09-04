@@ -9,22 +9,25 @@
  *
  */
 
+#ifndef TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H
+#define TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H
+
 #include <memory>
 
-#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
-#include "tudat/simulation/estimation_setup/singleObservationSet.h"
-#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 namespace tudat
 {
 namespace observation_models
 {
+
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
-        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressDopplerData(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
+        const unsigned int setId,
         const unsigned int compressionRatio,
-        std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
                 simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
     if( compressionRatio == 0 )
@@ -36,31 +39,33 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     ObservationScalarType floatingCompressionRatio =
             mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
 
-    double currentCompressionTime = originalDopplerData->getAncillarySettings( )->getAncillaryDoubleData(
+    const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
+            originalDopplerData->getObservationSetMetadata( setId );
+    const observation_models::LinkDefinition& linkDefinition = originalDopplerData->getLinkDefinition( metadata.linkDefinitionId_ );
+    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >& originalAncillarySettings =
+            originalDopplerData->getAncillarySettings( metadata.ancillarySettingsId_ );
+
+    double currentCompressionTime = originalAncillarySettings->getAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations =
-            originalDopplerData->getObservationsReference( );
-    std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesReference( );
+            originalDopplerData->getObservationsForSet( setId );
+    std::vector< TimeType > originalObservationTimesTdb = originalDopplerData->getObservationTimesForSet( setId );
 
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
-            earth_orientation::createDefaultTimeConverter( );
-    std::string stationName = originalDopplerData->getLinkEnds( ).at( observation_models::LinkEndType::receiver ).getReferencePointName( );
+    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
+    std::string stationName = linkDefinition.linkEnds_.at( observation_models::LinkEndType::receiver ).getReferencePointName( );
     auto stationPositionIterator = approximateGroundStationPositions.find( stationName );
     if( stationPositionIterator == approximateGroundStationPositions.end( ) )
     {
-        throw std::runtime_error(
-                "Error in Doppler data compression, could not retrieve approximate station "
-                "position for " +
-                stationName );
+        throw std::runtime_error( "Error in Doppler data compression, could not retrieve approximate station position for " + stationName );
     }
     Eigen::Vector3d stationPosition = stationPositionIterator->second;
 
     std::vector< TimeType > originalObservationTimesUtc =
-            timeScaleConverter->getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
-                                                                               basic_astrodynamics::TimeScales::utc_scale,
-                                                                               originalObservationTimesTdb,
-                                                                               stationPosition );
+            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
+                                                                              basic_astrodynamics::TimeScales::utc_scale,
+                                                                              originalObservationTimesTdb,
+                                                                              stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
@@ -109,27 +114,120 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         compressedEarthFixedPositions.push_back( stationPosition );
     }
     std::vector< TimeType > compressedObservationTimesTdb =
-            timeScaleConverter->getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
-                                                             basic_astrodynamics::TimeScales::tdb_scale,
-                                                             compressedObservationTimesUtc,
-                                                             compressedEarthFixedPositions );
+            timeScaleConverter.getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
+                                                            basic_astrodynamics::TimeScales::tdb_scale,
+                                                            compressedObservationTimesUtc,
+                                                            compressedEarthFixedPositions );
 
-    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySimulationSettings =
-            std::make_shared< ObservationAncillarySimulationSettings >( *( originalDopplerData->getAncillarySettings( ) ) );
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings =
+            std::make_shared< observation_models::ObservationAncillarySimulationSettings >( *originalAncillarySettings );
     double originalIntegrationTime = ancillarySimulationSettings->getAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::doppler_integration_time );
     ancillarySimulationSettings->setAncillaryDoubleData(
             observation_models::ObservationAncillarySimulationVariable::doppler_integration_time,
             originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
-    return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-            originalDopplerData->getObservableType( ),
-            originalDopplerData->getLinkEnds( ),
-            compressedObservations,
-            compressedObservationTimesTdb,
-            originalDopplerData->getReferenceLinkEnd( ),
-            std::vector< Eigen::VectorXd >( ),
-            originalDopplerData->getDependentVariableBookkeeping( ),
-            ancillarySimulationSettings );
+
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedDataset =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+    compressedDataset->addObservationSet( metadata.observableType_,
+                                          linkDefinition,
+                                          compressedObservations,
+                                          compressedObservationTimesTdb,
+                                          metadata.referenceLinkEnd_,
+                                          std::vector< Eigen::VectorXd >( ),
+                                          originalDopplerData->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ ),
+                                          ancillarySimulationSettings,
+                                          std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                          std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                          true );
+    return compressedDataset;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCompressedDopplerDataset(
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
+        const unsigned int compressionRatio,
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0,
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedData =
+            std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+
+    for( unsigned int setId = 0; setId < originalDopplerData->getNumberOfObservationSets( ); ++setId )
+    {
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
+                originalDopplerData->getObservationSetMetadata( setId );
+        if( metadata.observableType_ != observation_models::ObservableType::dsn_n_way_averaged_doppler )
+        {
+            compressedData->addObservationSetFromDataset( *originalDopplerData, setId );
+            continue;
+        }
+
+        const observation_models::LinkDefinition& linkDefinition = originalDopplerData->getLinkDefinition( metadata.linkDefinitionId_ );
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations =
+                originalDopplerData->getObservationsForSet( setId );
+        const std::vector< TimeType > observationTimes = originalDopplerData->getObservationTimesForSet( setId );
+
+        for( unsigned int arcStart = 0; arcStart < observationTimes.size( ); )
+        {
+            unsigned int arcEnd = arcStart + 1;
+            while( arcEnd < observationTimes.size( ) &&
+                   static_cast< double >( observationTimes.at( arcEnd ) - observationTimes.at( arcEnd - 1 ) ) <= maxArcGap )
+            {
+                ++arcEnd;
+            }
+
+            if( arcEnd - arcStart >= minNumberObservations )
+            {
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > arcObservations( observations.begin( ) + arcStart,
+                                                                                                          observations.begin( ) + arcEnd );
+                std::vector< TimeType > arcObservationTimes( observationTimes.begin( ) + arcStart, observationTimes.begin( ) + arcEnd );
+
+                std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > arcDataset =
+                        std::make_shared< observation_models::ObservationDataset< ObservationScalarType, TimeType > >( );
+                arcDataset->addObservationSet( metadata.observableType_,
+                                               linkDefinition,
+                                               arcObservations,
+                                               arcObservationTimes,
+                                               metadata.referenceLinkEnd_,
+                                               std::vector< Eigen::VectorXd >( ),
+                                               originalDopplerData->getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ ),
+                                               originalDopplerData->getAncillarySettings( metadata.ancillarySettingsId_ ),
+                                               std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
+                                               std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                               true );
+
+                std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressedArcDataset =
+                        compressDopplerData< ObservationScalarType, TimeType >(
+                                arcDataset, 0, compressionRatio, approximateGroundStationPositions );
+                if( compressedArcDataset->getNumberOfObservationSets( ) > 0 &&
+                    compressedArcDataset->getNumberOfObservationsForSet( 0 ) > 0 )
+                {
+                    compressedData->addObservationSetFromDataset( *compressedArcDataset, 0 );
+                }
+            }
+
+            arcStart = arcEnd;
+        }
+    }
+
+    return compressedData;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
+        const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
+        const unsigned int compressionRatio,
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
+                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return observation_models::createSingleObservationSet< ObservationScalarType, TimeType >(
+            compressDopplerData< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
+                                                                    originalDopplerData->getObservationSetId( ),
+                                                                    compressionRatio,
+                                                                    approximateGroundStationPositions ) );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -138,44 +236,18 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const unsigned int compressionRatio,
         const unsigned int minNumberObservations = 10,
         const double maxArcGap = 300.0,
-        std::map< std::string, Eigen::Vector3d > approximateGroundStationPositions =
+        const std::map< std::string, Eigen::Vector3d >& approximateGroundStationPositions =
                 simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
-    // Split Doppler observation sets into arcs
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
-            splitObservationSets( originalDopplerData,
-                                  observationSetSplitter( time_interval_splitter, maxArcGap, minNumberObservations ),
-                                  observationParser( observation_models::ObservableType::dsn_n_way_averaged_doppler ) );
-
-    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > >
-            uncompressedObservationSets =
-                    compressedData->getObservationsSets( ).at( observation_models::ObservableType::dsn_n_way_averaged_doppler );
-
-    std::map< LinkEnds, std::vector< unsigned int > > indicesSetsToRemove;
-    for( auto const& [ linkEnds, observationSets ] : uncompressedObservationSets )
-    {
-        for( unsigned int index = 0; index < observationSets.size( ); index++ )
-        {
-            std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
-                    compressDopplerData< ObservationScalarType, TimeType >(
-                            observationSets.at( index ), compressionRatio, approximateGroundStationPositions );
-
-            if( compressedDataSet->getObservationTimes( ).size( ) )
-            {
-                compressedData->replaceSingleObservationSet( compressedDataSet, index );
-            }
-            else
-            {
-                indicesSetsToRemove[ linkEnds ].push_back( index );
-            }
-        }
-    }
-
-    // Remove empty compressed sets if any
-    compressedData->removeSingleObservationSets(
-            { { observation_models::ObservableType::dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
-
-    return compressedData;
+    return observation_models::createObservationCollection< ObservationScalarType, TimeType >(
+            createCompressedDopplerDataset< ObservationScalarType, TimeType >( originalDopplerData->getObservationDataset( ),
+                                                                               compressionRatio,
+                                                                               minNumberObservations,
+                                                                               maxArcGap,
+                                                                               approximateGroundStationPositions ) );
 }
+
 }  // namespace observation_models
 }  // namespace tudat
+
+#endif  // TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H

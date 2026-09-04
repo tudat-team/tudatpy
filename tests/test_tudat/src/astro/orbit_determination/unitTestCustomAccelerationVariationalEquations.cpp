@@ -601,8 +601,8 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
             position_observable, linkDefinition, observationTimes, observed_body ) );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes =
-            simulateObservations< double, double >( measurementSimulationInput, estimator.getObservationSimulators( ), bodies );
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes =
+            simulateObservationDataset< double, double >( measurementSimulationInput, estimator.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

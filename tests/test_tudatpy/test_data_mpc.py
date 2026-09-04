@@ -5,7 +5,7 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
     filter_augmented_optical_table,
 )
 from tudatpy.data_input.environment_data.horizons import HorizonsQuery
-from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.estimation.observations import create_observation_dataset_from_tracking_data
 from tudatpy.astro import time_representation
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
@@ -105,12 +105,12 @@ def _create_earth_bodies():
     return environment_setup.create_system_of_bodies(body_settings)
 
 
-def _create_observation_collection_from_batch(batch: BatchMPC, bodies):
+def _create_observation_dataset_from_batch(batch: BatchMPC, bodies):
     tracking_data, supplementary_data = batch.to_tracking_dataset(
         add_star_catalog_corrections=False
     )
     assert supplementary_data == []
-    return create_observation_collection_from_tracking_data(tracking_data, bodies)
+    return create_observation_dataset_from_tracking_data(tracking_data, bodies)
 
 
 def _assert_tracking_dataset_matches_batch(batch: BatchMPC) -> None:
@@ -207,8 +207,8 @@ def test_to_tracking_dataset_handles_alphanumeric_observatory_codes(mpc_code):
     _assert_tracking_dataset_matches_batch(query)
 
 
-def test_tracking_dataset_can_create_observation_collection_from_tracking_data():
-    """Check the integration boundary from UTC TrackingData to ObservationCollection."""
+def test_tracking_data_can_create_observation_dataset():
+    """Check the integration boundary from UTC tracking data to a dataset."""
     query = BatchMPC()
     query.get_observations([222])
     query = _batch_from_augmented_table(
@@ -216,9 +216,8 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
     )
     query._table = _sorted_table(query)
 
-    observation_collection = _create_observation_collection_from_batch(
-        query, _create_earth_bodies()
-    )
+    observation_dataset = _create_observation_dataset_from_batch(query, _create_earth_bodies())
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
 
     expected_observations = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
     expected_times = np.array(
@@ -227,16 +226,14 @@ def test_tracking_dataset_can_create_observation_collection_from_tracking_data()
             _utc_seconds_to_tdb(query.table["epoch_seconds_UTC"]),
         ]
     )
-    actual_observations = np.array(observation_collection.concatenated_observations).reshape(
-        2, -1, order="F"
-    )
-    actual_times = np.array(observation_collection.concatenated_times).reshape(2, -1, order="F")
+    actual_observations = np.array(flattened_data.observation_vector).reshape(2, -1, order="F")
+    actual_times = np.array(flattened_data.times).reshape(2, -1, order="F")
 
     assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
     assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
 
 
-def test_tracking_data_observation_corrections_are_optional_during_collection_creation():
+def test_tracking_data_observation_corrections_are_optional_during_dataset_creation():
     """Check that stored TrackingData corrections are ignored by default and applied on request."""
     observations = [np.array([1.0, 2.0]), np.array([3.0, 4.0])]
     corrections = [np.array([0.1, -0.2]), np.array([-0.3, 0.4])]
@@ -251,20 +248,22 @@ def test_tracking_data_observation_corrections_are_optional_during_collection_cr
     tracking_data.set_observation_corrections(corrections)
     bodies = _create_earth_bodies()
 
-    uncorrected_collection = create_observation_collection_from_tracking_data(
+    uncorrected_dataset = create_observation_dataset_from_tracking_data(
         [tracking_data],
         bodies,
     )
-    corrected_collection = create_observation_collection_from_tracking_data(
+    corrected_dataset = create_observation_dataset_from_tracking_data(
         [tracking_data],
         bodies,
         apply_corrections=True,
     )
 
-    uncorrected = np.array(uncorrected_collection.concatenated_observations).reshape(
-        2, -1, order="F"
-    )
-    corrected = np.array(corrected_collection.concatenated_observations).reshape(2, -1, order="F")
+    uncorrected = np.array(
+        uncorrected_dataset.ordered_flattened_observation_data().observation_vector
+    ).reshape(2, -1, order="F")
+    corrected = np.array(
+        corrected_dataset.ordered_flattened_observation_data().observation_vector
+    ).reshape(2, -1, order="F")
     expected_uncorrected = np.column_stack(observations)
     expected_corrected = np.column_stack(
         [observation + correction for observation, correction in zip(observations, corrections)]

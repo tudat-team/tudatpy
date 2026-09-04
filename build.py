@@ -857,9 +857,49 @@ class StubGenerator:
 
                 # External import statement
                 stub_body.append(statement)
+                continue
 
             # Assign statements
             if isinstance(statement, ast.Assign) or isinstance(statement, ast.AnnAssign):
+
+                # Dynamic submodule imports
+                # e.g. "observations = import_module(__name__ + '.observations')"
+                # These are used when a kernel star import already creates an
+                # attribute with the submodule name, making a regular Python
+                # import bind the wrong module at runtime. In the stub, this is
+                # represented as the equivalent static relative import.
+                if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+                    target = statement.targets[0]
+                    value = statement.value
+                    is_import_module_call = isinstance(value, ast.Call) and (
+                        (isinstance(value.func, ast.Name) and value.func.id == "import_module")
+                        or (
+                            isinstance(value.func, ast.Attribute)
+                            and value.func.attr == "import_module"
+                        )
+                    )
+                    if (
+                        isinstance(target, ast.Name)
+                        and is_import_module_call
+                        and len(value.args) == 1
+                        and isinstance(value.args[0], ast.BinOp)
+                        and isinstance(value.args[0].left, ast.Name)
+                        and value.args[0].left.id == "__name__"
+                        and isinstance(value.args[0].op, ast.Add)
+                        and isinstance(value.args[0].right, ast.Constant)
+                        and isinstance(value.args[0].right.value, str)
+                        and value.args[0].right.value.startswith(".")
+                    ):
+                        submodule_name = value.args[0].right.value[1:]
+                        if target.id == submodule_name and (module_path / submodule_name).is_dir():
+                            import_statement = ast.ImportFrom(
+                                module="",
+                                names=[ast.alias(submodule_name)],
+                                level=1,
+                            )
+                            stub_body.append(import_statement)
+                            stub_all.append(submodule_name)
+                            continue
 
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
@@ -904,6 +944,7 @@ class StubGenerator:
 
         # Add __all__ to the stub
         if len(stub_all) > 0:
+            stub_all = list(dict.fromkeys(stub_all))
             all_stmt = ast.parse(
                 "__all__ = [" + ", ".join([f"'{_name}'" for _name in stub_all]) + "]"
             ).body[0]

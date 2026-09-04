@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate
@@ -337,21 +337,6 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     //    input_output::writeMatrixToFile( estimationOutput->getParameterHistoryMatrix( ),
     //                                     "rotationTestParameterHistory.dat", 16,
     //                                     input_output::getTudatRootPath( ) );
-    //    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( estimationInput->getObservationsAndTimes( ) ),
-    //                                     "rotationTestObservationMeasurements.dat", 16,
-    //                                     input_output::getTudatRootPath( ) );
-    //    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-    //                                         getConcatenatedTimeVector( estimationInput->getObservationsAndTimes( ) ) ),
-    //                                     "rotationTestObservationTimes.dat", 16,
-    //                                     input_output::getTudatRootPath( ) );
-    //    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-    //                                         getConcatenatedGroundStationIndex( estimationInput->getObservationsAndTimes( ) ).first ),
-    //                                     "rotationTestObservationLinkEnds.dat", 16,
-    //                                     input_output::getTudatRootPath( ) );
-    //    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( estimationInput->getObservationsAndTimes( ) ),
-    //                                     "rotationTestObservationMeasurements.dat", 16,
-    //                                     input_output::getTudatRootPath( ) );
-
     //    input_output::writeMatrixToFile( estimationOutput->getFormalErrorVector( ),
     //                                     "rotationTestObservationFormalEstimationError.dat", 16,
     //                                     input_output::getTudatRootPath( ) );
@@ -508,7 +493,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb parameter estimate

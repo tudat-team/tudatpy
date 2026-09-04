@@ -443,7 +443,7 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
                 position_observable, linkEnds, baseTimeList, observed_body ) );
 
         // Simulate observations.
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -479,7 +479,8 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         // Perform estimation
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->getConcatenatedResiduals( ) );
+        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare(
+                observationsAndTimes->createEstimationFlattenedObservationData( ).getResidualVector( ) );
         BOOST_CHECK_SMALL( rmsResidual, 1.0E-3 );
         Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
         std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;

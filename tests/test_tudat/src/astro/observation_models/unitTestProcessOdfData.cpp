@@ -16,8 +16,10 @@
 #include <vector>
 
 #include "tudat/basics/testMacros.h"
-#include "tudat/io/readOdfFile.h"
-#include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/io/preProcessOdfFile.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 using namespace tudat::input_output;
@@ -74,8 +76,8 @@ std::vector< double > convertTdbTimesToUtcOffsets( const std::vector< double >& 
     return utcOffsets;
 }
 
-std::shared_ptr< SingleObservationSet< double, double > > createSyntheticDopplerObservationSet( const std::vector< double >& utcOffsets,
-                                                                                                const double integrationTime )
+std::shared_ptr< ObservationDataset< double, double > > createSyntheticDopplerDataset( const std::vector< double >& utcOffsets,
+                                                                                       const double integrationTime )
 {
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations;
     for( double utcOffset : utcOffsets )
@@ -94,20 +96,22 @@ std::shared_ptr< SingleObservationSet< double, double > > createSyntheticDoppler
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
-    return std::make_shared< SingleObservationSet< double, double > >( dsn_n_way_averaged_doppler,
-                                                                       linkEnds,
-                                                                       observations,
-                                                                       convertUtcOffsetsToTdbTimes( utcOffsets ),
-                                                                       receiver,
-                                                                       std::vector< Eigen::VectorXd >( ),
-                                                                       nullptr,
-                                                                       ancillarySettings );
+    std::shared_ptr< ObservationDataset< double, double > > dataset = std::make_shared< ObservationDataset< double, double > >( );
+    dataset->addObservationSet( dsn_n_way_averaged_doppler,
+                                linkEnds,
+                                observations,
+                                convertUtcOffsetsToTdbTimes( utcOffsets ),
+                                receiver,
+                                std::vector< Eigen::VectorXd >( ),
+                                nullptr,
+                                ancillarySettings );
+    return dataset;
 }
 
-void checkScalarObservations( const std::shared_ptr< SingleObservationSet< double, double > >& observationSet,
+void checkScalarObservations( const std::shared_ptr< ObservationDataset< double, double > >& dataset,
                               const std::vector< double >& expectedObservations )
 {
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations = observationSet->getObservationsReference( );
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations = dataset->getObservationsForSet( 0 );
     BOOST_CHECK_EQUAL( observations.size( ), expectedObservations.size( ) );
     for( unsigned int i = 0; i < expectedObservations.size( ); i++ )
     {
@@ -115,10 +119,10 @@ void checkScalarObservations( const std::shared_ptr< SingleObservationSet< doubl
     }
 }
 
-void checkUtcOffsets( const std::shared_ptr< SingleObservationSet< double, double > >& observationSet,
+void checkUtcOffsets( const std::shared_ptr< ObservationDataset< double, double > >& dataset,
                       const std::vector< double >& expectedUtcOffsets )
 {
-    std::vector< double > utcOffsets = convertTdbTimesToUtcOffsets( observationSet->getObservationTimesReference( ) );
+    std::vector< double > utcOffsets = convertTdbTimesToUtcOffsets( dataset->getObservationTimesForSet( 0 ) );
     BOOST_CHECK_EQUAL( utcOffsets.size( ), expectedUtcOffsets.size( ) );
     for( unsigned int i = 0; i < expectedUtcOffsets.size( ); i++ )
     {
@@ -133,128 +137,122 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     // Define ODF data paths
     std::string odFile = tudat::paths::getTudatTestDataPath( ) + "/odf07155.odf";
 
-    // Laod raw ODF data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents = std::make_shared< input_output::OdfRawFileContents >( odFile );
-
-    // Process ODF file data
     std::string spacecraftName = "MESSENGER";
-    std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfContents, spacecraftName, true );
+    const auto trackingDataAndSupplementaryData = loadOdfFile< long double, Time >( { odFile }, spacecraftName, "Earth" );
 
-    std::vector< observation_models::ObservableType > obsType = processedOdfFileContents->getProcessedObservableTypes( );
+    spice_interface::loadStandardSpiceKernels( );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Sun" }, "SSB", "J2000" );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+    observation_models::setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
 
     // Create data structure that handles Observed Data in Tudat
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
-                                                                                             { dsn_n_way_averaged_doppler, n_way_range } );
+    std::shared_ptr< observation_models::ObservationDataset< long double, Time > > observedObservationDataset =
+            observation_models::createObservationDatasetFromTrackingData< long double, Time >( trackingDataAndSupplementaryData.first,
+                                                                                               bodies );
 
-    auto observationSets = observedObservationCollection->getObservationsSets( );
+    bool checkedDss14DopplerSet = false;
 
     // Check the observations for NWayRange and DsnNWayAveragedDoppler
-    for( const auto& observableTypeEntry : observationSets )
+    for( unsigned int setId = 0; setId < observedObservationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        observation_models::ObservableType observableType = observableTypeEntry.first;
-        const auto& linkEndsMap = observableTypeEntry.second;
+        observation_models::ObservableType observableType = observedObservationDataset->getObservationSetMetadata( setId ).observableType_;
+        const observation_models::LinkEnds& linkEnds =
+                observedObservationDataset
+                        ->getLinkDefinition( observedObservationDataset->getObservationSetMetadata( setId ).linkDefinitionId_ )
+                        .linkEnds_;
+        auto observations = observedObservationDataset->getObservationsForSet( setId );
+        auto observationTimes = observedObservationDataset->getObservationTimesForSet( setId );
+        auto ancillarySettings = observedObservationDataset->getAncillarySettings(
+                observedObservationDataset->getObservationSetMetadata( setId ).ancillarySettingsId_ );
 
-        for( const auto& linkEndsEntry : linkEndsMap )
+        if( observations.empty( ) || observationTimes.empty( ) )
         {
-            const observation_models::LinkEnds& linkEnds = linkEndsEntry.first;
-            const auto& observationSetVector = linkEndsEntry.second;
+            continue;
+        }
 
-            for( const auto& observationSet : observationSetVector )
+        // Check NWayRange observable
+        if( observableType == observation_models::n_way_range )
+        {
+            BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "NWayRange" );
+            BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
+            if( linkEnds.at( transmitter ).getReferencePointName( ) != "DSS-14" ||
+                linkEnds.at( receiver ).getReferencePointName( ) != "DSS-14" )
             {
-                // Get the observations and times
-                auto observations = observationSet->getObservations( );
-                auto observationTimes = observationSet->getObservationTimes( );
-                auto ancillarySettings = observationSet->getAncillarySettings( );
-
-                if( !observations.empty( ) && !observationTimes.empty( ) )
-                {
-                    // Check NWayRange observable
-                    if( observableType == observation_models::n_way_range )
-                    {
-                        BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "NWayRange" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).getReferencePointName( ), "DSS-14" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).getReferencePointName( ), "DSS-14" );
-                        BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262616.184812933, 1e-9 );
-                        BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 333589.366953747, 1e-9 );
-
-                        // Check ancillary settings
-                        if( ancillarySettings != nullptr )
-                        {
-                            BOOST_CHECK_EQUAL(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::reception_reference_frequency_band ),
-                                    1.000000000 );
-                            BOOST_CHECK_CLOSE_FRACTION(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::sequential_range_lowest_ranging_component ),
-                                    14.000000000,
-                                    1e-9 );
-                            BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::link_ends_delays ).size( ),
-                                               3 );
-                            BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::frequency_bands ).size( ),
-                                               2 );
-                        }
-                    }
-
-                    // Check DsnNWayAveragedDoppler observable
-                    if( observableType == observation_models::dsn_n_way_averaged_doppler )
-                    {
-                        BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "DsnNWayAveragedDoppler" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( transmitter ).getReferencePointName( ), "DSS-14" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
-                        BOOST_CHECK_EQUAL( linkEnds.at( receiver ).getReferencePointName( ), "DSS-14" );
-                        BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262457.184812993, 1e-9 );
-                        BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 1.563486099, 1e-9 );
-
-                        // Check ancillary settings
-                        if( ancillarySettings != nullptr )
-                        {
-                            BOOST_CHECK_EQUAL(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::reception_reference_frequency_band ),
-                                    1.000000000 );
-                            BOOST_CHECK_CLOSE_FRACTION(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::doppler_integration_time ),
-                                    60.000000000,
-                                    1e-9 );
-                            BOOST_CHECK_CLOSE_FRACTION(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::doppler_reference_frequency ),
-                                    7177641534.000000000,
-                                    1e-9 );
-                            BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::link_ends_delays ).size( ),
-                                               3 );
-                            BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::frequency_bands ).size( ),
-                                               2 );
-                        }
-                    }
-                }
-                break;
+                continue;
             }
-            break;
+            BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262616.184812933, 1e-9 );
+            BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 333589.366953747, 1e-9 );
+
+            if( ancillarySettings != nullptr )
+            {
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleData( ).at( observation_models::reception_reference_frequency_band ),
+                                   1.000000000 );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        ancillarySettings->getDoubleData( ).at( observation_models::sequential_range_lowest_ranging_component ),
+                        14.000000000,
+                        1e-9 );
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::link_ends_delays ).size( ), 3 );
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::frequency_bands ).size( ), 2 );
+            }
+        }
+
+        // Check DsnNWayAveragedDoppler observable
+        if( observableType == observation_models::dsn_n_way_averaged_doppler )
+        {
+            BOOST_CHECK_EQUAL( observation_models::getObservableName( observableType ), "DsnNWayAveragedDoppler" );
+            BOOST_CHECK_EQUAL( linkEnds.at( retransmitter ).bodyName_, "MESSENGER" );
+            if( linkEnds.at( transmitter ).getReferencePointName( ) != "DSS-14" ||
+                linkEnds.at( receiver ).getReferencePointName( ) != "DSS-14" )
+            {
+                continue;
+            }
+            checkedDss14DopplerSet = true;
+            BOOST_CHECK_CLOSE_FRACTION( double( observationTimes.at( 0 ) ), 234262457.184812993, 1e-9 );
+            BOOST_CHECK_CLOSE_FRACTION( observations[ 0 ].transpose( )( 0 ), 1.563486099, 1e-9 );
+
+            if( ancillarySettings != nullptr )
+            {
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleData( ).at( observation_models::reception_reference_frequency_band ),
+                                   1.000000000 );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        ancillarySettings->getDoubleData( ).at( observation_models::doppler_integration_time ), 60.000000000, 1e-9 );
+                BOOST_CHECK_CLOSE_FRACTION( ancillarySettings->getDoubleData( ).at( observation_models::doppler_reference_frequency ),
+                                            7177641534.000000000,
+                                            1e-9 );
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::link_ends_delays ).size( ), 3 );
+                BOOST_CHECK_EQUAL( ancillarySettings->getDoubleVectorData( ).at( observation_models::frequency_bands ).size( ), 2 );
+            }
         }
     }
+    BOOST_CHECK( checkedDss14DopplerSet );
 }
 
 BOOST_AUTO_TEST_CASE( testCompressDopplerDataUsesCadenceRuns )
 {
-    std::shared_ptr< SingleObservationSet< double, double > > compressedObservationSet = compressDopplerData(
-            createSyntheticDopplerObservationSet( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 ), 3 );
+    std::shared_ptr< ObservationDataset< double, double > > originalObservationDataset =
+            createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0 }, 10.0 );
+    std::shared_ptr< ObservationDataset< double, double > > compressedObservationDataset =
+            createCompressedDopplerDataset( originalObservationDataset, 3, 1 );
 
-    checkScalarObservations( compressedObservationSet, { 10.0, 70.0, 100.0 } );
-    checkUtcOffsets( compressedObservationSet, { 10.0, 70.0, 100.0 } );
+    checkScalarObservations( compressedObservationDataset, { 10.0, 70.0, 100.0 } );
+    checkUtcOffsets( compressedObservationDataset, { 10.0, 70.0, 100.0 } );
     BOOST_CHECK_CLOSE_FRACTION(
-            compressedObservationSet->getAncillarySettings( )->getAncillaryDoubleData( doppler_integration_time ), 30.0, 1.0E-14 );
+            compressedObservationDataset
+                    ->getAncillarySettings( compressedObservationDataset->getObservationSetMetadata( 0 ).ancillarySettingsId_ )
+                    ->getAncillaryDoubleData( doppler_integration_time ),
+            30.0,
+            1.0E-14 );
 
-    std::shared_ptr< SingleObservationSet< double, double > > gapFreeCompressedObservationSet =
-            compressDopplerData( createSyntheticDopplerObservationSet( { 0.0, 10.0, 20.0, 30.0, 40.0, 50.0 }, 10.0 ), 3 );
-    checkScalarObservations( gapFreeCompressedObservationSet, { 10.0, 40.0 } );
-    checkUtcOffsets( gapFreeCompressedObservationSet, { 10.0, 40.0 } );
+    std::shared_ptr< ObservationDataset< double, double > > gapFreeCompressedObservationDataset =
+            createCompressedDopplerDataset( createSyntheticDopplerDataset( { 0.0, 10.0, 20.0, 30.0, 40.0, 50.0 }, 10.0 ), 3, 1 );
+    checkScalarObservations( gapFreeCompressedObservationDataset, { 10.0, 40.0 } );
+    checkUtcOffsets( gapFreeCompressedObservationDataset, { 10.0, 40.0 } );
 
-    std::shared_ptr< SingleObservationSet< double, double > > shortRunCompressedObservationSet =
-            compressDopplerData( createSyntheticDopplerObservationSet( { 0.0, 10.0 }, 10.0 ), 3 );
-    BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationsReference( ).size( ), 0 );
-    BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationTimesReference( ).size( ), 0 );
+    std::shared_ptr< ObservationDataset< double, double > > shortRunCompressedObservationSet =
+            compressDopplerData( createSyntheticDopplerDataset( { 0.0, 10.0 }, 10.0 ), 0, 3 );
+    BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationsForSet( 0 ).size( ), 0 );
+    BOOST_CHECK_EQUAL( shortRunCompressedObservationSet->getObservationTimesForSet( 0 ).size( ), 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

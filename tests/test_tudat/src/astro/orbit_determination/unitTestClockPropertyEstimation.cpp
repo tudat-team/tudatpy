@@ -227,8 +227,8 @@ Eigen::VectorXd executeParameterEstimation( )
 
     singleObservableSimulationInput.clear( );
 
-    std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationsAndTimes =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > observationsAndTimes =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

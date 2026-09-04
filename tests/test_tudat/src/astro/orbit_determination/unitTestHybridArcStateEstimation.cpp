@@ -303,14 +303,14 @@ Eigen::VectorXd executeParameterEstimation(
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< ObservationScalarType, TimeType >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set weights
-    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-    weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0E-4;
-    weightPerObservationParser[ observationParser( angular_position ) ] = 1.0E-20;
-    observationsAndTimes->setConstantWeightPerObservable( weightPerObservationParser );
+    observationsAndTimes->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( one_way_range ), 1.0E-4 );
+    observationsAndTimes->setConstantSingleObservationScalarWeight(
+            ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( angular_position ), 1.0E-20 );
 
     // Perturb parameter vector
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

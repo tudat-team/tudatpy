@@ -1,7 +1,7 @@
 # tests for data weights functionality
 from tudatpy.dynamics import environment_setup
 from tudatpy.dynamics.environment_setup import ground_station
-from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.estimation.observations import create_observation_dataset_from_tracking_data
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.optical_utilities import (
     create_augmented_optical_table,
@@ -52,8 +52,10 @@ def _batch_from_augmented_table(table) -> BatchMPC:
     "observatories_to_filter,use_single_observation", weights_test_combinations
 )
 @pytest.mark.parametrize("use_dummy_weights", [True, False])
-def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_single_observation):
-    """Test if the weights are transfered correctly to observation collection"""
+def test_mpc_weights_to_observation_dataset(
+    observatories_to_filter, use_dummy_weights, use_single_observation
+):
+    """Test if the weights are transferred correctly to an observation dataset."""
     if use_dummy_weights:
         pytest.skip("Custom per-observation MPC weights are not part of the current BatchMPC API.")
 
@@ -96,7 +98,8 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
     )
     assert supplementary_data == []
     assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
-    observation_collection = create_observation_collection_from_tracking_data(tracking_data, bodies)
+    observation_dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+    flattened_data = observation_dataset.ordered_flattened_observation_data()
 
     # tudat's observationcollection sorts by observatory then time
     temp_table = batch._table.sort_values(["observatory", "epoch_seconds_UTC"], ascending=True)
@@ -104,10 +107,10 @@ def test_MPC_weights_to_ObsCol(observatories_to_filter, use_dummy_weights, use_s
     # concatted values go [RA1, DEC1, RA2, DEC2, ...]
     batch_times = np.ravel(2 * [_utc_seconds_to_tdb(temp_table.epoch_seconds_UTC)], "F")
 
-    collection_weights = np.array(observation_collection.concatenated_weights)
-    time_difference = batch_times - np.array(observation_collection.concatenated_times)
+    dataset_weights = np.array(flattened_data.weight_vector)
+    time_difference = batch_times - np.array(flattened_data.times)
 
-    assert len(collection_weights) == 2 * len(temp_table)
-    assert np.all(np.isfinite(collection_weights))
-    assert np.all(collection_weights > 0.0)
+    assert len(dataset_weights) == 2 * len(temp_table)
+    assert np.all(np.isfinite(dataset_weights))
+    assert np.all(dataset_weights > 0.0)
     assert np.max(np.abs(time_difference)) < 1.0e-5

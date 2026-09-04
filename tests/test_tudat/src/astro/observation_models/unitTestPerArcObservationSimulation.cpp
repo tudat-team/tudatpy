@@ -143,13 +143,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             60.0,
             elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ) ) );
 
-    std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
-            simulateObservations< double, double >( idealMeasurementSimulationInput, observationSimulators, bodies );
-    std::vector< double > idealObservationTimes = idealObservationsAndTimes->getConcatenatedTimeVector( );
+    std::shared_ptr< ObservationDataset<> > idealObservationsAndTimes =
+            simulateObservationDataset< double, double >( idealMeasurementSimulationInput, observationSimulators, bodies );
+    std::vector< double > idealObservationTimes = idealObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
     std::vector< std::vector< double > > perArcIdealObservationTimes = splitArcTimes( idealObservationTimes );
     std::vector< double > idealArcLengths = getArcLengths( perArcIdealObservationTimes );
 
-    std::shared_ptr< ObservationCollection<> > caseTwoObservationsAndTimes;
+    std::shared_ptr< ObservationDataset<> > caseTwoObservationsAndTimes;
 
     for( int test = 0; test < 4; test++ )
     {
@@ -192,13 +192,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 TUDAT_NAN,
                 observation_models::unidentified_link_end,
                 additionalViabilitySettingsList ) );
-        std::shared_ptr< ObservationCollection<> > testObservationsAndTimes =
-                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationDataset<> > testObservationsAndTimes =
+                simulateObservationDataset< double, double >( measurementSimulationInput, observationSimulators, bodies );
         if( test == 2 )
         {
             caseTwoObservationsAndTimes = testObservationsAndTimes;
         }
-        std::vector< double > testObservationTimes = testObservationsAndTimes->getConcatenatedTimeVector( );
+        std::vector< double > testObservationTimes = testObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
         std::vector< std::vector< double > > perArcTestObservationTimes = splitArcTimes( testObservationTimes );
         std::vector< double > testArcLengths = getArcLengths( perArcTestObservationTimes );
 
@@ -274,8 +274,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         if( test == 3 )
         {
-            std::vector< double > testObservationTimes = testObservationsAndTimes->getConcatenatedTimeVector( );
-            std::vector< double > referenceObservationTimes = caseTwoObservationsAndTimes->getConcatenatedTimeVector( );
+            std::vector< double > testObservationTimes = testObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
+            std::vector< double > referenceObservationTimes =
+                    caseTwoObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
 
             std::shared_ptr< observation_models::ObservationModel< 1 > > observationModel =
                     std::dynamic_pointer_cast< ObservationSimulator< 1 > >( observationSimulators.at( 0 ) )

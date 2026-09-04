@@ -951,14 +951,14 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
                 one_way_range, linkEndsGanymede, observationTimes, receiver ) );
 
-        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Set observations weights.
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-        weightPerObservationParser[ observationParser( position_observable ) ] = 1.0 / ( 1.0 * 1.0 );
-        weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-        observationsAndTimes->setConstantWeightPerObservable( weightPerObservationParser );
+        for( unsigned int setId = 0; setId < observationsAndTimes->getNumberOfObservationSets( ); ++setId )
+        {
+            observationsAndTimes->setConstantSingleObservationScalarWeightForSet( setId, 1.0 / ( 1.0 * 1.0 ) );
+        }
 
         // Define POD input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =

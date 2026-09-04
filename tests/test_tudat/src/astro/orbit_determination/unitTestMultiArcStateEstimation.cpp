@@ -231,8 +231,8 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
     measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
             one_way_range, linkEnds2[ 0 ], initialObservationTimes, receiver ) );
 
-    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationsAndTimes =
-            simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > observationsAndTimes =
+            simulateObservationDataset< ObservationScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
@@ -509,7 +509,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     }
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset<> > observationsAndTimes = simulateObservationDataset< ObservationScalarType, TimeType >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Perturb initial states

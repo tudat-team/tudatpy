@@ -228,10 +228,10 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
             OrbitDeterminationManager<>( bodies, parameters, observationSettingsList, propagatorSettings );
 
     // Simulate observations
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesAll =
-            simulateObservations<>( measurementInput, orbitDeterminationManagerAll.getObservationSimulators( ), bodies );
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimes =
-            simulateObservations<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesAll =
+            simulateObservationDataset<>( measurementInput, orbitDeterminationManagerAll.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimes =
+            simulateObservationDataset<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Define consider covariance
     int numberOfConsiderParameters = parameters->getConsiderParameters( )->getEstimatedParameterSetSize( );
@@ -578,8 +578,8 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
             OrbitDeterminationManager<>( bodies, parameters, observationSettingsList, propagatorSettings );
 
     // Simulate observations
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimes =
-            simulateObservations<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimes =
+            simulateObservationDataset<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Define consider covariance
     int numberOfConsiderParameters = parameters->getConsiderParameters( )->getEstimatedParameterSetSize( );

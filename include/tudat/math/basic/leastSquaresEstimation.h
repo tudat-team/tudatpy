@@ -18,6 +18,7 @@
 #include <map>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 #include <Eigen/SVD>
 
 namespace tudat
@@ -73,6 +74,21 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
                                                             const Eigen::VectorXd& diagonalOfWeightMatrix );
 
+//! Function to multiply information matrix by a sparse full weights matrix.
+/*!
+ * Function to multiply the design matrix by a full observation weights matrix:
+ * \f$ W H \f$. This overload is used when correlations are present between
+ * scalar observation entries, so the weight matrix cannot be represented by a
+ * diagonal vector.
+ * \param designMatrix Matrix containing partial derivatives of observations
+ * (rows) w.r.t. estimated parameters (columns)
+ * \param weightMatrix Sparse full observation weights matrix. Its row and
+ * column count must equal the number of design-matrix rows.
+ * \return designMatrix premultiplied by weightMatrix
+ */
+Eigen::MatrixXd multiplyDesignMatrixByWeightMatrix( const Eigen::MatrixXd& designMatrix,
+                                                    const Eigen::SparseMatrix< double >& weightMatrix );
+
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
  * Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
@@ -86,6 +102,29 @@ Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixX
 
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
                                                            const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                           const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+                                                           const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+                                                           const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+                                                           const double limitConditionNumberForWarning = 1.0E8 );
+
+//! Function to compute inverse covariance for a sparse full observation weight matrix.
+/*!
+ * Computes \f$ H^T W H + P_0^{-1} \f$, optionally augmented with linear
+ * equality constraints. This overload keeps the off-diagonal observation
+ * weights sparse until multiplication with the dense design matrix.
+ * \param designMatrix Matrix containing partial derivatives of observations
+ * (rows) w.r.t. estimated parameters (columns)
+ * \param weightMatrix Sparse full observation weights matrix
+ * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
+ * \param constraintMultiplier Multiplier for estimated parameter that defines
+ * linear constraints
+ * \param constraintRightHandside Right-hand side of the linear constraints
+ * \param limitConditionNumberForWarning Maximum allowed condition number before
+ * printing a warning
+ * \return Inverse covariance matrix at current iteration
+ */
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
+                                                           const Eigen::SparseMatrix< double >& weightMatrix,
                                                            const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
                                                            const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
                                                            const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
@@ -106,6 +145,24 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
                                                                    const Eigen::MatrixXd& designMatrix,
                                                                    const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const Eigen::MatrixXd& considerDesignMatrix,
+                                                                   const Eigen::MatrixXd& considerCovariance );
+
+//! Function to compute consider-parameter covariance contribution for sparse full weights.
+/*!
+ * Computes the contribution from consider-parameter covariance using the same
+ * full observation weights matrix as the main estimation normal equations.
+ * \param normalisedCovarianceMatrix Normalized covariance matrix of the
+ * estimated parameters
+ * \param designMatrix Design matrix w.r.t. estimated parameters
+ * \param weightMatrix Sparse full observation weights matrix
+ * \param considerDesignMatrix Design matrix w.r.t. consider parameters
+ * \param considerCovariance Covariance matrix of the consider parameters
+ * \return Consider-parameter contribution to the covariance matrix
+ */
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                   const Eigen::MatrixXd& designMatrix,
+                                                                   const Eigen::SparseMatrix< double >& weightMatrix,
                                                                    const Eigen::MatrixXd& considerDesignMatrix,
                                                                    const Eigen::MatrixXd& considerCovariance );
 
@@ -137,6 +194,40 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
 
+//! Function to perform a least-squares iteration using a sparse full observation weight matrix.
+/*!
+ * This overload is equivalent to the diagonal-weight version, but uses
+ * \f$ H^T W H \f$ and \f$ H^T W r \f$ with a sparse full weights matrix. It is
+ * selected by estimation when an ObservationDataset projection contains
+ * off-diagonal weights.
+ * \param designMatrix Matrix containing partial derivatives of observations
+ * (rows) w.r.t. estimated parameters (columns)
+ * \param observationResiduals Difference between measured and simulated
+ * observations
+ * \param weightMatrix Sparse full observation weights matrix
+ * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
+ * \param limitConditionNumberForWarning Maximum allowed condition number before
+ * printing a warning
+ * \param constraintMultiplier Multiplier for estimated parameter that defines
+ * linear constraints
+ * \param constraintRightHandside Right-hand side of the linear constraints
+ * \param designMatrixConsiderParameters Design matrix w.r.t. consider
+ * parameters
+ * \param considerParametersDeviations Deviations of consider parameters from
+ * their nominal values
+ * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
+ */
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const double limitConditionNumberForWarning = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
+
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
  * Function to perform an iteration of least squares estimation from information matrix, weights and residuals, as is
@@ -153,6 +244,23 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const double limitConditionNumberForWarning = 1.0E8 );
+
+//! Function to perform an unconstrained least-squares iteration using sparse full weights.
+/*!
+ * \param designMatrix Matrix containing partial derivatives of observations
+ * (rows) w.r.t. estimated parameters (columns)
+ * \param observationResiduals Difference between measured and simulated
+ * observations
+ * \param weightMatrix Sparse full observation weights matrix
+ * \param limitConditionNumberForWarning Maximum allowed condition number before
+ * printing a warning
+ * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
+ */
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::SparseMatrix< double >& weightMatrix,
         const double limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
