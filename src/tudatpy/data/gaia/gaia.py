@@ -17,7 +17,7 @@ from warnings import warn
 from tudatpy.interface import spice
 import copy
 from pathlib import Path
-from tudatpy.astro.element_conversion import j2000_to_eclipj2000, cartesian_to_keplerian
+from tudatpy.astro.element_conversion import j2000_to_eclipj2000
 import ast
 from collections.abc import Iterable
 
@@ -29,14 +29,19 @@ _ASTROMETRY_CATALOG = 'gaiafpr.sso_observation' # Latest Gaia data release as of
 _ASTEROID_CATALOG = 'gaiafpr.sso_source'
 
 
-def _warn_missing_entries(
-        entries: np.ndarray | None,
-        expected: np.ndarray | None,):
-    """Output warning if there are missing entries in retrieved dataset"""
-    if entries is not None and expected is not None:
-        missing_entries = np.setxor1d(entries, expected)
-        if len(missing_entries) > 0:
-            warn(f'No data found for {missing_entries}')
+def _check_for_missing_entries(
+        table: pd.DataFrame,
+        requested_mpc_numbers: Iterable[int],):
+    """Check if there are any missing entries in the retrieved astrometry table and warn. If empty, raise error."""
+    if table.empty:
+        raise RuntimeError(f'No observations found for {requested_mpc_numbers}')
+
+    missing_entries = np.setxor1d(
+        np.unique(table['number_mp']),
+        np.array(requested_mpc_numbers)
+    )
+    if len(missing_entries) > 0:
+        warn(f'No data found for {missing_entries}')
 
 def _as_iterable(data) -> Iterable:
     """Make sure scalars are iterable"""
@@ -104,7 +109,7 @@ def generate_asteroid_parquet(archive_dir: Path | str,
     Generate a .parquet file of the Gaia asteroid archive, to be used to retrieve data locally.
 
     The resulting file is saved as ``gaia_source_archive.parquet`` and can be passed to
-    :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive`.
+    :func:`~tudatpy.data.gaia.gaia_object_catalog`.
 
     Requires all SsoSource_*.csv files to be stored in the same directory. CSV files can be
     downloaded from: https://cdn.gea.esac.esa.int/?prefix=Gaia/
@@ -420,11 +425,9 @@ class GaiaAstrometry:
             raise RuntimeError(f'Error while retrieving astrometric observations: \n{err}') from err
 
         table = table.to_pandas() # Convert astropy table to dataframe
-        if table.empty:
-            raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
-        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
+        _check_for_missing_entries(table, mpc_numbers)
 
-        # Convert units and reset index
+        # Convert to tudat-format
         prepared_table = cls._prepare_table(table)
 
         return cls(
@@ -457,14 +460,8 @@ class GaiaAstrometry:
         mpc_numbers = _as_iterable(mpc_numbers)
 
         # Read from parquet
-        filters = [
-            ('number_mp', 'in', mpc_numbers),
-        ]
-        table = pd.read_parquet(archive_file_path, filters=filters)
-
-        if table.empty:
-            raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
-        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
+        table = pd.read_parquet(archive_file_path, filters=[('number_mp', 'in', mpc_numbers)])
+        _check_for_missing_entries(table, mpc_numbers)
 
         # convert to tudat-format
         prepared_table = cls._prepare_table(table)
@@ -615,284 +612,213 @@ class GaiaAstrometry:
         return settings
 
 
-class GaiaAsteroids:
-    """
-    Class that acts as a container for Gaia-derived asteroid data, such as state vectors and covariance. It takes care of
-    the retrieval and conversion to a tudat-compatible format.
-    """
-    def __init__(self,
-                 asteroid_orbits_and_covariance: pd.DataFrame) -> None:
-        """Create an empty GaiaAsteroids object.
+def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:
+    """Prepare the Gaia asteroid table into a tudat-compatible format"""
+    # Throw away asteroids which have no solution
+    table = table[table['epoch_state_vector'] != 0]
+    assert not table.empty, 'No valid entries in the Gaia Asteroid table'
 
-        Usually, this object is created by the classmethods
-        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_astroquery` or
-        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive`.
-        """
-        self._table = asteroid_orbits_and_covariance
+    # Convert TCB epoch to TDB seconds since J2000
+    gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
+    table['epoch_state_vector'] = table['epoch_state_vector'].apply(gaia_to_tudat_epoch)
 
-    @property
-    def table(self) -> pd.DataFrame:
-        """Read-only copy of the asteroid data table which contains orbit and covariance data. The table is indexed
-        by MPC number"""
-        return self._table.copy()
+    # Scaling factors
+    length_conversion = ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR  # AU to SI
+    velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY  # AU/day to SI
+
+    # Upper triangle components to matrix
+    to_matrix = lambda a: np.array(
+        [
+            [a[0], a[1], a[2], a[3], a[4], a[5]],
+            [a[1], a[6], a[7], a[8], a[9], a[10]],
+            [a[2], a[7], a[11], a[12], a[13], a[14]],
+            [a[3], a[8], a[12], a[15], a[16], a[17]],
+            [a[4], a[9], a[13], a[16], a[18], a[19]],
+            [a[5], a[10], a[14], a[17], a[19], a[20]]
+        ]
+    )
+
+    table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(to_matrix)
+    table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(to_matrix)
+
+    # Convert orbital element covariance
+    a_scaling = np.identity(6)
+    a_scaling[0, 0] = length_conversion  # SMA from AU -> m, rest are unitless
+    scale_covariance_orbit_elements = lambda x: a_scaling @ x @ a_scaling
+    table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(
+        scale_covariance_orbit_elements)
+
+    # Convert state vector elements
+    scale_state = lambda x: np.concatenate((length_conversion * x[:3], velocity_conversion * x[3:]))
+    table['h_state_vector'] = table['h_state_vector'].apply(scale_state)
+
+    # Convert cartesian covariance
+    state_vector_scaling = np.diag((length_conversion, length_conversion, length_conversion,
+                                    velocity_conversion, velocity_conversion, velocity_conversion))
+    scale_covariance_cartesian = lambda x: state_vector_scaling @ x @ state_vector_scaling
+    table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(
+        scale_covariance_cartesian)
+
+    # Sort and apply indexing
+    table = table.sort_values(by='number_mp').set_index('number_mp', drop=False)
+
+    return table
 
 
-    def copy(self) -> 'GaiaAsteroids':
-        """Return a copy of the object itself"""
-        return copy.deepcopy(self)
+def _get_asteroid_table_row(mpc_number: int,
+                            archive_file_path: Path | str | None = None) -> pd.DataFrame:
+    """Retrieve and prepare Gaia-derived data for one asteroid (one row in the full table)"""
+    # Load from the .parquet
+    if archive_file_path is not None:
+        table = pd.read_parquet(archive_file_path, filters=[('number_mp', 'in', [mpc_number])])
 
-
-    @property
-    def mpc_numbers(self)->np.ndarray:
-        """List of all asteroid MPC numbers for which data is retrieved."""
-        return pd.unique(self._table['number_mp'])
-
-
-    def get_state_for_object(self,
-                             mpc_number: int,
-                             frame_origin: str = 'Sun',
-                             frame_orientation: str = 'J2000') -> tuple[float, np.ndarray]:
-        """
-        Retrieve state vector for an object queried by MPC number. An appropriate spice kernel must be loaded to
-        translate the ``frame_origin``.
-
-        Parameters
-        ----------
-        mpc_number : int
-            MPC number of asteroid to retrieve state for
-        frame_origin : str
-            Origin of the state vector, by default 'Sun'
-        frame_orientation : str
-            Orientation of the state vector, by default 'J2000'
-
-        Returns
-        -------
-        float
-            Epoch of the state vector in seconds since J2000.
-        np.ndarray
-            State vector in SI units.
-        """
-        if mpc_number not in self.mpc_numbers:
-            raise LookupError(f'State requested for {mpc_number}, but no asteroid data found in fetched archive')
-
-        object_row = self._table.loc[mpc_number]
-        epoch, state = object_row['epoch_state_vector'], object_row['h_state_vector'] # Heliocentric J2000
-
-        # Translate origin
-        if frame_origin != 'Sun':
-            origin_state = spice.get_body_cartesian_state_at_epoch(
-                target_body_name = 'Sun',
-                observer_body_name = frame_origin,
-                reference_frame_name = 'J2000',
-                aberration_corrections = 'NONE',
-                ephemeris_time = epoch
-            )
-            state = state + origin_state
-
-        # Rotate frame
-        if frame_orientation == 'J2000':
-            pass
-        elif frame_orientation == 'ECLIPJ2000':
-            to_ecliptic = lambda x: np.concatenate((j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:]))
-            state = to_ecliptic(state)
-        else:
-            raise ValueError('frame_orientation must be J2000 or ECLIPJ2000')
-
-        return epoch, state
-
-    @classmethod
-    def load_from_astroquery(cls,
-                             mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
-        """
-        Retrieve Gaia-derived asteroid data from astroquery. Requires an internet connection. Note this method of
-        loading the data may be slow or unreliable. For loading large batches of data, it is recommended to use
-        :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_local_archive` instead.
-
-        Parameters
-        ----------
-        mpc_numbers : int | list[int], optional
-            MPC numbers of asteroids to retrieve data for. If None, the complete archive of Gaia-derived orbits
-            is retrieved (~150,000 objects for Gaia FPR). This may take several minutes.
-
-        Returns
-        -------
-        GaiaAsteroids
-            Instance with data loaded from astroquery.
-        """
+    # Load from astroquery
+    else:
         from astroquery.gaia import Gaia  # late import because it tends to be slow
 
-        mpc_numbers = _as_iterable(mpc_numbers)
+        query = f"SELECT * FROM {_ASTEROID_CATALOG} WHERE number_mp = {mpc_number}"
 
-        # Set up query to DB
-        query = f"SELECT * FROM {_ASTEROID_CATALOG}"
-        if mpc_numbers is not None:
-            query_mpc_numbers = ', '.join([str(mpc) for mpc in mpc_numbers])
-            query += f" WHERE number_mp IN ({query_mpc_numbers})"
-
-        # Retrieve from astroquery
         try:
             job = Gaia.launch_job_async(query)
             table = job.get_results()
-
         except Exception as e:
             raise RuntimeError('Error while querying Gaia archives') from e
 
         table = table.to_pandas()
-        if table.empty:
-            raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
-        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
-        prepared_table = cls._prepare_table(table)
+    if table.empty:
+        raise LookupError(f'No Gaia-derived asteroid data could be found for {mpc_number}')
 
-        return cls(
-            prepared_table
+    return _prepare_gaia_asteroid_table(table)
+
+
+def get_state_from_gaia_archive(
+        mpc_number: int,
+        archive_file_path: Path | str | None = None,
+        frame_origin: str = 'Sun',
+        frame_orientation: str = 'J2000') -> tuple[float, np.ndarray]:
+    """
+    Retrieve a state vector for an object queried by MPC number. An appropriate spice kernel must be loaded to
+    translate the ``frame_origin``.
+
+    An internet connection is required to retrieve the state through astroquery.
+
+    Parameters
+    ----------
+    mpc_number : int
+        MPC number of asteroid to retrieve state for
+    archive_file_path : Path | str, optional
+        Path to the archive .parquet file. If None, retrieve state with astroquery. By default None
+    frame_origin : str
+        Origin of the state vector, by default 'Sun'
+    frame_orientation : str
+        Orientation of the state vector, by default 'J2000'
+
+    Returns
+    -------
+    float
+        Epoch of the state vector in seconds since J2000.
+    np.ndarray
+        State vector in SI units.
+    """
+    object_row = _get_asteroid_table_row(mpc_number, archive_file_path).loc[mpc_number]
+    epoch, state = object_row['epoch_state_vector'], object_row['h_state_vector']  # Heliocentric J2000
+
+    # Translate origin
+    if frame_origin != 'Sun':
+        origin_state = spice.get_body_cartesian_state_at_epoch(
+            target_body_name='Sun',
+            observer_body_name=frame_origin,
+            reference_frame_name='J2000',
+            aberration_corrections='NONE',
+            ephemeris_time=epoch
         )
+        state = state + origin_state
 
-    @classmethod
-    def load_from_local_archive(cls,
-                                archive_file_path: Path | str,
-                                mpc_numbers: int | Iterable | None = None) -> "GaiaAsteroids":
-        """
-        Retrieve orbit data locally from a .parquet file of the Gaia archive.
-
-        Mirrors :meth:`~tudatpy.data.gaia.GaiaAsteroids.load_from_astroquery`. This method of loading data is
-        typically much faster, at a small one-time cost of generating the .parquet file.
-
-        Orbit and covariance data are stored on the :meth:`~tudatpy.data.gaia.GaiaAsteroids.table` attribute.
-
-        Parameters
-        ----------
-        archive_file_path : Path | str
-            Path to the archive .parquet file.
-        mpc_numbers : int | list[int], optional
-            MPC numbers of asteroids to retrieve data for. If None, the complete archive of Gaia-derived orbits
-            is retrieved (~150,000 objects for Gaia FPR).
-
-        Returns
-        -------
-        GaiaAsteroids
-            Instance with data loaded from a .parquet file of the Gaia archive.
-        """
-        mpc_numbers = _as_iterable(mpc_numbers)
-
-        filter = [('number_mp', 'in', mpc_numbers)] if mpc_numbers is not None else None
-        table = pd.read_parquet(archive_file_path, filters=filter)
-        if table.empty:
-            raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
-        _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
-
-        prepared_table = cls._prepare_table(table)
-
-        return cls(prepared_table)
-
-    @staticmethod
-    def _prepare_table(table: pd.DataFrame) -> pd.DataFrame:
-        """Prepare table into tudat-format, add orbit elements and orbit class."""
-        # Remove faulty entries
-        table = table[table['epoch_state_vector'] != 0]
-
-        # Prepare entries
-        table = GaiaAsteroids._unit_conversion(table)
-        table = GaiaAsteroids._add_orbital_elements(table)
-        table = GaiaAsteroids._add_orbit_class(table)
-
-        # Sort and index by MPC
-        table = table.sort_values(by='number_mp').set_index('number_mp', drop=False)
-
-        return table
-
-    @staticmethod
-    def _unit_conversion(table: pd.DataFrame) -> pd.DataFrame:
-        """Convert units to tudat-format"""
-        # Convert epoch to seconds since J2000
-        jd2010_to_epoch = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
-        table['epoch_state_vector'] = table['epoch_state_vector'].apply(jd2010_to_epoch)
-
-        # Convert TCB to TDB epoch
-        table['epoch_state_vector'] = table['epoch_state_vector'].apply(TCB_to_TDB)
-
-        # Scaling factors
-        length_conversion = ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR  # AU to SI
-        velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY  # AU/day to SI
-
-        # Upper triangle components to matrix
-        to_matrix = lambda a: np.array(
-            [
-                [a[0], a[1], a[2], a[3], a[4], a[5]],
-                [a[1], a[6], a[7], a[8], a[9], a[10]],
-                [a[2], a[7], a[11], a[12], a[13], a[14]],
-                [a[3], a[8], a[12], a[15], a[16], a[17]],
-                [a[4], a[9], a[13], a[16], a[18], a[19]],
-                [a[5], a[10], a[14], a[17], a[19], a[20]]
-            ]
-        )
-
-        table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(to_matrix)
-        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(to_matrix)
-
-        # Convert orbital element covariance
-        a_scaling = np.identity(6)
-        a_scaling[0, 0] = length_conversion  # SMA from AU -> m, rest are angles
-        scale_covariance_orbit_elements = lambda x: a_scaling @ x @ a_scaling
-        table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(
-            scale_covariance_orbit_elements)
-
-        # Convert state vector elements
-        scale_state = lambda x: np.concatenate((length_conversion * x[:3], velocity_conversion * x[3:]))
-        table['h_state_vector'] = table['h_state_vector'].apply(scale_state)
-
-        # Convert cartesian covariance
-        state_vector_scaling = np.diag((length_conversion, length_conversion, length_conversion,
-                                        velocity_conversion, velocity_conversion, velocity_conversion))
-        scale_covariance_cartesian = lambda x: state_vector_scaling @ x @ state_vector_scaling
-        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(
-            scale_covariance_cartesian)
-
-        return table
-
-
-    @staticmethod
-    def _add_orbital_elements(table: pd.DataFrame) -> pd.DataFrame:
-        """Calculate and add orbital elements (heliocentric ecliptic)"""
+    # Rotate frame
+    if frame_orientation == 'J2000':
+        pass
+    elif frame_orientation == 'ECLIPJ2000':
         to_ecliptic = lambda x: np.concatenate((j2000_to_eclipj2000() @ x[:3], j2000_to_eclipj2000() @ x[3:]))
+        state = to_ecliptic(state)
+    else:
+        raise ValueError('frame_orientation must be J2000 or ECLIPJ2000')
 
-        table = table.assign(
-            orbital_elements=lambda x: x['h_state_vector']
-            .apply(to_ecliptic)
-            .apply(cartesian_to_keplerian, gravitational_parameter=1.32712440042e20),
-        )
-
-        return table
-
-    @staticmethod
-    def _add_orbit_class(table: pd.DataFrame) -> pd.DataFrame:
-        """Add orbit class of each asteroid according to JPL SBDB convention."""
-        orbital_elements = np.vstack(table.orbital_elements)
-        a, e, i, _, _, _ = orbital_elements.T
-        q = a * (1 - e) # Perihelion
-        Q = a * (1 + e) # Aphelion
-
-        au = ASTRONOMICAL_UNIT
-        conditions = [
-            Q < 0.983 * au,  # Atira
-            (a < au) & (Q > 0.983 * au),  # Aten
-            (a > au) & (q < 1.017 * au),  # Apollo
-            (q > 1.017 * au) & (q < 1.3 * au),  # Amor
-            (q > 1.3 * au) & (q < 1.666 * au) & (a < 3.2 * au),  # MCA
-            (a < 2 * au) & (q > 1.666 * au),  # IMB
-            (a > 2 * au) & (a < 3.2 * au) & (q > 1.666 * au),  # MB
-            (a > 3.2 * au) & (a < 4.6 * au),  # OMB
-            (a > 4.6 * au) & (a < 5.5 * au) & (e < 0.3),  # Trojan
-            (a > 5.5 * au) & (a < 30.1 * au),  # Centaur
-            a > 30.1 * au,  # TNO
-        ]
-        labels = ['Atira', 'Aten', 'Apollo', 'Amor', 'MCA',
-                  'IMB', 'MB', 'OMB', 'Trojan', 'Centaur', 'TNO']
-        table['orbit_class'] = np.select(conditions, labels, default='unknown')
-
-        return table
+    return epoch, state
 
 
+def get_state_covariance_from_gaia_archive(
+        mpc_number: int,
+        archive_file_path: Path | str | None = None) -> tuple[float, np.ndarray]:
+    """
+    Retrieve a Cartesian state covariance matrix for an object queried by MPC number.
+
+    An internet connection is required to retrieve the covariance matrix through astroquery.
+    The covariance matrix follows Gaia convention and is Heliocentric J2000.
+
+    Parameters
+    ----------
+    mpc_number : int
+        MPC number of asteroid to retrieve covariance for
+    archive_file_path : Path | str, optional
+        Path to the archive .parquet file. If None, covariance is retrieved through astroquery, by default None
+
+    Returns
+    -------
+    float
+        Epoch of the covariance in seconds since J2000.
+    np.ndarray
+        Cartesian state covariance matrix in SI units.
+    """
+    object_row = _get_asteroid_table_row(mpc_number, archive_file_path).loc[mpc_number]
+    return object_row['epoch_state_vector'], object_row['h_state_vector_var_covar_matrix']
 
 
+def get_kepler_covariance_from_gaia_archive(
+        mpc_number: int,
+        archive_file_path: Path | str | None = None) -> tuple[float, np.ndarray]:
+    """
+    Retrieve a Keplerian covariance matrix for an object queried by MPC number.
 
+    An internet connection is required to retrieve the covariance matrix through astroquery.
+
+    Parameters
+    ----------
+    mpc_number : int
+        MPC number of asteroid to retrieve covariance for
+    archive_file_path : Path | str, optional
+        Path to the archive .parquet file, by default None
+
+    Returns
+    -------
+    float
+        Epoch of the covariance in seconds since J2000.
+    np.ndarray
+        Keplerian covariance matrix in SI and radians, ordered as
+        ``[semi-major axis, eccentricity, inclination, RAAN, arg. of periapsis, mean anomaly]``
+    """
+    object_row = _get_asteroid_table_row(mpc_number, archive_file_path).loc[mpc_number]
+    return object_row['epoch_state_vector'], object_row['orbital_elements_var_covar_matrix']
+
+
+def gaia_object_catalog(archive_file_path: Path | str) -> pd.DataFrame:
+    """
+    Retrieve the Gaia object catalog (sso_source in Gaia documentation). This table contains primarily the state
+    and covariance of asteroids that were derived using the latest Gaia dataset (see Gaia Collaboration (2023)). The functions
+    :func:`~tudatpy.data.gaia.get_state_from_gaia_archive`, :func:`~tudatpy.data.gaia.get_state_covariance_from_gaia_archive`,
+    and :func:`~tudatpy.data.gaia.get_kepler_covariance_from_gaia_archive` can be used to obtain this information for a
+    single object queried by MPC number.
+
+    Parameters
+    ----------
+    archive_file_path : Path | str
+        Path to the archive .parquet file.
+
+    Returns
+    -------
+    pd.DataFrame
+        Complete asteroid catalog in tudat-compatible units, indexed by MPC number.
+    """
+    return _prepare_gaia_asteroid_table(
+        pd.read_parquet(archive_file_path)
+    )

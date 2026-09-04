@@ -14,26 +14,34 @@ Classes
 
    GaiaAstrometry
 
-   GaiaAsteroids
-
-
 .. autoclass:: tudatpy.data.gaia.GaiaAstrometry
    :members:
    :special-members: __init__
-
-.. autoclass:: tudatpy.data.gaia.GaiaAsteroids
-   :members:
-   :special-members: __init__
-
 
 Functions
 ---------
 .. autosummary::
 
+   get_state_from_gaia_archive
+
+   get_state_covariance_from_gaia_archive
+
+   get_kepler_covariance_from_gaia_archive
+
+   gaia_object_catalog
+
    generate_astrometry_parquet
 
    generate_asteroid_parquet
 
+
+.. autofunction:: tudatpy.data.gaia.get_state_from_gaia_archive
+
+.. autofunction:: tudatpy.data.gaia.get_state_covariance_from_gaia_archive
+
+.. autofunction:: tudatpy.data.gaia.get_kepler_covariance_from_gaia_archive
+
+.. autofunction:: tudatpy.data.gaia.gaia_object_catalog
 
 .. autofunction:: tudatpy.data.gaia.generate_astrometry_parquet
 
