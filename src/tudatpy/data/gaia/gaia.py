@@ -258,9 +258,9 @@ class GaiaAstrometry:
        #     link_definition = links.link_definition(link_ends)
 
             # Get the data for current asteroid
-            temp = self._table_for_single_object(mpc_number)
-            observation_angles = temp.loc[:, ['ra', 'dec']].to_numpy()
-            observation_times = temp['epoch'].to_numpy()
+            table_for_object = self._table_for_single_object(mpc_number)
+            observation_angles = table_for_object.loc[:, ['ra', 'dec']].to_numpy()
+            observation_times = table_for_object['epoch'].to_numpy()
 
             observation_set = observations.create_single_observation_set(
                 model_settings.angular_position_type,
@@ -425,10 +425,11 @@ class GaiaAstrometry:
         _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
         # Convert units and reset index
-        table = cls._convert_units(table)
-        table = table.sort_values(by=['number_mp', 'epoch']).reset_index(drop=True)
+        prepared_table = cls._prepare_table(table)
 
-        return cls(table)
+        return cls(
+            prepared_table
+        )
 
 
     @classmethod
@@ -465,22 +466,20 @@ class GaiaAstrometry:
             raise LookupError(f'No observations found for mpc numbers {mpc_numbers}')
         _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
-        # Convert units and save
-        table = cls._convert_units(table)
-        table = table.sort_values(by=['number_mp', 'epoch']).reset_index(drop=True)
+        # convert to tudat-format
+        prepared_table = cls._prepare_table(table)
 
-        return cls(table)
+        return cls(
+            prepared_table
+        )
 
 
     @staticmethod
-    def _convert_units(table: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_table(table: pd.DataFrame) -> pd.DataFrame:
         """Convert raw table values into a tudat-compatible format."""
-        # Convert epoch to seconds since J2000
-        jd2010_to_epoch = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
-        table['epoch'] = table['epoch'].apply(jd2010_to_epoch)
-
-        # Convert TCB to TDB epoch
-        table['epoch'] = table['epoch'].apply(TCB_to_TDB)
+        # Convert Gaia TCB to tudat TDB epoch
+        gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
+        table['epoch'] = table['epoch'].apply(gaia_to_tudat_epoch)
 
         # Convert angles to rad
         table['ra'] = (np.deg2rad(table['ra']) + np.pi) % (2 * np.pi) - np.pi
@@ -500,6 +499,9 @@ class GaiaAstrometry:
         velocity_labels = ['vx_gaia', 'vy_gaia', 'vz_gaia', 'vx_gaia_geocentric', 'vy_gaia_geocentric',
                      'vz_gaia_geocentric']
         table.loc[:, velocity_labels] *= ASTRONOMICAL_UNIT / JULIAN_DAY
+
+        # Sort
+        table = table.sort_values(by=['number_mp', 'epoch']).reset_index(drop=True)
 
         return table
 
@@ -630,7 +632,8 @@ class GaiaAsteroids:
 
     @property
     def table(self) -> pd.DataFrame:
-        """Read-only copy of the asteroid data table which contains orbit and covariance data."""
+        """Read-only copy of the asteroid data table which contains orbit and covariance data. The table is indexed
+        by MPC number"""
         return self._table.copy()
 
 
@@ -672,8 +675,8 @@ class GaiaAsteroids:
         if mpc_number not in self.mpc_numbers:
             raise LookupError(f'State requested for {mpc_number}, but no asteroid data found in fetched archive')
 
-        asteroid_row = self.table.query('number_mp == @mpc_number').iloc[0]
-        epoch, state = asteroid_row['epoch_state_vector'], asteroid_row['h_state_vector'] # Heliocentric J2000
+        object_row = self._table.loc[mpc_number]
+        epoch, state = object_row['epoch_state_vector'], object_row['h_state_vector'] # Heliocentric J2000
 
         # Translate origin
         if frame_origin != 'Sun':
@@ -684,7 +687,7 @@ class GaiaAsteroids:
                 aberration_corrections = 'NONE',
                 ephemeris_time = epoch
             )
-            state = state + origin_state # Not in-place, to avoid mutating the stored state vector
+            state = state + origin_state
 
         # Rotate frame
         if frame_orientation == 'J2000':
@@ -739,13 +742,11 @@ class GaiaAsteroids:
             raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
         _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
-        table = table[table['epoch_state_vector'] != 0] # Filter entries with missing data
-        table = cls._convert_units(table)
-        table = cls._add_orbital_elements(table)
-        table = cls._add_orbit_class(table)
-        table = table.sort_values(by='number_mp').reset_index(drop=True)
+        prepared_table = cls._prepare_table(table)
 
-        return cls(table)
+        return cls(
+            prepared_table
+        )
 
     @classmethod
     def load_from_local_archive(cls,
@@ -780,19 +781,29 @@ class GaiaAsteroids:
             raise LookupError(f'No asteroid data could be found for {mpc_numbers}')
         _warn_missing_entries(np.unique(table['number_mp']), mpc_numbers)
 
-        table = table[table['epoch_state_vector'] != 0] # Filter empty datasets
+        prepared_table = cls._prepare_table(table)
 
-        table = cls._convert_units(table)
-        table = cls._add_orbital_elements(table)
-        table = cls._add_orbit_class(table)
-        table = table.sort_values(by='number_mp').reset_index(drop=True)
-
-        return cls(table)
+        return cls(prepared_table)
 
     @staticmethod
-    def _convert_units(table: pd.DataFrame) -> pd.DataFrame:
-        """Convert units and format to a tudat-compatible format and apply scaling
-        corrections to state vectors."""
+    def _prepare_table(table: pd.DataFrame) -> pd.DataFrame:
+        """Prepare table into tudat-format, add orbit elements and orbit class."""
+        # Remove faulty entries
+        table = table[table['epoch_state_vector'] != 0]
+
+        # Prepare entries
+        table = GaiaAsteroids._unit_conversion(table)
+        table = GaiaAsteroids._add_orbital_elements(table)
+        table = GaiaAsteroids._add_orbit_class(table)
+
+        # Sort and index by MPC
+        table = table.sort_values(by='number_mp').set_index('number_mp', drop=False)
+
+        return table
+
+    @staticmethod
+    def _unit_conversion(table: pd.DataFrame) -> pd.DataFrame:
+        """Convert units to tudat-format"""
         # Convert epoch to seconds since J2000
         jd2010_to_epoch = lambda jd: julian_day_to_seconds_since_epoch(jd + _J2010)
         table['epoch_state_vector'] = table['epoch_state_vector'].apply(jd2010_to_epoch)
@@ -801,8 +812,8 @@ class GaiaAsteroids:
         table['epoch_state_vector'] = table['epoch_state_vector'].apply(TCB_to_TDB)
 
         # Scaling factors
-        length_conversion = ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR # AU to SI
-        velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY # AU/day to SI
+        length_conversion = ASTRONOMICAL_UNIT * _TIME_SCALE_CORRECTION * _STATE_SCALING_FACTOR  # AU to SI
+        velocity_conversion = ASTRONOMICAL_UNIT * _STATE_SCALING_FACTOR / JULIAN_DAY  # AU/day to SI
 
         # Upper triangle components to matrix
         to_matrix = lambda a: np.array(
@@ -821,7 +832,7 @@ class GaiaAsteroids:
 
         # Convert orbital element covariance
         a_scaling = np.identity(6)
-        a_scaling[0,0] = length_conversion # SMA from AU -> m, rest are angles
+        a_scaling[0, 0] = length_conversion  # SMA from AU -> m, rest are angles
         scale_covariance_orbit_elements = lambda x: a_scaling @ x @ a_scaling
         table['orbital_elements_var_covar_matrix'] = table['orbital_elements_var_covar_matrix'].apply(
             scale_covariance_orbit_elements)
@@ -834,9 +845,11 @@ class GaiaAsteroids:
         state_vector_scaling = np.diag((length_conversion, length_conversion, length_conversion,
                                         velocity_conversion, velocity_conversion, velocity_conversion))
         scale_covariance_cartesian = lambda x: state_vector_scaling @ x @ state_vector_scaling
-        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(scale_covariance_cartesian)
+        table['h_state_vector_var_covar_matrix'] = table['h_state_vector_var_covar_matrix'].apply(
+            scale_covariance_cartesian)
 
         return table
+
 
     @staticmethod
     def _add_orbital_elements(table: pd.DataFrame) -> pd.DataFrame:
