@@ -102,6 +102,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
+    const ParameterVectorType aprioriParameterEstimate = currentParameterEstimate_;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
@@ -132,6 +133,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
                 estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
+        const Eigen::VectorXd normalizedAprioriParameterDeviation =
+                ( oldParameterEstimate - aprioriParameterEstimate ).template cast< double >( ).cwiseProduct( normalizationTerms );
 
         InterArcConstraintContribution interArcContribution;
         if( !interArcConstraints.empty( ) )
@@ -191,18 +194,19 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 conditionNumberCheck = TUDAT_NAN;
             }
             // Perform LSQ inversion
-            leastSquaresOutput = std::move(
-                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                   residuals.template cast< double >( ),
-                                                                                   weightsMatrixDiagonals,
-                                                                                   normalizedInverseAprioriCovarianceMatrix,
-                                                                                   conditionNumberCheck,
-                                                                                   constraintStateMultiplier,
-                                                                                   constraintRightHandSide,
-                                                                                   designMatrixConsiderParameters,
-                                                                                   normalizedConsiderParametersDeviation,
-                                                                                   interArcContribution.additionalNormalMatrix,
-                                                                                   interArcContribution.additionalRightHandSide ) );
+            leastSquaresOutput =
+                    std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                              residuals.template cast< double >( ),
+                                                                                              weightsMatrixDiagonals,
+                                                                                              normalizedInverseAprioriCovarianceMatrix,
+                                                                                              conditionNumberCheck,
+                                                                                              constraintStateMultiplier,
+                                                                                              constraintRightHandSide,
+                                                                                              designMatrixConsiderParameters,
+                                                                                              normalizedConsiderParametersDeviation,
+                                                                                              interArcContribution.additionalNormalMatrix,
+                                                                                              interArcContribution.additionalRightHandSide,
+                                                                                              normalizedAprioriParameterDeviation ) );
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -241,10 +245,11 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
         costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
-        // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
-        // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
-        // remain meaningful.
-        costFunction += interArcContribution.totalConstraintCost;
+        const double aprioriCost = 0.5 *
+                normalizedAprioriParameterDeviation.dot( normalizedInverseAprioriCovarianceMatrix * normalizedAprioriParameterDeviation );
+        // The cost driving best-iteration selection combines the observation cost with all prior costs. Residual RMS is
+        // unchanged so observation-only diagnostics remain meaningful.
+        costFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 

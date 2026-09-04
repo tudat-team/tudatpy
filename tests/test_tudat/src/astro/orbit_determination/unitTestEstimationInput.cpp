@@ -11,6 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/included/unit_test.hpp>
+#include <Eigen/LU>
 
 #include <limits>
 
@@ -82,6 +83,119 @@ BOOST_AUTO_TEST_CASE( test_NormalizedLinearConstraints )
 
     BOOST_CHECK_SMALL( std::fabs( ( physicalConstraint * physicalCorrection - physicalConstraintRightHandSide )( 0 ) ), 1.0E-12 );
     BOOST_CHECK_CLOSE_FRACTION( normalizedConstraint.cwiseAbs( ).maxCoeff( ), 1.0, 1.0E-15 );
+}
+
+//! Test that a priori information constrains the total deviation from the initial parameter vector.
+BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
+{
+    Eigen::MatrixXd designMatrix( 3, 2 );
+    designMatrix << 1.0, 2.0, -1.0, 0.5, 0.0, 1.0;
+    const Eigen::Vector3d residuals = ( Eigen::Vector3d( ) << 4.0, -2.0, 1.0 ).finished( );
+    const Eigen::Vector3d weights = ( Eigen::Vector3d( ) << 2.0, 3.0, 5.0 ).finished( );
+    Eigen::Matrix2d inverseAprioriCovariance;
+    inverseAprioriCovariance << 4.0, 1.0, 1.0, 3.0;
+    const Eigen::Vector2d aprioriParameterDeviation = ( Eigen::Vector2d( ) << 0.5, -0.25 ).finished( );
+
+    const auto leastSquaresOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                           residuals,
+                                                                           weights,
+                                                                           inverseAprioriCovariance,
+                                                                           std::numeric_limits< double >::quiet_NaN( ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           aprioriParameterDeviation );
+
+    const Eigen::Matrix2d expectedNormalMatrix =
+            designMatrix.transpose( ) * weights.asDiagonal( ) * designMatrix + inverseAprioriCovariance;
+    const Eigen::Vector2d expectedRightHandSide =
+            designMatrix.transpose( ) * weights.asDiagonal( ) * residuals - inverseAprioriCovariance * aprioriParameterDeviation;
+    const Eigen::Vector2d expectedParameterCorrection = expectedNormalMatrix.inverse( ) * expectedRightHandSide;
+
+    BOOST_CHECK_SMALL( ( leastSquaresOutput.second - expectedNormalMatrix ).norm( ), 1.0E-14 );
+    BOOST_CHECK_SMALL( ( leastSquaresOutput.first - expectedParameterCorrection ).norm( ), 1.0E-14 );
+
+    // Exercise the same constraint through a complete iterative estimation. With zero acceleration and a position
+    // observation at the initial epoch, the estimation problem is linear. The first update therefore reaches the MAP
+    // solution. Although an observation residual remains, the second update must be zero because the growing deviation
+    // from the fixed initial parameter vector supplies an equal and opposite a priori contribution.
+    using namespace observation_models;
+
+    const double initialTime = 1.0E7;
+    const double finalTime = initialTime + 60.0;
+    SystemOfBodies bodies( "SSB", "ECLIPJ2000" );
+    bodies.createEmptyBody( "Satellite" );
+    bodies.at( "Satellite" )->setConstantBodyMass( 100.0 );
+
+    const std::vector< std::string > bodiesToPropagate = { "Satellite" };
+    const std::vector< std::string > centralBodies = { "SSB" };
+    AccelerationMap accelerationModels;
+    accelerationModels[ "Satellite" ] = basic_astrodynamics::SingleBodyAccelerationMap( );
+
+    Eigen::Vector6d trueInitialState;
+    trueInitialState << 7.0E6, 2.0E6, -1.0E6, 100.0, 200.0, -50.0;
+    const std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            rungeKuttaFixedStepSettings( 10.0, CoefficientSets::rungeKuttaFehlberg78 );
+    const std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >( centralBodies,
+                                                                                        accelerationModels,
+                                                                                        bodiesToPropagate,
+                                                                                        trueInitialState,
+                                                                                        initialTime,
+                                                                                        integratorSettings,
+                                                                                        propagationTimeTerminationSettings( finalTime ),
+                                                                                        cowell );
+
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettings =
+            getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterSettings, bodies );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Satellite", "" );
+    const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings = {
+        std::make_shared< ObservationModelSettings >( position_observable, linkEnds )
+    };
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, observationModelSettings, propagatorSettings );
+
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings = {
+        std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                position_observable, linkEnds, std::vector< double >{ finalTime }, observed_body )
+    };
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    simulatedObservations->setConstantWeight( 1.0 );
+
+    Eigen::Vector6d aprioriInitialState = trueInitialState;
+    aprioriInitialState( 0 ) += 10.0;
+    orbitDeterminationManager.resetParameterEstimate( aprioriInitialState, true );
+
+    const Eigen::MatrixXd fullEstimationInverseAprioriCovariance = 1.0E4 * Eigen::MatrixXd::Identity( 6, 6 );
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+            simulatedObservations, fullEstimationInverseAprioriCovariance, estimationConvergenceChecker( 2, -1.0, -1.0, 100 ) );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+
+    const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringPropagation_ );
+    BOOST_REQUIRE_EQUAL( estimationOutput->residualHistory_.size( ), 2 );
+
+    const Eigen::MatrixXd parameterHistory = estimationOutput->getParameterHistoryMatrix( );
+    BOOST_REQUIRE_EQUAL( parameterHistory.rows( ), 6 );
+    BOOST_REQUIRE_EQUAL( parameterHistory.cols( ), 3 );
+    const Eigen::Vector6d deviationAfterFirstIteration = parameterHistory.col( 1 ) - parameterHistory.col( 0 );
+    const Eigen::Vector6d secondParameterCorrection = parameterHistory.col( 2 ) - parameterHistory.col( 1 );
+
+    BOOST_CHECK_GT( deviationAfterFirstIteration.norm( ), 1.0E-3 );
+    BOOST_CHECK_GT( estimationOutput->residualHistory_.at( 1 ).norm( ), 1.0 );
+    BOOST_CHECK_LT( estimationOutput->residualHistory_.at( 1 ).norm( ), estimationOutput->residualHistory_.at( 0 ).norm( ) );
+    BOOST_CHECK_SMALL( secondParameterCorrection.norm( ), 1.0E-6 * deviationAfterFirstIteration.norm( ) );
 }
 
 //! Test a constrained least-squares orbit estimation with position and velocity corrections at different scales.

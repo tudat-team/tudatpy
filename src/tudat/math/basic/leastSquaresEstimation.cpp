@@ -133,7 +133,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters,
         const Eigen::VectorXd& considerParametersDeviations,
         const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide )
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
 {
     Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
@@ -150,6 +151,19 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
             designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
 
+    const int nParams = static_cast< int >( designMatrix.cols( ) );
+    if( aprioriParameterDeviation.size( ) > 0 )
+    {
+        if( aprioriParameterDeviation.size( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: aprioriParameterDeviation has size " +
+                                      std::to_string( aprioriParameterDeviation.size( ) ) + ", expected " + std::to_string( nParams ) +
+                                      "." );
+        }
+        // The prior residual is the a priori parameter vector minus the current estimate, i.e. the negative deviation.
+        rightHandSide -= inverseOfAPrioriCovarianceMatrix * aprioriParameterDeviation;
+    }
+
     // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )
     {
@@ -162,7 +176,6 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
 
     // Soft-constraint additions (e.g. inter-arc continuity): inject into the parameter block of the LHS/RHS,
     // leaving any Lagrange-multiplier rows from the hard equality constraint above untouched.
-    const int nParams = static_cast< int >( designMatrix.cols( ) );
     if( additionalNormalMatrix.size( ) > 0 )
     {
         if( additionalNormalMatrix.rows( ) != nParams || additionalNormalMatrix.cols( ) != nParams )
