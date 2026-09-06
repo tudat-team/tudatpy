@@ -631,7 +631,10 @@ class TestObservationCollectionIntegration:
             assert settings.get_float_settings(
                 variables.sequential_range_lowest_ranging_component
             ) == float(FIXTURE_LOWEST_RANGING_COMPONENT)
-            assert settings.get_float_list_settings(variables.frequency_bands) == [
+            assert [
+                ancillary_settings.FrequencyBands(int(band))
+                for band in settings.get_float_list_settings(variables.frequency_bands)
+            ] == [
                 ancillary_settings.FrequencyBands.x_band,
                 ancillary_settings.FrequencyBands.x_band,
             ]
@@ -654,10 +657,15 @@ class TestObservationCollectionIntegration:
             )
             # The fixture's exciter band is S, while the up- and downlink are X band.
             assert (
-                settings.get_float_settings(variables.reception_reference_frequency_band)
+                ancillary_settings.FrequencyBands(
+                    int(settings.get_float_settings(variables.reception_reference_frequency_band))
+                )
                 == ancillary_settings.FrequencyBands.s_band
             )
-            assert settings.get_float_list_settings(variables.frequency_bands) == [
+            assert [
+                ancillary_settings.FrequencyBands(int(band))
+                for band in settings.get_float_list_settings(variables.frequency_bands)
+            ] == [
                 ancillary_settings.FrequencyBands.x_band,
                 ancillary_settings.FrequencyBands.x_band,
             ]
