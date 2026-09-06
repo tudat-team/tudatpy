@@ -25,6 +25,9 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createInverseAprioriCovariance.h"
 
+#include <tudat/io/serialization/pybind_helpers.h>
+#include <tudat/io/serialization/registrations_estimation.h>
+
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tep = tudat::estimatable_parameters;
@@ -213,7 +216,7 @@ void expose_estimation_analysis( py::module& m )
            &tss::estimationConvergenceChecker,
            py::arg( "maximum_iterations" ) = 5,
            py::arg( "minimum_residual_change" ) = 0.0,
-           py::arg( "minimum_residual" ) = 0.0,
+           py::arg( "minimum_residual" ) = 1.0E-20,
            py::arg( "number_of_iterations_without_improvement" ) = 2,
            R"doc(
 
@@ -228,7 +231,7 @@ void expose_estimation_analysis( py::module& m )
      Maximum number of allowed iterations for estimation.
  minimum_residual_change : float, default = 0.0
      Minimum required change in residual between two iterations.
- minimum_residual : float, default = 0.0
+ minimum_residual : float, default = 1.0e-20
      Minimum value of observation residual below which estimation is converged.
  number_of_iterations_without_improvement : int, default = 2
      Number of iterations without reduction of residual.
@@ -280,7 +283,7 @@ void expose_estimation_analysis( py::module& m )
  ----------
  parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
      Consolidated set of estimated parameters.
- covariance_diagonal_entries_per_parameter : list
+ covariance_diagonal_entries_per_parameter : list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
  require_all_entries_to_match : bool, default = True
      If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
@@ -321,7 +324,7 @@ void expose_estimation_analysis( py::module& m )
      Existing covariance-like matrix (or a 0x0 matrix).
  parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
      Consolidated set of estimated parameters.
- covariance_diagonal_entries_per_parameter : list
+ covariance_diagonal_entries_per_parameter : list[tuple[tuple[EstimatableParameterTypes, tuple[str, str]], numpy.ndarray]]
      List of ``(parameter_identifier, covariance_diagonal_entries_vector)`` entries.
  require_all_entries_to_match : bool, default = True
      If True, each ``parameter_identifier`` must match at least one parameter block, otherwise a runtime error is raised.
@@ -546,6 +549,37 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          A-priori covariance matrix of the considered parameters.
 
          :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity priors.
+
+         The inputs map directly to the discrepancy, weight, cost, and normal-equation model documented by
+         :class:`InterArcStateContinuityConstraintSettings`. Constraints are currently supported only for pure
+         multi-arc translational estimators. Pass an empty list to disable the feature.
+
+         Parameters
+         ----------
+         constraints : list[InterArcStateContinuityConstraintSettings]
+             Settings defining all constrained bodies, arc pairs, connection epochs, weights, and scaling factors.
+
+         Returns
+         -------
+         None
+             Modifies this input object in place.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached soft inter-arc continuity-prior settings.
+
+         :type: list[InterArcStateContinuityConstraintSettings]
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -556,6 +590,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
          Class for defining all inputs to the estimation.
 
+         This class contains the observations, a-priori information, convergence settings, optional consider
+         parameter information, and optional soft inter-arc continuity constraints used by
+         :meth:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation`.
 
 
 
@@ -569,7 +606,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
-                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
+                  py::arg_v( "convergence_checker",
+                             tss::estimationConvergenceChecker( ),
+                             "tudatpy.estimation.estimation_analysis.estimation_convergence_checker()" ),
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
@@ -588,6 +627,12 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
              A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
          convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
              Object defining when the estimation is converged.
+         consider_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
+             A-priori covariance matrix of the considered parameters. This should be either a size 0x0 matrix (no consider parameters), or a square matrix with the same size as the number of consider parameters.
+         consider_parameters_deviations : numpy.ndarray[numpy.float64[n]], default = [ ]
+             Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
+         apply_final_parameter_correction : bool, default = True
+             Whether to apply the final estimated parameter correction to the simulation models after convergence.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
@@ -647,7 +692,38 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
 
-     )doc" );
+     )doc" )
+            .def( "set_inter_arc_continuity_constraints",
+                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::setInterArcContinuityConstraints,
+                  py::arg( "constraints" ),
+                  R"doc(
+
+         Attach soft inter-arc translational state continuity constraints to the estimation input.
+
+         The inputs map directly to the discrepancy, weight, cost, and normal-equation model documented by
+         :class:`InterArcStateContinuityConstraintSettings`. A settings object may constrain one or more bodies.
+         Pass an empty list to disable the feature.
+
+         Parameters
+         ----------
+         constraints : list[InterArcStateContinuityConstraintSettings]
+             Settings defining all constrained bodies, arc pairs, connection epochs, weights, and scaling factors.
+
+         Returns
+         -------
+         None
+             Modifies this input object in place.
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_constraints",
+                                    &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityConstraints,
+                                    R"doc(
+
+         **read-only**
+
+         List of currently attached inter-arc continuity constraint settings.
+
+         :type: list[InterArcStateContinuityConstraintSettings]
+      )doc" );
 
     m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 
@@ -666,6 +742,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          * The inverse covariance matrix :math:`\mathbf{P}^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable
          * The consider partials matrix :math:`\mathbf{H}_{c}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}_{c}}` of the observations w.r.t. the consider parameters (if any)
          * The contribution :math:`\Delta \mathbf{P}_{c}` of the consider parameters to the estimated parameter covariance
+         * Optional soft inter-arc continuity-prior diagnostics, when such priors are attached to the input
 
          In the computation of the covariance  (see TODO), the columns of the :math:`H` matrices are normalized to reduce numerical instability
          that can result from the partials w.r.t. different parameters being of a very different order of magnitude. The normalization is achieved
@@ -879,7 +956,32 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
          Vector of consider parameter normalization terms :math:`\mathbf{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
-      )doc" );
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_cost",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCost,
+                                    R"doc(
+
+         **read-only**
+
+         Soft inter-arc continuity cost :math:`J_d` at the covariance-analysis linearization point. See
+         :class:`InterArcStateContinuityConstraintSettings` for its definition and input mapping. This value is
+         zero when no inter-arc continuity constraints were attached.
+
+         :type: float
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_discrepancies",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancies,
+                                    R"doc(
+
+         **read-only**
+
+         State discrepancy vectors :math:`\mathbf{d}_{bk}` used to assemble the continuity terms in covariance
+         analysis. See :class:`InterArcStateContinuityConstraintSettings` for their definition and ordering inputs.
+
+         :type: list[numpy.ndarray[numpy.float64[6, 1]]]
+      )doc" ) TUDATPY_DEF_BINARY_IO( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_PICKLE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_EQ_NE( tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -945,7 +1047,33 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                            R"doc(No documentation found.)doc" )
             .def_readonly( "best_iteration",
                            &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
-                           R"doc(No documentation found.)doc" );
+                           R"doc(No documentation found.)doc" )
+            .def_property_readonly( "inter_arc_continuity_cost_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityCostHistory,
+                                    R"doc(
+
+         **read-only**
+
+         Per-iteration continuity cost :math:`J_d`. See :class:`InterArcStateContinuityConstraintSettings` for the
+         mathematical definition. Empty if no continuity constraints were attached to the input.
+
+         :type: list[float]
+      )doc" )
+            .def_property_readonly( "inter_arc_continuity_discrepancy_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getInterArcContinuityDiscrepancyHistory,
+                                    R"doc(
+
+         **read-only**
+
+         Per-iteration list of state discrepancies at every constrained boundary, computed as the right-arc state
+         minus the left-arc state at the connection epoch. Outer index is iteration, inner index is pair in the
+         order produced by the attached settings. For the current translational-state continuity settings, each
+         discrepancy has six entries.
+
+         :type: list[list[numpy.ndarray[numpy.float64[6, 1]]]]
+      )doc" ) TUDATPY_DEF_BINARY_IO( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_PICKLE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_EQ_NE( tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 
@@ -990,7 +1118,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the variational equations,
      which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
@@ -998,7 +1126,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[n, n]] ]
+ dict[float, numpy.ndarray[numpy.float64[n, n]]]
      Dictionary reporting the propagated covariances at each output time.
 
 
@@ -1032,7 +1160,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -1040,7 +1168,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, n]] ]
+ dict[float, numpy.ndarray[numpy.float64[m, n]]]
      Dictionary reporting the propagated covariances at each output time.
 
 
@@ -1068,7 +1196,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time (typically retrieved from :attr:`~tudatpy.estimation.estimation_analysis.Estimator.state_transition_interface`).
 
- output_times : List[ astro.time_representation.Time ]
+ output_times : list[float]
     Times at which the propagated covariance matrix shall be reported.
     Note that this argument has no impact on the integration time-steps of the variational equations,
     which happens before the call to this function, with results stored in the ``state_transition_interface`` input.
@@ -1076,7 +1204,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
  Returns
  -------
- Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]] ]
+ dict[float, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary reporting the propagated formal errors at each output time.
 
 
@@ -1096,6 +1224,17 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
            py::arg( "state_transition_interface" ),
            py::arg( "output_times" ) );
 
+    m.def( "propagate_formal_errors_split_output",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ) );
+}
+
+void expose_estimation_analysis_orbit_determination_helpers( py::module& m )
+{
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
            py::arg( "initial_covariance" ),
@@ -1106,14 +1245,6 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
            &tp::propagateFormalErrorVectorsRsw,
            py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_formal_errors_split_output",
-           py::overload_cast< const Eigen::MatrixXd,
-                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
-                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
-           py::arg( "initial_covariance" ),
-           py::arg( "state_transition_interface" ),
            py::arg( "output_times" ) );
 
     m.def( "propagate_covariance_rsw_split_output",

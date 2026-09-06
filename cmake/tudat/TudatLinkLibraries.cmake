@@ -29,10 +29,6 @@ if(TUDAT_BUILD_WITH_FFTW3)
     list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES ${FFTW3_LIBRARIES})
 endif( )
 
-if (TUDAT_BUILD_WITH_JSON_INTERFACE)
-    list(APPEND TUDAT_EXTERNAL_LIBRARIES ${nlohmann_json_LIBRARIES})
-endif ()
-
 # if (TUDAT_BUILD_WITH_NRLMSISE00)
 #     list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
 # endif ()
@@ -83,6 +79,10 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         )
 
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+
+    list(APPEND Tudat_PROPAGATION_LIBRARIES
+            Tudat::tudat_estimatable_parameters
+            )
 
     list(APPEND Tudat_ESTIMATION_LIBRARIES
             Tudat::tudat_estimation_setup

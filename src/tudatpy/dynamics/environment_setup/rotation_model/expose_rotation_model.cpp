@@ -200,8 +200,8 @@ void expose_rotation_model_setup( py::module& m )
      Name of the target frame of rotation model.
  initial_orientation : numpy.ndarray[numpy.float64[3, 3]]
      Orientation of target frame in base frame at initial time.
- initial_time : astro.time_representation.Time
-     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
+ initial_time : float
+     Initial time used as the reference epoch for the rotation matrices, in seconds since J2000 TDB.
  rotation_rate : float
      Constant rotation rate [rad/s] about rotational axis.
  Returns
@@ -261,8 +261,8 @@ void expose_rotation_model_setup( py::module& m )
      Target frame of rotation model - name of frame that Tudat assigns to the body-fixed frame
  target_frame_spice : str
      Spice reference of target frame - name of the frame in Spice for which the initial orientation and rotation rate are extracted.
- initial_time : astro.time_representation.Time
-     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
+ initial_time : float
+     Initial time used as the reference epoch for the rotation matrices, in seconds since J2000 TDB.
  Returns
  -------
  SimpleRotationModelSettings
@@ -326,7 +326,7 @@ void expose_rotation_model_setup( py::module& m )
  Returns
  -------
  SynchronousRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SynchronousRotationModelSettings` class
+     Settings for a synchronous rotation model.
 
 
 
@@ -401,9 +401,15 @@ void expose_rotation_model_setup( py::module& m )
            &tss::gcrsToItrsRotationModelSettings,
            py::arg( "precession_nutation_theory" ) = tba::iau_2006,
            py::arg( "base_frame" ) = "GCRS",
-           py::arg( "cio_interpolation_settings" ) = nullptr,
-           py::arg( "tdb_to_tt_interpolation_settings" ) = nullptr,
-           py::arg( "short_term_eop_interpolation_settings" ) = nullptr,
+           py::arg_v( "cio_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
+           py::arg_v( "tdb_to_tt_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
+           py::arg_v( "short_term_eop_interpolation_settings",
+                      std::shared_ptr< tudat::interpolators::InterpolatorGenerationSettings< double > >( ),
+                      "None" ),
            R"doc(
 
  Function for creating high-accuracy Earth rotation model settings.
@@ -479,7 +485,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "central_body" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg( "angle_funcion" ) = nullptr,
+           py::arg_v( "angle_funcion", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
@@ -509,12 +515,12 @@ void expose_rotation_model_setup( py::module& m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- angle_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+ angle_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]], default = None
+     Custom function returning an array of three values as a function of time in seconds since J2000 TDB. The output *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, all three angles are fixed to 0.
  Returns
  -------
- CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ AerodynamicAngleRotationSettings
+     Settings for an aerodynamic-angle-based rotation model.
 
 
 
@@ -528,7 +534,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "central_body" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg( "angle_funcion" ) = nullptr,
+           py::arg_v( "angle_funcion", std::function< Eigen::Vector2d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
@@ -547,12 +553,12 @@ void expose_rotation_model_setup( py::module& m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- angle_funcion : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[2, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+ angle_funcion : callable[[float], numpy.ndarray[numpy.float64[2, 1]]], default = None
+     Custom function returning an array of two values as a function of time in seconds since J2000 TDB. The output *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, both angles are fixed to 0.
  Returns
  -------
- CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ PitchTrimRotationSettings
+     Settings for a zero-pitch-moment aerodynamic-angle-based rotation model.
 
 
 
@@ -566,7 +572,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "inertial_body_axis_direction" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
-           py::arg( "free_rotation_angle_function" ) = nullptr,
+           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
@@ -587,18 +593,18 @@ void expose_rotation_model_setup( py::module& m )
 
  Parameters
  ----------
- inertial_body_axis_direction : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 1]]]
+ inertial_body_axis_direction : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Custom function defined by the user, which imposes the inertial orientation of the body-fixed x-axis, by providing :math:`\hat{\mathbf{T}}_{I}(t)`.
  base_frame : str
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- free_rotation_angle_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float], default = None
+ free_rotation_angle_function : callable[[float], float], default = None
      Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
  BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+     Settings for a body-fixed-direction-based rotation model.
 
 
 
@@ -614,7 +620,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "direction_is_opposite_to_vector" ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ) = "",
-           py::arg( "free_rotation_angle_function" ) = nullptr,
+           py::arg_v( "free_rotation_angle_function", std::function< double( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
@@ -637,12 +643,12 @@ void expose_rotation_model_setup( py::module& m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- free_rotation_angle_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float], default = None
-     Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time (as Time object). If this input is left empty, this angle is fixed to 0.
+ free_rotation_angle_function : callable[[float], float], default = None
+     Custom function returning the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time in seconds since J2000 TDB. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
- BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+ OrbitalStateBasedRotationSettings
+     Settings for an orbital-state-direction-based rotation model.
 
 
 
@@ -723,14 +729,14 @@ void expose_rotation_model_setup( py::module& m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- custom_rotation_matrix_function: callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 3]]]
-     Function computing the body-fixed to inertial rotation matrix as a function of time (Time object representing seconds since J2000 TDB)
+ custom_rotation_matrix_function: callable[[float], numpy.ndarray[numpy.float64[3, 3]]]
+     Function computing the body-fixed-to-inertial rotation matrix as a function of time in seconds since J2000 TDB.
  finite_difference_time_step: float
      Step size to use when computing the rotation matrix derivative numerically
  Returns
  -------
- :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings`
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ CustomRotationModelSettings
+     Settings for a custom rotation model.
 
 
 
@@ -1035,7 +1041,7 @@ void expose_rotation_model_setup( py::module& m )
      Values of :math:`[\dot{\alpha},\dot{\delta}]`
  merdian_periodic_terms : dict[float, tuple[float, float]]
      Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
- pole_periodic_terms : list[dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]]
+ pole_periodic_terms : dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]
      Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
  angle_base_frame : str
      Optional argument to be used when the angles :math:`W,\alpha,\delta` do not define the rotation between ``target_frame`` and ``base_frame``, but between ``target_frame`` and ``angle_base_frame`` (this input).

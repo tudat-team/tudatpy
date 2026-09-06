@@ -91,12 +91,14 @@ Once the project is built, all the build output is dumped by default in a direct
 
 ```
 python install.py -h                 # Show help and available flags
-python install.py -e                 # Install in "editable mode"
+python install.py -e                 # Editable development installation
+python install.py                    # Frozen installation of the current build
 ```
 
 > **Note**\
-> This script installs Tudatpy in your active conda environment. If you install with the `-e` flag, you will not have to re-install every time you update the source code of the library.
-> And that's it! The next step shows you what to do if you want to uninstall the libraries.
+> This script installs Tudatpy in your active conda environment. Editable mode links the Python files in the environment directly to this source checkout. Source edits and branch switches therefore affect the installed package immediately, while the compiled kernel remains the one in the selected build directory. Use editable mode for active development and keep the checkout on a compatible revision.
+>
+> Run `python install.py` without `-e` when the environment must remain independent of later source edits or branch switches. This installs a snapshot of the current build through CMake. Unlike editable installations, regular installations are not tracked by `uninstall.py` and must currently be removed manually.
 
 8. Uninstall
 
@@ -117,6 +119,8 @@ python uninstall.py                   # Uninstall Tudatpy
 ````
 pytest
 ````
+Use `pytest --no-remote-data` to skip tests that require a network connection.
+
 Desired result:
 ````
 =========================================== 6 passed in 1.78s ============================================

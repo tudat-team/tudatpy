@@ -13,6 +13,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 #include "tudat/basics/timeType.h"
 #include "tudat/math/basic/mathematicalConstants.h"
@@ -25,6 +27,54 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+//! Express physical-space linear constraints in normalized correction coordinates.
+/*!
+ * If design-matrix column j is divided by normalizationValues(j), the normalized least-squares variable is the physical
+ * correction multiplied by normalizationValues(j). Each constraint column is therefore divided by the same value. Each
+ * complete constraint equation is subsequently scaled to have a maximum absolute multiplier of one; the right-hand side is
+ * scaled with it, so the physical constraint is unchanged.
+ * \param constraintMatrix Multiplier in the physical-space linear constraint equation, modified in place.
+ * \param constraintRightHandSide Right-hand side of the physical-space constraint equation, modified in place.
+ * \param normalizationValues Design-matrix column normalization values.
+ */
+inline void normalizeLinearConstraints( Eigen::MatrixXd& constraintMatrix,
+                                        Eigen::VectorXd& constraintRightHandSide,
+                                        const Eigen::VectorXd& normalizationValues )
+{
+    if( constraintMatrix.cols( ) != normalizationValues.size( ) )
+    {
+        throw std::runtime_error( "Error when normalizing estimation constraints, constraint matrix has " +
+                                  std::to_string( constraintMatrix.cols( ) ) + " columns but " +
+                                  std::to_string( normalizationValues.size( ) ) + " normalization values were provided." );
+    }
+    if( constraintMatrix.rows( ) != constraintRightHandSide.size( ) )
+    {
+        throw std::runtime_error( "Error when normalizing estimation constraints, constraint matrix has " +
+                                  std::to_string( constraintMatrix.rows( ) ) + " rows but the right-hand side has size " +
+                                  std::to_string( constraintRightHandSide.size( ) ) + "." );
+    }
+
+    for( int i = 0; i < constraintMatrix.cols( ); i++ )
+    {
+        if( !std::isfinite( normalizationValues( i ) ) || normalizationValues( i ) == 0.0 )
+        {
+            throw std::runtime_error( "Error when normalizing estimation constraints, normalization value at index " + std::to_string( i ) +
+                                      " is zero or non-finite." );
+        }
+        constraintMatrix.col( i ) /= normalizationValues( i );
+    }
+
+    for( int i = 0; i < constraintMatrix.rows( ); i++ )
+    {
+        const double constraintScale = constraintMatrix.row( i ).cwiseAbs( ).maxCoeff( );
+        if( constraintScale > 0.0 )
+        {
+            constraintMatrix.row( i ) /= constraintScale;
+            constraintRightHandSide( i ) /= constraintScale;
+        }
+    }
+}
 
 template< typename ObservationScalarType >
 void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,

@@ -248,8 +248,10 @@ reference_epoch:
                               const std::map< int, std::vector< std::string > >& >( &tss::setDsnWeatherDataInGroundStationSettings ),
            py::arg( "ground_station_settings_list" ),
            py::arg( "weather_file_names" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
-           py::arg( "ground_stations_per_complex" ) = tss::getDefaultDsnStationNamesPerComplex( ),
+           py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
+           py::arg_v( "ground_stations_per_complex",
+                      tss::getDefaultDsnStationNamesPerComplex( ),
+                      "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
            R"doc(
 
  Add DSN weather data settings to a list of ground station settings.
@@ -265,9 +267,11 @@ reference_epoch:
            py::arg( "ground_station_settings_list" ),
            py::arg( "weather_file_names" ),
            py::arg( "ground_station_name" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation(
-                   tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
-                   tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
+           py::arg_v( "interpolator_settings",
+                      tudat::interpolators::cubicSplineInterpolation(
+                              tudat::interpolators::AvailableLookupScheme::huntingAlgorithm,
+                              tudat::interpolators::BoundaryInterpolationType::use_boundary_value_with_warning ),
+                      "..." ),
            R"doc(
 
  Add ESTRACK weather data settings to a ground station in a list of ground station settings.
@@ -504,8 +508,8 @@ reference_epoch:
  ----------
  linear_velocity : numpy.ndarray([3,1])
      Linear velocity :math:`\dot{\mathbf{r}}` of the station (in m/s)
- reference_epoch : astro.time_representation.Time, default = 0.0
-     Reference epoch :math:`t_{0}` (Time object representing seconds since J2000 TDB)
+ reference_epoch : float, default = 0.0
+     Reference epoch :math:`t_{0}`, in seconds since J2000 TDB.
  Returns
  -------
  GroundStationMotionSettings
@@ -529,8 +533,8 @@ reference_epoch:
 
  Parameters
  ----------
- displacement_list : dict[astro.time_representation.Time,numpy.ndarray([3,1])]
-     Dictionary with the epochs :math:`t_{i}` as keys (as Time objects), and the associated displacement :math:`\Delta\mathbf{r}_{i}` as values
+ displacement_list : dict[float, numpy.ndarray([3, 1])]
+     Dictionary with epochs :math:`t_{i}` in seconds since J2000 TDB as keys, and the associated displacements :math:`\Delta\mathbf{r}_{i}` as values.
  Returns
  -------
  GroundStationMotionSettings
@@ -556,8 +560,8 @@ reference_epoch:
 
  Parameters
  ----------
- custom_displacement_function : callable[[:class:`~tudatpy.astro.time_representation.Time`],numpy.ndarray([3,1])]
-     Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` (as Time object) as input.
+ custom_displacement_function : callable[[float], numpy.ndarray([3, 1])]
+     Function returning :math:`\Delta\mathbf{r}`, with time :math:`t` in seconds since J2000 TDB as input.
  Returns
  -------
  GroundStationMotionSettings
@@ -580,6 +584,17 @@ reference_epoch:
     -------
     dict[str, numpy.ndarray([3,1])]
         Dictionary mapping DSN station names (str, format: "DSS-<id>") to approximate positions.
+
+        )doc" );
+
+    m.def( "get_default_dsn_station_names_per_complex", &tss::getDefaultDsnStationNamesPerComplex, R"doc(
+
+    Return the default station names for each DSN complex.
+
+    Returns
+    -------
+    dict[int, list[str]]
+        Dictionary mapping each DSN complex identifier to its station names.
 
         )doc" );
 

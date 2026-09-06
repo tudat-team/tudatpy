@@ -20,6 +20,7 @@ namespace tudatpy
 namespace dynamics
 {
 
+void expose_dynamics_types( py::module& m );
 void expose_dynamics( py::module& m );
 
 }  // namespace dynamics

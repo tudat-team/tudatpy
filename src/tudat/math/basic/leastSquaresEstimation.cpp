@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 #include <Eigen/LU>
 
@@ -130,7 +131,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersDeviations )
+        const Eigen::VectorXd& considerParametersDeviations,
+        const Eigen::MatrixXd& additionalNormalMatrix,
+        const Eigen::VectorXd& additionalRightHandSide )
 {
     Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
@@ -151,10 +154,34 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     if( constraintMultiplier.rows( ) != 0 )
     {
         int numberOfConstraints = constraintMultiplier.rows( );
-        int numberOfParameters = constraintMultiplier.cols( );
+        int numberOfConstrainedParameters = constraintMultiplier.cols( );
 
-        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
-        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+        rightHandSide.conservativeResize( numberOfConstrainedParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfConstrainedParameters, numberOfConstraints ) = constraintRightHandside;
+    }
+
+    // Soft-constraint additions (e.g. inter-arc continuity): inject into the parameter block of the LHS/RHS,
+    // leaving any Lagrange-multiplier rows from the hard equality constraint above untouched.
+    const int nParams = static_cast< int >( designMatrix.cols( ) );
+    if( additionalNormalMatrix.size( ) > 0 )
+    {
+        if( additionalNormalMatrix.rows( ) != nParams || additionalNormalMatrix.cols( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalNormalMatrix has shape " +
+                                      std::to_string( additionalNormalMatrix.rows( ) ) + "x" +
+                                      std::to_string( additionalNormalMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
+                                      std::to_string( nParams ) + "." );
+        }
+        inverseOfCovarianceMatrix.topLeftCorner( nParams, nParams ) += additionalNormalMatrix;
+    }
+    if( additionalRightHandSide.size( ) > 0 )
+    {
+        if( additionalRightHandSide.size( ) != nParams )
+        {
+            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additionalRightHandSide has size " +
+                                      std::to_string( additionalRightHandSide.size( ) ) + ", expected " + std::to_string( nParams ) + "." );
+        }
+        rightHandSide.head( nParams ) += additionalRightHandSide;
     }
 
     return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ),
@@ -242,6 +269,29 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         const double convergenceTolerance,
         const unsigned int maximumNumberOfIterations )
 {
+    unsigned int numberOfIterations;
+    bool converged;
+    return nonLinearLeastSquaresFit( observationAndJacobianFunctions,
+                                     initialEstimate,
+                                     actualObservations,
+                                     initialScaling,
+                                     convergenceTolerance,
+                                     maximumNumberOfIterations,
+                                     numberOfIterations,
+                                     converged );
+}
+
+//! Function to perform a non-linear least squares estimation and return iteration diagnostics.
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling,
+        const double convergenceTolerance,
+        const unsigned int maximumNumberOfIterations,
+        unsigned int& numberOfIterations,
+        bool& converged )
+{
     // Set current estimate to initial value
     Eigen::VectorXd currentEstimate = initialEstimate;
 
@@ -279,8 +329,13 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
                 //                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt’s
                 //                update
                 Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
-        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                                   designMatrix, offsetInObservations, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, false )
+        // The nonlinear solver handles poor conditioning through Levenberg-Marquardt damping. Disable the lower-level
+        // SVD warning here to avoid printing once per iteration; divergence is still detected by the finite-update check.
+        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                                          offsetInObservations,
+                                                                                          diagonalOfWeightMatrix,
+                                                                                          inverseOfAPrioriCovarianceMatrix,
+                                                                                          std::numeric_limits< double >::infinity( ) )
                                    .first;
 
         // Check that update is real
@@ -322,6 +377,9 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
     {
         std::cerr << "Warning in non-linear least squares estimation. Maximum number of iterations exceeded." << std::endl;
     }
+
+    numberOfIterations = iteration;
+    converged = updateInEstimate.norm( ) <= convergenceTolerance;
 
     // Give out new estimate in parameters
     return currentEstimate;

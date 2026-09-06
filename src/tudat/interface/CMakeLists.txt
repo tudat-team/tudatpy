@@ -10,10 +10,10 @@
 
 add_subdirectory(spice)
 
-if (TUDAT_BUILD_WITH_JSON_INTERFACE)
-    add_subdirectory(json)
-endif ()
-
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     add_subdirectory(sofa)
+endif ()
+
+if (TUDAT_BUILD_WITH_MCD_INTERFACE)
+    add_subdirectory(mcd)
 endif ()

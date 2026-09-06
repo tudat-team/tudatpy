@@ -1303,35 +1303,86 @@ FullTwoBodySphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedA
             }
 
             std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
+            std::vector< std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > > coefficientPartialFunctions;
+            std::pair< int, int > selectedDegreeAndOrder = std::make_pair( -1, -1 );
             for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
             {
                 currentTidalPartialOutput =
                         tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction( parameter, maximumDegree, maximumOrder );
-                if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                if( currentTidalPartialOutput.first > 0 )
                 {
-                    throw std::runtime_error(
-                            "Error when getting full two-body acceleration partial w.r.t. tidal Love number, multiple dependencies "
-                            "found." );
+                    if( numberOfRows == 0 )
+                    {
+                        numberOfRows = currentTidalPartialOutput.first;
+                        selectedDegreeAndOrder = currentTidalPartialOutput.second;
+                    }
+                    else
+                    {
+                        if( numberOfRows != currentTidalPartialOutput.first )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting full two-body acceleration partial w.r.t. tidal Love number, inconsistent "
+                                    "parameter sizes found." );
+                        }
+                        if( selectedDegreeAndOrder != currentTidalPartialOutput.second )
+                        {
+                            throw std::runtime_error(
+                                    "Error when getting full two-body acceleration partial w.r.t. tidal Love number, inconsistent "
+                                    "degree/order metadata found." );
+                        }
+                    }
+
+                    std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > currentInterface =
+                            tidalLoveNumberPartialInterfaces_.at( i );
+                    std::pair< int, int > currentDegreeAndOrder = currentTidalPartialOutput.second;
+                    coefficientPartialFunctions.push_back( [ currentInterface, parameter, currentDegreeAndOrder ]( ) {
+                        return std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >(
+                                currentInterface->getCurrentVectorParameterPartial( parameter, currentDegreeAndOrder ) );
+                    } );
                 }
-                else if( currentTidalPartialOutput.first > 0 )
-                {
-                    tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
-                    std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                            std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
-                                       tidalLoveNumberPartialInterfaces_.at( i ),
-                                       parameter,
-                                       currentTidalPartialOutput.second );
-                    partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtTidalLoveNumber,
-                                                 this,
-                                                 isBody1Parameter,
-                                                 coefficientPartialFunction,
-                                                 tidalLoveNumber->getDegree( ),
-                                                 tidalLoveNumber->getOrders( ),
-                                                 tidalLoveNumber->getSumOrders( ),
-                                                 parameter->getParameterSize( ),
-                                                 std::placeholders::_1 );
-                    numberOfRows = currentTidalPartialOutput.first;
-                }
+            }
+
+            if( coefficientPartialFunctions.size( ) > 0 )
+            {
+                std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                        [ coefficientPartialFunctions ]( ) {
+                            std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > totalCoefficientPartials(
+                                    coefficientPartialFunctions.front( )( ) );
+                            for( unsigned int functionIndex = 1; functionIndex < coefficientPartialFunctions.size( ); functionIndex++ )
+                            {
+                                const std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > currentCoefficientPartials(
+                                        coefficientPartialFunctions.at( functionIndex )( ) );
+                                if( currentCoefficientPartials.size( ) != totalCoefficientPartials.size( ) )
+                                {
+                                    throw std::runtime_error(
+                                            "Error when summing full two-body tidal coefficient partials, inconsistent number of orders "
+                                            "found." );
+                                }
+                                for( unsigned int orderIndex = 0; orderIndex < totalCoefficientPartials.size( ); orderIndex++ )
+                                {
+                                    if( currentCoefficientPartials.at( orderIndex ).rows( ) !=
+                                                totalCoefficientPartials.at( orderIndex ).rows( ) ||
+                                        currentCoefficientPartials.at( orderIndex ).cols( ) !=
+                                                totalCoefficientPartials.at( orderIndex ).cols( ) )
+                                    {
+                                        throw std::runtime_error(
+                                                "Error when summing full two-body tidal coefficient partials, inconsistent matrix sizes "
+                                                "found." );
+                                    }
+                                    totalCoefficientPartials.at( orderIndex ) += currentCoefficientPartials.at( orderIndex );
+                                }
+                            }
+                            return totalCoefficientPartials;
+                        };
+                partialFunction = std::bind( &FullTwoBodySphericalHarmonicsGravityPartial::wrtTidalLoveNumber,
+                                             this,
+                                             isBody1Parameter,
+                                             coefficientPartialFunction,
+                                             tidalLoveNumber->getDegree( ),
+                                             tidalLoveNumber->getOrders( ),
+                                             tidalLoveNumber->getSumOrders( ),
+                                             parameter->getParameterSize( ),
+                                             std::placeholders::_1 );
             }
         }
     }

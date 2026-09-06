@@ -19,6 +19,7 @@ set(electromagnetism_HEADERS
         "sourcePanelRadiosityModel.h"
         "radiationPressureTargetModel.h"
         "radiationPressureAcceleration.h"
+        "threeCoefficientRadiationPressureAcceleration.h"
         "reflectionLaw.h"
         "occultationModel.h"
         "surfacePropertyDistribution.h"
@@ -34,6 +35,7 @@ set(electromagnetism_SOURCES
         "sourcePanelRadiosityModel.cpp"
         "radiationPressureTargetModel.cpp"
         "radiationPressureAcceleration.cpp"
+        "threeCoefficientRadiationPressureAcceleration.cpp"
         "reflectionLaw.cpp"
         "occultationModel.cpp"
         "surfacePropertyDistribution.cpp"
@@ -46,6 +48,6 @@ TUDAT_ADD_LIBRARY("electromagnetism"
         "${electromagnetism_HEADERS}"
         PUBLIC_LINKS
         tudat_system_models
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

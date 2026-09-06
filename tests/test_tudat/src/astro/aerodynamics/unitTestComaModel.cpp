@@ -1,4 +1,3 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
@@ -9,9 +8,9 @@
 #include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/io/basicInputOutput.h"
-#include <boost/test/unit_test.hpp>
-#include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+#include <filesystem>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -26,28 +25,28 @@ using namespace simulation_setup;
 
 struct PolyDatasetConfig {
     std::string label;
-    boost::filesystem::path polyFile;
-    boost::filesystem::path stokesFileLon0;
-    boost::filesystem::path stokesFileLon30;
+    std::filesystem::path polyFile;
+    std::filesystem::path stokesFileLon0;
+    std::filesystem::path stokesFileLon30;
     int maxDegree;
     int maxOrder;
 };
 
 struct TestDataPaths {
-    boost::filesystem::path testFile;
-    boost::filesystem::path rotatedTestFile;
-    boost::filesystem::path dataDir;
-    boost::filesystem::path outputDir;
-    boost::filesystem::path stokesFileLegacyLon0;
-    boost::filesystem::path stokesFileLegacyLon30;
-    boost::filesystem::path stokesFileRotatedLon0;
-    boost::filesystem::path stokesFileRotatedLon30;
+    std::filesystem::path testFile;
+    std::filesystem::path rotatedTestFile;
+    std::filesystem::path dataDir;
+    std::filesystem::path outputDir;
+    std::filesystem::path stokesFileLegacyLon0;
+    std::filesystem::path stokesFileLegacyLon30;
+    std::filesystem::path stokesFileRotatedLon0;
+    std::filesystem::path stokesFileRotatedLon30;
 
     TestDataPaths( )
     {
-        dataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
-        const boost::filesystem::path polyDir = dataDir / "density" / "polynomial";
-        const boost::filesystem::path stokesDir = dataDir / "density" / "stokes";
+        dataDir = std::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
+        const std::filesystem::path polyDir = dataDir / "density" / "polynomial";
+        const std::filesystem::path stokesDir = dataDir / "density" / "stokes";
 
         testFile = polyDir / "input_poly_coef_test_file.txt";
         rotatedTestFile = polyDir / "input_poly_coef_test_file_rotated.txt";
@@ -59,24 +58,24 @@ struct TestDataPaths {
         stokesFileRotatedLon30 = stokesDir / "SH-d30-rp3-fft12__r_cometFixed_ep10-030_10km_rotated.txt";
 
         // Ensure required files exist
-        const std::vector< boost::filesystem::path > requiredFiles = {
+        const std::vector< std::filesystem::path > requiredFiles = {
             testFile, rotatedTestFile, stokesFileLegacyLon0, stokesFileLegacyLon30, stokesFileRotatedLon0, stokesFileRotatedLon30
         };
 
         for( const auto& path : requiredFiles )
         {
-            if( !boost::filesystem::exists( path ) )
+            if( !std::filesystem::exists( path ) )
             {
                 throw std::runtime_error( "Test data file not found: " + path.string( ) );
             }
         }
 
         // Clean and create output directory
-        if( boost::filesystem::exists( outputDir ) )
+        if( std::filesystem::exists( outputDir ) )
         {
-            boost::filesystem::remove_all( outputDir );
+            std::filesystem::remove_all( outputDir );
         }
-        boost::filesystem::create_directories( outputDir );
+        std::filesystem::create_directories( outputDir );
     }
 
     std::vector< PolyDatasetConfig > getPolyDatasetConfigs( ) const
@@ -88,7 +87,7 @@ struct TestDataPaths {
     ~TestDataPaths( )
     {
         // Optional: cleanup output dir after tests
-        // boost::filesystem::remove_all(outputDir);
+        // std::filesystem::remove_all(outputDir);
     }
 };
 
@@ -370,10 +369,10 @@ BOOST_FIXTURE_TEST_CASE( test_stokes_dataset_writer, TestDataPaths )
     dataset.setCoeff( 0, 1, 0, 3, 3, 0.25, 0.75 );
 
     // Write to CSV
-    boost::filesystem::path csvPath = outputDir / "test_stokes.csv";
+    std::filesystem::path csvPath = outputDir / "test_stokes.csv";
     ComaStokesDatasetWriter::writeCsvForFile( dataset, 0, csvPath.string( ) );
 
-    BOOST_CHECK( boost::filesystem::exists( csvPath ) );
+    BOOST_CHECK( std::filesystem::exists( csvPath ) );
 
     // Verify CSV content
     std::ifstream ifs( csvPath.string( ) );
@@ -438,7 +437,7 @@ BOOST_FIXTURE_TEST_CASE( test_stokes_dataset_reader_from_csv, TestDataPaths )
     originalDataset.setCoeff( 0, 1, 1, 3, 2, -0.084, -0.026 );
 
     // Write to CSV
-    boost::filesystem::path csvPath = outputDir / "test_reader.csv";
+    std::filesystem::path csvPath = outputDir / "test_reader.csv";
     ComaStokesDatasetWriter::writeCsvForFile( originalDataset, 0, csvPath.string( ) );
 
     // Now test reading it back
@@ -532,8 +531,8 @@ BOOST_FIXTURE_TEST_CASE( test_stokes_dataset_reader_from_csv_folder, TestDataPat
     dataset2.setCoeff( 0, 1, 0, 2, 0, 0.5, 0.0 );
 
     // Create folder for multi-file test
-    boost::filesystem::path folderPath = outputDir / "multi_file_test";
-    boost::filesystem::create_directories( folderPath );
+    std::filesystem::path folderPath = outputDir / "multi_file_test";
+    std::filesystem::create_directories( folderPath );
 
     // Write both datasets to separate CSV files
     ComaStokesDatasetWriter::writeCsvForFile( dataset1, 0, ( folderPath / "test_file0.csv" ).string( ) );
@@ -1072,7 +1071,7 @@ BOOST_FIXTURE_TEST_CASE( test_coma_model_number_density, TestDataPaths )
 
         // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
         {
-            const boost::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
+            const std::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
             const double testRadius = 4000.0;       // 4 km in meters
             const double testSolarLongitude = 0.0;  // 0 degrees in radians
             const double testTime = 490708800;      // s since J2000
@@ -1196,7 +1195,7 @@ BOOST_FIXTURE_TEST_CASE( test_coma_model_number_density, TestDataPaths )
 
         // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
         {
-            const boost::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
+            const std::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
             const double testRadius = 10000.0;                                            // 10 km in meters
             const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
             const double testTime = 490708800;                                            // s since J2000
@@ -1372,7 +1371,7 @@ BOOST_FIXTURE_TEST_CASE( test_coma_model_density_validation_from_python, TestDat
 
     const ComaStokesDataset stokesDataset = processor.createSHDataset( radii_m, longitudes_deg, maxDegree, maxOrder );
 
-    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
+    const std::filesystem::path referenceFile = dataDir / "reference_values.txt";
 
     // Read reference values file
     std::ifstream file( referenceFile.string( ) );
@@ -1547,8 +1546,8 @@ BOOST_FIXTURE_TEST_CASE( test_poly_coef_processor_create_sh_dataset, TestDataPat
     const std::vector< double > radii_m = { 4000.0, 10000.0 };
     const std::vector< double > longitudes_deg = { 0.0, 30.0 };
 
-    const boost::filesystem::path testFile1 = stokesFileLegacyLon0;
-    const boost::filesystem::path testFile2 = stokesFileLegacyLon30;
+    const std::filesystem::path testFile1 = stokesFileLegacyLon0;
+    const std::filesystem::path testFile2 = stokesFileLegacyLon30;
     StokesTestData expectedData1 = StokesTestData::readFromFile( testFile1.string( ), 10 );
     StokesTestData expectedData2 = StokesTestData::readFromFile( testFile2.string( ), 10 );
 
@@ -1599,17 +1598,17 @@ BOOST_FIXTURE_TEST_CASE( test_poly_coef_processor_create_sh_files, TestDataPaths
     std::vector< double > longitudes_deg = { 0.0, 30.0 };
 
     // Clean output directory
-    if( boost::filesystem::exists( outputDir ) )
+    if( std::filesystem::exists( outputDir ) )
     {
-        boost::filesystem::remove_all( outputDir );
+        std::filesystem::remove_all( outputDir );
     }
 
     // Generate CSV files
     processor.createSHFiles( outputDir.string( ), radii_m, longitudes_deg );
 
     // Check that file was created
-    boost::filesystem::path expectedFile = outputDir / "stokes_file0.csv";
-    BOOST_CHECK( boost::filesystem::exists( expectedFile ) );
+    std::filesystem::path expectedFile = outputDir / "stokes_file0.csv";
+    BOOST_CHECK( std::filesystem::exists( expectedFile ) );
 
     // Verify file content structure
     std::ifstream ifs( expectedFile.string( ) );
@@ -1664,15 +1663,15 @@ BOOST_FIXTURE_TEST_CASE( test_sh_processor_from_existing_files, TestDataPaths )
     ComaStokesDataset originalDataset = processor.createSHDataset( radii_m, longitudes_deg, 8, 6 );
 
     // Create SH files directory
-    boost::filesystem::path shFilesDir = outputDir / "sh_files_test";
-    boost::filesystem::create_directories( shFilesDir );
+    std::filesystem::path shFilesDir = outputDir / "sh_files_test";
+    std::filesystem::create_directories( shFilesDir );
 
     // Generate CSV files using createSHFiles
     processor.createSHFiles( shFilesDir.string( ), radii_m, longitudes_deg, 8, 6 );
 
     // Verify files were created
-    boost::filesystem::path expectedFile = shFilesDir / "stokes_file0.csv";
-    BOOST_CHECK( boost::filesystem::exists( expectedFile ) );
+    std::filesystem::path expectedFile = shFilesDir / "stokes_file0.csv";
+    BOOST_CHECK( std::filesystem::exists( expectedFile ) );
 
     // Now test creating a new processor from SH files and reading the dataset
     ComaModelFileProcessor shProcessor( shFilesDir.string( ) );
@@ -1738,8 +1737,8 @@ BOOST_FIXTURE_TEST_CASE( test_sh_processor_from_existing_files, TestDataPaths )
     BOOST_CHECK_CLOSE( read_S_5_4_r1_l1, orig_S_5_4_r1_l1, 1e-10 );
 
     // Test with custom prefix
-    boost::filesystem::path customPrefixDir = outputDir / "custom_prefix_test";
-    boost::filesystem::create_directories( customPrefixDir );
+    std::filesystem::path customPrefixDir = outputDir / "custom_prefix_test";
+    std::filesystem::create_directories( customPrefixDir );
 
     // Write CSV files with custom prefix
     ComaStokesDatasetWriter::writeCsvAll( originalDataset, customPrefixDir.string( ), "custom" );
@@ -1828,8 +1827,8 @@ BOOST_FIXTURE_TEST_CASE( test_sh_processor_constructor_validation, TestDataPaths
     BOOST_CHECK_THROW( ComaModelFileProcessor processor( nonExistentDir ), std::runtime_error );
 
     // Test with empty directory (no SH files)
-    boost::filesystem::path emptyDir = outputDir / "empty_dir";
-    boost::filesystem::create_directories( emptyDir );
+    std::filesystem::path emptyDir = outputDir / "empty_dir";
+    std::filesystem::create_directories( emptyDir );
     BOOST_CHECK_THROW( ComaModelFileProcessor processor( emptyDir.string( ) ), std::runtime_error );
 }
 
@@ -1858,8 +1857,8 @@ BOOST_FIXTURE_TEST_CASE( test_processor_file_type_behavior, TestDataPaths )
     std::vector< double > radii_m = { 6000.0, 10000.0 };   // Need at least 2 radii for interpolation
     std::vector< double > longitudes_deg = { 0.0, 30.0 };  // Need at least 2 longitudes for interpolation
 
-    boost::filesystem::path shTestDir = outputDir / "file_type_test";
-    boost::filesystem::create_directories( shTestDir );
+    std::filesystem::path shTestDir = outputDir / "file_type_test";
+    std::filesystem::create_directories( shTestDir );
     polyProcessor.createSHFiles( shTestDir.string( ), radii_m, longitudes_deg, 5, 5 );
 
     // Test poly processor behavior
@@ -1934,14 +1933,14 @@ BOOST_FIXTURE_TEST_CASE( test_full_pipeline, TestDataPaths )
     BOOST_CHECK_LE( stokesDataset.nCoeffs( ), ( 8 + 1 ) * ( 8 + 2 ) / 2 );
 
     // Step 3: Write to files
-    boost::filesystem::path integratedOutput = outputDir / "integrated";
-    boost::filesystem::create_directories( integratedOutput );
+    std::filesystem::path integratedOutput = outputDir / "integrated";
+    std::filesystem::create_directories( integratedOutput );
 
     ComaStokesDatasetWriter::writeCsvAll( stokesDataset, integratedOutput.string( ), "integrated" );
 
     // Step 4: Verify output
-    boost::filesystem::path outputFile = integratedOutput / "integrated_file0.csv";
-    BOOST_CHECK( boost::filesystem::exists( outputFile ) );
+    std::filesystem::path outputFile = integratedOutput / "integrated_file0.csv";
+    BOOST_CHECK( std::filesystem::exists( outputFile ) );
 
     // Step 5: Test reading back the written data
     ComaStokesDataset readDataset = ComaStokesDatasetReader::readFromCsv( outputFile.string( ) );
@@ -2021,7 +2020,7 @@ BOOST_FIXTURE_TEST_CASE( test_calculate_surface_spherical_harmonics, TestDataPat
 
     // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
     {
-        const boost::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
+        const std::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
         const double testRadius = 4000.0;                                            // 4 km in meters
         const double testSolarLongitude = 0.0 * mathematical_constants::PI / 180.0;  // 0 degrees in radians
 
@@ -2124,7 +2123,7 @@ BOOST_FIXTURE_TEST_CASE( test_calculate_surface_spherical_harmonics, TestDataPat
 
     // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
     {
-        const boost::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
+        const std::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
         const double testRadius = 10000.0;                                            // 10 km in meters
         const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
 

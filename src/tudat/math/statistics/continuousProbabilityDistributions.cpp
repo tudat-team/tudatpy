@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/math/special_functions/erf.hpp>
+#include <cmath>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/statistics/continuousProbabilityDistributions.h"
@@ -30,7 +30,7 @@ double evaluateGaussianPdf( const double independentVariable, const double mean,
 //! Function to evaluate cdf of Gaussian distribution.
 double calculateGaussianCdf( const double independentVariable, const double mean, const double standardDeviation )
 {
-    return 0.5 * ( 1.0 + boost::math::erf( ( independentVariable - mean ) / ( std::sqrt( 2.0 ) * ( standardDeviation ) ) ) );
+    return 0.5 * ( 1.0 + std::erf( ( independentVariable - mean ) / ( std::sqrt( 2.0 ) * ( standardDeviation ) ) ) );
 }
 
 }  // namespace statistics

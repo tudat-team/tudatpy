@@ -22,6 +22,7 @@ namespace dynamics
 namespace environment_setup
 {
 
+void expose_environment_setup_types( py::module& m );
 void expose_environment_setup( py::module& m );
 
 }  // namespace environment_setup

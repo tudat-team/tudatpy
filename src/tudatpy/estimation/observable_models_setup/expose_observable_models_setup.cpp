@@ -34,19 +34,23 @@ namespace estimation
 namespace observable_models_setup
 {
 
+void expose_observable_models_setup_types( py::module& m )
+{
+    auto links = m.def_submodule( "links" );
+    auto model_settings = m.def_submodule( "model_settings" );
+
+    model_settings::expose_observable_type( model_settings );
+    links::expose_links( links );
+}
+
 void expose_observable_models_setup( py::module& m )
 {
-    // ************** Modules ***************
-    auto biases = m.def_submodule( "biases" );
-    biases::expose_biases( biases );
-
-    auto links = m.def_submodule( "links" );
-    links::expose_links( links );
-
     auto light_time_corrections = m.def_submodule( "light_time_corrections" );
-    light_time_corrections::expose_light_time_corrections( light_time_corrections );
+    auto model_settings = py::module_::import( "tudatpy.kernel.estimation.observable_models_setup.model_settings" );
+    auto biases = m.def_submodule( "biases" );
 
-    auto model_settings = m.def_submodule( "model_settings" );
+    biases::expose_biases( biases );
+    light_time_corrections::expose_light_time_corrections( light_time_corrections );
     model_settings::expose_model_settings( model_settings );
 }
 

@@ -21,6 +21,7 @@
 #include "electromagnetism/sourcePanelRadiosityModel.h"
 #include "electromagnetism/radiationPressureTargetModel.h"
 #include "electromagnetism/radiationPressureAcceleration.h"
+#include "electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "electromagnetism/reflectionLaw.h"
 #include "electromagnetism/occultationModel.h"
 #include "electromagnetism/surfacePropertyDistribution.h"

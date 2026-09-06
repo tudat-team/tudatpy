@@ -16,7 +16,6 @@
 #include <fstream>
 #include <Eigen/Dense>
 #include <cmath>
-#include <boost/filesystem.hpp>
 
 #include "tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h"
 #include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"

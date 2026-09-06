@@ -138,6 +138,13 @@ def test_dependent_variable_dictionary():
         ),
     ]
 
+    # Value equality must not make settings unusable as dictionary keys.
+    equivalent_total_acceleration = propagation_setup.dependent_variable.total_acceleration(
+        "Delfi-C3"
+    )
+    assert dependent_variables_to_save[0] == equivalent_total_acceleration
+    assert hash(dependent_variables_to_save[0]) == hash(equivalent_total_acceleration)
+
     # Create termination settings
     termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
 

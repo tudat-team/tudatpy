@@ -36,7 +36,7 @@ target_link_libraries(tudat_estimation_test_case_support PUBLIC
     ${Tudat_ESTIMATION_LIBRARIES}
 )
 target_link_libraries(tudat_estimation_test_case_support PRIVATE
-    "${Boost_LIBRARIES}"
+    "Boost::boost"
 )
 
 if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
@@ -102,12 +102,17 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
     ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
     )
 
-# TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
-#         PRIVATE_LINKS
-#         ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#         )
+TUDAT_ADD_TEST_CASE(HybridArcMultiBodyEstimation
+        PRIVATE_LINKS
+        ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+        )
 
 TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
+    PRIVATE_LINKS
+    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
+    )
+
+TUDAT_ADD_TEST_CASE(InterArcContinuityConstraint
     PRIVATE_LINKS
     ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
     )
@@ -162,18 +167,6 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
          )
-# Example application: estimation of Doppler observations from ODF/DSN data
-#TUDAT_ADD_TEST_CASE(EstimationFromDsnData
-#    PRIVATE_LINKS
-#    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#    )
-
-# Example application: estimation of position observables from SPICE data
-#TUDAT_ADD_TEST_CASE(EstimationFromSpiceData
-#    PRIVATE_LINKS
-#    ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}
-#    )
-
  TUDAT_ADD_TEST_CASE(ConsiderParameters
          PRIVATE_LINKS
          ${ORBIT_DETERMINATION_TEST_PRIVATE_LINKS}

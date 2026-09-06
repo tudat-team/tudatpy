@@ -9,12 +9,11 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -22,6 +21,7 @@
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
+#include "tudat/math/interpolators/lagrangeInterpolator.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/simulation/propagation_setup/multiArcDynamicsSimulator.h"
@@ -46,6 +46,7 @@ using namespace propagators;
 
 BOOST_AUTO_TEST_SUITE( test_multi_arc_dynamics )
 
+//! Test multi-arc propagation variants, including custom interpolation of the integrated state histories.
 BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 {
     // Load spice kernels.
@@ -144,8 +145,28 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             multiArcPrintSettings->reset( true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
 
             multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings( multiArcPrintSettings );
+            // Enable environment updates with a non-default interpolation order for all propagated arcs.
+            multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+            multiArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 8 ) );
 
             MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
+
+            // Verify that every tabulated arc ephemeris uses the requested interpolation order.
+            std::shared_ptr< MultiArcEphemeris > integratedMoonEphemeris =
+                    std::dynamic_pointer_cast< MultiArcEphemeris >( bodies.at( "Moon" )->getEphemeris( ) );
+            BOOST_REQUIRE( integratedMoonEphemeris != nullptr );
+            BOOST_REQUIRE( !integratedMoonEphemeris->getSingleArcEphemerides( ).empty( ) );
+            for( const std::shared_ptr< Ephemeris >& arcEphemeris : integratedMoonEphemeris->getSingleArcEphemerides( ) )
+            {
+                std::shared_ptr< TabulatedCartesianEphemeris<> > tabulatedArcEphemeris =
+                        std::dynamic_pointer_cast< TabulatedCartesianEphemeris<> >( arcEphemeris );
+                BOOST_REQUIRE( tabulatedArcEphemeris != nullptr );
+                std::shared_ptr< LagrangeInterpolator< double, Eigen::Vector6d > > arcInterpolator =
+                        std::dynamic_pointer_cast< LagrangeInterpolator< double, Eigen::Vector6d > >(
+                                tabulatedArcEphemeris->getInterpolator( ) );
+                BOOST_REQUIRE( arcInterpolator != nullptr );
+                BOOST_CHECK_EQUAL( arcInterpolator->getNumberOfStages( ), 8 );
+            }
         }
         // For case 1: test multi-arc estimation with different integration settings object for each arc
         else if( testCase == 1 )

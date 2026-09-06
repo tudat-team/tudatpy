@@ -33,8 +33,14 @@ std::shared_ptr< tudat::electromagnetism::OccultationModel > createOccultationMo
         case 1: {
             auto occultingBodyName = occultingBodies.front( );
             auto occultingBody = bodies.at( occultingBodyName );
+            auto occultingBodyShapeModel = occultingBody->getShapeModel( );
+            if( occultingBodyShapeModel == nullptr )
+            {
+                throw std::runtime_error( "Error when creating occultation model, occulting body " + occultingBodyName +
+                                          " has no shape model." );
+            }
             occultationModel = std::make_shared< SingleOccultingBodyOccultationModel >(
-                    occultingBodyName, std::bind( &Body::getPosition, occultingBody ), occultingBody->getShapeModel( ) );
+                    occultingBodyName, std::bind( &Body::getPosition, occultingBody ), occultingBodyShapeModel );
             break;
         }
         default: {
@@ -43,8 +49,14 @@ std::shared_ptr< tudat::electromagnetism::OccultationModel > createOccultationMo
             for( const auto& occultingBodyName : occultingBodies )
             {
                 auto occultingBody = bodies.at( occultingBodyName );
+                auto occultingBodyShapeModel = occultingBody->getShapeModel( );
+                if( occultingBodyShapeModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating occultation model, occulting body " + occultingBodyName +
+                                              " has no shape model." );
+                }
                 occultingBodyPositionFunctions.emplace_back( std::bind( &Body::getPosition, occultingBody ) );
-                occultingBodyShapeModels.push_back( occultingBody->getShapeModel( ) );
+                occultingBodyShapeModels.push_back( occultingBodyShapeModel );
             }
             occultationModel = std::make_shared< SimpleMultipleOccultingBodyOccultationModel >(
                     occultingBodies, occultingBodyPositionFunctions, occultingBodyShapeModels );
@@ -57,5 +69,3 @@ std::shared_ptr< tudat::electromagnetism::OccultationModel > createOccultationMo
 
 }  // namespace simulation_setup
 }  // namespace tudat
-
-#include "tudat/simulation/environment_setup/createOccultationModel.h"
