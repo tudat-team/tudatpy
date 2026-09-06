@@ -390,6 +390,10 @@ public:
             const Eigen::VectorXd& dependentVariableLimit,
             const bool returnFirstCompatibleSettings = false )
     {
+        if( dependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating dependent-variable observation condition, settings are null." );
+        }
         // Selects a row when any compatible dependent-variable component is greater than the signed limit.
         ObservationSelectionCondition condition;
         condition.type_ = ObservationSelectionConditionType::dependent_variable_greater_than;

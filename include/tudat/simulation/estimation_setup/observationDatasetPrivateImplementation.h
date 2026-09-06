@@ -272,11 +272,25 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::validateObser
         throw std::runtime_error( "Error when updating observation dataset, residual size is inconsistent." );
     }
 
+    int dependentVariableSize = -1;
+    const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& bookkeeping =
+            getDependentVariableBookkeeping( metadata.dependentVariableLayoutId_ );
+    if( bookkeeping != nullptr )
+    {
+        dependentVariableSize = bookkeeping->getTotalDependentVariableSize( );
+    }
+    else if( !dependentVariables.empty( ) )
+    {
+        dependentVariableSize = dependentVariables.front( ).size( );
+    }
+
     for( std::size_t i = 0; i < observations.size( ); ++i )
     {
         if( observations.at( i ).size( ) != static_cast< int >( observableSize ) ||
             ( !weights.empty( ) && weights.at( i ).size( ) != static_cast< int >( observableSize ) ) ||
-            ( !residuals.empty( ) && residuals.at( i ).size( ) != static_cast< int >( observableSize ) ) )
+            ( !residuals.empty( ) && residuals.at( i ).size( ) != static_cast< int >( observableSize ) ) ||
+            ( !dependentVariables.empty( ) && dependentVariables.at( i ).size( ) != dependentVariableSize ) )
         {
             throw std::runtime_error( "Error when updating observation dataset, scalar component size is inconsistent." );
         }
@@ -295,7 +309,7 @@ std::vector< std::size_t > ObservationDataset< ObservationScalarType, TimeType, 
         permutation.at( i ) = i;
     }
 
-    std::sort( permutation.begin( ), permutation.end( ), [ &observationTimes ]( const std::size_t i, const std::size_t j ) {
+    std::stable_sort( permutation.begin( ), permutation.end( ), [ &observationTimes ]( const std::size_t i, const std::size_t j ) {
         return observationTimes.at( i ) < observationTimes.at( j );
     } );
 

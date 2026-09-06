@@ -11,9 +11,10 @@
 #ifndef TUDAT_SIMULATEOBSERVATIONS_H
 #define TUDAT_SIMULATEOBSERVATIONS_H
 
-#include <memory>
-
+#include <deque>
 #include <functional>
+#include <map>
+#include <memory>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -728,25 +729,77 @@ void computeResidualsAndDependentVariables(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
             simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > observationData =
-            observationDataset->createComputationFlattenedObservationData( true );
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computedObservationData =
-            computedObservationDataset->createComputationFlattenedObservationData( true );
-
-    // Residual/dependent-variable computation includes rejected rows by default so they remain inspectable for restoration decisions.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
-            observationData.getObservationVector( ) - computedObservationData.getObservationVector( );
-    observationDataset->setResidualVector( observationData, residuals );
+    if( observationDataset->getNumberOfObservationSets( ) != computedObservationDataset->getNumberOfObservationSets( ) )
+    {
+        throw std::runtime_error( "Error when computing observation residuals, simulated and observed set counts differ." );
+    }
 
     for( unsigned int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
-        if( computedDependentVariables.size( ) > 0 )
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& observedMetadata =
+                observationDataset->getObservationSetMetadata( setId );
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& computedMetadata =
+                computedObservationDataset->getObservationSetMetadata( setId );
+        if( observedMetadata.observableType_ != computedMetadata.observableType_ ||
+            observedMetadata.referenceLinkEnd_ != computedMetadata.referenceLinkEnd_ ||
+            observedMetadata.observableSize_ != computedMetadata.observableSize_ ||
+            !( observationDataset->getLinkDefinition( observedMetadata.linkDefinitionId_ ) ==
+               computedObservationDataset->getLinkDefinition( computedMetadata.linkDefinitionId_ ) ) )
         {
-            if( computedDependentVariables.at( 0 ).size( ) > 0 )
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed set metadata differ." );
+        }
+
+        const std::vector< TimeType > observedTimes = observationDataset->getObservationTimesForSet( setId );
+        const std::vector< TimeType > computedTimes = computedObservationDataset->getObservationTimesForSet( setId );
+        if( observedTimes.size( ) != computedTimes.size( ) )
+        {
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed row counts differ." );
+        }
+
+        std::map< TimeType, std::deque< std::size_t > > computedIndicesByTime;
+        for( std::size_t i = 0; i < computedTimes.size( ); ++i )
+        {
+            computedIndicesByTime[ computedTimes.at( i ) ].push_back( i );
+        }
+
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observedValues =
+                observationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedValues =
+                computedObservationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals( observedTimes.size( ) );
+        std::vector< Eigen::VectorXd > reorderedDependentVariables;
+        if( !computedDependentVariables.empty( ) )
+        {
+            if( computedDependentVariables.size( ) != computedTimes.size( ) )
             {
-                observationDataset->setDependentVariablesForSet( setId, computedDependentVariables );
+                throw std::runtime_error(
+                        "Error when computing observation residuals, simulated dependent-variable row count is inconsistent." );
             }
+            reorderedDependentVariables.resize( observedTimes.size( ) );
+        }
+
+        for( std::size_t i = 0; i < observedTimes.size( ); ++i )
+        {
+            auto computedIndexIterator = computedIndicesByTime.find( observedTimes.at( i ) );
+            if( computedIndexIterator == computedIndicesByTime.end( ) || computedIndexIterator->second.empty( ) )
+            {
+                throw std::runtime_error( "Error when computing observation residuals, no simulated row has the observed epoch." );
+            }
+            const std::size_t computedIndex = computedIndexIterator->second.front( );
+            computedIndexIterator->second.pop_front( );
+            residuals.at( i ) = observedValues.at( i ) - computedValues.at( computedIndex );
+            if( !reorderedDependentVariables.empty( ) )
+            {
+                reorderedDependentVariables.at( i ) = computedDependentVariables.at( computedIndex );
+            }
+        }
+
+        // Restore the source row order after simulation, which sorts tabulated epochs for deterministic model evaluation.
+        observationDataset->setResidualsForSet( setId, residuals );
+        if( !reorderedDependentVariables.empty( ) )
+        {
+            observationDataset->setDependentVariablesForSet( setId, reorderedDependentVariables );
         }
     }
 }

@@ -89,6 +89,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::resetLinkDefi
                                                                                               const LinkDefinition& linkDefinition )
 {
     setMetadata_.at( setId ).linkDefinitionId_ = registerLinkDefinition( linkDefinition );
+    ++structuralVersion_;
 }
 
 template< typename ObservationScalarType,
@@ -100,11 +101,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setLinkEndRef
         const LinkEndType linkEndType,
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
-    bool hasUpdatedSet = false;
     for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
     {
         const std::vector< unsigned int >& observationIds = getObservationIdsForSet( setId );
-        bool setMatchesCondition = observationIds.empty( );
+        bool setMatchesCondition = false;
         for( const unsigned int observationId : observationIds )
         {
             if( condition( *this, observationId ) )
@@ -129,12 +129,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setLinkEndRef
 
         linkEndIterator->second = LinkEndId( linkEndIterator->second.bodyName_, referencePointName );
         resetLinkDefinitionForSet( setId, LinkDefinition( linkEnds ) );
-        hasUpdatedSet = true;
-    }
-
-    if( hasUpdatedSet )
-    {
-        ++structuralVersion_;
     }
 }
 
@@ -146,6 +140,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::resetDependen
         const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping )
 {
     setMetadata_.at( setId ).dependentVariableLayoutId_ = registerDependentVariableLayout( dependentVariableBookkeeping );
+    ++structuralVersion_;
 }
 
 template< typename ObservationScalarType,

@@ -47,13 +47,16 @@ public:
     ObservationDatasetViewer( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                               const std::vector< unsigned int >& observationIds,
                               const std::size_t structuralVersion ):
-        dataset_( &dataset ), observationIds_( observationIds ), structuralVersion_( structuralVersion )
+        dataset_( &dataset ), lifetimeToken_( dataset.getLifetimeToken( ) ), observationIds_( observationIds ),
+        structuralVersion_( structuralVersion )
     {}
 
     ObservationDatasetViewer( const std::shared_ptr< const ObservationDataset< ObservationScalarType, TimeType > >& dataset,
                               const std::vector< unsigned int >& observationIds,
                               const std::size_t structuralVersion ):
-        ownedDataset_( dataset ), dataset_( dataset.get( ) ), observationIds_( observationIds ), structuralVersion_( structuralVersion )
+        ownedDataset_( dataset ), dataset_( dataset.get( ) ),
+        lifetimeToken_( dataset == nullptr ? std::weak_ptr< const int >( ) : dataset->getLifetimeToken( ) ),
+        observationIds_( observationIds ), structuralVersion_( structuralVersion )
     {}
 
     std::size_t getNumberOfObservations( ) const
@@ -141,6 +144,10 @@ private:
     //! Throw if the parent dataset has structurally changed since viewer creation.
     void checkValidity( ) const
     {
+        if( lifetimeToken_.expired( ) )
+        {
+            throw std::runtime_error( "Error when using observation dataset viewer, parent dataset no longer exists." );
+        }
         if( structuralVersion_ != dataset( ).getStructuralVersion( ) )
         {
             throw std::runtime_error(
@@ -153,6 +160,9 @@ private:
 
     //! Parent dataset pointer; backed by ownedDataset_ when shared ownership is available.
     const ObservationDataset< ObservationScalarType, TimeType >* dataset_;
+
+    //! Weak lifetime marker checked before dereferencing a non-owning parent dataset pointer.
+    std::weak_ptr< const int > lifetimeToken_;
 
     //! Observation ids selected by this viewer, in flattened-data row order.
     std::vector< unsigned int > observationIds_;

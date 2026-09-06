@@ -140,8 +140,8 @@ def test_dataset_add_observation_set_accepts_single_observation_set_object():
 
 def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
     link_definition = observations.LinkDefinition(_link_ends("Earth"))
-    observation_values = [np.array([10.0]), np.array([20.0])]
-    observation_times = [1.0, 2.0]
+    observation_values = [np.array([20.0]), np.array([10.0])]
+    observation_times = [2.0, 1.0]
 
     positional_dataset = observations.ObservationDataset()
     assert (
@@ -174,6 +174,10 @@ def test_dataset_add_observation_set_component_shape_matches_keyword_constructio
     np.testing.assert_allclose(
         positional_dataset.ordered_flattened_observation_data().times,
         keyword_dataset.ordered_flattened_observation_data().times,
+    )
+    np.testing.assert_allclose(
+        [float(time) for time in positional_dataset.observation_times_for_set(0)],
+        observation_times,
     )
 
 
