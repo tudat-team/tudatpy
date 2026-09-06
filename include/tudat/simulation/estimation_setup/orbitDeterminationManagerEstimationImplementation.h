@@ -131,10 +131,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Normalise estimated parameters partials and inverse apriori covariance
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
+        const Eigen::VectorXd estimatedParameterNormalizationTerms = normalizationTerms.segment( 0, numberEstimatedParameters_ );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
-        const Eigen::VectorXd normalizedAprioriParameterDeviation =
-                ( oldParameterEstimate - aprioriParameterEstimate ).template cast< double >( ).cwiseProduct( normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), estimatedParameterNormalizationTerms );
+        Eigen::VectorXd normalizedAprioriParameterDeviation = Eigen::VectorXd::Zero( 0 );
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            normalizedAprioriParameterDeviation = ( oldParameterEstimate - aprioriParameterEstimate )
+                                                          .template cast< double >( )
+                                                          .cwiseProduct( estimatedParameterNormalizationTerms );
+        }
 
         InterArcConstraintContribution interArcContribution;
         if( !interArcConstraints.empty( ) )
@@ -222,9 +228,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             break;
         }
 
-        ParameterVectorType parameterAddition =
-                ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) )
-                        .template cast< ObservationScalarType >( );
+        ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
+                                                        .template cast< ObservationScalarType >( );
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -245,10 +250,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
         costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
-        const double aprioriCost = 0.5 *
-                normalizedAprioriParameterDeviation.dot( normalizedInverseAprioriCovarianceMatrix * normalizedAprioriParameterDeviation );
-        // The cost driving best-iteration selection combines the observation cost with all prior costs. Residual RMS is
-        // unchanged so observation-only diagnostics remain meaningful.
+        double aprioriCost = 0.0;
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            aprioriCost = 0.5 *
+                    normalizedAprioriParameterDeviation.dot( normalizedInverseAprioriCovarianceMatrix *
+                                                             normalizedAprioriParameterDeviation );
+        }
+        // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
+        // is unchanged so observation-only diagnostics remain meaningful.
         costFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );

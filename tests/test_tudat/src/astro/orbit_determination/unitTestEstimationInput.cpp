@@ -97,19 +97,21 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
     inverseAprioriCovariance << 4.0, 1.0, 1.0, 3.0;
     const Eigen::Vector2d aprioriParameterDeviation = ( Eigen::Vector2d( ) << 0.5, -0.25 ).finished( );
 
-    const auto leastSquaresOutput =
-            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
-                                                                           residuals,
-                                                                           weights,
-                                                                           inverseAprioriCovariance,
-                                                                           std::numeric_limits< double >::quiet_NaN( ),
-                                                                           Eigen::MatrixXd( 0, 0 ),
-                                                                           Eigen::VectorXd( 0 ),
-                                                                           Eigen::MatrixXd( 0, 0 ),
-                                                                           Eigen::VectorXd( 0 ),
-                                                                           Eigen::MatrixXd( 0, 0 ),
-                                                                           Eigen::VectorXd( 0 ),
-                                                                           aprioriParameterDeviation );
+    const auto performAdjustment = [ & ]( const Eigen::MatrixXd& inversePrior ) {
+        return linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                              residuals,
+                                                                              weights,
+                                                                              inversePrior,
+                                                                              std::numeric_limits< double >::quiet_NaN( ),
+                                                                              Eigen::MatrixXd( 0, 0 ),
+                                                                              Eigen::VectorXd( 0 ),
+                                                                              Eigen::MatrixXd( 0, 0 ),
+                                                                              Eigen::VectorXd( 0 ),
+                                                                              Eigen::MatrixXd( 0, 0 ),
+                                                                              Eigen::VectorXd( 0 ),
+                                                                              aprioriParameterDeviation );
+    };
+    const auto leastSquaresOutput = performAdjustment( inverseAprioriCovariance );
 
     const Eigen::Matrix2d expectedNormalMatrix =
             designMatrix.transpose( ) * weights.asDiagonal( ) * designMatrix + inverseAprioriCovariance;
@@ -119,6 +121,8 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
 
     BOOST_CHECK_SMALL( ( leastSquaresOutput.second - expectedNormalMatrix ).norm( ), 1.0E-14 );
     BOOST_CHECK_SMALL( ( leastSquaresOutput.first - expectedParameterCorrection ).norm( ), 1.0E-14 );
+    BOOST_CHECK_THROW( performAdjustment( Eigen::MatrixXd::Zero( 0, 0 ) ), std::runtime_error );
+    BOOST_CHECK_THROW( performAdjustment( Eigen::MatrixXd::Zero( 2, 1 ) ), std::runtime_error );
 }
 
 //! Test that a priori information constrains the total deviation in a realistic iterative orbit determination.
@@ -213,8 +217,14 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
             1.0 / ( positionAprioriStandardDeviation * positionAprioriStandardDeviation ) );
     fullEstimationInverseAprioriCovariance( 6, 6 ) =
             1.0 / ( dragCoefficientAprioriStandardDeviation * dragCoefficientAprioriStandardDeviation );
-    const std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-            simulatedObservations, fullEstimationInverseAprioriCovariance, estimationConvergenceChecker( 3, -1.0, -1.0, 100 ) );
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations,
+                                                                   fullEstimationInverseAprioriCovariance,
+                                                                   estimationConvergenceChecker( 3, -1.0, -1.0, 100 ),
+                                                                   Eigen::MatrixXd::Zero( 0, 0 ),
+                                                                   Eigen::VectorXd::Zero( 0 ),
+                                                                   true,
+                                                                   true );
     estimationInput->defineEstimationSettings( true, true, true, false, true, false );
 
     const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =

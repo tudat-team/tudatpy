@@ -148,10 +148,15 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     }
 
-    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
-            designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
-
     const int nParams = static_cast< int >( designMatrix.cols( ) );
+    if( inverseOfAPrioriCovarianceMatrix.rows( ) != nParams || inverseOfAPrioriCovarianceMatrix.cols( ) != nParams )
+    {
+        throw std::runtime_error(
+                "Error in performLeastSquaresAdjustmentFromDesignMatrix: inverseOfAPrioriCovarianceMatrix has dimensions " +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.rows( ) ) + "x" +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.cols( ) ) + ", expected " + std::to_string( nParams ) + "x" +
+                std::to_string( nParams ) + "." );
+    }
     if( aprioriParameterDeviation.size( ) > 0 )
     {
         if( aprioriParameterDeviation.size( ) != nParams )
@@ -163,6 +168,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         // The prior residual is the a priori parameter vector minus the current estimate, i.e. the negative deviation.
         rightHandSide -= inverseOfAPrioriCovarianceMatrix * aprioriParameterDeviation;
     }
+
+    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
+            designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
 
     // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )
