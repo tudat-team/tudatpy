@@ -82,10 +82,16 @@ public:
                 setMetadata_ == rhs.setMetadata_ && observationIdsBySet_ == rhs.observationIdsBySet_ &&
                 linkDefinitionRegistry_ == rhs.linkDefinitionRegistry_ && observedValues_ == rhs.observedValues_ &&
                 residualValues_ == rhs.residualValues_ && observationWeights_ == rhs.observationWeights_ &&
-                std::equal( ancillarySettingsRegistry_.begin( ), ancillarySettingsRegistry_.end( ),
-                            rhs.ancillarySettingsRegistry_.begin( ), rhs.ancillarySettingsRegistry_.end( ), pointedObjectsEqual ) &&
-                std::equal( dependentVariableLayoutRegistry_.begin( ), dependentVariableLayoutRegistry_.end( ),
-                            rhs.dependentVariableLayoutRegistry_.begin( ), rhs.dependentVariableLayoutRegistry_.end( ), pointedObjectsEqual );
+                std::equal( ancillarySettingsRegistry_.begin( ),
+                            ancillarySettingsRegistry_.end( ),
+                            rhs.ancillarySettingsRegistry_.begin( ),
+                            rhs.ancillarySettingsRegistry_.end( ),
+                            pointedObjectsEqual ) &&
+                std::equal( dependentVariableLayoutRegistry_.begin( ),
+                            dependentVariableLayoutRegistry_.end( ),
+                            rhs.dependentVariableLayoutRegistry_.begin( ),
+                            rhs.dependentVariableLayoutRegistry_.end( ),
+                            pointedObjectsEqual );
     }
 
     //////////////////////////////////////////////////////////
@@ -506,15 +512,31 @@ private:
     template< class Archive >
     void save( Archive& ar ) const
     {
-        ar( observationRows_, scalarComponentRows_, setMetadata_, observationIdsBySet_, linkDefinitionRegistry_,
-            ancillarySettingsRegistry_, dependentVariableLayoutRegistry_, observedValues_, residualValues_, observationWeights_ );
+        ar( observationRows_,
+            scalarComponentRows_,
+            setMetadata_,
+            observationIdsBySet_,
+            linkDefinitionRegistry_,
+            ancillarySettingsRegistry_,
+            dependentVariableLayoutRegistry_,
+            observedValues_,
+            residualValues_,
+            observationWeights_ );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( observationRows_, scalarComponentRows_, setMetadata_, observationIdsBySet_, linkDefinitionRegistry_,
-            ancillarySettingsRegistry_, dependentVariableLayoutRegistry_, observedValues_, residualValues_, observationWeights_ );
+        ar( observationRows_,
+            scalarComponentRows_,
+            setMetadata_,
+            observationIdsBySet_,
+            linkDefinitionRegistry_,
+            ancillarySettingsRegistry_,
+            dependentVariableLayoutRegistry_,
+            observedValues_,
+            residualValues_,
+            observationWeights_ );
         ++structuralVersion_;
     }
 

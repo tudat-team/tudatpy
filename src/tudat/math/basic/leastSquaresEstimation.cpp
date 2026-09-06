@@ -314,7 +314,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     {
         if( additionalNormalMatrix.rows( ) != numberOfParameters || additionalNormalMatrix.cols( ) != numberOfParameters )
         {
-            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional normal matrix has incompatible dimensions." );
+            throw std::runtime_error(
+                    "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional normal matrix has incompatible dimensions." );
         }
         inverseOfCovarianceMatrix.topLeftCorner( numberOfParameters, numberOfParameters ) += additionalNormalMatrix;
     }
@@ -322,7 +323,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     {
         if( additionalRightHandSide.size( ) != numberOfParameters )
         {
-            throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional right-hand side has incompatible dimensions." );
+            throw std::runtime_error(
+                    "Error in performLeastSquaresAdjustmentFromDesignMatrix: additional right-hand side has incompatible dimensions." );
         }
         rightHandSide.head( numberOfParameters ) += additionalRightHandSide;
     }

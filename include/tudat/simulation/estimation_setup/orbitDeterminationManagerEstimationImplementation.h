@@ -214,33 +214,33 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             // Perform LSQ inversion
             if( hasOffDiagonalWeights )
             {
-                leastSquaresOutput =
-                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                                  residuals.template cast< double >( ),
-                                                                                                  weightsMatrix,
-                                                                                                  normalizedInverseAprioriCovarianceMatrix,
-                                                                                                  conditionNumberCheck,
-                                                                                                  constraintStateMultiplier,
-                                                                                                  constraintRightHandSide,
-                                                                                                  designMatrixConsiderParameters,
-                                                                                                  normalizedConsiderParametersDeviation,
-                                                                                                  interArcContribution.additionalNormalMatrix,
-                                                                                                  interArcContribution.additionalRightHandSide ) );
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrix,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
             }
             else
             {
-                leastSquaresOutput =
-                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                                  residuals.template cast< double >( ),
-                                                                                                  weightsMatrixDiagonals,
-                                                                                                  normalizedInverseAprioriCovarianceMatrix,
-                                                                                                  conditionNumberCheck,
-                                                                                                  constraintStateMultiplier,
-                                                                                                  constraintRightHandSide,
-                                                                                                  designMatrixConsiderParameters,
-                                                                                                  normalizedConsiderParametersDeviation,
-                                                                                                  interArcContribution.additionalNormalMatrix,
-                                                                                                  interArcContribution.additionalRightHandSide ) );
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrixDiagonals,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
             }
 
             if( constraintStateMultiplier.rows( ) > 0 )

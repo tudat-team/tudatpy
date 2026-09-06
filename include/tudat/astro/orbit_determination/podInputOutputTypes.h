@@ -1210,8 +1210,8 @@ struct CovarianceAnalysisOutput {
     {
         if( isSparseWeightCholeskyFactorStale( ) )
         {
-            auto factor = std::make_shared< Eigen::SimplicialLLT< Eigen::SparseMatrix< double >,
-                                                                Eigen::Lower, Eigen::NaturalOrdering< int > > >( );
+            auto factor = std::make_shared<
+                    Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >( );
             factor->compute( weightsMatrix_ );
             if( factor->info( ) != Eigen::Success )
             {
@@ -1232,8 +1232,7 @@ private:
     bool isSparseWeightCholeskyFactorStale( ) const
     {
         return !isSparseWeightCholeskyFactorCurrent_ || !sparseWeightCholeskyFactor_ ||
-                weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) ||
-                weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
+                weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) || weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
                 weightsMatrix_.nonZeros( ) != factorizedWeightsMatrix_.nonZeros( ) ||
                 !weightsMatrix_.isApprox( factorizedWeightsMatrix_, 0.0 );
     }
@@ -1249,8 +1248,8 @@ public:
     Eigen::SparseMatrix< double > weightsMatrix_;
 
     //! Immutable cached factor so output objects remain copyable for serialization.
-    mutable std::shared_ptr< const Eigen::SimplicialLLT< Eigen::SparseMatrix< double >,
-                                                       Eigen::Lower, Eigen::NaturalOrdering< int > > > sparseWeightCholeskyFactor_;
+    mutable std::shared_ptr< const Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >
+            sparseWeightCholeskyFactor_;
 
     //! Sparse snapshot of the matrix represented by sparseWeightCholeskyFactor_.
     mutable Eigen::SparseMatrix< double > factorizedWeightsMatrix_;

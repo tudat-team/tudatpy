@@ -132,8 +132,9 @@ struct ObservationDatasetRow {
     bool operator==( const ObservationDatasetRow& rhs ) const
     {
         return time_ == rhs.time_ && setId_ == rhs.setId_ && firstScalarComponent_ == rhs.firstScalarComponent_ &&
-                scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ && dependentVariableValues_ == rhs.dependentVariableValues_ &&
-                isActive_ == rhs.isActive_ && rejectionReason_ == rhs.rejectionReason_;
+                scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ &&
+                dependentVariableValues_ == rhs.dependentVariableValues_ && isActive_ == rhs.isActive_ &&
+                rejectionReason_ == rhs.rejectionReason_;
     }
 };
 

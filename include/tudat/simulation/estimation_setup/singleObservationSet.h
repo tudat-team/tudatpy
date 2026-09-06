@@ -695,9 +695,7 @@ public:
 
 protected:
     // Default constructor for serialization
-    SingleObservationSet( ):
-        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), setId_( 0 )
-    {}
+    SingleObservationSet( ): observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), setId_( 0 ) {}
 
 private:
     friend class cereal::access;
