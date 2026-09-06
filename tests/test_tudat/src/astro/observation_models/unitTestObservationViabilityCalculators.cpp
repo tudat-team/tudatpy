@@ -241,7 +241,9 @@ BOOST_AUTO_TEST_CASE( testDarknessAndSunlightViabilityAtAllLinkEndEpochs )
                 tabulatedObservationSimulationSettings< double >(
                         observableType, linkEnds, observationTimes, receiver, { viabilitySetting }, nullptr, ancillarySettings )
             };
-            return simulateObservations( simulationSettings, observationSimulators, bodies )->getConcatenatedTimeVector( );
+            return simulateObservationDataset( simulationSettings, observationSimulators, bodies )
+                    ->createOrderedFlattenedObservationData( )
+                    .getTimes( );
         };
 
         const std::vector< double > simulatedDarknessTimes = simulateWithViabilitySetting(

@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
         std::make_shared< TabulatedObservationSimulationSettings< double > >(
                 position_observable, linkEnds, observationTimes, observed_body )
     };
-    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     Eigen::Vector6d initialStatePerturbation;
