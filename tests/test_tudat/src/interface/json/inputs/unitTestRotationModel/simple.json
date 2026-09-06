@@ -1,7 +1,0 @@
-{
-  "initialTime": 42,
-  "rotationRate": 2E-5,
-  "type": "simple",
-  "originalFrame": "ECLIPJ2000",
-  "targetFrame": "IAU_Earth"
-}

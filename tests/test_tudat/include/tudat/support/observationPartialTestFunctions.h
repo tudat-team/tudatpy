@@ -214,6 +214,11 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::dsn_n_way_range && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
         if( observableType == observation_models::differenced_time_of_arrival && linkEndIterator->first != receiver )
         {
             runSimulation = false;

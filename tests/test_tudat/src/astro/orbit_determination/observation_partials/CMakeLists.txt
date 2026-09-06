@@ -106,6 +106,12 @@ TUDAT_ADD_TEST_CASE(RelativeAngularPositionPartials
         tudat_test_support
         ${Tudat_ESTIMATION_LIBRARIES}
         )
+
+ TUDAT_ADD_TEST_CASE(DsnNWayRangePartials
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
 TUDAT_ADD_TEST_CASE(RelativePositionPartials
      PRIVATE_LINKS
      tudat_test_support

@@ -1,6 +1,0 @@
-[
-  "$(../shared.json)",
-  {
-    "integrator.stepSize": 20
-  }
-]

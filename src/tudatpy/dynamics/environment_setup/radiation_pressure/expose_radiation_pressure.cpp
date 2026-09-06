@@ -39,6 +39,19 @@ namespace environment_setup
 namespace radiation_pressure
 {
 
+void expose_radiation_pressure_types( py::module& m )
+{
+    py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
+                Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
+                in other parts of the code to identify a specific type of target
+)doc" )
+            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target )
+            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target )
+            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
+            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
+            .export_values( );
+}
+
 void expose_radiation_pressure_setup( py::module& m )
 {
     /////////////////////////////////////////////////////////////////////////////
@@ -48,16 +61,6 @@ void expose_radiation_pressure_setup( py::module& m )
     // DEPRECATED //
     py::enum_< tss::RadiationPressureType >( m, "RadiationPressureType" )
             .value( "cannonball_radiation_pressure_interface", tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
-            .export_values( );
-
-    py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
-                Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
-                in other parts of the code to identify a specific type of target
-)doc" )
-            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target )
-            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target )
-            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
-            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
             .export_values( );
 
     // DEPRECATED //
@@ -215,8 +218,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- luminosity_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning source luminosity (in Watt) as a function of time (Time object)
+ luminosity_function : callable[[float], float]
+     Function returning source luminosity (in Watt) as a function of time in seconds since J2000 TDB.
  Returns
  -------
  LuminosityModelSettings
@@ -244,8 +247,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- irradiance_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning irradiance at reference distance from center of source (in :math:`W/m^{2}`) as a function of time (Time object)
+ irradiance_function : callable[[float], float]
+     Function returning irradiance at reference distance from the center of the source (in :math:`W/m^{2}`) as a function of time in seconds since J2000 TDB.
  reference_distance : float
      Distance from center of source at which the irradiance is defined
  Returns
@@ -276,6 +279,9 @@ void expose_radiation_pressure_setup( py::module& m )
 
 
       )doc" );
+    py::class_< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
+                std::shared_ptr< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >,
+                tss::SurfacePropertyDistributionSettings >( m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings" );
 
     m.def( "constant_surface_property_distribution",
            &tss::constantSurfacePropertyDistributionSettings,
@@ -406,8 +412,8 @@ void expose_radiation_pressure_setup( py::module& m )
      Value of :math:`c_{2}` in above formulation.
  constant_degree_two_contribution : float
      Value of :math:`a_{2}` in above formulation.
- reference_epoch : astro.time_representation.Time
-     Reference epoch :math:`t_{0}` of the periodic variation (Time object representing seconds since J2000 TDB).
+reference_epoch : float
+     Reference epoch :math:`t_{0}` of the periodic variation, in seconds since J2000 TDB.
  period : float
      Period :math:`T` of the periodic variation.
  Returns
@@ -462,8 +468,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- custom_function : callable[[float, float, astro.time_representation.Time], float]
-     Function providing surface property as a function of latitude, longitude and time (in that order, with time as a Time object).
+ custom_function : callable[[float, float, float], float]
+     Function providing surface property as a function of latitude, longitude, and time in seconds since J2000 TDB, in that order.
  Returns
  -------
  SurfacePropertyDistributionSettings

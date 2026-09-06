@@ -31,10 +31,13 @@ namespace dynamics
 namespace propagation
 {
 
-void expose_propagation_thrust_bindings( py::module& m )
+void expose_propagation_thrust_types( py::module& m )
 {
     py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >( m, "ThrustMagnitudeWrapper" );
+}
 
+void expose_propagation_thrust_bindings( py::module& m )
+{
     py::class_< tpr::ConstantThrustMagnitudeWrapper, std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >, tpr::ThrustMagnitudeWrapper >(
             m, "ConstantThrustMagnitudeWrapper" )
             .def_property( "constant_thrust_magnitude",

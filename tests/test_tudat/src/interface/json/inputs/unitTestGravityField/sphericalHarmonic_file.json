@@ -1,7 +1,0 @@
-{
-  "file": "@path(sh.txt)",
-  "associatedReferenceFrame": "IAU_Earth",
-  "maximumDegree": 2,
-  "maximumOrder": 1,
-  "type": "sphericalHarmonic"
-}

@@ -16,12 +16,19 @@
 #include <memory>
 #include <vector>
 
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
+
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -639,19 +646,19 @@ private:
         return dataset_->getSingleDependentVariableForSet( setId_, dependentVariableIndexAndSize );
     }
 
-    const ObservableType observableType_;
+    ObservableType observableType_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
     std::vector< TimeType > observationTimes_;
 
-    const LinkEndType referenceLinkEnd_;
+    LinkEndType referenceLinkEnd_;
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 
@@ -664,6 +671,57 @@ private:
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > dataset_;
 
     int setId_;
+
+public:
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
+            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
+        };
+
+        ObservationDataset< ObservationScalarType, TimeType > lhsData, rhsData;
+        lhsData.addObservationSetFromDataset( *dataset_, setId_ );
+        rhsData.addObservationSetFromDataset( *rhs.dataset_, rhs.setId_ );
+        return lhsData == rhsData && pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+    }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
+
+protected:
+    // Default constructor for serialization
+    SingleObservationSet( ):
+        observableType_( undefined_observation_model ), referenceLinkEnd_( unidentified_link_end ), setId_( 0 )
+    {}
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        // Preserve the shared dataset, including rejected rows and correlated weights.
+        ar( dataset_, setId_, filteredObservationSet_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( dataset_, setId_, filteredObservationSet_ );
+        const auto filteredObservationSet = filteredObservationSet_;
+        *this = SingleObservationSet( dataset_, setId_ );
+        filteredObservationSet_ = filteredObservationSet;
+    }
 };
 
 template< typename ObservationScalarType = double,

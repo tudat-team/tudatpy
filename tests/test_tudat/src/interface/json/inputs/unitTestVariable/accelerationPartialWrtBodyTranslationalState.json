@@ -1,9 +1,0 @@
-{
-  "body": "vehicle",
-  "dependentVariableType": "accelerationPartialWrtBodyTranslationalState",
-  "bodyExertingAcceleration": "body",
-  "accelerationType": "thrust",
-  "derivativeWrtBody": "otherBody",
-  "thirdBody": "",
-  "componentIndex": -1
-}

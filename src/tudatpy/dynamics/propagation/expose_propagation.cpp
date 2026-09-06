@@ -23,6 +23,12 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_types( py::module& m )
+{
+    expose_propagation_state_utility_types( m );
+    expose_propagation_thrust_types( m );
+}
+
 void expose_propagation( py::module& m )
 {
     expose_propagation_state_utility_bindings( m );

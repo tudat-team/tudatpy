@@ -73,6 +73,19 @@ struct ObservationSetMetadata {
 
     //! Registry id of dependent-variable layout/bookkeeping; may point to nullptr.
     unsigned int dependentVariableLayoutId_;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( observableType_, linkDefinitionId_, referenceLinkEnd_, observableSize_, ancillarySettingsId_, dependentVariableLayoutId_ );
+    }
+
+    bool operator==( const ObservationSetMetadata& rhs ) const
+    {
+        return observableType_ == rhs.observableType_ && linkDefinitionId_ == rhs.linkDefinitionId_ &&
+                referenceLinkEnd_ == rhs.referenceLinkEnd_ && observableSize_ == rhs.observableSize_ &&
+                ancillarySettingsId_ == rhs.ancillarySettingsId_ && dependentVariableLayoutId_ == rhs.dependentVariableLayoutId_;
+    }
 };
 
 //! One row per observation event, independent of observable dimension.
@@ -109,6 +122,19 @@ struct ObservationDatasetRow {
 
     //! Optional human-readable reason for rejection or deactivation.
     std::string rejectionReason_;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( time_, setId_, firstScalarComponent_, scalarSize_, indexInSet_, dependentVariableValues_, isActive_, rejectionReason_ );
+    }
+
+    bool operator==( const ObservationDatasetRow& rhs ) const
+    {
+        return time_ == rhs.time_ && setId_ == rhs.setId_ && firstScalarComponent_ == rhs.firstScalarComponent_ &&
+                scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ && dependentVariableValues_ == rhs.dependentVariableValues_ &&
+                isActive_ == rhs.isActive_ && rejectionReason_ == rhs.rejectionReason_;
+    }
 };
 
 //! Reverse mapping from scalar component storage to its observation event.
@@ -123,6 +149,17 @@ struct ObservationScalarComponentRow {
 
     //! Component number inside the owning observation event.
     unsigned int componentIndex_;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( observationId_, componentIndex_ );
+    }
+
+    bool operator==( const ObservationScalarComponentRow& rhs ) const
+    {
+        return observationId_ == rhs.observationId_ && componentIndex_ == rhs.componentIndex_;
+    }
 };
 
 }  // namespace observation_models

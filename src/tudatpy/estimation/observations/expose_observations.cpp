@@ -26,6 +26,9 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_estimation.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
 #include "observations_processing/expose_observations_processing.h"
@@ -2281,7 +2284,7 @@ return_first_compatible_settings : bool, optional
 
 Returns
 -------
-dict[float, numpy.ndarray]
+dict[astro.time_representation.Time, numpy.ndarray]
     A map from observation time to the value of the specified dependent variable.
 )doc" )
                 .def_property_readonly( "dependent_variables_matrix",
@@ -2293,7 +2296,9 @@ Returns
 -------
 numpy.ndarray
     A matrix where each row corresponds to an observation and columns to dependent variables.
-)doc" );
+)doc" ) TUDATPY_DEF_PICKLE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_BINARY_IO( tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > );
     }
 
     {
@@ -2347,7 +2352,7 @@ numpy.ndarray
             Definition of the link ends for the observation.
         observations : list[numpy.ndarray]
             List of observations. Each entry is a vector representing a single observation.
-        observation_times : list[float]
+        observation_times : list[astro.time_representation.Time]
             List of observation times.
         reference_link_end : :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`
             Reference link end for the observation.
@@ -2678,13 +2683,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observable_types",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableTypes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observable types for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2694,13 +2699,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_bodies_in_link_ends",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getBodiesInLinkEnds,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the names of bodies present in the link ends of a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2710,13 +2715,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_reference_points_in_link_ends",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getReferencePointsInLinkEnds,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the names of reference points (e.g., ground stations) in the link ends of a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2726,13 +2731,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_time_bounds_list",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsListDouble,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the time bounds for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2742,13 +2747,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_time_bounds_list_time_object",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsList,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the time bounds for a subset of observation sets as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2758,13 +2763,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_time_bounds_per_set",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSetDouble,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the time bounds for each set in a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2774,13 +2779,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_time_bounds_per_set_time_object",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSet,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the time bounds for each set in a subset of observation sets as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2790,13 +2795,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observations",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observations for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2806,13 +2811,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_observations",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservations,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated observations for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2822,13 +2827,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observation_times",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimesDouble,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observation times for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2838,13 +2843,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observation_times_objects",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observation times for a subset of observation sets as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2854,13 +2859,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_observation_times_objects",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationTimes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated observation times for a subset of observation sets as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2870,13 +2875,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_observation_times",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDoubleObservationTimes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated observation times for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2886,13 +2891,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observations_and_times",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsAndTimesDouble,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observations and times for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2902,13 +2907,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_observations_and_times_objects",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsAndTimes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the observations and times for a subset of observation sets, with times as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2918,13 +2923,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_observations_and_times",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationsAndTimesDouble,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated observations and times for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2934,13 +2939,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_observations_and_times_objects",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationsAndTimes,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated observations and times for a subset of observation sets, with times as Time objects.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2967,13 +2972,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_weights",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the weights for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2983,13 +2988,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_weights",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedWeights,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated weights for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -2999,13 +3004,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_residuals",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the residuals for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3015,13 +3020,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_residuals",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedResiduals,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated residuals for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3031,13 +3036,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_rms_residuals",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the RMS of residuals for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3047,13 +3052,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_mean_residuals",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the mean of residuals for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3063,13 +3068,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_computed_observations",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservations,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the computed observations for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3079,13 +3084,13 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
      )doc" )
                 .def( "get_concatenated_computed_observations",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedComputedObservations,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get the concatenated computed observations for a subset of observation sets.
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3097,7 +3102,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       py::overload_cast< const double, const std::shared_ptr< tom::ObservationCollectionParser > >(
                               &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                       py::arg( "weight" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set a constant weight for a subset of observation sets.
 
@@ -3105,14 +3110,14 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          weight : float
              The constant weight to set.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
                 .def( "set_constant_weight",
                       py::overload_cast< const Eigen::VectorXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
                               &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                       py::arg( "weight" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set a constant weight vector for a subset of observation sets.
 
@@ -3120,7 +3125,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          weight : numpy.ndarray
              The constant weight vector to set.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
                 .def( "set_constant_weight_per_observation_parser",
@@ -3151,7 +3156,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       py::overload_cast< const Eigen::VectorXd, const std::shared_ptr< tom::ObservationCollectionParser > >(
                               &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights ),
                       py::arg( "tabulated_weights" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set tabulated weights for a subset of observation sets.
 
@@ -3159,7 +3164,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          tabulated_weights : numpy.ndarray
              The vector of tabulated weights to set.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
                 .def( "set_tabulated_weights",
@@ -3212,7 +3217,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                             observationCollection.filterObservations( observationFilter, observationParser, saveFilteredObservations );
                         },
                         py::arg( "observation_filters" ),
-                        py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                        py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                         py::arg( "save_filtered_observations" ) = true,
                         R"doc(
          Filter observations using a single filter.
@@ -3223,7 +3228,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          observation_filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
              The observation filter to apply.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
@@ -3238,7 +3243,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                             observationCollection.splitObservationSets( observationSetSplitter, observationParser );
                         },
                         py::arg( "observation_set_splitter" ),
-                        py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                        py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                         R"doc(
          Split observation sets based on a splitter.
 
@@ -3248,12 +3253,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          observation_set_splitter : tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
              The splitter to use for splitting the observation sets.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
                 .def( "get_single_observation_sets",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleObservationSets,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get a subset of single observation sets.
 
@@ -3261,7 +3266,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -3297,7 +3302,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       py::arg( "antenna_name" ),
                       py::arg( "spacecraft_name" ),
                       py::arg( "link_end_type" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set a fixed reference point for a subset of observations.
 
@@ -3313,7 +3318,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference point should be applied.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the reference point should be applied.
      )doc" )
                 .def( "set_reference_points",
@@ -3327,7 +3332,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       py::arg( "antenna_switch_history" ),
                       py::arg( "spacecraft_name" ),
                       py::arg( "link_end_type" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set multiple reference points based on an antenna switch history.
 
@@ -3341,7 +3346,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference points should be applied.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets.
      )doc" )
                 .def( "set_reference_point",
@@ -3357,7 +3362,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       py::arg( "antenna_name" ),
                       py::arg( "spacecraft_name" ),
                       py::arg( "link_end_type" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Set a time-varying reference point for a subset of observations.
 
@@ -3373,21 +3378,21 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference point should be applied.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets.
      )doc" )
                 .def( "set_transponder_delay",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelay,
                       py::arg( "spacecraft_name" ),
                       py::arg( "transponder_delay" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Deprecated: set the transponder delay for a subset of observations by modifying the
          retransmission delay in their ancillary settings.
 
          For new simulations, set the default transponder delay on the spacecraft vehicle systems
          before creating the observation model:
-         ``bodies.get_body(spacecraft_name).vehicle_systems.transponder_delay = transponder_delay``.
+         ``bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay``.
 
          Parameters
          ----------
@@ -3395,7 +3400,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft with the transponder.
          transponder_delay : float
              The transponder delay in seconds.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets.
      )doc" )
                 .def( "remove_empty_observation_sets",
@@ -3404,7 +3409,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                 .def( "add_dependent_variable",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariable,
                       py::arg( "dependent_variable_settings" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Add an observation dependent variable to a subset of the single observation sets.
 
@@ -3412,9 +3417,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable to add.
-         bodies : tudatpy.dynamics.environment.SystemOfBodies
-             System of bodies containing the environment.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select the observation sets to which the variable should be added.
          
          Returns
@@ -3426,7 +3429,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the values of a given dependent variable, sorted per single observation set.
 
@@ -3436,7 +3439,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3448,7 +3451,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDependentVariables,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the concatenated values of a given dependent variable.
 
@@ -3458,7 +3461,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3469,7 +3472,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                 .def( "compatible_dependent_variable_settings",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariablesSettingsList,
                       py::arg( "dependent_variable_settings" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get a list of all dependent variable settings compatible with the input settings.
 
@@ -3477,7 +3480,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3488,7 +3491,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                 .def( "compatible_dependent_variables_list",
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariables,
                       py::arg( "dependent_variable_settings" ),
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Get all dependent variables compatible with the input settings.
 
@@ -3496,7 +3499,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings
              Settings for the dependent variable.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3508,7 +3511,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryPerObservationSetDouble,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the time history of a given dependent variable, sorted per observation set.
 
@@ -3518,7 +3521,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3530,7 +3533,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryPerObservationSet,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the time history of a given dependent variable, sorted per observation set, with times as Time objects.
 
@@ -3540,7 +3543,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3552,7 +3555,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the concatenated time history of a given dependent variable.
 
@@ -3562,7 +3565,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
@@ -3574,7 +3577,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                       &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
                       py::arg( "dependent_variable_settings" ),
                       py::arg( "first_compatible_settings" ) = false,
-                      py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                      py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                       R"doc(
          Retrieve the concatenated time history of a given dependent variable, with times as Time objects.
 
@@ -3584,14 +3587,16 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, default = observations_processing.observation_parser()
              Parser to select a subset of observation sets.
 
          Returns
          -------
          dict[Time, numpy.ndarray]
              A map from time to dependent variable value, with times as Time objects.
-     )doc" );
+     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
+                    TUDATPY_DEF_EQ_NE( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > )
+                            TUDATPY_DEF_BINARY_IO( tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > );
     }
 
     {
@@ -3808,7 +3813,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
                 },
                 py::arg( "original_observation_collection" ),
                 py::arg( "observation_filter" ),
-                py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                 R"doc(
 
         Creates a new, filtered observation collection from an existing one using a single filter.
@@ -3822,7 +3827,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             The observation collection to filter.
         observation_filter : tudatpy.estimation.observations.observations_processing.ObservationFilterBase
             The filter to apply.
-        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, optional
+        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, default = observations_processing.observation_parser()
             Parser to select the subset of observations to filter. Defaults to an empty parser (all observations).
 
         Returns
@@ -3843,7 +3848,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
                 },
                 py::arg( "original_observation_collection" ),
                 py::arg( "observation_set_splitter" ),
-                py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                 R"doc(
         Creates a new observation collection by splitting sets from an existing collection.
 
@@ -3856,7 +3861,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
             The observation collection from which to split sets.
         observation_set_splitter : tudatpy.estimation.observations.observations_processing.ObservationSetSplitterBase
             The splitter defining how to split the sets.
-        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, optional
+        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, default = observations_processing.observation_parser()
             Parser to select which observation sets to split. Defaults to an empty parser (all sets).
 
         Returns
@@ -3874,7 +3879,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
                                                                                                 observationParser );
                 },
                 py::arg( "original_observation_collection" ),
-                py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                py::arg_v( "observation_parser", tom::observationParser( ), "..." ),
                 R"doc(
 
         Creates a new observation collection containing a subset of an existing collection.
@@ -3886,7 +3891,7 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         ----------
         original_observation_collection : tudatpy.estimation.observations.ObservationCollection
             The collection from which to extract a subset.
-        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, optional
+        observation_parser : tudatpy.estimation.observations.ObservationCollectionParser, default = observations_processing.observation_parser()
             Parser to select the observation sets to include in the new collection. Defaults to an empty parser (all sets).
 
         Returns

@@ -30,6 +30,6 @@ set(system_models_SOURCES
 TUDAT_ADD_LIBRARY("system_models"
         "${system_models_SOURCES}"
         "${system_models_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

@@ -23,6 +23,7 @@ namespace environment_setup
 namespace aerodynamic_coefficients
 {
 
+void expose_aerodynamic_coefficient_types( py::module& m );
 void expose_aerodynamic_coefficient_setup( py::module& m );
 
 }  // namespace aerodynamic_coefficients

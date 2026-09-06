@@ -19,7 +19,8 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 
 namespace tom = tudat::observation_models;
@@ -64,8 +65,31 @@ namespace observations_setup
 namespace ancillary_settings
 {
 
-void expose_ancillary_settings( py::module& m )
+void expose_ancillary_settings_types( py::module& m )
 {
+    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
+                                                                                       "ObservationIntermediateSimulationVariable",
+                                                                                       R"doc(
+        Enumeration of observation intermediate variable types.
+
+        This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
+        )doc" )
+            .value( "transmitter_frequency_intermediate",
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
+            .value( "received_frequency_intermediate",
+                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
+            .export_values( );
+
+    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
+        Enumeration of frequency bands.
+
+        This enum lists common frequency bands used in deep space navigation.
+        )doc" )
+            .value( "s_band", tom::FrequencyBands::s_band )
+            .value( "x_band", tom::FrequencyBands::x_band )
+            .value( "ka_band", tom::FrequencyBands::ka_band )
+            .value( "ku_band", tom::FrequencyBands::ku_band );
+
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
                                                               R"doc(
@@ -173,11 +197,11 @@ void expose_ancillary_settings( py::module& m )
 
                 Parameters
                 ----------
-                setting_type : ObservationAncillarySimulationVariable
+                variable : ObservationAncillarySimulationVariable
                    Type of the setting for which the value is to be set
 
-                value : list[float]
-                   List of value that define the provided setting type
+                value : float
+                   Value for the setting
 
                 )doc" )
             .def( "set_float_list_settings",
@@ -190,11 +214,11 @@ void expose_ancillary_settings( py::module& m )
 
                 Parameters
                 ----------
-                setting_type : ObservationAncillarySimulationVariable
+                variable : ObservationAncillarySimulationVariable
                    Type of the setting for which the value is to be set
 
-                value : float
-                   Value for the setting
+                value : list[float]
+                   List of values that define the provided setting type
 
                 )doc" )
             .def( "set_intermediate_double_data",
@@ -265,20 +289,26 @@ void expose_ancillary_settings( py::module& m )
 
 
 
+     )doc" ) TUDATPY_DEF_PICKLE( tom::ObservationAncillarySimulationSettings )
+                    TUDATPY_DEF_EQ_NE( tom::ObservationAncillarySimulationSettings )
+                            TUDATPY_DEF_FILE_IO( tom::ObservationAncillarySimulationSettings );
+}
+
+void expose_ancillary_settings( py::module& m )
+{
+    m.def(
+            "empty_ancillary_settings",
+            []( ) { return tom::ObservationAncillarySimulationSettings( ); },
+            R"doc(
+
+ Create an empty observation ancillary-settings object.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Empty ancillary settings.
+
      )doc" );
-
-    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
-                                                                                       "ObservationIntermediateSimulationVariable",
-                                                                                       R"doc(
-        Enumeration of observation intermediate variable types.
-
-        This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
-        )doc" )
-            .value( "transmitter_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
-            .value( "received_frequency_intermediate",
-                    tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
-            .export_values( );
 
     m.def( "doppler_ancillary_settings",
            &tom::getAveragedDopplerAncillarySettings,
@@ -553,16 +583,6 @@ void expose_ancillary_settings( py::module& m )
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
     /////////////////////////////////////////////////////////////////////////////////////////////////
-
-    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
-        Enumeration of frequency bands.
-
-        This enum lists common frequency bands used in deep space navigation.
-        )doc" )
-            .value( "s_band", tom::FrequencyBands::s_band )
-            .value( "x_band", tom::FrequencyBands::x_band )
-            .value( "ka_band", tom::FrequencyBands::ka_band )
-            .value( "ku_band", tom::FrequencyBands::ku_band );
 
     m.def( "dsn_default_turnaround_ratios",
            &tom::getDsnDefaultTurnaroundRatios,

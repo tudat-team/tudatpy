@@ -37,8 +37,11 @@ from tudatpy.kernel.estimation.observable_models_setup import (
     links,
     model_settings,
 )
-from tudatpy.kernel.estimation.observations_setup import observations_simulation_settings
-from tudatpy.kernel.interface import spice
+from tudatpy.kernel.estimation.observations_setup import (
+    ancillary_settings,
+    observations_simulation_settings,
+)
+from tudatpy.data_input.environment_data import spice
 
 
 def _test_data_path() -> Path:
@@ -548,8 +551,8 @@ def test_ifms_mex_residuals_are_millihertz_level():
         "Earth",
         True,
         True,
-        [1.0, 0.0],
-        0.0,
+        ["X-band", "S-band"],
+        "S-band",
         0.0,
     )
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)

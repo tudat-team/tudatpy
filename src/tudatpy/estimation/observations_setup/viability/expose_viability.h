@@ -25,6 +25,7 @@ namespace observations_setup
 namespace viability
 {
 
+void expose_observation_viability_settings_type( py::module& m );
 void expose_viability( py::module& m );
 
 }  // namespace viability

@@ -11,7 +11,6 @@
 
 #include "scalarTypes.h"
 #include "tudat/io/preProcessIfmsFile.h"
-#include "tudat/io/readTrackingTxtFile.h"
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -36,8 +35,8 @@ void expose_ifms( py::module& m )
                                            const std::string&,
                                            bool,
                                            bool,
-                                           const std::vector< double >&,
-                                           double,
+                                           const std::vector< std::string >&,
+                                           const std::string&,
                                            double >( &tio::readIfmsFiles< STATE_SCALAR_TYPE, TIME_TYPE > );
 
     m.def( "read_ifms_data",
@@ -48,8 +47,8 @@ void expose_ifms( py::module& m )
            py::arg( "earth_name" ) = "Earth",
            py::arg( "apply_tropospheric_correction" ) = true,
            py::arg( "remove_invalid_lines" ) = true,
-           py::arg( "frequency_bands" ) = std::vector< double >( ),
-           py::arg( "reception_reference_frequency_band" ) = std::numeric_limits< double >::quiet_NaN( ),
+           py::arg( "frequency_bands" ) = std::vector< std::string >( ),
+           py::arg( "reception_reference_frequency_band" ) = std::string( "" ),
            py::arg( "doppler_reference_frequency" ) = std::numeric_limits< double >::quiet_NaN( ),
            R"doc(
          Load IFMS files into tracking data and supplementary data objects.
@@ -83,11 +82,13 @@ void expose_ifms( py::module& m )
          remove_invalid_lines : bool, default=True
              Whether records with invalid frequencies or corrections are skipped
              (to be used for all files).
-         frequency_bands : list[float], default=[]
+         frequency_bands : list[str], default=[]
              Frequency-band identifiers used for supplementary data (to be used
-             for all files).
-         reception_reference_frequency_band : float, optional
-             Reference reception frequency band (to be used for all files).
+             for all files). Allowed values are ``"S-band"``, ``"X-band"``,
+             ``"Ka-band"``, and ``"Ku-band"``.
+         reception_reference_frequency_band : str, optional
+             Reference reception frequency band (to be used for all files),
+             using the same string convention as ``frequency_bands``.
          doppler_reference_frequency : float, optional
              Reference Doppler frequency (to be used for all files).
 

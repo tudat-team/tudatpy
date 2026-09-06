@@ -11,8 +11,6 @@
 #ifndef TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 #define TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 
-#include <boost/math/special_functions/factorials.hpp>
-
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
@@ -58,7 +56,8 @@ public:
                                      const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
                                      const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
                                      const std::string& deformedBody ):
-        deformedBodyPositionFunction_( deformedBodyPositionFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
+        gravityFieldVariations_( gravityFieldVariations ), deformedBodyPositionFunction_( deformedBodyPositionFunction ),
+        deformingBodyStateFunctions_( deformingBodyStateFunctions ),
         rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ), deformedBody_( deformedBody )
     {
         // Get members from input objects.
@@ -382,6 +381,12 @@ public:
         return deformingBodies_;
     }
 
+    //! Function to retrieve the underlying tidal variation model used by this interface
+    std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > getGravityFieldVariations( ) const
+    {
+        return gravityFieldVariations_;
+    }
+
 protected:
     //! Function to compute Love number partials from pre-computed partials and provided scaling values
     /*!
@@ -440,6 +445,9 @@ protected:
 
     //! Reference radius used by tidal deformation model.
     double deformedBodyReferenceRadius_;
+
+    //! Underlying tidal gravity field variation model associated with this interface
+    std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations_;
 
     //! Function to retrieve current state of body being tidally deformed
     /*!

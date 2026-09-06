@@ -17,9 +17,9 @@
 #ifndef TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 #define TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 
-#include <Eigen/Core>
+#include <random>
 
-#include <boost/random/mersenne_twister.hpp>
+#include <Eigen/Core>
 
 #include "tudat/basics/utilities.h"
 
@@ -31,10 +31,10 @@ namespace basic_mathematics
 
 //! Random number generator typedef.
 /*!
- * Random number generator typedef. This can be modified to any other Boost random number
- * generator type (http://www.boost.org/doc/libs/1_47_0/doc/html/boost_random/reference.html).
+ * Random number generator typedef. This can be modified to any other standard random number
+ * generator type.
  */
-typedef boost::mt19937 GlobalRandomNumberGeneratorType;
+typedef std::mt19937 GlobalRandomNumberGeneratorType;
 
 //! Get global random number generator.
 /*!

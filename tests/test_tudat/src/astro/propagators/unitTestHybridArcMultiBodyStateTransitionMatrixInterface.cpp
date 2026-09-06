@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -880,11 +879,92 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 HybridArcVariationalEquationsSolver< double, double >(
                         bodies, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate, arcStartTimes, true, false, true );
 
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > hybridInterface =
+                hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( );
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface =
+                hybridArcVariationalEquationsSolver.getSingleArcSolver( )->getStateTransitionMatrixInterface( );
+        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface =
+                hybridArcVariationalEquationsSolver.getMultiArcSolver( )->getStateTransitionMatrixInterface( );
+        BOOST_REQUIRE( hybridInterface != nullptr );
+        BOOST_REQUIRE( singleArcInterface != nullptr );
+        BOOST_REQUIRE( multiArcInterface != nullptr );
+        BOOST_CHECK_EQUAL( hybridInterface->getFullParameterVectorSize( ), parametersToEstimate->getParameterSetSize( ) );
+        BOOST_CHECK_GT( hybridInterface->getStateTransitionMatrixSize( ), 0 );
+        BOOST_CHECK_GT( hybridInterface->getSensitivityMatrixSize( ), 0 );
+
         std::cout << "full parameter vector size from hybrid arc state transition matrix interface: " << "\n\n";
         std::cout << hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getFullParameterVectorSize( ) << "\n\n";
-        Eigen::MatrixXd combinedMatrix =
-                hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix(
-                        ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0 );
+        const double interfaceEvaluationTime = ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0;
+        Eigen::MatrixXd combinedMatrix = hybridInterface->getCombinedStateTransitionAndSensitivityMatrix( interfaceEvaluationTime, false );
+        BOOST_CHECK_EQUAL( combinedMatrix.rows( ), hybridInterface->getStateTransitionMatrixSize( ) );
+        BOOST_CHECK_EQUAL( combinedMatrix.cols( ), combinedMatrix.rows( ) + hybridInterface->getSensitivityMatrixSize( ) );
+        BOOST_CHECK( combinedMatrix.allFinite( ) );
+        BOOST_CHECK_GT( combinedMatrix.norm( ), 0.0 );
+
+        const Eigen::MatrixXd singleArcCombinedMatrix =
+                singleArcInterface->getCombinedStateTransitionAndSensitivityMatrix( interfaceEvaluationTime, false );
+        const Eigen::MatrixXd singleArcCombinedMatrixAtArcStart =
+                singleArcInterface->getCombinedStateTransitionAndSensitivityMatrix( arcStartTimes.at( 0 ), false );
+        const Eigen::MatrixXd multiArcCombinedMatrix =
+                multiArcInterface->getCombinedStateTransitionAndSensitivityMatrix( interfaceEvaluationTime, false );
+        const int singleArcStateSize = singleArcInterface->getStateTransitionMatrixSize( );
+        const int multiArcStateSize = combinedMatrix.rows( );
+        const int localMultiArcStateSize = multiArcStateSize - singleArcStateSize;
+        const int sensitivitySize = hybridInterface->getSensitivityMatrixSize( );
+        Eigen::MatrixXd independentlyReconstructedCombinedMatrix = Eigen::MatrixXd::Zero( combinedMatrix.rows( ), combinedMatrix.cols( ) );
+        independentlyReconstructedCombinedMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ) =
+                singleArcCombinedMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize );
+        independentlyReconstructedCombinedMatrix.block( 0, multiArcStateSize, singleArcStateSize, sensitivitySize ) =
+                singleArcCombinedMatrix.block( 0, singleArcStateSize, singleArcStateSize, sensitivitySize );
+        independentlyReconstructedCombinedMatrix.block(
+                singleArcStateSize, singleArcStateSize, localMultiArcStateSize, localMultiArcStateSize ) =
+                multiArcCombinedMatrix.block( singleArcStateSize, singleArcStateSize, localMultiArcStateSize, localMultiArcStateSize );
+        independentlyReconstructedCombinedMatrix.block( singleArcStateSize, 0, localMultiArcStateSize, singleArcStateSize ) =
+                multiArcCombinedMatrix.block( singleArcStateSize, 0, localMultiArcStateSize, singleArcStateSize ) *
+                singleArcCombinedMatrixAtArcStart.block( 0, 0, singleArcStateSize, singleArcStateSize );
+        independentlyReconstructedCombinedMatrix.block( singleArcStateSize, multiArcStateSize, localMultiArcStateSize, sensitivitySize ) =
+                multiArcCombinedMatrix.block( singleArcStateSize, multiArcStateSize, localMultiArcStateSize, sensitivitySize );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( combinedMatrix, independentlyReconstructedCombinedMatrix, 1.0E-13 );
+
+        // Repeat the numerical block reconstruction for every remaining arc, whose propagated-body sets and matrix sizes differ.
+        for( int arc = 1; arc < numberArcs; arc++ )
+        {
+            const double evaluationTime = ( arcStartTimes.at( arc ) + multiArcEndTimes.at( arc ) ) / 2.0;
+            const Eigen::MatrixXd currentHybridMatrix =
+                    hybridInterface->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime, false );
+            const Eigen::MatrixXd currentSingleArcMatrix =
+                    singleArcInterface->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime, false );
+            const Eigen::MatrixXd currentSingleArcMatrixAtArcStart =
+                    singleArcInterface->getCombinedStateTransitionAndSensitivityMatrix( arcStartTimes.at( arc ), false );
+            const Eigen::MatrixXd currentMultiArcMatrix =
+                    multiArcInterface->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime, false );
+            const int currentMultiArcStateSize = currentHybridMatrix.rows( );
+            const int currentLocalStateSize = currentMultiArcStateSize - singleArcStateSize;
+            Eigen::MatrixXd expectedHybridMatrix = Eigen::MatrixXd::Zero( currentHybridMatrix.rows( ), currentHybridMatrix.cols( ) );
+            expectedHybridMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ) =
+                    currentSingleArcMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize );
+            expectedHybridMatrix.block( 0, currentMultiArcStateSize, singleArcStateSize, sensitivitySize ) =
+                    currentSingleArcMatrix.block( 0, singleArcStateSize, singleArcStateSize, sensitivitySize );
+            expectedHybridMatrix.block( singleArcStateSize, singleArcStateSize, currentLocalStateSize, currentLocalStateSize ) =
+                    currentMultiArcMatrix.block( singleArcStateSize, singleArcStateSize, currentLocalStateSize, currentLocalStateSize );
+            expectedHybridMatrix.block( singleArcStateSize, 0, currentLocalStateSize, singleArcStateSize ) =
+                    currentMultiArcMatrix.block( singleArcStateSize, 0, currentLocalStateSize, singleArcStateSize ) *
+                    currentSingleArcMatrixAtArcStart.block( 0, 0, singleArcStateSize, singleArcStateSize );
+            expectedHybridMatrix.block( singleArcStateSize, currentMultiArcStateSize, currentLocalStateSize, sensitivitySize ) =
+                    currentMultiArcMatrix.block( singleArcStateSize, currentMultiArcStateSize, currentLocalStateSize, sensitivitySize );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentHybridMatrix, expectedHybridMatrix, 1.0E-13 );
+
+            const Eigen::MatrixXd currentFullHybridMatrix =
+                    hybridInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, false );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentFullHybridMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ),
+                                               currentHybridMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ),
+                                               1.0E-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    currentFullHybridMatrix.block(
+                            0, currentFullHybridMatrix.cols( ) - sensitivitySize, singleArcStateSize, sensitivitySize ),
+                    currentHybridMatrix.block( 0, currentHybridMatrix.cols( ) - sensitivitySize, singleArcStateSize, sensitivitySize ),
+                    1.0E-14 );
+        }
         std::cout << "combinedMatrix: " << "\n\n";
         std::cout << combinedMatrix << "\n\n";
         //                    std::cout << "test combined matrix arc 0: " << "\n\n";
@@ -904,6 +984,18 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
                 hybridArcVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );
         std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
+        BOOST_REQUIRE_EQUAL( singleArcVariationalSolution.size( ), 2 );
+        BOOST_REQUIRE_EQUAL( fullMultiArcVariationalSolution.size( ), static_cast< unsigned int >( numberArcs ) );
+        BOOST_REQUIRE( !singleArcVariationalSolution.at( 0 ).empty( ) );
+        BOOST_REQUIRE( !singleArcVariationalSolution.at( 1 ).empty( ) );
+        for( const auto& arcSolution : fullMultiArcVariationalSolution )
+        {
+            BOOST_REQUIRE_EQUAL( arcSolution.size( ), 2 );
+            BOOST_REQUIRE( !arcSolution.at( 0 ).empty( ) );
+            BOOST_REQUIRE( !arcSolution.at( 1 ).empty( ) );
+            BOOST_CHECK( arcSolution.at( 0 ).begin( )->second.allFinite( ) );
+            BOOST_CHECK( arcSolution.at( 1 ).begin( )->second.allFinite( ) );
+        }
 
         std::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > > singleArcStateTransitionMatrixInterpolator =
                 std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
@@ -934,24 +1026,41 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         //                    <<
         //                              fullMultiArcVariationalSolution[ 1 ][ 0 ].begin( )->second.cols( ) << "\n\n";
 
-        double interpolationTime = ( arcStartTimes[ 1 ] + multiArcEndTimes[ 1 ] ) / 2.0;
+        double interpolationTime = interfaceEvaluationTime;
         Eigen::MatrixXd singleArcStateTransitionMatrix = singleArcStateTransitionMatrixInterpolator->interpolate( interpolationTime );
         Eigen::MatrixXd singleArcSensitivityMatrix = singleArcSensitivityMatrixInterpolator->interpolate( interpolationTime );
 
         Eigen::MatrixXd multiArcStateTransitionMatrix = multiArc0StateTransitionMatrixInterpolator->interpolate( interpolationTime );
         Eigen::MatrixXd multiArcSensitivityMatrix = multiArc0SensitivityMatrixInterpolator->interpolate( interpolationTime );
+        BOOST_CHECK( singleArcStateTransitionMatrix.allFinite( ) );
+        BOOST_CHECK( singleArcSensitivityMatrix.allFinite( ) );
+        BOOST_CHECK( multiArcStateTransitionMatrix.allFinite( ) );
+        BOOST_CHECK( multiArcSensitivityMatrix.allFinite( ) );
+        BOOST_CHECK_GT( singleArcStateTransitionMatrix.norm( ), 0.0 );
+        BOOST_CHECK_GT( multiArcStateTransitionMatrix.norm( ), 0.0 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                singleArcStateTransitionMatrix, singleArcCombinedMatrix.leftCols( singleArcStateTransitionMatrix.cols( ) ), 1.0E-13 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                singleArcSensitivityMatrix, singleArcCombinedMatrix.rightCols( singleArcSensitivityMatrix.cols( ) ), 1.0E-13 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                multiArcStateTransitionMatrix, multiArcCombinedMatrix.leftCols( multiArcStateTransitionMatrix.cols( ) ), 1.0E-13 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                multiArcSensitivityMatrix, multiArcCombinedMatrix.rightCols( multiArcSensitivityMatrix.cols( ) ), 1.0E-13 );
         std::cout << "multiArcStateTransitionMatrix: " << multiArcStateTransitionMatrix << "\n\n";
 
-        Eigen::MatrixXd reconstructedHybridSolution =
-                Eigen::MatrixXd::Zero( fullMultiArcVariationalSolution[ 0 ][ 0 ].begin( )->second.rows( ),
-                                       fullMultiArcVariationalSolution[ 0 ][ 0 ].begin( )->second.cols( ) +
-                                               fullMultiArcVariationalSolution[ 0 ][ 1 ].begin( )->second.cols( ) );
-        std::cout << "size reconstructed hybrid solution: " << reconstructedHybridSolution.rows( ) << " & "
-                  << reconstructedHybridSolution.cols( ) << "\n\n";
-
         Eigen::MatrixXd fullCombinedMatrix =
-                hybridArcVariationalEquationsSolver.getStateTransitionMatrixInterface( )
-                        ->getFullCombinedStateTransitionAndSensitivityMatrix( ( arcStartTimes[ 0 ] + multiArcEndTimes[ 0 ] ) / 2.0 );
+                hybridInterface->getFullCombinedStateTransitionAndSensitivityMatrix( interfaceEvaluationTime, false );
+        BOOST_CHECK_EQUAL( fullCombinedMatrix.rows( ), hybridInterface->getStateTransitionMatrixSize( ) );
+        BOOST_CHECK_EQUAL( fullCombinedMatrix.cols( ), hybridInterface->getFullParameterVectorSize( ) );
+        BOOST_CHECK( fullCombinedMatrix.allFinite( ) );
+        BOOST_CHECK_GT( fullCombinedMatrix.norm( ), 0.0 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fullCombinedMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ),
+                                           combinedMatrix.block( 0, 0, singleArcStateSize, singleArcStateSize ),
+                                           1.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                fullCombinedMatrix.block( 0, fullCombinedMatrix.cols( ) - sensitivitySize, singleArcStateSize, sensitivitySize ),
+                combinedMatrix.block( 0, combinedMatrix.cols( ) - sensitivitySize, singleArcStateSize, sensitivitySize ),
+                1.0E-14 );
         std::cout << "full combined matrix: " << "\n\n";
         std::cout << fullCombinedMatrix << "\n\n";
 

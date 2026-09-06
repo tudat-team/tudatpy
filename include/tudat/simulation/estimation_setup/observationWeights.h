@@ -18,6 +18,9 @@
 
 #include <Eigen/Core>
 
+#include <cereal/types/optional.hpp>
+#include "tudat/io/serialization/eigen.h"
+
 namespace tudat
 {
 
@@ -56,6 +59,18 @@ struct PerObservationWeight {
 
     //! Full observable-size block used when type_ is block.
     Eigen::MatrixXd blockWeight_;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( type_, scalarWeight_, diagonalWeight_, blockWeight_ );
+    }
+
+    bool operator==( const PerObservationWeight& rhs ) const
+    {
+        return type_ == rhs.type_ && scalarWeight_ == rhs.scalarWeight_ && diagonalWeight_ == rhs.diagonalWeight_ &&
+                blockWeight_ == rhs.blockWeight_;
+    }
 
     Eigen::MatrixXd toMatrix( const int observableSize ) const
     {
@@ -170,6 +185,18 @@ struct ObservationWeightBlock {
 
     //! Dense block value for the selected scalar components.
     Eigen::MatrixXd weightBlock_;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( rowScalarComponentIds_, columnScalarComponentIds_, weightBlock_ );
+    }
+
+    bool operator==( const ObservationWeightBlock& rhs ) const
+    {
+        return rowScalarComponentIds_ == rhs.rowScalarComponentIds_ && columnScalarComponentIds_ == rhs.columnScalarComponentIds_ &&
+                weightBlock_ == rhs.weightBlock_;
+    }
 };
 
 //! Weight policy used while adding a new observation set.
@@ -425,7 +452,21 @@ public:
         return !extraWeightBlocks_.empty( );
     }
 
+    bool operator==( const ObservationWeights& rhs ) const
+    {
+        return perObservationWeights_ == rhs.perObservationWeights_ && explicitObservationWeights_ == rhs.explicitObservationWeights_ &&
+                setWeightBlocks_ == rhs.setWeightBlocks_ && extraWeightBlocks_ == rhs.extraWeightBlocks_;
+    }
+
 private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( perObservationWeights_, explicitObservationWeights_, setWeightBlocks_, extraWeightBlocks_ );
+    }
+
     //! Per-observation compact weights, aligned one-to-one with observation rows.
     std::vector< PerObservationWeight > perObservationWeights_;
 

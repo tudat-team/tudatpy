@@ -31,7 +31,7 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         ${Tudat_ESTIMATION_LIBRARIES}
     )
     target_link_libraries(tudat_observation_models_test_case_support PRIVATE
-        "${Boost_LIBRARIES}"
+        "Boost::boost"
     )
 
     set_target_properties(tudat_observation_models_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)

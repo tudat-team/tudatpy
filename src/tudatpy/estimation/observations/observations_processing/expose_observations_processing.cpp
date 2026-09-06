@@ -170,9 +170,9 @@ void expose_observations_processing( py::module& m )
         filter_value : float
             Value to be used by the filter.
         filter_out : bool, optional
-            Whether to filter out observations that satisfy the condition (True) or keep them (False). Default is True.
+            Whether to filter out observations that satisfy the condition (True) or keep them (False). When set to False, this re-introduces observations that were previously filtered out. Default is True.
         use_opposite_condition : bool, optional
-            Whether to use the opposite of the default condition. Default is False.
+            Whether to use the opposite of the filter condition. Default is False.
 
         Returns
         -------
@@ -203,9 +203,9 @@ void expose_observations_processing( py::module& m )
         filter_value : list[float]
             List of values to be used by the filter.
         filter_out : bool, optional
-            Whether to filter out observations that satisfy the condition (True) or keep them (False). Default is True.
+            Whether to filter out observations that satisfy the condition (True) or keep them (False). When set to False, this re-introduces observations that were previously filtered out. Default is True.
         use_opposite_condition : bool, optional
-            Whether to use the opposite of the default condition. Default is False.
+            Whether to use the opposite of the filter condition. Default is False.
 
         Returns
         -------
@@ -250,9 +250,9 @@ void expose_observations_processing( py::module& m )
         second_filter_value : float
             Second value to be used by the filter (e.g., end time).
         filter_out : bool, optional
-            Whether to filter out observations that satisfy the condition (True) or keep them (False). Default is True.
+            Whether to filter out observations that satisfy the condition (True) or keep them (False). When set to False, this re-introduces observations that were previously filtered out. Default is True.
         use_opposite_condition : bool, optional
-            Whether to use the opposite of the default condition. Default is False.
+            Whether to use the opposite of the filter condition. Default is False.
 
         Returns
         -------
@@ -283,9 +283,9 @@ void expose_observations_processing( py::module& m )
         filter_value : numpy.ndarray
             Numpy array to be used by the filter.
         filter_out : bool, optional
-            Whether to filter out observations that satisfy the condition (True) or keep them (False). Default is True.
+            Whether to filter out observations that satisfy the condition (True) or keep them (False). When set to False, this re-introduces observations that were previously filtered out. Default is True.
         use_opposite_condition : bool, optional
-            Whether to use the opposite of the default condition. Default is False.
+            Whether to use the opposite of the filter condition. Default is False.
 
         Returns
         -------
@@ -316,9 +316,9 @@ void expose_observations_processing( py::module& m )
         filter_value : numpy.ndarray
             Numpy array to be used by the filter.
         filter_out : bool, optional
-            Whether to filter out observations that satisfy the condition (True) or keep them (False). Default is True.
+            Whether to filter out observations that satisfy the condition (True) or keep them (False). When set to False, this re-introduces observations that were previously filtered out. Default is True.
         use_opposite_condition : bool, optional
-            Whether to use the opposite of the default condition. Default is False.
+            Whether to use the opposite of the filter condition. Default is False.
 
         Returns
         -------

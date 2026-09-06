@@ -10,8 +10,6 @@
 
 #include <cmath>
 
-#include <boost/random.hpp>
-
 #if USE_GSL
 #include <gsl/gsl_qrng.h>
 #endif

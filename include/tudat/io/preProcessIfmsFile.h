@@ -63,8 +63,8 @@ std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeTyp
         const std::string& spacecraftName,
         const std::vector< std::string >& groundStationNames,
         const std::string& earthName = "Earth",
-        const std::vector< double >& frequencyBands = std::vector< double >( ),
-        const double receptionReferenceFrequencyBand = std::numeric_limits< double >::quiet_NaN( ),
+        const std::vector< std::string >& frequencyBands = std::vector< std::string >( ),
+        const std::string& receptionReferenceFrequencyBand = std::string( ),
         const double dopplerReferenceFrequency = std::numeric_limits< double >::quiet_NaN( ) )
 {
     if( rawIfmsDataVector.size( ) != groundStationNames.size( ) )
@@ -98,7 +98,7 @@ std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeTyp
         {
             trackingData->addAncillarySettings( "frequency bands", frequencyBands );
         }
-        if( std::isfinite( receptionReferenceFrequencyBand ) )
+        if( !receptionReferenceFrequencyBand.empty( ) )
         {
             trackingData->addAncillarySettings( "DSN reference frequency band at reception", receptionReferenceFrequencyBand );
         }
@@ -154,8 +154,8 @@ convertRawIfmsFiles( const std::vector< std::shared_ptr< TrackingTxtFileContents
                      const std::string& spacecraftName,
                      const std::vector< std::string >& groundStationNames,
                      const std::string& earthName = "Earth",
-                     const std::vector< double >& frequencyBands = std::vector< double >( ),
-                     const double receptionReferenceFrequencyBand = std::numeric_limits< double >::quiet_NaN( ),
+                     const std::vector< std::string >& frequencyBands = std::vector< std::string >( ),
+                     const std::string& receptionReferenceFrequencyBand = std::string( ),
                      const double dopplerReferenceFrequency = std::numeric_limits< double >::quiet_NaN( ) )
 {
     return std::make_pair( extractTrackingDataFromRawIfms< ObservationScalarType, TimeType >( rawIfmsDataVector,
@@ -177,8 +177,8 @@ readIfmsFiles( const std::vector< std::string >& ifmsFileNames,
                const std::string& earthName = "Earth",
                const bool applyTroposphereCorrection = true,
                const bool filterInvalidLines = true,
-               const std::vector< double >& frequencyBands = std::vector< double >( ),
-               const double receptionReferenceFrequencyBand = std::numeric_limits< double >::quiet_NaN( ),
+               const std::vector< std::string >& frequencyBands = std::vector< std::string >( ),
+               const std::string& receptionReferenceFrequencyBand = std::string( ),
                const double dopplerReferenceFrequency = std::numeric_limits< double >::quiet_NaN( ) )
 {
     if( ifmsFileNames.size( ) != groundStationNames.size( ) )
@@ -211,8 +211,8 @@ readIfmsFiles( const std::vector< std::string >& ifmsFileNames,
                const std::string& earthName = "Earth",
                const bool applyTroposphereCorrection = true,
                const bool filterInvalidLines = true,
-               const std::vector< double >& frequencyBands = std::vector< double >( ),
-               const double receptionReferenceFrequencyBand = std::numeric_limits< double >::quiet_NaN( ),
+               const std::vector< std::string >& frequencyBands = std::vector< std::string >( ),
+               const std::string& receptionReferenceFrequencyBand = std::string( ),
                const double dopplerReferenceFrequency = std::numeric_limits< double >::quiet_NaN( ) )
 {
     return readIfmsFiles< ObservationScalarType, TimeType >( ifmsFileNames,

@@ -31,4 +31,5 @@ set(orbit_determination_HEADERS
 TUDAT_ADD_LIBRARY("orbit_determination"
         "${orbit_determination_SOURCES}"
         "${orbit_determination_HEADERS}"
+        PUBLIC_SERIALIZATION
         )

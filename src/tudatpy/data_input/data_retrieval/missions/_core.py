@@ -274,6 +274,8 @@ class LoadPDS(
         )
 
         kernel_files_to_load = None
+        radio_science_files_to_load = None
+        ancillary_files_to_load = None
         for local_folder in local_folder_list:
             self.flag_check_existing_files = False
             if all_meta_kernel_files:
