@@ -465,22 +465,28 @@ class TestLinkTypesFileIO:
 
 
 class TestObservationCollectionFileIO:
-    """Binary file roundtrip for SingleObservationSet and ObservationCollection.
-
-    .. note::
-        Skipped — SingleObservationSet and ObservationCollection are undergoing
-        major refactoring and the constructor API is not stable.
-    """
+    """Binary roundtrip of the supported legacy observation facades."""
 
     @staticmethod
     def _make_single_set():
-        pytest.skip("SingleObservationSet/ObservationCollection under refactoring")
+        from tudatpy.estimation import observations
+
+        return observations.create_single_observation_set(
+            model_settings.one_way_range_type,
+            {
+                links.transmitter: links.body_origin_link_end_id("Earth"),
+                links.receiver: links.body_origin_link_end_id("Vehicle"),
+            },
+            [np.array([10.0]), np.array([20.0])],
+            [Time(0, 1.0), Time(0, 2.0)],
+            links.receiver,
+        )
 
     def test_single_observation_set_binary(self):
-        pytest.skip("SingleObservationSet under refactoring")
+        assert_binary_roundtrip(self._make_single_set())
 
     def test_observation_collection_binary(self):
-        pytest.skip("ObservationCollection under refactoring")
+        assert_binary_roundtrip(ObservationCollection([self._make_single_set()]))
 
 
 # ===========================================================================

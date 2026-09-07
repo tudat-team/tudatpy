@@ -502,7 +502,12 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == []
     # The dataset should now contain the four rows that were not rejected at removal time.
     assert sample_dataset.number_of_observations == 4
-    assert sample_dataset.observation_ids_matching_condition(~observation_query.rejected) == [0, 1, 2, 3]
+    assert sample_dataset.observation_ids_matching_condition(~observation_query.rejected) == [
+        0,
+        1,
+        2,
+        3,
+    ]
     # Keep the provisional removal spelling as a thin alias.
     sample_dataset.remove_rejected_observations()
     assert sample_dataset.number_of_observations == 4
@@ -597,3 +602,19 @@ def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, e
     assert equal == expected_ids
     assert unequal == [row for row in range(5) if row not in expected_ids]
     assert sample_dataset.observation_ids_matching_condition(~(query.time == epoch)) == unequal
+
+
+def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dataset):
+    dataset = sample_dataset
+    row = dataset.observation_rows[0]
+    metadata = dataset.observation_set_metadata[0]
+    original_id = row.observation_id
+    original_time = row.time
+    original_type = metadata.observable_type
+    dataset.remove_observations(
+        observations.observation_query.active | observations.observation_query.rejected
+    )
+    del dataset
+    assert row.observation_id == original_id
+    assert row.time == original_time
+    assert metadata.observable_type == original_type

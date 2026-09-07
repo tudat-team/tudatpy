@@ -104,9 +104,7 @@ class _ObservationQuery:
 
     def link_end(self, link_end_type):
         return _ComparableSelector(
-            lambda link_end_id: ObservationSelectionCondition.link_end(
-                link_end_type, link_end_id
-            )
+            lambda link_end_id: ObservationSelectionCondition.link_end(link_end_type, link_end_id)
         )
 
     @property

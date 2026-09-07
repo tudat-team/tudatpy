@@ -186,8 +186,9 @@ def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
         observations.ObservationDataset().add_observation_set(object())
 
     error_message = str(exception_info.value)
-    assert "add_observation_set(single_observation_set)" in error_message
-    assert "add_observation_set(observable_type, link_definition" in error_message
+    assert "single_observation_set" in error_message
+    assert "observable_type" in error_message
+    assert "link_definition" in error_message
 
 
 def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
@@ -396,3 +397,25 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
             np.asarray(legacy_collection.concatenated_weights),
             [2.1, 2.2, 2.3, 2.4],
         )
+
+
+@pytest.mark.parametrize("container", [list, lambda values: np.array(values, dtype=object)])
+def test_dataset_preserves_precise_time_objects(container):
+    from tudatpy.astro.time_representation import Time
+
+    epoch = Time(1000000, 0.000000001)
+    dataset = _new_dataset_single_set(
+        observations.one_way_range, "Earth", [[10.0]], container([epoch])
+    )
+    stored = dataset.observation_times_for_set(0)[0]
+    assert stored == epoch
+    assert float(stored - Time(1000000, 0.0)) == pytest.approx(1.0e-9, rel=1.0e-12)
+
+
+def test_scalar_setters_accept_one_dimensional_arrays(sample_dataset):
+    sample_dataset.set_observations_for_set(0, np.array([101.0, 102.0, 103.0]))
+    sample_dataset.set_residuals_for_set(0, np.array([0.5, 1.5, 2.5]))
+    np.testing.assert_array_equal(
+        sample_dataset.observation_vector_for_set(0), [101.0, 102.0, 103.0]
+    )
+    np.testing.assert_array_equal(sample_dataset.residual_vector_for_set(0), [0.5, 1.5, 2.5])

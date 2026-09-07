@@ -1,4 +1,4 @@
-import warnings
+from functools import wraps
 
 from tudatpy._deprecation import deprecation_warning, property_deprecation
 from tudatpy.estimation.observable_models_setup.links import (
@@ -33,157 +33,25 @@ SingleObservationSet.ancilliary_settings = property_deprecation(
     "SingleObservationSet.ancilliary_settings", "SingleObservationSet.ancillary_settings"
 )(SingleObservationSet.ancillary_settings)
 
-_native_add_observation_set_object_deprecation = ObservationDataset.add_observation_set
-
-_ADD_OBSERVATION_SET_SIGNATURES = (
-    "Accepted signatures are "
-    "add_observation_set(single_observation_set) and "
-    "add_observation_set(observable_type, link_definition, observations, times, reference_link_end, "
-    "dependent_variables=[], dependent_variable_bookkeeping=None, ancillary_settings=None, "
-    "weights=[], residuals=[], sort_observations=False, erase_duplicate_observations=False)."
-)
-
-_ADD_OBSERVATION_SET_ARGUMENTS = (
-    "observable_type",
-    "link_definition",
-    "observations",
-    "times",
-    "reference_link_end",
-    "dependent_variables",
-    "dependent_variable_bookkeeping",
-    "ancillary_settings",
-    "weights",
-    "residuals",
-    "sort_observations",
-    "erase_duplicate_observations",
-)
-
-_ADD_OBSERVATION_SET_ALIASES = {
-    "observations": ("observations", "observation_values"),
-    "times": ("times", "observation_times"),
-}
-
-_MISSING_ADD_OBSERVATION_SET_ARGUMENT = object()
+_native_add_observation_set = ObservationDataset.add_observation_set
 
 
-def _add_observation_set_type_error(detail):
-    return TypeError(
-        f"Invalid ObservationDataset.add_observation_set call: {detail}. "
-        f"{_ADD_OBSERVATION_SET_SIGNATURES}"
-    )
+@wraps(_native_add_observation_set)
+def _add_observation_set(self, *args, **kwargs):
+    # Keep previously used keyword spellings; pybind validates the actual signatures.
+    for alias, canonical in (
+        ("observation_values", "observations"),
+        ("observation_times", "times"),
+        ("observation_set", "single_observation_set"),
+    ):
+        if alias in kwargs:
+            if canonical in kwargs:
+                raise TypeError(f"Both {alias!r} and {canonical!r} were supplied")
+            kwargs[canonical] = kwargs.pop(alias)
+    return _native_add_observation_set(self, *args, **kwargs)
 
 
-def _pop_add_observation_set_keyword(kwargs, canonical_name):
-    aliases = _ADD_OBSERVATION_SET_ALIASES.get(canonical_name, (canonical_name,))
-    present_aliases = [alias for alias in aliases if alias in kwargs]
-    if len(present_aliases) > 1:
-        raise _add_observation_set_type_error(
-            f"received duplicate keyword aliases for '{canonical_name}': {', '.join(present_aliases)}"
-        )
-    if present_aliases:
-        return kwargs.pop(present_aliases[0])
-    return _MISSING_ADD_OBSERVATION_SET_ARGUMENT
-
-
-def _normalized_component_add_observation_set_arguments(args, kwargs):
-    if len(args) > len(_ADD_OBSERVATION_SET_ARGUMENTS):
-        raise _add_observation_set_type_error(f"received {len(args)} positional arguments")
-
-    keyword_arguments = dict(kwargs)
-    values = {}
-    provided = set()
-
-    for argument_name, argument_value in zip(_ADD_OBSERVATION_SET_ARGUMENTS, args):
-        values[argument_name] = argument_value
-        provided.add(argument_name)
-
-    for argument_name in _ADD_OBSERVATION_SET_ARGUMENTS:
-        keyword_value = _pop_add_observation_set_keyword(keyword_arguments, argument_name)
-        if keyword_value is _MISSING_ADD_OBSERVATION_SET_ARGUMENT:
-            continue
-        if argument_name in provided:
-            raise _add_observation_set_type_error(f"received multiple values for '{argument_name}'")
-        values[argument_name] = keyword_value
-        provided.add(argument_name)
-
-    if keyword_arguments:
-        raise _add_observation_set_type_error(
-            f"received unexpected keyword argument '{next(iter(keyword_arguments))}'"
-        )
-
-    missing_arguments = [
-        argument_name
-        for argument_name in _ADD_OBSERVATION_SET_ARGUMENTS[:5]
-        if argument_name not in provided
-    ]
-    if missing_arguments:
-        raise _add_observation_set_type_error(f"missing required argument '{missing_arguments[0]}'")
-
-    return values, provided
-
-
-def _add_single_observation_set_to_dataset(dataset, observation_set):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        single_set_dataset = create_observation_dataset_from_single_observation_set(observation_set)
-    return dataset.add_observation_set_from_dataset(single_set_dataset, 0)
-
-
-def _native_component_add_observation_set(dataset, values):
-    defaulted_values = {
-        "dependent_variables": [],
-        "dependent_variable_bookkeeping": None,
-        "ancillary_settings": None,
-        "weights": [],
-        "residuals": [],
-        "sort_observations": False,
-        "erase_duplicate_observations": False,
-    }
-    defaulted_values.update(values)
-    return _native_add_observation_set_object_deprecation(
-        dataset,
-        defaulted_values["observable_type"],
-        defaulted_values["link_definition"],
-        defaulted_values["observations"],
-        defaulted_values["times"],
-        defaulted_values["reference_link_end"],
-        defaulted_values["dependent_variables"],
-        defaulted_values["dependent_variable_bookkeeping"],
-        defaulted_values["ancillary_settings"],
-        defaulted_values["weights"],
-        defaulted_values["residuals"],
-        defaulted_values["sort_observations"],
-        defaulted_values["erase_duplicate_observations"],
-    )
-
-
-def _object_deprecation_add_observation_set_python_compatibility(self, *args, **kwargs):
-    if len(args) == 1 and not kwargs:
-        if not isinstance(args[0], SingleObservationSet):
-            raise _add_observation_set_type_error(
-                f"single-argument form expects SingleObservationSet, got {type(args[0]).__name__}"
-            )
-        return _add_single_observation_set_to_dataset(self, args[0])
-
-    if not args and set(kwargs) <= {"single_observation_set", "observation_set"} and kwargs:
-        if len(kwargs) != 1:
-            raise _add_observation_set_type_error(
-                "received both 'single_observation_set' and 'observation_set'"
-            )
-        observation_set = next(iter(kwargs.values()))
-        if not isinstance(observation_set, SingleObservationSet):
-            raise _add_observation_set_type_error(
-                f"single-observation-set form expects SingleObservationSet, got {type(observation_set).__name__}"
-            )
-        return _add_single_observation_set_to_dataset(self, observation_set)
-
-    component_values, _ = _normalized_component_add_observation_set_arguments(args, kwargs)
-    return _native_component_add_observation_set(self, component_values)
-
-
-ObservationDataset.add_observation_set = (
-    _object_deprecation_add_observation_set_python_compatibility
-)
+ObservationDataset.add_observation_set = _add_observation_set
 
 
 def _legacy_collection(dataset):
@@ -323,32 +191,33 @@ ObservationDataset.get_bodies_in_link_ends = _dataset_object_deprecation(
 )
 
 
-def _observation_collection_property(name):
-    return _dataset_property_deprecation(
-        name,
-        "ObservationDataset",
-        lambda dataset, collection_name=name: getattr(_legacy_collection(dataset), collection_name),
+# Explicit compatibility aliases. Collection membership operations belong on the
+# legacy facade; automatically attaching them to Dataset could silently modify
+# a temporary grouping instead of the dataset.
+for _legacy_method_name in (
+    "get_concatenated_observations",
+    "get_concatenated_weights",
+    "get_concatenated_residuals",
+    "get_concatenated_computed_observations",
+    "get_concatenated_observation_times",
+    "get_concatenated_observation_times_objects",
+    "get_concatenated_observations_and_times",
+    "get_concatenated_observations_and_times_objects",
+    "get_concatenated_link_definition_ids",
+    "get_time_bounds_list",
+    "set_constant_weight",
+    "set_tabulated_weights",
+):
+    setattr(
+        ObservationDataset,
+        _legacy_method_name,
+        _dataset_object_deprecation(
+            _legacy_method_name,
+            "ObservationDataset",
+            lambda dataset, *args, _method=_legacy_method_name, **kwargs: getattr(
+                _legacy_collection(dataset), _method
+            )(*args, **kwargs),
+        ),
     )
 
-
-def _observation_collection_method(name):
-    return _dataset_object_deprecation(
-        name,
-        "ObservationDataset",
-        lambda dataset, *args, collection_name=name, **kwargs: getattr(
-            _legacy_collection(dataset), collection_name
-        )(*args, **kwargs),
-    )
-
-
-for _name in dir(ObservationCollection):
-    if _name.startswith("_") or hasattr(ObservationDataset, _name):
-        continue
-
-    _object = getattr(ObservationCollection, _name)
-    if isinstance(_object, property):
-        setattr(ObservationDataset, _name, _observation_collection_property(_name))
-    elif callable(_object):
-        setattr(ObservationDataset, _name, _observation_collection_method(_name))
-
-del _name, _object
+del _name, _object, _legacy_method_name
