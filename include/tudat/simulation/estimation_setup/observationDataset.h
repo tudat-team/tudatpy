@@ -618,9 +618,6 @@ public:
     /////////////////       ORDERED VECTOR HELPERS  //////////
     //////////////////////////////////////////////////////////
 
-    //! Return flat scalar-vector start and size for each set in dataset insertion order.
-    std::vector< std::pair< int, int > > getObservationSetStartAndSizeInDatasetOrder( ) const;
-
     //! Return ordered set ids for a single observable type.
     std::vector< unsigned int > getObservationSetIdsForObservableType( const ObservableType observableType ) const;
 

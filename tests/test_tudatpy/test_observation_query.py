@@ -338,7 +338,11 @@ def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
     ) == [3]
 
 
-def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset):
+@pytest.mark.parametrize(
+    "projection_method",
+    ["create_estimation_projection", "estimation_flattened_observation_data"],
+)
+def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset, projection_method):
     """Check that query results drive viewers and flattened provenance correctly."""
     observation_query = observations.observation_query
 
@@ -355,7 +359,7 @@ def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset):
     # The same viewer index should return the first angular-position value.
     np.testing.assert_allclose(viewer.observation_value(1), [1.0, 2.0])
 
-    flattened = viewer.estimation_flattened_observation_data()
+    flattened = getattr(viewer, projection_method)()
     # Flattened values should expand vector observations into scalar components.
     np.testing.assert_allclose(
         flattened.observation_vector,

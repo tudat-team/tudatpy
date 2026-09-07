@@ -109,6 +109,9 @@ Each event has a stable ``observation_id`` within its dataset. Removing another
 row, sorting a set, or appending data never reuses or renumbers that identity.
 ``set_id`` identifies metadata grouping. Scalar storage positions may change;
 use a fresh projection to obtain indices for numerical work.
+In C++, ``projection.getFlattenedRow(observation_id, component_index)`` gives
+the scalar offset in that projection. A set can span noncontiguous storage
+after appends, so set counts alone do not define scalar offsets.
 
 ``create_estimation_projection()`` selects active rows in the established Tudat
 order: observable type, link ends, set, event within the set, then component.

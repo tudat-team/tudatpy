@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 
 namespace tudat

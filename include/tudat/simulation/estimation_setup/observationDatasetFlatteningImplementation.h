@@ -261,25 +261,6 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObs
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< std::pair< int, int > >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetStartAndSizeInDatasetOrder( ) const
-{
-    std::vector< std::pair< int, int > > startAndSize;
-    startAndSize.reserve( getNumberOfObservationSets( ) );
-
-    int currentIndex = 0;
-    for( unsigned int setId = 0; setId < getNumberOfObservationSets( ); ++setId )
-    {
-        const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
-        startAndSize.push_back( std::make_pair( currentIndex, currentSize ) );
-        currentIndex += currentSize;
-    }
-    return startAndSize;
-}
-
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetIdsForObservableType(
         const ObservableType observableType ) const
 {

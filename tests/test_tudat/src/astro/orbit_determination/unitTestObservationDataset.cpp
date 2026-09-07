@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_flattened_data_and_residuals )
     expectedObservations << 10.0, 11.0, 20.0, 21.0, 22.0, 23.0, 30.0, 31.0, 32.0;
     const FlattenedObservationData< double, double > flattenedData = dataset.createEstimationFlattenedObservationData( );
 
-    // The estimator flattened data must concatenate scalar components in observation-set insertion order.
+    // These sets were inserted in the established observable/link order.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getObservationVector( ), expectedObservations, 1.0E-15 );
 
     const std::vector< double > expectedTimes = { 1.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0, 5.0 };
@@ -148,15 +148,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_flattened_data_and_residuals )
     // Vector-valued observables must repeat their event time once per scalar component.
     BOOST_CHECK_EQUAL_COLLECTIONS( flattenedDataTimes.begin( ), flattenedDataTimes.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
 
-    const std::vector< std::pair< int, int > > expectedDatasetStartAndSize = { { 0, 2 }, { 2, 4 }, { 6, 3 } };
-    const std::vector< std::pair< int, int > > datasetStartAndSize = dataset.getObservationSetStartAndSizeInDatasetOrder( );
-
-    // Set start/size data must describe the same scalar layout used by the estimator flattened data.
-    BOOST_REQUIRE_EQUAL( datasetStartAndSize.size( ), expectedDatasetStartAndSize.size( ) );
-    for( unsigned int i = 0; i < datasetStartAndSize.size( ); ++i )
+    // Projection-local component positions come from the same mapping as the vectors.
+    const std::vector< int > expectedStarts = { 0, 1, 2, 4, 6 };
+    const std::vector< int > expectedSizes = { 1, 1, 2, 2, 3 };
+    for( unsigned int id = 0; id < expectedStarts.size( ); ++id )
     {
-        BOOST_CHECK_EQUAL( datasetStartAndSize.at( i ).first, expectedDatasetStartAndSize.at( i ).first );
-        BOOST_CHECK_EQUAL( datasetStartAndSize.at( i ).second, expectedDatasetStartAndSize.at( i ).second );
+        for( int component = 0; component < expectedSizes.at( id ); ++component )
+        {
+            BOOST_CHECK_EQUAL( flattenedData.getFlattenedRow( id, component ), expectedStarts.at( id ) + component );
+        }
     }
 
     Eigen::VectorXd expectedWeights( 9 );
@@ -1296,9 +1296,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
  * Verifies that viewer ordered flattening follows dataset ordered-output order.
  *
  * Test outline: inserts angular-position rows before one-way range rows, so
- * dataset row order differs from ordered flattened-data order. A viewer
- * selecting all rows must keep dataset order for estimation flattening but use
- * observable/link/set ordered output for ordered flattening.
+ * dataset row order differs from ordered flattened-data order. Viewer
+ * selections retain dataset order while numerical projections use the established
+ * observable/link/set ordering, including after interleaved appends.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_viewer_ordered_flattening_reorders_selected_rows )
 {
@@ -1323,10 +1323,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_viewer_ordered_flattening_reorders_selected_r
     // The viewer selection itself is in dataset row order: angular rows first, then range rows.
     checkIds( viewer.getObservationIds( ), { 0, 1, 2, 3 } );
 
-    // Estimation flattening intentionally preserves the viewer's selected row order.
+    // Estimation projects selected identities into the established numerical order.
     checkIds( viewer.createEstimationFlattenedObservationData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
 
-    // Ordered flattening must instead follow legacy ordered output: one-way range before angular position.
+    // The compatibility projection uses the same ordering: range before angular position.
     checkIds( viewer.createOrderedFlattenedObservationData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
 
     std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > simulators;
@@ -1342,6 +1342,18 @@ BOOST_AUTO_TEST_CASE( test_dataset_viewer_ordered_flattening_reorders_selected_r
 
     // Legacy collections expose residuals in their observable/link ordered layout, independent of dataset insertion order.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyResiduals, expectedLegacyResiduals, 1.0E-15 );
+
+    // Appending to the first set after another set exists makes storage noncontiguous.
+    dataset.addObservationsToSet( 0, { Eigen::Vector2d( 24.0, 25.0 ) }, { 2.5 }, {}, {}, {}, true );
+    BOOST_CHECK_THROW( viewer.getObservationIds( ), std::runtime_error );
+    const auto appendedProjection = dataset.createEstimationProjection( );
+    checkIds( appendedProjection.getObservationIds( ), { 2, 3, 4, 4, 0, 0, 1, 1 } );
+    checkIds( appendedProjection.getScalarComponentIds( ), { 4, 5, 6, 7, 0, 1, 2, 3 } );
+    Eigen::VectorXd expectedAppended( 8 );
+    expectedAppended << 10.0, 11.0, 24.0, 25.0, 20.0, 21.0, 22.0, 23.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( appendedProjection.getObservationVector( ), expectedAppended, 1.0E-15 );
+    BOOST_CHECK_EQUAL( appendedProjection.getFlattenedRow( 4, 1 ), 3 );
+    BOOST_CHECK_EQUAL( appendedProjection.getFlattenedRow( 0, 1 ), 5 );
 }
 
 /*!
@@ -1859,12 +1871,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries 
 }
 
 /*!
- * Verifies that default weights introduced while appending rows remain implicit.
+ * Verifies that later assignments consistently replace appended weights.
  *
  * Test outline: appends rows before setting a full set-level weight block. The
- * first dataset omits append weights, so the later set-level block should remain
- * authoritative for every row. The second dataset supplies append weights
- * explicitly, so only that appended row should override its diagonal entry.
+ * first dataset omits append weights, and the second supplies them explicitly.
+ * A later set-level assignment must replace the addressed matrix in both cases.
  */
 BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_block )
 {
@@ -1889,9 +1900,9 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
             implicitAppendDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( );
     std::cerr.rdbuf( originalWarningBuffer );
 
-    // Appended rows without user-supplied weights should keep implicit unit defaults, so the set block should be unchanged.
+    // The later set assignment replaces appended defaults.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( implicitFlattenedWeightMatrix, setWeightBlock, 1.0E-15 );
-    // No conflict warning should be printed when implicit defaults are correctly skipped under a set-level block.
+    // Assignments have no competing precedence layers or conflict warnings.
     BOOST_CHECK( implicitWarningStream.str( ).empty( ) );
 
     ObservationDataset< double, double > explicitAppendDataset;
@@ -1912,11 +1923,9 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
     std::cerr.rdbuf( originalWarningBuffer );
 
     Eigen::Matrix3d expectedExplicitWeightMatrix = setWeightBlock;
-    // The later full-set assignment replaces the earlier appended diagonal.
-
-    // Explicit append weights should override the diagonal entry for the appended observation only.
+    // The later full-set assignment also replaces explicitly supplied append weights.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitFlattenedWeightMatrix, expectedExplicitWeightMatrix, 1.0E-15 );
-    // The override should be reported with the flattened/scalar-component index that changed.
+    // Explicit append weights likewise require no conflict warning.
     BOOST_CHECK( explicitWarningStream.str( ).empty( ) );
 }
 

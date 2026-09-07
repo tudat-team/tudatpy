@@ -757,7 +757,7 @@ dataset is structurally modified.
                       py::arg( "condition" ),
                       R"doc(Create a narrower read-only viewer selected from this viewer.)doc" )
                 .def( "create_estimation_projection",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                       py::arg( "include_rejected" ) = false,
                       R"doc(Create a consistent snapshot in legacy estimator order; rejected rows are excluded by default.)doc" )
                 .def( "estimation_flattened_observation_data",
