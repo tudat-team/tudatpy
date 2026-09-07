@@ -2610,14 +2610,14 @@ BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_exp
     const Eigen::MatrixXd emptyDesign( 0, 1 );
     const Eigen::VectorXd emptyWeights( 0 );
     BOOST_CHECK_THROW( simulation_setup::calculateCovarianceUsingDataUpToEpoch(
-                               dataset, emptyDesign, Eigen::Vector1d::Ones( ), 1.0, emptyWeights, Eigen::Matrix1d::Identity( ) ),
+                               dataset, emptyDesign, Eigen::Vector1d::Ones( ), 1.0, emptyWeights, Eigen::MatrixXd::Identity( 1, 1 ) ),
                        std::runtime_error );
     BOOST_CHECK_THROW( simulation_setup::calculateCovarianceUsingDataUpToEpoch( dataset,
                                                                                 emptyDesign,
                                                                                 Eigen::Vector1d::Ones( ),
                                                                                 std::vector< double >{ 2.0 },
                                                                                 emptyWeights,
-                                                                                Eigen::Matrix1d::Identity( ) ),
+                                                                                Eigen::MatrixXd::Identity( 1, 1 ) ),
                        std::runtime_error );
 }
 
