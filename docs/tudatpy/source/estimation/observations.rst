@@ -127,7 +127,10 @@ Viewers keep the identities selected at creation; they do not rerun their
 condition after value changes. They fail explicitly after structural mutation
 or destruction of the dataset. Independent dataset copies also clone mutable
 ancillary settings and dependent-variable settings. Filtered copies preserve
-metadata identifiers, including groups left empty by the selection.
+metadata identifiers, including groups left empty by the selection. Custom C++
+dependent-variable setting subclasses must implement ``clone()`` to participate
+in independent dataset copies; unknown derived types fail explicitly instead
+of being sliced or shared silently.
 
 Legacy ownership and conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

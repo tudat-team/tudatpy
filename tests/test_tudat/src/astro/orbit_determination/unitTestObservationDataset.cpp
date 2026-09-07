@@ -2612,6 +2612,48 @@ BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_exp
                        std::runtime_error );
 }
 
+BOOST_AUTO_TEST_CASE( test_dependent_layout_replacement_validates_metadata_and_stored_dimensions )
+{
+    ObservationDataset<> dataset;
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    const auto setId = dataset.addObservationSet(
+            one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver, { Eigen::Vector2d( 3.0, 4.0 ) } );
+    const auto original = dataset;
+    for( const auto& layout : { std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( angular_position, link ),
+                                std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >(
+                                        one_way_range, createOneWayLinkDefinition( "Station2" ) ),
+                                std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( one_way_range, link ) } )
+    {
+        BOOST_CHECK_THROW( dataset.resetDependentVariableBookkeepingForSet( setId, layout ), std::runtime_error );
+        BOOST_CHECK( dataset == original );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_legacy_caches_detect_dataset_replacement_with_equal_revision )
+{
+    ObservationDataset<> first, second;
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    first.addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver );
+    second.addObservationSet(
+            one_way_range, link, { Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) }, { 2.0, 3.0 }, receiver );
+    auto owner = std::make_shared< ObservationDataset<> >( first );
+    auto sharedSet = std::make_shared< SingleObservationSet<> >( owner, 0 );
+    ObservationCollection<> live( owner );
+    ObservationCollection<> grouped( std::vector< std::shared_ptr< SingleObservationSet<> > >{ sharedSet } );
+    BOOST_CHECK_EQUAL( live.getTotalObservableSize( ), 1 );
+    BOOST_CHECK_EQUAL( grouped.getTotalObservableSize( ), 1 );
+    const auto revision = owner->getStructuralVersion( );
+    *owner = second;
+    BOOST_CHECK_EQUAL( owner->getStructuralVersion( ), revision );
+    for( auto* collection : { &live, &grouped } )
+    {
+        BOOST_CHECK_EQUAL( collection->getTotalObservableSize( ), 2 );
+        const auto times = collection->getConcatenatedTimeVector( );
+        const std::vector< double > expected = { 2.0, 3.0 };
+        BOOST_CHECK_EQUAL_COLLECTIONS( times.begin( ), times.end( ), expected.begin( ), expected.end( ) );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

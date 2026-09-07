@@ -13,6 +13,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <limits>
+#include <Eigen/Cholesky>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -603,9 +604,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::MatrixXd singleStepDesignMatrix = singleStepEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
     const Eigen::VectorXd expectedSingleStepParameterUpdate =
-            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    singleStepDesignMatrix, singleStepResiduals, weightData.getSparseWeightMatrix( ) )
-                    .first.cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
+            ( singleStepDesignMatrix.transpose( ) * expectedFullWeightsMatrix * singleStepDesignMatrix )
+                    .ldlt( )
+                    .solve( singleStepDesignMatrix.transpose( ) * expectedFullWeightsMatrix * singleStepResiduals )
+                    .cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualSingleStepParameterUpdate =
             singleStepEstimationOutput->parameterHistory_.at( 1 ) - singleStepEstimationOutput->parameterHistory_.at( 0 );
 
@@ -685,10 +687,30 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     const Eigen::MatrixXd rejectedSingleStepDesignMatrix = rejectedEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residualHistory_.at( 0 );
+    // Independently remove the rejected event's scalar range from the hand-built matrix.
+    const int rejectedStart = getOrderedFlattenedDataIndex( rejectedObservationId, 0 );
+    std::vector< int > retainedScalars;
+    for( int i = 0; i < expectedFullWeightsMatrix.rows( ); ++i )
+    {
+        if( i < rejectedStart || i >= rejectedStart + static_cast< int >( rejectedObservationSize ) )
+        {
+            retainedScalars.push_back( i );
+        }
+    }
+    Eigen::MatrixXd expectedActiveWeights( retainedScalars.size( ), retainedScalars.size( ) );
+    for( std::size_t i = 0; i < retainedScalars.size( ); ++i )
+    {
+        for( std::size_t j = 0; j < retainedScalars.size( ); ++j )
+        {
+            expectedActiveWeights( i, j ) = expectedFullWeightsMatrix( retainedScalars.at( i ), retainedScalars.at( j ) );
+        }
+    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( activeData.getSparseWeightMatrix( ).toDense( ), expectedActiveWeights, 1.0E-15 );
     const Eigen::VectorXd expectedRejectedStepParameterUpdate =
-            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    rejectedSingleStepDesignMatrix, rejectedSingleStepResiduals, activeData.getSparseWeightMatrix( ) )
-                    .first.cwiseQuotient( rejectedEstimationOutput->getNormalizationTerms( ) );
+            ( rejectedSingleStepDesignMatrix.transpose( ) * expectedActiveWeights * rejectedSingleStepDesignMatrix )
+                    .ldlt( )
+                    .solve( rejectedSingleStepDesignMatrix.transpose( ) * expectedActiveWeights * rejectedSingleStepResiduals )
+                    .cwiseQuotient( rejectedEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualRejectedStepParameterUpdate =
             rejectedEstimationOutput->parameterHistory_.at( 1 ) - rejectedEstimationOutput->parameterHistory_.at( 0 );
 
@@ -705,9 +727,37 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     // Covariance analysis must use the same active-only flattened data as differential correction.
     BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
     const Eigen::MatrixXd expectedRejectedInverseCovariance = rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).transpose( ) *
-            activeData.getSparseWeightMatrix( ).toDense( ) * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
+            expectedActiveWeights * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             rejectedCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedRejectedInverseCovariance, 1.0E-13 );
+
+    simulatedObservations->restoreObservations( rejectedObservationSelectionCondition );
+    const auto restoredProjection = simulatedObservations->createEstimationProjection( );
+    BOOST_CHECK( restoredProjection.getObservationIds( ) == weightData.getObservationIds( ) );
+    BOOST_CHECK( restoredProjection.getTimes( ) == weightData.getTimes( ) );
+    BOOST_CHECK_EQUAL( simulatedObservations->getObservationRow( rejectedObservationId ).rejectionReason_,
+                       "excluded from estimation system" );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredProjection.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+
+    // The base API accepts collections of shared legacy sets. Exercise its fresh
+    // preparation and residual writeback through the actual estimation manager.
+    std::vector< std::shared_ptr< SingleObservationSet<> > > legacySets;
+    for( unsigned int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    {
+        legacySets.push_back( std::make_shared< SingleObservationSet<> >( simulatedObservations, setId ) );
+    }
+    auto legacyCollection = std::make_shared< ObservationCollection<> >( legacySets );
+    auto legacyInput = std::make_shared< EstimationInput<> >( legacyCollection );
+    legacyInput->defineEstimationSettings( true, true, true, false, true, false );
+    legacyInput->setConvergenceChecker( estimationConvergenceChecker( 1, 0.0, 1.0E-20, 4 ) );
+    simulatedObservations->setResidualVector( Eigen::VectorXd::Constant( totalObservationSize, -12345.0 ) );
+    parametersToEstimate->resetParameterValues( perturbedState );
+    const auto legacyOutput = orbitDeterminationManager.estimateParameters( legacyInput );
+    BOOST_CHECK( legacyInput->getObservationCollection( ) == legacyCollection );
+    BOOST_CHECK( legacySets.front( )->getObservationDataset( ) == simulatedObservations );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyOutput->getWeightsMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            simulatedObservations->createEstimationProjection( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

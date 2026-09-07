@@ -387,7 +387,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
         {
             bookkeeping =
                     std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( metadata.observableType_, linkEnds );
-            resetDependentVariableBookkeepingForSet( setId, bookkeeping );
         }
         else if( !getDependentVariablesForSet( setId ).empty( ) )
         {
@@ -396,10 +395,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addDependentV
         }
         else
         {
-            bookkeeping = std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( *bookkeeping );
-            resetDependentVariableBookkeepingForSet( setId, bookkeeping );
+            bookkeeping = bookkeeping->clone( );
         }
         bookkeeping->addDependentVariables( allSettingsToCreate );
+        resetDependentVariableBookkeepingForSet( setId, bookkeeping );
     }
 }
 

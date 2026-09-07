@@ -2039,7 +2039,8 @@ private:
         bool changed = false;
         if( observationDataset_ )
         {
-            changed = cachedDatasetStructuralVersion_ != observationDataset_->getStructuralVersion( );
+            changed = cachedDatasetStructuralVersion_ != observationDataset_->getStructuralVersion( ) ||
+                    cachedDatasetLifetimeToken_.lock( ) != observationDataset_->getLifetimeToken( ).lock( );
         }
         else
         {
@@ -2050,7 +2051,7 @@ private:
                     for( const auto& set : link.second )
                     {
                         const auto dataset = set->getObservationDataset( );
-                        const auto cached = cachedSourceVersions_.find( dataset.get( ) );
+                        const auto cached = cachedSourceVersions_.find( dataset->getLifetimeToken( ) );
                         changed = changed || cached == cachedSourceVersions_.end( ) || cached->second != dataset->getStructuralVersion( );
                     }
                 }
@@ -2211,6 +2212,7 @@ private:
         }
 
         cachedDatasetStructuralVersion_ = observationDataset_ ? observationDataset_->getStructuralVersion( ) : 0;
+        cachedDatasetLifetimeToken_ = observationDataset_ ? observationDataset_->getLifetimeToken( ) : std::weak_ptr< const int >( );
         cachedSourceVersions_.clear( );
         for( const auto& observable : observationSetList_ )
         {
@@ -2219,7 +2221,7 @@ private:
                 for( const auto& set : link.second )
                 {
                     const auto dataset = set->getObservationDataset( );
-                    cachedSourceVersions_[ dataset.get( ) ] = dataset->getStructuralVersion( );
+                    cachedSourceVersions_[ dataset->getLifetimeToken( ) ] = dataset->getStructuralVersion( );
                 }
             }
         }
@@ -2408,7 +2410,8 @@ private:
 
     mutable std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetWrappersByDatasetSetId_;
 
-    mutable std::map< const ObservationDataset< ObservationScalarType, TimeType >*, std::size_t > cachedSourceVersions_;
+    mutable std::weak_ptr< const int > cachedDatasetLifetimeToken_;
+    mutable std::map< std::weak_ptr< const int >, std::size_t, std::owner_less< std::weak_ptr< const int > > > cachedSourceVersions_;
 
     mutable std::size_t cachedDatasetStructuralVersion_ = std::numeric_limits< std::size_t >::max( );
 

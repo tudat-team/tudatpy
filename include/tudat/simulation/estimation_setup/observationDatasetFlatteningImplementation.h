@@ -139,6 +139,23 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::resetDependen
         const unsigned int setId,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping )
 {
+    const auto& metadata = getObservationSetMetadata( setId );
+    if( dependentVariableBookkeeping )
+    {
+        if( dependentVariableBookkeeping->getObservableType( ) != metadata.observableType_ ||
+            !( dependentVariableBookkeeping->getLinkEnds( ) == getLinkDefinition( metadata.linkDefinitionId_ ) ) )
+        {
+            throw std::runtime_error( "Dependent-variable bookkeeping is incompatible with the observation set." );
+        }
+        for( const auto id : getObservationIdsForSet( setId ) )
+        {
+            const auto size = getDependentVariables( id ).size( );
+            if( size != 0 && size != dependentVariableBookkeeping->getTotalDependentVariableSize( ) )
+            {
+                throw std::runtime_error( "Dependent-variable layout does not match the stored values." );
+            }
+        }
+    }
     setMetadata_.at( setId ).dependentVariableLayoutId_ = registerDependentVariableLayout( dependentVariableBookkeeping );
     ++structuralVersion_;
 }
