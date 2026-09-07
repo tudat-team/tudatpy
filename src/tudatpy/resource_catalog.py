@@ -16,8 +16,8 @@ RESOURCE_METADATA_URLS = (
         "https://zenodo.org/api/records/21261530/files/SHA256SUM-rolling/content",
     ),
     (
-        "https://zenodo.org/api/records/21277280/files/manifest-static.txt/content",
-        "https://zenodo.org/api/records/21277280/files/SHA256SUM-static/content",
+        "https://zenodo.org/api/records/22128149/files/manifest-static.txt/content",
+        "https://zenodo.org/api/records/22128149/files/SHA256SUM-static/content",
     ),
 )
 USER_RESOURCE_CATALOG = Path(
