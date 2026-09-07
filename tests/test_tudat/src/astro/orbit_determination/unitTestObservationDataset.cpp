@@ -2633,9 +2633,27 @@ BOOST_AUTO_TEST_CASE( test_dependent_layout_replacement_validates_metadata_and_s
                                         one_way_range, createOneWayLinkDefinition( "Station2" ) ),
                                 std::make_shared< simulation_setup::ObservationDependentVariableBookkeeping >( one_way_range, link ) } )
     {
-        BOOST_CHECK_THROW( dataset.resetDependentVariableBookkeepingForSet( setId, layout ), std::runtime_error );
+        BOOST_CHECK_THROW( dataset.addObservationSet( one_way_range,
+                                                      link,
+                                                      { Eigen::Vector1d::Constant( 20.0 ) },
+                                                      { 2.0 },
+                                                      receiver,
+                                                      { Eigen::Vector2d( 5.0, 6.0 ) },
+                                                      layout ),
+                           std::runtime_error );
         BOOST_CHECK( dataset == original );
     }
+
+    // The public addition route must also reject attaching a one-component
+    // layout to existing two-component values without changing the dataset.
+    const auto setting = simulation_setup::elevationAngleDependentVariable( transmitter, LinkEndId( "Earth", "Station1" ) );
+    BOOST_CHECK_THROW( dataset.addDependentVariableToSets( setting ), std::runtime_error );
+    BOOST_CHECK( dataset == original );
+    dataset.clearDependentVariablesForSet( setId );
+    BOOST_REQUIRE_NO_THROW( dataset.addDependentVariableToSets( setting ) );
+    BOOST_CHECK_EQUAL( dataset.getDependentVariableBookkeeping( dataset.getObservationSetMetadata( setId ).dependentVariableLayoutId_ )
+                               ->getTotalDependentVariableSize( ),
+                       1 );
 }
 
 BOOST_AUTO_TEST_CASE( test_legacy_caches_detect_dataset_replacement_with_equal_revision )
