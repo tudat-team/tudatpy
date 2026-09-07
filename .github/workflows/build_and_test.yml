@@ -301,6 +301,7 @@ jobs:
 
     - name: Pack resources
       if: steps.cache-resources.outputs.cache-hit != 'true'
+      shell: bash -l {0}
       run: |
         tar -czf resources.tar.gz -C $HOME/.tudat/resource/ -T tests/resource-catalog.txt
 
