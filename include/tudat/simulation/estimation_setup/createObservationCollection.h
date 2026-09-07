@@ -17,6 +17,25 @@ namespace tudat
 namespace observation_models
 {
 
+//! Base-branch spelling retained as a thin compatibility wrapper.
+inline bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
+{
+    return shouldSkipObservationDatasetAncillarySetting( ancillarySetting );
+}
+
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool applyCorrections = false )
+{
+    auto dataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+    const int setId = addTrackingDataToObservationDataset( trackingData, bodies, *dataset, applyCorrections );
+    return createSingleObservationSet( dataset, setId );
+}
+
 //! Backwards-compatible adapter for the legacy collection representation.
 template< typename ObservationScalarType = double,
           typename TimeType = double,

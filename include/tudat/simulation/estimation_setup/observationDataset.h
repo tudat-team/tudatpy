@@ -23,6 +23,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
@@ -59,7 +61,7 @@ class SingleObservationSet;
  * ObservationDataset stores observations as event rows plus scalar-component
  * arrays. A vector observable has one observation row and N scalar components:
  * observedValues_ is flat by scalar component, while observationRows_ records
- * the event boundary and scalarComponentRows_ provides the reverse mapping.
+ * the event boundary. Scalar reverse mappings are derived from those boundaries.
  * Set-level metadata is stored once in registries and referenced by id. Flat
  * estimator vectors are derived by explicit flattened-observation-data builders, not used as the
  * primary data model. ObservationDatasetViewer instances are invalidated by
@@ -72,13 +74,25 @@ class ObservationDataset : public std::enable_shared_from_this< ObservationDatas
 {
 public:
     ObservationDataset( ) = default;
+    ObservationDataset( const ObservationDataset& other );
+    ObservationDataset( ObservationDataset&& ) = default;
+    ObservationDataset& operator=( ObservationDataset&& ) = default;
+    ObservationDataset& operator=( const ObservationDataset& other )
+    {
+        if( this != &other )
+        {
+            ObservationDataset copy( other );
+            *this = std::move( copy );
+        }
+        return *this;
+    }
 
     bool operator==( const ObservationDataset& rhs ) const
     {
         const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
             return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
         };
-        return observationRows_ == rhs.observationRows_ && scalarComponentRows_ == rhs.scalarComponentRows_ &&
+        return observationRows_ == rhs.observationRows_ &&
                 setMetadata_ == rhs.setMetadata_ && observationIdsBySet_ == rhs.observationIdsBySet_ &&
                 linkDefinitionRegistry_ == rhs.linkDefinitionRegistry_ && observedValues_ == rhs.observedValues_ &&
                 residualValues_ == rhs.residualValues_ && observationWeights_ == rhs.observationWeights_ &&
@@ -178,17 +192,14 @@ public:
     //! Store one full M x M weight block for an observation set.
     void setWeightMatrixForSet( const unsigned int setId, const Eigen::MatrixXd& weightMatrix );
 
-    //! Return whether a full set-level M x M weight block is stored for a set.
+    //! Return whether the effective set principal block contains off-diagonal weights.
     bool hasWeightMatrixForSet( const unsigned int setId ) const;
 
     //! Store one observable-size N x N weight block for an observation event.
     void setWeightMatrixForObservation( const unsigned int observationId, const Eigen::MatrixXd& weightMatrix );
 
-    //! Return whether an observation event stores an explicit N x N weight block.
+    //! Return whether the effective observation block contains off-diagonal weights.
     bool hasWeightMatrixForObservation( const unsigned int observationId ) const;
-
-    //! Add an advanced off-diagonal weight block over selected scalar components.
-    void addExtraWeightBlock( const ObservationWeightBlock& weightBlock );
 
     //! Store a dense weight block selected by observation ids.
     /*!
@@ -207,9 +218,6 @@ public:
                          const Eigen::MatrixXd& weightBlock,
                          const std::vector< unsigned int >& rowComponents = std::vector< unsigned int >( ),
                          const std::vector< unsigned int >& columnComponents = std::vector< unsigned int >( ) );
-
-    //! Return the advanced scalar-component weight blocks stored on the dataset.
-    const std::vector< ObservationWeightBlock >& getExtraWeightBlocks( ) const;
 
     //! Return whether advanced scalar-component weight blocks are stored on the dataset.
     bool hasExtraWeightBlocks( ) const;
@@ -246,6 +254,8 @@ public:
     //! Physically remove all currently rejected observation events.
     void removeRejectedObservations( );
 
+    void deleteRejectedObservations( ) { removeRejectedObservations( ); }
+
     std::pair< TimeType, TimeType > getTimeBoundsForSet( const unsigned int setId ) const;
 
     //! Return time bounds for all observations in the dataset.
@@ -279,9 +289,9 @@ public:
 
     const ObservationDatasetRow< TimeType >& getObservationRow( const unsigned int observationId ) const;
 
-    const std::vector< ObservationScalarComponentRow >& getScalarComponentRows( ) const;
+    std::vector< ObservationScalarComponentRow > getScalarComponentRows( ) const;
 
-    const ObservationScalarComponentRow& getScalarComponentRow( const unsigned int scalarComponentId ) const;
+    ObservationScalarComponentRow getScalarComponentRow( const unsigned int scalarComponentId ) const;
 
     const std::vector< unsigned int >& getObservationIdsForSet( const unsigned int setId ) const;
 
@@ -305,12 +315,7 @@ public:
     //! Reconstruct the weight matrix for one observation event.
     Eigen::MatrixXd getWeightMatrixForObservation( const unsigned int observationId ) const;
 
-    //! Return the stored set-level block if present, otherwise materialize compact per-observation weights for one set.
-    /*!
-     * This accessor does not apply extra scalar-component blocks outside the set
-     * or later precedence layers. Use flattened observation data to inspect the
-     * effective matrix used by estimation.
-     */
+    //! Materialize the effective principal submatrix for one set, including correlations.
     Eigen::MatrixXd getWeightMatrixForSet( const unsigned int setId ) const;
 
     //! Return one vector-valued residual per observation event in a set.
@@ -513,7 +518,7 @@ private:
     void save( Archive& ar ) const
     {
         ar( observationRows_,
-            scalarComponentRows_,
+            nextObservationId_,
             setMetadata_,
             observationIdsBySet_,
             linkDefinitionRegistry_,
@@ -528,7 +533,7 @@ private:
     void load( Archive& ar )
     {
         ar( observationRows_,
-            scalarComponentRows_,
+            nextObservationId_,
             setMetadata_,
             observationIdsBySet_,
             linkDefinitionRegistry_,
@@ -537,6 +542,7 @@ private:
             observedValues_,
             residualValues_,
             observationWeights_ );
+        rebuildRowIndex( );
         ++structuralVersion_;
     }
 
@@ -557,7 +563,7 @@ private:
     struct LifetimeToken {
         LifetimeToken( ): value_( std::make_shared< const int >( 0 ) ) {}
         LifetimeToken( const LifetimeToken& ): LifetimeToken( ) {}
-        LifetimeToken( LifetimeToken&& other ) noexcept: LifetimeToken( )
+        LifetimeToken( LifetimeToken&& other ): LifetimeToken( )
         {
             other.value_ = std::make_shared< const int >( 0 );
         }
@@ -566,7 +572,7 @@ private:
             value_ = std::make_shared< const int >( 0 );
             return *this;
         }
-        LifetimeToken& operator=( LifetimeToken&& other ) noexcept
+        LifetimeToken& operator=( LifetimeToken&& other )
         {
             value_ = std::make_shared< const int >( 0 );
             other.value_ = std::make_shared< const int >( 0 );
@@ -652,6 +658,22 @@ public:
             const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
                     ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ) );
 
+    //! Authoritative estimator/covariance ordering: observable type, link ends, set, event, component.
+    FlattenedObservationData< ObservationScalarType, TimeType > createEstimationProjection( const bool includeRejected = false ) const
+    {
+        return createFlattenedObservationDataFromObservationIds( getObservationIdsInOrderedFlattenedDataOrder( ), includeRejected );
+    }
+
+    //! Fail before using a projection from another dataset or an invalidated mapping.
+    void validateProjection( const FlattenedObservationData< ObservationScalarType, TimeType >& projection ) const
+    {
+        if( projection.source_.lock( ) != lifetimeToken_.value_ ||
+            projection.structuralVersion_ != structuralVersion_ || projection.selectionVersion_ != selectionVersion_ )
+        {
+            throw std::runtime_error( "Observation projection belongs to another dataset or has been invalidated." );
+        }
+    }
+
     //! Set residuals for scalar rows described by flattened observation data.
     void setResidualVector( const FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
                             const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
@@ -661,38 +683,14 @@ private:
     /////////////////       PRIVATE HELPERS         //////////
     //////////////////////////////////////////////////////////
 
-    static unsigned int invalidObservationId( );
-
-    //! Copy compact weight storage and rejection state from one row to another.
-    void copyObservationStateAndWeightFrom( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
-                                            const unsigned int sourceObservationId,
-                                            const unsigned int targetObservationId );
-
-    //! Copy a source set-level block after selecting/remapping observation rows.
-    void copySetWeightBlockSubsetFrom( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
-                                       const unsigned int sourceSetId,
-                                       const std::vector< unsigned int >& sourceObservationIds,
-                                       const unsigned int targetSetId );
-
-    //! Copy arbitrary scalar-component weight blocks that survive a structural rebuild.
-    void copyRemappedExtraWeightBlocksFrom( const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
-                                            const std::map< unsigned int, unsigned int >& scalarComponentIdMap );
-
-    //! Return a dense block selected by arbitrary row and column index lists.
-    static Eigen::MatrixXd selectSubmatrix( const Eigen::MatrixXd& matrix,
-                                            const std::vector< std::size_t >& rows,
-                                            const std::vector< std::size_t >& columns );
-
-    //! Replace one set while preserving old rows explicitly listed in sourceObservationIds.
-    void replaceObservationSetDataWithSourceRows(
-            const unsigned int setId,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType >& times,
-            const std::vector< Eigen::VectorXd >& dependentVariables,
-            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-            const std::vector< unsigned int >& sourceObservationIdsForReplacement,
-            const std::vector< bool >& explicitWeightsForReplacement = std::vector< bool >( ) );
+    //! Compact all selected rows/scalars together, preserving event and metadata identities.
+    void retainObservationRows( const std::vector< unsigned int >& retainedIds );
+    void rebuildRowIndex( );
+    void sortObservationIdsForSet( const unsigned int setId );
+    ObservationDatasetRow< TimeType >& mutableObservationRow( const unsigned int id )
+    {
+        return observationRows_.at( rowPositionById_.at( id ) );
+    }
 
     //! Validate per-observation vectors before replacing/appending set data.
     void validateObservationSetData( const unsigned int setId,
@@ -747,8 +745,9 @@ private:
 
     //! One row per observation event; vector observables occupy one row, not N rows.
     std::vector< ObservationDatasetRow< TimeType > > observationRows_;
-    //! One row per scalar component; maps scalar storage entries back to observation rows.
-    std::vector< ObservationScalarComponentRow > scalarComponentRows_;
+    //! Derived lookup from persistent identity to packed row position.
+    std::unordered_map< unsigned int, std::size_t > rowPositionById_;
+    unsigned int nextObservationId_ = 0;
     //! One metadata record per observation set.
     std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > > setMetadata_;
     //! For each set id, the ordered observation ids belonging to that set.
@@ -769,6 +768,7 @@ private:
     ObservationWeights observationWeights_;
     //! Monotonic counter used to invalidate viewers after structural mutations.
     std::size_t structuralVersion_ = 0;
+    std::size_t selectionVersion_ = 0;
     //! Object-lifetime marker used by non-owning viewers to detect destruction or replacement before dereferencing the dataset.
     LifetimeToken lifetimeToken_;
 };

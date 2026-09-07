@@ -851,6 +851,7 @@ Each row points to the first scalar value of the observation in the dataset-wide
 scalar-value storage and records the observation time, owning set and index
 within that set.
 )doc" )
+            .def_readonly( "observation_id", &tom::ObservationDatasetRow< TIME_TYPE >::observationId_ )
             .def_readonly( "time",
                            &tom::ObservationDatasetRow< TIME_TYPE >::time_,
                            R"doc(tudatpy.astro.time_representation.Time or float: Observation time.)doc" )
@@ -886,25 +887,6 @@ observation.
             .def_readonly( "component_index",
                            &tom::ObservationScalarComponentRow::componentIndex_,
                            R"doc(int: Component index within the owning vector-valued observation.)doc" );
-
-    py::class_< tom::ObservationWeightBlock >( m,
-                                               "ObservationWeightBlock",
-                                               R"doc(
-Advanced dense weight block over selected scalar components.
-
-This type is intended for rare off-diagonal correlations that are not naturally
-represented as per-observation weights or as a full set-level weight block.
-)doc" )
-            .def( py::init<>( ), R"doc(Create an empty observation weight block.)doc" )
-            .def_readwrite( "row_scalar_component_ids",
-                            &tom::ObservationWeightBlock::rowScalarComponentIds_,
-                            R"doc(Scalar component ids corresponding to the block rows.)doc" )
-            .def_readwrite( "column_scalar_component_ids",
-                            &tom::ObservationWeightBlock::columnScalarComponentIds_,
-                            R"doc(Scalar component ids corresponding to the block columns.)doc" )
-            .def_readwrite( "weight_block",
-                            &tom::ObservationWeightBlock::weightBlock_,
-                            R"doc(Dense weight block for the selected scalar components.)doc" );
 
     py::class_< tom::ObservationWeightSettings >( m,
                                                   "ObservationWeightSettings",
@@ -1224,6 +1206,10 @@ dataset is structurally modified.
                       py::keep_alive< 0, 1 >( ),
                       py::arg( "condition" ),
                       supportingObservationObjectDoc( "viewer_create_viewer" ) )
+                .def( "create_estimation_projection",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+                      py::arg( "include_rejected" ) = false,
+                      R"doc(Create a consistent snapshot in legacy estimator order; rejected rows are excluded by default.)doc" )
                 .def( "estimation_flattened_observation_data",
                       &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                       py::arg( "include_rejected" ) = false,
@@ -1418,9 +1404,6 @@ dataset-centric representation.
                       py::arg( "row_components" ) = std::vector< unsigned int >( ),
                       py::arg( "column_components" ) = std::vector< unsigned int >( ),
                       observationDatasetDoc( "set_weight_block" ) )
-                .def_property_readonly( "extra_weight_blocks",
-                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getExtraWeightBlocks,
-                                        R"doc(Return the advanced scalar-component weight blocks stored on this dataset.)doc" )
                 .def_property_readonly( "has_extra_weight_blocks",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::hasExtraWeightBlocks,
                                         R"doc(True when the dataset stores advanced scalar-component weight blocks.)doc" )
@@ -1462,6 +1445,9 @@ dataset-centric representation.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeObservations,
                       py::arg( "condition" ),
                       observationDatasetDoc( "remove_observations" ) )
+                .def( "delete_rejected_observations",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::deleteRejectedObservations,
+                      R"doc(Remove rejected rows permanently, preserving surviving identities and their weight submatrix.)doc" )
                 .def( "remove_rejected_observations",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::removeRejectedObservations,
                       observationDatasetDoc( "remove_rejected_observations" ) )
@@ -1695,6 +1681,10 @@ the corresponding reference point in the system of bodies separately.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedFlattenedObservationData,
                       py::arg( "include_inactive" ) = true,
                       observationDatasetDoc( "ordered_flattened_observation_data" ) )
+                .def( "create_estimation_projection",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+                      py::arg( "include_rejected" ) = false,
+                      R"doc(Create a consistent snapshot in legacy estimator order; rejected rows are excluded by default.)doc" )
                 .def( "estimation_flattened_observation_data",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                       py::arg( "include_rejected" ) = false,

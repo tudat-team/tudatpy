@@ -35,23 +35,7 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservations(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
-    std::vector< std::vector< unsigned int > > indicesToRemoveBySet( getNumberOfObservationSets( ) );
-    for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
-    {
-        if( condition( *this, observationId ) )
-        {
-            const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-            indicesToRemoveBySet.at( row.setId_ ).push_back( row.indexInSet_ );
-        }
-    }
-
-    for( unsigned int setId = 0; setId < indicesToRemoveBySet.size( ); ++setId )
-    {
-        if( !indicesToRemoveBySet.at( setId ).empty( ) )
-        {
-            removeObservationsFromSet( setId, indicesToRemoveBySet.at( setId ) );
-        }
-    }
+    retainObservationRows( getObservationIdsMatchingCondition( !condition ) );
 }
 
 template< typename ObservationScalarType,
@@ -69,15 +53,14 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const std::string& reason )
 {
-    // Row status changes do not alter row indexing, so existing viewers remain index-stable.
-    for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
+    const auto selected = getObservationIdsMatchingCondition( condition );
+    for( const unsigned int id : selected )
     {
-        if( condition( *this, observationId ) )
-        {
-            observationRows_.at( observationId ).isActive_ = false;
-            observationRows_.at( observationId ).rejectionReason_ = reason;
-        }
+        auto& row = mutableObservationRow( id );
+        row.isActive_ = false;
+        if( !reason.empty( ) ) { row.rejectionReason_ = reason; }
     }
+    if( !selected.empty( ) ) { ++selectionVersion_; }
 }
 
 template< typename ObservationScalarType,
@@ -86,15 +69,13 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObservations(
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition )
 {
-    // Row status changes do not alter row indexing, so existing viewers remain index-stable.
-    for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
+    const auto selected = getObservationIdsMatchingCondition( condition );
+    for( const unsigned int id : selected )
     {
-        if( condition( *this, observationId ) )
-        {
-            observationRows_.at( observationId ).isActive_ = true;
-            observationRows_.at( observationId ).rejectionReason_.clear( );
-        }
+        auto& row = mutableObservationRow( id );
+        row.isActive_ = true;
     }
+    if( !selected.empty( ) ) { ++selectionVersion_; }
 }
 
 }  // namespace observation_models

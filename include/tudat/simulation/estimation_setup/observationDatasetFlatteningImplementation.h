@@ -28,7 +28,7 @@ template< typename ObservationScalarType,
 FlattenedObservationData< ObservationScalarType, TimeType >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::createEstimationFlattenedObservationData( const bool includeRejected ) const
 {
-    return createFlattenedObservationDataFromObservationIds( getAllObservationIds( ), includeRejected );
+    return createEstimationProjection( includeRejected );
 }
 
 template< typename ObservationScalarType,
@@ -148,13 +148,10 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getAllObservationIds( ) const
 {
-    std::vector< unsigned int > observationIds;
-    observationIds.reserve( observationRows_.size( ) );
-    for( unsigned int observationId = 0; observationId < observationRows_.size( ); ++observationId )
-    {
-        observationIds.push_back( observationId );
-    }
-    return observationIds;
+    std::vector< unsigned int > result;
+    result.reserve( observationRows_.size( ) );
+    for( const auto& row : observationRows_ ) { result.push_back( row.observationId_ ); }
+    return result;
 }
 
 template< typename ObservationScalarType,
@@ -181,349 +178,57 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObs
         const std::vector< unsigned int >& selectedObservationIds,
         const bool includeInactive ) const
 {
-    FlattenedObservationData< ObservationScalarType, TimeType > flattenedObservationData;
-
-    std::size_t flattenedDataSize = 0;
-    bool materializeWeightMatrix = false;
-    std::map< unsigned int, bool > selectedScalarComponentIds;
-    std::map< unsigned int, bool > selectedSetIds;
-    for( const unsigned int observationId : selectedObservationIds )
+    FlattenedObservationData< ObservationScalarType, TimeType > result;
+    result.source_ = getLifetimeToken( );
+    result.structuralVersion_ = structuralVersion_;
+    result.selectionVersion_ = selectionVersion_;
+    result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
+    std::vector< unsigned int > selected;
+    for( const unsigned int id : selectedObservationIds )
     {
-        const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-        if( includeInactive || row.isActive_ )
+        const auto& row = getObservationRow( id );
+        if( includeInactive || row.isActive_ ) { selected.push_back( id ); }
+    }
+    result.scalarComponentIds_ = getScalarComponentIdsForObservationSelection( selected, {} );
+    const auto weights = observationWeights_.restricted( result.scalarComponentIds_ );
+    result.weights_ = weights.diagonalVector( );
+    result.isDiagonalWeightOnly_ = !weights.hasOffDiagonalWeights( );
+    if( weights.hasOffDiagonalWeights( ) ) { result.weightMatrix_ = weights.sparseMatrix( ); }
+    const auto size = result.scalarComponentIds_.size( );
+    result.observations_.resize( size );
+    result.residuals_.resize( size );
+    result.times_.reserve( size );
+    result.observationIds_.reserve( size );
+    result.setIds_.reserve( size );
+    result.rowMapping_.reserve( selected.size( ) );
+    unsigned int first = 0;
+    for( const unsigned int id : selected )
+    {
+        const auto& row = getObservationRow( id );
+        result.rowMapping_.emplace( id, std::make_pair( first, row.scalarSize_ ) );
+        auto& group = result.uniqueObservationIdsBySet_.at( row.setId_ );
+        if( group.empty( ) )
         {
-            flattenedDataSize += row.scalarSize_;
-            selectedSetIds[ row.setId_ ] = true;
-            // A row-level block requires a matrix only when it can contribute to the final precedence-resolved projection.
-            if( ( !observationWeights_.hasSetWeightBlock( row.setId_ ) ||
-                  observationWeights_.hasExplicitObservationWeight( observationId ) ) &&
-                !observationWeights_.isObservationWeightDiagonalOnly( observationId, row.scalarSize_ ) )
-            {
-                materializeWeightMatrix = true;
-            }
-            for( unsigned int componentIndex = 0; componentIndex < row.scalarSize_; ++componentIndex )
-            {
-                selectedScalarComponentIds[ row.firstScalarComponent_ + componentIndex ] = true;
-            }
+            result.setIdsInRowOrder_.push_back( row.setId_ );
+            const auto& metadata = getObservationSetMetadata( row.setId_ );
+            result.metadataBySet_.emplace( row.setId_, metadata );
+            result.linksBySet_.emplace( row.setId_, getLinkDefinition( metadata.linkDefinitionId_ ) );
+            const auto ancillary = getAncillarySettings( metadata.ancillarySettingsId_ );
+            result.ancillaryBySet_.emplace( row.setId_, ancillary ? std::make_shared< ObservationAncillarySimulationSettings >( *ancillary ) : nullptr );
+        }
+        group.push_back( id );
+        result.dependentVariables_.emplace( id, row.dependentVariableValues_ );
+        for( unsigned int component = 0; component < row.scalarSize_; ++component, ++first )
+        {
+            const unsigned int scalar = row.firstScalarComponent_ + component;
+            result.observations_( first ) = observedValues_.at( scalar );
+            result.residuals_( first ) = residualValues_.at( scalar );
+            result.times_.push_back( row.time_ );
+            result.observationIds_.push_back( id );
+            result.setIds_.push_back( row.setId_ );
         }
     }
-
-    for( const auto& selectedSet : selectedSetIds )
-    {
-        // Set-level blocks provide the lowest-priority matrix layer for all selected components in the set.
-        if( observationWeights_.hasSetWeightBlock( selectedSet.first ) &&
-            !observationWeights_.isSetWeightBlockDiagonalOnly( selectedSet.first ) )
-        {
-            materializeWeightMatrix = true;
-        }
-    }
-
-    for( const ObservationWeightBlock& extraWeightBlock : observationWeights_.getExtraWeightBlocks( ) )
-    {
-        // Extra scalar-component blocks may connect arbitrary observations; only selected components matter here.
-        for( std::size_t i = 0; i < extraWeightBlock.rowScalarComponentIds_.size( ); ++i )
-        {
-            const unsigned int rowScalarComponentId = extraWeightBlock.rowScalarComponentIds_.at( i );
-            if( selectedScalarComponentIds.count( rowScalarComponentId ) == 0 )
-            {
-                continue;
-            }
-            for( std::size_t j = 0; j < extraWeightBlock.columnScalarComponentIds_.size( ); ++j )
-            {
-                const unsigned int columnScalarComponentId = extraWeightBlock.columnScalarComponentIds_.at( j );
-                if( selectedScalarComponentIds.count( columnScalarComponentId ) > 0 && rowScalarComponentId != columnScalarComponentId &&
-                    extraWeightBlock.weightBlock_( i, j ) != 0.0 )
-                {
-                    materializeWeightMatrix = true;
-                }
-            }
-        }
-    }
-
-    flattenedObservationData.observations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( flattenedDataSize );
-    flattenedObservationData.residuals_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( flattenedDataSize );
-    flattenedObservationData.weights_ = Eigen::VectorXd::Zero( flattenedDataSize );
-    if( materializeWeightMatrix )
-    {
-        flattenedObservationData.weightMatrix_.resize( flattenedDataSize, flattenedDataSize );
-    }
-    flattenedObservationData.times_.reserve( flattenedDataSize );
-    flattenedObservationData.observationIds_.reserve( flattenedDataSize );
-    flattenedObservationData.setIds_.reserve( flattenedDataSize );
-    flattenedObservationData.scalarComponentIds_.reserve( flattenedDataSize );
-
-    std::size_t currentIndex = 0;
-    std::map< unsigned int, std::size_t > flattenedDataIndexByScalarComponent;
-    std::map< int, bool > observationAlreadyRegistered;
-    struct FlattenedWeightEntry {
-        double weight_;
-        std::string source_;
-        unsigned int rowScalarComponentId_;
-        unsigned int columnScalarComponentId_;
-    };
-
-    std::map< std::size_t, FlattenedWeightEntry > diagonalWeightEntries;
-    std::map< std::pair< std::size_t, std::size_t >, FlattenedWeightEntry > sparseWeightEntries;
-    const std::string precedenceDescription =
-            "set-level weights, then explicit per-observation weights, then extra scalar-component blocks";
-
-    auto warnWeightConflict = [ &precedenceDescription ]( const std::size_t rowIndex,
-                                                          const std::size_t columnIndex,
-                                                          const unsigned int rowScalarComponentId,
-                                                          const unsigned int columnScalarComponentId,
-                                                          const FlattenedWeightEntry& previousEntry,
-                                                          const std::string& source,
-                                                          const double weight ) {
-        if( previousEntry.source_ != source && previousEntry.weight_ != weight )
-        {
-            // Keep warning text stable for tests; large override sets can emit one line per conflicting entry.
-            std::cerr << "[WARNING] Conflicting observation weight entry at flattened matrix row " << rowIndex << ", column " << columnIndex
-                      << " (scalar component ids " << rowScalarComponentId << ", " << columnScalarComponentId
-                      << "): " << previousEntry.source_ << " value " << previousEntry.weight_ << " overwritten by " << source << " value "
-                      << weight << ". Precedence is " << precedenceDescription << "." << std::endl;
-        }
-    };
-
-    auto setFlattenedDiagonalWeightEntry =
-            [ &diagonalWeightEntries, &flattenedObservationData, &warnWeightConflict ](
-                    const std::size_t rowIndex, const unsigned int scalarComponentId, const double weight, const std::string& source ) {
-                const auto existingEntry = diagonalWeightEntries.find( rowIndex );
-                if( existingEntry != diagonalWeightEntries.end( ) )
-                {
-                    warnWeightConflict( rowIndex, rowIndex, scalarComponentId, scalarComponentId, existingEntry->second, source, weight );
-                }
-                diagonalWeightEntries[ rowIndex ] = { weight, source, scalarComponentId, scalarComponentId };
-                flattenedObservationData.weights_( rowIndex ) = weight;
-            };
-
-    // Store matrix entries in a map first so later, higher-priority blocks can overwrite previous entries cleanly.
-    auto setFlattenedWeightEntry = [ &sparseWeightEntries, &warnWeightConflict ]( const std::size_t rowIndex,
-                                                                                  const std::size_t columnIndex,
-                                                                                  const unsigned int rowScalarComponentId,
-                                                                                  const unsigned int columnScalarComponentId,
-                                                                                  const double weight,
-                                                                                  const std::string& source,
-                                                                                  const bool warnOnConflict = true ) {
-        const std::pair< std::size_t, std::size_t > indexPair = std::make_pair( rowIndex, columnIndex );
-        const auto existingEntry = sparseWeightEntries.find( indexPair );
-        if( warnOnConflict && existingEntry != sparseWeightEntries.end( ) )
-        {
-            warnWeightConflict(
-                    rowIndex, columnIndex, rowScalarComponentId, columnScalarComponentId, existingEntry->second, source, weight );
-        }
-        sparseWeightEntries[ indexPair ] = { weight, source, rowScalarComponentId, columnScalarComponentId };
-    };
-    for( const unsigned int observationId : selectedObservationIds )
-    {
-        const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-        if( includeInactive || row.isActive_ )
-        {
-            if( observationAlreadyRegistered.count( observationId ) == 0 )
-            {
-                if( flattenedObservationData.uniqueObservationIdsBySet_.size( ) <= row.setId_ )
-                {
-                    flattenedObservationData.uniqueObservationIdsBySet_.resize( row.setId_ + 1 );
-                }
-                if( flattenedObservationData.uniqueObservationIdsBySet_.at( row.setId_ ).empty( ) )
-                {
-                    flattenedObservationData.setIdsInRowOrder_.push_back( row.setId_ );
-                }
-                flattenedObservationData.uniqueObservationIdsBySet_.at( row.setId_ ).push_back( observationId );
-                observationAlreadyRegistered[ observationId ] = true;
-            }
-            if( flattenedObservationData.firstFlattenedRowByObservation_.size( ) <= observationId )
-            {
-                flattenedObservationData.firstFlattenedRowByObservation_.resize( observationId + 1, -1 );
-                flattenedObservationData.scalarSizeByObservation_.resize( observationId + 1, 0 );
-            }
-            flattenedObservationData.firstFlattenedRowByObservation_.at( observationId ) = static_cast< int >( currentIndex );
-            flattenedObservationData.scalarSizeByObservation_.at( observationId ) = row.scalarSize_;
-
-            for( unsigned int componentIndex = 0; componentIndex < row.scalarSize_; ++componentIndex )
-            {
-                const unsigned int scalarComponentId = row.firstScalarComponent_ + componentIndex;
-                flattenedObservationData.observations_( currentIndex ) = observedValues_.at( scalarComponentId );
-                flattenedObservationData.residuals_( currentIndex ) = residualValues_.at( scalarComponentId );
-                flattenedObservationData.times_.push_back( row.time_ );
-                flattenedObservationData.observationIds_.push_back( observationId );
-                flattenedObservationData.setIds_.push_back( row.setId_ );
-                flattenedObservationData.scalarComponentIds_.push_back( scalarComponentId );
-                flattenedDataIndexByScalarComponent[ scalarComponentId ] = currentIndex;
-                ++currentIndex;
-            }
-        }
-    }
-
-    for( unsigned int setId = 0; setId < setMetadata_.size( ); ++setId )
-    {
-        if( observationWeights_.hasSetWeightBlock( setId ) )
-        {
-            // The set-level block is indexed in local set order and projected to the selected global rows.
-            const Eigen::MatrixXd& setWeightBlock = observationWeights_.getSetWeightBlock( setId );
-            for( const unsigned int rowObservationId : observationIdsBySet_.at( setId ) )
-            {
-                const ObservationDatasetRow< TimeType >& row = observationRows_.at( rowObservationId );
-                if( includeInactive || row.isActive_ )
-                {
-                    for( unsigned int rowComponentIndex = 0; rowComponentIndex < row.scalarSize_; ++rowComponentIndex )
-                    {
-                        const unsigned int rowScalarComponentId = row.firstScalarComponent_ + rowComponentIndex;
-                        if( flattenedDataIndexByScalarComponent.count( rowScalarComponentId ) == 0 )
-                        {
-                            continue;
-                        }
-                        const std::size_t flattenedRow = flattenedDataIndexByScalarComponent.at( rowScalarComponentId );
-                        const std::size_t setLocalRow = row.indexInSet_ * setMetadata_.at( setId ).observableSize_ + rowComponentIndex;
-                        setFlattenedDiagonalWeightEntry(
-                                flattenedRow, rowScalarComponentId, setWeightBlock( setLocalRow, setLocalRow ), "set-level block" );
-
-                        if( materializeWeightMatrix )
-                        {
-                            for( const unsigned int columnObservationId : observationIdsBySet_.at( setId ) )
-                            {
-                                const ObservationDatasetRow< TimeType >& columnRow = observationRows_.at( columnObservationId );
-                                if( includeInactive || columnRow.isActive_ )
-                                {
-                                    for( unsigned int columnComponentIndex = 0; columnComponentIndex < columnRow.scalarSize_;
-                                         ++columnComponentIndex )
-                                    {
-                                        const unsigned int columnScalarComponentId = columnRow.firstScalarComponent_ + columnComponentIndex;
-                                        if( flattenedDataIndexByScalarComponent.count( columnScalarComponentId ) == 0 )
-                                        {
-                                            continue;
-                                        }
-                                        const std::size_t flattenedColumn =
-                                                flattenedDataIndexByScalarComponent.at( columnScalarComponentId );
-                                        const std::size_t setLocalColumn =
-                                                columnRow.indexInSet_ * setMetadata_.at( setId ).observableSize_ + columnComponentIndex;
-                                        setFlattenedWeightEntry( flattenedRow,
-                                                                 flattenedColumn,
-                                                                 rowScalarComponentId,
-                                                                 columnScalarComponentId,
-                                                                 setWeightBlock( setLocalRow, setLocalColumn ),
-                                                                 "set-level block",
-                                                                 false );
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    for( const unsigned int observationId : selectedObservationIds )
-    {
-        const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-        if( includeInactive || row.isActive_ )
-        {
-            const bool insertObservationWeight = !observationWeights_.hasSetWeightBlock( row.setId_ ) ||
-                    observationWeights_.hasExplicitObservationWeight( observationId );
-            if( !insertObservationWeight )
-            {
-                continue;
-            }
-
-            const Eigen::VectorXd observationWeightVector =
-                    observationWeights_.getObservationWeightVector( observationId, row.scalarSize_ );
-            const std::string source = "per-observation weight for observation id " + std::to_string( observationId );
-            for( unsigned int componentIndex = 0; componentIndex < row.scalarSize_; ++componentIndex )
-            {
-                const unsigned int scalarComponentId = row.firstScalarComponent_ + componentIndex;
-                const std::size_t flattenedRow = flattenedDataIndexByScalarComponent.at( scalarComponentId );
-                setFlattenedDiagonalWeightEntry( flattenedRow, scalarComponentId, observationWeightVector( componentIndex ), source );
-            }
-
-            if( materializeWeightMatrix )
-            {
-                const Eigen::MatrixXd observationWeightMatrix =
-                        observationWeights_.getObservationWeightMatrix( observationId, row.scalarSize_ );
-                for( unsigned int rowComponentIndex = 0; rowComponentIndex < row.scalarSize_; ++rowComponentIndex )
-                {
-                    const unsigned int rowScalarComponentId = row.firstScalarComponent_ + rowComponentIndex;
-                    const std::size_t flattenedRow = flattenedDataIndexByScalarComponent.at( rowScalarComponentId );
-                    for( unsigned int columnComponentIndex = 0; columnComponentIndex < row.scalarSize_; ++columnComponentIndex )
-                    {
-                        const unsigned int columnScalarComponentId = row.firstScalarComponent_ + columnComponentIndex;
-                        const std::size_t flattenedColumn = flattenedDataIndexByScalarComponent.at( columnScalarComponentId );
-                        setFlattenedWeightEntry( flattenedRow,
-                                                 flattenedColumn,
-                                                 rowScalarComponentId,
-                                                 columnScalarComponentId,
-                                                 observationWeightMatrix( rowComponentIndex, columnComponentIndex ),
-                                                 source,
-                                                 rowComponentIndex != columnComponentIndex );
-                    }
-                }
-            }
-        }
-    }
-
-    for( const ObservationWeightBlock& extraWeightBlock : observationWeights_.getExtraWeightBlocks( ) )
-    {
-        // Extra blocks are inserted last and can overwrite individual scalar-component entries.
-        for( std::size_t i = 0; i < extraWeightBlock.rowScalarComponentIds_.size( ); ++i )
-        {
-            const unsigned int rowScalarComponentId = extraWeightBlock.rowScalarComponentIds_.at( i );
-            if( flattenedDataIndexByScalarComponent.count( rowScalarComponentId ) == 0 )
-            {
-                continue;
-            }
-            for( std::size_t j = 0; j < extraWeightBlock.columnScalarComponentIds_.size( ); ++j )
-            {
-                const unsigned int columnScalarComponentId = extraWeightBlock.columnScalarComponentIds_.at( j );
-                if( flattenedDataIndexByScalarComponent.count( columnScalarComponentId ) == 0 )
-                {
-                    continue;
-                }
-                if( rowScalarComponentId == columnScalarComponentId )
-                {
-                    setFlattenedDiagonalWeightEntry( flattenedDataIndexByScalarComponent.at( rowScalarComponentId ),
-                                                     rowScalarComponentId,
-                                                     extraWeightBlock.weightBlock_( i, j ),
-                                                     "extra scalar-component block" );
-                }
-                if( materializeWeightMatrix )
-                {
-                    setFlattenedWeightEntry( flattenedDataIndexByScalarComponent.at( rowScalarComponentId ),
-                                             flattenedDataIndexByScalarComponent.at( columnScalarComponentId ),
-                                             rowScalarComponentId,
-                                             columnScalarComponentId,
-                                             extraWeightBlock.weightBlock_( i, j ),
-                                             "extra scalar-component block",
-                                             rowScalarComponentId != columnScalarComponentId );
-                }
-            }
-        }
-    }
-
-    if( materializeWeightMatrix )
-    {
-        // Create the compressed sparse matrix only when an off-diagonal path was detected.
-        std::vector< Eigen::Triplet< double > > sparseWeightTriplets;
-        sparseWeightTriplets.reserve( sparseWeightEntries.size( ) );
-        for( const auto& weightEntry : sparseWeightEntries )
-        {
-            if( weightEntry.second.weight_ != 0.0 )
-            {
-                sparseWeightTriplets.emplace_back( weightEntry.first.first, weightEntry.first.second, weightEntry.second.weight_ );
-            }
-            if( weightEntry.first.first == weightEntry.first.second )
-            {
-                flattenedObservationData.weights_( weightEntry.first.first ) = weightEntry.second.weight_;
-            }
-        }
-        flattenedObservationData.weightMatrix_.setFromTriplets( sparseWeightTriplets.begin( ), sparseWeightTriplets.end( ) );
-        flattenedObservationData.weightMatrix_.makeCompressed( );
-        flattenedObservationData.isDiagonalWeightOnly_ = false;
-    }
-    else
-    {
-        flattenedObservationData.isDiagonalWeightOnly_ = true;
-    }
-
-    return flattenedObservationData;
+    return result;
 }
 
 template< typename ObservationScalarType,

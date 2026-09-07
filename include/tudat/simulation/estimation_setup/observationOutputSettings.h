@@ -76,6 +76,15 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
 class ObservationDependentVariableSettings
 {
 public:
+    virtual std::shared_ptr< ObservationDependentVariableSettings > clone( ) const
+    {
+        if( typeid( *this ) != typeid( ObservationDependentVariableSettings ) )
+        {
+            throw std::runtime_error( "A derived observation dependent-variable setting must implement clone()." );
+        }
+        return std::make_shared< ObservationDependentVariableSettings >( *this );
+    }
+
     ObservationDependentVariableSettings( const ObservationDependentVariables variableType,
                                           const LinkEndId linkEndId = LinkEndId( "", "" ),
                                           const LinkEndType linkEndType = unidentified_link_end,
@@ -246,6 +255,15 @@ std::string getIntegrationHandlingString( const IntegratedObservationPropertyHan
 class StationAngleObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
+    {
+        if( typeid( *this ) != typeid( StationAngleObservationDependentVariableSettings ) )
+        {
+            throw std::runtime_error( "A derived observation dependent-variable setting must implement clone()." );
+        }
+        return std::make_shared< StationAngleObservationDependentVariableSettings >( *this );
+    }
+
     StationAngleObservationDependentVariableSettings(
             const ObservationDependentVariables variableType,
             const LinkEndId relevantLinkEnd = LinkEndId( "", "" ),
@@ -340,6 +358,15 @@ private:
 class InterlinkObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
+    {
+        if( typeid( *this ) != typeid( InterlinkObservationDependentVariableSettings ) )
+        {
+            throw std::runtime_error( "A derived observation dependent-variable setting must implement clone()." );
+        }
+        return std::make_shared< InterlinkObservationDependentVariableSettings >( *this );
+    }
+
     InterlinkObservationDependentVariableSettings(
             const ObservationDependentVariables variableType,
             const LinkEndType startLinkEndType = unidentified_link_end,
@@ -454,6 +481,15 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
 class AncillaryObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
+    {
+        if( typeid( *this ) != typeid( AncillaryObservationDependentVariableSettings ) )
+        {
+            throw std::runtime_error( "A derived observation dependent-variable setting must implement clone()." );
+        }
+        return std::make_shared< AncillaryObservationDependentVariableSettings >( *this );
+    }
+
     AncillaryObservationDependentVariableSettings( const ObservationDependentVariables variableType,
                                                    const ObservableType observableType = undefined_observation_model ):
         ObservationDependentVariableSettings( variableType ), observableType_( observableType )
@@ -722,6 +758,15 @@ inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDepe
 class LightTimeCorrectionComponentsDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
+    {
+        if( typeid( *this ) != typeid( LightTimeCorrectionComponentsDependentVariableSettings ) )
+        {
+            throw std::runtime_error( "A derived observation dependent-variable setting must implement clone()." );
+        }
+        return std::make_shared< LightTimeCorrectionComponentsDependentVariableSettings >( *this );
+    }
+
     LightTimeCorrectionComponentsDependentVariableSettings(
             const LinkEndType transmitterLinkEndType,
             const LinkEndType receiverLinkEndType,

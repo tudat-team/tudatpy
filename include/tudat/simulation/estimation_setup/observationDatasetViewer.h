@@ -111,7 +111,7 @@ public:
             const bool includeRejected = false ) const
     {
         checkValidity( );
-        return dataset( ).createFlattenedObservationDataFromObservationIds( observationIds_, includeRejected );
+        return createOrderedFlattenedObservationData( includeRejected );
     }
 
     FlattenedObservationData< ObservationScalarType, TimeType > createOrderedFlattenedObservationData(

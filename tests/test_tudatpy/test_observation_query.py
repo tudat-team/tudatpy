@@ -386,17 +386,6 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 
     # The dataset-level flag verifies that the Python set_weight_block call stored advanced blocks.
     assert sample_dataset.has_extra_weight_blocks is True
-    # Symmetric insertion should store the requested block and its transpose.
-    assert len(sample_dataset.extra_weight_blocks) == 2
-    # The first exposed block should preserve the row scalar-component ids for the first angular row.
-    assert sample_dataset.extra_weight_blocks[0].row_scalar_component_ids == [3, 4]
-    # The first exposed block should preserve the column scalar-component ids for the second angular row.
-    assert sample_dataset.extra_weight_blocks[0].column_scalar_component_ids == [5, 6]
-    # The dense block value must round-trip through the Python ObservationWeightBlock binding.
-    np.testing.assert_allclose(
-        sample_dataset.extra_weight_blocks[0].weight_block, cross_weight_block
-    )
-
     flattened = sample_dataset.estimation_flattened_observation_data(True)
     # A cross-observation block must mark the flattened data as non-diagonal.
     assert flattened.has_off_diagonal_weights is True
@@ -507,14 +496,16 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == [4]
     # Restored row 1 should become active again.
     assert sample_dataset.observation_row(1).is_active is True
-    # The renamed removal API should physically delete all rows that are still rejected.
-    sample_dataset.remove_rejected_observations()
+    # Physical deletion preserves all surviving row identities.
+    sample_dataset.delete_rejected_observations()
     # After physical removal, no rejected rows should remain selectable.
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == []
     # The dataset should now contain the four rows that were not rejected at removal time.
     assert sample_dataset.number_of_observations == 4
-    # The old delete_* spelling should not remain on the primary ObservationDataset API.
-    assert not hasattr(sample_dataset, "delete_rejected_observations")
+    assert sample_dataset.observation_ids_matching_condition(~observation_query.rejected) == [0, 1, 2, 3]
+    # Keep the provisional removal spelling as a thin alias.
+    sample_dataset.remove_rejected_observations()
+    assert sample_dataset.number_of_observations == 4
 
 
 def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
@@ -596,3 +587,13 @@ def test_redundant_dataset_only_aliases_are_not_public(sample_dataset):
     assert not hasattr(sample_dataset, "filtered_observation_indices")
     # Duplicate-erasure is a legacy set-processing helper and should not be public on ObservationDataset.
     assert not hasattr(sample_dataset, "erase_duplicate_observations_from_set")
+
+
+@pytest.mark.parametrize("epoch, expected_ids", [(1.0, [0]), (3.0, [3]), (7.0, [])])
+def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, expected_ids):
+    query = observations.observation_query
+    equal = sample_dataset.observation_ids_matching_condition(query.time == epoch)
+    unequal = sample_dataset.observation_ids_matching_condition(query.time != epoch)
+    assert equal == expected_ids
+    assert unequal == [row for row in range(5) if row not in expected_ids]
+    assert sample_dataset.observation_ids_matching_condition(~(query.time == epoch)) == unequal

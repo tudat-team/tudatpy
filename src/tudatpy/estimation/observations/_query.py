@@ -23,21 +23,10 @@ class _ComparableSelector:
         raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
 
 
-class _LinkEndSelector:
-    def __init__(self, link_end_type):
-        self._link_end_type = link_end_type
+class _TimeSelector(_ComparableSelector):
+    def __init__(self):
+        super().__init__(lambda time: self.between(time, time))
 
-    def __eq__(self, link_end_id):
-        return ObservationSelectionCondition.link_end(self._link_end_type, link_end_id)
-
-    def __ne__(self, link_end_id):
-        return ~ObservationSelectionCondition.link_end(self._link_end_type, link_end_id)
-
-    def __bool__(self):
-        raise TypeError(_INCOMPLETE_SELECTOR_MESSAGE)
-
-
-class _TimeSelector:
     def between(self, start_time, end_time):
         return ObservationSelectionCondition.time_bounds(start_time, end_time)
 
@@ -114,7 +103,11 @@ class _ObservationQuery:
         return _ComparableSelector(ObservationSelectionCondition.link_definition)
 
     def link_end(self, link_end_type):
-        return _LinkEndSelector(link_end_type)
+        return _ComparableSelector(
+            lambda link_end_id: ObservationSelectionCondition.link_end(
+                link_end_type, link_end_id
+            )
+        )
 
     @property
     def receiver(self):

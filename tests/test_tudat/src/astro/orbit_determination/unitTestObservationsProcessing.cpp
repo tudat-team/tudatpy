@@ -425,8 +425,15 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
             ObservationSelectionCondition< double, double >::timeBounds( middleRangeWindow.first, middleRangeWindow.second );
     const std::shared_ptr< ObservationDataset< double, double > > middleRangeDataset = dataset->createNewAndKeep( middleRangeValues );
 
-    // A reduced range-only time-window dataset must retain all three range sets with the expected inclusive time count.
-    BOOST_CHECK_EQUAL( middleRangeDataset->getNumberOfObservationSets( ), 3 );
+    // Filtering preserves metadata identities, including groups with no surviving rows.
+    BOOST_CHECK_EQUAL( middleRangeDataset->getNumberOfObservationSets( ), 7 );
+    unsigned int nonemptySets = 0;
+    for( unsigned int setId = 0; setId < 7; ++setId )
+    {
+        BOOST_CHECK( middleRangeDataset->getObservationSetMetadata( setId ) == dataset->getObservationSetMetadata( setId ) );
+        if( !middleRangeDataset->getObservationIdsForSet( setId ).empty( ) ) { ++nonemptySets; }
+    }
+    BOOST_CHECK_EQUAL( nonemptySets, 3 );
     BOOST_CHECK_EQUAL( middleRangeDataset->getNumberOfObservations( ),
                        3 * ( 2 * ( numberOfObservations / 3 ) - numberOfObservations / 3 + 1 ) );
 }

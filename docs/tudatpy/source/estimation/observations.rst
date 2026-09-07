@@ -101,6 +101,33 @@ ObservationDataset
 
 .. autoclass:: tudatpy.estimation.observations.ObservationDataset
 
+Ownership, identities and projections
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The dataset owns observations, residuals, dependent-variable values and weights.
+Each event has a stable ``observation_id`` within its dataset. Removing another
+row, sorting a set, or appending data never reuses or renumbers that identity.
+``set_id`` identifies metadata grouping. Scalar storage positions may change;
+use a fresh projection to obtain indices for numerical work.
+
+``create_estimation_projection()`` selects active rows in the established Tudat
+order: observable type, link ends, set, event within the set, then component.
+Estimation and covariance use this same route. Computation projections include
+rejected rows by default, so residual diagnostics can inspect them. Restoring a
+row retains its last rejection reason as well as its identity and weights.
+
+A projection is a snapshot. Its observations, times, residuals, weights,
+dependent variables and link metadata describe one selection in one order.
+Residual writeback checks both the originating dataset and its structural and
+selection revisions. Rebuild the projection after adding, removing, regrouping,
+rejecting or restoring rows, or replacing link/layout metadata.
+
+Viewers keep the identities selected at creation; they do not rerun their
+condition after value changes. They fail explicitly after structural mutation
+or destruction of the dataset. Independent dataset copies also clone mutable
+ancillary settings and dependent-variable settings. Filtered copies preserve
+metadata identifiers, including groups left empty by the selection.
+
 Creating datasets
 ~~~~~~~~~~~~~~~~~
 
@@ -131,11 +158,13 @@ Rejecting, restoring, and removing observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.reject_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.restore_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_observations
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_rejected_observations
 
 Flattening data
 ~~~~~~~~~~~~~~~
 
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.create_estimation_projection
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.estimation_flattened_observation_data
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.computation_flattened_observation_data
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.ordered_flattened_observation_data
@@ -149,11 +178,20 @@ Diagnostics
 Observation weights
 -------------------
 
-Most weights are scalar per observation or ``N x N`` blocks per observation. A
-scalar weight for a vector observable stays compact and expands to ``w I_N``
-only when flattened matrix data are materialized. Diagonal vectors remain
-diagonal storage. Cross-observation and cross-set correlations should use
-sparse/block machinery rather than dense global matrices.
+The dataset stores one effective symmetric weight matrix. Its diagonal is a
+compact vector; only nonzero off-diagonal coefficients need additional storage.
+Small per-observation blocks and cross-observation correlations update this same
+matrix, without allocating a dense global matrix.
+
+Assignments replace the addressed entries. A full-set diagonal or matrix replaces
+that set's principal block. A per-observation diagonal or matrix replaces only
+that observation's principal block and preserves correlations with other rows.
+All weight getters report the current effective coefficients. Diagonal values
+must be finite and nonnegative; blocks must be finite and consistent with a
+symmetric matrix, including overlapping or permuted selections.
+
+Selection, rejection and removal restrict weights to the corresponding principal
+submatrix. Restoring rejected observations restores their original correlations.
 
 Common cases
 ~~~~~~~~~~~~
@@ -174,14 +212,7 @@ Common cases
    dataset.set_weight_matrix_for_observation(observation_id, weight_matrix)
    dataset.set_weight_matrix_for_set(set_id, weight_matrix)
 
-When a set-level matrix, per-observation weights, and extra scalar-component
-blocks overlap, the effective matrix is the one returned by flattened data, for
-example ``dataset.estimation_flattened_observation_data().weight_matrix``.
-``weight_matrix_for_set`` returns the stored set-level block when one is present,
-otherwise it materializes the set's compact per-observation weights.
-
-Off-diagonal blocks
-~~~~~~~~~~~~~~~~~~~
+Use observation identities to address cross-observation blocks:
 
 .. code-block:: python
 
@@ -194,8 +225,9 @@ Off-diagonal blocks
        weight_block=block,
    )
 
-Blocks are symmetrized automatically; the transposed block is stored for the
-opposite row/column selection.
+The transpose is assigned automatically. If row and column selections overlap,
+entries that address the same symmetric pair must agree; inconsistent requests
+raise an exception before changing any weights.
 
 Weight API
 ~~~~~~~~~~
@@ -211,10 +243,8 @@ Weight API
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_weight_matrix_for_observation
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.has_weight_matrix_for_observation
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_weight_block
-.. autoattribute:: tudatpy.estimation.observations.ObservationDataset.extra_weight_blocks
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.has_extra_weight_blocks
 
-.. autoclass:: tudatpy.estimation.observations.ObservationWeightBlock
 
 Supporting dataset objects
 --------------------------
@@ -270,6 +300,7 @@ ObservationDatasetRow
 
 .. autoclass:: tudatpy.estimation.observations.ObservationDatasetRow
 
+.. autoattribute:: tudatpy.estimation.observations.ObservationDatasetRow.observation_id
 .. autoattribute:: tudatpy.estimation.observations.ObservationDatasetRow.time
 .. autoattribute:: tudatpy.estimation.observations.ObservationDatasetRow.set_id
 .. autoattribute:: tudatpy.estimation.observations.ObservationDatasetRow.first_scalar_component

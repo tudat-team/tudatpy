@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVATIONDATASETWEIGHTSIMPLEMENTATION_H
 
 #include "tudat/simulation/estimation_setup/observationDataset.h"
+#include <numeric>
 
 namespace tudat
 {
@@ -26,10 +27,11 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSingleObservationScalarWeightForSet( const unsigned int setId,
                                                                                                                    const double weight )
 {
+    ObservationWeights::validateDiagonal( Eigen::VectorXd::Constant( 1, weight ) );
     // The compact scalar representation is valid for any observable size.
     for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
     {
-        observationWeights_.setScalarWeight( observationId, weight );
+        setWeightValue( observationId, Eigen::VectorXd::Constant( getObservationRow( observationId ).scalarSize_, weight ) );
     }
 }
 
@@ -41,6 +43,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
         const unsigned int setId,
         const Eigen::VectorXd& weight )
 {
+    ObservationWeights::validateDiagonal( weight );
     // Validate once against the observable size before mutating row weights.
     if( weight.size( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) )
     {
@@ -61,17 +64,8 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatrixForSet( const unsigned int setId,
                                                                                           const Eigen::MatrixXd& weightMatrix )
 {
-    // A set-level block spans all scalar components in the selected set.
-    if( weightMatrix.rows( ) != static_cast< int >( getTotalScalarSizeForSet( setId ) ) ||
-        weightMatrix.cols( ) != static_cast< int >( getTotalScalarSizeForSet( setId ) ) )
-    {
-        throw std::runtime_error( "Error when setting dataset set weight matrix, matrix size is inconsistent." );
-    }
-    if( !weightMatrix.isApprox( weightMatrix.transpose( ) ) )
-    {
-        throw std::runtime_error( "Error when setting dataset set weight matrix, matrix is not symmetric." );
-    }
-    observationWeights_.setSetWeightBlock( setId, weightMatrix );
+    const auto indices = getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} );
+    observationWeights_.setBlock( indices, indices, weightMatrix );
 }
 
 // Apply one dense observable-size block to every observation row in one set.
@@ -82,6 +76,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
         const unsigned int setId,
         const Eigen::MatrixXd& weight )
 {
+    ObservationWeights validation;
+    validation.appendDiagonal( Eigen::VectorXd::Ones( weight.rows( ) ) );
+    std::vector< unsigned int > indices( weight.rows( ) );
+    std::iota( indices.begin( ), indices.end( ), 0 );
+    validation.setBlock( indices, indices, weight );
     // Validate against the observable dimension once before applying the block repeatedly.
     if( weight.rows( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) ||
         weight.cols( ) != static_cast< int >( getObservationSetMetadata( setId ).observableSize_ ) ||
@@ -103,7 +102,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 bool ObservationDataset< ObservationScalarType, TimeType, Dummy >::hasWeightMatrixForSet( const unsigned int setId ) const
 {
-    return observationWeights_.hasSetWeightBlock( setId );
+    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) ).hasOffDiagonalWeights( );
 }
 
 // Store a dense observable-size block for one observation row.
@@ -113,18 +112,8 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatrixForObservation( const unsigned int observationId,
                                                                                                   const Eigen::MatrixXd& weightMatrix )
 {
-    const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-
-    // The row scalar size is the observable dimension for this single event.
-    if( weightMatrix.rows( ) != static_cast< int >( row.scalarSize_ ) || weightMatrix.cols( ) != static_cast< int >( row.scalarSize_ ) )
-    {
-        throw std::runtime_error( "Error when setting dataset observation weight matrix, matrix size is inconsistent." );
-    }
-    if( !weightMatrix.isApprox( weightMatrix.transpose( ) ) )
-    {
-        throw std::runtime_error( "Error when setting dataset observation weight matrix, matrix is not symmetric." );
-    }
-    observationWeights_.setWeightBlock( observationId, weightMatrix );
+    const auto indices = getScalarComponentIdsForObservationSelection( { observationId }, {} );
+    observationWeights_.setBlock( indices, indices, weightMatrix );
 }
 
 // Report whether one observation row has an explicit dense weight block.
@@ -133,17 +122,11 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 bool ObservationDataset< ObservationScalarType, TimeType, Dummy >::hasWeightMatrixForObservation( const unsigned int observationId ) const
 {
-    return observationWeights_.hasObservationWeightBlock( observationId );
+    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( { observationId }, {} ) ).hasOffDiagonalWeights( );
 }
 
 // Add an already scalar-component-indexed off-diagonal weight block.
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addExtraWeightBlock( const ObservationWeightBlock& weightBlock )
-{
-    observationWeights_.addExtraWeightBlock( weightBlock );
-}
+
 
 // Store a sparse/dense block between selected scalar components of selected observation rows.
 template< typename ObservationScalarType,
@@ -155,43 +138,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
                                                                                    const std::vector< unsigned int >& rowComponents,
                                                                                    const std::vector< unsigned int >& columnComponents )
 {
-    // Resolve observation ids plus optional component selections to scalar-component ids.
-    const std::vector< unsigned int > rowScalarComponentIds =
-            getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents );
-    const std::vector< unsigned int > columnScalarComponentIds =
-            getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents );
-
-    // Validate the full request before adding any block, keeping this call exception-safe.
-    if( weightBlock.rows( ) != static_cast< int >( rowScalarComponentIds.size( ) ) ||
-        weightBlock.cols( ) != static_cast< int >( columnScalarComponentIds.size( ) ) )
-    {
-        throw std::runtime_error( "Error when setting dataset weight block, matrix size is inconsistent with selected observations." );
-    }
-
-    if( rowScalarComponentIds == columnScalarComponentIds )
-    {
-        if( weightBlock.rows( ) != weightBlock.cols( ) || !weightBlock.isApprox( weightBlock.transpose( ) ) )
-        {
-            throw std::runtime_error(
-                    "Error when setting symmetric dataset weight block, block with identical row and column selection is not symmetric." );
-        }
-    }
-
-    // Store the requested block and its transpose for distinct row/column selections.
-    ObservationWeightBlock datasetWeightBlock;
-    datasetWeightBlock.rowScalarComponentIds_ = rowScalarComponentIds;
-    datasetWeightBlock.columnScalarComponentIds_ = columnScalarComponentIds;
-    datasetWeightBlock.weightBlock_ = weightBlock;
-    addExtraWeightBlock( datasetWeightBlock );
-
-    if( rowScalarComponentIds != columnScalarComponentIds )
-    {
-        ObservationWeightBlock transposedWeightBlock;
-        transposedWeightBlock.rowScalarComponentIds_ = columnScalarComponentIds;
-        transposedWeightBlock.columnScalarComponentIds_ = rowScalarComponentIds;
-        transposedWeightBlock.weightBlock_ = weightBlock.transpose( );
-        addExtraWeightBlock( transposedWeightBlock );
-    }
+    observationWeights_.setBlock( getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents ),
+                                  getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents ), weightBlock );
 }
 
 // Apply one compact scalar weight to all observation rows matching a condition.
@@ -202,10 +150,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const double weight )
 {
+    ObservationWeights::validateDiagonal( Eigen::VectorXd::Constant( 1, weight ) );
     // Scalars are dimension-independent, so matching ids can be mutated directly.
     for( const unsigned int observationId : getObservationIdsMatchingCondition( condition ) )
     {
-        observationWeights_.setScalarWeight( observationId, weight );
+        setWeightValue( observationId, Eigen::VectorXd::Constant( getObservationRow( observationId ).scalarSize_, weight ) );
     }
 }
 
@@ -217,12 +166,13 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const Eigen::VectorXd& weight )
 {
+    ObservationWeights::validateDiagonal( weight );
     const std::vector< unsigned int > observationIds = getObservationIdsMatchingCondition( condition );
 
     // Prevalidate every selected row so a mixed-size selection cannot be partly mutated.
     for( const unsigned int observationId : observationIds )
     {
-        if( weight.size( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) )
+        if( weight.size( ) != static_cast< int >( getObservationRow( observationId ).scalarSize_ ) )
         {
             throw std::runtime_error( "Error when setting dataset weights by condition, weight size is inconsistent." );
         }
@@ -243,13 +193,18 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
         const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
         const Eigen::MatrixXd& weight )
 {
+    ObservationWeights validation;
+    validation.appendDiagonal( Eigen::VectorXd::Ones( weight.rows( ) ) );
+    std::vector< unsigned int > indices( weight.rows( ) );
+    std::iota( indices.begin( ), indices.end( ), 0 );
+    validation.setBlock( indices, indices, weight );
     const std::vector< unsigned int > observationIds = getObservationIdsMatchingCondition( condition );
 
     // Prevalidate dimensions before writing any row-specific block.
     for( const unsigned int observationId : observationIds )
     {
-        if( weight.rows( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) ||
-            weight.cols( ) != static_cast< int >( observationRows_.at( observationId ).scalarSize_ ) ||
+        if( weight.rows( ) != static_cast< int >( getObservationRow( observationId ).scalarSize_ ) ||
+            weight.cols( ) != static_cast< int >( getObservationRow( observationId ).scalarSize_ ) ||
             !weight.isApprox( weight.transpose( ) ) )
         {
             throw std::runtime_error( "Error when setting dataset weight matrices by condition, matrix size is inconsistent." );
@@ -264,13 +219,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
 }
 
 // Return all explicitly stored scalar-component-indexed off-diagonal blocks.
-template< typename ObservationScalarType,
-          typename TimeType,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const std::vector< ObservationWeightBlock >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getExtraWeightBlocks( ) const
-{
-    return observationWeights_.getExtraWeightBlocks( );
-}
+
 
 // Report whether the dataset contains any scalar-component-indexed off-diagonal blocks.
 template< typename ObservationScalarType,
@@ -278,7 +227,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 bool ObservationDataset< ObservationScalarType, TimeType, Dummy >::hasExtraWeightBlocks( ) const
 {
-    return observationWeights_.hasExtraWeightBlocks( );
+    return observationWeights_.hasOffDiagonalWeights( );
 }
 
 }  // namespace observation_models

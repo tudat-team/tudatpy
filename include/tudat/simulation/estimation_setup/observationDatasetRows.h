@@ -99,6 +99,9 @@ struct ObservationSetMetadata {
  */
 template< typename TimeType = double >
 struct ObservationDatasetRow {
+    //! Stable identity within the owning dataset; never reused after removal.
+    unsigned int observationId_;
+
     //! Observation time at the row's reference link end.
     TimeType time_;
 
@@ -126,12 +129,12 @@ struct ObservationDatasetRow {
     template< class Archive >
     void serialize( Archive& ar )
     {
-        ar( time_, setId_, firstScalarComponent_, scalarSize_, indexInSet_, dependentVariableValues_, isActive_, rejectionReason_ );
+        ar( observationId_, time_, setId_, firstScalarComponent_, scalarSize_, indexInSet_, dependentVariableValues_, isActive_, rejectionReason_ );
     }
 
     bool operator==( const ObservationDatasetRow& rhs ) const
     {
-        return time_ == rhs.time_ && setId_ == rhs.setId_ && firstScalarComponent_ == rhs.firstScalarComponent_ &&
+        return observationId_ == rhs.observationId_ && time_ == rhs.time_ && setId_ == rhs.setId_ && firstScalarComponent_ == rhs.firstScalarComponent_ &&
                 scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ &&
                 dependentVariableValues_ == rhs.dependentVariableValues_ && isActive_ == rhs.isActive_ &&
                 rejectionReason_ == rhs.rejectionReason_;
@@ -140,7 +143,7 @@ struct ObservationDatasetRow {
 
 //! Reverse mapping from scalar component storage to its observation event.
 /*!
- * Each scalar component has one row in scalarComponentRows_. It maps a scalar
+ * Each returned component descriptor maps a scalar
  * index in observedValues_/residualValues_ back to the owning observation event
  * and its component number within that event.
  */

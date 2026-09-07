@@ -13,6 +13,8 @@
 
 #include <stdexcept>
 #include <vector>
+#include <memory>
+#include <unordered_map>
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
@@ -106,12 +108,12 @@ public:
 
     int getFlattenedRow( const unsigned int observationId, const unsigned int componentIndex ) const
     {
-        if( observationId >= firstFlattenedRowByObservation_.size( ) || firstFlattenedRowByObservation_.at( observationId ) < 0 ||
-            componentIndex >= scalarSizeByObservation_.at( observationId ) )
+        const auto row = rowMapping_.find( observationId );
+        if( row == rowMapping_.end( ) || componentIndex >= row->second.second )
         {
-            throw std::runtime_error( "Error when retrieving flattened observation row, observation/component pair is not present." );
+            throw std::runtime_error( "Observation/component pair is not present in the projection." );
         }
-        return firstFlattenedRowByObservation_.at( observationId ) + static_cast< int >( componentIndex );
+        return row->second.first + componentIndex;
     }
 
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
@@ -126,6 +128,21 @@ public:
             throw std::runtime_error( "Error when retrieving flattened observation rows, requested set is not present." );
         }
         return uniqueObservationIdsBySet_.at( setId );
+    }
+
+    const ObservationSetMetadata< ObservationScalarType, TimeType >& getSetMetadata( const unsigned int setId ) const
+    {
+        return metadataBySet_.at( setId );
+    }
+    const LinkDefinition& getLinkDefinitionForSet( const unsigned int setId ) const { return linksBySet_.at( setId ); }
+    std::shared_ptr< ObservationAncillarySimulationSettings > getAncillarySettingsForSet( const unsigned int setId ) const
+    {
+        const auto& settings = ancillaryBySet_.at( setId );
+        return settings ? std::make_shared< ObservationAncillarySimulationSettings >( *settings ) : nullptr;
+    }
+    const Eigen::VectorXd& getDependentVariables( const unsigned int observationId ) const
+    {
+        return dependentVariables_.at( observationId );
     }
 
 private:
@@ -161,11 +178,14 @@ private:
     //! Scalar component id for each scalar entry.
     std::vector< unsigned int > scalarComponentIds_;
 
-    //! First row in the flat vectors for each selected observation; -1 for unselected observations.
-    std::vector< int > firstFlattenedRowByObservation_;
-
-    //! Scalar size for each selected observation; 0 for unselected observations.
-    std::vector< unsigned int > scalarSizeByObservation_;
+    std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > rowMapping_;
+    std::weak_ptr< const int > source_;
+    std::size_t structuralVersion_ = 0;
+    std::size_t selectionVersion_ = 0;
+    std::unordered_map< unsigned int, ObservationSetMetadata< ObservationScalarType, TimeType > > metadataBySet_;
+    std::unordered_map< unsigned int, LinkDefinition > linksBySet_;
+    std::unordered_map< unsigned int, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillaryBySet_;
+    std::unordered_map< unsigned int, Eigen::VectorXd > dependentVariables_;
 
     //! Unique observation ids grouped by set, preserving this object's row order.
     std::vector< std::vector< unsigned int > > uniqueObservationIdsBySet_;

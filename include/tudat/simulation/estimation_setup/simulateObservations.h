@@ -931,4 +931,7 @@ void getResidualStatistics(
 }  // namespace simulation_setup
 
 }  // namespace tudat
+// Preserve the original include path for the base-branch simulation API.
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
+
 #endif  // TUDAT_SIMULATEOBSERVATIONS_H

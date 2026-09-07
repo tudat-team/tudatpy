@@ -40,7 +40,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > estimationData =
-            estimationInput->getObservationDataset( )->createOrderedFlattenedObservationData( false );
+            estimationInput->getObservationDataset( )->createEstimationProjection( );
     const int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
