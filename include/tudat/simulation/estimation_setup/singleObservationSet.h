@@ -62,9 +62,18 @@ public:
 
         dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) )
     {
-        setId_ = dataset_->addObservationSet( observableType, linkEnds, observations, observationTimes,
-            referenceLinkEnd, observationsDependentVariables, dependentVariableBookkeeping, ancillarySettings,
-            weights, residuals, true, eraseDuplicates );
+        setId_ = dataset_->addObservationSet( observableType,
+                                              linkEnds,
+                                              observations,
+                                              observationTimes,
+                                              referenceLinkEnd,
+                                              observationsDependentVariables,
+                                              dependentVariableBookkeeping,
+                                              ancillarySettings,
+                                              weights,
+                                              residuals,
+                                              true,
+                                              eraseDuplicates );
     }
 
     SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
@@ -227,8 +236,8 @@ public:
             throw std::runtime_error(
                     "Error when getting observation dependent-variable matrix, no dependent-variable values are available." );
         }
-        Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
-                                                                          getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ) );
+        Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero(
+                dataset_->getNumberOfObservationsForSet( setId_ ), getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables.size( ); i++ )
         {
             dependentVariablesMatrix.block( i, 0, 1, getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ) ) =
@@ -327,18 +336,6 @@ public:
     int getObservationSetId( ) const
     {
         return setId_;
-    }
-
-    void resetObservationDatasetReference( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
-                                           const int setId )
-    {
-        if( dataset == nullptr )
-        {
-            throw std::runtime_error( "Error when resetting SingleObservationSet dataset reference, dataset is null." );
-        }
-        dataset_ = dataset;
-        setId_ = setId;
-
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
@@ -550,8 +547,8 @@ public:
             throw std::runtime_error( "Cannot add dependent-variable settings after computing their values." );
         }
         auto bookkeeping = getDependentVariableBookkeeping( );
-        bookkeeping = bookkeeping ? bookkeeping->clone( ) :
-            std::make_shared< ObservationDependentVariableBookkeeping >( getObservableType( ), getLinkEnds( ) );
+        bookkeeping = bookkeeping ? bookkeeping->clone( )
+                                  : std::make_shared< ObservationDependentVariableBookkeeping >( getObservableType( ), getLinkEnds( ) );
         bookkeeping->addDependentVariables( dependentVariableSettings );
         dataset_->resetDependentVariableBookkeepingForSet( setId_, bookkeeping );
     }

@@ -129,13 +129,21 @@ struct ObservationDatasetRow {
     template< class Archive >
     void serialize( Archive& ar )
     {
-        ar( observationId_, time_, setId_, firstScalarComponent_, scalarSize_, indexInSet_, dependentVariableValues_, isActive_, rejectionReason_ );
+        ar( observationId_,
+            time_,
+            setId_,
+            firstScalarComponent_,
+            scalarSize_,
+            indexInSet_,
+            dependentVariableValues_,
+            isActive_,
+            rejectionReason_ );
     }
 
     bool operator==( const ObservationDatasetRow& rhs ) const
     {
-        return observationId_ == rhs.observationId_ && time_ == rhs.time_ && setId_ == rhs.setId_ && firstScalarComponent_ == rhs.firstScalarComponent_ &&
-                scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ &&
+        return observationId_ == rhs.observationId_ && time_ == rhs.time_ && setId_ == rhs.setId_ &&
+                firstScalarComponent_ == rhs.firstScalarComponent_ && scalarSize_ == rhs.scalarSize_ && indexInSet_ == rhs.indexInSet_ &&
                 dependentVariableValues_ == rhs.dependentVariableValues_ && isActive_ == rhs.isActive_ &&
                 rejectionReason_ == rhs.rejectionReason_;
     }

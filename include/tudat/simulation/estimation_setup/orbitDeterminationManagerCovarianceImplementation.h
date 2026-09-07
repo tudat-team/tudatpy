@@ -34,8 +34,9 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
+    const auto observationDataset = estimationInput->getObservationDataset( );
     const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > weightData =
-            estimationInput->getObservationDataset( )->createEstimationProjection( );
+            observationDataset->createEstimationProjection( );
     const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
     const Eigen::VectorXd weightsMatrixDiagonal = weightData.getWeightVector( );
     const bool hasOffDiagonalWeights = weightData.hasOffDiagonalWeights( );
@@ -74,8 +75,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-            designMatricesAndResiduals = performPreEstimationSteps(
-                    estimationInput, parameterValues, weightData, false, 0, exceptionDuringPropagation, simulationResults );
+            designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
+                                                                    observationDataset,
+                                                                    parameterValues,
+                                                                    weightData,
+                                                                    false,
+                                                                    0,
+                                                                    exceptionDuringPropagation,
+                                                                    simulationResults );
     Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
     Eigen::MatrixXd designMatrixConsiderParameters;
     designMatrixConsiderParameters = designMatricesAndResiduals.first.second;

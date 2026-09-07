@@ -102,7 +102,8 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 bool ObservationDataset< ObservationScalarType, TimeType, Dummy >::hasWeightMatrixForSet( const unsigned int setId ) const
 {
-    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) ).hasOffDiagonalWeights( );
+    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) )
+            .hasOffDiagonalWeights( );
 }
 
 // Store a dense observable-size block for one observation row.
@@ -127,7 +128,6 @@ bool ObservationDataset< ObservationScalarType, TimeType, Dummy >::hasWeightMatr
 
 // Add an already scalar-component-indexed off-diagonal weight block.
 
-
 // Store a sparse/dense block between selected scalar components of selected observation rows.
 template< typename ObservationScalarType,
           typename TimeType,
@@ -139,7 +139,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
                                                                                    const std::vector< unsigned int >& columnComponents )
 {
     observationWeights_.setBlock( getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents ),
-                                  getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents ), weightBlock );
+                                  getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents ),
+                                  weightBlock );
 }
 
 // Apply one compact scalar weight to all observation rows matching a condition.
@@ -219,7 +220,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setConstantSi
 }
 
 // Return all explicitly stored scalar-component-indexed off-diagonal blocks.
-
 
 // Report whether the dataset contains any scalar-component-indexed off-diagonal blocks.
 template< typename ObservationScalarType,

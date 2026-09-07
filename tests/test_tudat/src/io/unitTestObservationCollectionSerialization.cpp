@@ -379,6 +379,72 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionSerialization )
     }
 }
 
+BOOST_AUTO_TEST_CASE( test_dataset_serialization_preserves_surviving_identity_and_sparse_weights )
+{
+    using namespace observation_models;
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    LinkDefinition link;
+    link[ transmitter ] = LinkEndId( "Earth", "" );
+    link[ receiver ] = LinkEndId( "Vehicle", "" );
+    dataset->addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver );
+    const auto angularSet = dataset->addObservationSet(
+            angular_position, link, { Eigen::Vector2d( 20.0, 21.0 ), Eigen::Vector2d( 30.0, 31.0 ) }, { 2.0, 3.0 }, receiver );
+    Eigen::Matrix4d weights;
+    weights << 2.0, 0.1, 0.2, 0.0, 0.1, 3.0, 0.0, 0.3, 0.2, 0.0, 4.0, 0.4, 0.0, 0.3, 0.4, 5.0;
+    dataset->setWeightMatrixForSet( angularSet, weights );
+    dataset->removeObservations( ObservationSelectionCondition<>::timeLessThan( 2.0 ) );
+    dataset->rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ), "saved reason" );
+    ObservationCollection<> original( dataset );
+    std::stringstream stream;
+    {
+        cereal::BinaryOutputArchive archive( stream );
+        archive( original );
+    }
+    ObservationCollection<> restored;
+    {
+        cereal::BinaryInputArchive archive( stream );
+        archive( restored );
+    }
+    auto restoredDataset = restored.getObservationDataset( );
+    BOOST_CHECK( *restoredDataset == *dataset );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 1 ).rejectionReason_, "saved reason" );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            restoredDataset->createEstimationProjection( true ).getSparseWeightMatrix( ).toDense( ), weights, 1.0E-15 );
+    restoredDataset->deleteRejectedObservations( );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 2 ).setId_, angularSet );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredDataset->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
+                                       weights.bottomRightCorner( 2, 2 ),
+                                       1.0E-15 );
+    restoredDataset->addObservationsToSet( angularSet, { Eigen::Vector2d( 40.0, 41.0 ) }, { 4.0 } );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationIdsForSet( angularSet ).back( ), 3 );
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservations( ), 2 );
+    BOOST_CHECK_EQUAL( restored.getTotalObservableSize( ), 4 );
+}
+
+BOOST_AUTO_TEST_CASE( test_serialized_overlapping_collections_preserve_shared_set_ownership )
+{
+    using namespace observation_models;
+    const auto shared = createSingleObservationSet( one_way_range, "Earth", "Vehicle", { 1.0 }, { 10.0 } );
+    const auto separate = createSingleObservationSet( one_way_range, "Mars", "Vehicle", { 2.0 }, { 20.0 } );
+    using Sets = std::vector< std::shared_ptr< SingleObservationSet<> > >;
+    ObservationCollection<> first( Sets{ shared } );
+    ObservationCollection<> second( Sets{ separate, shared } );
+    std::stringstream stream;
+    {
+        cereal::BinaryOutputArchive archive( stream );
+        archive( first, second );
+    }
+    ObservationCollection<> restoredFirst, restoredSecond;
+    {
+        cereal::BinaryInputArchive archive( stream );
+        archive( restoredFirst, restoredSecond );
+    }
+    restoredFirst.setConstantWeight( 7.0 );
+    Eigen::Vector2d expected( 7.0, 1.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredSecond.getConcatenatedWeights( ), expected, 1.0E-15 );
+    BOOST_CHECK_EQUAL( first.getConcatenatedWeights( )( 0 ), 1.0 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

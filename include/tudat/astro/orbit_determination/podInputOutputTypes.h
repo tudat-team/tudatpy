@@ -56,16 +56,17 @@ private:
         return observationDataset;
     }
 
-    static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >
-    getObservationDatasetFromCollectionInput(
-            const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection )
+    template< typename Action >
+    void applyToObservationSource( Action action )
     {
-        if( observationCollection == nullptr )
+        if( observationDataset_ )
         {
-            throw std::runtime_error( "Error when creating covariance/estimation input, observation collection is null." );
+            action( *observationDataset_ );
         }
-
-        return checkObservationDatasetInput( observationCollection->getObservationDataset( ) );
+        else
+        {
+            action( *observationCollection_ );
+        }
     }
 
 public:
@@ -73,12 +74,15 @@ public:
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( observationCollection ),
-        observationDataset_( getObservationDatasetFromCollectionInput( observationCollection ) ),
+        observationCollection_( observationCollection ), observationDataset_( nullptr ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )
     {
+        if( observationCollection_ == nullptr )
+        {
+            throw std::runtime_error( "Cannot create estimation input from a null observation collection." );
+        }
         considerParametersIncluded_ = false;
         if( considerCovariance.size( ) > 0 )
         {
@@ -124,55 +128,20 @@ public:
      */
     void setConstantWeightsMatrix( const double constantWeight = 1.0 )
     {
-        observationDataset_->setConstantSingleObservationScalarWeight(
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ), constantWeight );
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( constantWeight ); } );
     }
 
     //! Set constant scalar weight for all observables of given type
     void setConstantSingleObservableWeights( const observation_models::ObservableType currentObservable, const double weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
-        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
-        {
-            std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
-                      << " No data of given type found." << std::endl;
-        }
-        else
-        {
-            observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
-        }
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( weight, observationParser( currentObservable ) ); } );
     }
 
     //! Set constant vector weight for all observables of given type
     void setConstantSingleObservableVectorWeights( const observation_models::ObservableType currentObservable,
                                                    const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
-        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
-        {
-            std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
-                      << " No data of given type found." << std::endl;
-        }
-        else
-        {
-            observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
-        }
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( weight, observationParser( currentObservable ) ); } );
     }
 
     //! Set constant scalar weight for all observables of given type and link ends
@@ -180,17 +149,11 @@ public:
                                                         const observation_models::LinkEnds currentLinkEnds,
                                                         const double weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                        observation_models::LinkDefinition( currentLinkEnds ) );
-        observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setConstantWeight( weight,
+                                      observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                                              observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -198,17 +161,11 @@ public:
                                                               const observation_models::LinkEnds currentLinkEnds,
                                                               const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                        observation_models::LinkDefinition( currentLinkEnds ) );
-        observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setConstantWeight( weight,
+                                      observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                                              observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -216,16 +173,12 @@ public:
                                                          const observation_models::LinkEnds currentLinkEnds,
                                                          const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setTabulatedSingleObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        observationDataset_->setTabulatedWeights(
-                weight,
-                observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ) );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setTabulatedWeights(
+                    weight,
+                    observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                            observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Function to set a values for observation weights, constant per observable type
@@ -235,37 +188,20 @@ public:
      */
     void setConstantPerObservableWeightsMatrix( const std::map< observation_models::ObservableType, double > weightPerObservable )
     {
-        std::cerr << "Warning, function setConstantPerObservableWeightsMatrix is deprecated, "
-                     "weights should preferably be defined at the observation collection level "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        for( auto observableIt : weightPerObservable )
+        for( const auto& entry : weightPerObservable )
         {
-            observationDataset_->setConstantSingleObservationScalarWeight(
-                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                            observableIt.first ),
-                    observableIt.second );
+            applyToObservationSource(
+                    [ & ]( auto& source ) { source.setConstantWeight( entry.second, observationParser( entry.first ) ); } );
         }
     }
 
     void setConstantPerObservableVectorWeightsMatrix(
             const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
     {
-        std::cerr << "Warning, function setConstantPerObservableVectorWeightsMatrix is deprecated, "
-                     "weights should be defined at the observation collection level "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservable )
+        for( const auto& entry : weightPerObservable )
         {
-            observationDataset_->setConstantSingleObservationDiagonalWeight(
-                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                            observableIt.first ),
-                    observableIt.second );
+            applyToObservationSource(
+                    [ & ]( auto& source ) { source.setConstantWeight( entry.second, observationParser( entry.first ) ); } );
         }
     }
 
@@ -278,22 +214,13 @@ public:
             const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > >
                     weightPerObservableAndLinkEnds )
     {
-        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level."
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservableAndLinkEnds )
+        for( const auto& observable : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt : observableIt.second )
+            for( const auto& link : observable.second )
             {
-                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                                observableIt.first ) &&
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                                observation_models::LinkDefinition( linkEndsIt.first ) );
-                observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, linkEndsIt.second );
+                const auto parser = observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                        observationParser( observable.first ), observationParser( link.first ) } );
+                applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( link.second, parser ); } );
             }
         }
     }
@@ -302,22 +229,13 @@ public:
             const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
                     weightPerObservableAndLinkEnds )
     {
-        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level."
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservableAndLinkEnds )
+        for( const auto& observable : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt : observableIt.second )
+            for( const auto& link : observable.second )
             {
-                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                                observableIt.first ) &&
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                                observation_models::LinkDefinition( linkEndsIt.first ) );
-                observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, linkEndsIt.second );
+                const auto parser = observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                        observationParser( observable.first ), observationParser( link.first ) } );
+                applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( link.second, parser ); } );
             }
         }
     }
@@ -380,7 +298,7 @@ public:
                         linkEndsIt.second;
             }
         }
-        observationDataset_->setTabulatedWeights( weightPerObservableParser );
+        applyToObservationSource( [ & ]( auto& source ) { source.setTabulatedWeights( weightPerObservableParser ); } );
     }
 
     void setTabulatedPerObservableAndLinkEndsWeights( const observation_models::ObservableType observableType,
@@ -419,7 +337,45 @@ public:
 
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
     {
-        return observationDataset_;
+        return observationDataset_ ? observationDataset_ : observationCollection_->getObservationDataset( );
+    }
+
+    //! Return fitted residuals to a legacy source after computing against its independent snapshot.
+    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& prepared )
+    {
+        if( observationDataset_ )
+        {
+            return;
+        }
+        const auto projection = prepared.createOrderedFlattenedObservationData( true );
+        const auto currentObservations = observationCollection_->getObservationVector( );
+        if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
+            currentObservations != projection.getObservationVector( ) ||
+            observationCollection_->getConcatenatedTimeVector( ) != projection.getTimes( ) )
+        {
+            throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
+        }
+        const auto sets = observationCollection_->getSingleObservationSets( );
+        const auto setIds = prepared.getSetIdsInOrderedFlattenedDataOrder( );
+        if( sets.size( ) != setIds.size( ) )
+        {
+            throw std::runtime_error( "Legacy observation grouping changed during estimation." );
+        }
+        for( std::size_t i = 0; i < sets.size( ); ++i )
+        {
+            const auto& metadata = prepared.getObservationSetMetadata( setIds.at( i ) );
+            const auto oldAncillary = prepared.getAncillarySettings( metadata.ancillarySettingsId_ );
+            const auto currentAncillary = sets.at( i )->getAncillarySettings( );
+            if( sets.at( i )->getObservableType( ) != metadata.observableType_ ||
+                sets.at( i )->getReferenceLinkEnd( ) != metadata.referenceLinkEnd_ ||
+                !( sets.at( i )->getLinkEnds( ) == prepared.getLinkDefinition( metadata.linkDefinitionId_ ) ) ||
+                static_cast< bool >( oldAncillary ) != static_cast< bool >( currentAncillary ) ||
+                ( oldAncillary && !( *oldAncillary == *currentAncillary ) ) )
+            {
+                throw std::runtime_error( "Legacy observation metadata changed during estimation; residuals were not written back." );
+            }
+        }
+        observationCollection_->setResiduals( projection.getResidualVector( ) );
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -482,15 +438,13 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return observationDataset_->createOrderedFlattenedObservationData( ).getWeightVector( );
+        return observationDataset_ ? observationDataset_->createOrderedFlattenedObservationData( ).getWeightVector( )
+                                   : observationCollection_->getConcatenatedWeights( );
     }
 
     void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
     {
-        std::cerr << "Warning, function setWeightsMatrixDiagonals is deprecated, "
-                     "weights should preferably be defined at the observation collection level.";
-        observationDataset_->setTabulatedWeights( weightsMatrixDiagonals );
-        //        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
+        applyToObservationSource( [ & ]( auto& source ) { source.setTabulatedWeights( weightsMatrixDiagonals ); } );
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration

@@ -14,6 +14,7 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"

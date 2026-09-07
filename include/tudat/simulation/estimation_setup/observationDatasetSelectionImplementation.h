@@ -58,9 +58,15 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
     {
         auto& row = mutableObservationRow( id );
         row.isActive_ = false;
-        if( !reason.empty( ) ) { row.rejectionReason_ = reason; }
+        if( !reason.empty( ) )
+        {
+            row.rejectionReason_ = reason;
+        }
     }
-    if( !selected.empty( ) ) { ++selectionVersion_; }
+    if( !selected.empty( ) )
+    {
+        ++projectionVersion_;
+    }
 }
 
 template< typename ObservationScalarType,
@@ -75,7 +81,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObserv
         auto& row = mutableObservationRow( id );
         row.isActive_ = true;
     }
-    if( !selected.empty( ) ) { ++selectionVersion_; }
+    if( !selected.empty( ) )
+    {
+        ++projectionVersion_;
+    }
 }
 
 }  // namespace observation_models

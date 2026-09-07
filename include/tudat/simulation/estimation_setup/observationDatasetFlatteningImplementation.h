@@ -150,7 +150,10 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 {
     std::vector< unsigned int > result;
     result.reserve( observationRows_.size( ) );
-    for( const auto& row : observationRows_ ) { result.push_back( row.observationId_ ); }
+    for( const auto& row : observationRows_ )
+    {
+        result.push_back( row.observationId_ );
+    }
     return result;
 }
 
@@ -181,19 +184,25 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObs
     FlattenedObservationData< ObservationScalarType, TimeType > result;
     result.source_ = getLifetimeToken( );
     result.structuralVersion_ = structuralVersion_;
-    result.selectionVersion_ = selectionVersion_;
+    result.projectionVersion_ = projectionVersion_;
     result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
     std::vector< unsigned int > selected;
     for( const unsigned int id : selectedObservationIds )
     {
         const auto& row = getObservationRow( id );
-        if( includeInactive || row.isActive_ ) { selected.push_back( id ); }
+        if( includeInactive || row.isActive_ )
+        {
+            selected.push_back( id );
+        }
     }
     result.scalarComponentIds_ = getScalarComponentIdsForObservationSelection( selected, {} );
     const auto weights = observationWeights_.restricted( result.scalarComponentIds_ );
     result.weights_ = weights.diagonalVector( );
     result.isDiagonalWeightOnly_ = !weights.hasOffDiagonalWeights( );
-    if( weights.hasOffDiagonalWeights( ) ) { result.weightMatrix_ = weights.sparseMatrix( ); }
+    if( weights.hasOffDiagonalWeights( ) )
+    {
+        result.weightMatrix_ = weights.sparseMatrix( );
+    }
     const auto size = result.scalarComponentIds_.size( );
     result.observations_.resize( size );
     result.residuals_.resize( size );
@@ -214,7 +223,8 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObs
             result.metadataBySet_.emplace( row.setId_, metadata );
             result.linksBySet_.emplace( row.setId_, getLinkDefinition( metadata.linkDefinitionId_ ) );
             const auto ancillary = getAncillarySettings( metadata.ancillarySettingsId_ );
-            result.ancillaryBySet_.emplace( row.setId_, ancillary ? std::make_shared< ObservationAncillarySimulationSettings >( *ancillary ) : nullptr );
+            result.ancillaryBySet_.emplace(
+                    row.setId_, ancillary ? std::make_shared< ObservationAncillarySimulationSettings >( *ancillary ) : nullptr );
         }
         group.push_back( id );
         result.dependentVariables_.emplace( id, row.dependentVariableValues_ );

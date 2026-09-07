@@ -391,17 +391,38 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
     {
         throw std::runtime_error( "Source and target observation metadata are incompatible." );
     }
+    const auto& sourceAncillary = getAncillarySettings( sourceMetadata.ancillarySettingsId_ );
+    const auto& targetAncillary = targetDataset.getAncillarySettings( targetMetadata.ancillarySettingsId_ );
+    const auto& sourceLayout = getDependentVariableBookkeeping( sourceMetadata.dependentVariableLayoutId_ );
+    const auto& targetLayout = targetDataset.getDependentVariableBookkeeping( targetMetadata.dependentVariableLayoutId_ );
+    if( static_cast< bool >( sourceAncillary ) != static_cast< bool >( targetAncillary ) ||
+        ( sourceAncillary && !( *sourceAncillary == *targetAncillary ) ) ||
+        static_cast< bool >( sourceLayout ) != static_cast< bool >( targetLayout ) ||
+        ( sourceLayout && !( *sourceLayout == *targetLayout ) ) )
+    {
+        throw std::runtime_error( "Source and target ancillary settings or dependent-variable layouts are incompatible." );
+    }
     std::vector< unsigned int > sourceIds;
-    for( const unsigned int index : indices ) { sourceIds.push_back( observationIdsBySet_.at( sourceSetId ).at( index ) ); }
+    for( const unsigned int index : indices )
+    {
+        sourceIds.push_back( observationIdsBySet_.at( sourceSetId ).at( index ) );
+    }
     const std::unordered_set< unsigned int > unique( sourceIds.begin( ), sourceIds.end( ) );
-    if( unique.size( ) != sourceIds.size( ) ) { throw std::runtime_error( "Observation move contains duplicate identities." ); }
+    if( unique.size( ) != sourceIds.size( ) )
+    {
+        throw std::runtime_error( "Observation move contains duplicate identities." );
+    }
     if( this == &targetDataset && removeFromSource )
     {
         auto& source = observationIdsBySet_.at( sourceSetId );
         auto& target = observationIdsBySet_.at( targetSetId );
         target.insert( target.end( ), sourceIds.begin( ), sourceIds.end( ) );
-        source.erase( std::remove_if( source.begin( ), source.end( ), [ &unique ]( unsigned int id ) { return unique.count( id ); } ), source.end( ) );
-        for( const unsigned int id : sourceIds ) { mutableObservationRow( id ).setId_ = targetSetId; }
+        source.erase( std::remove_if( source.begin( ), source.end( ), [ &unique ]( unsigned int id ) { return unique.count( id ); } ),
+                      source.end( ) );
+        for( const unsigned int id : sourceIds )
+        {
+            mutableObservationRow( id ).setId_ = targetSetId;
+        }
         sortObservationIdsForSet( sourceSetId );
         sortObservationIdsForSet( targetSetId );
         ++structuralVersion_;
@@ -418,7 +439,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
         observations.push_back( getObservationValue( id ) );
         residuals.push_back( getResidualValue( id ) );
         times.push_back( getObservationTime( id ) );
-        if( hasDependentVariables ) { dependentVariables.push_back( getDependentVariables( id ) ); }
+        if( hasDependentVariables )
+        {
+            dependentVariables.push_back( getDependentVariables( id ) );
+        }
         const auto& row = getObservationRow( id );
         statuses.emplace_back( row.isActive_, row.rejectionReason_ );
     }
@@ -434,7 +458,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
         row.rejectionReason_ = statuses.at( i ).second;
     }
     targetDataset.sortObservationIdsForSet( targetSetId );
-    if( removeFromSource ) { removeObservationsFromSet( sourceSetId, indices ); }
+    if( removeFromSource )
+    {
+        removeObservationsFromSet( sourceSetId, indices );
+    }
 }
 
 template< typename ObservationScalarType,

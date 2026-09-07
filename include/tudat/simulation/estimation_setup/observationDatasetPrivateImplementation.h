@@ -23,15 +23,15 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::ObservationDataset( const ObservationDataset& other ):
-    std::enable_shared_from_this< ObservationDataset >( ),
-    observationRows_( other.observationRows_ ), rowPositionById_( other.rowPositionById_ ),
-    nextObservationId_( other.nextObservationId_ ), setMetadata_( other.setMetadata_ ),
+    std::enable_shared_from_this< ObservationDataset >( ), observationRows_( other.observationRows_ ),
+    rowPositionById_( other.rowPositionById_ ), nextObservationId_( other.nextObservationId_ ), setMetadata_( other.setMetadata_ ),
     observationIdsBySet_( other.observationIdsBySet_ ), linkDefinitionRegistry_( other.linkDefinitionRegistry_ ),
     observedValues_( other.observedValues_ ), residualValues_( other.residualValues_ ), observationWeights_( other.observationWeights_ )
 {
     for( const auto& settings : other.ancillarySettingsRegistry_ )
     {
-        ancillarySettingsRegistry_.push_back( settings ? std::make_shared< ObservationAncillarySimulationSettings >( *settings ) : nullptr );
+        ancillarySettingsRegistry_.push_back( settings ? std::make_shared< ObservationAncillarySimulationSettings >( *settings )
+                                                       : nullptr );
     }
     for( const auto& bookkeeping : other.dependentVariableLayoutRegistry_ )
     {
@@ -60,7 +60,10 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rebuildRowInd
         nextScalar += row.scalarSize_;
     }
     std::size_t groupedRows = 0;
-    for( const auto& ids : observationIdsBySet_ ) { groupedRows += ids.size( ); }
+    for( const auto& ids : observationIdsBySet_ )
+    {
+        groupedRows += ids.size( );
+    }
     if( nextScalar != observedValues_.size( ) || residualValues_.size( ) != observedValues_.size( ) ||
         observationWeights_.size( ) != observedValues_.size( ) || groupedRows != observationRows_.size( ) )
     {
@@ -78,19 +81,25 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::sortObservati
     std::stable_sort( ids.begin( ), ids.end( ), [ this ]( unsigned int lhs, unsigned int rhs ) {
         return getObservationRow( lhs ).time_ < getObservationRow( rhs ).time_;
     } );
-    for( std::size_t i = 0; i < ids.size( ); ++i ) { mutableObservationRow( ids.at( i ) ).indexInSet_ = i; }
+    for( std::size_t i = 0; i < ids.size( ); ++i )
+    {
+        mutableObservationRow( ids.at( i ) ).indexInSet_ = i;
+    }
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObservationRows(
-        const std::vector< unsigned int >& retainedIds )
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObservationRows( const std::vector< unsigned int >& retainedIds )
 {
     const std::unordered_set< unsigned int > selected( retainedIds.begin( ), retainedIds.end( ) );
     if( selected.size( ) != retainedIds.size( ) )
     {
         throw std::runtime_error( "Observation selection contains duplicate identities." );
+    }
+    if( retainedIds == getAllObservationIds( ) )
+    {
+        return;
     }
     const auto scalars = getScalarComponentIdsForObservationSelection( retainedIds, {} );
     auto weights = observationWeights_.restricted( scalars );
@@ -115,8 +124,12 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     }
     for( auto& ids : groups )
     {
-        ids.erase( std::remove_if( ids.begin( ), ids.end( ), [ &selected ]( unsigned int id ) { return !selected.count( id ); } ), ids.end( ) );
-        for( std::size_t i = 0; i < ids.size( ); ++i ) { rows.at( index.at( ids.at( i ) ) ).indexInSet_ = i; }
+        ids.erase( std::remove_if( ids.begin( ), ids.end( ), [ &selected ]( unsigned int id ) { return !selected.count( id ); } ),
+                   ids.end( ) );
+        for( std::size_t i = 0; i < ids.size( ); ++i )
+        {
+            rows.at( index.at( ids.at( i ) ) ).indexInSet_ = i;
+        }
     }
     // Publish all mutually dependent storage only after successful validation and allocation.
     observationRows_ = std::move( rows );
@@ -127,8 +140,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     observationWeights_ = std::move( weights );
     ++structuralVersion_;
 }
-
-
 
 template< typename ObservationScalarType,
           typename TimeType,
@@ -150,18 +161,6 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVe
         residualValues_.at( flattenedObservationData.getScalarComponentIds( ).at( i ) ) = residualVector( i );
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 template< typename ObservationScalarType,
           typename TimeType,
@@ -308,6 +307,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setObservatio
     {
         observedValues_.at( row.firstScalarComponent_ + i ) = observation( i );
     }
+    ++projectionVersion_;
 }
 
 template< typename ObservationScalarType,

@@ -107,8 +107,7 @@ public:
     using Entry = std::pair< Index, Index >;
 
     //! Validate and normalize an addition policy before changing the dataset.
-    static ObservationWeights forSet( const std::size_t count, const unsigned int dimension,
-                                      const ObservationWeightSettings& settings )
+    static ObservationWeights forSet( const std::size_t count, const unsigned int dimension, const ObservationWeightSettings& settings )
     {
         if( dimension == 0 || count > std::numeric_limits< Index >::max( ) / dimension )
         {
@@ -119,27 +118,27 @@ public:
         Eigen::VectorXd diagonal = Eigen::VectorXd::Ones( count * dimension );
         switch( settings.type_ )
         {
-        case Type::constant_scalar:
-            validateDiagonal( Eigen::VectorXd::Constant( 1, settings.scalarWeight_ ) );
-            diagonal.setConstant( settings.scalarWeight_ );
-            break;
-        case Type::scalar_per_observation:
-            if( settings.scalarWeights_.size( ) != count )
-            {
-                throw std::runtime_error( "Observation scalar weight count is inconsistent." );
-            }
-            for( std::size_t i = 0; i < count; ++i )
-            {
-                diagonal.segment( i * dimension, dimension ).setConstant( settings.scalarWeights_.at( i ) );
-            }
-            break;
-        case Type::default_weights:
-        case Type::constant_block:
-        case Type::block_per_observation:
-        case Type::set_block:
-            break;
-        default:
-            throw std::runtime_error( "Unknown observation weight policy." );
+            case Type::constant_scalar:
+                validateDiagonal( Eigen::VectorXd::Constant( 1, settings.scalarWeight_ ) );
+                diagonal.setConstant( settings.scalarWeight_ );
+                break;
+            case Type::scalar_per_observation:
+                if( settings.scalarWeights_.size( ) != count )
+                {
+                    throw std::runtime_error( "Observation scalar weight count is inconsistent." );
+                }
+                for( std::size_t i = 0; i < count; ++i )
+                {
+                    diagonal.segment( i * dimension, dimension ).setConstant( settings.scalarWeights_.at( i ) );
+                }
+                break;
+            case Type::default_weights:
+            case Type::constant_block:
+            case Type::block_per_observation:
+            case Type::set_block:
+                break;
+            default:
+                throw std::runtime_error( "Unknown observation weight policy." );
         }
         result.appendDiagonal( diagonal );
         if( settings.type_ == Type::set_block )
@@ -166,7 +165,8 @@ public:
             for( std::size_t i = 0; i < count; ++i )
             {
                 std::iota( indices.begin( ), indices.end( ), i * dimension );
-                result.setBlock( indices, indices, settings.type_ == Type::constant_block ? settings.weightBlock_ : settings.weightBlocks_.at( i ) );
+                result.setBlock(
+                        indices, indices, settings.type_ == Type::constant_block ? settings.weightBlock_ : settings.weightBlocks_.at( i ) );
             }
         }
         return result;
@@ -265,9 +265,7 @@ public:
     }
 
     //! Assign a block and its transpose; overlapping selections must agree.
-    void setBlock( const std::vector< Index >& rows,
-                   const std::vector< Index >& columns,
-                   const Eigen::MatrixXd& block )
+    void setBlock( const std::vector< Index >& rows, const std::vector< Index >& columns, const Eigen::MatrixXd& block )
     {
         indexMap( rows );
         indexMap( columns );

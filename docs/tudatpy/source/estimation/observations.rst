@@ -118,15 +118,39 @@ row retains its last rejection reason as well as its identity and weights.
 
 A projection is a snapshot. Its observations, times, residuals, weights,
 dependent variables and link metadata describe one selection in one order.
-Residual writeback checks both the originating dataset and its structural and
-selection revisions. Rebuild the projection after adding, removing, regrouping,
-rejecting or restoring rows, or replacing link/layout metadata.
+Residual writeback checks the originating dataset, structure, observed values,
+selection and ancillary settings. Rebuild the projection after adding, removing,
+regrouping, rejecting or restoring rows, changing observed values, or replacing
+link/layout metadata. Updating residuals does not invalidate an iteration mapping.
 
 Viewers keep the identities selected at creation; they do not rerun their
 condition after value changes. They fail explicitly after structural mutation
 or destruction of the dataset. Independent dataset copies also clone mutable
 ancillary settings and dependent-variable settings. Filtered copies preserve
 metadata identifiers, including groups left empty by the selection.
+
+Legacy ownership and conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``SingleObservationSet`` is a facade over one dataset metadata group. Legacy
+collections group these facades and preserve shared-set behavior: putting the
+same set into another collection never migrates its data or changes its owner.
+Converting such a collection to a dataset creates an independent snapshot.
+Conversion preserves correlations between selected sets from the same source
+dataset. Repeating correlated source rows in a conversion is ambiguous and
+raises an error; repeated diagonal-only legacy sets remain supported.
+
+A collection explicitly created from a dataset is a live facade over that
+backend. Editing its set membership makes it a legacy grouping of the retained
+sets; it does not delete data from the source dataset. Dataset-native rejection
+and removal should be used to change the backend itself. Estimation and covariance
+inputs constructed from a legacy collection prepare a fresh snapshot when an
+operation starts, and estimation writes computed residuals back to those sets.
+
+An empty dataset or metadata group produces empty observation vectors. Residuals
+not supplied at creation default to zero, matching legacy behavior; zero alone
+does not indicate that residual computation has run. Dependent-variable values
+may be absent for an entire set, but a partially populated set is rejected.
 
 Creating datasets
 ~~~~~~~~~~~~~~~~~

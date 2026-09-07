@@ -134,7 +134,10 @@ public:
     {
         return metadataBySet_.at( setId );
     }
-    const LinkDefinition& getLinkDefinitionForSet( const unsigned int setId ) const { return linksBySet_.at( setId ); }
+    const LinkDefinition& getLinkDefinitionForSet( const unsigned int setId ) const
+    {
+        return linksBySet_.at( setId );
+    }
     std::shared_ptr< ObservationAncillarySimulationSettings > getAncillarySettingsForSet( const unsigned int setId ) const
     {
         const auto& settings = ancillaryBySet_.at( setId );
@@ -181,7 +184,7 @@ private:
     std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > rowMapping_;
     std::weak_ptr< const int > source_;
     std::size_t structuralVersion_ = 0;
-    std::size_t selectionVersion_ = 0;
+    std::size_t projectionVersion_ = 0;
     std::unordered_map< unsigned int, ObservationSetMetadata< ObservationScalarType, TimeType > > metadataBySet_;
     std::unordered_map< unsigned int, LinkDefinition > linksBySet_;
     std::unordered_map< unsigned int, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillaryBySet_;

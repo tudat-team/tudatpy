@@ -91,8 +91,14 @@ public:
     std::shared_ptr< ObservationDependentVariableBookkeeping > clone( ) const
     {
         auto copy = std::make_shared< ObservationDependentVariableBookkeeping >( *this );
-        for( auto& settings : copy->settingsList_ ) { settings = settings ? settings->clone( ) : nullptr; }
-        for( auto& settings : copy->deferredSettings_ ) { settings = settings ? settings->clone( ) : nullptr; }
+        for( auto& settings : copy->settingsList_ )
+        {
+            settings = settings ? settings->clone( ) : nullptr;
+        }
+        for( auto& settings : copy->deferredSettings_ )
+        {
+            settings = settings ? settings->clone( ) : nullptr;
+        }
         return copy;
     }
 

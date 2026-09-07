@@ -24,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
+#include "tudat/simulation/estimation_setup/podProcessing.h"
 
 namespace tudat
 {
@@ -497,8 +498,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
                                           ( Eigen::VectorXd( 1 ) << 0.0 ).finished( ) } );
 
     std::shared_ptr< ObservationCollection< double, double > > estimationCollection =
-            std::make_shared< ObservationCollection< double, double > >(
-                    std::vector< std::shared_ptr< SingleObservationSet< double, double > > >( { estimationRangeSet } ) );
+            std::make_shared< ObservationCollection< double, double > >( estimationRangeSet->getObservationDataset( ) );
     simulation_setup::CovarianceAnalysisInput< double, double > covarianceInput( estimationCollection );
     simulation_setup::EstimationInput< double, double > estimationInput( estimationCollection );
 
@@ -607,6 +607,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
     std::shared_ptr< ObservationDataset< double, double > > dataset = observationCollection.getObservationDataset( );
 
     const auto checkWeights = [ & ]( const Eigen::VectorXd& expectedWeights ) {
+        dataset = observationCollection.getObservationDataset( );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), expectedWeights, 1.0E-15 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
@@ -645,8 +646,11 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
             dataset->createViewer( ObservationSelectionCondition< double, double >::all( ) );
     observationCollection.removeSingleObservationSets( observationParser( one_way_range ) );
 
-    // Removing sets through the legacy collection must structurally mutate the shared dataset and invalidate old viewers.
-    BOOST_CHECK_THROW( staleViewer.getNumberOfObservations( ), std::runtime_error );
+    // A converted snapshot stays independent when legacy collection membership changes.
+    BOOST_CHECK_EQUAL( staleViewer.getNumberOfObservations( ), 5 );
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 2 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createEstimationProjection( ).getWeightVector( ), expectedTabulatedWeights, 1.0E-15 );
+    dataset = observationCollection.getObservationDataset( );
     BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 1 );
     BOOST_CHECK_EQUAL( dataset->getObservationSetMetadata( 0 ).observableType_, angular_position );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), angularTabulatedWeights, 1.0E-15 );
@@ -1712,15 +1716,16 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             symmetricComponentBlockDataset.setWeightBlock(
                     { symmetricObservationIds.at( 0 ) }, { symmetricObservationIds.at( 1 ) }, Eigen::MatrixXd::Ones( 1, 1 ), { 3 }, { 0 } ),
             std::runtime_error );
-    const Eigen::MatrixXd beforeInvalidBlock = symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( );
+    const Eigen::MatrixXd beforeInvalidBlock =
+            symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( );
     BOOST_CHECK_THROW( symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
                                                                       { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
                                                                       ( Eigen::Matrix2d( ) << 1.0, 2.0, 3.0, 4.0 ).finished( ),
                                                                       {},
                                                                       {} ),
                        std::runtime_error );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
-                                     beforeInvalidBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), beforeInvalidBlock, 1.0E-15 );
 
     ObservationDataset< double, double > invalidAddWeightDataset;
     BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithWeights(
@@ -1851,7 +1856,6 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries 
     // A later set-wide assignment replaces previous row and cross-row coefficients as well.
     dataset.setWeightMatrixForSet( setId, setWeightBlock );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
-
 }
 
 /*!
@@ -2040,8 +2044,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     setBlockDataset.addObservationsToSet( setBlockSetId, { Eigen::Vector1d::Constant( 40.0 ) }, { 4.0 } );
     Eigen::Matrix3d expectedAppended = Eigen::Matrix3d::Identity( );
     expectedAppended.topLeftCorner< 2, 2 >( ) = expectedSubsetSetWeightBlock;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
-                                     expectedAppended, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            setBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expectedAppended, 1.0E-15 );
     BOOST_CHECK_EQUAL( setBlockDataset.getObservationIdsForSet( setBlockSetId ).at( 0 ), survivorIds.at( 0 ) );
     BOOST_CHECK_EQUAL( setBlockDataset.getObservationIdsForSet( setBlockSetId ).at( 1 ), survivorIds.at( 1 ) );
 
@@ -2220,8 +2224,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
     Eigen::Matrix4d expectedCopiedWeights = Eigen::Matrix4d::Zero( );
     expectedCopiedWeights.topLeftCorner< 2, 2 >( ) << 3.0, 0.25, 0.25, 4.0;
     expectedCopiedWeights.bottomRightCorner< 2, 2 >( ) = expectedCopiedWeights.topLeftCorner< 2, 2 >( );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( selfCopyDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
-                                     expectedCopiedWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            selfCopyDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expectedCopiedWeights, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( selfCopyDataset.getObservationVectorForSet( newSelfCopiedSetId ),
                                        selfCopyDataset.getObservationVectorForSet( selfCopySetId ),
                                        1.0E-15 );
@@ -2268,9 +2272,11 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
 {
     ObservationDataset<> dataset;
     const unsigned int setId = dataset.addObservationSet(
-            one_way_range, createOneWayLinkDefinition( "Station1" ),
+            one_way_range,
+            createOneWayLinkDefinition( "Station1" ),
             { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ), Eigen::Vector1d::Constant( 30.0 ) },
-            { 1.0, 2.0, 3.0 }, receiver );
+            { 1.0, 2.0, 3.0 },
+            receiver );
     const std::vector< unsigned int > originalIds = dataset.getObservationIdsForSet( setId );
     dataset.removeObservationsFromSet( setId, { 0 } );
 
@@ -2281,16 +2287,17 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
     dataset.addObservationsToSet( setId, { Eigen::Vector1d::Constant( 40.0 ) }, { 0.0 } );
     const std::vector< unsigned int > updatedIds = dataset.getObservationIdsForSet( setId );
     BOOST_CHECK_GT( updatedIds.front( ), originalIds.back( ) );
-    checkIds( std::vector< unsigned int >( updatedIds.begin( ) + 1, updatedIds.end( ) ),
-              { originalIds.at( 1 ), originalIds.at( 2 ) } );
+    checkIds( std::vector< unsigned int >( updatedIds.begin( ) + 1, updatedIds.end( ) ), { originalIds.at( 1 ), originalIds.at( 2 ) } );
 }
 
 BOOST_AUTO_TEST_CASE( test_projection_writeback_checks_source_and_structure )
 {
     ObservationDataset<> dataset;
-    const unsigned int setId = dataset.addObservationSet(
-            one_way_range, createOneWayLinkDefinition( "Station1" ),
-            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) }, { 1.0, 2.0 }, receiver );
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
     const auto projection = dataset.createEstimationFlattenedObservationData( );
     ObservationDataset<> independentCopy( dataset );
     const Eigen::Vector2d residuals( 3.0, 4.0 );
@@ -2311,9 +2318,11 @@ BOOST_AUTO_TEST_CASE( test_projection_writeback_checks_source_and_structure )
 BOOST_AUTO_TEST_CASE( test_invalid_batch_value_updates_are_atomic )
 {
     ObservationDataset<> dataset;
-    const unsigned int setId = dataset.addObservationSet(
-            angular_position, createOneWayLinkDefinition( "Station1" ),
-            { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) }, { 1.0, 2.0 }, receiver );
+    const unsigned int setId = dataset.addObservationSet( angular_position,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
     const Eigen::VectorXd originalObservations = dataset.getObservationVectorForSet( setId );
     const std::vector< Eigen::VectorXd > invalidBatch = { Eigen::Vector2d( 8.0, 9.0 ), Eigen::Vector1d::Ones( ) };
 
@@ -2326,9 +2335,11 @@ BOOST_AUTO_TEST_CASE( test_invalid_batch_value_updates_are_atomic )
 BOOST_AUTO_TEST_CASE( test_weight_assignments_validate_overlapping_selections )
 {
     ObservationDataset<> dataset;
-    const unsigned int setId = dataset.addObservationSet(
-            one_way_range, createOneWayLinkDefinition( "Station1" ),
-            { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) }, { 1.0, 2.0 }, receiver );
+    const unsigned int setId = dataset.addObservationSet( one_way_range,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
     const auto ids = dataset.getObservationIdsForSet( setId );
 
     // These differently ordered selections address the same two off-diagonal entries.
@@ -2339,21 +2350,21 @@ BOOST_AUTO_TEST_CASE( test_weight_assignments_validate_overlapping_selections )
     BOOST_CHECK_THROW( dataset.setConstantSingleObservationScalarWeightForSet( setId, std::numeric_limits< double >::quiet_NaN( ) ),
                        std::runtime_error );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createComputationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       Eigen::Matrix2d::Identity( ), 1.0E-15 );
+                                       Eigen::Matrix2d::Identity( ),
+                                       1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
 {
     ObservationDataset<> dataset;
-    const unsigned int setId = dataset.addObservationSet(
-            angular_position, createOneWayLinkDefinition( "Station1" ),
-            { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) }, { 1.0, 2.0 }, receiver );
+    const unsigned int setId = dataset.addObservationSet( angular_position,
+                                                          createOneWayLinkDefinition( "Station1" ),
+                                                          { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) },
+                                                          { 1.0, 2.0 },
+                                                          receiver );
     const auto ids = dataset.getObservationIdsForSet( setId );
-    const Eigen::Matrix4d setMatrix = ( Eigen::Matrix4d( ) <<
-            4.0, 0.1, 0.2, 0.3,
-            0.1, 5.0, 0.4, 0.5,
-            0.2, 0.4, 6.0, 0.6,
-            0.3, 0.5, 0.6, 7.0 ).finished( );
+    const Eigen::Matrix4d setMatrix =
+            ( Eigen::Matrix4d( ) << 4.0, 0.1, 0.2, 0.3, 0.1, 5.0, 0.4, 0.5, 0.2, 0.4, 6.0, 0.6, 0.3, 0.5, 0.6, 7.0 ).finished( );
     dataset.setWeightMatrixForSet( setId, setMatrix );
     const Eigen::Matrix2d observationBlock = ( Eigen::Matrix2d( ) << 8.0, 0.7, 0.7, 9.0 ).finished( );
     dataset.setWeightMatrixForObservation( ids.front( ), observationBlock );
@@ -2365,8 +2376,8 @@ BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightVectorForSet( setId ), expected.diagonal( ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightValue( ids.back( ) ), expected.diagonal( ).tail( 2 ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightMatrixForSet( setId ), expected, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_copy_constructor_and_filter_isolate_nested_mutable_metadata )
@@ -2389,19 +2400,23 @@ BOOST_AUTO_TEST_CASE( test_copy_constructor_and_filter_isolate_nested_mutable_me
     const auto& originalMetadata = dataset.getObservationSetMetadata( setId );
     const auto& filteredMetadata = filtered->getObservationSetMetadata( 0 );
     filtered->getDependentVariableBookkeeping( filteredMetadata.dependentVariableLayoutId_ )
-            ->getDependentVariableSettings( ).front( )->linkEndId_ = LinkEndId( "Moon", "" );
+            ->getDependentVariableSettings( )
+            .front( )
+            ->linkEndId_ = LinkEndId( "Moon", "" );
     BOOST_CHECK_EQUAL( dataset.getDependentVariableBookkeeping( originalMetadata.dependentVariableLayoutId_ )
-                               ->getDependentVariableSettings( ).front( )->linkEndId_.bodyName_, "Vehicle" );
+                               ->getDependentVariableSettings( )
+                               .front( )
+                               ->linkEndId_.bodyName_,
+                       "Vehicle" );
 }
 
 BOOST_AUTO_TEST_CASE( test_same_dataset_regrouping_preserves_cross_set_correlations )
 {
     ObservationDataset< double, double > dataset;
     const auto link = createOneWayLinkDefinition( "Station1" );
-    const auto firstSet = dataset.addObservationSet( one_way_range, link,
-        { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) }, { 2.0, 4.0 }, receiver );
-    const auto secondSet = dataset.addObservationSet( one_way_range, link,
-        { Eigen::Vector1d::Constant( 30.0 ) }, { 1.0 }, receiver );
+    const auto firstSet = dataset.addObservationSet(
+            one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) }, { 2.0, 4.0 }, receiver );
+    const auto secondSet = dataset.addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 30.0 ) }, { 1.0 }, receiver );
     Eigen::Matrix3d originalWeights;
     originalWeights << 3.0, 0.2, 0.5, 0.2, 4.0, 0.3, 0.5, 0.3, 5.0;
     dataset.setWeightBlock( { 0, 1, 2 }, { 0, 1, 2 }, originalWeights );
@@ -2411,13 +2426,13 @@ BOOST_AUTO_TEST_CASE( test_same_dataset_regrouping_preserves_cross_set_correlati
     BOOST_CHECK_EQUAL( dataset.getObservationRow( 0 ).setId_, secondSet );
     Eigen::Matrix3d regroupedWeights;
     regroupedWeights << 4.0, 0.3, 0.2, 0.3, 5.0, 0.5, 0.2, 0.5, 3.0;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
-                                     regroupedWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), regroupedWeights, 1.0E-15 );
     dataset.removeObservationsFromSet( secondSet, { 0 } );
     Eigen::Matrix2d survivingWeights;
     survivingWeights << 4.0, 0.2, 0.2, 3.0;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
-                                     survivingWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), survivingWeights, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_invalid_weight_policy_leaves_no_partial_set )
@@ -2428,15 +2443,173 @@ BOOST_AUTO_TEST_CASE( test_invalid_weight_policy_leaves_no_partial_set )
         ObservationWeightSettings::constantScalar( -1.0 ),
         ObservationWeightSettings::constantScalar( std::numeric_limits< double >::quiet_NaN( ) ),
         ObservationWeightSettings::scalarPerObservation( { 2.0, -1.0 } ),
-        ObservationWeightSettings::blockPerObservation( { Eigen::MatrixXd::Ones( 1, 1 ), -Eigen::MatrixXd::Ones( 1, 1 ) } ) };
+        ObservationWeightSettings::blockPerObservation( { Eigen::MatrixXd::Ones( 1, 1 ), -Eigen::MatrixXd::Ones( 1, 1 ) } )
+    };
     for( const auto& policy : invalidPolicies )
     {
-        BOOST_CHECK_THROW( dataset.addObservationSetWithWeights( one_way_range, link,
-            { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) }, { 1.0, 2.0 }, receiver, policy ), std::runtime_error );
+        BOOST_CHECK_THROW( dataset.addObservationSetWithWeights( one_way_range,
+                                                                 link,
+                                                                 { Eigen::Vector1d::Constant( 1.0 ), Eigen::Vector1d::Constant( 2.0 ) },
+                                                                 { 1.0, 2.0 },
+                                                                 receiver,
+                                                                 policy ),
+                           std::runtime_error );
         BOOST_CHECK_EQUAL( dataset.getNumberOfObservationSets( ), 0 );
         BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 0 );
         BOOST_CHECK_EQUAL( dataset.getTotalScalarSize( ), 0 );
     }
+}
+
+BOOST_AUTO_TEST_CASE( test_overlapping_legacy_collections_do_not_migrate_shared_sets )
+{
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    auto shared =
+            std::make_shared< SingleObservationSet< double, double > >( one_way_range,
+                                                                        link,
+                                                                        std::vector< Eigen::VectorXd >{ Eigen::Vector1d::Constant( 1.0 ) },
+                                                                        std::vector< double >{ 1.0 },
+                                                                        receiver );
+    auto other =
+            std::make_shared< SingleObservationSet< double, double > >( one_way_range,
+                                                                        link,
+                                                                        std::vector< Eigen::VectorXd >{ Eigen::Vector1d::Constant( 2.0 ) },
+                                                                        std::vector< double >{ 2.0 },
+                                                                        receiver );
+    const auto originalOwner = shared->getObservationDataset( );
+    auto first = std::make_shared< ObservationCollection< double, double > >(
+            std::vector< std::shared_ptr< SingleObservationSet< double, double > > >{ shared, other } );
+    ObservationCollection< double, double > second( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >{ shared } );
+    BOOST_CHECK( shared->getObservationDataset( ) == originalOwner );
+    const auto snapshot = first->getObservationDataset( );
+    shared->setObservations( Eigen::VectorXd::Constant( 1, 7.0 ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( first->getObservationVector( ), Eigen::Vector2d( 7.0, 2.0 ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( second.getObservationVector( ), Eigen::Vector1d::Constant( 7.0 ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            snapshot->createEstimationProjection( ).getObservationVector( ), Eigen::Vector2d( 1.0, 2.0 ), 1.0E-15 );
+    simulation_setup::CovarianceAnalysisInput< double, double > input( first );
+    BOOST_CHECK( input.getObservationCollection( ) == first );
+    shared->addObservations( { Eigen::Vector1d::Constant( 8.0 ) }, { 3.0 } );
+    input.setConstantWeightsMatrix( 5.0 );
+    const auto prepared = input.getObservationDataset( )->createEstimationProjection( );
+    Eigen::Vector3d expected;
+    expected << 7.0, 8.0, 2.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( prepared.getObservationVector( ), expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( prepared.getWeightVector( ), Eigen::Vector3d::Constant( 5.0 ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( shared->getWeightsVector( ), Eigen::Vector2d::Constant( 5.0 ), 1.0E-15 );
+    BOOST_CHECK_EQUAL( second.getObservationVector( ).size( ), 2 );
+}
+
+BOOST_AUTO_TEST_CASE( test_legacy_collection_snapshot_restricts_cross_set_weights )
+{
+    auto dataset = std::make_shared< ObservationDataset< double, double > >( );
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    for( unsigned int i = 0; i < 3; ++i )
+    {
+        dataset->addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( i + 1.0 ) }, { i + 1.0 }, receiver );
+    }
+    Eigen::Matrix3d weights;
+    weights << 3.0, 0.1, 0.2, 0.1, 4.0, 0.3, 0.2, 0.3, 5.0;
+    dataset->setWeightBlock( { 0, 1, 2 }, { 0, 1, 2 }, weights );
+    ObservationCollection< double, double > subset( std::vector< std::shared_ptr< SingleObservationSet< double, double > > >{
+            createSingleObservationSet( dataset, 2 ), createSingleObservationSet( dataset, 0 ) } );
+    const auto snapshot = subset.getObservationDataset( );
+    Eigen::Matrix2d expected;
+    expected << 5.0, 0.2, 0.2, 3.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    dataset->setConstantSingleObservationScalarWeightForSet( 0, 8.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    expected( 1, 1 ) = 8.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            subset.getObservationDataset( )->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    ObservationCollection< double, double > facade( dataset );
+    BOOST_CHECK( facade.getObservationDataset( ) == dataset );
+}
+
+BOOST_AUTO_TEST_CASE( test_projection_rejects_changed_values_and_mutable_ancillary_settings )
+{
+    ObservationDataset<> dataset;
+    auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillary->setAncillaryDoubleData( doppler_integration_time, 10.0 );
+    const auto setId = dataset.addObservationSet( one_way_range,
+                                                  createOneWayLinkDefinition( "Station1" ),
+                                                  { Eigen::Vector1d::Constant( 10.0 ) },
+                                                  { 1.0 },
+                                                  receiver,
+                                                  {},
+                                                  nullptr,
+                                                  ancillary );
+    const auto viewer = dataset.createViewer( ObservationSelectionCondition<>::all( ) );
+    const auto beforeValues = dataset.createEstimationProjection( );
+    dataset.setObservationsForSet( setId, { Eigen::Vector1d::Constant( 20.0 ) } );
+    BOOST_CHECK_THROW( dataset.setResidualVector( beforeValues, Eigen::Vector1d::Ones( ) ), std::runtime_error );
+    BOOST_CHECK_EQUAL( viewer.getNumberOfObservations( ), 1 );
+    BOOST_CHECK_EQUAL( beforeValues.getObservationVector( )( 0 ), 10.0 );
+
+    const auto beforeAncillary = dataset.createEstimationProjection( );
+    dataset.getAncillarySettingsForSet( setId )->setAncillaryDoubleData( doppler_integration_time, 20.0 );
+    BOOST_CHECK_THROW( dataset.setResidualVector( beforeAncillary, Eigen::Vector1d::Ones( ) ), std::runtime_error );
+    BOOST_CHECK_EQUAL( beforeAncillary.getAncillarySettingsForSet( setId )->getAncillaryDoubleData( doppler_integration_time ), 10.0 );
+    BOOST_CHECK_SMALL( dataset.getResidualVectorForSet( setId ).norm( ), 1.0E-15 );
+
+    // Residual updates and no-op removals do not invalidate an iteration's mapping.
+    const auto current = dataset.createEstimationProjection( );
+    dataset.removeObservations( !ObservationSelectionCondition<>::all( ) );
+    dataset.setResidualVector( current, Eigen::Vector1d::Constant( 2.0 ) );
+    dataset.setResidualVector( current, Eigen::Vector1d::Constant( 3.0 ) );
+    BOOST_CHECK_EQUAL( dataset.getResidualValue( 0 )( 0 ), 3.0 );
+}
+
+BOOST_AUTO_TEST_CASE( test_regrouping_rejects_incompatible_ancillary_settings_without_mutation )
+{
+    ObservationDataset<> dataset;
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillary->setAncillaryDoubleData( doppler_integration_time, 10.0 );
+    const auto source = dataset.addObservationSet(
+            one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver, {}, nullptr, ancillary );
+    const auto target = dataset.addObservationSet( one_way_range, link, {}, {}, receiver );
+    const auto original = dataset;
+    BOOST_CHECK_THROW( dataset.moveObservationsToSet( source, dataset, target, { 0 }, true ), std::runtime_error );
+    BOOST_CHECK( dataset == original );
+}
+
+BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimension_projection )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    const auto link = createOneWayLinkDefinition( "Station1" );
+    dataset->addObservationSet(
+            angular_position, link, { Eigen::Vector2d( 1.0, 2.0 ), Eigen::Vector2d( 3.0, 4.0 ) }, { 1.0, 2.0 }, receiver );
+    dataset->addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 5.0 ) }, { 3.0 }, receiver );
+    dataset->rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ) );
+    // Legacy observable ordering puts range first; time ordering puts the angular components first.
+    Eigen::Matrix< double, 3, 1 > design;
+    design << 50.0, 10.0, 20.0;
+    std::vector< int > timeOrder;
+    const auto sorted = simulation_setup::getTimeOrderedDesignMatrix( dataset, design, timeOrder );
+    Eigen::Vector3d expected( 10.0, 20.0, 50.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sorted.first, expected, 1.0E-15 );
+    const std::vector< double > expectedTimes = { 1.0, 1.0, 3.0 };
+    BOOST_CHECK_EQUAL_COLLECTIONS( sorted.second.begin( ), sorted.second.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
+}
+
+BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_explicitly )
+{
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    dataset->addObservationSet(
+            one_way_range, createOneWayLinkDefinition( "Station1" ), { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver );
+    dataset->rejectObservations( ObservationSelectionCondition<>::all( ) );
+    const Eigen::MatrixXd emptyDesign( 0, 1 );
+    const Eigen::VectorXd emptyWeights( 0 );
+    BOOST_CHECK_THROW( simulation_setup::calculateCovarianceUsingDataUpToEpoch(
+                               dataset, emptyDesign, Eigen::Vector1d::Ones( ), 1.0, emptyWeights, Eigen::Matrix1d::Identity( ) ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( simulation_setup::calculateCovarianceUsingDataUpToEpoch( dataset,
+                                                                                emptyDesign,
+                                                                                Eigen::Vector1d::Ones( ),
+                                                                                std::vector< double >{ 2.0 },
+                                                                                emptyWeights,
+                                                                                Eigen::Matrix1d::Identity( ) ),
+                       std::runtime_error );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

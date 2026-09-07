@@ -205,11 +205,9 @@ void calculateResiduals(
                 observationSimulator,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
+    const auto dataset = observationsCollection->getObservationDataset( );
     calculateResiduals< ObservationScalarType, TimeType >(
-            observationsCollection->getObservationDataset( ),
-            observationsCollection->getObservationDataset( )->createOrderedFlattenedObservationData( true ),
-            observationSimulator,
-            residuals );
+            dataset, dataset->createOrderedFlattenedObservationData( true ), observationSimulator, residuals );
 }
 
 //! Function to calculate the observation partials matrix and residuals

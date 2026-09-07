@@ -92,10 +92,10 @@ public:
         const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
             return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
         };
-        return observationRows_ == rhs.observationRows_ &&
-                setMetadata_ == rhs.setMetadata_ && observationIdsBySet_ == rhs.observationIdsBySet_ &&
-                linkDefinitionRegistry_ == rhs.linkDefinitionRegistry_ && observedValues_ == rhs.observedValues_ &&
-                residualValues_ == rhs.residualValues_ && observationWeights_ == rhs.observationWeights_ &&
+        return observationRows_ == rhs.observationRows_ && setMetadata_ == rhs.setMetadata_ &&
+                observationIdsBySet_ == rhs.observationIdsBySet_ && linkDefinitionRegistry_ == rhs.linkDefinitionRegistry_ &&
+                observedValues_ == rhs.observedValues_ && residualValues_ == rhs.residualValues_ &&
+                observationWeights_ == rhs.observationWeights_ &&
                 std::equal( ancillarySettingsRegistry_.begin( ),
                             ancillarySettingsRegistry_.end( ),
                             rhs.ancillarySettingsRegistry_.begin( ),
@@ -254,7 +254,10 @@ public:
     //! Physically remove all currently rejected observation events.
     void removeRejectedObservations( );
 
-    void deleteRejectedObservations( ) { removeRejectedObservations( ); }
+    void deleteRejectedObservations( )
+    {
+        removeRejectedObservations( );
+    }
 
     std::pair< TimeType, TimeType > getTimeBoundsForSet( const unsigned int setId ) const;
 
@@ -560,6 +563,12 @@ private:
               typename std::enable_if< is_state_scalar_and_time_type< SetObservationScalarType, SetTimeType >::value, int >::type >
     friend class SingleObservationSet;
 
+    template< typename CollectionObservationScalarType,
+              typename CollectionTimeType,
+              typename std::enable_if< is_state_scalar_and_time_type< CollectionObservationScalarType, CollectionTimeType >::value,
+                                       int >::type >
+    friend class ObservationCollection;
+
     struct LifetimeToken {
         LifetimeToken( ): value_( std::make_shared< const int >( 0 ) ) {}
         LifetimeToken( const LifetimeToken& ): LifetimeToken( ) {}
@@ -667,10 +676,20 @@ public:
     //! Fail before using a projection from another dataset or an invalidated mapping.
     void validateProjection( const FlattenedObservationData< ObservationScalarType, TimeType >& projection ) const
     {
-        if( projection.source_.lock( ) != lifetimeToken_.value_ ||
-            projection.structuralVersion_ != structuralVersion_ || projection.selectionVersion_ != selectionVersion_ )
+        if( projection.source_.lock( ) != lifetimeToken_.value_ || projection.structuralVersion_ != structuralVersion_ ||
+            projection.projectionVersion_ != projectionVersion_ )
         {
             throw std::runtime_error( "Observation projection belongs to another dataset or has been invalidated." );
+        }
+        // Legacy APIs expose mutable ancillary pointers. Check their values because
+        // changes through such pointers cannot increment the dataset revision.
+        for( const auto& entry : projection.ancillaryBySet_ )
+        {
+            const auto& current = getAncillarySettingsForSet( entry.first );
+            if( static_cast< bool >( current ) != static_cast< bool >( entry.second ) || ( current && !( *current == *entry.second ) ) )
+            {
+                throw std::runtime_error( "Observation projection ancillary settings have changed." );
+            }
         }
     }
 
@@ -768,7 +787,8 @@ private:
     ObservationWeights observationWeights_;
     //! Monotonic counter used to invalidate viewers after structural mutations.
     std::size_t structuralVersion_ = 0;
-    std::size_t selectionVersion_ = 0;
+    //! Invalidates solver writeback after observed-value or selection changes, without invalidating fixed-membership viewers.
+    std::size_t projectionVersion_ = 0;
     //! Object-lifetime marker used by non-owning viewers to detect destruction or replacement before dereferencing the dataset.
     LifetimeToken lifetimeToken_;
 };

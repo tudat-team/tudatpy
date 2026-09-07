@@ -269,6 +269,7 @@ protected:
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
             const ParameterVectorType& newParameterEstimate,
             const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
             const bool calculateResiduals,

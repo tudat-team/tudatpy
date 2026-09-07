@@ -63,9 +63,9 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
 
     std::vector< TimeType > originalObservationTimesUtc =
             timeScaleConverter->getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::TimeScales::tdb_scale,
-                                                                              basic_astrodynamics::TimeScales::utc_scale,
-                                                                              originalObservationTimesTdb,
-                                                                              stationPosition );
+                                                                               basic_astrodynamics::TimeScales::utc_scale,
+                                                                               originalObservationTimesTdb,
+                                                                               stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
@@ -115,9 +115,9 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     }
     std::vector< TimeType > compressedObservationTimesTdb =
             timeScaleConverter->getCurrentTimes< TimeType >( basic_astrodynamics::TimeScales::utc_scale,
-                                                            basic_astrodynamics::TimeScales::tdb_scale,
-                                                            compressedObservationTimesUtc,
-                                                            compressedEarthFixedPositions );
+                                                             basic_astrodynamics::TimeScales::tdb_scale,
+                                                             compressedObservationTimesUtc,
+                                                             compressedEarthFixedPositions );
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings =
             std::make_shared< observation_models::ObservationAncillarySimulationSettings >( *originalAncillarySettings );
