@@ -974,7 +974,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
         BOOST_REQUIRE( !observationTimes.empty( ) );
         BOOST_REQUIRE( !observationTimesGanymede.empty( ) );
-        BOOST_CHECK_EQUAL( observationsAndTimes->getTotalObservableSize( ),
+        BOOST_CHECK_EQUAL( observationsAndTimes->getTotalScalarSize( ),
                            3 * static_cast< int >( observationTimes.size( ) ) + static_cast< int >( observationTimesGanymede.size( ) ) );
 
         //        std::vector< double > timeVector = observationsAndTimes->getSingleLinkTimes( one_way_range, linkEndsGanymede );
@@ -1008,7 +1008,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         std::shared_ptr< EstimationOutput< double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
         BOOST_REQUIRE( podOutput != nullptr );
         BOOST_CHECK_EQUAL( podOutput->parameterEstimate_.rows( ), originalParameters.rows( ) );
-        BOOST_CHECK_EQUAL( podOutput->residuals_.rows( ), observationsAndTimes->getTotalObservableSize( ) );
+        BOOST_CHECK_EQUAL( podOutput->residuals_.rows( ), observationsAndTimes->getTotalScalarSize( ) );
         BOOST_CHECK( podOutput->parameterEstimate_.allFinite( ) );
         BOOST_CHECK( podOutput->residuals_.allFinite( ) );
         const Eigen::MatrixXd residualHistory = podOutput->getResidualHistoryMatrix( );
@@ -1029,7 +1029,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         BOOST_CHECK_SMALL( podOutput->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-3 );
         BOOST_CHECK_SMALL( ( podOutput->residuals_ - residualHistory.col( podOutput->bestIteration_ ) ).norm( ), 1.0E-12 );
         const Eigen::MatrixXd normalizedDesignMatrix = podOutput->getNormalizedDesignMatrix( );
-        BOOST_REQUIRE_EQUAL( normalizedDesignMatrix.rows( ), observationsAndTimes->getTotalObservableSize( ) );
+        BOOST_REQUIRE_EQUAL( normalizedDesignMatrix.rows( ), observationsAndTimes->getTotalScalarSize( ) );
         BOOST_REQUIRE_EQUAL( normalizedDesignMatrix.cols( ), originalParameters.rows( ) );
         BOOST_CHECK( normalizedDesignMatrix.allFinite( ) );
         BOOST_CHECK_GT( normalizedDesignMatrix.norm( ), 0.0 );
