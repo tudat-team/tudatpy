@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <set>
 #include <vector>
 
@@ -616,20 +617,84 @@ protected:
 private:
     friend class cereal::access;
 
+    // The base-branch format began with ObservableType. A disjoint tag keeps
+    // old binary files readable while storing the shared backend in new files.
+    static constexpr std::underlying_type_t< ObservableType > binaryFormatTag_ = 0x544F5331;
+
     template< class Archive >
     void save( Archive& ar ) const
     {
-        // Preserve the shared dataset, including rejected rows and correlated weights.
-        ar( dataset_, setId_, filteredObservationSet_ );
+        ar( binaryFormatTag_, dataset_, setId_, filteredObservationSet_ );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( dataset_, setId_, filteredObservationSet_ );
-        const auto filteredObservationSet = filteredObservationSet_;
-        *this = SingleObservationSet( dataset_, setId_ );
-        filteredObservationSet_ = filteredObservationSet;
+        std::underlying_type_t< ObservableType > tag;
+        ar( tag );
+        if( tag == binaryFormatTag_ )
+        {
+            ar( dataset_, setId_, filteredObservationSet_ );
+            const auto filteredObservationSet = filteredObservationSet_;
+            *this = SingleObservationSet( dataset_, setId_ );
+            filteredObservationSet_ = filteredObservationSet;
+        }
+        else if( tag >= one_way_range && tag <= pixel_coordinates )
+        {
+            loadLegacyBinaryData( ar, static_cast< ObservableType >( tag ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Unsupported SingleObservationSet serialization format." );
+        }
+    }
+
+    //! Import the layout from feature/data-refactor at 213fd175, discarding only derived caches.
+    template< class Archive >
+    void loadLegacyBinaryData( Archive& ar, const ObservableType observableType )
+    {
+        LinkDefinition link;
+        std::pair< TimeType, TimeType > oldTimeBounds;
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations, residuals;
+        std::vector< TimeType > times;
+        LinkEndType referenceLinkEnd;
+        std::vector< Eigen::VectorXd > dependentVariables, weights;
+        std::shared_ptr< ObservationDependentVariableBookkeeping > bookkeeping;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillary;
+        unsigned int count, dimension;
+        std::shared_ptr< SingleObservationSet > filtered;
+        ar( link,
+            oldTimeBounds,
+            observations,
+            times,
+            referenceLinkEnd,
+            dependentVariables,
+            bookkeeping,
+            ancillary,
+            count,
+            dimension,
+            weights,
+            residuals,
+            filtered );
+        if( count != observations.size( ) || dimension != static_cast< unsigned int >( getObservableSize( observableType ) ) )
+        {
+            throw std::runtime_error( "Legacy observation archive has inconsistent row or component counts." );
+        }
+        auto dataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+        const auto setId = dataset->addObservationSet( observableType,
+                                                       link,
+                                                       observations,
+                                                       times,
+                                                       referenceLinkEnd,
+                                                       dependentVariables,
+                                                       bookkeeping,
+                                                       ancillary,
+                                                       weights,
+                                                       residuals,
+                                                       false,
+                                                       false );
+        *this = SingleObservationSet( dataset, setId );
+        filteredObservationSet_ = std::move( filtered );
     }
 };
 

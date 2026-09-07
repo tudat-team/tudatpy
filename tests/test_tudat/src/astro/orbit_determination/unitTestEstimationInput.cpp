@@ -758,6 +758,14 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyOutput->getWeightsMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             simulatedObservations->createEstimationProjection( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
+
+    simulatedObservations->rejectObservations( ObservationSelectionCondition<>::all( ) );
+    const auto reportsEmptySelection = []( const std::runtime_error& error ) {
+        return std::string( error.what( ) ).find( "without active observations" ) != std::string::npos;
+    };
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( legacyInput ), std::runtime_error, reportsEmptySelection );
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( estimationInput ), std::runtime_error, reportsEmptySelection );
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.computeCovariance( covarianceInput ), std::runtime_error, reportsEmptySelection );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -43,6 +43,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > estimationData =
             observationDataset->createEstimationProjection( );
     const int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+    if( totalNumberOfObservations == 0 )
+    {
+        throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
+    }
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )

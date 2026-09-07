@@ -38,6 +38,10 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > weightData =
             observationDataset->createEstimationProjection( );
     const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
+    if( totalNumberOfObservations == 0 )
+    {
+        throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
+    }
     const Eigen::VectorXd weightsMatrixDiagonal = weightData.getWeightVector( );
     const bool hasOffDiagonalWeights = weightData.hasOffDiagonalWeights( );
     Eigen::SparseMatrix< double > weightsMatrix;

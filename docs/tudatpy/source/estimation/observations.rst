@@ -149,8 +149,14 @@ sets; it does not delete data from the source dataset. Dataset-native rejection
 and removal should be used to change the backend itself. Estimation and covariance
 inputs constructed from a legacy collection prepare a fresh snapshot when an
 operation starts, and estimation writes computed residuals back to those sets.
+Binary files saved with the base-branch ``SingleObservationSet`` and
+``ObservationCollection`` layouts remain readable through a compatibility
+reader. New files store the shared dataset, preserving row status, identities
+and correlations across groups.
 
-An empty dataset or metadata group produces empty observation vectors. Residuals
+An empty dataset or metadata group produces empty observation vectors. Estimation
+and covariance analysis report an explicit error when no active observations
+remain, including after rejecting every row. Residuals
 not supplied at creation default to zero, matching legacy behavior; zero alone
 does not indicate that residual computation has run. Dependent-variable values
 may be absent for an entire set, but a partially populated set is rejected.

@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -2478,17 +2479,46 @@ public:
 private:
     friend class cereal::access;
 
+    static constexpr std::uint64_t binaryFormatTag_ = 0x544F434F4C4C3031ULL;
+
     template< class Archive >
     void save( Archive& ar ) const
     {
         refreshFromDatasetIfNeeded( );
-        ar( observationDataset_, observationSetList_ );
+        ar( binaryFormatTag_, observationDataset_, observationSetList_ );
     }
 
     template< class Archive >
     void load( Archive& ar )
     {
-        ar( observationDataset_, observationSetList_ );
+        std::uint64_t tag;
+        ar( tag );
+        if( tag == binaryFormatTag_ )
+        {
+            ar( observationDataset_, observationSetList_ );
+        }
+        else
+        {
+            // The base format was the sorted map itself. Its first binary field
+            // was the group count; the base enum had 21 supported observable types.
+            if( tag > 21 )
+            {
+                throw std::runtime_error( "Unsupported ObservationCollection serialization format." );
+            }
+            SortedObservationSets legacySets;
+            for( std::uint64_t i = 0; i < tag; ++i )
+            {
+                ObservableType observable;
+                typename SortedObservationSets::mapped_type setsByLink;
+                ar( observable, setsByLink );
+                if( !legacySets.emplace( observable, std::move( setsByLink ) ).second )
+                {
+                    throw std::runtime_error( "Legacy observation archive contains duplicate observable groups." );
+                }
+            }
+            observationDataset_.reset( );
+            observationSetList_ = std::move( legacySets );
+        }
 
         // Reconstruct only derived indices; serialized wrappers retain their shared backends.
         observationSetWrappersByDatasetSetId_.clear( );
