@@ -287,6 +287,7 @@ jobs:
 
     - name: Extract resources
       if: steps.cache-resources.outputs.cache-hit == 'true'
+      shell: bash -l {0}
       run: |
         mkdir -p $HOME/.tudat/resource/
         tar -xzf resources.tar.gz -C $HOME/.tudat/resource/
