@@ -52,6 +52,20 @@ Eigen::MatrixXd createStrictlyDominantWeightMatrix( const int size, const double
     return matrix;
 }
 
+Eigen::VectorXd solveDenseWeightedReference( const Eigen::MatrixXd& designMatrix,
+                                             const Eigen::MatrixXd& weights,
+                                             const Eigen::VectorXd& residuals,
+                                             const Eigen::VectorXd& normalization )
+{
+    const Eigen::MatrixXd normalMatrix = designMatrix.transpose( ) * weights * designMatrix;
+    // This fixture compares different factorizations at a tight tolerance. Keep
+    // the system well-conditioned, including after removing a range observation.
+    const double conditionNumber = linear_algebra::getConditionNumberOfDesignMatrix( normalMatrix );
+    BOOST_TEST_MESSAGE( "Dense reference normal-matrix condition number: " << conditionNumber );
+    BOOST_REQUIRE_LT( conditionNumber, 1.0E4 );
+    return normalMatrix.ldlt( ).solve( designMatrix.transpose( ) * weights * residuals ).cwiseQuotient( normalization );
+}
+
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
 
 //! Initial translational state with a user-defined hard linear constraint on each estimated correction.
@@ -481,6 +495,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_REQUIRE_EQUAL( orderedSetIds.size( ), simulatedObservations->getNumberOfObservationSets( ) );
     BOOST_CHECK( orderedSetIds.front( ) != 0 );
 
+    // Range residuals are in metres and angular residuals in radians. Use
+    // microradian-scale angular uncertainty so both constrain the state; equal
+    // numeric weights make the mixed system nearly singular after rejection.
+    const double angularWeightScale = 1.0E12;
     std::map< unsigned int, Eigen::MatrixXd > expectedSetWeightMatrices;
     int numberOfObservationBlockSets = 0;
     int numberOfSetBlockSets = 0;
@@ -501,6 +519,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
                 Eigen::Matrix2d currentBlock;
                 currentBlock << 8.0 + stationOffset + 0.2 * static_cast< double >( i ), 0.2 + 0.02 * static_cast< double >( i ),
                         0.2 + 0.02 * static_cast< double >( i ), 6.0 + stationOffset + 0.15 * static_cast< double >( i );
+                currentBlock *= angularWeightScale;
                 simulatedObservations->setWeightMatrixForObservation( observationIds.at( i ), currentBlock );
                 expectedSetMatrix.block( 2 * static_cast< int >( i ), 2 * static_cast< int >( i ), 2, 2 ) = currentBlock;
             }
@@ -511,7 +530,9 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         {
             const double baseDiagonal = metadata.observableType_ == one_way_range ? 4.0 : 7.0;
             const double couplingScale = metadata.observableType_ == one_way_range ? 0.02 : 0.01;
-            const Eigen::MatrixXd setWeightMatrix = createStrictlyDominantWeightMatrix( setSize, baseDiagonal, couplingScale );
+            const double weightScale = metadata.observableType_ == angular_position ? angularWeightScale : 1.0;
+            const Eigen::MatrixXd setWeightMatrix =
+                    weightScale * createStrictlyDominantWeightMatrix( setSize, baseDiagonal, couplingScale );
             simulatedObservations->setWeightMatrixForSet( setId, setWeightMatrix );
             expectedSetWeightMatrices[ setId ] = setWeightMatrix;
             ++numberOfSetBlockSets;
@@ -603,11 +624,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_REQUIRE_EQUAL( singleStepEstimationOutput->residualHistory_.size( ), 1 );
     const Eigen::MatrixXd singleStepDesignMatrix = singleStepEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
-    const Eigen::VectorXd expectedSingleStepParameterUpdate =
-            ( singleStepDesignMatrix.transpose( ) * expectedFullWeightsMatrix * singleStepDesignMatrix )
-                    .ldlt( )
-                    .solve( singleStepDesignMatrix.transpose( ) * expectedFullWeightsMatrix * singleStepResiduals )
-                    .cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
+    const Eigen::VectorXd expectedSingleStepParameterUpdate = solveDenseWeightedReference(
+            singleStepDesignMatrix, expectedFullWeightsMatrix, singleStepResiduals, singleStepEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualSingleStepParameterUpdate =
             singleStepEstimationOutput->parameterHistory_.at( 1 ) - singleStepEstimationOutput->parameterHistory_.at( 0 );
 
@@ -707,10 +725,10 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     }
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( activeData.getSparseWeightMatrix( ).toDense( ), expectedActiveWeights, 1.0E-15 );
     const Eigen::VectorXd expectedRejectedStepParameterUpdate =
-            ( rejectedSingleStepDesignMatrix.transpose( ) * expectedActiveWeights * rejectedSingleStepDesignMatrix )
-                    .ldlt( )
-                    .solve( rejectedSingleStepDesignMatrix.transpose( ) * expectedActiveWeights * rejectedSingleStepResiduals )
-                    .cwiseQuotient( rejectedEstimationOutput->getNormalizationTerms( ) );
+            solveDenseWeightedReference( rejectedSingleStepDesignMatrix,
+                                         expectedActiveWeights,
+                                         rejectedSingleStepResiduals,
+                                         rejectedEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualRejectedStepParameterUpdate =
             rejectedEstimationOutput->parameterHistory_.at( 1 ) - rejectedEstimationOutput->parameterHistory_.at( 0 );
 
