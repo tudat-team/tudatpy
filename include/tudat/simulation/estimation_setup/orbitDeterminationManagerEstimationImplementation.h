@@ -363,14 +363,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
 
-            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computationData =
-                    observationDataset->createComputationFlattenedObservationData( true );
-            if( computationData.getObservationVector( ).size( ) == estimationData.getObservationVector( ).size( ) )
+            if( observationDataset->getTotalScalarSize( ) == static_cast< std::size_t >( estimationData.getObservationVector( ).size( ) ) )
             {
                 observationDataset->setResidualVector( estimationData, residuals );
             }
             else
             {
+                const auto computationData = observationDataset->createComputationFlattenedObservationData( true );
                 Eigen::MatrixXd unusedDesignMatrix;
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > computationResiduals;
                 calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
