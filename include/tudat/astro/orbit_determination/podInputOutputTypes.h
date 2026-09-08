@@ -46,6 +46,15 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
 private:
+    observation_models::ObservationCollection< ObservationScalarType, TimeType >& legacyObservationSource( ) const
+    {
+        if( !observationCollection_ )
+        {
+            throw std::runtime_error( "Cannot access observations: no observation source was supplied." );
+        }
+        return *observationCollection_;
+    }
+
     static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > checkObservationDatasetInput(
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
     {
@@ -65,7 +74,7 @@ private:
         }
         else
         {
-            action( *observationCollection_ );
+            action( legacyObservationSource( ) );
         }
     }
 
@@ -79,10 +88,8 @@ public:
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )
     {
-        if( observationCollection_ == nullptr )
-        {
-            throw std::runtime_error( "Cannot create estimation input from a null observation collection." );
-        }
+        // The base API permits a null collection for configuring input settings.
+        // Operations that need observations validate the source when it is used.
         considerParametersIncluded_ = false;
         if( considerCovariance.size( ) > 0 )
         {
@@ -327,7 +334,7 @@ public:
      */
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
-        if( observationCollection_ == nullptr )
+        if( observationCollection_ == nullptr && observationDataset_ != nullptr )
         {
             observationCollection_ =
                     observation_models::createObservationCollection< ObservationScalarType, TimeType >( observationDataset_ );
@@ -337,7 +344,7 @@ public:
 
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
     {
-        return observationDataset_ ? observationDataset_ : observationCollection_->getObservationDataset( );
+        return observationDataset_ ? observationDataset_ : legacyObservationSource( ).getObservationDataset( );
     }
 
     //! Return fitted residuals to a legacy source after computing against its independent snapshot.
@@ -347,15 +354,15 @@ public:
         {
             return;
         }
+        auto& source = legacyObservationSource( );
         const auto projection = prepared.createOrderedFlattenedObservationData( true );
-        const auto currentObservations = observationCollection_->getObservationVector( );
+        const auto currentObservations = source.getObservationVector( );
         if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
-            currentObservations != projection.getObservationVector( ) ||
-            observationCollection_->getConcatenatedTimeVector( ) != projection.getTimes( ) )
+            currentObservations != projection.getObservationVector( ) || source.getConcatenatedTimeVector( ) != projection.getTimes( ) )
         {
             throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
         }
-        const auto sets = observationCollection_->getSingleObservationSets( );
+        const auto sets = source.getSingleObservationSets( );
         const auto setIds = prepared.getSetIdsInOrderedFlattenedDataOrder( );
         if( sets.size( ) != setIds.size( ) )
         {
@@ -375,7 +382,7 @@ public:
                 throw std::runtime_error( "Legacy observation metadata changed during estimation; residuals were not written back." );
             }
         }
-        observationCollection_->setResiduals( projection.getResidualVector( ) );
+        source.setResiduals( projection.getResidualVector( ) );
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters

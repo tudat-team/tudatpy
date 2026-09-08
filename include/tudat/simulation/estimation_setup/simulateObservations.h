@@ -500,6 +500,23 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         observation_models::ObservableType observableType = observationsToSimulate.at( i )->getObservableType( );
         observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( ).linkEnds_;
 
+        // Empty tabulated groups carry metadata only. Keep their set positions
+        // without requiring a model, bodies or dependent-variable evaluation.
+        const auto tabulatedSettings =
+                std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( observationsToSimulate.at( i ) );
+        if( tabulatedSettings && tabulatedSettings->simulationTimes_.empty( ) )
+        {
+            observationDataset->addObservationSet( observableType,
+                                                   tabulatedSettings->getLinkEnds( ),
+                                                   {},
+                                                   {},
+                                                   tabulatedSettings->getReferenceLinkEndType( ),
+                                                   {},
+                                                   tabulatedSettings->getObservationDependentVariableBookkeeping( ),
+                                                   tabulatedSettings->getAncillarySettings( ) );
+            continue;
+        }
+
         int observationSize = observation_models::getObservableSize( observableType );
 
         switch( observationSize )

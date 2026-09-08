@@ -437,8 +437,15 @@ def test_python_viewer_ordered_flattening_reorders_selected_rows():
     assert viewer.observation_ids == [0, 1, 2, 3]
 
     estimation_flattened = viewer.estimation_flattened_observation_data()
-    # Estimation flattening expands vector rows but keeps the selected dataset row order.
-    assert estimation_flattened.observation_ids == [0, 0, 1, 1, 2, 3]
+    # Estimation expands components in the same legacy order as the dataset projection.
+    assert estimation_flattened.observation_ids == [2, 3, 0, 0, 1, 1]
+    np.testing.assert_array_equal(
+        estimation_flattened.observation_vector, [10.0, 20.0, 1.0, 2.0, 3.0, 4.0]
+    )
+    np.testing.assert_array_equal(
+        estimation_flattened.observation_vector,
+        angular_dataset.create_estimation_projection().observation_vector,
+    )
 
     ordered_flattened = viewer.ordered_flattened_observation_data()
     # Ordered flattening should reorder selected rows into Tudat's ordered-output convention.

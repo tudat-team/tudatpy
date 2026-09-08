@@ -159,7 +159,11 @@ and correlations across groups.
 Covariance and estimation result archives from the base branch also retain
 their diagonal-weight interpretation when loaded.
 
-An empty dataset or metadata group produces empty observation vectors. Estimation
+An empty dataset or metadata group produces empty observation vectors. Simulating
+an empty tabulated group preserves its metadata without requiring an observation
+model. Legacy estimation and covariance inputs accept ``None`` for configuring
+settings; operations that need observations then report a missing-source error.
+Estimation
 and covariance analysis report an explicit error when no active observations
 remain, including after rejecting every row. Residuals
 not supplied at creation default to zero, matching legacy behavior; zero alone

@@ -376,20 +376,16 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
         legacy_collection.set_tabulated_weights(tabulated_weights)
     assert_weights_match(np.array([1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4]))
 
-    stale_viewer = sample_dataset.create_viewer(observations.observation_query.active)
+    source_viewer = sample_dataset.create_viewer(observations.observation_query.active)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         legacy_collection.remove_single_observation_sets(range_parser)
-    with pytest.raises(RuntimeError):
-        stale_viewer.number_of_observations
-
-    assert sample_dataset.number_of_observation_sets == 1
-    assert sample_dataset.get_observation_set_metadata(0).observable_type == (
-        observations.angular_position
-    )
+    # Removing a collection member changes its grouping, not its dataset owner.
+    assert source_viewer.number_of_observations == 5
+    assert sample_dataset.number_of_observation_sets == 2
     np.testing.assert_allclose(
         sample_dataset.ordered_flattened_observation_data().weight_vector,
-        [2.1, 2.2, 2.3, 2.4],
+        [1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4],
     )
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

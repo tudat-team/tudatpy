@@ -25,6 +25,7 @@
 #include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
 #include "tudat/simulation/estimation_setup/podProcessing.h"
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace tudat
 {
@@ -906,6 +907,22 @@ BOOST_AUTO_TEST_CASE( test_large_sparse_weighted_design_matrix_uses_sparse_chole
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightedDesignMatrix.row( 2500 ), expectedWeightedRows.row( 2 ), 1.0E-15 );
 }
 
+BOOST_AUTO_TEST_CASE( test_legacy_null_inputs_allow_configuration_and_validate_data_access )
+{
+    std::shared_ptr< ObservationCollection<> > noCollection;
+    simulation_setup::CovarianceAnalysisInput<> covarianceInput( noCollection );
+    simulation_setup::EstimationInput<> estimationInput( noCollection );
+    for( auto* input : std::vector< simulation_setup::CovarianceAnalysisInput<>* >{ &covarianceInput, &estimationInput } )
+    {
+        BOOST_CHECK( input->getObservationCollection( ) == nullptr );
+        input->setConsiderCovariance( Eigen::MatrixXd::Identity( 1, 1 ) );
+        BOOST_CHECK_EQUAL( input->getConsiderCovariance( )( 0, 0 ), 1.0 );
+        BOOST_CHECK_THROW( input->getObservationDataset( ), std::runtime_error );
+        BOOST_CHECK_THROW( input->setConstantWeightsMatrix( 2.0 ), std::runtime_error );
+        BOOST_CHECK_THROW( input->synchronizeLegacyResiduals( ObservationDataset<>( ) ), std::runtime_error );
+    }
+}
+
 /*!
  * Verifies empty-set behavior and invalid input validation.
  *
@@ -932,6 +949,18 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
     ObservationCollection< double, double > emptyCollection( std::make_shared< ObservationDataset< double, double > >( dataset ) );
     BOOST_CHECK( std::isnan( emptyCollection.getTimeBounds( ).first ) );
     BOOST_CHECK( std::isnan( emptyCollection.getTimeBounds( ).second ) );
+
+    // An empty metadata group needs neither a simulator nor an environment,
+    // and must retain its set position through simulation and residual update.
+    auto emptyDataset = std::make_shared< ObservationDataset<> >( dataset );
+    const simulation_setup::SystemOfBodies emptyBodies;
+    const auto emptySettings = simulation_setup::getObservationSimulationSettingsFromObservationDataset( emptyDataset, emptyBodies );
+    const auto simulatedEmpty = simulation_setup::simulateObservationDataset< double, double >( emptySettings, {}, emptyBodies );
+    BOOST_CHECK_EQUAL( simulatedEmpty->getNumberOfObservationSets( ), 1 );
+    BOOST_CHECK_EQUAL( simulatedEmpty->getNumberOfObservationsForSet( emptySetId ), 0 );
+    BOOST_CHECK( simulatedEmpty->getLinkDefinition( simulatedEmpty->getObservationSetMetadata( emptySetId ).linkDefinitionId_ ) ==
+                 linkDefinition );
+    BOOST_CHECK_NO_THROW( simulation_setup::computeResidualsAndDependentVariables( emptyDataset, {}, emptyBodies ) );
 
     dataset.setLinkEndReferencePoint( "Earth", "RenamedStation", transmitter, ObservationSelectionCondition< double, double >::all( ) );
     BOOST_CHECK_EQUAL( dataset.getLinkDefinition( dataset.getObservationSetMetadata( emptySetId ).linkDefinitionId_ )
