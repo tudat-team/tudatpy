@@ -1332,10 +1332,21 @@ private:
     template< class Archive >
     void load( Archive& ar, const std::uint32_t version )
     {
-        static_cast< void >( version );
+        if( version > 1 )
+        {
+            throw std::runtime_error( "Unsupported covariance output archive version." );
+        }
         ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
         ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
-        ar( CEREAL_NVP( weightsMatrix_ ) );
+        if( version >= 1 )
+        {
+            ar( CEREAL_NVP( weightsMatrix_ ) );
+        }
+        else
+        {
+            // The base-branch format stored only diagonal weights.
+            weightsMatrix_.resize( 0, 0 );
+        }
         ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
         ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
         ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
@@ -1703,5 +1714,19 @@ using EstimationOutputDT = EstimationOutput< double, Time >;
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+// The existing version-zero layout predates sparse observation weights. Apply
+// the new version to every scalar/time specialization, including base subobjects
+// serialized as part of EstimationOutput.
+namespace cereal
+{
+namespace detail
+{
+template< typename ObservationScalarType, typename TimeType >
+struct Version< tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType > > {
+    static constexpr std::uint32_t version = 1;
+};
+}  // namespace detail
+}  // namespace cereal
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

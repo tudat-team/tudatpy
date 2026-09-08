@@ -156,6 +156,8 @@ Binary files saved with the base-branch ``SingleObservationSet`` and
 ``ObservationCollection`` layouts remain readable through a compatibility
 reader. New files store the shared dataset, preserving row status, identities
 and correlations across groups.
+Covariance and estimation result archives from the base branch also retain
+their diagonal-weight interpretation when loaded.
 
 An empty dataset or metadata group produces empty observation vectors. Estimation
 and covariance analysis report an explicit error when no active observations
