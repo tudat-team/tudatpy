@@ -990,7 +990,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
         BOOST_REQUIRE( !observationTimes.empty( ) );
         BOOST_REQUIRE( !ganymedeObservationTimes.empty( ) );
-        BOOST_CHECK_EQUAL( observationsAndTimes->getTotalObservableSize( ),
+        BOOST_CHECK_EQUAL( observationsAndTimes->getTotalScalarSize( ),
                            3 * static_cast< int >( observationTimes.size( ) ) + static_cast< int >( ganymedeObservationTimes.size( ) ) );
 
         // Set observations weights.
