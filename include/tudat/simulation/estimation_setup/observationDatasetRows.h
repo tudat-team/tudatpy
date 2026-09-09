@@ -29,10 +29,14 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class ObservationDataset;
 
-template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-class ObservationDatasetViewer;
+//! Output sequence for detached dataset inspection; membership is specified separately.
+enum class ObservationOrdering { internal, estimation };
+
+namespace detail
+{
+template< typename ObservationScalarType, typename TimeType >
+struct ObservationSelectionIndices;
+}
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,

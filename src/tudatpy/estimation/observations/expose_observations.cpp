@@ -42,6 +42,139 @@ namespace tdat = tudat::data;
 namespace
 {
 
+using InspectionDataset = tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >;
+using InspectionCondition = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >;
+using InspectionIndices = tom::detail::ObservationSelectionIndices< STATE_SCALAR_TYPE, TIME_TYPE >;
+
+tom::ObservationOrdering inspectionOrdering( const std::string& ordering )
+{
+    if( ordering == "internal" )
+    {
+        return tom::ObservationOrdering::internal;
+    }
+    if( ordering == "estimation" )
+    {
+        return tom::ObservationOrdering::estimation;
+    }
+    throw py::value_error( "ordering must be 'internal' or 'estimation'" );
+}
+
+py::list inspectionRows( const std::vector< tom::ObservationDatasetRow< TIME_TYPE > >& rows )
+{
+    py::list result;
+    for( const auto& row : rows )
+    {
+        py::dict value;
+        value[ "observation_id" ] = row.observationId_;
+        value[ "time" ] = py::cast( row.time_, py::return_value_policy::copy );
+        value[ "set_id" ] = row.setId_;
+        value[ "first_scalar_component" ] = row.firstScalarComponent_;
+        value[ "scalar_size" ] = row.scalarSize_;
+        value[ "index_in_set" ] = row.indexInSet_;
+        value[ "dependent_variables" ] = py::cast( row.dependentVariableValues_, py::return_value_policy::copy );
+        value[ "is_active" ] = row.isActive_;
+        value[ "rejection_reason" ] = row.rejectionReason_;
+        result.append( std::move( value ) );
+    }
+    return result;
+}
+
+py::dict inspectionMetadata( const InspectionDataset::InspectionMetadata& metadata )
+{
+    py::dict result;
+    for( const auto& entry : metadata )
+    {
+        const auto& set = std::get< 0 >( entry.second );
+        py::dict value;
+        value[ "observable_type" ] = set.observableType_;
+        value[ "reference_link_end" ] = set.referenceLinkEnd_;
+        value[ "observable_size" ] = set.observableSize_;
+        value[ "link_definition_id" ] = set.linkDefinitionId_;
+        value[ "ancillary_settings_id" ] = set.ancillarySettingsId_;
+        value[ "dependent_variable_layout_id" ] = set.dependentVariableLayoutId_;
+        value[ "link_definition" ] = py::cast( std::get< 1 >( entry.second ), py::return_value_policy::copy );
+        // These settings were cloned by extraction; shared pointers own detached objects.
+        value[ "ancillary_settings" ] = py::cast( std::get< 2 >( entry.second ) );
+        value[ "dependent_variable_layout" ] = py::cast( std::get< 3 >( entry.second ) );
+        result[ py::int_( entry.first ) ] = std::move( value );
+    }
+    return result;
+}
+
+py::dict inspectionData( const InspectionDataset& dataset,
+                         const InspectionCondition& condition,
+                         const std::vector< std::string >& fields,
+                         const std::string& ordering )
+{
+    const auto order = inspectionOrdering( ordering );
+    // Validate before evaluating the condition or copying any payload.
+    const std::set< std::string > supported = { "times",   "observations",        "residuals",         "observation_ids", "set_ids",
+                                                "rows",    "dependent_variables", "scalar_components", "weight_diagonal", "weight_matrix",
+                                                "metadata" };
+    std::set< std::string > requested;
+    for( const auto& field : fields )
+    {
+        if( supported.count( field ) == 0 )
+        {
+            throw py::value_error( "Unknown observation field: " + field );
+        }
+        if( !requested.insert( field ).second )
+        {
+            throw py::value_error( "Duplicate observation field: " + field );
+        }
+    }
+    const InspectionIndices indices( dataset, condition, order );
+    py::dict result;
+    for( const auto& field : fields )
+    {
+        if( field == "times" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getTimes( dataset ) );
+        }
+        else if( field == "observations" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getObservations( dataset ) );
+        }
+        else if( field == "residuals" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getResiduals( dataset ) );
+        }
+        else if( field == "observation_ids" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getObservationIds( dataset ) );
+        }
+        else if( field == "set_ids" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getSetIds( dataset ) );
+        }
+        else if( field == "rows" )
+        {
+            result[ py::str( field ) ] = inspectionRows( indices.getRows( dataset ) );
+        }
+        else if( field == "dependent_variables" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getDependentVariableValues( dataset ) );
+        }
+        else if( field == "scalar_components" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getScalarComponents( dataset ) );
+        }
+        else if( field == "weight_diagonal" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getWeightDiagonal( dataset ) );
+        }
+        else if( field == "weight_matrix" )
+        {
+            result[ py::str( field ) ] = py::cast( indices.getWeightMatrix( dataset ) );
+        }
+        else if( field == "metadata" )
+        {
+            result[ py::str( field ) ] = inspectionMetadata( indices.getMetadata( dataset ) );
+        }
+    }
+    return result;
+}
+
 const char* legacyObservationDeprecationGuide =
         "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
 
@@ -99,14 +232,14 @@ std::string getSingleObservationSetReplacement( const std::string& memberName )
 std::string getObservationCollectionReplacement( const std::string& memberName )
 {
     const static std::map< std::string, std::string > replacements = {
-        { "concatenated_times", "ObservationDataset.ordered_flattened_observation_data.times" },
-        { "concatenated_times_objects", "ObservationDataset.ordered_flattened_observation_data.times" },
-        { "concatenated_weights", "ObservationDataset.ordered_flattened_observation_data.weight_vector" },
-        { "concatenated_observations", "ObservationDataset.ordered_flattened_observation_data.observation_vector" },
-        { "concatenated_link_definition_ids", "ObservationDataset.ordered_flattened_observation_data.set_ids" },
+        { "concatenated_times", "ObservationDataset.get_times" },
+        { "concatenated_times_objects", "ObservationDataset.get_times" },
+        { "concatenated_weights", "ObservationDataset.get_weight_diagonal" },
+        { "concatenated_observations", "ObservationDataset.get_observations" },
+        { "concatenated_link_definition_ids", "ObservationDataset.get_set_ids" },
         { "link_definition_ids", "ObservationDataset.link_definition" },
-        { "observable_type_start_index_and_size", "ObservationDataset.ordered_flattened_observation_data" },
-        { "observation_set_start_index_and_size", "ObservationDataset.ordered_flattened_observation_data" },
+        { "observable_type_start_index_and_size", "ObservationDataset.get_data" },
+        { "observation_set_start_index_and_size", "ObservationDataset.get_data" },
         { "observation_vector_size", "ObservationDataset.total_scalar_size" },
         { "sorted_observation_sets", "ObservationDataset.observation_set_metadata" },
         { "filter_observations",
@@ -717,60 +850,6 @@ public builders.
                     R"doc(Always raise; use &, | and ~ instead of and/or/not.)doc" );
 
     {
-        py::class_< tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
-                                                                                     "ObservationDatasetViewer",
-                                                                                     R"doc(
-Read-only view on a selected subset of an ObservationDataset.
-
-The viewer stores observation row identifiers selected from a parent dataset and
-exposes only inspection and flattened-data methods. It is invalidated if the parent
-dataset is structurally modified.
-)doc" )
-                .def_property_readonly( "number_of_observations",
-                                        &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservations,
-                                        R"doc(int: Number of selected observation rows.)doc" )
-                .def_property_readonly( "observation_ids",
-                                        &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
-                                        R"doc(list[int]: Selected observation row identifiers.)doc" )
-                .def( "observation_row",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationRow,
-                      py::return_value_policy::copy,
-                      py::arg( "viewer_index" ),
-                      R"doc(Return row metadata for one selected observation.
-
-``viewer_index``: Index of the selected observation inside the viewer.)doc" )
-                .def( "observation_value",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationValue,
-                      py::arg( "viewer_index" ),
-                      R"doc(Return the vector-valued observation at one selected viewer index.
-
-``viewer_index``: Index of the selected observation inside the viewer.)doc" )
-                .def( "observation_time",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTime,
-                      py::arg( "viewer_index" ),
-                      R"doc(Return the observation time at one selected viewer index.
-
-``viewer_index``: Index of the selected observation inside the viewer.)doc" )
-                .def( "create_viewer",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createViewer,
-                      py::keep_alive< 0, 1 >( ),
-                      py::arg( "condition" ),
-                      R"doc(Create a narrower read-only viewer selected from this viewer.)doc" )
-                .def( "create_estimation_projection",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
-                      py::arg( "include_rejected" ) = false,
-                      R"doc(Create a consistent snapshot in legacy estimator order; rejected rows are excluded by default.)doc" )
-                .def( "estimation_flattened_observation_data",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
-                      py::arg( "include_rejected" ) = false,
-                      R"doc(Return flattened data for estimation.)doc" )
-                .def( "ordered_flattened_observation_data",
-                      &tom::ObservationDatasetViewer< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedFlattenedObservationData,
-                      py::arg( "include_inactive" ) = true,
-                      R"doc(Return flattened data in ordered output order.)doc" );
-    }
-
-    {
         py::class_< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
                     std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
                                                                                                   "ObservationDataset",
@@ -782,6 +861,168 @@ dependent variables, set metadata and link/ancillary registries in a single
 dataset-centric representation.
 )doc" )
                 .def( py::init<>( ), R"doc(Create an empty observation dataset.)doc" )
+                .def(
+                        "get_times",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getTimes( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a list of Time values, one per selected event, without conversion to float.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_observations",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getObservations( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a list of owning observation arrays, one per event. Array lengths may differ between observable types.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_residuals",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getResiduals( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a list of owning residual arrays, one per event. Omitted residuals retain their stored zeros.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_observation_ids",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getObservationIds( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return stable observation IDs, one per event, without renumbering.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_set_ids",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getSetIds( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return set IDs, one per event, including repeats.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_rows",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return inspectionRows( self.getRows( condition, inspectionOrdering( ordering ) ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a list of mutable row dictionaries, one per event, including copied times, dependent variables and rejection status. first_scalar_component records the original dataset offset; use get_scalar_components for output alignment.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_dependent_variables",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getDependentVariableValues( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a list of dependent-variable arrays, one per event. Missing values are empty arrays; get_metadata provides layouts.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_scalar_components",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getScalarComponents( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return scalar-aligned (observation_id, component_index) tuples. This is the alignment of weight_diagonal and both weight_matrix axes.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_weight_diagonal",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getWeightDiagonal( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return the effective weight diagonal as an owning scalar-aligned array. Does not construct the full matrix.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_weight_matrix",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return self.getWeightMatrix( condition, inspectionOrdering( ordering ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return the full effective selected principal weight matrix as a detached scipy sparse matrix, preserving correlations and permuting both axes.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def(
+                        "get_metadata",
+                        []( const InspectionDataset& self, const InspectionCondition& condition, const std::string& ordering ) {
+                            return inspectionMetadata( self.getMetadata( condition, inspectionOrdering( ordering ) ) );
+                        },
+                        py::arg( "condition" ) = InspectionCondition::all( ),
+                        py::arg( "ordering" ) = "internal",
+                        R"doc(Return a dictionary keyed by selected set IDs. Values contain set attributes, a copied link_definition, cloned ancillary_settings, and dependent_variable_layout mapping (start, size) to cloned settings. Missing ancillary settings are None; missing layouts are empty dictionaries.
+
+The result is an independent, modifiable snapshot in both directions, usable after
+dataset mutation or destruction. Rejected observations are included unless condition
+excludes them. ordering is "internal" (default) or "estimation" and does not affect
+membership. Only this field is copied; memory scales with the requested data.)doc" )
+                .def( "get_data",
+                      &inspectionData,
+                      py::arg( "condition" ) = InspectionCondition::all( ),
+                      py::arg( "fields" ) = std::vector< std::string >{ "times", "observations" },
+                      py::arg( "ordering" ) = "internal",
+                      R"doc(Return a dictionary of detached fields after resolving selection and ordering once.
+
+fields may contain times, observations, residuals, observation_ids, set_ids, rows,
+dependent_variables (event-aligned); scalar_components, weight_diagonal, weight_matrix
+(scalar-aligned, both matrix axes); and metadata (keyed by selected set ID).
+Observations and residuals are lists of arrays to support mixed dimensions. Times
+retain Time precision. Omitted residuals are stored as zeros, missing dependent values are empty
+arrays. Unknown or duplicate fields and invalid ordering raise ValueError.
+
+All nested values are independent of the dataset in both directions and remain usable
+after its destruction. The snapshot can itself be modified. Rejected events are
+included by default; use condition to exclude them. ordering is "internal" (default)
+or "estimation"; it changes sequence only. Copies allocate memory for requested
+fields, and no unrequested numerical projection payload is constructed.)doc" )
                 .def(
                         "add_observation_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1247,11 +1488,6 @@ the corresponding reference point in the system of bodies separately.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIdsMatchingCondition,
                       py::arg( "condition" ),
                       R"doc(Return observation row identifiers selected by a condition.)doc" )
-                .def( "create_viewer",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createViewer,
-                      py::keep_alive< 0, 1 >( ),
-                      py::arg( "condition" ),
-                      R"doc(Create a read-only viewer over selected observations.)doc" )
                 .def( "create_new_and_keep",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createNewAndKeep,
                       py::arg( "condition" ),
@@ -1276,11 +1512,11 @@ the corresponding reference point in the system of bodies separately.
                 .def( "create_estimation_projection",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
                       py::arg( "include_rejected" ) = false,
-                      R"doc(Create a consistent snapshot in legacy estimator order; rejected rows are excluded by default.)doc" )
+                      R"doc(Create a consistent snapshot in estimation order; rejected rows are excluded by default.)doc" )
                 .def( "estimation_flattened_observation_data",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
                       py::arg( "include_rejected" ) = false,
-                      R"doc(Create an estimator snapshot in legacy observable/link/set/event/component order. Rejected rows are excluded by default.)doc" )
+                      R"doc(Create an estimator snapshot in observable/link/set/event/component order. Rejected rows are excluded by default.)doc" )
                 .def( "computation_flattened_observation_data",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createComputationFlattenedObservationData,
                       py::arg( "include_rejected" ) = true,

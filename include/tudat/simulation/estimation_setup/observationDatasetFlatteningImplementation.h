@@ -46,7 +46,7 @@ template< typename ObservationScalarType,
 FlattenedObservationData< ObservationScalarType, TimeType >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::createOrderedFlattenedObservationData( const bool includeInactive ) const
 {
-    return createFlattenedObservationDataFromObservationIds( getObservationIdsInOrderedFlattenedDataOrder( ), includeInactive );
+    return createEstimationProjection( includeInactive );
 }
 
 template< typename ObservationScalarType,

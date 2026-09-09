@@ -42,7 +42,7 @@ std::string getObservationProcessingReplacement( const std::string& interfaceNam
     }
     if( interfaceName == "observation_parser" )
     {
-        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.create_viewer, "
+        return "tudatpy.estimation.observations.ObservationSelectionCondition with ObservationDataset.get_data, "
                "ObservationDataset.create_new_and_keep or ObservationDataset.create_new_and_drop";
     }
     if( interfaceName == "observation_set_splitter" )

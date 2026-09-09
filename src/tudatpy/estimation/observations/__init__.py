@@ -77,27 +77,27 @@ def _dataset_object_deprecation(old_name, new_name, method):
 
 ObservationDataset.concatenated_times = _dataset_property_deprecation(
     "concatenated_times",
-    "ObservationDataset.ordered_flattened_observation_data().times",
+    "ObservationDataset.get_times",
     lambda dataset: _legacy_collection(dataset).concatenated_times,
 )
 ObservationDataset.concatenated_times_objects = _dataset_property_deprecation(
     "concatenated_times_objects",
-    "ObservationDataset.ordered_flattened_observation_data().times",
+    "ObservationDataset.get_times",
     lambda dataset: _legacy_collection(dataset).concatenated_times_objects,
 )
 ObservationDataset.concatenated_weights = _dataset_property_deprecation(
     "concatenated_weights",
-    "ObservationDataset.ordered_flattened_observation_data().weight_vector",
+    "ObservationDataset.get_weight_diagonal",
     lambda dataset: _legacy_collection(dataset).concatenated_weights,
 )
 ObservationDataset.concatenated_observations = _dataset_property_deprecation(
     "concatenated_observations",
-    "ObservationDataset.ordered_flattened_observation_data().observation_vector",
+    "ObservationDataset.get_observations",
     lambda dataset: _legacy_collection(dataset).concatenated_observations,
 )
 ObservationDataset.concatenated_link_definition_ids = _dataset_property_deprecation(
     "concatenated_link_definition_ids",
-    "ObservationDataset.ordered_flattened_observation_data().set_ids",
+    "ObservationDataset.get_set_ids",
     lambda dataset: _legacy_collection(dataset).concatenated_link_definition_ids,
 )
 ObservationDataset.link_definition_ids = _dataset_property_deprecation(
@@ -107,12 +107,12 @@ ObservationDataset.link_definition_ids = _dataset_property_deprecation(
 )
 ObservationDataset.observable_type_start_index_and_size = _dataset_property_deprecation(
     "observable_type_start_index_and_size",
-    "ObservationDataset.ordered_flattened_observation_data()",
+    "ObservationDataset.get_data",
     lambda dataset: _legacy_collection(dataset).observable_type_start_index_and_size,
 )
 ObservationDataset.observation_set_start_index_and_size = _dataset_property_deprecation(
     "observation_set_start_index_and_size",
-    "ObservationDataset.ordered_flattened_observation_data()",
+    "ObservationDataset.get_data",
     lambda dataset: _legacy_collection(dataset).observation_set_start_index_and_size,
 )
 ObservationDataset.observation_vector_size = _dataset_property_deprecation(
@@ -137,12 +137,12 @@ ObservationDataset.link_definitions_per_observable = _dataset_property_deprecati
 )
 ObservationDataset.time_bounds = _dataset_property_deprecation(
     "time_bounds",
-    "ObservationDataset.ordered_flattened_observation_data().times",
+    "ObservationDataset.get_times",
     lambda dataset: _legacy_collection(dataset).time_bounds,
 )
 ObservationDataset.time_bounds_time_object = _dataset_property_deprecation(
     "time_bounds_time_object",
-    "ObservationDataset.ordered_flattened_observation_data().times",
+    "ObservationDataset.get_times",
     lambda dataset: _legacy_collection(dataset).time_bounds_time_object,
 )
 ObservationDataset.sorted_per_set_time_bounds = _dataset_property_deprecation(
@@ -170,7 +170,7 @@ ObservationDataset.get_link_definitions_for_observables = _dataset_object_deprec
 )
 ObservationDataset.get_single_link_and_type_observations = _dataset_object_deprecation(
     "get_single_link_and_type_observations",
-    "ObservationDataset.create_viewer",
+    "ObservationDataset.get_data",
     lambda dataset, *args, **kwargs: _legacy_collection(
         dataset
     ).get_single_link_and_type_observations(*args, **kwargs),

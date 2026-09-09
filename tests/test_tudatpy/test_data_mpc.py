@@ -219,7 +219,7 @@ def test_tracking_data_can_create_observation_dataset():
     query._table = _sorted_table(query)
 
     observation_dataset = _create_observation_dataset_from_batch(query, _create_earth_bodies())
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
+    data = observation_dataset.get_data(fields=("times", "observations"), ordering="estimation")
 
     expected_observations = query.table.loc[:, ["RA", "DEC"]].to_numpy().T
     expected_times = np.array(
@@ -228,8 +228,8 @@ def test_tracking_data_can_create_observation_dataset():
             _utc_seconds_to_tdb(query.table["epoch_seconds_UTC"]),
         ]
     )
-    actual_observations = np.array(flattened_data.observation_vector).reshape(2, -1, order="F")
-    actual_times = np.array(flattened_data.times).reshape(2, -1, order="F")
+    actual_observations = np.column_stack(data["observations"])
+    actual_times = np.array(data["times"], dtype=float)
 
     assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
     assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
@@ -260,12 +260,8 @@ def test_tracking_data_observation_corrections_are_optional_during_dataset_creat
         apply_corrections=True,
     )
 
-    uncorrected = np.array(
-        uncorrected_dataset.ordered_flattened_observation_data().observation_vector
-    ).reshape(2, -1, order="F")
-    corrected = np.array(
-        corrected_dataset.ordered_flattened_observation_data().observation_vector
-    ).reshape(2, -1, order="F")
+    uncorrected = np.column_stack(uncorrected_dataset.get_observations(ordering="estimation"))
+    corrected = np.column_stack(corrected_dataset.get_observations(ordering="estimation"))
     expected_uncorrected = np.column_stack(observations)
     expected_corrected = np.column_stack(
         [observation + correction for observation, correction in zip(observations, corrections)]

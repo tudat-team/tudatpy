@@ -249,7 +249,7 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  *
  * Test outline: creates a representative multi-station range, Doppler and angular
  * dataset. It checks the registered observable/link metadata, selection by
- * observable type and link end, viewer creation and scalar flattened data size.
+ * observable type and link end, snapshot creation and scalar flattened data size.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
 {
@@ -330,12 +330,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
     // Combining observable and link-end conditions must isolate one station's range set.
     BOOST_CHECK_EQUAL( station2RangeIds.size( ), numberOfObservations );
 
-    const ObservationDatasetViewer< double, double > station2RangeView = dataset->createViewer( station2RangeCondition );
+    const auto station2RangeValues = dataset->getObservations( station2RangeCondition );
 
-    // A viewer created from the same condition must expose the selected rows and scalar flattened data only.
-    BOOST_CHECK_EQUAL( station2RangeView.getNumberOfObservations( ), numberOfObservations );
-    BOOST_CHECK_EQUAL( station2RangeView.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ),
-                       numberOfObservations );
+    // A snapshot created from the same condition must expose the selected rows and scalar flattened data only.
+    BOOST_CHECK_EQUAL( station2RangeValues.size( ), numberOfObservations );
+    BOOST_CHECK_EQUAL( dataset->getScalarComponents( station2RangeCondition ).size( ), numberOfObservations );
 
     const std::size_t expectedScalarSize = getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_range ) ) +
             getScalarSizeForSetIds( *dataset, getSetIdsForObservable( *dataset, one_way_doppler ) ) +
@@ -349,7 +348,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
  * Verifies rejection, restoration and reduced dataset creation on simulated data.
  *
  * Test outline: rejects range observations selected by value, confirms active and
- * rejected flattened data/viewers have the expected sizes, restores the data and
+ * rejected flattened data/snapshots have the expected sizes, restores the data and
  * then creates a reduced dataset for a time-window selection.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
@@ -395,10 +394,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
     const int originalScalarSize = dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( );
     dataset->rejectObservations( highRangeValues, "range value threshold" );
 
-    // Rejection must affect rejected-row queries, rejected viewers and active-only flattened data consistently.
+    // Rejection must affect rejected-row queries, rejected snapshots and active-only flattened data consistently.
     BOOST_CHECK_EQUAL( dataset->getObservationIdsMatchingCondition( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
                        rejectedRangeIds.size( ) );
-    BOOST_CHECK_EQUAL( dataset->createViewer( ObservationSelectionCondition< double, double >::rejected( ) ).getNumberOfObservations( ),
+    BOOST_CHECK_EQUAL( dataset->getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) ).size( ),
                        rejectedRangeIds.size( ) );
     BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), originalScalarSize );
     BOOST_CHECK_EQUAL( dataset->createEstimationFlattenedObservationData( ).getObservationVector( ).size( ),

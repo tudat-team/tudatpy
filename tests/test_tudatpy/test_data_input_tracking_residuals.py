@@ -346,7 +346,7 @@ def _dataset_observable_link_definitions(observation_dataset):
 
 
 def _observation_vector(observation_dataset):
-    return np.asarray(observation_dataset.ordered_flattened_observation_data().observation_vector)
+    return np.concatenate(observation_dataset.get_observations(ordering="estimation"))
 
 
 def _set_dataset_reference_points_from_switch_history(
@@ -756,15 +756,14 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
         _create_voyager_triton_psf_bodies(test_data_path, np.zeros(6), supplementary_data),
     )
     all_observation_times = np.asarray(
-        all_observations.ordered_flattened_observation_data().times, dtype=float
+        all_observations.get_times(ordering="estimation"), dtype=float
     )
 
     residuals = []
     for reference_index, reference in enumerate(references):
         reception_time = spice.convert_julian_date_to_ephemeris_time(reference[1])
-        component_index = int(np.argmin(np.abs(all_observation_times - reception_time)))
-        observation_index = component_index // 2
-        assert abs(all_observation_times[component_index] - reception_time) < 1.0e-3
+        observation_index = int(np.argmin(np.abs(all_observation_times - reception_time)))
+        assert abs(all_observation_times[observation_index] - reception_time) < 1.0e-3
 
         bodies = _create_voyager_triton_psf_bodies(
             test_data_path,

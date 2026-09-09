@@ -77,7 +77,7 @@ set(estimation_HEADERS
         observationDatasetPrivateImplementation.h
         observationDatasetRows.h
         observationDatasetSelectionImplementation.h
-        observationDatasetViewer.h
+        observationDatasetInspectionImplementation.h
         observationDatasetWeightsImplementation.h
         observationLegacyParserAdapter.h
         observationWeights.h

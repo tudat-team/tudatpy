@@ -100,16 +100,16 @@ def test_mpc_weights_to_observation_dataset(
     assert supplementary_data == []
     assert all(data.weighing_scheme == "VFCC17" for data in tracking_data)
     observation_dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
-    flattened_data = observation_dataset.ordered_flattened_observation_data()
+    data = observation_dataset.get_data(fields=("times", "weight_diagonal"), ordering="estimation")
 
     # tudat's observationcollection sorts by observatory then time
     temp_table = batch._table.sort_values(["observatory", "epoch_seconds_UTC"], ascending=True)
 
     # concatted values go [RA1, DEC1, RA2, DEC2, ...]
-    batch_times = np.ravel(2 * [_utc_seconds_to_tdb(temp_table.epoch_seconds_UTC)], "F")
+    batch_times = _utc_seconds_to_tdb(temp_table.epoch_seconds_UTC)
 
-    dataset_weights = np.array(flattened_data.weight_vector)
-    time_difference = batch_times - np.array(flattened_data.times)
+    dataset_weights = data["weight_diagonal"]
+    time_difference = batch_times - np.array(data["times"], dtype=float)
 
     assert len(dataset_weights) == 2 * len(temp_table)
     assert np.all(np.isfinite(dataset_weights))

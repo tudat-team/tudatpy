@@ -22,6 +22,7 @@
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -64,8 +65,8 @@ class SingleObservationSet;
  * the event boundary. Scalar reverse mappings are derived from those boundaries.
  * Set-level metadata is stored once in registries and referenced by id. Flat
  * estimator vectors are derived by explicit flattened-observation-data builders, not used as the
- * primary data model. ObservationDatasetViewer instances are invalidated by
- * structural mutations that add, remove or rebuild observation rows.
+ * primary data model. Inspection getters copy only requested fields into independent
+ * values in internal or estimation order.
  */
 template< typename ObservationScalarType,
           typename TimeType,
@@ -268,6 +269,78 @@ public:
     /////////////////       DATA ACCESSORS          //////////
     //////////////////////////////////////////////////////////
 
+    //! Metadata by set ID: (set metadata, link definition, ancillary settings, dependent-variable layout).
+    //! The layout maps (start, size) to cloned settings. Null ancillary settings and empty layouts are preserved.
+    using InspectionMetadata = std::map<
+            unsigned int,
+            std::tuple< ObservationSetMetadata< ObservationScalarType, TimeType >,
+                        LinkDefinition,
+                        std::shared_ptr< ObservationAncillarySimulationSettings >,
+                        std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > > >;
+
+    //! Inspection results are independent, mutable value snapshots in both directions.
+    //! All inspection getters include rejected rows by default and default to internal order.
+    //! Ordering never changes membership. Selection and ordering do not mutate the dataset.
+    //! Event-aligned time values, preserving TimeType.
+    std::vector< TimeType > getTimes( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                              ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                      const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! One owning observation vector per event; mixed dimensions are supported.
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! One owning residual vector per event; omitted residuals retain the stored zeros.
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResiduals(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Stable observation IDs, one per event.
+    std::vector< unsigned int > getObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                           ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                                   const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Set IDs, one per event (including repeated IDs).
+    std::vector< unsigned int > getSetIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                   ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                           const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Event rows copied recursively, including dependent values and rejection status.
+    std::vector< ObservationDatasetRow< TimeType > > getRows(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! One dependent-variable vector per event; missing values are empty vectors.
+    std::vector< Eigen::VectorXd > getDependentVariableValues(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Scalar-aligned (observation ID, component index) pairs, in component order within each event.
+    std::vector< std::pair< unsigned int, unsigned int > > getScalarComponents(
+            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                    ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+            const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Effective weight diagonal, aligned with getScalarComponents; no correlations are gathered.
+    Eigen::VectorXd getWeightDiagonal( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                               ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                       const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Effective selected principal weight matrix, with both axes aligned with getScalarComponents.
+    Eigen::SparseMatrix< double > getWeightMatrix( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                                           ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                                   const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
+    //! Detached metadata for selected sets, keyed by stable set ID; see InspectionMetadata.
+    InspectionMetadata getMetadata( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
+                                            ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                    const ObservationOrdering ordering = ObservationOrdering::internal ) const;
+
     //! Return computed observations as observed-minus-residual values for one set.
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservationsForSet(
             const unsigned int setId ) const;
@@ -391,10 +464,6 @@ public:
 
     //! Return observation ids for rows that satisfy a new row-level condition.
     std::vector< unsigned int > getObservationIdsMatchingCondition(
-            const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
-
-    //! Create a read-only view over observations satisfying a row-level condition.
-    ObservationDatasetViewer< ObservationScalarType, TimeType > createViewer(
             const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition ) const;
 
     //! Create a new dataset containing only observations satisfying a condition.
@@ -553,10 +622,7 @@ private:
     /////////////////       FACADE ACCESS           //////////
     //////////////////////////////////////////////////////////
 
-    template< typename DatasetObservationScalarType,
-              typename DatasetTimeType,
-              typename std::enable_if< is_state_scalar_and_time_type< DatasetObservationScalarType, DatasetTimeType >::value, int >::type >
-    friend class ObservationDatasetViewer;
+    friend struct detail::ObservationSelectionIndices< ObservationScalarType, TimeType >;
 
     template< typename SetObservationScalarType,
               typename SetTimeType,
@@ -667,7 +733,11 @@ public:
     //! Authoritative estimator/covariance ordering: observable type, link ends, set, event, component.
     FlattenedObservationData< ObservationScalarType, TimeType > createEstimationProjection( const bool includeRejected = false ) const
     {
-        return createFlattenedObservationDataFromObservationIds( getObservationIdsInOrderedFlattenedDataOrder( ), includeRejected );
+        return createFlattenedObservationDataFromObservationIds(
+                resolveObservationIds( ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                       ObservationOrdering::estimation,
+                                       includeRejected ),
+                true );
     }
 
     //! Fail before using a projection from another dataset or an invalidated mapping.
@@ -698,6 +768,11 @@ private:
     //////////////////////////////////////////////////////////
     /////////////////       PRIVATE HELPERS         //////////
     //////////////////////////////////////////////////////////
+
+    //! Single selection/order route shared by inspection and numerical preparation.
+    std::vector< unsigned int > resolveObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
+                                                       const ObservationOrdering ordering,
+                                                       const bool includeRejected = true ) const;
 
     //! Compact all selected rows/scalars together, preserving event and metadata identities.
     void retainObservationRows( const std::vector< unsigned int >& retainedIds );
@@ -782,11 +857,11 @@ private:
     std::vector< ObservationScalarType > residualValues_;
     //! Compact observation weight storage; materialized into vectors/matrices only on request.
     ObservationWeights observationWeights_;
-    //! Monotonic counter used to invalidate viewers after structural mutations.
+    //! Monotonic counter used to invalidate numerical mappings after structural mutations.
     std::size_t structuralVersion_ = 0;
-    //! Invalidates solver writeback after observed-value or selection changes, without invalidating fixed-membership viewers.
+    //! Invalidates solver writeback after observed-value or selection changes.
     std::size_t projectionVersion_ = 0;
-    //! Object-lifetime marker used by non-owning viewers to detect destruction or replacement before dereferencing the dataset.
+    //! Source identity for numerical projection validation and dataset-backed compatibility facades.
     LifetimeToken lifetimeToken_;
 };
 }  // namespace observation_models
@@ -794,7 +869,7 @@ private:
 }  // namespace tudat
 
 #include "tudat/simulation/estimation_setup/observationLegacyParserAdapter.h"
-#include "tudat/simulation/estimation_setup/observationDatasetViewer.h"
+#include "tudat/simulation/estimation_setup/observationDatasetInspectionImplementation.h"
 
 #include "tudat/simulation/estimation_setup/observationDatasetMutationImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetWeightsImplementation.h"

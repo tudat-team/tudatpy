@@ -338,43 +338,20 @@ def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
     ) == [3]
 
 
-@pytest.mark.parametrize(
-    "projection_method",
-    ["create_estimation_projection", "estimation_flattened_observation_data"],
-)
-def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset, projection_method):
-    """Check that query results drive viewers and flattened provenance correctly."""
-    observation_query = observations.observation_query
-
-    viewer = sample_dataset.create_viewer(
-        (observation_query.set_id == 1) | (observation_query.time < 2.0)
+def test_query_conditions_drive_snapshot_getters(sample_dataset):
+    query = observations.observation_query
+    selection = (query.set_id == 1) | (query.time < 2.0)
+    data = sample_dataset.get_data(
+        selection,
+        fields=("observations", "observation_ids", "set_ids", "rows", "scalar_components"),
+        ordering="estimation",
     )
-    # The viewer should contain row 0 plus both angular-position rows.
-    assert viewer.number_of_observations == 3
-    # The stored row ids verify that viewer ordering follows dataset row order.
-    assert viewer.observation_ids == [0, 3, 4]
-
-    # Viewer index 1 should refer to dataset row 3 from angular set id 1.
-    assert viewer.observation_row(1).set_id == 1
-    # The same viewer index should return the first angular-position value.
-    np.testing.assert_allclose(viewer.observation_value(1), [1.0, 2.0])
-
-    flattened = getattr(viewer, projection_method)()
-    # Flattened values should expand vector observations into scalar components.
-    np.testing.assert_allclose(
-        flattened.observation_vector,
-        [10.0, 1.0, 2.0, 3.0, 4.0],
-    )
-    # Each flattened scalar should point back to the source observation row.
-    assert flattened.observation_ids == [0, 3, 3, 4, 4]
-    # Each flattened scalar should point back to the source observation set.
-    assert flattened.set_ids == [0, 1, 1, 1, 1]
-    # The per-set ordering should record first appearance in flattened data.
-    assert flattened.set_ids_in_row_order == [0, 1]
-    # Unique row ids for set 1 should collapse vector components back to rows.
-    assert flattened.unique_observation_ids_for_set(1) == [3, 4]
-    # Row lookup should map observation row 3 component 1 to flattened row 2.
-    assert flattened.flattened_row(3, 1) == 2
+    assert data["observation_ids"] == [0, 3, 4]
+    assert data["set_ids"] == [0, 1, 1]
+    assert data["rows"][1]["set_id"] == 1
+    np.testing.assert_array_equal(data["observations"][1], [1.0, 2.0])
+    np.testing.assert_array_equal(np.concatenate(data["observations"]), [10, 1, 2, 3, 4])
+    assert data["scalar_components"] == [(0, 0), (3, 0), (3, 1), (4, 0), (4, 1)]
 
 
 def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sample_dataset):
@@ -416,8 +393,8 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
     )
 
 
-def test_python_viewer_ordered_flattening_reorders_selected_rows():
-    """Check Python viewer ordered flattening against dataset-row flattening."""
+def test_python_snapshot_estimation_order():
+    """Check snapshot estimation order against the numerical projection."""
     angular_dataset = _new_dataset_single_set(
         observations.angular_position,
         "Mars",
@@ -432,24 +409,14 @@ def test_python_viewer_ordered_flattening_reorders_selected_rows():
     )
     assert angular_dataset.add_observation_set_from_dataset(range_dataset, 0) == 1
 
-    viewer = angular_dataset.create_viewer(observations.ObservationSelectionCondition.all())
-    # The viewer itself follows dataset row insertion order: angular rows before range rows.
-    assert viewer.observation_ids == [0, 1, 2, 3]
-
-    estimation_flattened = viewer.estimation_flattened_observation_data()
-    # Estimation expands components in the same legacy order as the dataset projection.
-    assert estimation_flattened.observation_ids == [2, 3, 0, 0, 1, 1]
+    assert angular_dataset.get_observation_ids() == [0, 1, 2, 3]
+    assert angular_dataset.get_observation_ids(ordering="estimation") == [2, 3, 0, 1]
+    values = angular_dataset.get_observations(ordering="estimation")
+    np.testing.assert_array_equal(np.concatenate(values), [10, 20, 1, 2, 3, 4])
     np.testing.assert_array_equal(
-        estimation_flattened.observation_vector, [10.0, 20.0, 1.0, 2.0, 3.0, 4.0]
-    )
-    np.testing.assert_array_equal(
-        estimation_flattened.observation_vector,
+        np.concatenate(values),
         angular_dataset.create_estimation_projection().observation_vector,
     )
-
-    ordered_flattened = viewer.ordered_flattened_observation_data()
-    # Ordered flattening should reorder selected rows into Tudat's ordered-output convention.
-    assert ordered_flattened.observation_ids == [2, 3, 0, 0, 1, 1]
 
 
 def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(

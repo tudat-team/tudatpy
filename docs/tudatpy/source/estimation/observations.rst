@@ -16,12 +16,14 @@ Minimal example
    from tudatpy.estimation import observations
    observation_query = observations.observation_query
 
-   viewer = dataset.create_viewer(
+   data = dataset.get_data(
        condition=(
            (observation_query.observable_type == observations.one_way_doppler)
            & observation_query.time.between(t0, t1)
            & ~observation_query.rejected
-       )
+       ),
+       fields=("times", "observations", "residuals"),
+       ordering="estimation",
    )
 
 Functions
@@ -113,8 +115,7 @@ In C++, ``projection.getFlattenedRow(observation_id, component_index)`` gives
 the scalar offset in that projection. A set can span noncontiguous storage
 after appends, so set counts alone do not define scalar offsets.
 
-``create_estimation_projection()`` selects active rows in the established Tudat
-order: observable type, link ends, set, event within the set, then component.
+``create_estimation_projection()`` selects active rows in estimation order: observable type, link ends, set, event within the set, then component.
 Estimation and covariance use this same route. Computation projections include
 rejected rows by default, so residual diagnostics can inspect them. Restoring a
 row retains its last rejection reason as well as its identity and weights.
@@ -124,16 +125,143 @@ dependent variables and link metadata describe one selection in one order.
 Residual writeback checks the originating dataset, structure, observed values,
 selection and ancillary settings. Rebuild the projection after adding, removing,
 regrouping, rejecting or restoring rows, changing observed values, or replacing
-link/layout metadata. Updating residuals does not invalidate an iteration mapping.
+link/layout metadata. Updating residuals or weights does not invalidate an iteration
+mapping, but does not refresh the projection's captured values. Estimation creates
+its input projection once per call and computes fresh residuals and design matrices
+on each iteration. Covariance also prepares its projection once per call. Set
+observations, selection and weights before starting these numerical operations.
 
-Viewers keep the identities selected at creation; they do not rerun their
-condition after value changes. They fail explicitly after structural mutation
-or destruction of the dataset. Independent dataset copies also clone mutable
+Independent dataset copies also clone mutable
 ancillary settings and dependent-variable settings. Filtered copies preserve
 metadata identifiers, including groups left empty by the selection. Custom C++
 dependent-variable setting subclasses must implement ``clone()`` to participate
-in independent dataset copies; unknown derived types fail explicitly instead
+in metadata snapshots and independent dataset copies; unknown derived types fail explicitly instead
 of being sliced or shared silently.
+
+Inspecting observation data
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the dataset directly to obtain independent value snapshots:
+
+.. code-block:: python
+
+   times = dataset.get_times(condition, ordering="internal")
+   residuals = dataset.get_residuals(condition, ordering="estimation")
+   data = dataset.get_data(
+       condition=condition,
+       fields=("times", "observations", "residuals", "observation_ids"),
+       ordering="estimation",
+   )
+
+Every new getter accepts the same ``condition`` (default: all observations) and
+``ordering`` (default: ``"internal"``). Internal order preserves the selected
+rows' relative dataset storage order. Estimation order uses the same
+observable/link/set/event/component ordering as numerical estimation, including
+existing set order and equal-time ties. Getters never reorder the dataset.
+Changing ordering never changes membership: **rejected observations are included
+by default in both orders**. To reproduce estimator membership as well, combine
+your condition with ``observation_query.active``.
+
+Snapshots remain valid after any dataset mutation or destruction. Updating
+values, residuals, correlations, metadata, rejection status or event membership
+cannot change a saved result. Conversely, editing a returned array, nested list,
+dictionary or mutable setting cannot change the dataset. Snapshots can themselves
+be modified; they need no revision or invalidation checks. Separate getter calls
+capture separate dataset states. ``get_data`` resolves one selection and ordering
+and gathers its requested fields once, within the existing supported mutation
+model. Its default fields are ``("times", "observations")``.
+
+.. list-table:: Fields returned by ``get_data`` and the corresponding ``get_<field>`` methods
+   :header-rows: 1
+   :widths: 27 18 55
+
+   * - Field
+     - Alignment
+     - Owning return value
+   * - ``times``
+     - Event
+     - List of ``Time`` objects; no conversion to Python float.
+   * - ``observations``, ``residuals``
+     - Event
+     - List of arrays, one vector per event; mixed observable dimensions need no rectangular matrix.
+   * - ``observation_ids``, ``set_ids``
+     - Event
+     - Lists of stable IDs, without renumbering; set IDs may repeat.
+   * - ``dependent_variables``
+     - Event
+     - List of arrays; empty arrays represent missing values. Layouts are in ``metadata``.
+   * - ``rows``
+     - Event
+     - List of dictionaries with IDs, precise time, component size, original storage/set positions, dependent values, active status and rejection reason.
+   * - ``scalar_components``
+     - Scalar component
+     - List of ``(observation_id, component_index)`` tuples in event/component order.
+   * - ``weight_diagonal``
+     - Scalar component
+     - NumPy vector containing effective diagonal weights.
+   * - ``weight_matrix``
+     - Scalar component on both axes
+     - SciPy sparse principal matrix, including all selected correlations. Both axes follow ``scalar_components``.
+   * - ``metadata``
+     - Selected metadata groups
+     - Dictionary keyed by set ID, containing set attributes, copied ``link_definition``, cloned ``ancillary_settings`` and ``dependent_variable_layout``.
+
+``dependent_variable_layout`` maps ``(start, size)`` to detached settings for slices
+of the corresponding event's dependent-variable vector. Missing ancillary settings
+are ``None``; missing layouts are empty dictionaries. Only sets represented in the
+selection appear. Metadata IDs still refer to the original dataset registries;
+the returned dictionary contains the corresponding copied values for interpretation.
+``rows.first_scalar_component`` describes the source storage at extraction time;
+use ``scalar_components`` to interpret extracted scalar arrays and matrices.
+
+Omitted residuals retain the existing dataset convention of stored zeros; there
+is no separate flag distinguishing uncomputed residuals. Stored NaNs, if present,
+are copied unchanged. Empty selections return empty lists/vectors/dictionaries
+and a 0-by-0 sparse weight matrix. Invalid ordering, unknown fields and duplicate
+fields raise ``ValueError``.
+
+Extraction preserves the represented observation scalar and time precision. C++
+getters retain ``ObservationScalarType`` and ``TimeType``; the standard Python
+build uses double observation arrays and precise ``Time`` objects. Explicitly
+converting a time to ``float`` can lose precision. A flattened inspection array
+can be assembled with ``np.concatenate(data["observations"])``; its component
+association is ``dataset.get_scalar_components`` for the same selection and order.
+Prefer requesting both fields in one ``get_data`` call when alignment matters.
+
+Copying costs memory proportional to requested values and selected metadata.
+Single-field getters do not construct a ``FlattenedObservationData``, and asking
+for times does not copy residuals, weights or dependent-variable values. Full
+weight access remains sparse; call ``.toarray()`` only when a dense quadratic-size
+matrix is explicitly needed. ``get_weight_diagonal`` does not assemble correlations.
+
+C++ provides typed ``getTimes``, ``getObservations``, ``getResiduals``,
+``getObservationIds``, ``getSetIds``, ``getRows``, ``getDependentVariableValues``,
+``getScalarComponents``, ``getWeightDiagonal``, ``getWeightMatrix`` and
+``getMetadata`` methods with ``ObservationOrdering::internal`` or
+``ObservationOrdering::estimation``. Return values are owning STL/Eigen values.
+``InspectionMetadata`` is an ordinary map of tuples containing set metadata,
+link definition, cloned ancillary settings and the cloned dependent-variable
+layout, in that order. Existing compatibility accessors retain their defaults
+and ordering conventions.
+
+The removed ``ObservationDatasetViewer`` and ``create_viewer`` API are replaced
+by these direct getters. Narrow a condition with ``&`` or reuse selected stable
+IDs through the existing condition mechanism. ``FlattenedObservationData`` and
+its existing builders remain numerical inputs for estimation, covariance and
+residual computation, with their source identity and safe-writeback checks.
+
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_times
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_observations
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_residuals
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_observation_ids
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_set_ids
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_rows
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_dependent_variables
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_scalar_components
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_weight_diagonal
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_weight_matrix
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_metadata
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.get_data
 
 Legacy ownership and conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -190,7 +318,6 @@ Inspecting datasets
 Creating views and reduced datasets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.create_viewer
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.create_new_and_keep
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.create_new_and_drop
 
@@ -290,20 +417,6 @@ Weight API
 
 Supporting dataset objects
 --------------------------
-
-ObservationDatasetViewer
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: tudatpy.estimation.observations.ObservationDatasetViewer
-
-.. autoattribute:: tudatpy.estimation.observations.ObservationDatasetViewer.number_of_observations
-.. autoattribute:: tudatpy.estimation.observations.ObservationDatasetViewer.observation_ids
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.observation_row
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.observation_value
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.observation_time
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.create_viewer
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.estimation_flattened_observation_data
-.. automethod:: tudatpy.estimation.observations.ObservationDatasetViewer.ordered_flattened_observation_data
 
 FlattenedObservationData
 ~~~~~~~~~~~~~~~~~~~~~~~~
