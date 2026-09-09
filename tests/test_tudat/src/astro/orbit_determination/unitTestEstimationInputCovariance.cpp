@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( test_DesignMatrixSaving )
         if( i == 1 )
         {
             int numberOfParameters = podData.first->parameterEstimate_.rows( );
-            int numberOfObservations = podData.second->getObservationCollection( )->getTotalObservableSize( );
+            int numberOfObservations = podData.second->getObservationDataset( )->getTotalScalarSize( );
 
             for( unsigned int j = 0; j < designMatrices.size( ); j++ )
             {

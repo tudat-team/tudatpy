@@ -16,7 +16,6 @@
 #include <functional>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
-#include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"

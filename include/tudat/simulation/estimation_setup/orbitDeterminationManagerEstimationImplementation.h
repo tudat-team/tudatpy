@@ -14,6 +14,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <Eigen/SparseCore>
+
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -37,8 +39,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 {
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-    // Get number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    const auto observationDataset = estimationInput->getObservationDataset( );
+    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > estimationData =
+            observationDataset->createEstimationProjection( );
+    const int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
+    if( totalNumberOfObservations == 0 )
+    {
+        throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
+    }
 
     if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
         estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
@@ -48,8 +56,21 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                   << std::endl;
     }
 
-    const Eigen::VectorXd weightsMatrixDiagonals = estimationInput->getWeightsMatrixDiagonals( );
-    if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
+    const Eigen::VectorXd weightsMatrixDiagonals = estimationData.getWeightVector( );
+    const bool hasOffDiagonalWeights = estimationData.hasOffDiagonalWeights( );
+    Eigen::SparseMatrix< double > weightsMatrix;
+    if( hasOffDiagonalWeights )
+    {
+        weightsMatrix = estimationData.getSparseWeightMatrix( );
+        if( weightsMatrix.rows( ) != totalNumberOfObservations || weightsMatrix.cols( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights matrix (" +
+                                      std::to_string( weightsMatrix.rows( ) ) + ", " + std::to_string( weightsMatrix.cols( ) ) +
+                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
+                                      ")" );
+        }
+    }
+    else if( weightsMatrixDiagonals.rows( ) != totalNumberOfObservations )
     {
         throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
                                   std::to_string( weightsMatrixDiagonals.rows( ) ) + ") is not compatible with number of observations (" +
@@ -115,8 +136,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Compute design matrices (for estimated and consider parameters) and residuals.
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
         std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-                designMatricesAndResiduals = performPreEstimationSteps(
-                        estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+                designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
+                                                                        observationDataset,
+                                                                        newParameterEstimate,
+                                                                        estimationData,
+                                                                        true,
+                                                                        numberOfIterations,
+                                                                        exceptionDuringPropagation,
+                                                                        simulationResults );
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
         Eigen::MatrixXd designMatrixConsiderParameters;
@@ -191,18 +218,36 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                 conditionNumberCheck = TUDAT_NAN;
             }
             // Perform LSQ inversion
-            leastSquaresOutput = std::move(
-                    linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
-                                                                                   residuals.template cast< double >( ),
-                                                                                   weightsMatrixDiagonals,
-                                                                                   normalizedInverseAprioriCovarianceMatrix,
-                                                                                   conditionNumberCheck,
-                                                                                   constraintStateMultiplier,
-                                                                                   constraintRightHandSide,
-                                                                                   designMatrixConsiderParameters,
-                                                                                   normalizedConsiderParametersDeviation,
-                                                                                   interArcContribution.additionalNormalMatrix,
-                                                                                   interArcContribution.additionalRightHandSide ) );
+            if( hasOffDiagonalWeights )
+            {
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrix,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
+            }
+            else
+            {
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       weightsMatrixDiagonals,
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation,
+                                                                                       interArcContribution.additionalNormalMatrix,
+                                                                                       interArcContribution.additionalRightHandSide ) );
+            }
 
             if( constraintStateMultiplier.rows( ) > 0 )
             {
@@ -226,12 +271,24 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
         {
-            covarianceContributionConsiderParameters =
-                    linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
-                                                                                       designMatrixEstimatedParameters,
-                                                                                       weightsMatrixDiagonals,
-                                                                                       designMatrixConsiderParameters,
-                                                                                       normalizedConsiderCovariance );
+            if( hasOffDiagonalWeights )
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrix,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
+            else
+            {
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           weightsMatrixDiagonals,
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
+            }
         }
         else
         {
@@ -240,7 +297,15 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Calculate mean residual for current iteration.
         residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
-        costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        if( hasOffDiagonalWeights )
+        {
+            costFunction =
+                    linear_algebra::computeLeastSquaresCostFunctionFromFullWeights( weightsMatrix, residuals.template cast< double >( ) );
+        }
+        else
+        {
+            costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonals, residuals.template cast< double >( ) );
+        }
         // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
         // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
         // remain meaningful.
@@ -259,17 +324,28 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         if( estimationInput->getPrintOutput( ) )
         {
-            std::map< observation_models::ObservableType, std::pair< int, int > > indicesPerObservableType =
-                    estimationInput->getObservationCollection( )->getObservableTypeStartAndEndIndices( );
-
-            if( indicesPerObservableType.size( ) > 1 )
+            std::map< observation_models::ObservableType, std::vector< double > > residualsPerObservableType;
+            for( int row = 0; row < residuals.size( ); ++row )
             {
-                for( auto it : indicesPerObservableType )
+                const unsigned int setId = estimationData.getSetIds( ).at( row );
+                const observation_models::ObservableType observableType =
+                        observationDataset->getObservationSetMetadata( setId ).observableType_;
+                residualsPerObservableType[ observableType ].push_back( static_cast< double >( residuals( row ) ) );
+            }
+
+            if( residualsPerObservableType.size( ) > 1 )
+            {
+                for( const auto& residualsForType : residualsPerObservableType )
                 {
-                    double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare(
-                            residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
-                    residualRmsPerType[ it.first ] = currentTypeRms;
-                    std::cout << "Current residual for observable (" << observation_models::getObservableName( it.first )
+                    Eigen::VectorXd currentTypeResiduals = Eigen::VectorXd::Zero( static_cast< int >( residualsForType.second.size( ) ) );
+                    for( int i = 0; i < currentTypeResiduals.size( ); ++i )
+                    {
+                        currentTypeResiduals( i ) = residualsForType.second.at( i );
+                    }
+
+                    const double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare( currentTypeResiduals );
+                    residualRmsPerType[ residualsForType.first ] = currentTypeRms;
+                    std::cout << "Current residual for observable (" << observation_models::getObservableName( residualsForType.first )
                               << "): " << currentTypeRms << std::endl;
                 }
             }
@@ -286,7 +362,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestRmsResidual = residualRms;
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
-            estimationInput->getObservationCollection( )->setResiduals( residuals );
+
+            if( observationDataset->getTotalScalarSize( ) == static_cast< std::size_t >( estimationData.getObservationVector( ).size( ) ) )
+            {
+                observationDataset->setResidualVector( estimationData, residuals );
+            }
+            else
+            {
+                const auto computationData = observationDataset->createComputationFlattenedObservationData( true );
+                Eigen::MatrixXd unusedDesignMatrix;
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > computationResiduals;
+                calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
+                                                                                      computationData,
+                                                                                      observationManagers_,
+                                                                                      totalNumberParameters_,
+                                                                                      unusedDesignMatrix,
+                                                                                      computationResiduals,
+                                                                                      true,
+                                                                                      false );
+                observationDataset->setResidualVector( computationData, computationResiduals );
+            }
+            estimationInput->synchronizeLegacyResiduals( *observationDataset );
             if( estimationInput->getSaveDesignMatrix( ) )
             {
                 bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
@@ -350,24 +446,26 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     // Create estimation output object
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
-            std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >( bestParameterEstimate,
-                                                                                     bestResiduals,
-                                                                                     bestDesignMatrixEstimatedParameters,
-                                                                                     bestWeightsMatrixDiagonal,
-                                                                                     bestTransformationData,
-                                                                                     bestInverseNormalizedCovarianceMatrix,
-                                                                                     bestRmsResidual,
-                                                                                     bestIteration,
-                                                                                     residualHistory,
-                                                                                     parameterHistory,
-                                                                                     bestDesignMatrixConsiderParameters,
-                                                                                     bestConsiderTransformationData,
-                                                                                     bestConsiderCovarianceContribution,
-                                                                                     estimationInput->getConsiderCovariance( ),
-                                                                                     exceptionDuringInversion,
-                                                                                     exceptionDuringPropagation,
-                                                                                     bestInterArcContinuityCost,
-                                                                                     bestInterArcContinuityDiscrepancies );
+            std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
+                    bestParameterEstimate,
+                    bestResiduals,
+                    bestDesignMatrixEstimatedParameters,
+                    bestWeightsMatrixDiagonal,
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ),
+                    bestTransformationData,
+                    bestInverseNormalizedCovarianceMatrix,
+                    bestRmsResidual,
+                    bestIteration,
+                    residualHistory,
+                    parameterHistory,
+                    bestDesignMatrixConsiderParameters,
+                    bestConsiderTransformationData,
+                    bestConsiderCovarianceContribution,
+                    estimationInput->getConsiderCovariance( ),
+                    exceptionDuringInversion,
+                    exceptionDuringPropagation,
+                    bestInterArcContinuityCost,
+                    bestInterArcContinuityDiscrepancies );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {
@@ -431,14 +529,15 @@ template< typename ObservationScalarType,
 std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreEstimationSteps(
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+        const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
         const ParameterVectorType& newParameterEstimate,
+        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
         const bool calculateResiduals,
         const int numberOfIterations,
         bool& exceptionDuringPropagation,
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
 {
-    // Get number of observations
-    int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+    const int totalNumberOfObservations = static_cast< int >( flattenedObservationData.getObservationVector( ).size( ) );
 
     // Re-integrate equations of motion and variational equations with new parameter estimate.
     try
@@ -475,21 +574,19 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     Eigen::MatrixXd designMatrix;
     if( calculateResiduals )
     {
-        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
-                                                                              observationManagers_,
-                                                                              totalNumberParameters_,
-                                                                              totalNumberOfObservations,
-                                                                              designMatrix,
-                                                                              residuals,
-                                                                              true );
+        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
+                observationDataset, flattenedObservationData, observationManagers_, totalNumberParameters_, designMatrix, residuals, true );
     }
     else
     {
-        calculateDesignMatrix< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
-                                                                  observationManagers_,
-                                                                  totalNumberParameters_,
-                                                                  totalNumberOfObservations,
-                                                                  designMatrix );
+        calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
+                                                                              flattenedObservationData,
+                                                                              observationManagers_,
+                                                                              totalNumberParameters_,
+                                                                              designMatrix,
+                                                                              residuals,
+                                                                              false,
+                                                                              true );
     }
 
     // Divide partials matrix between estimated and consider parameters

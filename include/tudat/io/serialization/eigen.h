@@ -16,6 +16,7 @@
 #include <string>
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "tudat/io/serialization/core.h"
 
@@ -96,6 +97,49 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
             ar( make_nvp( "element", matrix( i, j ) ) );
         }
     }
+}
+
+template< class Archive, typename Scalar, int Options, typename StorageIndex >
+void save( Archive& ar, const Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
+{
+    const Eigen::Index rows = matrix.rows( ), cols = matrix.cols( ), count = matrix.nonZeros( );
+    ar( rows, cols, count );
+    for( Eigen::Index outer = 0; outer < matrix.outerSize( ); ++outer )
+    {
+        for( typename Eigen::SparseMatrix< Scalar, Options, StorageIndex >::InnerIterator entry( matrix, outer ); entry; ++entry )
+        {
+            ar( entry.row( ), entry.col( ), entry.value( ) );
+        }
+    }
+}
+
+template< class Archive, typename Scalar, int Options, typename StorageIndex >
+void load( Archive& ar, Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
+{
+    Eigen::Index rows, cols, count;
+    ar( rows, cols, count );
+    if( rows < 0 || cols < 0 || count < 0 ||
+        static_cast< std::uintmax_t >( rows ) > static_cast< std::uintmax_t >( std::numeric_limits< StorageIndex >::max( ) ) ||
+        static_cast< std::uintmax_t >( cols ) > static_cast< std::uintmax_t >( std::numeric_limits< StorageIndex >::max( ) ) ||
+        static_cast< std::uintmax_t >( count ) > kMaximumSerializedEigenCoefficients )
+    {
+        throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: invalid dimensions or coefficient count." );
+    }
+    std::vector< Eigen::Triplet< Scalar, StorageIndex > > entries;
+    entries.reserve( static_cast< std::size_t >( count ) );
+    for( Eigen::Index i = 0; i < count; ++i )
+    {
+        Eigen::Index row, col;
+        Scalar value;
+        ar( row, col, value );
+        if( row < 0 || row >= rows || col < 0 || col >= cols )
+        {
+            throw std::runtime_error( "Cannot deserialize Eigen sparse matrix: coefficient index is out of bounds." );
+        }
+        entries.emplace_back( static_cast< StorageIndex >( row ), static_cast< StorageIndex >( col ), value );
+    }
+    matrix.resize( rows, cols );
+    matrix.setFromTriplets( entries.begin( ), entries.end( ) );
 }
 
 }  // namespace cereal

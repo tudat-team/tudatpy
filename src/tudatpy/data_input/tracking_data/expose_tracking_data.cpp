@@ -35,7 +35,7 @@ void expose_tracking_data( py::module& m )
     py::class_< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >, std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
             "TrackingData",
-            R"doc(Container for source-loaded tracking observations from files and external sources. These objects are converted to observation collections by :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.)doc" )
+            R"doc(Container for source-loaded tracking observations from files and external sources. These objects are converted to an observation dataset by :func:`~tudatpy.estimation.observations.create_observation_dataset_from_tracking_data`.)doc" )
             .def( py::init< const std::string,
                             const tdat::PlainLinkDefinition&,
                             const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,

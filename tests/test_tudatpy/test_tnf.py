@@ -13,7 +13,7 @@ from tudatpy.dynamics.environment_setup import (
 from tudatpy.estimation.observations_setup import ancillary_settings
 from tudatpy.estimation.observable_models_setup import links
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
-from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
+from tudatpy.estimation.observations import create_observation_dataset_from_tracking_data
 from tudatpy.data_input.tracking_data import TrackingData, tnf
 
 
@@ -348,7 +348,7 @@ def test_handle_open_ramps_close_silently_leaves_closed_untouched():
 
 
 # -----------------------------------------------------------------------------
-# Pipeline tests: TrackingData -> create_observation_collection_from_tracking_data
+# Pipeline tests: TrackingData -> create_observation_dataset_from_tracking_data
 # -----------------------------------------------------------------------------
 def _dsn_bodies():
     """System of bodies with DSN stations and a dummy spacecraft."""
@@ -385,21 +385,20 @@ def test_pipeline_doppler_synthetic():
     tracking_data.add_double_ancillary_setting("Doppler observable integration time", 1.0)
     tracking_data.add_double_vector_ancillary_setting("link ends time delays", [0.0, 0.0, 0.0])
 
-    observation_collection = create_observation_collection_from_tracking_data(
-        [tracking_data], bodies
+    observation_dataset = create_observation_dataset_from_tracking_data([tracking_data], bodies)
+    assert observation_dataset.number_of_observation_sets == 1
+    metadata = observation_dataset.get_observation_set_metadata(0)
+    assert metadata.observable_type == ObservableType.dsn_n_way_averaged_doppler_type
+
+    dataset_ancillary_settings = observation_dataset.ancillary_settings(
+        metadata.ancillary_settings_id
     )
-    obs_sets = observation_collection.get_single_observation_sets()
-
-    assert len(obs_sets) == 1
-    obs_set = obs_sets[0]
-    assert obs_set.observable_type == ObservableType.dsn_n_way_averaged_doppler_type
-
-    doppler_count = obs_set.ancillary_settings.get_float_settings(
+    doppler_count = dataset_ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
     assert doppler_count == 1.0
 
-    link_def = obs_set.link_definition
+    link_def = observation_dataset.link_definition(metadata.link_definition_id)
     assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
     assert link_def.link_end_id(links.reflector1).body_name == "-202"
     assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
@@ -422,27 +421,26 @@ def test_pipeline_range_synthetic():
         "link ends time delays", [4.9151e-08, 0.0, -1.837e-07]
     )
 
-    observation_collection = create_observation_collection_from_tracking_data(
-        [tracking_data], bodies
+    observation_dataset = create_observation_dataset_from_tracking_data([tracking_data], bodies)
+    assert observation_dataset.number_of_observation_sets == 1
+    metadata = observation_dataset.get_observation_set_metadata(0)
+    assert metadata.observable_type == ObservableType.dsn_n_way_range_type
+
+    dataset_ancillary_settings = observation_dataset.ancillary_settings(
+        metadata.ancillary_settings_id
     )
-    obs_sets = observation_collection.get_single_observation_sets()
-
-    assert len(obs_sets) == 1
-    obs_set = obs_sets[0]
-    assert obs_set.observable_type == ObservableType.dsn_n_way_range_type
-
-    lrc = obs_set.ancillary_settings.get_float_settings(
+    lrc = dataset_ancillary_settings.get_float_settings(
         ancillary_settings.sequential_range_lowest_ranging_component
     )
     assert lrc == 7.0
 
     expected_delays = [4.9151e-08, 0.0, -1.837e-07]
-    link_end_delays = obs_set.ancillary_settings.get_float_list_settings(
+    link_end_delays = dataset_ancillary_settings.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     assert link_end_delays == pytest.approx(expected_delays)
 
-    link_def = obs_set.link_definition
+    link_def = observation_dataset.link_definition(metadata.link_definition_id)
     assert link_def.link_end_id(links.transmitter).reference_point == "DSS-65"
     assert link_def.link_end_id(links.reflector1).body_name == "-202"
     assert link_def.link_end_id(links.receiver).reference_point == "DSS-65"
@@ -457,10 +455,14 @@ def test_reader(tmp_path):
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    response = requests.get(url_tnf)
-    assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
-    with open(local_filename, "wb") as f:
-        f.write(response.content)
+    if not os.path.exists(local_filename) or os.path.getsize(local_filename) == 0:
+        try:
+            response = requests.get(url_tnf, timeout=30)
+            response.raise_for_status()
+        except requests.RequestException as error:
+            pytest.skip(f"Required remote TNF test data is unavailable: {error}")
+        with open(local_filename, "wb") as f:
+            f.write(response.content)
 
     # Create system of bodies.
 
@@ -483,22 +485,21 @@ def test_reader(tmp_path):
     )
     assert tracking_data, "No tracking data found."
 
-    # Convert the tracking data into an ObservationCollection.
-    observationCollection = create_observation_collection_from_tracking_data(tracking_data, bodies)
-
-    single_obs_sets = observationCollection.get_single_observation_sets()
-    assert single_obs_sets, "No observation sets found in the observation collection."
-
-    obs_set = single_obs_sets[0]
+    observation_dataset = create_observation_dataset_from_tracking_data(tracking_data, bodies)
+    assert observation_dataset.number_of_observation_sets > 0, "No observation sets found."
+    metadata = observation_dataset.get_observation_set_metadata(0)
+    dataset_ancillary_settings = observation_dataset.ancillary_settings(
+        metadata.ancillary_settings_id
+    )
 
     # Check doppler integration time.
-    dopplerCount = obs_set.ancillary_settings.get_float_settings(
+    dopplerCount = dataset_ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
     assert dopplerCount == 1.0, f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
-    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
+    linkEndDelays = dataset_ancillary_settings.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]
@@ -507,7 +508,7 @@ def test_reader(tmp_path):
     ), f"Expected link end delays {expected_delays}, got {linkEndDelays}"
 
     # Check link definition.
-    linkEndType = obs_set.link_definition
+    linkEndType = observation_dataset.link_definition(metadata.link_definition_id)
     transmitter = linkEndType.link_end_id(links.transmitter).reference_point
     sc = linkEndType.link_end_id(links.reflector1).body_name
     rcv = linkEndType.link_end_id(links.receiver).reference_point
@@ -516,7 +517,7 @@ def test_reader(tmp_path):
     assert rcv == "DSS-65", f"Expected receiver 'DSS-65', got {rcv}"
 
     # Check observation times and values.
-    obsTimes = obs_set.observation_times
+    obsTimes = observation_dataset.observation_times_for_set(0)
 
     # This requires tudatpy to be compiled with time scalar type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
@@ -525,7 +526,7 @@ def test_reader(tmp_path):
     assert float(obsTimes[0]) == pytest.approx(
         617245672.6834568
     ), f"Unexpected observation time: {obsTimes[0]}"
-    obsValues = obs_set.concatenated_observations
+    obsValues = observation_dataset.observation_vector_for_set(0)
     assert float(obsValues[0]) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"

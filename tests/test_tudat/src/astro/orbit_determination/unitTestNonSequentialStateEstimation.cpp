@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
             OrbitDeterminationManager<>( bodies, forwardParameters, observationSettingsList, forwardPropagatorSettings );
 
     // Simulate observations for forward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesForward =
-            simulateObservations<>( measurementInputForward, orbitDeterminationManagerForward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesForward =
+            simulateObservationDataset<>( measurementInputForward, orbitDeterminationManagerForward.getObservationSimulators( ), bodies );
 
     // Define estimation input for forward propagation / estimation
     std::shared_ptr< EstimationInput< double, double > > estimationInputForward =
@@ -286,8 +286,8 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
             OrbitDeterminationManager<>( bodies, backwardParameters, observationSettingsList, backwardPropagatorSettings );
 
     // Simulate observations for backward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesBackward =
-            simulateObservations<>( measurementInputBackward, orbitDeterminationManagerBackward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesBackward =
+            simulateObservationDataset<>( measurementInputBackward, orbitDeterminationManagerBackward.getObservationSimulators( ), bodies );
 
     // Define POD input for backward propagation / estimation
     std::shared_ptr< EstimationInput< double, double > > estimationInputBackward =
@@ -302,8 +302,8 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
             OrbitDeterminationManager<>( bodies, nonSequentialParameters, observationSettingsList, nonSequentialPropagatorSettings );
 
     // Simulate observations for non-sequential propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesNonSequential =
-            simulateObservations<>( measurementInputAll, orbitDeterminationManagerNonSequential.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesNonSequential =
+            simulateObservationDataset<>( measurementInputAll, orbitDeterminationManagerNonSequential.getObservationSimulators( ), bodies );
 
     // Define POD input for non-sequential propgation / estimation
     std::shared_ptr< EstimationInput< double, double > > estimationInputNonSequential =
@@ -323,20 +323,18 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
 
     // Combine forward and backward partials in proper order.
     unsigned int nbParameter = nonSequentialParameterEstimate.size( );
+    const auto backwardPositionBlocks = estimationInputBackward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto forwardPositionBlocks = estimationInputForward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto nonSequentialPositionBlocks =
+            estimationInputNonSequential->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+                    observation_models::position_observable );
     for( unsigned int j = 0; j < bodiesToPropagate.size( ); j++ )
     {
-        std::vector< std::pair< int, int > > backwardPartialsIndices = estimationInputBackward->getObservationCollection( )
-                                                                               ->getObservationSetStartAndSize( )
-                                                                               .at( observation_models::position_observable )
-                                                                               .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > forwardPartialsIndices = estimationInputForward->getObservationCollection( )
-                                                                              ->getObservationSetStartAndSize( )
-                                                                              .at( observation_models::position_observable )
-                                                                              .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = estimationInputNonSequential->getObservationCollection( )
-                                                                                    ->getObservationSetStartAndSize( )
-                                                                                    .at( observation_models::position_observable )
-                                                                                    .at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > backwardPartialsIndices = backwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > forwardPartialsIndices = forwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = nonSequentialPositionBlocks.at( linkEndsList[ j ] );
 
         //! Add partials from backward estimation
         combinedPartials.block( nonSequentialPartialsIndices.at( 0 ).first, 0, backwardPartialsIndices.at( 0 ).second, nbParameter ) =
@@ -629,16 +627,16 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcStateEstimation )
             OrbitDeterminationManager<>( bodies, nonSequentialParameters, observationSettingsList, nonSequentialPropagatorSettings );
 
     // Simulate observations for forward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesForward =
-            simulateObservations<>( measurementInputForward, orbitDeterminationForward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesForward =
+            simulateObservationDataset<>( measurementInputForward, orbitDeterminationForward.getObservationSimulators( ), bodies );
 
     // Simulate observations for backward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesBackward =
-            simulateObservations<>( measurementInputBackward, orbitDeterminationBackward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesBackward =
+            simulateObservationDataset<>( measurementInputBackward, orbitDeterminationBackward.getObservationSimulators( ), bodies );
 
     // Simulate observations for non-sequential propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesNonSequential =
-            simulateObservations<>( measurementInputAll, orbitDeterminationNonSequential.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesNonSequential =
+            simulateObservationDataset<>( measurementInputAll, orbitDeterminationNonSequential.getObservationSimulators( ), bodies );
 
     // Define estimation input for forward propagation / estimation
     std::shared_ptr< EstimationInput< double, double > > estimationInputForward = std::make_shared< EstimationInput< double, double > >(
@@ -676,20 +674,18 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcStateEstimation )
 
     // Combine forward and backward partials in proper order.
     unsigned int nbParameter = nominalParameters.size( );
+    const auto backwardPositionBlocks = estimationInputBackward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto forwardPositionBlocks = estimationInputForward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto nonSequentialPositionBlocks =
+            estimationInputNonSequential->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+                    observation_models::position_observable );
     for( unsigned int j = 0; j < bodiesToPropagate.size( ); j++ )
     {
-        std::vector< std::pair< int, int > > backwardPartialsIndices = estimationInputBackward->getObservationCollection( )
-                                                                               ->getObservationSetStartAndSize( )
-                                                                               .at( observation_models::position_observable )
-                                                                               .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > forwardPartialsIndices = estimationInputForward->getObservationCollection( )
-                                                                              ->getObservationSetStartAndSize( )
-                                                                              .at( observation_models::position_observable )
-                                                                              .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = estimationInputNonSequential->getObservationCollection( )
-                                                                                    ->getObservationSetStartAndSize( )
-                                                                                    .at( observation_models::position_observable )
-                                                                                    .at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > backwardPartialsIndices = backwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > forwardPartialsIndices = forwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = nonSequentialPositionBlocks.at( linkEndsList[ j ] );
 
         int counterIndices = nonSequentialPartialsIndices.at( 0 ).first;
         int counterIndicesBackward = backwardPartialsIndices.at( 0 ).first;
@@ -1008,16 +1004,16 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
             OrbitDeterminationManager<>( bodies, nonSequentialParameters, observationSettingsList, nonSequentialPropagatorSettings );
 
     // Simulate observations for forward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesForward =
-            simulateObservations<>( measurementInputForward, orbitDeterminationForward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesForward =
+            simulateObservationDataset<>( measurementInputForward, orbitDeterminationForward.getObservationSimulators( ), bodies );
 
     // Simulate observations for backward propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesBackward =
-            simulateObservations<>( measurementInputBackward, orbitDeterminationBackward.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesBackward =
+            simulateObservationDataset<>( measurementInputBackward, orbitDeterminationBackward.getObservationSimulators( ), bodies );
 
     // Simulate observations for non-sequential propagation / estimation
-    std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimesNonSequential =
-            simulateObservations<>( measurementInputAll, orbitDeterminationNonSequential.getObservationSimulators( ), bodies );
+    std::shared_ptr< observation_models::ObservationDataset<> > observationsAndTimesNonSequential =
+            simulateObservationDataset<>( measurementInputAll, orbitDeterminationNonSequential.getObservationSimulators( ), bodies );
 
     // Define estimation input for forward propagation / estimation
     std::shared_ptr< EstimationInput< double, double > > estimationInputForward = std::make_shared< EstimationInput< double, double > >(
@@ -1055,20 +1051,18 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
 
     // Combine forward and backward partials in proper order.
     unsigned int nbParameter = nonSequentialParameterValues.size( );
+    const auto backwardPositionBlocks = estimationInputBackward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto forwardPositionBlocks = estimationInputForward->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+            observation_models::position_observable );
+    const auto nonSequentialPositionBlocks =
+            estimationInputNonSequential->getObservationDataset( )->getObservationSetStartAndSizeByLink( ).at(
+                    observation_models::position_observable );
     for( unsigned int j = 0; j < multiArcBodiesToPropagate.size( ); j++ )
     {
-        std::vector< std::pair< int, int > > backwardPartialsIndices = estimationInputBackward->getObservationCollection( )
-                                                                               ->getObservationSetStartAndSize( )
-                                                                               .at( observation_models::position_observable )
-                                                                               .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > forwardPartialsIndices = estimationInputForward->getObservationCollection( )
-                                                                              ->getObservationSetStartAndSize( )
-                                                                              .at( observation_models::position_observable )
-                                                                              .at( linkEndsList[ j ] );
-        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = estimationInputNonSequential->getObservationCollection( )
-                                                                                    ->getObservationSetStartAndSize( )
-                                                                                    .at( observation_models::position_observable )
-                                                                                    .at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > backwardPartialsIndices = backwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > forwardPartialsIndices = forwardPositionBlocks.at( linkEndsList[ j ] );
+        std::vector< std::pair< int, int > > nonSequentialPartialsIndices = nonSequentialPositionBlocks.at( linkEndsList[ j ] );
 
         int counterIndices = nonSequentialPartialsIndices.at( 0 ).first;
         int counterIndicesBackward = backwardPartialsIndices.at( 0 ).first;

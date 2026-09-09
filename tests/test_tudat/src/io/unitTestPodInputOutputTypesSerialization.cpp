@@ -122,6 +122,87 @@ std::shared_ptr< simulation_setup::EstimationOutput< double, TimeType > > create
     return output;
 }
 
+// Frozen version-zero fields from feature/data-refactor at 213fd175. Write
+// these directly so this fixture never calls the new output serializer.
+template< typename TimeType >
+void writeBaseCovarianceFields( cereal::BinaryOutputArchive& archive,
+                                const simulation_setup::CovarianceAnalysisOutput< double, TimeType >& output )
+{
+    archive( output.normalizedDesignMatrix_,
+             output.weightsMatrixDiagonal_,
+             output.designMatrixTransformationDiagonal_,
+             output.inverseNormalizedCovarianceMatrix_,
+             output.inverseUnnormalizedCovarianceMatrix_,
+             output.normalizedCovarianceMatrix_,
+             output.unnormalizedCovarianceMatrix_,
+             output.considerCovarianceContribution_,
+             output.normalizedCovarianceWithConsiderParameters_,
+             output.unnormalizedCovarianceWithConsiderParameters_,
+             output.normalizedDesignMatrixConsiderParameters_,
+             output.considerNormalizationFactors_,
+             output.considerCovariance_,
+             output.designMatrixSaved_,
+             output.interArcContinuityCost_,
+             output.interArcContinuityDiscrepancies_,
+             output.exceptionDuringPropagation_,
+             output.considerParametersIncluded_ );
+}
+
+template< typename TimeType >
+void checkBaseOutputArchives( )
+{
+    const auto expectedCovariance = createCovarianceAnalysisOutput< TimeType >( );
+    std::stringstream covarianceStream;
+    {
+        cereal::BinaryOutputArchive archive( covarianceStream );
+        archive( std::uint32_t( 0 ) );
+        writeBaseCovarianceFields( archive, *expectedCovariance );
+    }
+    auto restoredCovariance = *expectedCovariance;
+    // Loading a diagonal-only old file must also clear a pre-existing full matrix.
+    restoredCovariance.weightsMatrix_ = Eigen::MatrixXd::Identity( 3, 3 ).sparseView( );
+    {
+        cereal::BinaryInputArchive archive( covarianceStream );
+        archive( restoredCovariance );
+    }
+    BOOST_CHECK( restoredCovariance == *expectedCovariance );
+    BOOST_CHECK( restoredCovariance.getWeightsMatrix( ).toDense( ).isApprox(
+            expectedCovariance->weightsMatrixDiagonal_.asDiagonal( ).toDenseMatrix( ) ) );
+
+    const auto expectedEstimation = createEstimationOutput< TimeType >( );
+    std::stringstream estimationStream;
+    {
+        cereal::BinaryOutputArchive archive( estimationStream );
+        // EstimationOutput and its covariance base each had version zero.
+        archive( std::uint32_t( 0 ), std::uint32_t( 0 ) );
+        writeBaseCovarianceFields( archive, *expectedEstimation );
+        archive( expectedEstimation->parameterEstimate_,
+                 expectedEstimation->residuals_,
+                 expectedEstimation->bestIteration_,
+                 expectedEstimation->residualStandardDeviation_,
+                 expectedEstimation->residualHistory_,
+                 expectedEstimation->parameterHistory_,
+                 expectedEstimation->exceptionDuringInversion_,
+                 expectedEstimation->numberOfParameters_,
+                 expectedEstimation->simulationResultsPerIteration_,
+                 expectedEstimation->interArcContinuityCostHistory_,
+                 expectedEstimation->interArcContinuityDiscrepancyHistory_ );
+    }
+    simulation_setup::EstimationOutput< double, TimeType > restoredEstimation;
+    {
+        cereal::BinaryInputArchive archive( estimationStream );
+        archive( restoredEstimation );
+    }
+    BOOST_CHECK( restoredEstimation == *expectedEstimation );
+
+    // New files preserve correlations as well as the version-zero fields.
+    expectedCovariance->weightsMatrix_ = Eigen::MatrixXd::Identity( 3, 3 ).sparseView( );
+    expectedCovariance->weightsMatrix_.coeffRef( 0, 2 ) = 0.25;
+    expectedCovariance->weightsMatrix_.coeffRef( 2, 0 ) = 0.25;
+    expectedCovariance->weightsMatrixDiagonal_.setOnes( );
+    BOOST_CHECK( *roundTripSerialize( expectedCovariance ) == *expectedCovariance );
+}
+
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE( test_PodInputOutputTypes_serialization )
@@ -144,6 +225,12 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysisOutputSerialization )
 
     // checkEstimationOutputRoundTrip< double >( );
     // checkEstimationOutputRoundTrip< tudat::Time >( );
+}
+
+BOOST_AUTO_TEST_CASE( test_base_output_archives_preserve_diagonal_weights )
+{
+    checkBaseOutputArchives< double >( );
+    checkBaseOutputArchives< Time >( );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

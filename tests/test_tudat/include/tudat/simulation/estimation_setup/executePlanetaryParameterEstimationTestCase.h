@@ -237,21 +237,24 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
 
     // Simulate observations.
-    std::shared_ptr< ObservationCollection< StateScalarType, TimeType > > simulatedObservations =
-            simulateObservations< StateScalarType, TimeType >(
+    std::shared_ptr< ObservationDataset< StateScalarType, TimeType > > simulatedObservations =
+            simulateObservationDataset< StateScalarType, TimeType >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     if( observableType == 4 )
     {
-        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-        weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-        weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-9 * 1.0E-9 );
-        weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
-        simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_range ), 1.0 / ( 1.0 * 1.0 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( angular_position ), 1.0 / ( 1.0E-9 * 1.0E-9 ) );
+        simulatedObservations->setConstantSingleObservationScalarWeight(
+                ObservationSelectionCondition< StateScalarType, TimeType >::observableType( one_way_doppler ),
+                1.0 / ( 1.0E-12 * 1.0E-12 ) );
     }
     else
     {
-        simulatedObservations->setConstantWeight( weight );
+        simulatedObservations->setConstantSingleObservationScalarWeight( ObservationSelectionCondition< StateScalarType, TimeType >::all( ),
+                                                                         weight );
     }
 
     // Perturb parameter estimate.

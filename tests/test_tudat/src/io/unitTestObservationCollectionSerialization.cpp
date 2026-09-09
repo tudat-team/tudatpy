@@ -113,6 +113,53 @@ void compareObservationCollections( observation_models::ObservationCollection< d
     BOOST_CHECK_EQUAL( left.getTimeBounds( ).second, right.getTimeBounds( ).second );
 }
 
+// Frozen writer layout from feature/data-refactor at 213fd175. This test-only
+// record deliberately does not call the current facade serializer: it models
+// files that users saved before the dataset backend existed.
+struct BaseBranchObservationArchive {
+    observation_models::ObservableType observable = observation_models::one_way_range;
+    observation_models::LinkDefinition link;
+    std::pair< double, double > bounds = { 1.0, 2.0 };
+    std::vector< Eigen::VectorXd > observations = { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) };
+    std::vector< double > times = { 1.0, 2.0 };
+    observation_models::LinkEndType reference = observation_models::receiver;
+    std::vector< Eigen::VectorXd > dependent = { Eigen::Vector1d::Constant( 100.0 ), Eigen::Vector1d::Constant( 200.0 ) };
+    std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > bookkeeping;
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillary;
+    unsigned int count = 2;
+    unsigned int dimension = 1;
+    std::vector< Eigen::VectorXd > weights = { Eigen::Vector1d::Constant( 2.0 ), Eigen::Vector1d::Constant( 3.0 ) };
+    std::vector< Eigen::VectorXd > residuals = { Eigen::Vector1d::Constant( 0.5 ), Eigen::Vector1d::Constant( -0.25 ) };
+    std::shared_ptr< BaseBranchObservationArchive > filtered;
+
+    BaseBranchObservationArchive( )
+    {
+        link[ observation_models::transmitter ] = observation_models::LinkEndId( "Earth", "" );
+        link[ observation_models::receiver ] = observation_models::LinkEndId( "Vehicle", "" );
+        ancillary = std::make_shared< observation_models::ObservationAncillarySimulationSettings >( );
+        ancillary->setAncillaryDoubleData( observation_models::doppler_integration_time, 10.0 );
+    }
+
+    template< class Archive >
+    void serialize( Archive& ar )
+    {
+        ar( observable,
+            link,
+            bounds,
+            observations,
+            times,
+            reference,
+            dependent,
+            bookkeeping,
+            ancillary,
+            count,
+            dimension,
+            weights,
+            residuals,
+            filtered );
+    }
+};
+
 }  // namespace
 
 //! Test serialization and deserialization of SingleObservationSet
@@ -377,6 +424,126 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionSerialization )
                                     deserializedCollection.getObservationVector( )( i ),
                                     std::numeric_limits< double >::epsilon( ) * 10.0 );
     }
+}
+
+BOOST_AUTO_TEST_CASE( test_dataset_serialization_preserves_surviving_identity_and_sparse_weights )
+{
+    using namespace observation_models;
+    auto dataset = std::make_shared< ObservationDataset<> >( );
+    LinkDefinition link;
+    link[ transmitter ] = LinkEndId( "Earth", "" );
+    link[ receiver ] = LinkEndId( "Vehicle", "" );
+    dataset->addObservationSet( one_way_range, link, { Eigen::Vector1d::Constant( 10.0 ) }, { 1.0 }, receiver );
+    const auto angularSet = dataset->addObservationSet(
+            angular_position, link, { Eigen::Vector2d( 20.0, 21.0 ), Eigen::Vector2d( 30.0, 31.0 ) }, { 2.0, 3.0 }, receiver );
+    Eigen::Matrix4d weights;
+    weights << 2.0, 0.1, 0.2, 0.0, 0.1, 3.0, 0.0, 0.3, 0.2, 0.0, 4.0, 0.4, 0.0, 0.3, 0.4, 5.0;
+    dataset->setWeightMatrixForSet( angularSet, weights );
+    dataset->removeObservations( ObservationSelectionCondition<>::timeLessThan( 2.0 ) );
+    dataset->rejectObservations( ObservationSelectionCondition<>::timeBounds( 2.0, 2.0 ), "saved reason" );
+    ObservationCollection<> original( dataset );
+    std::stringstream stream;
+    {
+        cereal::BinaryOutputArchive archive( stream );
+        archive( original );
+    }
+    ObservationCollection<> restored;
+    {
+        cereal::BinaryInputArchive archive( stream );
+        archive( restored );
+    }
+    auto restoredDataset = restored.getObservationDataset( );
+    BOOST_CHECK( *restoredDataset == *dataset );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 1 ).rejectionReason_, "saved reason" );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            restoredDataset->createEstimationProjection( true ).getSparseWeightMatrix( ).toDense( ), weights, 1.0E-15 );
+    restoredDataset->deleteRejectedObservations( );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 2 ).setId_, angularSet );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredDataset->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
+                                       weights.bottomRightCorner( 2, 2 ),
+                                       1.0E-15 );
+    restoredDataset->addObservationsToSet( angularSet, { Eigen::Vector2d( 40.0, 41.0 ) }, { 4.0 } );
+    BOOST_CHECK_EQUAL( restoredDataset->getObservationIdsForSet( angularSet ).back( ), 3 );
+    BOOST_CHECK_EQUAL( dataset->getNumberOfObservations( ), 2 );
+    BOOST_CHECK_EQUAL( restored.getTotalObservableSize( ), 4 );
+}
+
+BOOST_AUTO_TEST_CASE( test_serialized_overlapping_collections_preserve_shared_set_ownership )
+{
+    using namespace observation_models;
+    const auto shared = createSingleObservationSet( one_way_range, "Earth", "Vehicle", { 1.0 }, { 10.0 } );
+    const auto separate = createSingleObservationSet( one_way_range, "Mars", "Vehicle", { 2.0 }, { 20.0 } );
+    using Sets = std::vector< std::shared_ptr< SingleObservationSet<> > >;
+    ObservationCollection<> first( Sets{ shared } );
+    ObservationCollection<> second( Sets{ separate, shared } );
+    std::stringstream stream;
+    {
+        cereal::BinaryOutputArchive archive( stream );
+        archive( first, second );
+    }
+    ObservationCollection<> restoredFirst, restoredSecond;
+    {
+        cereal::BinaryInputArchive archive( stream );
+        archive( restoredFirst, restoredSecond );
+    }
+    restoredFirst.setConstantWeight( 7.0 );
+    Eigen::Vector2d expected( 7.0, 1.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredSecond.getConcatenatedWeights( ), expected, 1.0E-15 );
+    BOOST_CHECK_EQUAL( first.getConcatenatedWeights( )( 0 ), 1.0 );
+}
+
+BOOST_AUTO_TEST_CASE( test_base_branch_binary_observation_archives_remain_readable )
+{
+    using namespace observation_models;
+    auto legacy = std::make_shared< BaseBranchObservationArchive >( );
+    legacy->filtered = std::make_shared< BaseBranchObservationArchive >( *legacy );
+    legacy->filtered->count = 1;
+    legacy->filtered->observations = { Eigen::Vector1d::Constant( 30.0 ) };
+    legacy->filtered->times = { 3.0 };
+    legacy->filtered->bounds = { 3.0, 3.0 };
+    legacy->filtered->dependent = { Eigen::Vector1d::Constant( 300.0 ) };
+    legacy->filtered->weights = { Eigen::Vector1d::Constant( 4.0 ) };
+    legacy->filtered->residuals = { Eigen::Vector1d::Constant( -1.0 ) };
+
+    std::stringstream singleStream;
+    {
+        cereal::BinaryOutputArchive archive( singleStream );
+        archive( legacy );
+    }
+    std::shared_ptr< SingleObservationSet<> > restoredSingle;
+    {
+        cereal::BinaryInputArchive archive( singleStream );
+        archive( restoredSingle );
+    }
+    Eigen::Vector2d values( 10.0, 20.0 ), weights( 2.0, 3.0 ), residuals( 0.5, -0.25 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredSingle->getObservationDataset( )->getObservationVectorForSet( 0 ), values, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredSingle->getWeightsVector( ), weights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredSingle->getResidualsVector( ), residuals, 1.0E-15 );
+    BOOST_CHECK_EQUAL( restoredSingle->getNumberOfFilteredObservations( ), 1 );
+    BOOST_CHECK_EQUAL( restoredSingle->getFilteredObservationSet( )->getWeightsVector( )( 0 ), 4.0 );
+    BOOST_CHECK_EQUAL( restoredSingle->getAncillarySettings( )->getAncillaryDoubleData( doppler_integration_time ), 10.0 );
+    BOOST_CHECK_EQUAL( restoredSingle->getObservationDataset( )->getDependentVariables( 1 )( 0 ), 200.0 );
+
+    using LegacyMap = std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< BaseBranchObservationArchive > > > >;
+    LegacyMap legacyCollection;
+    legacyCollection[ one_way_range ][ legacy->link.linkEnds_ ] = { legacy, legacy };
+    std::stringstream collectionStream;
+    {
+        cereal::BinaryOutputArchive archive( collectionStream );
+        archive( legacyCollection );
+    }
+    ObservationCollection<> restoredCollection;
+    {
+        cereal::BinaryInputArchive archive( collectionStream );
+        archive( restoredCollection );
+    }
+    const auto sets = restoredCollection.getSingleObservationSets( );
+    BOOST_REQUIRE_EQUAL( sets.size( ), 2 );
+    BOOST_CHECK( sets.front( ) == sets.back( ) );
+    BOOST_CHECK_EQUAL( restoredCollection.getTotalObservableSize( ), 4 );
+    Eigen::Vector4d repeatedWeights( 2.0, 3.0, 2.0, 3.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            restoredCollection.getObservationDataset( )->createEstimationProjection( ).getWeightVector( ), repeatedWeights, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

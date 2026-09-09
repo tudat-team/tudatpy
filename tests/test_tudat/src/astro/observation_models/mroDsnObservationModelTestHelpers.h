@@ -51,7 +51,7 @@ using namespace tudat::simulation_setup;
 static const double mroTransponderDelay = 1.4149e-6;
 static const std::string mroDsnDataDirectory = tudat::paths::getTudatTestDataPath( ) + "mro_dsn_observation_model/";
 // These CSVs are generated from mromagr2012_076_0840xmmmv1.tnf at the Tudat trk234 converter boundary:
-// each row is data passed to SingleObservationSet creation after selecting a one-hour MRO tracking interval.
+// each row is converted into an observation dataset entry after selecting a one-hour MRO tracking interval.
 static const std::string trk234InputsDirectory = mroDsnDataDirectory + "trk234_single_observation_set_inputs/";
 // These CSVs replace large MRO SPICE spacecraft kernels in the unit tests. They contain Tudat-generated
 // SPICE samples of the MRO state, RotationalEphemeris::getRotationStateVector, and HGA offset over the test interval.
@@ -210,7 +210,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettin
     throw std::runtime_error( "Unsupported observable type for MRO DSN fixture." );
 }
 
-inline std::shared_ptr< ObservationCollection< long double, Time > > createObservationCollectionFromTrk234Csv(
+inline std::shared_ptr< ObservationDataset< long double, Time > > createObservationDatasetFromTrk234Csv(
         const std::string& fileName,
         const ObservableType observableType )
 {
@@ -220,7 +220,8 @@ inline std::shared_ptr< ObservationCollection< long double, Time > > createObser
         rowsPerSet[ std::stoi( row.at( 0 ) ) ].push_back( row );
     }
 
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > observationSets;
+    std::shared_ptr< ObservationDataset< long double, Time > > observationDataset =
+            std::make_shared< ObservationDataset< long double, Time > >( );
     for( auto& setRows : rowsPerSet )
     {
         std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observations;
@@ -233,18 +234,17 @@ inline std::shared_ptr< ObservationCollection< long double, Time > > createObser
             observationTimes.push_back( Time( std::stod( row.at( 1 ) ) ) );
         }
 
-        observationSets.push_back( std::make_shared< SingleObservationSet< long double, Time > >(
-                observableType,
-                LinkDefinition( linkEndsFromFixtureStrings( setRows.second.front( ) ) ),
-                observations,
-                observationTimes,
-                referenceLinkEndFromString( setRows.second.front( ).at( 11 ) ),
-                std::vector< Eigen::VectorXd >( ),
-                nullptr,
-                ancillarySettingsFromFixtureRow( observableType, setRows.second.front( ) ) ) );
+        observationDataset->addObservationSet( observableType,
+                                               LinkDefinition( linkEndsFromFixtureStrings( setRows.second.front( ) ) ),
+                                               observations,
+                                               observationTimes,
+                                               referenceLinkEndFromString( setRows.second.front( ).at( 11 ) ),
+                                               std::vector< Eigen::VectorXd >( ),
+                                               nullptr,
+                                               ancillarySettingsFromFixtureRow( observableType, setRows.second.front( ) ) );
     }
 
-    return std::make_shared< ObservationCollection< long double, Time > >( observationSets );
+    return observationDataset;
 }
 
 inline void loadMroSpiceKernels( )
@@ -320,14 +320,30 @@ inline std::shared_ptr< ephemerides::Ephemeris > createMroAntennaEphemeris( cons
             "MRO_SPACECRAFT" );
 }
 
-inline void applyMroNotebookObservationCollectionPostProcessing(
-        const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
+inline std::shared_ptr< ObservationDataset< long double, Time > > applyMroNotebookObservationDatasetPostProcessing(
+        const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset,
         SystemOfBodies& bodies )
 {
-    observationCollection->setTransponderDelay( "MRO", mroTransponderDelay );
-    std::pair< Time, Time > timeBounds = observationCollection->getTimeBounds( );
-    observationCollection->setReferencePoint(
-            bodies, createMroAntennaEphemeris( timeBounds.first, timeBounds.second ), "Antenna", "MRO", reflector1 );
+    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
+    {
+        const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
+        const LinkDefinition& linkDefinition = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ );
+
+        if( linkDefinition.linkEnds_.count( reflector1 ) > 0 && linkDefinition.linkEnds_.at( reflector1 ).bodyName_ == "MRO" )
+        {
+            std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                    observationDataset->getAncillarySettings( metadata.ancillarySettingsId_ );
+            std::vector< double > linkEndDelays = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays );
+            linkEndDelays.at( 1 ) = mroTransponderDelay;
+            ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndDelays );
+        }
+    }
+
+    std::pair< Time, Time > timeBounds = observationDataset->getTimeBounds( );
+    bodies.at( "MRO" )->getVehicleSystems( )->setReferencePointPosition( "Antenna",
+                                                                         createMroAntennaEphemeris( timeBounds.first, timeBounds.second ) );
+    observationDataset->setLinkEndReferencePoint( "MRO", "Antenna", reflector1 );
+    return observationDataset;
 }
 
 inline std::vector< std::shared_ptr< LightTimeCorrectionSettings > > getMroDsnLightTimeCorrections(
@@ -347,46 +363,45 @@ inline std::vector< std::shared_ptr< LightTimeCorrectionSettings > > getMroDsnLi
 }
 
 inline std::vector< std::shared_ptr< ObservationModelSettings > > createMroObservationModelSettings(
-        const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
+        const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset,
         const bool includeSolarCoronaCorrection )
 {
     std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings;
     const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections =
             getMroDsnLightTimeCorrections( includeSolarCoronaCorrection );
 
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable = observationCollection->getLinkEndsPerObservableType( );
-    for( const auto& observableAndLinkEnds : linkEndsPerObservable )
+    for( int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        for( const LinkEnds& linkEnds : observableAndLinkEnds.second )
+        const ObservationSetMetadata< long double, Time >& metadata = observationDataset->getObservationSetMetadata( setId );
+        const LinkDefinition& linkDefinition = observationDataset->getLinkDefinition( metadata.linkDefinitionId_ );
+        if( metadata.observableType_ == dsn_n_way_averaged_doppler )
         {
-            if( observableAndLinkEnds.first == dsn_n_way_averaged_doppler )
-            {
-                observationModelSettings.push_back( dsnNWayAveragedDopplerObservationSettings(
-                        LinkDefinition( linkEnds ), lightTimeCorrections, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ) ) );
-            }
-            else if( observableAndLinkEnds.first == dsn_n_way_range )
-            {
-                observationModelSettings.push_back( dsnNWayRangeObservationSettings( LinkDefinition( linkEnds ), lightTimeCorrections ) );
-            }
+            observationModelSettings.push_back( dsnNWayAveragedDopplerObservationSettings(
+                    linkDefinition, lightTimeCorrections, nullptr, std::make_shared< LightTimeConvergenceCriteria >( ) ) );
+        }
+        else if( metadata.observableType_ == dsn_n_way_range )
+        {
+            observationModelSettings.push_back( dsnNWayRangeObservationSettings( linkDefinition, lightTimeCorrections ) );
         }
     }
     return observationModelSettings;
 }
 
-inline Eigen::VectorXd simulateAndGetResiduals( const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
+inline Eigen::VectorXd simulateAndGetResiduals( const std::shared_ptr< ObservationDataset< long double, Time > >& observationDataset,
                                                 SystemOfBodies& bodies,
                                                 const bool includeSolarCoronaCorrection )
 {
     std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings =
-            createMroObservationModelSettings( observationCollection, includeSolarCoronaCorrection );
+            createMroObservationModelSettings( observationDataset, includeSolarCoronaCorrection );
     std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
             createObservationSimulators< long double, Time >( observationModelSettings, bodies );
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations< long double, Time >( observationCollection, bodies );
-    std::shared_ptr< ObservationCollection< long double, Time > > simulatedObservationCollection =
-            simulateObservations< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
+            getObservationSimulationSettingsFromObservationDataset< long double, Time >( observationDataset, bodies );
+    std::shared_ptr< ObservationDataset< long double, Time > > simulatedObservationDataset =
+            simulateObservationDataset< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
 
-    return ( simulatedObservationCollection->getConcatenatedObservations( ) - observationCollection->getConcatenatedObservations( ) )
+    return ( simulatedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
+             observationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) )
             .template cast< double >( );
 }
 
