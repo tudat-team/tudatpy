@@ -152,7 +152,9 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
     dataset.restore_observations(obs.observation_query.rejected)
     dataset.reject_observations(obs.observation_query.active, "new rejection")
     dataset.restore_observations(obs.observation_query.rejected)
-    dataset.add_observations_to_set(0, [[70, 71]], [0], sort_observations=True)
+    dataset.add_observations_to_set(
+        0, [[70, 71]], [0], dependent_variables=[[170]], sort_observations=True
+    )
     dataset.remove_observations(obs.observation_query.time == 1)
     assert 3 not in dataset.get_observation_ids()
     assert 6 in dataset.get_observation_ids()

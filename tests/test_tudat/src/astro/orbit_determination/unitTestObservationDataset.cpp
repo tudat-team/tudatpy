@@ -2873,7 +2873,7 @@ BOOST_AUTO_TEST_CASE( test_inspection_snapshots_survive_mutation_and_destruction
         dataset.rejectObservations( ObservationSelectionCondition<>::all( ), "test" );
         dataset.restoreObservations( ObservationSelectionCondition<>::all( ) );
         dataset.addObservationsToSet( 0, {}, {}, {}, {}, {}, true );
-        dataset.addObservationsToSet( 0, { Eigen::Vector2d( 7, 8 ) }, { 0.0 } );
+        dataset.addObservationsToSet( 0, { Eigen::Vector2d( 7, 8 ) }, { 0.0 }, { Eigen::Vector1d::Constant( 17 ) } );
         dataset.removeObservations( ObservationSelectionCondition<>::timeBounds( 1.0, 1.0 ) );
         BOOST_CHECK_EQUAL( dataset.getObservations( ).front( )( 0 ), 11 );
         BOOST_CHECK_EQUAL( values.front( )( 0 ), 1 );
