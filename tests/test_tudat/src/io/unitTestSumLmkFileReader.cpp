@@ -11,16 +11,17 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/system_models/camera.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readSumLmkFiles.h"
+#include "tudat/support/testFileUtilities.h"
 
 namespace tudat
 {
@@ -35,15 +36,15 @@ void checkClose( const double actual, const double expected, const double tolera
     BOOST_CHECK_SMALL( std::fabs( actual - expected ), tolerance );
 }
 
-void writeTextFile( const boost::filesystem::path& filePath, const std::string& contents )
+void writeTextFile( const std::filesystem::path& filePath, const std::string& contents )
 {
     std::ofstream stream( filePath.string( ) );
     stream << contents;
 }
 
-boost::filesystem::path makeTemporaryPath( const std::string& suffix )
+std::filesystem::path makeTemporaryPath( const std::string& suffix )
 {
-    return boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat_sum_lmk_%%%%%%" + suffix );
+    return std::filesystem::path( createTemporaryFilePath( "tudat_sum_lmk", suffix ) );
 }
 
 }  // namespace
@@ -99,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
 {
     const std::string testDataPath = paths::getTudatTestDataPath( ) + "/sum_lmk";
 
-    const boost::filesystem::path duplicateSumPath = makeTemporaryPath( ".sum" );
+    const std::filesystem::path duplicateSumPath = makeTemporaryPath( ".sum" );
     writeTextFile( duplicateSumPath,
                    "IMGDUP\n"
                    "2015 JUN 05 07:24:42.053\n"
@@ -116,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
                    "END FILE\n" );
     BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( duplicateSumPath.string( ) ), std::runtime_error );
 
-    const boost::filesystem::path conflictingLmkPath = makeTemporaryPath( ".lmk" );
+    const std::filesystem::path conflictingLmkPath = makeTemporaryPath( ".lmk" );
     writeTextFile( conflictingLmkPath,
                    "LMK0001 T\n"
                    "1.0 0.0 0.0 VLM\n"
@@ -124,8 +125,8 @@ BOOST_AUTO_TEST_CASE( testSumLmkDuplicateFailures )
     BOOST_CHECK_THROW( input_output::sum_lmk::readLmkFiles( { testDataPath + "/LMK0001.lmk", conflictingLmkPath.string( ) } ),
                        std::runtime_error );
 
-    boost::filesystem::remove( duplicateSumPath );
-    boost::filesystem::remove( conflictingLmkPath );
+    std::filesystem::remove( duplicateSumPath );
+    std::filesystem::remove( conflictingLmkPath );
 }
 
 //! Parse a real SPC SUM file (W48230079013.SUM, Rosetta/OSIRIS) and assert the v1-used fields.
@@ -240,35 +241,35 @@ BOOST_AUTO_TEST_CASE( testSumLmkRequiredFieldValidation )
 
     // Missing K-MATRIX.
     {
-        const boost::filesystem::path path = makeTemporaryPath( ".sum" );
+        const std::filesystem::path path = makeTemporaryPath( ".sum" );
         writeTextFile( path, header + landmarks );
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
     // Missing CZ row.
     {
         std::string headerNoCz =
                 "IMGREQ\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
                 "100.0 512.0 512.0 MMFL, CTR\n1.0 0.0 0.0 CX\n0.0 1.0 0.0 CY\n";
-        const boost::filesystem::path path = makeTemporaryPath( ".sum" );
+        const std::filesystem::path path = makeTemporaryPath( ".sum" );
         writeTextFile( path, headerNoCz + kMatrix + landmarks );
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFile( path.string( ) ), std::runtime_error );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
     // No landmark rows: a single SUM image parses, but the batch reader discards it.
     {
-        const boost::filesystem::path path = makeTemporaryPath( ".sum" );
+        const std::filesystem::path path = makeTemporaryPath( ".sum" );
         writeTextFile( path, header + kMatrix + "LANDMARKS\nEND FILE\n" );
         const input_output::sum_lmk::SumImageData image = input_output::sum_lmk::readSumFile( path.string( ) );
         BOOST_CHECK_EQUAL( image.landmarkObservations_.size( ), 0 );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
     // LMK missing VLM.
     {
-        const boost::filesystem::path path = makeTemporaryPath( ".lmk" );
+        const std::filesystem::path path = makeTemporaryPath( ".lmk" );
         writeTextFile( path, "LMKNOVLM T\n0.1D-02 SIGMA_LMK\nEND FILE\n" );
         BOOST_CHECK_THROW( input_output::sum_lmk::readLmkFile( path.string( ) ), std::runtime_error );
-        boost::filesystem::remove( path );
+        std::filesystem::remove( path );
     }
 }
 
@@ -281,8 +282,8 @@ BOOST_AUTO_TEST_CASE( testSumFilesDiscardEmptyImages )
             "10.0 0.0 0.0 0.0 10.0 0.0 K-MATRIX\n";
 
     {
-        const boost::filesystem::path emptyPath = makeTemporaryPath( ".sum" );
-        const boost::filesystem::path observedPath = makeTemporaryPath( ".sum" );
+        const std::filesystem::path emptyPath = makeTemporaryPath( ".sum" );
+        const std::filesystem::path observedPath = makeTemporaryPath( ".sum" );
         writeTextFile( emptyPath, baseSum + "LANDMARKS\nEND FILE\n" );
         writeTextFile( observedPath,
                        "IMGOBS\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
@@ -294,13 +295,13 @@ BOOST_AUTO_TEST_CASE( testSumFilesDiscardEmptyImages )
         BOOST_REQUIRE_EQUAL( images.size( ), 1 );
         BOOST_CHECK_EQUAL( images.at( 0 ).imageId_, "IMGOBS" );
 
-        boost::filesystem::remove( emptyPath );
-        boost::filesystem::remove( observedPath );
+        std::filesystem::remove( emptyPath );
+        std::filesystem::remove( observedPath );
     }
 
     {
-        const boost::filesystem::path emptyPathA = makeTemporaryPath( ".sum" );
-        const boost::filesystem::path emptyPathB = makeTemporaryPath( ".sum" );
+        const std::filesystem::path emptyPathA = makeTemporaryPath( ".sum" );
+        const std::filesystem::path emptyPathB = makeTemporaryPath( ".sum" );
         writeTextFile( emptyPathA, baseSum + "END FILE\n" );
         writeTextFile( emptyPathB,
                        "IMGEMPTY2\n2015 JUN 05 07:24:42.053\n1024 1024 500 65535 NPX, NLN, THRSH\n"
@@ -311,15 +312,15 @@ BOOST_AUTO_TEST_CASE( testSumFilesDiscardEmptyImages )
                 input_output::sum_lmk::readSumFiles( { emptyPathA.string( ), emptyPathB.string( ) } );
         BOOST_CHECK_EQUAL( images.size( ), 0 );
 
-        boost::filesystem::remove( emptyPathA );
-        boost::filesystem::remove( emptyPathB );
+        std::filesystem::remove( emptyPathA );
+        std::filesystem::remove( emptyPathB );
     }
 }
 
 //! Production SUM landmark rows may carry an optional trailing '-' flag.
 BOOST_AUTO_TEST_CASE( testSumLandmarkRowsWithOptionalFlag )
 {
-    const boost::filesystem::path path = makeTemporaryPath( ".sum" );
+    const std::filesystem::path path = makeTemporaryPath( ".sum" );
     writeTextFile( path,
                    "IMGFLAG\n"
                    "2015 JUN 05 07:24:42.053\n"
@@ -339,13 +340,13 @@ BOOST_AUTO_TEST_CASE( testSumLandmarkRowsWithOptionalFlag )
     BOOST_CHECK_EQUAL( image.landmarkObservations_.at( 0 ).landmarkId_, "LMK0001" );
     checkClose( image.landmarkObservations_.at( 0 ).pixelCoordinates_( 0 ), 512.0 );
     checkClose( image.landmarkObservations_.at( 0 ).pixelCoordinates_( 1 ), 512.0 );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Fortran D-exponent notation including negative mantissas must parse.
 BOOST_AUTO_TEST_CASE( testFortranExponentParsing )
 {
-    const boost::filesystem::path path = makeTemporaryPath( ".lmk" );
+    const std::filesystem::path path = makeTemporaryPath( ".lmk" );
     writeTextFile( path,
                    "LMKEXP T\n"
                    "-0.1545700894D+01 0.8640125542D+00 0.1009105347D+01 VLM\n"
@@ -355,7 +356,7 @@ BOOST_AUTO_TEST_CASE( testFortranExponentParsing )
     checkClose( landmark.bodyFixedPosition_( 0 ), -1545.700894, 1.0E-6 );
     checkClose( landmark.bodyFixedPosition_( 1 ), 864.0125542, 1.0E-6 );
     checkClose( landmark.bodyFixedPosition_( 2 ), 1009.105347, 1.0E-6 );
-    boost::filesystem::remove( path );
+    std::filesystem::remove( path );
 }
 
 //! Cross-file duplicate handling: identical duplicates accepted; conflicting (image, landmark) throws.
@@ -368,23 +369,23 @@ BOOST_AUTO_TEST_CASE( testSumCrossFileDuplicateHandling )
 
     // Identical (image, landmark) across two files: accepted (no double counting).
     {
-        const boost::filesystem::path a = makeTemporaryPath( ".sum" );
-        const boost::filesystem::path b = makeTemporaryPath( ".sum" );
+        const std::filesystem::path a = makeTemporaryPath( ".sum" );
+        const std::filesystem::path b = makeTemporaryPath( ".sum" );
         writeTextFile( a, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
         writeTextFile( b, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
         BOOST_CHECK_NO_THROW( input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ) } ) );
-        boost::filesystem::remove( a );
-        boost::filesystem::remove( b );
+        std::filesystem::remove( a );
+        std::filesystem::remove( b );
     }
     // Conflicting pixel coordinates for the same (image, landmark) across files: throws.
     {
-        const boost::filesystem::path a = makeTemporaryPath( ".sum" );
-        const boost::filesystem::path b = makeTemporaryPath( ".sum" );
+        const std::filesystem::path a = makeTemporaryPath( ".sum" );
+        const std::filesystem::path b = makeTemporaryPath( ".sum" );
         writeTextFile( a, baseSum + "LMK0001 512.0 512.0\nEND FILE\n" );
         writeTextFile( b, baseSum + "LMK0001 600.0 512.0\nEND FILE\n" );
         BOOST_CHECK_THROW( input_output::sum_lmk::readSumFiles( { a.string( ), b.string( ) } ), std::runtime_error );
-        boost::filesystem::remove( a );
-        boost::filesystem::remove( b );
+        std::filesystem::remove( a );
+        std::filesystem::remove( b );
     }
 }
 
