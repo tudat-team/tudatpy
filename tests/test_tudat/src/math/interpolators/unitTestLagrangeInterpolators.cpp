@@ -11,9 +11,12 @@
 
 #define BOOST_TEST_MAIN
 
+#include <cmath>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatExceptions.h"
 
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
@@ -549,6 +552,90 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         runtimeErrorOccurred = false;
         coefficients.clear( );
         dataVector.clear( );
+    }
+}
+
+// Regression test for the barycentric Lagrange interpolator (tudatpy PR #628).
+//
+// When the independent variable is a Time, a requested epoch may differ from a tabulated
+// epoch by less than one unit in the last place of its seconds-into-full-period member. Such
+// a Time is not equal to the tabulated Time (Time::operator== compares the full-period and
+// the seconds members separately), but the normalization of their difference rounds the
+// remainder to exactly one full period, so that casting the difference to the scalar type of
+// the interpolator yields exactly zero.
+//
+// The previous implementation only guarded against exactly equal independent variables, and
+// therefore evaluated the interpolating polynomial with a vanishing denominator, returning
+// NaN. The barycentric implementation detects the coinciding stencil point within a small
+// tolerance and returns the tabulated value.
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
+{
+    // Number of points per interpolant, and offset from the domain edges within which the
+    // centered interpolant is used.
+    const int numberOfStages = 8;
+    const int offsetEntries = numberOfStages / 2 - 1;
+
+    // Number of full periods (hours) since J2000 of the first tabulated epoch (mid-2014).
+    const int baseFullPeriods = 130000;
+
+    // Seconds into the full period of every tabulated epoch. This value is deliberately small
+    // compared to the length of a full period, so that a one-ULP offset of it is rounded away
+    // when the difference of two epochs is normalized. This holds both for a 64-bit and for
+    // an 80-bit long double.
+    const long double secondsIntoFullPeriod = 0.125L;
+
+    // Create tabulated epochs, uniformly spaced by one full period.
+    const int numberOfNodes = 12;
+    std::vector< Time > independentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        independentVariableVector.push_back( Time( baseFullPeriods + i, secondsIntoFullPeriod ) );
+    }
+
+    // Create dependent variables from a polynomial of order numberOfStages - 1, evaluated in
+    // full periods since the first tabulated epoch, so that the interpolant reproduces it exactly.
+    const std::map< int, double > coefficients = getPolynomialCoefficients( numberOfStages - 1 );
+    std::vector< double > dependentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        dependentVariableVector.push_back( evaluatePolynomial( coefficients, static_cast< double >( i ) ) );
+    }
+
+    interpolators::LagrangeInterpolator< Time, double > interpolator( independentVariableVector,
+                                                                      dependentVariableVector,
+                                                                      numberOfStages,
+                                                                      interpolators::huntingAlgorithm,
+                                                                      interpolators::lagrange_no_boundary_interpolation );
+
+    // Iterate over all tabulated epochs for which the centered interpolant is used both just
+    // below and just above the epoch.
+    for( int i = offsetEntries + 1; i < numberOfNodes - offsetEntries - 1; i++ )
+    {
+        const Time tabulatedEpoch = independentVariableVector.at( i );
+        const double tabulatedValue = dependentVariableVector.at( i );
+
+        // Epoch one ULP below the tabulated epoch. Its difference w.r.t. the tabulated epoch
+        // casts to exactly zero, which is the case that regressed.
+        const Time epochJustBelow( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 0.0L ) );
+
+        // Epoch one ULP above the tabulated epoch, for which no such cancellation occurs.
+        const Time epochJustAbove( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 1.0L ) );
+
+        // Verify the premise of this test: neither epoch equals the tabulated epoch, but the
+        // difference of the lower one with the tabulated epoch vanishes when cast to the
+        // scalar type of the interpolator.
+        BOOST_CHECK( epochJustBelow != tabulatedEpoch );
+        BOOST_CHECK( epochJustAbove != tabulatedEpoch );
+        BOOST_CHECK_EQUAL( static_cast< long double >( epochJustBelow - tabulatedEpoch ), 0.0L );
+
+        const double valueJustBelow = interpolator.interpolate( epochJustBelow );
+        const double valueJustAbove = interpolator.interpolate( epochJustAbove );
+
+        BOOST_CHECK( std::isfinite( valueJustBelow ) );
+        BOOST_CHECK( std::isfinite( valueJustAbove ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( valueJustBelow, tabulatedValue, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( valueJustAbove, tabulatedValue, 1.0E-14 );
     }
 }
 
