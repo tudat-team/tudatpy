@@ -12,7 +12,6 @@
 #define TUDAT_TLE_ELEMENTS_CONVERSIONS_H
 
 #include <functional>
-#include <boost/math/special_functions/atanh.hpp>
 
 #include <cmath>
 #include <limits>

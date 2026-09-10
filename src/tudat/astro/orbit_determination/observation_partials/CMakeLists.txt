@@ -19,6 +19,7 @@ set(observation_partials_SOURCES
   "oneWayRangePartial.cpp"
   "twoWayDopplerPartial.cpp"
   "nWayRangePartial.cpp"
+  "dsnNWayRangePartial.cpp"
   "oneWayDopplerPartial.cpp"
   "relativeAngularPositionPartial.cpp"
   "observationPartial.cpp"

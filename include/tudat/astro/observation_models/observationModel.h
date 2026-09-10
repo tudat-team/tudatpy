@@ -332,6 +332,17 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        for( auto lightTimeCalculator : lightTimeCalculators_ )
+        {
+            if( lightTimeCalculator != nullptr )
+            {
+                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+            }
+        }
+    }
+
 protected:
     std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > getSingleLegLightTimeCalculator(
             const unsigned int pathIndex = 0,

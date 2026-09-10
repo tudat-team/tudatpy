@@ -455,7 +455,7 @@ int ComaModel::findTimeIntervalIndex( const double time )
  * \return Solar longitude angle from X-axis in XY plane [rad]
  * \throws std::runtime_error If state functions are not initialized
  */
-double ComaModel::calculateSolarLongitude( const double time )
+double ComaModel::calculateSolarLongitude( const double time ) const
 {
     constexpr double timeTolerance = 1e-10;
     constexpr double timeToleranceSq = timeTolerance * timeTolerance;

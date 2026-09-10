@@ -39,23 +39,12 @@ namespace rigid_body
 
 void expose_rigid_body_setup( py::module& m )
 {
-    //    py::enum_<tss::RigidBodyPropertiesType>(m,
-    //    "RigidBodyPropertiesType",
-    //                                     get_docstring("RigidBodyPropertiesType").c_str())
-    //        .value("from_function_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_function_rigid_body_properties").c_str())
-    //        .value("constant_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::constant_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.constant_rigid_body_properties").c_str())
-    //        .value("from_gravity_field_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_gravity_field_rigid_body_properties").c_str())
-    //        .value("mass_dependent_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
-    //        .export_values();
-    //
+    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType" )
+            .value( "from_function_rigid_body_properties", tss::RigidBodyPropertiesType::from_function_rigid_body_properties )
+            .value( "constant_rigid_body_properties", tss::RigidBodyPropertiesType::constant_rigid_body_properties )
+            .value( "from_gravity_field_rigid_body_properties", tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties )
+            .value( "mass_dependent_rigid_body_properties", tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties );
+
     py::class_< tss::RigidBodyPropertiesSettings, std::shared_ptr< tss::RigidBodyPropertiesSettings > >( m,
                                                                                                          "RigidBodyPropertiesSettings",
                                                                                                          R"doc(
@@ -117,8 +106,8 @@ void expose_rigid_body_setup( py::module& m )
     m.def( "custom_time_dependent_rigid_body_properties",
            tss::fromFunctionRigidBodyPropertiesSettings,
            py::arg( "mass_function" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -130,12 +119,12 @@ void expose_rigid_body_setup( py::module& m )
 
  Parameters
  ----------
- mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning the mass as a function of time (Time object representing seconds since J2000 TDB) to ne used during the propagation
- center_of_mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 1]]] = None
-     Function returning the center of mass as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
- inertia_tensor_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 3]]] = None
-     Function returning the inertia tensor as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
+ mass_function : callable[[float], float]
+     Function returning the mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ center_of_mass_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
+     Function returning the center of mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the inertia tensor as a function of time in seconds since J2000 TDB, to be used during the propagation.
  Returns
  -------
  RigidBodyPropertiesSettings
@@ -151,8 +140,8 @@ void expose_rigid_body_setup( py::module& m )
     m.def( "custom_mass_dependent_rigid_body_properties",
            tss::massDependentMassDistributionSettings,
            py::arg( "mass" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -163,7 +152,7 @@ void expose_rigid_body_setup( py::module& m )
 
  Parameters
  ----------
- mass : callable[[float], float]
+ mass : float
      Mass of the body (to be overridden during propagation if mass is propagated)
  center_of_mass_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
      Function returning the center of mass as a function of mass (to be used during the propagation)

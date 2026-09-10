@@ -8,6 +8,17 @@ This module provides tools to read, parse, and convert DSN radiometric tracking 
 (Doppler, range, and ramp data) from TNF/TRK files into Tudat observation formats.
 
 
+Enums
+-----
+.. currentmodule:: tudatpy.data.processTrk234
+
+.. autosummary::
+
+   converters.OpenRampHandling
+
+.. autoclass:: tudatpy.data.processTrk234.converters.OpenRampHandling
+   :members:
+
 Classes
 -------
 .. currentmodule:: tudatpy.data.processTrk234

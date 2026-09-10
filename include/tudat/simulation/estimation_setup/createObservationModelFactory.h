@@ -42,6 +42,7 @@
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/system_models/camera.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
@@ -198,6 +199,46 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
 
 std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortObservationModelSettingsByType(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationModelSettings );
+
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
+void setDefaultTransponderDelayFunctions(
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    if( observationModel == nullptr || !observableCanHaveRetransmissionDelay( observationModel->getObservableType( ) ) )
+    {
+        return;
+    }
+
+    LinkEnds linkEnds = observationModel->getLinkEnds( );
+    std::vector< std::function< double( ) > > defaultLinkEndDelayFunctions( linkEnds.size( ), nullptr );
+    bool hasDefaultTransponderDelay = false;
+    const int numberOfLinkEnds = static_cast< int >( linkEnds.size( ) );
+
+    for( int linkEndIndex = 1; linkEndIndex < numberOfLinkEnds - 1; ++linkEndIndex )
+    {
+        const LinkEndType linkEndType = getNWayLinkEnumFromIndex( linkEndIndex, numberOfLinkEnds );
+        if( linkEnds.count( linkEndType ) == 0 )
+        {
+            throw std::runtime_error( "Error when setting default transponder delay functions: expected retransmitter link end " +
+                                      getLinkEndTypeString( linkEndType ) + " is not defined." );
+        }
+
+        const std::string linkEndBody = linkEnds.at( linkEndType ).bodyName_;
+        if( bodies.count( linkEndBody ) > 0 && bodies.at( linkEndBody )->getVehicleSystems( ) != nullptr &&
+            bodies.at( linkEndBody )->getVehicleSystems( )->isTransponderDelayDefined( ) )
+        {
+            defaultLinkEndDelayFunctions.at( linkEndIndex ) =
+                    std::bind( &system_models::VehicleSystems::getTransponderDelay, bodies.at( linkEndBody )->getVehicleSystems( ) );
+            hasDefaultTransponderDelay = true;
+        }
+    }
+
+    if( hasDefaultTransponderDelay )
+    {
+        observationModel->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+    }
+}
 
 //! Function to create an object that computes an observation bias
 /*!
@@ -1690,6 +1731,8 @@ public:
                 throw std::runtime_error( errorMessage );
         }
 
+        setDefaultTransponderDelayFunctions( observationModel, bodies );
+
         return observationModel;
     }
 };
@@ -1950,6 +1993,8 @@ public:
                 break;
         }
 
+        setDefaultTransponderDelayFunctions( observationModel, bodies );
+
         return observationModel;
     }
 };
@@ -2174,6 +2219,8 @@ public:
                 throw std::runtime_error( errorMessage );
                 break;
         }
+        setDefaultTransponderDelayFunctions( observationModel, bodies );
+
         return observationModel;
     }
 };

@@ -54,7 +54,7 @@ class LoadPDS:
             },
             "mex": {
                 "ck": r"^(?P<mission>MEX)?_?(?P<data>ATNM)?_?(?P<purpose>(MEASURED|T6|SA))?_?(?P<start_date_file>(\d{4}|\d{6}|P\d{12}))?_?(?P<end_date_file>\d{6})?_?(?P<sclk>S\d{6})?_?(?P<version>(V\d+|\d+))?(?P<extension>\.BC)?$",
-                "spk": "^(?P<data>(ORMM|ORMF))_(?P<SPK_type>T19)_(?P<start_date_file>\d{6})_?(?P<end_date_file>\d{6})_(?P<version>\d{5})(?P<extension>\.BSP)?$",
+                "spk": r"^(?P<data>(ORMM|ORMF))_(?P<SPK_type>T19)_(?P<start_date_file>\d{6})_?(?P<end_date_file>\d{6})_(?P<version>\d{5})(?P<extension>\.BSP)?$",
                 "ifms": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
                 "dp2": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
                 "dpx": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)",
@@ -572,7 +572,7 @@ class LoadPDS:
             - `input_mission` (`str`): The name of the mission
             - `url` (`str`): The base URL where the kernel files are hosted.
             - `wanted_files` (`list`, optional): A list of specific filenames to be downloaded from the URL.
-            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '\*.tf') to match filenames for downloading.
+            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '\\*.tf') to match filenames for downloading.
             - `custom_output` (`str`, optional): The local directory where the downloaded files will be stored.
 
         Output:
@@ -796,7 +796,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def match_type_extension(self, data_type, filename):
+    def match_type_extension(self, data_type, filename) -> bool:
         """
         Checks if the extension of a given file matches the expected extension for the specified data type.
 
@@ -822,7 +822,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_extension_for_data_type(self, data_type, first_only=True):
+    def get_extension_for_data_type(self, data_type, first_only=True) -> str | list[str] | None:
         """
         Returns one or more file extensions for the given data type.
 
@@ -1278,7 +1278,7 @@ class LoadPDS:
         # BeautifulSoup package to look for all pattern-matching names at the targeted url (without any a priori information on the date and/or
         # wildcard present in the file name)
         reduced_filename = filename_split[-1]
-        reduced_filename = reduced_filename.replace("\w", "*")
+        reduced_filename = reduced_filename.replace(r"\w", "*")
 
         # Retrieve all filenames present at the "local_path" location that match the specified filename format
 
@@ -1565,7 +1565,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def extract_kernels_from_meta_kernel(self, input_mission):
+    def extract_kernels_from_meta_kernel(self, input_mission) -> dict:
         """
         Fetches a meta-kernel file from an HTTPS URL and categorizes kernel files by type
         using the type-to-extension mapping.
@@ -1734,7 +1734,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_latest_meta_kernel(self, input_mission):
+    def get_latest_meta_kernel(self, input_mission) -> str:
         """
         Finds the most recent meta-kernel file URL based on year and version.
 
@@ -4317,7 +4317,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict):
+    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict) -> list[str]:
         """
         Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
         and return a list of rsi_volume_id values whose associated record's start_date_utc falls within the interval.

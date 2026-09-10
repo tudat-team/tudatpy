@@ -78,6 +78,8 @@ Classes
 
 .. autoclass:: tudatpy.estimation.observations.SingleObservationSet
    :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.estimation.observations.ObservationCollection
    :members:
+   :special-members: __init__
