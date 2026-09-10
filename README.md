@@ -4,7 +4,7 @@ The **TU Delft Astrodynamics Toolbox in Python**, or **Tudatpy**, is a library t
 libraries](https://tudat.tudelft.nl/) aiming at accelerating the implementation of simulations, real-data processing and analysis, and quality education in the field of Astrodynamics.
 See the [documentation](https://tudat-space.readthedocs.io) for more.
 
-For nominal usage, the use of our distributed **conda package** is recommended. For more details on the project, please refer to the [project website](https://docs.tudat.space/en/latest/) and the [project's Github page](https://github.com/tudat-team).
+For nominal usage, the use of our distributed **conda package** is recommended. Pip wheels, produced by repacking that conda package (no extra C++ compile), are documented in [WHEELS.md](WHEELS.md). For more details on the project, please refer to the [project website](https://docs.tudat.space/en/latest/) and the [project's Github page](https://github.com/tudat-team).
 
 ## Structure of the `Tudatpy` Repository
 
