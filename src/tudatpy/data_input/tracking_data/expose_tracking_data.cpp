@@ -409,7 +409,7 @@ void expose_tracking_data( py::module& m )
          the corresponding environment models.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const double, const double, const double, const double >( ),
+            .def( py::init< const tudat::Time, const tudat::Time, const double, const double >( ),
                   py::arg( "start_time" ),
                   py::arg( "end_time" ),
                   py::arg( "start_frequency" ),
@@ -417,16 +417,16 @@ void expose_tracking_data( py::module& m )
             .def_readwrite( "start_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startTime_, R"doc(
          **read-only**
 
-         Ramp start time.
+         Ramp start time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "end_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::endTime_, R"doc(
          **read-only**
 
-         Ramp end time.
+         Ramp end time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "start_frequency", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startFrequency_, R"doc(
          **read-only**
@@ -480,9 +480,9 @@ void expose_tracking_data( py::module& m )
 
          Parameters
          ----------
-         start_time : float
+         start_time : tudatpy.astro.time_representation.Time | float
              Ramp start time.
-         end_time : float
+         end_time : tudatpy.astro.time_representation.Time | float
              Ramp end time.
          start_frequency : float
              Ramp start frequency.

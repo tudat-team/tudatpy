@@ -13,6 +13,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/trackingData.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
@@ -146,6 +147,20 @@ BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged
         BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
         BOOST_CHECK_EQUAL( trackingData.getNumberOfObservations( ), 2 );
     }
+}
+
+BOOST_AUTO_TEST_CASE( testFrequencyRampPreservesExtendedEpochPrecision )
+{
+    const Time start( 194444, 1600.000000010L );
+    const Time end = start + 60.0;
+    data::RampedFrequencySupplementaryData ramps;
+    ramps.addFrequencyRamp( start, end, 8.4E9, 0.1 );
+    const auto& ramp = ramps.getFrequencyRamps( ).at( 0 );
+    BOOST_CHECK_SMALL( static_cast< long double >( ramp.startTime_ - start ), 1.0E-12L );
+    BOOST_CHECK_SMALL( static_cast< long double >( ramp.endTime_ - end ), 1.0E-12L );
+    // Existing callers with ordinary double epochs still compile and round-trip.
+    ramps.addFrequencyRamp( 1.0, 2.0, 8.4E9, 0.0 );
+    BOOST_CHECK_EQUAL( static_cast< double >( ramps.getFrequencyRamps( ).at( 1 ).startTime_ ), 1.0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
