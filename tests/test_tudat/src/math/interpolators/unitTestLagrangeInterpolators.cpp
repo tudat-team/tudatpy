@@ -639,6 +639,76 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
     }
 }
 
+// Regression test for the numerical stability of the barycentric Lagrange interpolator
+// (tudatpy PR #628, issue #612).
+//
+// The interpolating polynomial reproduces a constant function exactly in exact arithmetic,
+// because the Lagrange basis functions sum to one at every point. The previous implementation
+// formed the product of all node differences and divided it out again per term, which does not
+// preserve that identity in floating-point arithmetic: the basis functions sum to one only up
+// to a rounding error, so the interpolated value is quantized at the level of a unit in the
+// last place of the dependent variable. For a spacecraft ephemeris this quantizes the
+// interpolated position, which is what produced the layered Doppler residuals of issue #612.
+//
+// The barycentric form normalizes explicitly by the sum of the weights, so the identity holds
+// by construction and a constant is reproduced bit for bit.
+//
+// This test is deliberately instantiated as LagrangeInterpolator< double, double >, whose
+// scalar type is double (scalar_type< double >::value_type). It therefore exercises the
+// 64-bit accumulation path on every platform, which is the precision that long double provides
+// on Apple silicon and the condition under which issue #612 was observed. No compiler flag to
+// narrow long double is needed.
+//
+// The constant must be a power of two. Multiplying by a power of two is exact, so that the
+// numerator sum is exactly the constant times the denominator sum, and their quotient is
+// exactly the constant. For a constant that is not a power of two, both implementations are
+// inexact and the test would not discriminate between them.
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_partition_of_unity )
+{
+    // Constant dependent variable: 2^37 metres, i.e. of the order of a heliocentric distance,
+    // and a power of two so that the interpolant is expected to be bitwise exact.
+    const double constantValue = 137438953472.0;
+
+    // Tabulated epochs, uniformly spaced by 60 s, at a realistic epoch (seconds since J2000).
+    const double firstEpoch = 4.7E8;
+    const double timeStep = 60.0;
+    const int numberOfNodes = 12;
+
+    std::vector< double > independentVariableVector;
+    std::vector< double > dependentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        independentVariableVector.push_back( firstEpoch + static_cast< double >( i ) * timeStep );
+        dependentVariableVector.push_back( constantValue );
+    }
+
+    // Test interpolator for 4;6;8;10 data points per interpolant.
+    for( int numberOfStages = 4; numberOfStages < 11; numberOfStages += 2 )
+    {
+        const int offsetEntries = numberOfStages / 2 - 1;
+
+        interpolators::LagrangeInterpolator< double, double > interpolator( independentVariableVector,
+                                                                            dependentVariableVector,
+                                                                            numberOfStages,
+                                                                            interpolators::huntingAlgorithm,
+                                                                            interpolators::lagrange_no_boundary_interpolation );
+
+        // Iterate over all intervals in which the centered interpolant is used, and sample each
+        // of them densely away from the tabulated epochs themselves.
+        for( int i = offsetEntries; i < numberOfNodes - offsetEntries - 1; i++ )
+        {
+            for( int j = 1; j < 50; j++ )
+            {
+                const double currentEpoch = independentVariableVector.at( i ) + timeStep * static_cast< double >( j ) / 50.0;
+
+                // Bitwise equality: the interpolated value of a constant function may not depend
+                // on where in the interval it is evaluated.
+                BOOST_CHECK_EQUAL( interpolator.interpolate( currentEpoch ), constantValue );
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
