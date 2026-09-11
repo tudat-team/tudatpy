@@ -63,7 +63,7 @@ _ALIASES = {
     "grail_mass_level_1_file_reader": "tudatpy.data_input.environment_data.missions.grail.grail_mass_level_1_file_reader",
     "LoadPDS": "tudatpy.data_input.data_retrieval.missions.LoadPDS",
     "DownloadAtmosphericData": "tudatpy.data_input.data_retrieval.media_corrections.DownloadAtmosphericData",
-    "Trk234Processor": "tudatpy.data_input.tracking_data.tnf.TnfTrackingDataProcessor",
+    "Trk234Processor": "tudatpy.data.processTrk234._legacy.Trk234Processor",
     "IonexProduct": "tudatpy.data_input.data_retrieval.media_corrections.IonexProduct",
     "IonexResolution": "tudatpy.data_input.data_retrieval.media_corrections.IonexResolution",
     "VmfTechnique": "tudatpy.data_input.data_retrieval.media_corrections.VmfTechnique",

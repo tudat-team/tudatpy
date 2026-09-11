@@ -171,13 +171,13 @@ def test_deprecated_data_alias_resolves_to_new_object(module_name, old_name, new
         (
             "tudatpy.data.horizons",
             "HorizonsQuery",
-            "tudatpy.data_input.environment_data.horizons.HorizonsQuery",
+            "tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery",
         ),
-        ("tudatpy.data.mpc", "BatchMPC", "tudatpy.data_input.tracking_data.mpc.BatchMPC"),
+        ("tudatpy.data.mpc", "BatchMPC", "tudatpy.data.mpc._legacy.BatchMPC"),
         (
             "tudatpy.data.processTrk234",
             "Trk234Processor",
-            "tudatpy.data_input.tracking_data.tnf.TnfTrackingDataProcessor",
+            "tudatpy.data.processTrk234._legacy.Trk234Processor",
         ),
     ),
 )

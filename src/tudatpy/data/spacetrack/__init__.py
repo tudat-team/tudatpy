@@ -2,7 +2,7 @@ from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
     "SpaceTrackQuery": "tudatpy.data_input.environment_data.spacetrack.SpaceTrackQuery",
-    "OMMUtils": "tudatpy.data_input.environment_data.spacetrack.OMMUtils",
+    "OMMUtils": "tudatpy.data.spacetrack._legacy.OMMUtils",
 }
 
 __all__ = sorted(_ALIASES)
