@@ -11,6 +11,12 @@ _MIGRATION_TARGETS = {
 }
 
 
+for _converter in ("RadioBase", "DerivedDopplerConverter", "DerivedSraRangeConverter"):
+    _MIGRATION_TARGETS[f"tudatpy.data.processTrk234._legacy_converters.{_converter}"] = (
+        "tudatpy.data_input.tracking_data.tnf.read_tnf_data"
+    )
+
+
 def deprecated_getattr(module_name, aliases, name):
     if name not in aliases:
         raise AttributeError(f"module {module_name!r} has no attribute {name!r}")

@@ -9,7 +9,6 @@ import pytest
 from astropy.table import Table
 from astroquery.mpc import MPC
 
-from tudatpy.data_input.tracking_data import TrackingData
 from tudatpy.dynamics import environment, environment_setup
 from tudatpy.estimation.observations import ObservationCollection
 
@@ -126,21 +125,8 @@ def test_legacy_tnf_process_returns_collection(monkeypatch, module):
         "Reader",
         lambda path: SimpleNamespace(decode=lambda **kwargs: None, sfdu_list=[]),
     )
-    tracking = TrackingData(
-        "OneWayRange",
-        [(("Probe", ""), "transmitter"), (("Earth", "DSS-14"), "receiver")],
-        [np.array([123.0])],
-        [0.0],
-        "receiver",
-        "TDB",
-    )
-    processor = Processor(["fixture.tnf"], [], "Probe")
-    processor.converters = {
-        "range": SimpleNamespace(
-            extract=lambda records: pd.DataFrame({"row": [1]}),
-            process=lambda frame, name: [tracking],
-        )
-    }
+    processor = Processor(["fixture.tnf"], ["doppler"], "Probe")
+    monkeypatch.setattr(processor.converters["doppler"], "extract", lambda records: tnf_records())
     collection = processor.process()
     assert isinstance(collection, ObservationCollection)
     np.testing.assert_array_equal(
@@ -184,3 +170,47 @@ def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
     calculator = bodies.get("Earth").get_ground_station("DSS-14").transmitting_frequency_calculator
     assert isinstance(calculator, environment.PiecewiseLinearFrequencyInterpolator)
     np.testing.assert_allclose(calculator.start_frequencies, [8.4e9])
+
+
+def tnf_records():
+    return pd.DataFrame(
+        {
+            "epoch": [pd.Timestamp("2024-01-01T12:00:00").to_pydatetime()],
+            "link_ends": [("DSS-14", "123", "DSS-14")],
+            "band": [("X", "X")],
+            "link_delays": [(0.0, 0.0, 0.0)],
+            "count_time": [60.0],
+            "lowest_ranging_component": [1],
+            "obs": [123.0],
+        }
+    )
+
+
+@pytest.mark.parametrize("name", ["DerivedDopplerConverter", "DerivedSraRangeConverter"])
+def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
+    from tudatpy.estimation.observations import SingleObservationSet
+
+    Converter = legacy_symbol("tudatpy.data.processTrk234.converters", name)
+    converter = Converter()
+    records = tnf_records()
+    result = converter.process(records, "Probe")
+    assert len(result) == 1
+    assert isinstance(result[0], SingleObservationSet)
+    np.testing.assert_array_equal(
+        np.array(result[0].concatenated_observations).reshape(-1), [123.0]
+    )
+    from tudatpy.astro import time_representation
+    from tudatpy.dynamics.environment_setup.ground_station import (
+        get_approximate_dsn_ground_station_positions,
+    )
+
+    expected_time = time_representation.default_time_scale_converter().convert_time(
+        input_scale=time_representation.utc_scale,
+        output_scale=time_representation.tdb_scale,
+        input_value=time_representation.DateTime.from_python_datetime(
+            records.iloc[0]["epoch"]
+        ).to_epoch(),
+        earth_fixed_position=get_approximate_dsn_ground_station_positions()["DSS-14"],
+    )
+    assert abs(float(result[0].observation_times[0]) - float(expected_time)) < 1.0e-9
+    assert isinstance(converter.build_link_ends_dict(("DSS-14", "123", "DSS-14"), "Probe"), dict)

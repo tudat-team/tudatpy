@@ -9,13 +9,24 @@ from tudatpy.dynamics.environment import (
     SystemOfBodies,
     FrequencyGapHandling,
 )
-from tudatpy.estimation.observations import (
-    ObservationCollection,
-    create_observation_collection_from_tracking_data,
-)
+from tudatpy.estimation.observations import ObservationCollection
+from ._legacy_converters import DerivedDopplerConverter, DerivedSraRangeConverter
 
 
 class Trk234Processor(TnfTrackingDataProcessor):
+    def __init__(
+        self,
+        tnf_file_paths: list[str],
+        requested_types: list[str],
+        spacecraft_name: str | None = None,
+    ) -> None:
+        super().__init__(tnf_file_paths, requested_types, spacecraft_name)
+        self.converters = {}
+        if "doppler" in requested_types:
+            self.converters["doppler"] = DerivedDopplerConverter()
+        if "range" in requested_types:
+            self.converters["range"] = DerivedSraRangeConverter()
+
     def process(self) -> ObservationCollection:
         """
         Process all TNF files provided at initialization. For each file, decode the SFDU data,
@@ -50,7 +61,7 @@ class Trk234Processor(TnfTrackingDataProcessor):
                 if not merged_df.empty:
                     observation_sets.extend(converter.process(merged_df, self.spacecraft_name))
 
-        return create_observation_collection_from_tracking_data(observation_sets, SystemOfBodies())
+        return ObservationCollection(observation_sets)
 
     def set_tnf_information_in_bodies(
         self,
