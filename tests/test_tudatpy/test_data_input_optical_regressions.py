@@ -52,3 +52,30 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
         rtol=1.0e-10,
         atol=1.0e-16,
     )
+
+
+def weighting_bodies():
+    from tudatpy.dynamics import environment_setup
+
+    bodies = environment.SystemOfBodies()
+    bodies.create_empty_body("Earth")
+    environment_setup.add_ground_station(
+        bodies.get("Earth"),
+        environment_setup.ground_station.basic_station("500", [6378137.0, 0.0, 0.0]),
+    )
+    return bodies
+
+
+@pytest.mark.parametrize("ancillary", [False, True])
+@pytest.mark.parametrize("technique,sigma", [("C", 1.0), ("P", 2.5)])
+def test_vfcc17_uses_required_metadata_without_optional_ancillary(
+    optical_table, ancillary, technique, sigma
+):
+    optical_table["note2"] = technique
+    data, _ = read_optical_data(optical_table, add_weights=True, add_ancillary_data=ancillary)
+    metadata = data[0].get_ancillary_settings_string_vector()
+    assert metadata["note2"] == [technique]
+    assert metadata["catalog"] == ["U"]
+    collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
+    expected = 1.0 / np.deg2rad(sigma / 3600.0) ** 2
+    np.testing.assert_allclose(collection.concatenated_weights, expected, rtol=1.0e-13)

@@ -301,10 +301,9 @@ def optical_table_to_tracking_data(
         RA_corr, DEC_corr = get_biases_EFCC18(mpc_table=table)
         table = table.assign(_RA_corr=RA_corr, _DEC_corr=DEC_corr)
 
-    if add_ancillary_data:
-        table = table.copy()
-        for column in ANCILLARY_STRING_COLUMNS:
-            table[column] = table[column].fillna("").astype(str)
+    metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
+    if add_weights:
+        metadata_columns.update(["note2", "catalog"])
 
     tracking_data_objects = []
     for (target, observatory), group in table.groupby(["number", "observatory"]):
@@ -333,12 +332,10 @@ def optical_table_to_tracking_data(
             ]
             tracking_data_object.set_observation_corrections(corrections_list)
 
-        if add_ancillary_data:
-            for column in ANCILLARY_STRING_COLUMNS:
-                tracking_data_object.add_string_vector_ancillary_setting(
-                    column,
-                    group[column].fillna("").astype(str).tolist(),
-                )
+        for column in sorted(metadata_columns):
+            tracking_data_object.add_observation_metadata(
+                column, group[column].fillna("").astype(str).tolist()
+            )
 
         tracking_data_objects.append(tracking_data_object)
 
