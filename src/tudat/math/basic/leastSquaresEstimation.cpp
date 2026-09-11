@@ -167,8 +167,25 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters,
         const Eigen::VectorXd& considerParametersDeviations,
         const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide )
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
 {
+    const int numberOfParameters = static_cast< int >( designMatrix.cols( ) );
+    if( inverseOfAPrioriCovarianceMatrix.rows( ) != numberOfParameters || inverseOfAPrioriCovarianceMatrix.cols( ) != numberOfParameters )
+    {
+        throw std::runtime_error(
+                "Error in performLeastSquaresAdjustmentFromDesignMatrix: inverseOfAPrioriCovarianceMatrix has dimensions " +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.rows( ) ) + "x" +
+                std::to_string( inverseOfAPrioriCovarianceMatrix.cols( ) ) + ", expected " + std::to_string( numberOfParameters ) + "x" +
+                std::to_string( numberOfParameters ) + "." );
+    }
+    if( aprioriParameterDeviation.size( ) > 0 && aprioriParameterDeviation.size( ) != numberOfParameters )
+    {
+        throw std::runtime_error( "Error in performLeastSquaresAdjustmentFromDesignMatrix: aprioriParameterDeviation has size " +
+                                  std::to_string( aprioriParameterDeviation.size( ) ) + ", expected " +
+                                  std::to_string( numberOfParameters ) + "." );
+    }
+
     // Build weighted right-hand side, including consider-parameter deviations when provided.
     Eigen::VectorXd weightedRightHandSideArgument = observationResiduals;
     if( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
@@ -177,6 +194,13 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     }
     Eigen::VectorXd rightHandSide =
             designMatrix.transpose( ) * applyWeightsToObservationVector( weightedRightHandSideArgument, weightData );
+
+    // The prior residual is the initial a priori parameter vector minus the current estimate.
+    // Apply it before augmenting the system so hard-constraint multiplier rows remain untouched.
+    if( aprioriParameterDeviation.size( ) > 0 )
+    {
+        rightHandSide -= inverseOfAPrioriCovarianceMatrix * aprioriParameterDeviation;
+    }
 
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrixImplementation(
             designMatrix, weightData, inverseOfAPrioriCovarianceMatrix, constraintMultiplier, constraintRightHandside );
@@ -193,7 +217,6 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
 
     // Soft-constraint additions (e.g. inter-arc continuity) affect only the parameter block,
     // leaving any Lagrange-multiplier rows from hard equality constraints untouched.
-    const int numberOfParameters = static_cast< int >( designMatrix.cols( ) );
     if( additionalNormalMatrix.size( ) > 0 )
     {
         if( additionalNormalMatrix.rows( ) != numberOfParameters || additionalNormalMatrix.cols( ) != numberOfParameters )
@@ -298,7 +321,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters,
         const Eigen::VectorXd& considerParametersDeviations,
         const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide )
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
 {
     return performLeastSquaresAdjustmentFromDesignMatrixImplementation( designMatrix,
                                                                         observationResiduals,
@@ -310,7 +334,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                                         designMatrixConsiderParameters,
                                                                         considerParametersDeviations,
                                                                         additionalNormalMatrix,
-                                                                        additionalRightHandSide );
+                                                                        additionalRightHandSide,
+                                                                        aprioriParameterDeviation );
 }
 
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -324,7 +349,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrixConsiderParameters,
         const Eigen::VectorXd& considerParametersDeviations,
         const Eigen::MatrixXd& additionalNormalMatrix,
-        const Eigen::VectorXd& additionalRightHandSide )
+        const Eigen::VectorXd& additionalRightHandSide,
+        const Eigen::VectorXd& aprioriParameterDeviation )
 {
     return performLeastSquaresAdjustmentFromDesignMatrixImplementation( designMatrix,
                                                                         observationResiduals,
@@ -336,7 +362,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                                                                         designMatrixConsiderParameters,
                                                                         considerParametersDeviations,
                                                                         additionalNormalMatrix,
-                                                                        additionalRightHandSide );
+                                                                        additionalRightHandSide,
+                                                                        aprioriParameterDeviation );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals

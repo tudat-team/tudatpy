@@ -603,6 +603,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                             std::shared_ptr< tss::EstimationConvergenceChecker >,
                             const Eigen::MatrixXd,
                             const Eigen::VectorXd,
+                            const bool,
                             const bool >( ),
                   py::arg( "observations_and_times" ),
                   py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -612,6 +613,7 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
                   py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                   py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                   py::arg( "apply_final_parameter_correction" ) = true,
+                  py::arg( "apply_apriori_parameter_deviation" ) = false,
                   R"doc(
 
          Class constructor.
@@ -633,6 +635,10 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
              Deviations of the consider parameters from their nominal values. This should be either a size 0 vector (no consider-parameter deviations), or a vector with the same size as the number of consider parameters.
          apply_final_parameter_correction : bool, default = True
              Whether to apply the final estimated parameter correction to the simulation models after convergence.
+         apply_apriori_parameter_deviation : bool, default = False
+             Whether to apply the a priori constraint to the total parameter deviation from the parameter vector at the start
+             of the estimation. The default preserves the legacy behavior, in which the inverse a priori covariance regularizes
+             each differential correction independently.
          Returns
          -------
          :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
