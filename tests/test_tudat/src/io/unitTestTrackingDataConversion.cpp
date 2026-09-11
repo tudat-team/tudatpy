@@ -75,6 +75,26 @@ BOOST_AUTO_TEST_CASE( testOpticalMetadataIsNotSimulationAncillaryData )
     BOOST_CHECK_THROW( getAncillarySettingsFromTrackingData( tracking ), std::runtime_error );
 }
 
+BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
+{
+    auto corrected = angularTracking( );
+    corrected->setObservationCorrections( { Eigen::Vector2d( -0.1, -0.2 ) } );
+    auto uncorrected = std::make_shared< data::TrackingData<> >( "OneWayRange",
+                                                                 corrected->getLinkEnds( ),
+                                                                 std::vector< Eigen::VectorXd >{ Eigen::VectorXd::Constant( 1, 1000.0 ) },
+                                                                 std::vector< double >{ 20.0 },
+                                                                 "receiver",
+                                                                 "TDB" );
+    simulation_setup::SystemOfBodies bodies;
+    const std::vector< std::shared_ptr< data::TrackingData<> > > input = { corrected, uncorrected };
+    BOOST_CHECK_NO_THROW( createObservationCollection( input, bodies, true ) );
+    auto correctedSet = createSingleObservationSetFromTrackingData( corrected, bodies, true );
+    auto uncorrectedSet = createSingleObservationSetFromTrackingData( uncorrected, bodies, true );
+    BOOST_CHECK( correctedSet->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 0.9, 1.8 ) ) );
+    BOOST_CHECK_EQUAL( uncorrectedSet->getObservations( ).at( 0 )( 0 ), 1000.0 );
+    BOOST_CHECK( corrected->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 1.0, 2.0 ) ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 }  // namespace unit_tests
 }  // namespace tudat
