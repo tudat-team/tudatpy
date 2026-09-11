@@ -101,6 +101,28 @@ BOOST_AUTO_TEST_CASE( testVectorObservableSizeValidation )
     BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
 }
 
+BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
+{
+    auto trackingData = createVectorTrackingData( );
+    const std::vector< Eigen::VectorXd > original = { Eigen::Vector2d( 3.0, 4.0 ), Eigen::Vector2d( 5.0, 6.0 ) };
+    trackingData.setObservationWeights( original );
+    trackingData.setObservationCorrections( original );
+    const std::vector< std::vector< Eigen::VectorXd > > invalid = { { Eigen::Vector2d( 7.0, 8.0 ) },
+                                                                    { Eigen::Vector2d( 7.0, 8.0 ), Eigen::Vector3d( 9.0, 10.0, 11.0 ) } };
+    for( const auto& replacement : invalid )
+    {
+        BOOST_CHECK_THROW( trackingData.setObservationWeights( replacement ), std::runtime_error );
+        BOOST_CHECK_THROW( trackingData.setObservationCorrections( replacement ), std::runtime_error );
+        BOOST_REQUIRE_EQUAL( trackingData.getObservationWeights( ).size( ), original.size( ) );
+        BOOST_REQUIRE_EQUAL( trackingData.getObservationCorrections( ).size( ), original.size( ) );
+        for( unsigned int i = 0; i < original.size( ); ++i )
+        {
+            BOOST_CHECK( trackingData.getObservationWeights( ).at( i ).isApprox( original.at( i ) ) );
+            BOOST_CHECK( trackingData.getObservationCorrections( ).at( i ).isApprox( original.at( i ) ) );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

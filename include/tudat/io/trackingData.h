@@ -265,14 +265,6 @@ public:
     //! Set observation weights to the tracking data object (optional)
     void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
     {
-        // Check if observation weights already existed and overwrite them if they did (+throw a warning)
-        if( !weights_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
-                      << std::endl;
-            weights_.clear( );
-        }
-
         // Check size consistency (for the total number of observations)
         if( observationWeights.size( ) != numberOfObservations_ )
         {
@@ -346,15 +338,6 @@ public:
     //! Set corrections to the observations (optional)
     void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
     {
-        // Check if observation corrections already existed and clear them if they did + throw a warning (overwritten)
-        if( !observationCorrections_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
-                         "overwritten ."
-                      << std::endl;
-            observationCorrections_.clear( );
-        }
-
         // Check size consistency (for the total number of observations)
         if( observationCorrections.size( ) != numberOfObservations_ )
         {
