@@ -131,7 +131,50 @@ def generate_asteroid_parquet(archive_dir: Path | str,
 
 class GaiaAstrometry:
     """The class acts as a container for all Gaia astrometric observations and its metadata. It takes care of
-    retrieval, filtering/correcting of observations, applying weights and conversion to a tudat-compatible format."""
+    retrieval, filtering/correcting of observations, applying weights and conversion to a tudat-compatible format.
+
+    Examples
+    --------
+    Typical short usage example:
+
+    .. code-block:: python
+
+        from tudatpy.data.gaia import GaiaAstrometry
+        from tudatpy.dynamics import environment_setup
+
+        asteroid_mpc_number = 779
+
+        # Load from the online database...
+        ga = GaiaAstrometry.load_from_astroquery(asteroid_mpc_number)
+        # or from a locally saved .parquet of the observations
+        # ga = GaiaAstrometry.load_from_local_archive(_path_to_parquet_, asteroid_mpc_number)
+
+        # Show a summary of observation...
+        ga.print_summary()
+        # or inspect the table of observations and metadata
+        print(ga.table.head())
+
+        # Create environment settings
+        body_settings = environment_setup.get_default_body_settings(
+            ['Sun', 'Earth', 'Jupiter'], 'SSB', 'J2000')
+
+        # Add the Gaia spacecraft ephemeris into the environment
+        body_settings.add_empty_settings('Gaia')
+        body_settings.get('Gaia').ephemeris_settings = ga.get_gaia_ephemeris_settings()
+
+        bodies = environment_setup.create_system_of_bodies(body_settings)
+
+        # Apply filters
+        ga.apply_filters(exclude_poor_observations = True)
+
+        # At this point, you can apply observation corrections, provided ``asteroid_mpc_number`` has an ephemeris loaded, e.g.:
+        # ga.apply_corrections(bodies, light_deflection_bodies = ('Sun', 'Jupiter'))
+
+        # Create the observation collection, to be passed to the ``EstimationInput``
+        observation_collection = ga.to_observation_collection(bodies)
+    """
+
+
     def __init__(self,
                  observations_and_metadata: pd.DataFrame) -> None:
         """Create an empty GaiaAstrometry object.
@@ -212,7 +255,8 @@ class GaiaAstrometry:
                  bodies: SystemOfBodies) -> observations.ObservationCollection:
         """Collect all Gaia observations into an :class:`~tudatpy.estimation.observations.ObservationCollection` and apply the
         observation weights according to the Gaia weighting scheme. Any filtering or corrections must be done before
-        constructing the observation collection.
+        constructing the observation collection. Observations are in the ``J2000`` frame, and the ``global_frame_orientation``
+        must match this accordingly.
 
         Parameters
         ----------
@@ -226,6 +270,9 @@ class GaiaAstrometry:
             Tudat ObservationCollection containing observations of all asteroids organized in SingleObservationSets
             by link-ends. Asteroids are named by their MPC number.
         """
+        if bodies.global_frame_orientation() != 'J2000':
+            raise ValueError('Global frame orientation must be J2000 to utilise Gaia astrometry at this time')
+
         # Check if Gaia is in bodies
         if not bodies.does_body_exist('Gaia') or bodies.get('Gaia').ephemeris is None:
             raise ValueError('Gaia satellite and associated ephemeris must be loaded in SystemOfBodies')
@@ -288,7 +335,12 @@ class GaiaAstrometry:
         :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`
         and :func:`~tudatpy.estimation.observations.observation_corrections.light_deflection_correction.light_deflection_correction_angular_observations`.
 
-        To apply corrections, the following must be loaded into the environment (SystemOfBodies):
+        The computation of the corrections requires the position (and rotational state) of the asteroid/object itself.
+        Because the corrections are computed **before** an estimation occurs, these must be pulled from the environment
+        itself. Therefore, the object's ``Body`` must have an ``Ephemeris`` loaded in the environment. This 'reference
+        ephemeris' can be retrieved various ways. For instance, by propagating an approximate initial state, or retrieving
+        a high-accuracy ephemeris from the JPL Horizons database (see :class:`~tudatpy.data.horizons.HorizonsQuery`).
+        For reference, the following must be present in the ``SystemOfBodies`` to apply the corrections:
 
         * Reference ephemeris of each of the objects for which astrometry exists on this instance, covering at least
           the entire span of observations (typically july 2014 - january 2020, for Gaia FPR and DR4);
