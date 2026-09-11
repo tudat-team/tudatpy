@@ -246,8 +246,8 @@ template< typename ObservationScalarType = double,
 void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
                        const std::vector< Eigen::Vector3d >& stationPositions,
                        const std::vector< std::map< std::string, std::string > >& stringMetadata,
-                       const std::map< int, int >* sharedObservationsPerLocalDay = nullptr,
-                       const std::vector< TimeType >* utcEpochs = nullptr )
+                       const std::map< int, int >& sharedObservationsPerLocalDay = {},
+                       const std::vector< TimeType >& utcEpochs = {} )
 {
     if( stationPositions.size( ) != trackingData->getNumberOfObservations( ) )
     {
@@ -262,7 +262,8 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
                                   std::to_string( trackingData->getNumberOfObservations( ) ) + ")." );
     }
 
-    const std::vector< TimeType >& epochs = utcEpochs == nullptr ? trackingData->getObservationEpochs( ) : *utcEpochs;
+    // Empty optional inputs retain standalone weighting using this data block.
+    const std::vector< TimeType >& epochs = utcEpochs.empty( ) ? trackingData->getObservationEpochs( ) : utcEpochs;
     if( epochs.size( ) != trackingData->getNumberOfObservations( ) )
     {
         throw std::runtime_error( "VFCC17 UTC epochs must have one entry per observation." );
@@ -287,14 +288,11 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationWeights;
     observationWeights.reserve( trackingData->getNumberOfObservations( ) );
+    const auto& nightlyCounts = sharedObservationsPerLocalDay.empty( ) ? observationsPerLocalDay : sharedObservationsPerLocalDay;
     for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
     {
         const double multipleObservationDeweightingFactor =
-                std::max( static_cast< double >(
-                                  ( sharedObservationsPerLocalDay == nullptr ? observationsPerLocalDay : *sharedObservationsPerLocalDay )
-                                          .at( localDayIndices.at( i ) ) ) /
-                                  4.0,
-                          1.0 );
+                std::max( static_cast< double >( nightlyCounts.at( localDayIndices.at( i ) ) ) / 4.0, 1.0 );
         observationWeights.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Constant(
                 trackingData->getSingleObservationSize( ), preliminaryWeights.at( i ) / multipleObservationDeweightingFactor ) );
     }

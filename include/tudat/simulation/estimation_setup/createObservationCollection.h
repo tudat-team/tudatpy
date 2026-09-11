@@ -154,7 +154,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
         std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
         const SystemOfBodies& bodies,
         const bool applyCorrections = false,
-        const std::map< int, int >* observationsPerLocalDay = nullptr )
+        const std::map< int, int >& observationsPerLocalDay = {} )
 {
     if( trackingData == nullptr )
     {
@@ -336,14 +336,17 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
     for( auto trackingData : trackingDataList )
     {
         // Convert single tracking data object to a single observation set
-        const std::map< int, int >* counts = nullptr;
         if( trackingData->getWeighingScheme( ) == "VFCC17" && trackingData->getObservationWeights( ).empty( ) &&
             trackingData->getNumberOfObservations( ) > 0 )
         {
-            counts = &nightlyCounts.at( std::make_pair( getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
-                                                        getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ) ) );
+            const auto& counts = nightlyCounts.at( std::make_pair( getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
+                                                                   getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ) ) );
+            singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections, counts ) );
         }
-        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections, counts ) );
+        else
+        {
+            singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections ) );
+        }
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }

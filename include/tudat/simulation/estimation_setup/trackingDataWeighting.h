@@ -58,7 +58,7 @@ void setObservationWeightsFromTrackingDataScheme(
         const simulation_setup::SystemOfBodies& bodies,
         const observation_models::LinkEnds& rawLinkEnds,
         const observation_models::LinkEndType referenceLinkEnd,
-        const std::map< int, int >* observationsPerLocalDay = nullptr )
+        const std::map< int, int >& observationsPerLocalDay = {} )
 {
     if( trackingData->getWeighingScheme( ).empty( ) || trackingData->getNumberOfObservations( ) == 0 )
     {
@@ -109,7 +109,7 @@ void setObservationWeightsFromTrackingDataScheme(
 
     const auto utcEpochs = getTrackingDataUtcEpochs( trackingData, stationPosition );
     data::setVFCC17Weights< ObservationScalarType, TimeType >(
-            trackingData, stationPositions, stringMetadata, observationsPerLocalDay, &utcEpochs );
+            trackingData, stationPositions, stringMetadata, observationsPerLocalDay, utcEpochs );
 }
 
 }  // namespace observation_models
