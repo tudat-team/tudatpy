@@ -60,7 +60,7 @@ void setObservationWeightsFromTrackingDataScheme(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::map< int, int >* observationsPerLocalDay = nullptr )
 {
-    if( trackingData->getWeighingScheme( ).empty( ) )
+    if( trackingData->getWeighingScheme( ).empty( ) || trackingData->getNumberOfObservations( ) == 0 )
     {
         return;
     }

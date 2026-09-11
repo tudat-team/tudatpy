@@ -156,9 +156,17 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
         const bool applyCorrections = false,
         const std::map< int, int >* observationsPerLocalDay = nullptr )
 {
+    if( trackingData == nullptr )
+    {
+        throw std::runtime_error( "Cannot create an observation set from null tracking data." );
+    }
     // Generated weights depend on the collection context. Do not cache them in
     // the caller's input, which may subsequently be used in a different collection.
-    trackingData = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >( *trackingData );
+    if( !trackingData->getWeighingScheme( ).empty( ) && trackingData->getObservationWeights( ).empty( ) &&
+        trackingData->getNumberOfObservations( ) > 0 )
+    {
+        trackingData = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >( *trackingData );
+    }
     // Identify observable type from tracking data object
     observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType( ) );
 
@@ -294,14 +302,29 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         {
             throw std::runtime_error( "Cannot create an observation collection from null tracking data." );
         }
-        if( trackingData->getWeighingScheme( ) != "VFCC17" )
+        if( trackingData->getWeighingScheme( ) == "VFCC17" && trackingData->getObservationWeights( ).empty( ) &&
+            trackingData->getNumberOfObservations( ) > 0 )
+        {
+            nightlyCounts.emplace( std::make_pair( getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
+                                                   getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ) ),
+                                   std::map< int, int >( ) );
+        }
+    }
+    for( const auto& trackingData : trackingDataList )
+    {
+        if( trackingData->getWeighingScheme( ) != "VFCC17" || trackingData->getNumberOfObservations( ) == 0 )
         {
             continue;
         }
         const auto linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
         const auto referenceLinkEnd = getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) );
+        const auto group = nightlyCounts.find( std::make_pair( linkEnds, referenceLinkEnd ) );
+        if( group == nightlyCounts.end( ) )
+        {
+            continue;
+        }
         const auto position = getGroundStationPositionForTrackingDataLinkEnd( bodies, linkEnds.at( referenceLinkEnd ) );
-        auto& counts = nightlyCounts[ std::make_pair( linkEnds, referenceLinkEnd ) ];
+        auto& counts = group->second;
         for( const auto& epoch : getTrackingDataUtcEpochs( trackingData, position ) )
         {
             ++counts[ data::getVfcc17LocalDay( static_cast< double >( epoch ), position ) ];
@@ -314,7 +337,8 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
     {
         // Convert single tracking data object to a single observation set
         const std::map< int, int >* counts = nullptr;
-        if( trackingData->getWeighingScheme( ) == "VFCC17" )
+        if( trackingData->getWeighingScheme( ) == "VFCC17" && trackingData->getObservationWeights( ).empty( ) &&
+            trackingData->getNumberOfObservations( ) > 0 )
         {
             counts = &nightlyCounts.at( std::make_pair( getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
                                                         getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ) ) );

@@ -117,6 +117,25 @@ BOOST_AUTO_TEST_CASE( testUnsupportedFrequencyHistoryFailsWithoutChangingEnviron
     BOOST_CHECK( vehicle->getTransmittedFrequencyCalculator( ) == existing );
 }
 
+BOOST_AUTO_TEST_CASE( testExplicitWeightsDoNotRequireStationDataForAutomaticWeighting )
+{
+    auto input = angularTracking( );
+    auto tracking = std::make_shared< data::TrackingData<> >( input->getObservableType( ),
+                                                              input->getLinkEnds( ),
+                                                              input->getObservations( ),
+                                                              input->getObservationEpochs( ),
+                                                              "receiver",
+                                                              "TDB",
+                                                              "VFCC17" );
+    tracking->setObservationWeights( { Eigen::Vector2d( 3.0, 4.0 ) } );
+    simulation_setup::SystemOfBodies bodies;
+    const std::vector< std::shared_ptr< data::TrackingData<> > > inputs = { tracking };
+    BOOST_CHECK_NO_THROW( createObservationCollection( inputs, bodies ) );
+    BOOST_CHECK( createSingleObservationSetFromTrackingData( tracking, bodies )->getWeightsVector( ).isApprox( Eigen::Vector2d( 3, 4 ) ) );
+    std::shared_ptr< data::TrackingData<> > nullInput;
+    BOOST_CHECK_THROW( createSingleObservationSetFromTrackingData( nullInput, bodies ), std::runtime_error );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 }  // namespace unit_tests
 }  // namespace tudat

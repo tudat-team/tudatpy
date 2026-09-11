@@ -141,6 +141,14 @@ def test_vfcc17_weights_are_partition_invariant_and_inputs_reusable(optical_tabl
     np.testing.assert_array_equal(
         np.array(explicit.concatenated_weights).reshape(-1), [3.0, 4.0] * 4
     )
+    # Manually weighted rows still count when their link also has automatic weights.
+    mixed = create_observation_collection_from_tracking_data(first + second, bodies)
+    np.testing.assert_array_equal(
+        np.array(mixed.concatenated_weights).reshape(-1)[:8], [3.0, 4.0] * 4
+    )
+    np.testing.assert_allclose(
+        np.array(mixed.concatenated_weights).reshape(-1)[8:], expected, rtol=1.0e-13
+    )
 
 
 def test_vfcc17_nightly_counts_do_not_mix_targets(optical_table):
