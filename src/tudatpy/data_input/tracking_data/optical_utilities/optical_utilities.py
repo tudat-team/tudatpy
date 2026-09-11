@@ -270,7 +270,7 @@ def _resolve_optical_target_names(table):
     # Resolve names per MPC identifier, across all observatories. Missing names
     # inherit the identifier's supplied name; conflicting names are ambiguous.
     target_names = {}
-    for target, group in table.groupby("number"):
+    for target, group in table.groupby("number", sort=False):
         names = group.get("custom_name", pd.Series(dtype=str)).dropna().astype(str).str.strip()
         names = names[names != ""].unique()
         if len(names) > 1:

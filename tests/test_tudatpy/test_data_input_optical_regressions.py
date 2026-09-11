@@ -112,13 +112,19 @@ def test_conflicting_optical_target_names_are_rejected(optical_table):
     assert all((("Eros", ""), "transmitter") in item.link_ends for item in data)
 
 
-def test_batch_metadata_resolves_partial_custom_names(optical_table):
+@pytest.mark.parametrize(
+    "custom_names,expected_names",
+    [([None, None, None], ["433", "1"]), (["Eros", None, None], ["Eros", "1"])],
+)
+def test_batch_metadata_preserves_target_order_and_resolves_names(
+    optical_table, custom_names, expected_names
+):
     from tudatpy.data_input.tracking_data.mpc import BatchMPC
 
     table = pd.concat([optical_table, optical_table, optical_table], ignore_index=True)
     table["number"] = ["433", "433", "1"]
-    table["custom_name"] = ["Eros", None, None]
+    table["custom_name"] = custom_names
     batch = BatchMPC()
     batch._table = optical.create_augmented_optical_table(table)
     batch._refresh_metadata()
-    assert set(batch.MPC_objects) == {"Eros", "1"}
+    assert batch.MPC_objects == expected_names
