@@ -505,6 +505,10 @@ void expose_tracking_data( py::module& m )
          the history is set on the associated
          :class:`~tudatpy.dynamics.environment.GroundStation`, or on the
          associated body's vehicle systems if no reference point is specified.
+         Each entry takes effect at its epoch and is installed as a ramp with
+         zero rate. The existing ramp calculator holds the first and last
+         frequencies outside the tabulated epochs. Later entries replace earlier
+         entries at the same epoch when histories or existing ramp tables are merged.
          See :ref:`ground_station`, :ref:`vehicle_systems`, and
          :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`
          for the environment model to which this data is attached.
