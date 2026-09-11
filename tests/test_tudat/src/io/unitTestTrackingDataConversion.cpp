@@ -1,6 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/included/unit_test.hpp>
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
@@ -93,6 +95,26 @@ BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
     BOOST_CHECK( correctedSet->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 0.9, 1.8 ) ) );
     BOOST_CHECK_EQUAL( uncorrectedSet->getObservations( ).at( 0 )( 0 ), 1000.0 );
     BOOST_CHECK( corrected->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 1.0, 2.0 ) ) );
+}
+
+BOOST_AUTO_TEST_CASE( testUnsupportedFrequencyHistoryFailsWithoutChangingEnvironment )
+{
+    simulation_setup::SystemOfBodies bodies;
+    bodies.createEmptyBody( "Probe" );
+    auto vehicle = std::make_shared< system_models::VehicleSystems >( );
+    bodies.at( "Probe" )->setVehicleSystems( vehicle );
+    auto history = std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( );
+    history->setFrequency( 0.0, 8.4E9 );
+    history->setFrequency( 60.0, 8.5E9 );
+    const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > > input = {
+        { { "Probe", "" }, { history } }
+    };
+    BOOST_CHECK_THROW( setFrequencySupplementaryDataInBodies( bodies, input ), std::runtime_error );
+    BOOST_CHECK( vehicle->getTransmittedFrequencyCalculator( ) == nullptr );
+    auto existing = std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 1.0E9 );
+    vehicle->setTransmittedFrequencyCalculator( existing );
+    BOOST_CHECK_THROW( setFrequencySupplementaryDataInBodies( bodies, input ), std::runtime_error );
+    BOOST_CHECK( vehicle->getTransmittedFrequencyCalculator( ) == existing );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
