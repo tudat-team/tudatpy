@@ -674,7 +674,7 @@ BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
 BOOST_AUTO_TEST_CASE( testOpticalMetadataIsNotSimulationAncillaryData )
 {
     auto tracking = angularTracking( );
-    for( const auto key : { "band", "catalog", "note2", "custom_name", "discovery", "mag", "phottype", "number" } )
+    for( const std::string key : { "band", "catalog", "note2", "custom_name", "discovery", "mag", "phottype", "number" } )
     {
         tracking->addAncillarySettings( key, std::vector< std::string >{ "metadata" } );
     }
