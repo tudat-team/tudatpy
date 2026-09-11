@@ -79,3 +79,42 @@ def test_vfcc17_uses_required_metadata_without_optional_ancillary(
     collection = create_observation_collection_from_tracking_data(data, weighting_bodies())
     expected = 1.0 / np.deg2rad(sigma / 3600.0) ** 2
     np.testing.assert_allclose(collection.concatenated_weights, expected, rtol=1.0e-13)
+
+
+@pytest.mark.parametrize("source", ["pandas", "astropy", "mpc"])
+def test_custom_target_name_reaches_optical_link(optical_table, source):
+    if source == "mpc":
+        from tudatpy.data_input.tracking_data.mpc import BatchMPC
+
+        batch = BatchMPC()
+        batch._table = optical.create_augmented_optical_table(optical_table, custom_name="Eros")
+        batch._refresh_metadata()
+        data, _ = batch.to_tracking_dataset()
+    else:
+        table = Table.from_pandas(optical_table) if source == "astropy" else optical_table
+        data, _ = read_optical_data(table, custom_name="Eros")
+    assert (("Eros", ""), "transmitter") in data[0].link_ends
+    assert data[0].get_ancillary_settings_string_vector()["number"] == ["433"]
+
+
+def test_conflicting_optical_target_names_are_rejected(optical_table):
+    table = pd.concat([optical_table, optical_table], ignore_index=True)
+    table["custom_name"] = ["Eros", "Other"]
+    table["observatory"] = ["500", "501"]
+    with pytest.raises(ValueError, match="Conflicting custom names"):
+        read_optical_data(table)
+    table["custom_name"] = ["Eros", None]
+    data, _ = read_optical_data(table)
+    assert all((("Eros", ""), "transmitter") in item.link_ends for item in data)
+
+
+def test_batch_metadata_resolves_partial_custom_names(optical_table):
+    from tudatpy.data_input.tracking_data.mpc import BatchMPC
+
+    table = pd.concat([optical_table, optical_table, optical_table], ignore_index=True)
+    table["number"] = ["433", "433", "1"]
+    table["custom_name"] = ["Eros", None, None]
+    batch = BatchMPC()
+    batch._table = optical.create_augmented_optical_table(table)
+    batch._refresh_metadata()
+    assert set(batch.MPC_objects) == {"Eros", "1"}

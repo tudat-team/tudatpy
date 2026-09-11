@@ -266,6 +266,20 @@ def filter_augmented_optical_table(
     return filtered.reset_index(drop=True)
 
 
+def _resolve_optical_target_names(table):
+    # Resolve names per MPC identifier, across all observatories. Missing names
+    # inherit the identifier's supplied name; conflicting names are ambiguous.
+    target_names = {}
+    for target, group in table.groupby("number"):
+        names = group.get("custom_name", pd.Series(dtype=str)).dropna().astype(str).str.strip()
+        names = names[names != ""].unique()
+        if len(names) > 1:
+            raise ValueError(f"Conflicting custom names for MPC target {target}: {names.tolist()}")
+        target_names[target] = names[0] if len(names) else str(target)
+
+    return target_names
+
+
 def optical_table_to_tracking_data(
     table: pd.DataFrame,
     add_weights: bool | None = False,
@@ -304,13 +318,16 @@ def optical_table_to_tracking_data(
     metadata_columns = set(ANCILLARY_STRING_COLUMNS) if add_ancillary_data else set()
     if add_weights:
         metadata_columns.update(["note2", "catalog"])
+    metadata_columns.add("number")
+
+    target_names = _resolve_optical_target_names(table)
 
     tracking_data_objects = []
     for (target, observatory), group in table.groupby(["number", "observatory"]):
         observable_type, reference_link_end_type = "AngularPosition", "receiver"
 
         link_ends = [
-            ((str(target), ""), "transmitter"),
+            ((target_names[target], ""), "transmitter"),
             (("Earth", str(observatory)), reference_link_end_type),
         ]
         observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
