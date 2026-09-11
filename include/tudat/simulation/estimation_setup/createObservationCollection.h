@@ -151,10 +151,14 @@ template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createSingleObservationSetFromTrackingData(
-        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
+        std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
         const SystemOfBodies& bodies,
-        const bool applyCorrections = false )
+        const bool applyCorrections = false,
+        const std::map< int, int >* observationsPerLocalDay = nullptr )
 {
+    // Generated weights depend on the collection context. Do not cache them in
+    // the caller's input, which may subsequently be used in a different collection.
+    trackingData = std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >( *trackingData );
     // Identify observable type from tracking data object
     observation_models::ObservableType observableType = getObservableTypeFromTrackingDataString( trackingData->getObservableType( ) );
 
@@ -169,7 +173,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > creat
     // Get observations from tracking data
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = trackingData->getObservations( );
 
-    setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
+    setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >(
+            trackingData, bodies, rawLinkEnds, referenceLinkEnd, observationsPerLocalDay );
 
     // Apply corrections if requested (and if they exist)
     if( applyCorrections && !trackingData->getObservationCorrections( ).empty( ) )
@@ -280,12 +285,41 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
         SystemOfBodies& bodies,
         const bool applyCorrections = false )
 {
+    // Count each target/station night across all input blocks before assigning weights.
+    using WeightGroup = std::pair< LinkEnds, LinkEndType >;
+    std::map< WeightGroup, std::map< int, int > > nightlyCounts;
+    for( const auto& trackingData : trackingDataList )
+    {
+        if( trackingData == nullptr )
+        {
+            throw std::runtime_error( "Cannot create an observation collection from null tracking data." );
+        }
+        if( trackingData->getWeighingScheme( ) != "VFCC17" )
+        {
+            continue;
+        }
+        const auto linkEnds = getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) );
+        const auto referenceLinkEnd = getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) );
+        const auto position = getGroundStationPositionForTrackingDataLinkEnd( bodies, linkEnds.at( referenceLinkEnd ) );
+        auto& counts = nightlyCounts[ std::make_pair( linkEnds, referenceLinkEnd ) ];
+        for( const auto& epoch : getTrackingDataUtcEpochs( trackingData, position ) )
+        {
+            ++counts[ data::getVfcc17LocalDay( static_cast< double >( epoch ), position ) ];
+        }
+    }
+
     // Create list of single observation sets
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets;
     for( auto trackingData : trackingDataList )
     {
         // Convert single tracking data object to a single observation set
-        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections ) );
+        const std::map< int, int >* counts = nullptr;
+        if( trackingData->getWeighingScheme( ) == "VFCC17" )
+        {
+            counts = &nightlyCounts.at( std::make_pair( getLinkEndsFromTrackingData( trackingData->getLinkEnds( ) ),
+                                                        getLinkEndTypeFromString( trackingData->getReferenceLinkEnd( ) ) ) );
+        }
+        singleObservationSets.push_back( createSingleObservationSetFromTrackingData( trackingData, bodies, applyCorrections, counts ) );
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }

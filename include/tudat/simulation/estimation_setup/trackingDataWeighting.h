@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/io/trackingData.h"
 #include "tudat/io/trackingDataWeights.h"
@@ -33,6 +34,22 @@ namespace observation_models
 Eigen::Vector3d getGroundStationPositionForTrackingDataLinkEnd( const simulation_setup::SystemOfBodies& bodies,
                                                                 const LinkEndId& linkEndId );
 
+template< typename ObservationScalarType, typename TimeType >
+std::vector< TimeType > getTrackingDataUtcEpochs(
+        const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > >& trackingData,
+        const Eigen::Vector3d& stationPosition )
+{
+    if( trackingData->getTimeScale( ) == "UTC" )
+    {
+        return trackingData->getObservationEpochs( );
+    }
+    return earth_orientation::createDefaultTimeConverter( )->getCurrentTimesFromSinglePosition< TimeType >(
+            basic_astrodynamics::timeScaleFromString( trackingData->getTimeScale( ) ),
+            basic_astrodynamics::utc_scale,
+            trackingData->getObservationEpochs( ),
+            stationPosition );
+}
+
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -40,7 +57,8 @@ void setObservationWeightsFromTrackingDataScheme(
         const std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > trackingData,
         const simulation_setup::SystemOfBodies& bodies,
         const observation_models::LinkEnds& rawLinkEnds,
-        const observation_models::LinkEndType referenceLinkEnd )
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::map< int, int >* observationsPerLocalDay = nullptr )
 {
     if( trackingData->getWeighingScheme( ).empty( ) )
     {
@@ -89,7 +107,9 @@ void setObservationWeightsFromTrackingDataScheme(
         }
     }
 
-    data::setVFCC17Weights< ObservationScalarType, TimeType >( trackingData, stationPositions, stringMetadata );
+    const auto utcEpochs = getTrackingDataUtcEpochs( trackingData, stationPosition );
+    data::setVFCC17Weights< ObservationScalarType, TimeType >(
+            trackingData, stationPositions, stringMetadata, observationsPerLocalDay, &utcEpochs );
 }
 
 }  // namespace observation_models
