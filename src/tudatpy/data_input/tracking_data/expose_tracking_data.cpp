@@ -462,10 +462,13 @@ void expose_tracking_data( py::module& m )
             .def( py::init< const std::vector< tdat::RampedFrequencySupplementaryData::FrequencyRamp >& >( ), py::arg( "frequency_ramps" ) )
             .def_property_readonly( "frequency_ramps",
                                     &tdat::RampedFrequencySupplementaryData::getFrequencyRamps,
+                                    py::return_value_policy::copy,
                                     R"doc(
          **read-only**
 
-         Frequency-ramp records.
+         Independent copies of the frequency-ramp records. Appending ramps to
+         the container does not invalidate previously retrieved records, and
+         editing a retrieved record does not change the container.
 
          :type: list[FrequencyRamp]
       )doc" )
