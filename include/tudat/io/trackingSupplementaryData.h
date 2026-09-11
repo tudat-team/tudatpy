@@ -18,7 +18,6 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
-#include <stdexcept>
 #include <vector>
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
