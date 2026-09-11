@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
+#include <stdexcept>
 #include <vector>
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
@@ -181,6 +182,27 @@ public:
     const std::map< double, Eigen::Quaterniond >& getRotationFromInertialToCameraFrameHistory( ) const
     {
         return rotationFromInertialToCameraFrameHistory_;
+    }
+
+    //! Merge compatible camera histories; conflicting calibration or attitudes are errors.
+    void merge( const CameraInstrumentSupplementaryData& other )
+    {
+        if( cameraId_ != other.cameraId_ || focalLength_ != other.focalLength_ || !principalPoint_.isApprox( other.principalPoint_ ) ||
+            !fieldOfViewBounds_.isApprox( other.fieldOfViewBounds_ ) || !kMatrix_.isApprox( other.kMatrix_ ) ||
+            !distortionCoefficients_.isApprox( other.distortionCoefficients_ ) || !mountingOffsets_.isApprox( other.mountingOffsets_ ) )
+        {
+            throw std::runtime_error( "Inconsistent calibration for PSF camera " + cameraId_ );
+        }
+        auto mergedHistory = rotationFromInertialToCameraFrameHistory_;
+        for( const auto& entry : other.rotationFromInertialToCameraFrameHistory_ )
+        {
+            const auto inserted = mergedHistory.emplace( entry );
+            if( !inserted.second && !inserted.first->second.toRotationMatrix( ).isApprox( entry.second.toRotationMatrix( ) ) )
+            {
+                throw std::runtime_error( "Conflicting pointing epochs for PSF camera " + cameraId_ );
+            }
+        }
+        rotationFromInertialToCameraFrameHistory_.swap( mergedHistory );
     }
 
     //! Combine histories only when they describe the same calibrated camera.
