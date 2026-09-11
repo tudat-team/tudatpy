@@ -233,21 +233,12 @@ inline double getVfcc17PreliminaryWeight( const double julianDate, const std::ma
     return 1.0 / std::pow( unit_conversions::convertArcSecondsToRadians( inverseWeight ), 2.0 );
 }
 
-inline int getVfcc17LocalDay( const double utcEpoch, const Eigen::Vector3d& stationPosition )
-{
-    const double julianDate = basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( utcEpoch );
-    const double longitude = stationPosition.norm( ) > 0.0 ? std::atan2( stationPosition.y( ), stationPosition.x( ) ) : 0.0;
-    return static_cast< int >( std::floor( julianDate + longitude / ( 2.0 * mathematical_constants::PI ) ) );
-}
-
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarType, TimeType > > trackingData,
                        const std::vector< Eigen::Vector3d >& stationPositions,
-                       const std::vector< std::map< std::string, std::string > >& stringMetadata,
-                       const std::map< int, int >& sharedObservationsPerLocalDay = {},
-                       const std::vector< TimeType >& utcEpochs = {} )
+                       const std::vector< std::map< std::string, std::string > >& stringMetadata )
 {
     if( stationPositions.size( ) != trackingData->getNumberOfObservations( ) )
     {
@@ -262,12 +253,7 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
                                   std::to_string( trackingData->getNumberOfObservations( ) ) + ")." );
     }
 
-    // Empty optional inputs retain standalone weighting using this data block.
-    const std::vector< TimeType >& epochs = utcEpochs.empty( ) ? trackingData->getObservationEpochs( ) : utcEpochs;
-    if( epochs.size( ) != trackingData->getNumberOfObservations( ) )
-    {
-        throw std::runtime_error( "VFCC17 UTC epochs must have one entry per observation." );
-    }
+    const std::vector< TimeType > epochs = trackingData->getObservationEpochs( );
     std::vector< double > preliminaryWeights;
     preliminaryWeights.reserve( trackingData->getNumberOfObservations( ) );
 
@@ -280,7 +266,14 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
         const double julianDate =
                 basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( static_cast< double >( epochs.at( i ) ) );
 
-        const int localDayIndex = getVfcc17LocalDay( static_cast< double >( epochs.at( i ) ), stationPositions.at( i ) );
+        double longitudeFractionOfDay = 0.0;
+        if( stationPositions.at( i ).norm( ) > 0.0 )
+        {
+            longitudeFractionOfDay =
+                    std::atan2( stationPositions.at( i ).y( ), stationPositions.at( i ).x( ) ) / ( 2.0 * mathematical_constants::PI );
+        }
+
+        const int localDayIndex = static_cast< int >( std::floor( julianDate + longitudeFractionOfDay ) );
         localDayIndices.push_back( localDayIndex );
         observationsPerLocalDay[ localDayIndex ] += 1;
         preliminaryWeights.push_back( getVfcc17PreliminaryWeight( julianDate, stringMetadata.at( i ) ) );
@@ -288,11 +281,10 @@ void setVFCC17Weights( const std::shared_ptr< TrackingData< ObservationScalarTyp
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observationWeights;
     observationWeights.reserve( trackingData->getNumberOfObservations( ) );
-    const auto& nightlyCounts = sharedObservationsPerLocalDay.empty( ) ? observationsPerLocalDay : sharedObservationsPerLocalDay;
     for( unsigned int i = 0; i < trackingData->getNumberOfObservations( ); ++i )
     {
         const double multipleObservationDeweightingFactor =
-                std::max( static_cast< double >( nightlyCounts.at( localDayIndices.at( i ) ) ) / 4.0, 1.0 );
+                std::max( static_cast< double >( observationsPerLocalDay.at( localDayIndices.at( i ) ) ) / 4.0, 1.0 );
         observationWeights.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Constant(
                 trackingData->getSingleObservationSize( ), preliminaryWeights.at( i ) / multipleObservationDeweightingFactor ) );
     }
