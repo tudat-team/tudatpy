@@ -19,7 +19,7 @@ def legacy_symbol(module, name):
 
 
 def earth_bodies():
-    settings = environment_setup.BodyListSettings()
+    settings = environment_setup.BodyListSettings("SSB", "J2000")
     settings.add_empty_settings("Earth")
     settings.get("Earth").shape_settings = environment_setup.shape.spherical(6378137.0)
     return environment_setup.create_system_of_bodies(settings)
@@ -81,8 +81,9 @@ def test_legacy_mpc_ingestion_weights_and_environment(
 def test_legacy_mpc_default_weighting_is_numerical(legacy_mpc_table):
     batch = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
     batch.from_pandas(legacy_mpc_table)
+    bodies = earth_bodies()
     with pytest.warns(DeprecationWarning, match="get_weights_VFCC17"):
-        collection = batch.to_tudat(earth_bodies(), None, apply_star_catalog_debias=False)
+        collection = batch.to_tudat(bodies, None, apply_star_catalog_debias=False)
     np.testing.assert_allclose(collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2)
 
 
@@ -97,7 +98,7 @@ def test_legacy_horizons_ephemeris_methods():
     Batch = legacy_symbol("tudatpy.data.horizons.horizons", "HorizonsBatch")
     batch = Batch.__new__(Batch)
     batch._query_objects = {"433": SimpleNamespace(name="Eros", cartesian=query.cartesian)}
-    settings = environment_setup.BodyListSettings()
+    settings = environment_setup.BodyListSettings("SSB", "J2000")
     with pytest.warns(DeprecationWarning, match="add_batch_ephemerides"):
         result = batch.add_batch_ephemerides(settings, "SSB", "J2000")
     assert result is None

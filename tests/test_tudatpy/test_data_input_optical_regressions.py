@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from astropy.table import Table
 
-from tudatpy.dynamics import environment
+from tudatpy.dynamics import environment_setup
 from tudatpy.estimation.observations import create_observation_collection_from_tracking_data
 from tudatpy.data_input.tracking_data.optical_utilities import read_optical_data
 
@@ -33,6 +33,12 @@ def optical_table():
     )
 
 
+def empty_bodies():
+    return environment_setup.create_system_of_bodies(
+        environment_setup.BodyListSettings("SSB", "J2000")
+    )
+
+
 def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypatch):
     arcsec = np.deg2rad(1.0 / 3600.0)
     # A deterministic all-sky map exercises the actual bias calculation too.
@@ -44,7 +50,7 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
     data, _ = read_optical_data(optical_table, add_star_catalog_corrections=True)
     raw = np.array(data[0].observations).reshape(-1)
     collection = create_observation_collection_from_tracking_data(
-        data, environment.SystemOfBodies(), apply_corrections=True
+        data, empty_bodies(), apply_corrections=True
     )
     np.testing.assert_allclose(
         np.array(collection.concatenated_observations).reshape(-1) - raw,
@@ -55,9 +61,7 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
 
 
 def weighting_bodies():
-    from tudatpy.dynamics import environment_setup
-
-    bodies = environment.SystemOfBodies()
+    bodies = empty_bodies()
     bodies.create_empty_body("Earth")
     environment_setup.add_ground_station(
         bodies.get("Earth"),
