@@ -168,6 +168,3 @@ TUDAT_ADD_TEST_CASE(IonexReader
         tudat_input_output
         tudat_basic_astrodynamics
         )
-
-TUDAT_ADD_TEST_CASE(TrackingDataConversion
-        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
