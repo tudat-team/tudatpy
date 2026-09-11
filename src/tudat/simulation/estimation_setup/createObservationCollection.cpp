@@ -71,7 +71,7 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
-    return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
+    return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
 std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
