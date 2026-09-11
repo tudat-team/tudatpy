@@ -328,7 +328,7 @@ def optical_table_to_tracking_data(
 
         if add_star_catalog_corrections:
             corrections_list = [
-                np.array([ra_c, dec_c])
+                -np.array([ra_c, dec_c])
                 for ra_c, dec_c in zip(group["_RA_corr"], group["_DEC_corr"])
             ]
             tracking_data_object.set_observation_corrections(corrections_list)
