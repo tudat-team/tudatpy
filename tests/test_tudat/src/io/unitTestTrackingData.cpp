@@ -123,6 +123,31 @@ BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged )
+{
+    for( unsigned int removed = 0; removed < 3; ++removed )
+    {
+        data::TrackingData<> trackingData( "AngularPosition",
+                                           {},
+                                           { Eigen::Vector2d( 1, 2 ), Eigen::Vector2d( 3, 4 ), Eigen::Vector2d( 5, 6 ) },
+                                           { 10, 20, 30 },
+                                           "receiver" );
+        const std::vector< std::string > techniques = { "C", "P", "S" };
+        trackingData.addAncillarySettings( "note2", techniques );
+        trackingData.addObservationMetadata( "observer", { "Alice", "Bob", "Carol" } );
+        const std::vector< std::string > bands = { "X-band", "S-band", "X-band" };
+        trackingData.addAncillarySettings( "frequency bands", bands );
+        BOOST_CHECK_THROW( trackingData.addObservationMetadata( "note2", { "C" } ), std::runtime_error );
+        trackingData.removeSingleObservationEntry( removed );
+        auto expected = techniques;
+        expected.erase( expected.begin( ) + removed );
+        BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) == expected );
+        BOOST_CHECK_EQUAL( trackingData.getAncillarySettingsStringVector( ).at( "observer" ).size( ), 2 );
+        BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
+        BOOST_CHECK_EQUAL( trackingData.getNumberOfObservations( ), 2 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

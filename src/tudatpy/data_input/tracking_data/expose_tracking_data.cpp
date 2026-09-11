@@ -361,6 +361,12 @@ void expose_tracking_data( py::module& m )
          list
              Observation correction vectors.
       )doc" )
+            .def( "add_observation_metadata",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationMetadata,
+                  py::arg( "key" ),
+                  py::arg( "values" ),
+                  "Attach one string per observation. Values remain aligned when observations are removed; "
+                  "they are not interpreted as simulation ancillary settings." )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),
