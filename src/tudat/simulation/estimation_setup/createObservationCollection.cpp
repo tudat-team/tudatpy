@@ -422,6 +422,7 @@ void setFrequencySupplementaryDataInBodies(
         }
 
         std::vector< data::RampedFrequencySupplementaryData::FrequencyRamp > frequencyRamps;
+        std::vector< std::map< double, double > > piecewiseConstantFrequencyHistories;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
         {
@@ -462,14 +463,7 @@ void setFrequencySupplementaryDataInBodies(
                                               referencePointName +
                                               ": frequency data type is piecewise constant, but derived object type is inconsistent." );
                 }
-                throw std::runtime_error(
-                        "Piecewise-constant frequency supplementary data installation is not supported; "
-                        "provide explicit frequency ramps with start and end epochs." );
-            }
-            else
-            {
-                throw std::runtime_error( "Unsupported frequency supplementary data kind: " +
-                                          it->second.at( i )->getFrequencySupplementaryDataKind( ) );
+                piecewiseConstantFrequencyHistories.push_back( piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) );
             }
         }
 

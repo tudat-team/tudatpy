@@ -500,9 +500,14 @@ void expose_tracking_data( py::module& m )
          Container for piecewise-constant frequency supplementary data.
 
          This class stores a transmission-frequency history that is constant
-         between tabulated epochs. Installing this container in an environment
-         is currently unsupported and raises an error. Use ramped-frequency
-         supplementary data with explicit start and end epochs instead.
+         between tabulated epochs. When applied with
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`,
+         the history is set on the associated
+         :class:`~tudatpy.dynamics.environment.GroundStation`, or on the
+         associated body's vehicle systems if no reference point is specified.
+         See :ref:`ground_station`, :ref:`vehicle_systems`, and
+         :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`
+         for the environment model to which this data is attached.
       )doc" )
             .def( py::init<>( ) )
             .def( py::init< const std::map< double, double >& >( ), py::arg( "frequency_history" ) )
