@@ -26,6 +26,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
@@ -710,6 +711,94 @@ BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
     BOOST_CHECK( correctedSet->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 0.9, 1.8 ) ) );
     BOOST_CHECK_EQUAL( uncorrectedSet->getObservations( ).at( 0 )( 0 ), 1000.0 );
     BOOST_CHECK( corrected->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 1.0, 2.0 ) ) );
+}
+
+BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRateRamps )
+{
+    using FrequencyDataMap =
+            std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >;
+    const std::map< double, double > firstHistory = { { 0.0, 100.0 }, { 20.0, 300.0 } };
+    const std::map< double, double > secondHistory = { { 10.0, 200.0 } };
+    auto first = std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( firstHistory );
+    auto second = std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( secondHistory );
+
+    for( const bool useGroundStation : { true, false } )
+    {
+        simulation_setup::SystemOfBodies bodies;
+        const std::string bodyName = useGroundStation ? "Earth" : "Spacecraft";
+        const std::string referencePointName = useGroundStation ? "500" : "";
+        bodies.createEmptyBody( bodyName );
+        auto body = bodies.at( bodyName );
+        if( useGroundStation )
+        {
+            createGroundStation( body, referencePointName, Eigen::Vector3d( 6378137.0, 0.0, 0.0 ) );
+        }
+        const auto linkEnd = std::make_pair( bodyName, referencePointName );
+        const auto getCalculator = [ & ]( ) {
+            return useGroundStation ? body->getGroundStation( referencePointName )->getTransmittingFrequencyCalculator( )
+                                    : body->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+        };
+        FrequencyDataMap frequencyData;
+        // A one-entry history is a single zero-rate ramp. Repeated lookups at
+        // its start epoch must work as well as extrapolation and integration.
+        frequencyData[ linkEnd ] = { second };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+        if( !useGroundStation )
+        {
+            BOOST_REQUIRE( body->getVehicleSystems( ) != nullptr );
+        }
+        BOOST_REQUIRE( getCalculator( ) != nullptr );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedCurrentFrequency<>( 10.0 ), 200.0 );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedCurrentFrequency<>( 10.0 ), 200.0 );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedCurrentFrequency<>( -5.0 ), 200.0 );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedCurrentFrequency<>( 100.0 ), 200.0 );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedFrequencyIntegral<>( Time( -5.0 ), Time( 30.0 ) ), 7000.0 );
+        BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedFrequencyIntegral<>( Time( 10.0 ), Time( 30.0 ) ), 4000.0 );
+
+        frequencyData[ linkEnd ] = { first, second };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+        auto calculator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( getCalculator( ) );
+        BOOST_REQUIRE( calculator != nullptr );
+        BOOST_CHECK( calculator->getRampRates( ) == std::vector< double >( 3, 0.0 ) );
+
+        const std::map< double, double > expectedFrequencies = { { -5.0, 100.0 }, { 0.0, 100.0 },  { 9.0, 100.0 },  { 10.0, 200.0 },
+                                                                 { 19.0, 200.0 }, { 20.0, 300.0 }, { 100.0, 300.0 } };
+        for( const auto& entry : expectedFrequencies )
+        {
+            BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( entry.first ), entry.second );
+            BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( Time( entry.first ) ), entry.second );
+        }
+        BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( -5.0 ), Time( 30.0 ) ), 6500.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( 30.0 ), Time( -5.0 ) ), -6500.0 );
+
+        // Reversing disjoint input histories preserves all changes and leaves the inputs reusable.
+        frequencyData[ linkEnd ] = { second, first };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+        BOOST_CHECK( getCalculator( ) == calculator );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( -5.0 ), Time( 30.0 ) ), 6500.0 );
+        BOOST_CHECK( first->getFrequencyHistory( ) == firstHistory );
+        BOOST_CHECK( second->getFrequencyHistory( ) == secondHistory );
+
+        // Later input wins at matching epochs, including entries in the existing ramp table.
+        auto update =
+                std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( std::map< double, double >{ { 10.0, 250.0 } } );
+        frequencyData[ linkEnd ] = { second, update };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 15.0 ), 250.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 25.0 ), 300.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( 5.0 ), Time( 25.0 ) ), 4500.0 );
+
+        auto ramped = std::make_shared< data::RampedFrequencySupplementaryData >( );
+        ramped->addFrequencyRamp( -20.0, 0.0, 50.0, 2.0 );
+        frequencyData[ linkEnd ] = { ramped };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( -10.0 ), 70.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 5.0 ), 100.0 );
+
+        frequencyData[ linkEnd ] = { std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( ) };
+        BOOST_CHECK_THROW( setFrequencySupplementaryDataInBodies( bodies, frequencyData ), std::runtime_error );
+        BOOST_CHECK( getCalculator( ) == calculator );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -11,6 +11,10 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
 )
 from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
 
+from tudatpy.data_input.tracking_data.optical_utilities.optical_utilities import (
+    _resolve_optical_target_names,
+)
+
 OBS_TYPES_TO_DROP = unpackers.OBS_TYPES_TO_DROP
 
 
@@ -434,11 +438,7 @@ class BatchMPC:
         if "band" in self._table.columns:
             self._bands = list(self._table.band.unique())
 
-        # if user gives custom name, set that as body name, else MPC code
-        if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
-            self._MPC_codes = list(self._table["custom_name"].unique())
-        else:
-            self._MPC_codes = list(self._table.number.unique())
+        self._MPC_codes = list(dict.fromkeys(_resolve_optical_target_names(self._table).values()))
         self._size = len(self._table)
 
         if "epoch_seconds_UTC" in self._table.columns:
