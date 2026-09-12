@@ -52,6 +52,14 @@ BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
         const Time negativeTime( -25540040.8144906L );
         BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), -25540040 );
         BOOST_CHECK_EQUAL( negativeTime.getSeconds< int >( ), static_cast< int >( static_cast< long double >( negativeTime ) ) );
+
+        if constexpr( std::numeric_limits< long double >::digits > std::numeric_limits< double >::digits )
+        {
+            // Narrowing the remainder to double first would round it to one full period and erase this interval.
+            const long double increment = std::ldexp( 1.0L, -44 );
+            const Time negativeInterval( -1, TIME_NORMALIZATION_TERM - increment );
+            BOOST_CHECK_EQUAL( negativeInterval.getSeconds< double >( ), -static_cast< double >( increment ) );
+        }
     }
 
     // Test if Time pre-/post-multiplies Eigen vectors at expected level of precision

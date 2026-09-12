@@ -13,6 +13,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <type_traits>
 
 #include <cmath>
 #include <algorithm>
@@ -981,10 +982,10 @@ public:
     template< typename ScalarType >
     ScalarType getSeconds( ) const
     {
-        if constexpr( std::is_integral_v< ScalarType > )
+        if constexpr( std::is_arithmetic_v< ScalarType > )
         {
-            // Preserve conversion of the complete signed epoch before truncation. Converting the split terms to an
-            // integer separately can differ by one period-relative second for negative epochs.
+            // Combine the split components in long double before narrowing or truncating built-in numeric outputs.
+            // Converting them separately can erase small negative intervals or change integer truncation.
             return static_cast< ScalarType >( static_cast< long double >( fullPeriods_ ) * TIME_NORMALIZATION_TERM +
                                               secondsIntoFullPeriod_ );
         }
