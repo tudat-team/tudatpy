@@ -12,6 +12,8 @@
 #define TUDAT_DSNSTATIONDATA_H
 
 #include <map>
+#include <Eigen/Core>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,6 +22,12 @@ namespace tudat
 
 namespace input_output
 {
+
+//! Shared catalogue of approximate DSN station positions in ITRF93 at 2003.0 (DSN 810-005, 301, Rev. O).
+const std::map< std::string, Eigen::Vector3d >& getApproximateDsnGroundStationPositions( );
+
+//! DSN complex id: 10 (Goldstone), 40 (Canberra), or 60 (Madrid).
+int getDsnComplexId( const std::string& stationName );
 
 /*!
  * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i".

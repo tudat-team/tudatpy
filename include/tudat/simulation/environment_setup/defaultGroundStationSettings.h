@@ -46,6 +46,9 @@ std::map< std::string, Eigen::Vector3d > getCombinedApproximateGroundStationPosi
 */
 int getDsnComplexId( const std::string& stationName );
 
+//! Default DSN station names per complex, from the shared DSN station catalogue.
+std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( );
+
 /*!
  * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
  *
