@@ -241,10 +241,14 @@ bool BodyInSunlightCalculator::isObservationViable( const std::vector< Eigen::Ve
 
         for( unsigned int i = 0; i < occultingBodyStateFunctions_.size( ); i++ )
         {
-            if( computeOccultation( bodyPosition,
-                                    sunPosition,
-                                    occultingBodyStateFunctions_.at( i )( bodyTime ).segment( 0, 3 ),
-                                    occultingBodyRadii_.at( i ) ) )
+            const double shadowFunction =
+                    mission_geometry::computeShadowFunction( sunPosition,
+                                                             sunRadius_,
+                                                             occultingBodyStateFunctions_.at( i )( bodyTime ).segment( 0, 3 ),
+                                                             occultingBodyRadii_.at( i ),
+                                                             bodyPosition );
+
+            if( shadowFunction < minimumShadowFunctionValue_ )
             {
                 return false;
             }
