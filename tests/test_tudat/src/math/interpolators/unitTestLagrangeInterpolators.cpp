@@ -555,19 +555,13 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
     }
 }
 
-// Regression test for the barycentric Lagrange interpolator (tudatpy PR #628).
+// Test interpolation near a tabulated Time when the normalized difference vanishes.
 //
-// When the independent variable is a Time, a requested epoch may differ from a tabulated
-// epoch by less than one unit in the last place of its seconds-into-full-period member. Such
-// a Time is not equal to the tabulated Time (Time::operator== compares the full-period and
-// the seconds members separately), but the normalization of their difference rounds the
-// remainder to exactly one full period, so that casting the difference to the scalar type of
-// the interpolator yields exactly zero.
-//
-// The previous implementation only guarded against exactly equal independent variables, and
-// therefore evaluated the interpolating polynomial with a vanishing denominator, returning
-// NaN. The barycentric implementation detects the coinciding stencil point within a small
-// tolerance and returns the tabulated value.
+// Time stores the number of full periods and the seconds into the current period separately.
+// Two Time values can therefore compare unequal because their seconds members differ by one
+// ULP, while subtracting and normalizing them produces a difference that casts to zero. Since
+// the barycentric formula contains terms proportional to 1 / ( x - x_j ), the interpolator
+// must recognize this case as a coinciding stencil point and return its tabulated value.
 BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
 {
     // Number of points per interpolant, and offset from the domain edges within which the
@@ -578,10 +572,9 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
     // Number of full periods (hours) since J2000 of the first tabulated epoch (mid-2014).
     const int baseFullPeriods = 130000;
 
-    // Seconds into the full period of every tabulated epoch. This value is deliberately small
-    // compared to the length of a full period, so that a one-ULP offset of it is rounded away
-    // when the difference of two epochs is normalized. This holds both for a 64-bit and for
-    // an 80-bit long double.
+    // This remainder is deliberately small compared with a full period, so a one-ULP offset
+    // from it is rounded away when the difference of two epochs is normalized. This holds for
+    // both 64-bit and 80-bit long double representations.
     const long double secondsIntoFullPeriod = 0.125L;
 
     // Create tabulated epochs, uniformly spaced by one full period.
@@ -607,23 +600,20 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
                                                                       interpolators::huntingAlgorithm,
                                                                       interpolators::lagrange_no_boundary_interpolation );
 
-    // Iterate over all tabulated epochs for which the centered interpolant is used both just
-    // below and just above the epoch.
+    // Iterate over epochs for which a centered stencil is used both immediately below and
+    // immediately above the tabulated value.
     for( int i = offsetEntries + 1; i < numberOfNodes - offsetEntries - 1; i++ )
     {
         const Time tabulatedEpoch = independentVariableVector.at( i );
         const double tabulatedValue = dependentVariableVector.at( i );
 
-        // Epoch one ULP below the tabulated epoch. Its difference w.r.t. the tabulated epoch
-        // casts to exactly zero, which is the case that regressed.
+        // The epoch immediately below produces a zero normalized difference. The epoch
+        // immediately above provides the corresponding finite-difference control case.
         const Time epochJustBelow( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 0.0L ) );
-
-        // Epoch one ULP above the tabulated epoch, for which no such cancellation occurs.
         const Time epochJustAbove( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 1.0L ) );
 
-        // Verify the premise of this test: neither epoch equals the tabulated epoch, but the
-        // difference of the lower one with the tabulated epoch vanishes when cast to the
-        // scalar type of the interpolator.
+        // Verify that both epochs are distinct from the tabulated epoch and that normalization
+        // maps the lower difference to zero in the interpolator's scalar precision.
         BOOST_CHECK( epochJustBelow != tabulatedEpoch );
         BOOST_CHECK( epochJustAbove != tabulatedEpoch );
         BOOST_CHECK_EQUAL( static_cast< long double >( epochJustBelow - tabulatedEpoch ), 0.0L );
@@ -639,34 +629,19 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
     }
 }
 
-// Regression test for the numerical stability of the barycentric Lagrange interpolator
-// (tudatpy PR #628, issue #612).
+// Test exact reproduction of a constant function by barycentric Lagrange interpolation.
 //
-// The interpolating polynomial reproduces a constant function exactly in exact arithmetic,
-// because the Lagrange basis functions sum to one at every point. The previous implementation
-// formed the product of all node differences and divided it out again per term, which does not
-// preserve that identity in floating-point arithmetic: the basis functions sum to one only up
-// to a rounding error, so the interpolated value is quantized at the level of a unit in the
-// last place of the dependent variable. For a spacecraft ephemeris this quantizes the
-// interpolated position, which is what produced the layered Doppler residuals of issue #612.
+// The Lagrange basis functions form a partition of unity, so a constant function is reproduced
+// exactly in real arithmetic. In barycentric form, the numerator is the constant-scaled version
+// of the denominator. Using a power-of-two constant makes that scaling exact in floating-point
+// arithmetic, allowing bitwise equality to test the partition-of-unity property directly.
 //
-// The barycentric form normalizes explicitly by the sum of the weights, so the identity holds
-// by construction and a constant is reproduced bit for bit.
-//
-// This test is deliberately instantiated as LagrangeInterpolator< double, double >, whose
-// scalar type is double (scalar_type< double >::value_type). It therefore exercises the
-// 64-bit accumulation path on every platform, which is the precision that long double provides
-// on Apple silicon and the condition under which issue #612 was observed. No compiler flag to
-// narrow long double is needed.
-//
-// The constant must be a power of two. Multiplying by a power of two is exact, so that the
-// numerator sum is exactly the constant times the denominator sum, and their quotient is
-// exactly the constant. For a constant that is not a power of two, both implementations are
-// inexact and the test would not discriminate between them.
+// The double independent-variable type selects 64-bit scalar accumulation on every platform.
+// This ensures that the test exercises the precision used when long double provides no extra
+// precision over double.
 BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_partition_of_unity )
 {
-    // Constant dependent variable: 2^37 metres, i.e. of the order of a heliocentric distance,
-    // and a power of two so that the interpolant is expected to be bitwise exact.
+    // Constant dependent variable: 2^37 metres, of the order of a heliocentric distance.
     const double constantValue = 137438953472.0;
 
     // Tabulated epochs, uniformly spaced by 60 s, at a realistic epoch (seconds since J2000).
