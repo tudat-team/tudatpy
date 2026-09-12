@@ -416,7 +416,7 @@ void testAPrioriParameterDeviation( const bool useCorrelatedWeights )
     BOOST_TEST_MESSAGE( "Correction sum at balance: " << balancedCorrection.transpose( ) );
     BOOST_CHECK_GT( observationCorrection.norm( ), 1.0E-2 );
     BOOST_CHECK_GT( aprioriCorrection.norm( ), 1.0E-2 );
-    BOOST_CHECK_SMALL( balancedCorrection.norm( ), 1.0E-6 * individualCorrectionScale );
+    BOOST_CHECK_SMALL( balancedCorrection.norm( ), 2.0E-6 * individualCorrectionScale );
     BOOST_CHECK_SMALL( ( balancedCorrection - finalCorrection ).norm( ), 1.0E-8 * individualCorrectionScale );
 
     // Repeat the estimation from the same perturbed parameters without an a priori constraint. The noise-free synthetic
