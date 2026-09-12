@@ -1,6 +1,6 @@
 # Example validation progress
 
-Last updated: 2026-09-12T19:54:04+00:00
+Last updated: 2026-09-12T20:01:27+00:00
 
 **The user authorized incremental commits and pushes on 2026-09-12. Publish each completed, verified part.**
 
@@ -41,13 +41,13 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [estimation/covariance_estimated_parameters.py](examples/tudatpy/estimation/covariance_estimated_parameters.py) | Validated | 7.5 s | 2 | Full run; both covariance figures reviewed against notebook, finite outputs and expected ellipsoids; no deprecations. |
 | [estimation/covariance_propagation_example.py](examples/tudatpy/estimation/covariance_propagation_example.py) | Validated | 24.4 s | 2 | Full run; Cartesian/RSW uncertainty figures reviewed against notebook, expected magnitudes and evolution; no deprecations. |
 | [estimation/estimation_dynamical_models.py](examples/tudatpy/estimation/estimation_dynamical_models.py) | Validated | 33.0 s | 3 | Full run; all three figures reviewed against notebook, residual and state-error trends consistent; no deprecations. |
-| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Plots reviewed; legacy comparison pending | 16.8 s | 6 | Full weighted/debiased rerun passed with six reviewed figures and finite outputs. Correlations now match reference to displayed precision; final initial-state position difference 36.42 km and peak trajectory error 391 km. Compare original reader numerically before final acceptance; no deprecations. |
+| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Correction application fixed; rerun pending | 16.8 s | 6 | Found the collection factory default left requested catalogue corrections unapplied. Set apply_corrections=True; diagnostic confirmed old values were debiased and new values raw (bias difference agreement 2.2e-16 rad). Corrected comparison running; full six-figure rerun queued. |
 | [estimation/full_estimation_example.py](examples/tudatpy/estimation/full_estimation_example.py) | Validated | 12.4 s | 3 | Full run; all three scientific figures reviewed, converged residuals consistent with reference; the extra old notebook figure is an empty placeholder; no deprecations. |
 | [estimation/galilean_moons_state_estimation.py](examples/tudatpy/estimation/galilean_moons_state_estimation.py) | Validated | 606.5 s | 2 | Full 2031–2035 fit; both figures visually match reference, position errors 0–15 km and Laplace-angle differences about 0.001 deg. All numerical outputs finite; no deprecations. |
 | [estimation/grail_examples_functions.py](examples/tudatpy/estimation/grail_examples_functions.py) | Helper — callers pending | — | — |  |
 | [estimation/grail_odf_estimation.py](examples/tudatpy/estimation/grail_odf_estimation.py) | Pending | — | — |  |
 | [estimation/grail_residuals.py](examples/tudatpy/estimation/grail_residuals.py) | Pending | — | — |  |
-| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 9/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
+| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 12/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
 | [estimation/improved_estimation_with_mpc.py](examples/tudatpy/estimation/improved_estimation_with_mpc.py) | Excluded — correction required | — | — | Excluded at user request. Satellite-data option is ignored, space observations are dropped, and the weight plot is skipped. Requires a separate correction; not validated. |
 | [estimation/kosmos482_reentry.py](examples/tudatpy/estimation/kosmos482_reentry.py) | Validated | 12.6 s | 2 | Full supplied-TLE rerun; both ground-track and altitude figures match reference. Correct PROJ data path eliminates native environment error; no deprecations. |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Helper fix verified; callers pending | — | — | Fixed duplicate-first-file bug for cached days with multiple TNFs (present on 2012 day 152). Focused check retained both files exactly once without network. Added timeouts/status checks for archive listings; heavy callers pending. |
@@ -83,7 +83,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Plot layout fixes; rerun pending | 114.0 s | 5 | Full 25-generation / 48-member optimisation passed with five inspected figures, finite arrays and no deprecations. Pareto front and near-polar final orbits sensible; adjusted overlapping first-generation colorbar labels and final orbit-panel titles. Rerun pending. |
 | [pygmo/himmelblau_minimization.py](examples/tudatpy/pygmo/himmelblau_minimization.py) | Validated | 8.3 s | 3 | Full run; all three plots reviewed. Optimiser convergence reaches about 3e-9, contour minima and zoom around (3, 2) agree with the objective; finite arrays and no deprecations. |
 
-Current counts: Awaiting credentials: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout adjustment; rerun pending: 1; Plot layout fixes; rerun pending: 1; Plots reviewed; legacy comparison pending: 2; Running: 1; Validated: 31.
+Current counts: Awaiting credentials: 1; Correction application fixed; rerun pending: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout adjustment; rerun pending: 1; Plot layout fixes; rerun pending: 1; Plots reviewed; legacy comparison pending: 1; Running: 1; Validated: 31.
 
 ## Later passes
 

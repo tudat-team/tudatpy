@@ -21,12 +21,16 @@ Files: [porkchop plotting](src/tudatpy/trajectory_design/porkchop/_plot_porkchop
 
 Porkchop colorbars now identify km/s and km²/s², matching the scaled values. A raw plotting-helper docstring prevents an invalid-escape deprecation warning. Full Earth–Mars and low-thrust examples and their plots were reviewed. The combined plotting/MPC focused suite passed 31 tests with deprecations treated as errors (`.validation/examples-pr157/plotting-and-mpc-tests.log`). Commit: [fcfaa048a — Correct porkchop units and plotting docstring escapes](https://github.com/tudat-team/tudatpy/commit/fcfaa048ac6157df35bf704809408df68efb0b2a), branch `codex/pr900-review-by-category-20260912` (PR #1000).
 
+## Completed MPC library corrections
+
+- [Legacy reader](src/tudatpy/data/mpc/_legacy.py), [regression test](tests/test_tudatpy/test_data_legacy_calls.py): restore the pre-refactor Note 2 filter inside the removable compatibility module, retain space records for inspection, and resolve identifiers even when filtering is disabled. Commit [44bab9d3d](https://github.com/tudat-team/tudatpy/commit/44bab9d3d1dcde47e063328e1604e442833c2a97). All 51 legacy-call and compatibility-boundary tests passed. The original basic-MPC ingestion prefix runs unchanged, including its WISE preview. Evidence: `.validation/examples-pr157/legacy-reader-regressions.log` and `compare-mpc-readers-fixed.log`. Full original-example compatibility remains pending.
+- [Modern MPC reader](src/tudatpy/data_input/tracking_data/mpc/mpc.py), [regression test](tests/test_tudatpy/test_mpc_query.py): restore observatory names, counts, catalog/space filtering, empty-batch behavior and unknown-code handling. Commit [5b43b9540](https://github.com/tudat-team/tudatpy/commit/5b43b954048a81e725ac2aa0914c92f09feaff59). Included in the 31 passing focused MPC/plotting tests; related example runs and figures reviewed.
+
 ## Implemented corrections awaiting remaining verification
 
 | File | Correction | Remaining work |
 | --- | --- | --- |
-| [MPC reader](src/tudatpy/data_input/tracking_data/mpc/mpc.py), [MPC tests](tests/test_tudatpy/test_mpc_query.py) | Restore observatory names, counts, catalog filtering and unknown-code handling. | Focused tests passed; complete related example and legacy comparison. |
-| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Explicitly enable weighting and catalog debiasing to preserve old conversion defaults. | Six figures reviewed; investigate original-reader comparison before acceptance. |
+| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Explicitly request weighting and catalog debiasing, then enable `apply_corrections=True` when constructing the collection. Correct stale space-observation/environment prose. | Earlier six figures reviewed. Diagnostic proves previous difference was unapplied corrections (modern values exactly raw; legacy values exactly debiased). Corrected comparison running; full rerun queued. |
 | [estimation/retrieving_mpc_observation_data.py](examples/tudatpy/estimation/retrieving_mpc_observation_data.py) | Correct wrapped right ascension, UTC time axes, legends, and unsupported satellite-conversion claims. | Four plots reviewed; final label-spacing rerun queued. |
 | [estimation/mex_open_loop_residuals.py](examples/tudatpy/estimation/mex_open_loop_residuals.py) | Pass named X-band values to IFMS conversion. | Full run and both figures reviewed; compare numerical difference with original example. |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Preserve all cached files on a day instead of repeating the first; add archive-listing timeouts and HTTP status checks. | Focused duplicate-file check passed; heavy callers pending. |
@@ -36,5 +40,5 @@ Porkchop colorbars now identify km/s and km²/s², matching the scaled values. A
 
 - `estimation/improved_estimation_with_mpc.py` is excluded at the user's request and flagged for a separate correction. Its satellite option is ignored, space observations are dropped, and the weight plot is skipped. It has not been accepted or corrected here.
 - Space-Track live validation needs locally configured credentials and has not run.
-- The initial original-MPC ingestion diagnostic fails when the original script indexes an empty WISE-observation selection. This is an open backwards-compatibility finding, not a passed original-example run. Evidence: `.validation/examples-pr157/compare-mpc-readers.log`.
+- The initial WISE-preview compatibility failure is corrected by the legacy-filter commit above. The original ingestion prefix now passes without modifying the example; this does not replace its pending full execution.
 - GRAIL/MRO full runs, original-example compatibility, and PR #905 validation are still in progress or pending; see the progress log.
