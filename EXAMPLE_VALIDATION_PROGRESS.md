@@ -1,6 +1,6 @@
 # Example validation progress
 
-Last updated: 2026-09-12T20:11:53+00:00
+Last updated: 2026-09-12T20:17:11+00:00
 
 **The user authorized incremental commits and pushes on 2026-09-12. Publish each completed, verified part.**
 
@@ -47,11 +47,11 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [estimation/grail_examples_functions.py](examples/tudatpy/estimation/grail_examples_functions.py) | Helper — callers pending | — | — |  |
 | [estimation/grail_odf_estimation.py](examples/tudatpy/estimation/grail_odf_estimation.py) | Pending | — | — |  |
 | [estimation/grail_residuals.py](examples/tudatpy/estimation/grail_residuals.py) | Pending | — | — |  |
-| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 13/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
+| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 16/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
 | [estimation/improved_estimation_with_mpc.py](examples/tudatpy/estimation/improved_estimation_with_mpc.py) | Excluded — correction required | — | — | Excluded at user request. Satellite-data option is ignored, space observations are dropped, and the weight plot is skipped. Requires a separate correction; not validated. |
 | [estimation/kosmos482_reentry.py](examples/tudatpy/estimation/kosmos482_reentry.py) | Validated | 12.6 s | 2 | Full supplied-TLE rerun; both ground-track and altitude figures match reference. Correct PROJ data path eliminates native environment error; no deprecations. |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Helper fix verified; callers pending | — | — | Fixed duplicate-first-file bug for cached days with multiple TNFs (present on 2012 day 152). Focused check retained both files exactly once without network. Added timeouts/status checks for archive listings; heavy callers pending. |
-| [estimation/mex_open_loop_residuals.py](examples/tudatpy/estimation/mex_open_loop_residuals.py) | Plots reviewed; legacy comparison pending | 124.6 s | 2 | Full run passed after X-band argument fix; both residual/histogram figures reviewed, all arrays finite, no deprecations. RMS 19.25 mHz overall / 7.12 mHz subset differs from stored reference (20.31 / 9.93); compare original script against this kernel before final acceptance. |
+| [estimation/mex_open_loop_residuals.py](examples/tudatpy/estimation/mex_open_loop_residuals.py) | Validated | 124.6 s | 2 | Full run and both plots reviewed; zero deprecations. Original-script rerun with documented input paths produces exactly identical 66,118 residuals, 25,969 subset residuals and antenna state. RMS 19.25/7.12 mHz; stored-reference difference is not a migration regression. |
 | [estimation/mission_data_downloader.py](examples/tudatpy/estimation/mission_data_downloader.py) | Validated | 57.4 s | 0 | Full mission downloader run passed using existing archives and required downloads, including archive cleanup. No figures by design and no deprecations. |
 | [estimation/mro_range_estimation.py](examples/tudatpy/estimation/mro_range_estimation.py) | Validated | 70.5 s | 8 | All three missions complete; final RMS 5.94/3.20/5.32 m; all eight figures reviewed; no deprecations. Removed hard-coded kernel path. Python script only; notebooks untouched. |
 | [estimation/mro_tnf_estimation.py](examples/tudatpy/estimation/mro_tnf_estimation.py) | Pending | — | — |  |
@@ -80,10 +80,10 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [propagation/walker_constellation.py](examples/tudatpy/propagation/walker_constellation.py) | Validated | 2.5 s | 3 | Full run; all 3 figures reviewed against notebook; expected trends and finite state outputs; intentional NaN longitude breaks checked; no Python/native deprecations. |
 | [pygmo/asteroid_orbit_optimization/aoo_custom_environment.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_custom_environment.py) | Validated | 1.3 s | 1 | Full run; orbit/asteroid geometry matches reference, all eight numeric arrays finite, meter axes complete; no deprecations. |
 | [pygmo/asteroid_orbit_optimization/aoo_design_space_exploration.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_design_space_exploration.py) | Validated | 248.2 s | 3 | Full 2,000 Monte Carlo and 2,401 factorial-design simulations passed. All three figures reviewed after plotting-only replay of saved arrays: corrected distance/angular units, per-variable constraint colours, and inclination/node coordinates; no deprecations. Plot/data assertions passed. |
-| [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Plot layout fixes; rerun pending | 114.0 s | 5 | Full 25-generation / 48-member optimisation passed with five inspected figures, finite arrays and no deprecations. Pareto front and near-polar final orbits sensible; adjusted overlapping first-generation colorbar labels and final orbit-panel titles. Rerun pending. |
+| [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Plot layout fixes; rerun pending | — | — | Full 25-generation / 48-member optimisation passed with five inspected figures, finite arrays and no deprecations. Pareto front and near-polar final orbits sensible; adjusted overlapping first-generation colorbar labels and final orbit-panel titles. Rerun pending. |
 | [pygmo/himmelblau_minimization.py](examples/tudatpy/pygmo/himmelblau_minimization.py) | Validated | 8.3 s | 3 | Full run; all three plots reviewed. Optimiser convergence reaches about 3e-9, contour minima and zoom around (3, 2) agree with the objective; finite arrays and no deprecations. |
 
-Current counts: Awaiting credentials: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout fixes; rerun pending: 1; Plots reviewed; legacy comparison pending: 1; Running: 1; Validated: 33.
+Current counts: Awaiting credentials: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout fixes; rerun pending: 1; Running: 1; Validated: 34.
 
 ## Later passes
 
@@ -114,7 +114,7 @@ Previously extracted reference figures: `.validation/examples-pr157/notebook-sou
 | `estimation/grail_spice_fit.py` | Pending | — | — | — |  |
 | `estimation/improved_estimation_with_mpc.py` | Excluded — correction required | — | — | — | Excluded at user request in every phase. |
 | `estimation/kosmos482_reentry.py` | Pending | — | — | — |  |
-| `estimation/mex_open_loop_residuals.py` | Running | — | — | 0 |  |
+| `estimation/mex_open_loop_residuals.py` | Validated | 289.7 s | 2 | 28 | Full original script with documented local paths passed after restoring nested observations_wrapper access. Both figures reviewed; all numerical arrays exactly match modern output. Expected wrapper/data migration warnings and pre-existing reference-point overwrite messages observed. |
 | `estimation/mission_data_downloader.py` | Pending | — | — | — |  |
 | `estimation/mro_range_estimation.py` | Pending | — | — | — |  |
 | `estimation/mro_tnf_estimation.py` | Pending | — | — | — |  |

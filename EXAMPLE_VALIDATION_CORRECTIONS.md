@@ -38,13 +38,20 @@ The complete rerun passed in 44.4 seconds on the spare single CPU; all six figur
 
 ## Completed observation-wrapper compatibility correction
 
-[observations_setup/__init__.py](src/tudatpy/estimation/observations_setup/__init__.py), [regression test](tests/test_tudatpy/test_data_deprecation_compatibility.py): restore lazy parent access to `observations_setup.observations_wrapper`; legacy function lookup retains its warning and user call-site attribution. Commit [e5b0de89b](https://github.com/tudat-team/tudatpy/commit/e5b0de89b76dcd41ae5ea8e779ced7a2b80b1b10), PR #1000. All 163 deprecation-compatibility tests passed (`.validation/examples-pr157/observations-wrapper-regressions.log`). The original MEX script now passes the missing-attribute failure and proceeds with the expected IFMS warning. Full residual comparison is still running. The original failure is preserved in `pr1000-legacy/estimation__mex_open_loop_residuals/missing-wrapper-failure.log`.
+[observations_setup/__init__.py](src/tudatpy/estimation/observations_setup/__init__.py), [regression test](tests/test_tudatpy/test_data_deprecation_compatibility.py): restore lazy parent access to `observations_setup.observations_wrapper`; legacy function lookup retains its warning and user call-site attribution. Commit [e5b0de89b](https://github.com/tudat-team/tudatpy/commit/e5b0de89b76dcd41ae5ea8e779ced7a2b80b1b10), PR #1000. All 163 deprecation-compatibility tests passed (`.validation/examples-pr157/observations-wrapper-regressions.log`). The original MEX script now passes the missing-attribute failure and proceeds with the expected IFMS warning. Full residual comparison subsequently passed with identical arrays; see the MEX entry below. The original failure is preserved in `pr1000-legacy/estimation__mex_open_loop_residuals/missing-wrapper-failure.log`.
+
+Removal instructions for the wrapper bridge are in [the compatibility README](src/tudatpy/data/README.md), added in commit [1c5430188](https://github.com/tudat-team/tudatpy/commit/1c5430188).
+
+## Completed MEX example correction and comparison
+
+[estimation/mex_open_loop_residuals.py](examples/tudatpy/estimation/mex_open_loop_residuals.py): use named X-band values for IFMS ingestion. Commit [efb9162](https://github.com/tudat-team/tudatpy-examples/commit/efb916297a2373ea86967681c3357de70551e21b), pushed to PR #157. Full modern run: 124.6 seconds; original-script run on the spare CPU: 289.7 seconds. Both figures visually reviewed, all 66,118 residuals and 25,969 subset residuals exactly identical between the two implementations; RMS 19.25/7.12 mHz. The stored-reference difference is not a migration regression.
+
+Modern warnings: none. Original warnings: 28 DeprecationWarnings (including two pre-existing invalid-escape warnings) and one deprecated-interface UserWarning; native reference-point overwrite messages are retained by the old script. Evidence: `.validation/examples-pr157/mex-legacy-modern-comparison.json` and both phases' `estimation__mex_open_loop_residuals/` artifacts, including copied CSV outputs in `runtime-files/mex_output/`.
 
 ## Implemented corrections awaiting remaining verification
 
 | File | Correction | Remaining work |
 | --- | --- | --- |
-| [estimation/mex_open_loop_residuals.py](examples/tudatpy/estimation/mex_open_loop_residuals.py) | Pass named X-band values to IFMS conversion. | Full run and both figures reviewed; compare numerical difference with original example. |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Preserve all cached files on a day instead of repeating the first; add archive-listing timeouts and HTTP status checks. | Focused duplicate-file check passed; heavy callers pending. |
 | [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Fix overlapping generation colorbar labels and final orbit-panel titles. | Full optimization passed and figures inspected; final layout rerun queued. |
 
