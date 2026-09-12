@@ -48,12 +48,19 @@ Removal instructions for the wrapper bridge are in [the compatibility README](sr
 
 Modern warnings: none. Original warnings: 28 DeprecationWarnings (including two pre-existing invalid-escape warnings) and one deprecated-interface UserWarning; native reference-point overwrite messages are retained by the old script. Evidence: `.validation/examples-pr157/mex-legacy-modern-comparison.json` and both phases' `estimation__mex_open_loop_residuals/` artifacts, including copied CSV outputs in `runtime-files/mex_output/`.
 
+## Completed asteroid optimization presentation correction
+
+[pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py): apply layout to both generation figures; separate 3D panels and leave room for axis labels/titles; correctly identify NSGA-II in the prose. Commit [a180873](https://github.com/tudat-team/tudatpy-examples/commit/a1808737e0dbc374d042fee6d0bff6ab0a36986b), pushed to PR #157. Full 25-generation / 48-member run passed in 249.3 seconds on the spare CPU, with all eight numerical arrays finite and no deprecations. All five figures reviewed. Final margin corrections reused the saved optimum and reproduced the seeded first generation, rerunning only trajectory extraction and plots; subsequent export checks reuse saved orbit arrays. Evidence: `pr1000-modern/pygmo__asteroid_orbit_optimization__aoo_optimization/plot-revalidation.json` and `orbit-plot-data.npz`.
+
+## Figure export audit
+
+The validation harness now explicitly includes all three 3D axis labels in tight PNG exports. A border audit found seven older images with clipped text across six examples. Four short examples were rerun with exactly identical numerical arrays, the asteroid design-space plots were replayed from saved arrays, and both complete low-thrust trajectory inspections were rerun without recomputing the already validated 200×442 grid. All seven repaired images were visually reviewed; the final border audit is clear. Evidence: `.validation/examples-pr157/figure-border-audit.json`, `export-repair.log`, `replot-low-thrust.log`, and `figure-export-repair-results.json`. The low-thrust right-margin source adjustment is published in [c5e40d6](https://github.com/tudat-team/tudatpy-examples/commit/c5e40d6a553dfd5e17bcc45250fe30cf2dff3a20).
+
 ## Implemented corrections awaiting remaining verification
 
 | File | Correction | Remaining work |
 | --- | --- | --- |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Preserve all cached files on a day instead of repeating the first; add archive-listing timeouts and HTTP status checks. | Focused duplicate-file check passed; heavy callers pending. |
-| [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Fix overlapping generation colorbar labels and final orbit-panel titles. | Full optimization passed and figures inspected; final layout rerun queued. |
 
 ## Exclusions and open validation issues
 
@@ -61,3 +68,7 @@ Modern warnings: none. Original warnings: 28 DeprecationWarnings (including two 
 - Space-Track live validation needs locally configured credentials and has not run.
 - The initial WISE-preview compatibility failure is corrected by the legacy-filter commit above. The original ingestion prefix now passes without modifying the example; this does not replace its pending full execution.
 - GRAIL/MRO full runs, original-example compatibility, and PR #905 validation are still in progress or pending; see the progress log.
+
+## Completed GRAIL SPICE-fit validation
+
+`estimation/grail_spice_fit.py` completed all 20 full-day fits in 3,680 seconds with seven workers. All five figures (20 panels) visually match reference trends; all 20 saved 2,881 × 7 arrays are finite. No Python or worker-log deprecations/errors. No source correction was necessary. Evidence: `.validation/examples-pr157/grail-spice-final-audit.json` and `pr1000-modern/estimation__grail_spice_fit/`. Other heavy GRAIL/MRO runs remain in progress or queued.
