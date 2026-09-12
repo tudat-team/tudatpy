@@ -230,7 +230,7 @@ def test_current_python_api_does_not_import_removable_data_package():
         else:
             parts = parts[:-1]
         package = ".".join(["tudatpy", *parts])
-        for node in ast.walk(ast.parse(path.read_text(), filename=str(path))):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"), filename=str(path))):
             names = []
             if isinstance(node, ast.Import):
                 names = [alias.name for alias in node.names]
