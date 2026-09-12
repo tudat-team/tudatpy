@@ -143,7 +143,8 @@ public:
         DataType nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
 
         // Check if the next root value is the most accurate guess. If not, switch the values.
-        if( std::fabs( currentFunctionValue ) < std::fabs( nextFunctionValue ) )
+        using std::abs;
+        if( abs( currentFunctionValue ) < abs( nextFunctionValue ) )
         {
             // Switch the root value.
             DataType temporaryRoot = currentRootValue;

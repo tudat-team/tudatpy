@@ -18,11 +18,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 // #include <pybind11/native_enum.h>
+#include "tudat/io/dsnStationData.h"
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
 namespace py = pybind11;
+namespace tio = tudat::input_output;
 namespace tss = tudat::simulation_setup;
 namespace tcc = tudat::coordinate_conversions;
 namespace tba = tudat::basic_astrodynamics;
@@ -507,7 +509,7 @@ reference_epoch:
 
         )doc" );
 
-    m.def( "get_default_dsn_station_names_per_complex", &tss::getDefaultDsnStationNamesPerComplex, R"doc(
+    m.def( "get_default_dsn_station_names_per_complex", &tio::getDefaultDsnStationNamesPerComplex, R"doc(
 
     Return the default station names for each DSN complex.
 

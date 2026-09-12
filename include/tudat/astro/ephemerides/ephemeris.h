@@ -91,17 +91,17 @@ public:
         return getCartesianState( secondsSinceEpoch ).segment( 3, 3 );
     }
 
-    //! Get state from ephemeris (with long double as state scalar).
+    //! Get state from ephemeris (with the configured high-precision state scalar).
     /*!
-     * Returns state from ephemeris with long double as state scalar at given time. By default, this
-     * function casts the double getCartesianState to long double. It may be overridden
-     * by derived classes to make use of full long double computations.
+     * Returns state from ephemeris with the configured high-precision state scalar at given time.
+     * By default, this function casts the double getCartesianState result. It may be overridden
+     * by derived classes to make use of full high-precision computations.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
-     * \return State from ephemeris with long double as state scalar
+     * \return State from ephemeris with the configured high-precision state scalar
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
+    virtual Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
-        return getCartesianState( secondsSinceEpoch ).cast< long double >( );
+        return getCartesianState( secondsSinceEpoch ).cast< HighPrecisionStateScalar >( );
     }
 
     //! Get state from ephemeris (with double as state scalar and Time as time type).
@@ -117,15 +117,15 @@ public:
         return getCartesianState( currentTime.getSeconds< double >( ) );
     }
 
-    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    //! Get state from ephemeris (with the configured high-precision state scalar and Time as time type).
     /*!
-     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type). By default, this
-     * function casts the double getCartesianState to long double. It may be overridden
-     * by derived classes to make use of full long double computations.
+     * Returns state from ephemeris with the configured high-precision state scalar at given time (as custom Time type).
+     * By default, this function casts the double getCartesianState result. It may be overridden
+     * by derived classes to make use of full high-precision computations.
      * \param currentTime Time at which state is to be evaluated
-     * \return State from ephemeris with long double as state scalar
+     * \return State from ephemeris with the configured high-precision state scalar
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
+    virtual Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
     {
         return getCartesianLongState( currentTime.getSeconds< double >( ) );
     }

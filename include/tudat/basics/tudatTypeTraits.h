@@ -14,6 +14,8 @@
 
 #include <type_traits>
 
+#include <tudat/config.hpp>
+
 #include "tudat/basics/timeType.h"
 
 namespace tudat
@@ -53,17 +55,8 @@ struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::dec
 
 template< typename T >
 struct is_state_scalar {
-    static const bool value = false;
-};
-
-template<>
-struct is_state_scalar< double > {
-    static const bool value = true;
-};
-
-template<>
-struct is_state_scalar< long double > {
-    static const bool value = true;
+    static constexpr bool value = std::is_same_v< T, double > ||
+            ( TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR && std::is_same_v< T, HighPrecisionStateScalar > );
 };
 
 template< typename T >
@@ -87,22 +80,34 @@ struct is_state_scalar_and_time_type {
 };
 
 template< typename TimeType >
-struct scalar_type;
-
-template<>
-struct scalar_type< double > {
-    using value_type = double;
-};
-
-template<>
-struct scalar_type< long double > {
-    using value_type = long double;
+struct scalar_type {
+    using value_type = TimeType;
 };
 
 template<>
 struct scalar_type< Time > {
     using value_type = long double;
 };
+
+//! Convert an independent-variable value or difference to an arithmetic scalar.
+/*!
+ * For tudat::Time, the split epoch components are converted directly to the output
+ * scalar so that a multiprecision result does not first collapse to long double.
+ * Other types are converted through their native scalar representation.
+ */
+template< typename OutputScalarType, typename IndependentVariableType >
+OutputScalarType convertIndependentVariableToScalar( const IndependentVariableType& value )
+{
+    if constexpr( std::is_same_v< std::decay_t< IndependentVariableType >, Time > )
+    {
+        return value.template getSeconds< OutputScalarType >( );
+    }
+    else
+    {
+        using NativeScalarType = typename scalar_type< std::decay_t< IndependentVariableType > >::value_type;
+        return static_cast< OutputScalarType >( static_cast< NativeScalarType >( value ) );
+    }
+}
 
 template< typename T >
 struct is_direct_gravity_partial {

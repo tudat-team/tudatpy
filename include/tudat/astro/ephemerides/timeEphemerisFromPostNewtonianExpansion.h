@@ -234,22 +234,22 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
 
         auto getBarycentricToBodycentricDifference = [ = ]( const Time currentTime ) {
             return Time( barycenterToPlanetCenterCoordinateTimeInterpolator_->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
+                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getBodycentricToBarycentricDifference = [ = ]( const Time currentTime ) {
             return Time( planetCenterToBarycenterCoordinateTimeInterpolator_->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
+                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getPlanetCoordinateToProperDifference = [ = ]( const std::string& point, const Time currentTime ) {
             return Time( planetCoordinateToProperTimeInterpolators_.at( point )->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
+                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         auto getProperToPlanetCoordinateDifference = [ = ]( const std::string& point, const Time currentTime ) {
             return Time( properTimeToPlanetCoordinateInterpolators_.at( point )->interpolate(
-                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
+                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ) ) );
         };
 
         switch( inputScale )
@@ -279,7 +279,7 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
                         timeDifferenceFunctions.push_back( [ = ]( const Time currentTime ) {
                             return Time( this->calculateDirectTimeDifferenceTermFromFunction(
                                     stationPositionFunction,
-                                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
+                                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
                                     1.0 ) );
                         } );
 
@@ -348,7 +348,7 @@ TimeEphemerisFromPostNewtonianExpansion< TimeType, StateScalarType >::getTimeDif
                         timeDifferenceFunctions.push_back( [ = ]( const Time currentTime ) {
                             return Time( this->calculateDirectTimeDifferenceTermFromFunction(
                                     stationPositionFunction,
-                                    detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
+                                    time_ephemeris_detail::convertInterpolatorTimeFromExtendedTime< TimeType >( currentTime ),
                                     -1.0 ) );
                         } );
 

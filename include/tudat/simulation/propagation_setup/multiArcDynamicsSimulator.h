@@ -11,6 +11,8 @@
 #ifndef TUDAT_MULTIARCDYNAMICSSIMULATOR_H
 #define TUDAT_MULTIARCDYNAMICSSIMULATOR_H
 
+#include <type_traits>
+
 #include "tudat/simulation/propagation_setup/singleArcDynamicsSimulator.h"
 
 namespace tudat
@@ -90,11 +92,13 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
             // Interpolate to obtain initial state of current arc
             try
             {
-                currentArcInitialState =
-                        std::make_shared< interpolators::LagrangeInterpolator< TimeType,
-                                                                               Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
-                                                                               long double > >( initialStateInterpolationMap, 8 )
-                                ->interpolate( currentArcInitialTime );
+                currentArcInitialState = std::make_shared< interpolators::LagrangeInterpolator<
+                        TimeType,
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
+                        std::conditional_t< std::is_same_v< StateScalarType, HighPrecisionStateScalar >,
+                                            HighPrecisionStateScalar,
+                                            long double > > >( initialStateInterpolationMap, 8 )
+                                                 ->interpolate( currentArcInitialTime );
             }
             catch( std::runtime_error& caughtException )
             {

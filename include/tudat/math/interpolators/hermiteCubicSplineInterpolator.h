@@ -177,8 +177,10 @@ public:
         }
 
         // Compute Hermite spline
-        ScalarType factor = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
-                static_cast< ScalarType >( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
+        const ScalarType factor =
+                convertIndependentVariableToScalar< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
+                convertIndependentVariableToScalar< ScalarType >( independentValues_[ lowerEntry_ + 1 ] -
+                                                                  independentValues_[ lowerEntry_ ] );
         targetValue = coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor + coefficients_[ 1 ][ lowerEntry_ ] * factor * factor +
                 coefficients_[ 2 ][ lowerEntry_ ] * factor + coefficients_[ 3 ][ lowerEntry_ ];
 
@@ -210,18 +212,19 @@ protected:
         // p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d.
         for( unsigned int i = 0; i < ( independentValues_.size( ) - 1 ); i++ )
         {
+            const ScalarType interval =
+                    convertIndependentVariableToScalar< ScalarType >( independentValues_[ i + 1 ] - independentValues_[ i ] );
+
             // Compute coefficient a
-            coefficients_[ 0 ][ i ] = 2.0 * dependentValues_[ i ] - 2.0 * dependentValues_[ i + 1 ] +
-                    derivativeValues_[ i ] * ( independentValues_[ i + 1 ] - independentValues_[ i ] ) +
-                    derivativeValues_[ i + 1 ] * ( independentValues_[ i + 1 ] - independentValues_[ i ] );
+            coefficients_[ 0 ][ i ] = 2.0 * dependentValues_[ i ] - 2.0 * dependentValues_[ i + 1 ] + derivativeValues_[ i ] * interval +
+                    derivativeValues_[ i + 1 ] * interval;
 
             // Compute coefficient b
             coefficients_[ 1 ][ i ] = -3.0 * dependentValues_[ i ] + 3.0 * dependentValues_[ i + 1 ] -
-                    2.0 * derivativeValues_[ i ] * ( independentValues_[ i + 1 ] - independentValues_[ i ] ) -
-                    derivativeValues_[ i + 1 ] * ( independentValues_[ i + 1 ] - independentValues_[ i ] );
+                    2.0 * derivativeValues_[ i ] * interval - derivativeValues_[ i + 1 ] * interval;
 
             // Compute coefficient c
-            coefficients_[ 2 ][ i ] = derivativeValues_[ i ] * ( independentValues_[ i + 1 ] - independentValues_[ i ] );
+            coefficients_[ 2 ][ i ] = derivativeValues_[ i ] * interval;
 
             // Compute coefficient d
             coefficients_[ 3 ][ i ] = dependentValues_[ i ];

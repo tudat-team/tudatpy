@@ -75,9 +75,25 @@ TUDAT_ADD_TEST_CASE(CentralBodyData
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+if(TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR)
+    set(HIGH_PRECISION_STATE_TEST_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES})
+    if(TUDAT_BUILD_STATIC_LIBRARY AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(HIGH_PRECISION_STATE_TEST_LIBRARIES
+                -Wl,--start-group
+                ${HIGH_PRECISION_STATE_TEST_LIBRARIES}
+                -Wl,--end-group
+                )
+    endif()
+    TUDAT_ADD_TEST_CASE(HighPrecisionStateScalar
+            PRIVATE_LINKS
+            ${HIGH_PRECISION_STATE_TEST_LIBRARIES}
+            )
+    unset(HIGH_PRECISION_STATE_TEST_LIBRARIES)
+endif()
+
 TUDAT_ADD_TEST_CASE(CowellStateDerivative
         PRIVATE_LINKS
-        ${Tudat_PROPAGATION_LIBRARIES}
+        ${Tudat_ESTIMATION_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(EnckeStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})

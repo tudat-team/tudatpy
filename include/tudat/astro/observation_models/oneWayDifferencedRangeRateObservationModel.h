@@ -143,7 +143,7 @@ public:
                     "Error when simulating one-way averaged Doppler observable; no ancillary settings found. Ancillary settings are "
                     "requiured for integration time" );
         }
-        TimeType currentIntegrationTime;
+        double currentIntegrationTime;
         try
         {
             currentIntegrationTime = ancillarySetingsInput->getAncillaryDoubleData( doppler_integration_time, true );
@@ -165,24 +165,23 @@ public:
                 getArcStartLightTimeCalculator( );
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator =
                 getArcEndLightTimeCalculator( );
+        const TimeType intervalStartTime = subtractTimeIntervalFromEpoch( time, currentIntegrationTime / 2.0 );
+        const TimeType intervalEndTime = addTimeIntervalToEpoch( time, currentIntegrationTime / 2.0 );
         if( linkEndAssociatedWithTime == receiver )
         {
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 1 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
-            linkEndTimes[ 3 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
-
             // Calculate light times at the start of the reception interval
             std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+                    intervalStartTime, linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
             lightTimeAtStartInterval = this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
-                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
+                    intervalStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+                    intervalEndTime, linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
             lightTimeAtEndInterval = this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
-                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
+                    intervalEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
 
             linkEndTimes[ 0 ] = arcStartLinkEndTimes.at( 0 );
             linkEndTimes[ 1 ] = arcStartLinkEndTimes.at( 1 );
@@ -192,21 +191,18 @@ public:
         else if( linkEndAssociatedWithTime == transmitter )
         {
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 0 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
-            linkEndTimes[ 2 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
-
             // Calculate light times at the start of the reception interval
             std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+                    intervalEndTime, linkEndAssociatedWithTime, arcEndLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
             lightTimeAtEndInterval = this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
-                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
+                    intervalEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySetings );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
+                    intervalStartTime, linkEndAssociatedWithTime, arcStartLightTimeCalculator, ancillarySetingsInput, ancillarySetings );
             lightTimeAtStartInterval = this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
-                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
+                    intervalStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancillarySetings );
 
             linkEndTimes[ 0 ] = arcStartLinkEndTimes.at( 0 );
             linkEndTimes[ 1 ] = arcStartLinkEndTimes.at( 1 );

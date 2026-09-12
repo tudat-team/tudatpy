@@ -84,7 +84,8 @@ inline bool checkRootAbsoluteTolerance( const ScalarType currentRootGuess,
                                         const ScalarType previousRootGuess,
                                         const ScalarType absoluteTolerance )
 {
-    return std::fabs( currentRootGuess - previousRootGuess ) < absoluteTolerance;
+    using std::abs;
+    return abs( currentRootGuess - previousRootGuess ) < absoluteTolerance;
 }
 
 //! Check if relative tolerance for root value has been achieved.
@@ -101,7 +102,8 @@ inline bool checkRootRelativeTolerance( const ScalarType currentRootGuess,
                                         const ScalarType previousRootGuess,
                                         const ScalarType relativeTolerance )
 {
-    return std::fabs( ( currentRootGuess - previousRootGuess ) / currentRootGuess ) < relativeTolerance;
+    using std::abs;
+    return abs( ( currentRootGuess - previousRootGuess ) / currentRootGuess ) < relativeTolerance;
 }
 
 //! Check termination condition (required maximum absolute value of root function)
@@ -114,7 +116,8 @@ inline bool checkRootRelativeTolerance( const ScalarType currentRootGuess,
 template< typename ScalarType = double >
 bool checkRootFunctionValueCondition( const ScalarType currentRootFunctionValue, const ScalarType rootToleranceValue )
 {
-    return ( std::fabs( currentRootFunctionValue ) < rootToleranceValue );
+    using std::abs;
+    return ( abs( currentRootFunctionValue ) < rootToleranceValue );
 }
 
 //! Termination condition base class.

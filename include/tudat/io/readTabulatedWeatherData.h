@@ -23,10 +23,10 @@
 #include <Eigen/Core>
 
 #include "tudat/basics/utilities.h"
+#include "tudat/io/dsnStationData.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {
@@ -166,8 +166,7 @@ inline void setDsnWeatherDataInGroundStations(
         simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& weatherFiles,
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
-        const std::map< int, std::vector< std::string > >& groundStationsPerComplex =
-                simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ),
         const std::string& bodyWithGroundStations = "Earth" )
 {
     setDsnWeatherDataInGroundStations(

@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
     for( int i = 0; i < 1; i++ )  // rawIfmsFiles.size( ); i++ )
     {
-        Eigen::Matrix< long double, Eigen::Dynamic, 1 > manualResiduals;
+        Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > manualResiduals;
         for( int testType = 0; testType < 2; testType++ )
         {
             FrequencyBands currentReceptionBand = x_band;
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                     std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, globalFrameOrientation );
 
             // Create bodies
-            SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+            SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
 
             // Set turnaround ratios in spacecraft (ground station)
             std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
@@ -117,16 +117,18 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
              ************************** LOAD ODF FILES
              *****************************************************************************************/
 
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedUncompressedObservationCollection;
+            std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > >
+                    observedUncompressedObservationCollection;
 
             if( testType == 0 )
             {
                 // Process IFMS files
-                std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< long double, Time > > > processedIfmsFiles;
+                std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< HighPrecisionStateScalar, Time > > > processedIfmsFiles;
                 rawIfmsFiles.at( i )->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
                 rawIfmsFiles.at( i )->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
-                processedIfmsFiles.push_back( std::make_shared< observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
-                        rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
+                processedIfmsFiles.push_back(
+                        std::make_shared< observation_models::ProcessedTrackingTxtFileContents< HighPrecisionStateScalar, Time > >(
+                                rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
 
                 // Define ancillary settings
                 ObservationAncillarySimulationSettings ancillarySettings;
@@ -138,17 +140,18 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
                 // Create and process observation collection
                 observedUncompressedObservationCollection =
-                        observation_models::createTrackingTxtFilesObservationCollection< long double, Time >(
+                        observation_models::createTrackingTxtFilesObservationCollection< HighPrecisionStateScalar, Time >(
                                 { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancillarySettings );
                 setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
             }
             else
             {
-                observedUncompressedObservationCollection = createIfmsObservedObservationCollectionFromFiles< long double, Time >(
-                        { ifmsFileNames.at( i ) }, bodies, "MeX", "NWNORCIA", currentReceptionBand, x_band );
+                observedUncompressedObservationCollection =
+                        createIfmsObservedObservationCollectionFromFiles< HighPrecisionStateScalar, Time >(
+                                { ifmsFileNames.at( i ) }, bodies, "MeX", "NWNORCIA", currentReceptionBand, x_band );
             }
 
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+            std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection =
                     createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
 
             /****************************************************************************************
@@ -179,8 +182,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
             }
 
             // Create observation simulator
-            std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
-                    createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
+            std::vector< std::shared_ptr< ObservationSimulatorBase< HighPrecisionStateScalar, Time > > > observationSimulators =
+                    createObservationSimulators< HighPrecisionStateScalar, Time >( observationModelSettingsList, bodies );
 
             /****************************************************************************************
              ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
@@ -188,10 +191,10 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
 
             std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
                     getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+            std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > computedObservationCollection =
                     simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
-            Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
+            Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > residualVector =
                     observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
             double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
             double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );

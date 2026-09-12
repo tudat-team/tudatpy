@@ -183,26 +183,29 @@ public:
                                                                 const TimeStepType& currentStep ) = 0;
 
 protected:
-    std::pair< TimeStepType, bool > computeTimeStepFromErrorEstimate( const TimeStepType& maximumErrorInState,
+    template< typename ErrorScalarType >
+    std::pair< TimeStepType, bool > computeTimeStepFromErrorEstimate( const ErrorScalarType& maximumErrorInState,
                                                                       const TimeStepType& currentStep )
     {
         // Compute the new step size. This is based off of the equation given in
         // (Montenbruck and Gill, 2005).
-        const TimeStepType timeStepRatio = safetyFactorForNextStepSize_ *
-                std::pow( 1.0 / static_cast< double >( maximumErrorInState ), 1.0 / static_cast< double >( integratorOrder_ ) );
+        using std::pow;
+        const ErrorScalarType timeStepRatio = static_cast< ErrorScalarType >( safetyFactorForNextStepSize_ ) *
+                pow( static_cast< ErrorScalarType >( 1 ) / maximumErrorInState,
+                     static_cast< ErrorScalarType >( 1 ) / static_cast< ErrorScalarType >( integratorOrder_ ) );
 
-        bool tolerancesMet = maximumErrorInState <= 1.0;
-        if( timeStepRatio <= minimumFactorDecreaseForNextStepSize_ )
+        bool tolerancesMet = maximumErrorInState <= static_cast< ErrorScalarType >( 1 );
+        if( timeStepRatio <= static_cast< ErrorScalarType >( minimumFactorDecreaseForNextStepSize_ ) )
         {
             return std::make_pair( currentStep * minimumFactorDecreaseForNextStepSize_, tolerancesMet );
         }
-        else if( timeStepRatio >= maximumFactorDecreaseForNextStepSize_ )
+        else if( timeStepRatio >= static_cast< ErrorScalarType >( maximumFactorDecreaseForNextStepSize_ ) )
         {
             return std::make_pair( currentStep * maximumFactorDecreaseForNextStepSize_, tolerancesMet );
         }
         else
         {
-            return std::make_pair( currentStep * timeStepRatio, tolerancesMet );
+            return std::make_pair( currentStep * static_cast< TimeStepType >( timeStepRatio ), tolerancesMet );
         }
     }
 

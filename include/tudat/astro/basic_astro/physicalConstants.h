@@ -132,7 +132,12 @@ constexpr static double SPEED_OF_LIGHT_LONG = 299792458.0L;
  *  \return Speed of light in meters per second with templated precision.
  */
 template< typename ScalarType >
-constexpr ScalarType getSpeedOfLight( );
+constexpr ScalarType getSpeedOfLight( )
+{
+    // The speed of light is an exact integer in SI units. Constructing it from
+    // that integer avoids routing custom scalar types through double.
+    return static_cast< ScalarType >( 299792458 );
+}
 
 //! Function to get the speed of light in meters per second with double precision.
 template<>

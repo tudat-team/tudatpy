@@ -212,8 +212,25 @@ public:
      * \param properTimeRateFunction Function that is used to compute proper time rate
      */
     CustomDopplerProperTimeRateInterface( const LinkEndType computationPointLinkEndType,
-                                          const std::function< double( const double ) > properTimeRateFunction ):
+                                          const std::function< double( const double ) >& properTimeRateFunction ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ), properTimeRateFunction_( properTimeRateFunction )
+    {}
+
+    //! Constructor accepting a proper-time function with a different scalar signature
+    /*!
+     * The underlying proper-time interface evaluates coordinate times and proper-time deviations as doubles. This adapter
+     * permits observation-model scalar signatures to be connected to that interface, but does not increase the precision of
+     * the proper-time calculation itself.
+     * \param computationPointLinkEndType Variable that denotes for which link end this object computes the proper time rate
+     * \param properTimeRateFunction Function that is used to compute proper time rate
+     */
+    template< typename ProperTimeScalarType, typename ProperTimeType >
+    CustomDopplerProperTimeRateInterface( const LinkEndType computationPointLinkEndType,
+                                          const std::function< ProperTimeScalarType( const ProperTimeType ) > properTimeRateFunction ):
+        DopplerProperTimeRateInterface( computationPointLinkEndType ),
+        properTimeRateFunction_( [ properTimeRateFunction ]( const double time ) {
+            return static_cast< double >( properTimeRateFunction( static_cast< ProperTimeType >( time ) ) );
+        } )
     {}
 
     //! Destructor

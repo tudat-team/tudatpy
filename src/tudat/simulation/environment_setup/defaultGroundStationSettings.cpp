@@ -88,20 +88,6 @@ int getDsnComplexId( const std::string& stationName )
     }
 }
 
-std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( )
-{
-    std::map< int, std::vector< std::string > > stationsPerComplex;
-    auto const& dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
-
-    for( auto const& [ stationName, position ] : dsnStationPositionsItrf93 )
-    {
-        int complexId = getDsnComplexId( stationName );
-        stationsPerComplex[ complexId ].push_back( stationName );
-    }
-
-    return stationsPerComplex;
-}
-
 Eigen::Vector3d getApproximateGroundStationPosition( const std::string& stationName )
 {
     Eigen::Vector3d groundStationPosition;

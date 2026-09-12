@@ -88,6 +88,11 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
     {
+        using std::acos;
+        using std::atan;
+        using std::cos;
+        using std::sqrt;
+
         std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
                 getLightTimeCalculator( );
@@ -106,11 +111,13 @@ public:
                 linkEndStates.at( 1 ).template cast< ObservationScalarType >( ).segment( 0, 3 );
 
         // Return observable
-        double rightAscension = 2.0 *
-                std::atan( relativePosition[ 1 ] /
-                           ( std::sqrt( relativePosition[ 0 ] * relativePosition[ 0 ] + relativePosition[ 1 ] * relativePosition[ 1 ] ) +
-                             relativePosition[ 0 ] ) );
-        double declination = mathematical_constants::PI / 2.0 - std::acos( relativePosition[ 2 ] / relativePosition.norm( ) );
+        ObservationScalarType rightAscension = mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) *
+                atan( relativePosition[ 1 ] /
+                      ( sqrt( relativePosition[ 0 ] * relativePosition[ 0 ] + relativePosition[ 1 ] * relativePosition[ 1 ] ) +
+                        relativePosition[ 0 ] ) );
+        ObservationScalarType declination = mathematical_constants::getPi< ObservationScalarType >( ) /
+                        mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) -
+                acos( relativePosition[ 2 ] / relativePosition.norm( ) );
         //        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
         //                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
         if( !normalizeRightAscension_ )
@@ -119,7 +126,7 @@ public:
         }
         else
         {
-            return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension * std::cos( declination ), declination ).finished( );
+            return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension * cos( declination ), declination ).finished( );
         }
     }
 

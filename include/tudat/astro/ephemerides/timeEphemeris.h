@@ -52,7 +52,7 @@ TimeType combineTimeDifferenceFunction( const std::vector< std::function< TimeTy
     return timeDifference;
 }
 
-namespace detail
+namespace time_ephemeris_detail
 {
 
 template< typename TimeType >
@@ -81,7 +81,7 @@ inline TimeType convertInterpolatorTimeFromExtendedTime( const Time& currentTime
     }
 }
 
-}  // namespace detail
+}  // namespace time_ephemeris_detail
 
 class TimeEphemeris
 {
@@ -166,7 +166,7 @@ public:
         const std::function< Time( const Time ) > timeDifferenceFunction =
                 getTimeDifferenceFunctionFromExtendedTime( inputScale, outputScale, pointIdentifier );
         return [ = ]( const TimeType inputTime ) {
-            return detail::convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
+            return time_ephemeris_detail::convertTimeDifferenceFromExtendedTime< TimeType >( timeDifferenceFunction( Time( inputTime ) ) );
         };
     }
 

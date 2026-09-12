@@ -184,37 +184,37 @@ public:
         return getTemplatedCartesianStateFromCompositeEphemeris< double, double >( secondsSinceEpoch );
     }
 
-    //! Get state from ephemeris (with long double as state scalar).
+    //! Get state from ephemeris (with the configured high-precision state scalar).
     /*!
-     * Returns state from ephemeris with long double as state scalar at given time.
+     * Returns state from ephemeris with the configured high-precision state scalar at given time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
-     * \return Constant state with long double as state scalar given by combined rotations and translations.
+     * \return Constant state with the configured high-precision scalar given by combined rotations and translations.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
-        return getTemplatedCartesianStateFromCompositeEphemeris< double, long double >( secondsSinceEpoch );
+        return getTemplatedCartesianStateFromCompositeEphemeris< double, HighPrecisionStateScalar >( secondsSinceEpoch );
     }
 
     //! Get state from ephemeris (with double as state scalar and Time as time type).
     /*!
      * Returns state from ephemeris with double as state scalar at given time (as custom Time type).
      * \param currentTime Time at which state is to be evaluated
-     * \return State from ephemeris with long double as state scalar
+     * \return State from ephemeris with double as state scalar
      */
     Eigen::Matrix< double, 6, 1 > getCartesianStateFromExtendedTime( const Time& currentTime )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< Time, double >( currentTime );
     }
 
-    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    //! Get state from ephemeris (with the configured high-precision state scalar and Time as time type).
     /*!
-     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type).
+     * Returns state from ephemeris with the configured high-precision state scalar at given time (as custom Time type).
      * \param currentTime Time at which state is to be evaluated
-     * \return State from ephemeris with long double as state scalar
+     * \return State from ephemeris with the configured high-precision state scalar
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
     {
-        return getTemplatedCartesianStateFromCompositeEphemeris< Time, long double >( currentTime );
+        return getTemplatedCartesianStateFromCompositeEphemeris< Time, HighPrecisionStateScalar >( currentTime );
     }
 
     //! Templated function to get the state from tabulated ephemeris.
@@ -243,7 +243,7 @@ public:
             if( isCurrentEphemerisTranslational_[ i ] == true )
             {
                 state += translationalEphemerides_[ currentTranslationIndex ].first( static_cast< TimeType >( currentTime ) ) *
-                        static_cast< double >( translationalEphemerides_[ currentTranslationIndex ].second );
+                        static_cast< StateScalarType >( translationalEphemerides_[ currentTranslationIndex ].second );
                 currentTranslationIndex++;
             }
             // If current ephemeris is rotational, multiply position and state by rotation.

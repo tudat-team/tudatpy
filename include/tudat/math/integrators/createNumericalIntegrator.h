@@ -581,6 +581,8 @@ template< typename IndependentVariableType = double >
 class RungeKuttaVariableStepSizeSettingsScalarTolerances : public RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >
 {
 public:
+    using ToleranceType = typename scalar_type< IndependentVariableType >::value_type;
+
     // Default constructor.
     /*
      *  Constructor for variable step RK integrator settings with scalar tolerances.
@@ -606,8 +608,8 @@ public:
                                                         const numerical_integrators::CoefficientSets coefficientSet,
                                                         const IndependentVariableType minimumStepSize,
                                                         const IndependentVariableType maximumStepSize,
-                                                        const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-                                                        const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+                                                        const ToleranceType relativeErrorTolerance = 1.0E-12,
+                                                        const ToleranceType absoluteErrorTolerance = 1.0E-12,
                                                         const bool assessTerminationOnMinorSteps = false,
                                                         const IndependentVariableType safetyFactorForNextStepSize = 0.8,
                                                         const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
@@ -716,10 +718,10 @@ public:
     ~RungeKuttaVariableStepSizeSettingsScalarTolerances( ) {}
 
     // Relative error tolerance for step size control.
-    IndependentVariableType relativeErrorTolerance_;
+    ToleranceType relativeErrorTolerance_;
 
     // Absolute error tolerance for step size control.
-    IndependentVariableType absoluteErrorTolerance_;
+    ToleranceType absoluteErrorTolerance_;
 };
 
 // Alias for variable step RK numerical integrator with scalar tolerances (added for compatibility with old code).

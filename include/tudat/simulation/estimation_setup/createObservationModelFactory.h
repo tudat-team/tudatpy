@@ -1406,7 +1406,8 @@ public:
                 if( oneWayDopplerSettings == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when creating one way doppler measured frequency observation model: No one way doppler settings found "
+                            "Error when creating one way doppler measured frequency observation model: No one way doppler settings "
+                            "found "
                             "in settings object." );
                 }
                 std::shared_ptr< OneWayDopplerObservationModel< ObservationScalarType, TimeType > > oneWayDopplerModel =

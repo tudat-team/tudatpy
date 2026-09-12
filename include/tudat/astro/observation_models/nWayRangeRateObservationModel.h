@@ -94,7 +94,7 @@ public:
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        TimeType integrationTime;
+        double integrationTime;
         try
         {
             integrationTime = ancillarySetings->getAncillaryDoubleData( doppler_integration_time, true );
@@ -106,16 +106,17 @@ public:
         }
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData( time + integrationTime / 2.0,
+                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData( addTimeIntervalToEpoch( time, integrationTime / 2.0 ),
                                                                                     linkEndAssociatedWithTime,
                                                                                     arcEndLinkEndTimes,
                                                                                     arcEndLinkEndStates,
                                                                                     ancillarySetings ) -
-                  arcStartObservationModel_->computeIdealObservationsWithLinkEndData( time - integrationTime / 2.0,
-                                                                                      linkEndAssociatedWithTime,
-                                                                                      arcStartLinkEndTimes,
-                                                                                      arcStartLinkEndStates,
-                                                                                      ancillarySetings ) ) /
+                  arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
+                          subtractTimeIntervalFromEpoch( time, integrationTime / 2.0 ),
+                          linkEndAssociatedWithTime,
+                          arcStartLinkEndTimes,
+                          arcStartLinkEndStates,
+                          ancillarySetings ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );

@@ -382,6 +382,8 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
 BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 {
+    using StateScalar = HighPrecisionStateScalar;
+
     std::string spiceKernelsPath = paths::getSpiceKernelPath( );
     std::string textKernelsPath = spiceKernelsPath + "/inpop19a_TCB_m100_p100_asc";
     if( !areInpop19aResourcesAvailable( spiceKernelsPath, textKernelsPath ) )
@@ -493,8 +495,8 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
             std::make_shared< propagators::PropagationTimeTerminationSettings >( endTime );
 
     std::vector< std::string > listOfPerturbingBodies{ "Earth", "Moon", "Sun", "Jupiter", "Saturn" };
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialRelativisticTimeState =
-            Eigen::Matrix< long double, Eigen::Dynamic, 1 >::Zero( 1 );
+    Eigen::Matrix< StateScalar, Eigen::Dynamic, 1 > initialRelativisticTimeState =
+            Eigen::Matrix< StateScalar, Eigen::Dynamic, 1 >::Zero( 1 );
 
     auto outputProcessingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >(
             false, false, 1, TUDAT_NAN, std::make_shared< PropagationPrintSettings >( ) );
@@ -502,10 +504,10 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
 
     const std::vector< std::string > topocentricPerturbingBodies{ "Moon", "Sun", "Jupiter", "Saturn" };
 
-    std::vector< std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, Time > > >
+    std::vector< std::shared_ptr< RelativisticTimeStatePropagatorSettings< StateScalar, Time > > >
             bodyCentricToTopocentricConversionSettings;
     bodyCentricToTopocentricConversionSettings.push_back(
-            std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< long double, Time > >( std::make_pair( "Earth", "Graz" ),
+            std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< StateScalar, Time > >( std::make_pair( "Earth", "Graz" ),
                                                                                                       0,
                                                                                                       4,
                                                                                                       0,
@@ -517,7 +519,7 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
                                                                                                       dependentVariablesList,
                                                                                                       outputProcessingSettings ) );
     bodyCentricToTopocentricConversionSettings.push_back(
-            std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< long double, Time > >(
+            std::make_shared< BodycenteredToTopocentricTimePropagatorSettings< StateScalar, Time > >(
                     std::make_pair( "Earth", "Yarragadee" ),
                     0,
                     4,
@@ -530,15 +532,15 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
                     dependentVariablesList,
                     outputProcessingSettings ) );
 
-    std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< long double, Time > > > relativisticConverterSettings;
-    relativisticConverterSettings[ "LRO" ] = std::make_shared< DirectRelativisticTimeConverterSettings< long double, Time > >(
-            std::make_shared< propagators::FirstOrderBodycentricRelativisticTimePropagatorSettings< long double, Time > >(
+    std::map< std::string, std::shared_ptr< DirectRelativisticTimeConverterSettings< StateScalar, Time > > > relativisticConverterSettings;
+    relativisticConverterSettings[ "LRO" ] = std::make_shared< DirectRelativisticTimeConverterSettings< StateScalar, Time > >(
+            std::make_shared< propagators::FirstOrderBodycentricRelativisticTimePropagatorSettings< StateScalar, Time > >(
                     "LRO", listOfPerturbingBodies, Time( initialEphemerisTime ), integratorSettings, terminationSettings ),
             integratorSettings );
 
     std::vector< std::string > listOfPerturbingBodies2{ "Moon", "Sun", "Jupiter", "Saturn" };
-    relativisticConverterSettings[ "Earth" ] = std::make_shared< DirectRelativisticTimeConverterSettings< long double, Time > >(
-            std::make_shared< propagators::SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > >(
+    relativisticConverterSettings[ "Earth" ] = std::make_shared< DirectRelativisticTimeConverterSettings< StateScalar, Time > >(
+            std::make_shared< propagators::SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalar, Time > >(
                     "Earth", listOfPerturbingBodies2, Time( initialEphemerisTime ), integratorSettings, terminationSettings ),
             integratorSettings,
             bodyCentricToTopocentricConversionSettings );
@@ -587,24 +589,22 @@ BOOST_AUTO_TEST_CASE( test_concatenated_conversions )
                                .getSeconds< long double >( ),
                        std::numeric_limits< long double >::epsilon( ) );
 
-    std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > > directEarthTimeScaleConverter =
-            std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< long double, Time > >(
+    std::shared_ptr< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalar, Time > > directEarthTimeScaleConverter =
+            std::make_shared< SecondOrderBodyCenteredRelativisticTimeConverterSettings< StateScalar, Time > >(
                     "Earth", listOfPerturbingBodies2, Time( initialEphemerisTime ), integratorSettings, terminationSettings );
 
     directEarthTimeScaleConverter->getOutputSettings( )->setIntegratedResult( true );
 
     // Get directly calculated map of tcg-tcb from tcb input (key)
-    SingleArcDynamicsSimulator< long double, Time > timeEquationPropagator =
-            SingleArcDynamicsSimulator< long double, Time >( bodies, directEarthTimeScaleConverter, true );
+    SingleArcDynamicsSimulator< StateScalar, Time > timeEquationPropagator =
+            SingleArcDynamicsSimulator< StateScalar, Time >( bodies, directEarthTimeScaleConverter, true );
 
-    std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > directTimeDifferencesVectors =
+    std::map< Time, Eigen::Matrix< StateScalar, Eigen::Dynamic, 1 > > directTimeDifferencesVectors =
             timeEquationPropagator.getEquationsOfMotionNumericalSolution( );
     std::map< Time, long double > directTimeDifferences;
-    for( std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >::iterator resultIterator = directTimeDifferencesVectors.begin( );
-         resultIterator != directTimeDifferencesVectors.end( );
-         resultIterator++ )
+    for( const auto& result : directTimeDifferencesVectors )
     {
-        directTimeDifferences[ resultIterator->first ] = resultIterator->second.x( );
+        directTimeDifferences[ result.first ] = static_cast< long double >( result.second.x( ) );
     }
 
     // Create map of tcb-tcg from tcg input (key)
