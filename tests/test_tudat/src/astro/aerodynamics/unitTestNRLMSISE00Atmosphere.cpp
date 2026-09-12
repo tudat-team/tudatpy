@@ -17,7 +17,9 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
+#include <stdexcept>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <vector>
@@ -82,6 +84,148 @@ NRLMSISE00Input nrlmsiseTestFunction( double altitude,
     }
 
     return data;
+}
+
+//! Check the seven native Ap fields and densities using independent, synthetic UTC histories.
+BOOST_AUTO_TEST_CASE( testNRLMSISE00ApHistoryAndNativeOutput )
+{
+    using namespace input_output::solar_activity;
+    const double firstJulianDay = basic_astrodynamics::convertCalendarDateToJulianDay( 2000, 1, 1, 0, 0, 0.0 );
+    const double firstEpoch = basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( firstJulianDay );
+
+    // One increment per three-hour interval makes every history slot distinguishable.
+    // Include enough days on either side of New Year for the 57-hour lookback.
+    SolarActivityDataMap activityMap;
+    for( int day = -4; day <= 3; ++day )
+    {
+        auto activity = std::make_shared< SolarActivityData >( day < 0 ? 1999 : 2000, day < 0 ? 12 : 1, day < 0 ? 32 + day : 1 + day );
+        activity->fluxQualifier = 0;
+        activity->solarRadioFlux107Observed = 150.0;
+        activity->centered81DaySolarRadioFlux107Observed = 150.0;
+        for( int interval = 0; interval < 8; ++interval )
+        {
+            activity->planetaryEquivalentAmplitudeVector( interval ) = 100.0 + 8 * day + interval;
+        }
+        activity->planetaryEquivalentAmplitudeAverage = 103.5 + 8 * day;
+        activityMap[ firstJulianDay + day ] = activity;
+    }
+    const SolarActivityContainer activityContainer( activityMap );
+
+    for( const double seconds : { -1.0, 0.0, 1.0, 10799.0, 10800.0, 10801.0, 43199.0, 43200.0, 43201.0, 86399.0, 86400.0, 86401.0 } )
+    {
+        const double epoch = firstEpoch + seconds;
+        const int day = static_cast< int >( std::floor( seconds / 86400.0 ) );
+        const double currentAp = 100.0 + std::floor( seconds / 10800.0 );
+        const double dailyAp = 103.5 + 8 * day;
+        // Means of the eight samples at lags 4..11 and 12..19, respectively.
+        const std::vector< double > expectedAp = { dailyAp,         currentAp,       currentAp - 1.0, currentAp - 2.0,
+                                                   currentAp - 3.0, currentAp - 7.5, currentAp - 15.5 };
+
+        for( const bool storm : { false, true } )
+        {
+            BOOST_TEST_CONTEXT( "UTC seconds since 2000-01-01 midnight: " << seconds << ", storm: " << storm )
+            {
+                const auto inputData = aerodynamics::nrlmsiseInputFunction(
+                        400.0E3, 0.0, 0.0, epoch, activityContainer, false, TUDAT_NAN, storm ? -1 : 1 );
+                BOOST_REQUIRE_EQUAL( inputData.apVector.size( ), 7 );
+                BOOST_CHECK_EQUAL( inputData.apDaily, dailyAp );
+                BOOST_CHECK_EQUAL( inputData.switches.at( 9 ), storm ? -1 : 1 );
+                for( int i = 0; i < 7; ++i )
+                {
+                    BOOST_CHECK_EQUAL( inputData.apVector.at( i ), storm || i == 0 ? expectedAp.at( i ) : 0.0 );
+                }
+
+                for( const bool anomalousOxygen : { false, true } )
+                {
+                    NRLMSISE00Atmosphere model( activityMap, true, storm, anomalousOxygen );
+                    for( const double altitude : { 141.1515405279845E3, 400.0E3, 600.0E3 } )
+                    {
+                        const double longitude = -70.0 * PI / 180.0;
+                        const double latitude = 30.0 * PI / 180.0;
+                        // Construct the reference directly, without the Tudat input builder.
+                        ap_array nativeAp{};
+                        for( int i = 0; i < 7; ++i )
+                        {
+                            nativeAp.a[ i ] = expectedAp.at( i );
+                        }
+                        nrlmsise_input nativeInput{};
+                        nativeInput.year = day < 0 ? 1999 : 2000;
+                        nativeInput.doy = day < 0 ? 365 : day + 1;
+                        nativeInput.sec = seconds - day * 86400.0;
+                        nativeInput.alt = altitude / 1000.0;
+                        nativeInput.g_lat = latitude * 180.0 / PI;
+                        nativeInput.g_long = longitude * 180.0 / PI;
+                        nativeInput.lst = nativeInput.sec / 3600.0 + nativeInput.g_long / 15.0;
+                        nativeInput.f107 = 150.0;
+                        nativeInput.f107A = 150.0;
+                        nativeInput.ap = dailyAp;
+                        nativeInput.ap_a = &nativeAp;
+                        nrlmsise_flags nativeFlags{};
+                        std::fill_n( nativeFlags.switches, 24, 1 );
+                        nativeFlags.switches[ 0 ] = 0;
+                        nativeFlags.switches[ 9 ] = storm ? -1 : 1;
+                        nrlmsise_output nativeOutput{};
+                        if( anomalousOxygen )
+                        {
+                            gtd7d( &nativeInput, &nativeFlags, &nativeOutput );
+                        }
+                        else
+                        {
+                            gtd7( &nativeInput, &nativeFlags, &nativeOutput );
+                        }
+
+                        const auto modelOutput = model.getFullOutput( altitude, longitude, latitude, epoch );
+                        for( int i = 0; i < 9; ++i )
+                        {
+                            BOOST_CHECK( std::isfinite( modelOutput.first.at( i ) ) );
+                            BOOST_CHECK_CLOSE_FRACTION( modelOutput.first.at( i ), nativeOutput.d[ i ], 1.0E-12 );
+                        }
+                        for( int i = 0; i < 2; ++i )
+                        {
+                            BOOST_CHECK_CLOSE_FRACTION( modelOutput.second.at( i ), nativeOutput.t[ i ], 1.0E-12 );
+                        }
+                        BOOST_CHECK_CLOSE_FRACTION(
+                                model.getDensity( altitude, longitude, latitude, epoch ), nativeOutput.d[ 5 ] * 1000.0, 1.0E-12 );
+                        const auto storedInput = model.getNRLMSISE00InputStruct( );
+                        for( int i = 0; i < 7; ++i )
+                        {
+                            BOOST_CHECK_EQUAL( storedInput.ap_a->a[ i ], storm || i == 0 ? expectedAp.at( i ) : 0.0 );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//! Malformed custom inputs must fail safely, including repeated calls at the same epoch.
+BOOST_AUTO_TEST_CASE( testNRLMSISE00ApArrayValidation )
+{
+    BOOST_CHECK_EQUAL( NRLMSISE00Input( ).apVector.size( ), 7 );
+    const NRLMSISE00Input validInput( 2000, 1, 43200.0, 12.0, 130.1, 166.2, 30.0, { 30.0, 32.0, 18.0, 27.0, 39.0, 34.5, 19.25 } );
+    NRLMSISE00Input customInput = validInput;
+    NRLMSISE00Atmosphere model( [ &customInput ]( double, double, double, double ) { return customInput; } );
+    const double expectedDensity = model.getDensity( 400.0E3, 0.0, 0.0, 0.0 );
+    BOOST_REQUIRE( std::isfinite( expectedDensity ) );
+    for( const int size : { 0, 6, 8 } )
+    {
+        BOOST_TEST_CONTEXT( "Ap array size: " << size )
+        {
+            customInput = validInput;
+            customInput.apVector.resize( size );
+            model.resetHashKey( );
+            BOOST_CHECK_THROW( model.getDensity( 400.0E3, 0.0, 0.0, 0.0 ), std::invalid_argument );
+            BOOST_CHECK_THROW( model.getDensity( 400.0E3, 0.0, 0.0, 0.0 ), std::invalid_argument );
+            customInput = validInput;
+            // A rejected input must not populate the cache or require a manual cache reset.
+            BOOST_CHECK_CLOSE_FRACTION( model.getDensity( 400.0E3, 0.0, 0.0, 0.0 ), expectedDensity, 1.0E-14 );
+            const auto storedInput = model.getNRLMSISE00InputStruct( );
+            for( int i = 0; i < 7; ++i )
+            {
+                BOOST_CHECK_EQUAL( storedInput.ap_a->a[ i ], validInput.apVector.at( i ) );
+            }
+        }
+    }
 }
 
 //! Perform NRLMSISE-00 test of get functions.
@@ -1345,9 +1489,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 
-    nrlmsise_flags flags;
-    nrlmsise_input input;
-    nrlmsise_output output;
+    BOOST_REQUIRE( dynamicsSimulator.integrationCompletedSuccessfully( ) );
+    BOOST_REQUIRE( !dependentVariableOutput.empty( ) );
+    BOOST_CHECK_EQUAL( dependentVariableOutput.rbegin( )->first, simulationEndEpoch );
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
@@ -1359,6 +1503,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
         Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
         double geodeticLatitude = it.second( 22 );
         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
+        BOOST_CHECK( it.second.allFinite( ) );
+        BOOST_CHECK_GT( density, 0.0 );
 
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
@@ -1370,7 +1516,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
-        for( int i = 0; i < 6; i++ )
+        BOOST_REQUIRE_EQUAL( inputData.apVector.size( ), 7 );
+        for( int i = 0; i < 7; i++ )
         {
             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
         }
@@ -1394,6 +1541,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 6 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
@@ -1424,12 +1572,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
         BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
         BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
         BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 30 );
         BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 0 );
         BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 0 );
         BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 0 );
         BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 0 );
         BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 6 ), 0 );
         //
         double manualDensity =
                 std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
@@ -1563,9 +1712,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 
-    nrlmsise_flags flags;
-    nrlmsise_input input;
-    nrlmsise_output output;
+    BOOST_REQUIRE( dynamicsSimulator.integrationCompletedSuccessfully( ) );
+    BOOST_REQUIRE( !dependentVariableOutput.empty( ) );
+    BOOST_CHECK_EQUAL( dependentVariableOutput.rbegin( )->first, simulationEndEpoch );
     auto nrlmsiseInputFunction =
             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
 
@@ -1577,6 +1726,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
         Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
         double geodeticLatitude = it.second( 22 );
         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
+        BOOST_CHECK( it.second.allFinite( ) );
+        BOOST_CHECK_GT( density, 0.0 );
 
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
@@ -1588,7 +1739,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
-        for( int i = 0; i < 6; i++ )
+        BOOST_REQUIRE_EQUAL( inputData.apVector.size( ), 7 );
+        for( int i = 0; i < 7; i++ )
         {
             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
         }
@@ -1612,6 +1764,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 6 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
             std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
@@ -1642,12 +1795,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
         BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
         BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
         BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 32 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 18 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 27 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 39 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 34.5 );
-        BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
+        const std::vector< double > expectedAp = { 30.0, 32.0, 18.0, 27.0, 39.0, 34.5, 19.25 };
+        BOOST_CHECK_EQUAL_COLLECTIONS( inputData.apVector.begin( ), inputData.apVector.end( ), expectedAp.begin( ), expectedAp.end( ) );
 
         double manualDensity =
                 std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
