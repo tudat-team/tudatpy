@@ -35,6 +35,14 @@ enum FrequencyBands { s_band, x_band, ka_band, ku_band };
 std::string getFrequencyBandString( FrequencyBands frequencyBand );
 
 /*!
+ * Function returning a frequency band from a string identifier
+ *
+ * @param frequencyBand String identifier for frequency band
+ * @return Frequency band
+ */
+FrequencyBands getFrequencyBandFromString( const std::string& frequencyBand );
+
+/*!
  * Returns the default turnaround ratios used for DSN spacecraft, according to Moyer (2000), table 13-1.
  *
  * @param uplinkBand Uplink band

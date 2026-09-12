@@ -15,9 +15,20 @@
 #include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/math/interpolators/createInterpolator.h"
+#include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
 
 namespace tudat
 {
+
+namespace input_output
+{
+
+class DsnWeatherData;
+
+class EstrackWeatherData;
+
+}  // namespace input_output
 
 namespace simulation_setup
 {
@@ -145,6 +156,71 @@ inline std::shared_ptr< GroundStationMotionSettings > bodycentricToBarycentricSt
     return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
 }
 
+enum WeatherDataSettingsType { dsn_weather_data, estrack_weather_data };
+
+class WeatherDataSettings
+{
+public:
+    WeatherDataSettings(
+            const WeatherDataSettingsType weatherDataType,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        weatherDataType_( weatherDataType ), interpolatorSettings_( interpolatorSettings )
+    {}
+
+    virtual ~WeatherDataSettings( ) {}
+
+    WeatherDataSettingsType getWeatherDataType( )
+    {
+        return weatherDataType_;
+    }
+
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    {
+        return interpolatorSettings_;
+    }
+
+private:
+    WeatherDataSettingsType weatherDataType_;
+
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+};
+
+class DsnWeatherDataSettings : public WeatherDataSettings
+{
+public:
+    DsnWeatherDataSettings(
+            const std::shared_ptr< input_output::DsnWeatherData > weatherData,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        WeatherDataSettings( dsn_weather_data, interpolatorSettings ), weatherData_( weatherData )
+    {}
+
+    std::shared_ptr< input_output::DsnWeatherData > getWeatherData( )
+    {
+        return weatherData_;
+    }
+
+private:
+    std::shared_ptr< input_output::DsnWeatherData > weatherData_;
+};
+
+class EstrackWeatherDataSettings : public WeatherDataSettings
+{
+public:
+    EstrackWeatherDataSettings(
+            const std::shared_ptr< input_output::EstrackWeatherData > weatherData,
+            std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) ):
+        WeatherDataSettings( estrack_weather_data, interpolatorSettings ), weatherData_( weatherData )
+    {}
+
+    std::shared_ptr< input_output::EstrackWeatherData > getWeatherData( )
+    {
+        return weatherData_;
+    }
+
+private:
+    std::shared_ptr< input_output::EstrackWeatherData > weatherData_;
+};
+
 class GroundStationSettings
 {
 public:
@@ -153,9 +229,10 @@ public:
             const Eigen::Vector3d& groundStationPosition,
             const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position,
             const std::vector< std::shared_ptr< GroundStationMotionSettings > >
-                    stationMotionSettings = { std::make_shared< BodyDeformationStationMotionSettings >( true ) } ):
+                    stationMotionSettings = { std::make_shared< BodyDeformationStationMotionSettings >( true ) },
+            const std::shared_ptr< WeatherDataSettings > weatherDataSettings = nullptr ):
         stationName_( stationName ), groundStationPosition_( groundStationPosition ), positionElementType_( positionElementType ),
-        stationMotionSettings_( stationMotionSettings )
+        stationMotionSettings_( stationMotionSettings ), weatherDataSettings_( weatherDataSettings )
     {}
 
     std::string getStationName( )
@@ -193,6 +270,16 @@ public:
         stationMotionSettings_.push_back( stationMotionSetting );
     }
 
+    std::shared_ptr< WeatherDataSettings > getWeatherDataSettings( )
+    {
+        return weatherDataSettings_;
+    }
+
+    void setWeatherDataSettings( const std::shared_ptr< WeatherDataSettings > weatherDataSettings )
+    {
+        weatherDataSettings_ = weatherDataSettings;
+    }
+
 protected:
     std::string stationName_;
 
@@ -201,6 +288,8 @@ protected:
     coordinate_conversions::PositionElementTypes positionElementType_;
 
     std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
+
+    std::shared_ptr< WeatherDataSettings > weatherDataSettings_;
 };
 
 inline void addStationMotionModelToEachGroundStation( const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
@@ -217,10 +306,42 @@ inline std::shared_ptr< GroundStationSettings > groundStationSettings(
         const Eigen::Vector3d& groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType = coordinate_conversions::cartesian_position,
         const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+                std::vector< std::shared_ptr< GroundStationMotionSettings > >( ),
+        const std::shared_ptr< WeatherDataSettings > weatherDataSettings = nullptr )
 {
-    return std::make_shared< GroundStationSettings >( stationName, groundStationPosition, positionElementType, stationMotionSettings );
+    return std::make_shared< GroundStationSettings >(
+            stationName, groundStationPosition, positionElementType, stationMotionSettings, weatherDataSettings );
 }
+
+std::shared_ptr< ground_stations::StationMeteoData > createGroundStationMeteoData(
+        const std::shared_ptr< WeatherDataSettings > weatherDataSettings );
+
+void setWeatherDataInGroundStation( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                    const std::shared_ptr< WeatherDataSettings > weatherDataSettings );
+
+void setDsnWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::map< int, std::shared_ptr< input_output::DsnWeatherData > >& weatherDataPerComplex,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ) );
+
+void setDsnWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::vector< std::string >& weatherFileNames,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ) );
+
+void setEstrackWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::shared_ptr< input_output::EstrackWeatherData > weatherData,
+        const std::string groundStation,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
+
+void setEstrackWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::vector< std::string >& weatherFileNames,
+        const std::string groundStation,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ) );
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 /*!

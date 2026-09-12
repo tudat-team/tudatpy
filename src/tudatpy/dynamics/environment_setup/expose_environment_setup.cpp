@@ -452,7 +452,7 @@ void expose_environment_setup( py::module& m )
  .. note::
 
      Before using this function, make sure to have the appropriate set of SPICE kernels loaded.
-     Typically, this is done through the :func:`~tudatpy.interface.spice.load_standard_kernels` function.
+     Typically, this is done through the :func:`~tudatpy.data_input.environment_data.spice.load_standard_kernels` function.
 
 
  Parameters

@@ -25,9 +25,13 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/support/testFileUtilities.h"
 
+#include "tudat/io/preProcessFdetsFile.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -431,11 +435,6 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     auto timeDataBlockLast = dataBlockLast[ tio::TrackingDataType::utc_reception_time_j2000 ];
 
     DateTime utcObservationTime = DateTime( 2023, 4, 25, 9, 46, 10.0 );
-    double tdbObservationTime = createDefaultTimeConverter( )->getCurrentTime< Time >(
-            utc_scale,
-            tdb_scale,
-            utcObservationTime.epoch< Time >( ),
-            getCombinedApproximateGroundStationPositions( ).at( receivingStationName ) );
 
     BOOST_CHECK_CLOSE_FRACTION(
             timeDataBlockLast, utcObservationTime.epoch< double >( ), 10.0 * std::numeric_limits< double >::epsilon( ) );
@@ -449,22 +448,44 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::transmitting_station_name ), transmittingStationName );
     BOOST_CHECK_EQUAL( metaDataStrMap.at( tio::TrackingDataType::receiving_station_name ), receivingStationName );
 
-    auto observationCollection =
-            observation_models::createTrackingTxtFileObservationCollection< double, double >( rawFdetsDopplerFile, "JUICE" );
-    BOOST_CHECK_EQUAL( observationCollection->getTotalObservableSize( ), 120 );
+    std::vector< std::shared_ptr< data::TrackingData< double, Time > > > trackingData =
+            tio::readFdetsFiles< double, Time >( std::vector< std::string >( { juiceFdetsDopplerPath } ),
+                                                 std::vector< double >( { dopplerBaseFrequency } ),
+                                                 tio::FdetDateFormat::datetime_string,
+                                                 "JUICE",
+                                                 std::vector< std::string >( { transmittingStationName } ),
+                                                 std::vector< std::string >( { receivingStationName } ) )
+                    .first;
 
-    auto concatenatedObservations = observationCollection->getObservationVectorReference( );
-    auto concatenatedTimes = observationCollection->getConcatenatedDoubleTimeVector( );
+    BOOST_REQUIRE_EQUAL( trackingData.size( ), 1 );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getObservableType( ), "DopplerMeasuredFrequency" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getReferenceLinkEnd( ), "receiver" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getTimeScale( ), "UTC" );
+    BOOST_CHECK_EQUAL( trackingData.at( 0 )->getNumberOfObservations( ), 120 );
 
-    BOOST_CHECK_EQUAL( concatenatedObservations.size( ), 120 );
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > observations = trackingData.at( 0 )->getObservations( );
+    std::vector< Time > epochs = trackingData.at( 0 )->getObservationEpochs( );
 
-    BOOST_CHECK_EQUAL( concatenatedObservations( 0 ), dopplerBaseFrequency + 5978760.982806123793 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( 1 ), dopplerBaseFrequency + 5978754.318319843151 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( 2 ), dopplerBaseFrequency + 5978747.672510409728 );
-    BOOST_CHECK_EQUAL( concatenatedObservations( concatenatedObservations.rows( ) - 1 ), dopplerBaseFrequency + 5977954.253958693705 );
+    BOOST_CHECK_EQUAL( observations.at( 0 )( 0 ), dopplerBaseFrequency + 5978760.982806123793 );
+    BOOST_CHECK_EQUAL( observations.at( 1 )( 0 ), dopplerBaseFrequency + 5978754.318319843151 );
+    BOOST_CHECK_EQUAL( observations.at( 2 )( 0 ), dopplerBaseFrequency + 5978747.672510409728 );
+    BOOST_CHECK_EQUAL( observations.at( observations.size( ) - 1 )( 0 ), dopplerBaseFrequency + 5977954.253958693705 );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-            tdbObservationTime, concatenatedTimes.at( concatenatedTimes.size( ) - 1 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( utcObservationTime.epoch< Time >( ) ),
+                                static_cast< double >( epochs.at( epochs.size( ) - 1 ) ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    auto observationCollection = tom::createObservationCollection< double, Time >( trackingData, bodies );
+    std::vector< Time > observationCollectionEpochs = observationCollection->getConcatenatedTimeVector( );
+    const Eigen::Vector3d earthFixedPosition =
+            bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
+    Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
+            utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ), earthFixedPosition );
+    BOOST_REQUIRE_EQUAL( observationCollectionEpochs.size( ), epochs.size( ) );
+    BOOST_CHECK_SMALL( static_cast< double >( observationCollectionEpochs.back( ) - expectedTdbObservationTime ), 1.0E-12 );
 }
 
 BOOST_AUTO_TEST_CASE( TestFdetsFileReaderDateFormatAndScanDetection )

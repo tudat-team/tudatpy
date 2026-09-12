@@ -598,7 +598,7 @@ std::string getObservableName( const ObservableType observableType, const int nu
             break;
         }
         case dsn_n_way_range: {
-            observableName = "DSN " + getNWayString( numberOfLinkEnds ) + "WayRange";
+            observableName = "Dsn" + getNWayString( numberOfLinkEnds ) + "WayRange";
             break;
         }
         case euler_angle_313_observable:
@@ -700,6 +700,30 @@ ObservableType getObservableType( const std::string& observableName )
     else if( observableName == "RelativeCartesianPosition" )
     {
         observableType = relative_position_observable;
+    }
+    else if( observableName == "NWayRange" )
+    {
+        observableType = n_way_range;
+    }
+    else if( observableName == "DsnNWayRange" )
+    {
+        observableType = dsn_n_way_range;
+    }
+    else if( observableName == "NWayDifferencedRange" )
+    {
+        observableType = n_way_differenced_range;
+    }
+    else if( observableName == "DsnOneWayAveragedDoppler" )
+    {
+        observableType = dsn_one_way_averaged_doppler;
+    }
+    else if( observableName == "DsnNWayAveragedDoppler" )
+    {
+        observableType = dsn_n_way_averaged_doppler;
+    }
+    else if( observableName == "NWayDopplerMeasuredFrequency" )
+    {
+        observableType = doppler_measured_frequency;
     }
     else
     {
