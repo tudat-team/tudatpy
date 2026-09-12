@@ -189,16 +189,16 @@ public:
         if( isTimeAtReception )
         {
             linkEndTimes[ 1 ] = static_cast< double >( time );
-            linkEndTimes[ 0 ] = static_cast< double >( subtractTimeIntervalFromEpoch( time, lightTime ) );
+            linkEndTimes[ 0 ] = static_cast< double >( ( time - static_cast< TimeType >( lightTime ) ) );
         }
         else
         {
             linkEndTimes[ 0 ] = static_cast< double >( time );
-            linkEndTimes[ 1 ] = static_cast< double >( addTimeIntervalToEpoch( time, lightTime ) );
+            linkEndTimes[ 1 ] = static_cast< double >( ( time + static_cast< TimeType >( lightTime ) ) );
         }
 
         // Get the frequency of the transmitter
-        TimeType transmitterTime = subtractTimeIntervalFromEpoch( time, lightTime );
+        TimeType transmitterTime = ( time - static_cast< TimeType >( lightTime ) );
 
         Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
         Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )

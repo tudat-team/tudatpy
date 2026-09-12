@@ -204,7 +204,7 @@ public:
             const double startDeltaAt =
                     sofa_interface::getDeltaAtFromUtc( static_cast< double >( startUtc ) / physical_constants::JULIAN_DAY );
             const double endDeltaAt = sofa_interface::getDeltaAtFromUtc( static_cast< double >( endUtc ) / physical_constants::JULIAN_DAY );
-            return -getInterpolatedTdbMinusTtDifference< OutputScalarType >( startTime, endTime, earthFixedPosition ) -
+            return -getTdbMinusTtDifference< OutputScalarType >( startTime, endTime, earthFixedPosition ) -
                     ( static_cast< OutputScalarType >( endDeltaAt ) - static_cast< OutputScalarType >( startDeltaAt ) );
         }
         else if( inputScale == basic_astrodynamics::utc_scale && outputScale == basic_astrodynamics::tdb_scale )
@@ -213,10 +213,25 @@ public:
                     sofa_interface::getDeltaAtFromUtc( static_cast< double >( startTime ) / physical_constants::JULIAN_DAY );
             const double endDeltaAt =
                     sofa_interface::getDeltaAtFromUtc( static_cast< double >( endTime ) / physical_constants::JULIAN_DAY );
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+            if constexpr( std::is_same_v< OutputScalarType, HighPrecisionStateScalar > )
+            {
+                // Preserve the stored epochs while adding the clock offsets: an intermediate Time or double
+                // would round the arguments before the higher-precision correction model sees them.
+                const OutputScalarType ttMinusTai =
+                        convertIndependentVariableToScalar< OutputScalarType >( basic_astrodynamics::getTTMinusTai< TimeType >( ) );
+                const OutputScalarType startTt = convertIndependentVariableToScalar< OutputScalarType >( startTime ) +
+                        static_cast< OutputScalarType >( startDeltaAt ) + ttMinusTai;
+                const OutputScalarType endTt = convertIndependentVariableToScalar< OutputScalarType >( endTime ) +
+                        static_cast< OutputScalarType >( endDeltaAt ) + ttMinusTai;
+                return ( static_cast< OutputScalarType >( endDeltaAt ) - static_cast< OutputScalarType >( startDeltaAt ) ) +
+                        getTdbMinusTtDifference< OutputScalarType >( startTt, endTt, earthFixedPosition );
+            }
+#endif
             const TimeType startTt = basic_astrodynamics::convertTAItoTT< TimeType >( startTime + static_cast< TimeType >( startDeltaAt ) );
             const TimeType endTt = basic_astrodynamics::convertTAItoTT< TimeType >( endTime + static_cast< TimeType >( endDeltaAt ) );
             return ( static_cast< OutputScalarType >( endDeltaAt ) - static_cast< OutputScalarType >( startDeltaAt ) ) +
-                    getInterpolatedTdbMinusTtDifference< OutputScalarType >( startTt, endTt, earthFixedPosition );
+                    getTdbMinusTtDifference< OutputScalarType >( startTt, endTt, earthFixedPosition );
         }
         else
         {
@@ -455,31 +470,26 @@ public:
 
 private:
     template< typename OutputScalarType, typename TimeType >
-    OutputScalarType getInterpolatedTdbMinusTtDifference( const TimeType& startTime,
-                                                          const TimeType& endTime,
-                                                          const Eigen::Vector3d& earthFixedPosition )
+    OutputScalarType getTdbMinusTtDifference( const TimeType& startTime,
+                                              const TimeType& endTime,
+                                              const Eigen::Vector3d& earthFixedPosition )
     {
-        const long double interval = static_cast< long double >( endTime - startTime );
-        const long double midpoint = static_cast< long double >( startTime ) + interval / 2.0L;
-
-        // SOFA returns the correction in double. Interpolate the correction
-        // difference on a fixed grid so that sub-double epoch changes vary
-        // continuously instead of jumping between adjacent double epochs.
-        constexpr long double correctionGridSize = 1.0e-3L;
-        const long double lowerGridMidpoint = std::floor( midpoint / correctionGridSize ) * correctionGridSize;
-        const OutputScalarType interpolationFraction =
-                static_cast< OutputScalarType >( ( midpoint - lowerGridMidpoint ) / correctionGridSize );
-
-        const auto getDifferenceAtMidpoint = [ & ]( const long double evaluationMidpoint ) {
-            return static_cast< OutputScalarType >(
-                           getTDBminusTT( static_cast< double >( evaluationMidpoint + interval / 2.0L ), earthFixedPosition ) ) -
-                    static_cast< OutputScalarType >(
-                            getTDBminusTT( static_cast< double >( evaluationMidpoint - interval / 2.0L ), earthFixedPosition ) );
-        };
-
-        const OutputScalarType lowerDifference = getDifferenceAtMidpoint( lowerGridMidpoint );
-        const OutputScalarType upperDifference = getDifferenceAtMidpoint( lowerGridMidpoint + correctionGridSize );
-        return lowerDifference + interpolationFraction * ( upperDifference - lowerDifference );
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+        if constexpr( std::is_same_v< OutputScalarType, HighPrecisionStateScalar > )
+        {
+            const auto station = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
+            if( tdbToTtInterpolators_.count( station ) == 0 )
+            {
+                return sofa_interface::getHighPrecisionTDBminusTT( convertIndependentVariableToScalar< OutputScalarType >( endTime ),
+                                                                   earthFixedPosition ) -
+                        sofa_interface::getHighPrecisionTDBminusTT( convertIndependentVariableToScalar< OutputScalarType >( startTime ),
+                                                                    earthFixedPosition );
+            }
+        }
+#endif
+        // Honor a user-supplied correction interpolator. Its input/output precision is part of that model.
+        return static_cast< OutputScalarType >( getTDBminusTT( static_cast< double >( endTime ), earthFixedPosition ) ) -
+                static_cast< OutputScalarType >( getTDBminusTT( static_cast< double >( startTime ), earthFixedPosition ) );
     }
 
     double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d earthFixedPosition )

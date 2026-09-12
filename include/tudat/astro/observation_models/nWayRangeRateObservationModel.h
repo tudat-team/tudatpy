@@ -94,10 +94,11 @@ public:
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        double integrationTime;
+        ObservationScalarType integrationTime;
         try
         {
-            integrationTime = ancillarySetings->getAncillaryDoubleData( doppler_integration_time, true );
+            integrationTime =
+                    static_cast< ObservationScalarType >( ancillarySetings->getAncillaryDoubleData( doppler_integration_time, true ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -106,13 +107,14 @@ public:
         }
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData( addTimeIntervalToEpoch( time, integrationTime / 2.0 ),
-                                                                                    linkEndAssociatedWithTime,
-                                                                                    arcEndLinkEndTimes,
-                                                                                    arcEndLinkEndStates,
-                                                                                    ancillarySetings ) -
+                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
+                          ( time + static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) ),
+                          linkEndAssociatedWithTime,
+                          arcEndLinkEndTimes,
+                          arcEndLinkEndStates,
+                          ancillarySetings ) -
                   arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                          subtractTimeIntervalFromEpoch( time, integrationTime / 2.0 ),
+                          ( time - static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) ),
                           linkEndAssociatedWithTime,
                           arcStartLinkEndTimes,
                           arcStartLinkEndStates,

@@ -12,8 +12,10 @@
 #define TUDAT_CREATEINTERPOLATOR_H
 
 #include <iostream>
+#include <limits>
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include "tudat/math/interpolators/linearInterpolator.h"
@@ -556,11 +558,34 @@ public:
     std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
 
+//! Scalar of a sampled value; Eigen state vectors expose it through Scalar.
+namespace detail
+{
+template< typename Value, typename = void >
+struct InterpolationValueScalar {
+    using type = Value;
+};
+
+template< typename Value >
+struct InterpolationValueScalar< Value, std::void_t< typename Value::Scalar > > {
+    using type = typename Value::Scalar;
+};
+
+template< typename Independent, typename Dependent >
+using DefaultInterpolationScalar =
+        std::conditional_t< ( !std::numeric_limits< typename InterpolationValueScalar< Dependent >::type >::is_integer &&
+                              std::numeric_limits< typename InterpolationValueScalar< Dependent >::type >::digits >
+                                      std::numeric_limits< typename scalar_type< Independent >::value_type >::digits ),
+                            typename InterpolationValueScalar< Dependent >::type,
+                            typename scalar_type< Independent >::value_type >;
+}  // namespace detail
+
 //! Function to create a one-dimensional interpolator
 /*!
  *  Function to create a one-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
- *  \tparam ScalarType Scalar used for interpolation weights and coefficients.
+ *  \tparam ScalarType Scalar used for interpolation weights and coefficients. Defaults to the more precise of
+ *      the epoch scalar and the sampled-value scalar, so quad values never acquire double weights by default.
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
  *      variables, value = dependent variables).
  *  \param interpolatorSettings Settings that are to be used to create interpolator.
@@ -573,7 +598,7 @@ public:
  */
 template< typename IndependentVariableType,
           typename DependentVariableType,
-          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
+          typename ScalarType = detail::DefaultInterpolationScalar< IndependentVariableType, DependentVariableType > >
 std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,

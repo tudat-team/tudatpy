@@ -193,53 +193,6 @@ bool isMultiLegLightTimeSolutionConverged( const std::shared_ptr< LightTimeConve
     return isToleranceReached;
 }
 
-namespace light_time_solution_detail
-{
-template< typename TimeType >
-struct EpochIntervalArithmetic {
-    template< typename ScalarType >
-    static TimeType add( const TimeType& epoch, const ScalarType& timeInterval )
-    {
-        return epoch + static_cast< TimeType >( timeInterval );
-    }
-
-    template< typename ScalarType >
-    static TimeType subtract( const TimeType& epoch, const ScalarType& timeInterval )
-    {
-        return epoch - static_cast< TimeType >( timeInterval );
-    }
-};
-
-template<>
-struct EpochIntervalArithmetic< Time > {
-    template< typename ScalarType >
-    static Time add( const Time& epoch, const ScalarType& timeInterval )
-    {
-        return epoch + Time( timeInterval );
-    }
-
-    template< typename ScalarType >
-    static Time subtract( const Time& epoch, const ScalarType& timeInterval )
-    {
-        return epoch - Time( timeInterval );
-    }
-};
-}  // namespace light_time_solution_detail
-
-//! Add a scalar time interval to an epoch.
-template< typename TimeType, typename ScalarType >
-TimeType addTimeIntervalToEpoch( const TimeType& epoch, const ScalarType& timeInterval )
-{
-    return light_time_solution_detail::EpochIntervalArithmetic< TimeType >::add( epoch, timeInterval );
-}
-
-//! Subtract a scalar time interval from an epoch.
-template< typename TimeType, typename ScalarType >
-TimeType subtractTimeIntervalFromEpoch( const TimeType& epoch, const ScalarType& timeInterval )
-{
-    return light_time_solution_detail::EpochIntervalArithmetic< TimeType >::subtract( epoch, timeInterval );
-}
-
 //! Class for wrapping a custom light-time correction function
 class LightTimeCorrectionFunctionWrapper : public LightTimeCorrection
 {
@@ -534,11 +487,11 @@ public:
             // Set value of transmission and reception times based on initial guess for light time
             if( isTimeAtReception )  // reference time is at reception
             {
-                transmissionTime = subtractTimeIntervalFromEpoch( receptionTime, previousLightTimeCalculation );
+                transmissionTime = ( receptionTime - static_cast< TimeType >( previousLightTimeCalculation ) );
             }
             else  // reference time is at transmission
             {
-                receptionTime = addTimeIntervalToEpoch( transmissionTime, previousLightTimeCalculation );
+                receptionTime = ( transmissionTime + static_cast< TimeType >( previousLightTimeCalculation ) );
             }
             // Set receiver and transmitter states to initial guess
             receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
@@ -607,13 +560,13 @@ public:
                 if( isTimeAtReception )
                 {
                     receptionTime = time;
-                    transmissionTime = subtractTimeIntervalFromEpoch( time, previousLightTimeCalculation );
+                    transmissionTime = ( time - static_cast< TimeType >( previousLightTimeCalculation ) );
                     transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >(
                             transmissionTime );
                 }
                 else
                 {
-                    receptionTime = addTimeIntervalToEpoch( time, previousLightTimeCalculation );
+                    receptionTime = ( time + static_cast< TimeType >( previousLightTimeCalculation ) );
                     transmissionTime = time;
                     receiverState =
                             ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
@@ -1084,13 +1037,13 @@ public:
             linkEndsStatesOutput.clear( );
             if( isTimeAtReception )
             {
-                linkEndsTimesOutput.push_back( static_cast< double >( subtractTimeIntervalFromEpoch( linkEndTime, lightTime ) ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( ( linkEndTime - static_cast< TimeType >( lightTime ) ) ) );
                 linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
             }
             else
             {
                 linkEndsTimesOutput.push_back( static_cast< double >( linkEndTime ) );
-                linkEndsTimesOutput.push_back( static_cast< double >( addTimeIntervalToEpoch( linkEndTime, lightTime ) ) );
+                linkEndsTimesOutput.push_back( static_cast< double >( ( linkEndTime + static_cast< TimeType >( lightTime ) ) ) );
             }
             linkEndsStatesOutput.push_back( transmitterState.template cast< double >( ) );
             linkEndsStatesOutput.push_back( receiverState.template cast< double >( ) );
@@ -1275,7 +1228,7 @@ private:
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentDownIndex - 1 );
-            currentLinkEndReceptionTime = subtractTimeIntervalFromEpoch( currentLinkEndReceptionTime, currentLightTime );
+            currentLinkEndReceptionTime = ( currentLinkEndReceptionTime - static_cast< TimeType >( currentLightTime ) );
 
             // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;
@@ -1300,7 +1253,7 @@ private:
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentUpIndex + 1 );
 
-            currentLinkEndTransmissionTime = addTimeIntervalToEpoch( currentLinkEndTransmissionTime, currentLightTime );
+            currentLinkEndTransmissionTime = ( currentLinkEndTransmissionTime + static_cast< TimeType >( currentLightTime ) );
 
             // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;

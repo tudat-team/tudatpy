@@ -484,7 +484,7 @@ protected:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
-        return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+        return evaluateTurnaroundRatio< ObservationScalarType >( turnaroundRatio_, uplinkBand, downlinkBand );
     }
 
     //! Type of observable, used for derived class type identification without explicit casts.

@@ -177,10 +177,8 @@ public:
         }
 
         // Compute Hermite spline
-        const ScalarType factor =
-                convertIndependentVariableToScalar< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
-                convertIndependentVariableToScalar< ScalarType >( independentValues_[ lowerEntry_ + 1 ] -
-                                                                  independentValues_[ lowerEntry_ ] );
+        const ScalarType factor = getTimeDifference< ScalarType >( targetIndependentVariableValue, independentValues_[ lowerEntry_ ] ) /
+                getTimeDifference< ScalarType >( independentValues_[ lowerEntry_ + 1 ], independentValues_[ lowerEntry_ ] );
         targetValue = coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor + coefficients_[ 1 ][ lowerEntry_ ] * factor * factor +
                 coefficients_[ 2 ][ lowerEntry_ ] * factor + coefficients_[ 3 ][ lowerEntry_ ];
 
@@ -212,8 +210,7 @@ protected:
         // p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d.
         for( unsigned int i = 0; i < ( independentValues_.size( ) - 1 ); i++ )
         {
-            const ScalarType interval =
-                    convertIndependentVariableToScalar< ScalarType >( independentValues_[ i + 1 ] - independentValues_[ i ] );
+            const ScalarType interval = getTimeDifference< ScalarType >( independentValues_[ i + 1 ], independentValues_[ i ] );
 
             // Compute coefficient a
             coefficients_[ 0 ][ i ] = 2.0 * dependentValues_[ i ] - 2.0 * dependentValues_[ i + 1 ] + derivativeValues_[ i ] * interval +

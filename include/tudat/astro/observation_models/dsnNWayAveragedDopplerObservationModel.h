@@ -205,13 +205,13 @@ public:
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        double integrationTime;
+        ObservationScalarType integrationTime;
         ObservationScalarType referenceFrequency;
         std::vector< FrequencyBands > frequencyBands;
         FrequencyBands referenceUplinkBand;
         try
         {
-            integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
+            integrationTime = static_cast< ObservationScalarType >( ancillarySettings->getAncillaryDoubleData( doppler_integration_time ) );
             referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
             frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
             referenceUplinkBand =
@@ -235,10 +235,11 @@ public:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Set approximate up- and down-link frequencies.
-        const double currentTurnAroundRatioAsDouble = turnaroundRatio_( uplinkBand, downlinkBand );
-        ObservationScalarType currentTurnAroundRatio = static_cast< ObservationScalarType >( currentTurnAroundRatioAsDouble );
+        const ObservationScalarType currentTurnAroundRatio =
+                evaluateTurnaroundRatio< ObservationScalarType >( turnaroundRatio_, uplinkBand, downlinkBand );
+        const double currentTurnAroundRatioAsDouble = static_cast< double >( currentTurnAroundRatio );
         ObservationScalarType currentReferenceTurnAroundRatio =
-                static_cast< ObservationScalarType >( turnaroundRatio_( referenceUplinkBand, downlinkBand ) );
+                evaluateTurnaroundRatio< ObservationScalarType >( turnaroundRatio_, referenceUplinkBand, downlinkBand );
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
                 ? Eigen::Vector3d::Zero( )
@@ -246,8 +247,9 @@ public:
         TimeType utcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
 
-        TimeType receptionUtcStartTime = subtractTimeIntervalFromEpoch( utcTime, integrationTime / 2.0 );
-        TimeType receptionUtcEndTime = addTimeIntervalToEpoch( utcTime, integrationTime / 2.0 );
+        TimeType receptionUtcStartTime =
+                ( utcTime - static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) );
+        TimeType receptionUtcEndTime = ( utcTime + static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) );
 
         TimeType receptionTdbStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcStartTime, nominalReceivingStationState );
@@ -294,49 +296,54 @@ public:
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Moyer (2000), eqs. 13-52 and 13-53
-        TimeType transmissionTdbStartTime = subtractTimeIntervalFromEpoch( receptionTdbStartTime, startLightTime );
-        TimeType transmissionTdbEndTime = subtractTimeIntervalFromEpoch( receptionTdbEndTime, endLightTime );
+        TimeType transmissionTdbStartTime = ( receptionTdbStartTime - static_cast< TimeType >( startLightTime ) );
+        TimeType transmissionTdbEndTime = ( receptionTdbEndTime - static_cast< TimeType >( endLightTime ) );
 
         TimeType transmissionUtcStartTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
         TimeType transmissionUtcEndTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
-        ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
-                                                                                                                   transmissionUtcEndTime );
-        const ObservationScalarType integrationTimeScalar = static_cast< ObservationScalarType >( integrationTime );
-        const ObservationScalarType receptionTdbDuration = integrationTimeScalar +
-                timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
-                        basic_astrodynamics::utc_scale,
-                        basic_astrodynamics::tdb_scale,
-                        receptionUtcStartTime,
-                        receptionUtcEndTime,
-                        nominalReceivingStationState );
-        const ObservationScalarType transmissionTdbDuration = receptionTdbDuration - ( endLightTime - startLightTime );
-        const ObservationScalarType transmissionUtcDuration = transmissionTdbDuration +
-                timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
-                        basic_astrodynamics::tdb_scale,
-                        basic_astrodynamics::utc_scale,
-                        transmissionTdbStartTime,
-                        transmissionTdbEndTime,
-                        nominalTransmittingStationState );
-        const ObservationScalarType representedTransmissionUtcDuration =
-                convertIndependentVariableToScalar< ObservationScalarType >( transmissionUtcEndTime - transmissionUtcStartTime );
-
-        // The represented start epoch is the integration anchor. Consequently the residual between the independently
-        // computed physical duration and the represented endpoint separation is an end-boundary perturbation only.
-        // From d/dt1 integral(t0,t1) f(t)dt = f(t1), its first-order contribution is f(t1) * delta_t1.
-        const ObservationScalarType endTransmissionFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmissionUtcEndTime );
-        transmitterFrequencyIntegral += endTransmissionFrequency * ( transmissionUtcDuration - representedTransmissionUtcDuration );
+        ObservationScalarType transmitterFrequencyIntegral;
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+        if constexpr( std::is_same_v< ObservationScalarType, HighPrecisionStateScalar > )
+        {
+            // Retain the supplied count duration and the quad light-time difference. Constructing transmission
+            // epochs rounds these quantities to Time's long-double remainder before the integral is evaluated.
+            const ObservationScalarType receptionTdbDuration = integrationTime +
+                    timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
+                            basic_astrodynamics::utc_scale,
+                            basic_astrodynamics::tdb_scale,
+                            receptionUtcStartTime,
+                            receptionUtcEndTime,
+                            nominalReceivingStationState );
+            const ObservationScalarType transmissionUtcDuration = receptionTdbDuration - ( endLightTime - startLightTime ) +
+                    timeScaleConverter_->template getTimeScaleConversionCorrectionDifference< ObservationScalarType, TimeType >(
+                            basic_astrodynamics::tdb_scale,
+                            basic_astrodynamics::utc_scale,
+                            transmissionTdbStartTime,
+                            transmissionTdbEndTime,
+                            nominalTransmittingStationState );
+            const ObservationScalarType durationCorrection = transmissionUtcDuration -
+                    getTimeDifference< ObservationScalarType >( transmissionUtcEndTime, transmissionUtcStartTime );
+            transmitterFrequencyIntegral =
+                    frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+                            transmissionUtcStartTime, transmissionUtcEndTime, durationCorrection );
+        }
+        else
+#endif
+        {
+            transmitterFrequencyIntegral =
+                    frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+                            transmissionUtcStartTime, transmissionUtcEndTime );
+        }
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << currentReferenceTurnAroundRatio * referenceFrequency +
                           ( subtractDopplerSignature_ ? mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 )
                                                       : mathematical_constants::getFloatingInteger< ObservationScalarType >( 1.0 ) ) *
-                                  currentTurnAroundRatio / integrationTimeScalar * transmitterFrequencyIntegral )
+                                  currentTurnAroundRatio / integrationTime * transmitterFrequencyIntegral )
                         .finished( );
 
         linkEndTimes.clear( );

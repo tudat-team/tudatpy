@@ -156,6 +156,66 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& ear
     return getTDBminusTT( ttOrTdbSinceJ2000, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
 }
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+// Evaluation adapted from ERFA dtdb.c; the coefficient include carries the upstream license.
+HighPrecisionStateScalar getHighPrecisionTDBminusTT( const HighPrecisionStateScalar& seconds, const Eigen::Vector3d& position )
+{
+    using Scalar = HighPrecisionStateScalar;
+    using std::atan2;
+    using std::cos;
+    using std::floor;
+    using std::sin;
+    using std::sqrt;
+
+#include "fairheadBretagnonCoefficients.inc"
+
+    const Scalar t = seconds / Scalar( 31557600000LL );
+    const Scalar tai = seconds - Scalar( 32184 ) / Scalar( 1000 );
+    Scalar utc = tai;
+    if( tai / Scalar( 86400 ) > Scalar( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) )
+    {
+        // Leap offsets are exact integers in the supported modern UTC era. Only calendar lookup uses double.
+        utc = convertTAItoUTC< Scalar >( tai );
+    }
+    const Scalar pi = mathematical_constants::getPi< Scalar >( );
+    const Scalar ut = utc / Scalar( 86400 ) + Scalar( 1 ) / Scalar( 2 );
+    const Scalar tsol = ( ut - floor( ut ) ) * Scalar( 2 ) * pi + atan2( Scalar( position.y( ) ), Scalar( position.x( ) ) );
+    const Scalar u =
+            sqrt( Scalar( position.x( ) ) * Scalar( position.x( ) ) + Scalar( position.y( ) ) * Scalar( position.y( ) ) ) / Scalar( 1000 );
+    const Scalar v = Scalar( position.z( ) ) / Scalar( 1000 );
+    const Scalar w = t / Scalar( 3600 );
+    const Scalar degreesToRadians = pi / Scalar( 180 );
+    const Scalar elsun = ( Scalar( 280.46645683 ) + Scalar( 1296027711.03429 ) * w ) * degreesToRadians;
+    const Scalar emsun = ( Scalar( 357.52910918 ) + Scalar( 1295965810.481 ) * w ) * degreesToRadians;
+    const Scalar d = ( Scalar( 297.85019547 ) + Scalar( 16029616012.090 ) * w ) * degreesToRadians;
+    const Scalar elj = ( Scalar( 34.35151874 ) + Scalar( 109306899.89453 ) * w ) * degreesToRadians;
+    const Scalar els = ( Scalar( 50.07744430 ) + Scalar( 44046398.47038 ) * w ) * degreesToRadians;
+    const Scalar topocentric = Scalar( 0.00029e-10 ) * u * sin( tsol + elsun - els ) +
+            Scalar( 0.00100e-10 ) * u * sin( tsol - Scalar( 2 ) * emsun ) + Scalar( 0.00133e-10 ) * u * sin( tsol - d ) +
+            Scalar( 0.00133e-10 ) * u * sin( tsol + elsun - elj ) - Scalar( 0.00229e-10 ) * u * sin( tsol + Scalar( 2 ) * elsun + emsun ) -
+            Scalar( 0.02200e-10 ) * v * cos( elsun + emsun ) + Scalar( 0.05312e-10 ) * u * sin( tsol - emsun ) -
+            Scalar( 0.13677e-10 ) * u * sin( tsol + Scalar( 2 ) * elsun ) - Scalar( 1.31840e-10 ) * v * cos( elsun ) +
+            Scalar( 3.17679e-10 ) * u * sin( tsol );
+
+    const int edges[] = { 0, 474, 679, 764, 784, 787 };
+    Scalar fairhead = 0;
+    for( int power = 4; power >= 0; --power )
+    {
+        Scalar sum = 0;
+        for( int j = edges[ power + 1 ] - 1; j >= edges[ power ]; --j )
+        {
+            sum += Scalar( fairhd[ j ][ 0 ] ) * sin( Scalar( fairhd[ j ][ 1 ] ) * t + Scalar( fairhd[ j ][ 2 ] ) );
+        }
+        fairhead = fairhead * t + sum;
+    }
+    const Scalar massAdjustment = Scalar( 0.00065e-6 ) * sin( Scalar( 6069.776754 ) * t + Scalar( 4.021194 ) ) +
+            Scalar( 0.00033e-6 ) * sin( Scalar( 213.299095 ) * t + Scalar( 5.543132 ) ) -
+            Scalar( 0.00196e-6 ) * sin( Scalar( 6208.294251 ) * t + Scalar( 5.696701 ) ) -
+            Scalar( 0.00173e-6 ) * sin( Scalar( 74.781599 ) * t + Scalar( 2.435900 ) ) + Scalar( 0.03638e-6 ) * t * t;
+    return topocentric + fairhead + massAdjustment;
+}
+#endif
+
 }  // namespace sofa_interface
 
 }  // namespace tudat

@@ -120,7 +120,7 @@ public:
             ObservationScalarType lightTimeForFirstReceiver =
                     this->getFullLinkLightTimeCalculatorFromBase( 0 )->calculateLightTimeWithLinkEndsStates(
                             time, receiver, firstLinkEndTimes, firstLinkEndStates, ancillarySetings );
-            TimeType fullPrecisionTransmissionTime = subtractTimeIntervalFromEpoch( time, lightTimeForFirstReceiver );
+            TimeType fullPrecisionTransmissionTime = ( time - static_cast< TimeType >( lightTimeForFirstReceiver ) );
 
             linkEndTimes[ 0 ] = firstLinkEndTimes.at( 0 );
             linkEndTimes[ 1 ] = firstLinkEndTimes.at( 1 );
@@ -129,7 +129,7 @@ public:
             ObservationScalarType lightTimeForSecondReceiver =
                     this->getFullLinkLightTimeCalculatorFromBase( 1 )->calculateLightTimeWithLinkEndsStates(
                             fullPrecisionTransmissionTime, transmitter, secondLinkEndTimes, secondLinkEndStates, ancillarySetings );
-            fullPrecisionTimeAtReceiver2 = addTimeIntervalToEpoch( fullPrecisionTransmissionTime, lightTimeForSecondReceiver );
+            fullPrecisionTimeAtReceiver2 = ( fullPrecisionTransmissionTime + static_cast< TimeType >( lightTimeForSecondReceiver ) );
             linkEndTimes[ 2 ] = secondLinkEndTimes.at( 1 );
 
             linkEndStates[ 0 ] = firstLinkEndStates.at( 0 );
@@ -144,7 +144,7 @@ public:
         if( observableTimeScale_ == basic_astrodynamics::tdb_scale )
         {
             return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
-                     << static_cast< ObservationScalarType >( static_cast< long double >( time - fullPrecisionTimeAtReceiver2 ) ) )
+                     << getTimeDifference< ObservationScalarType >( time, fullPrecisionTimeAtReceiver2 ) )
                     .finished( );
         }
         else if( observableTimeScale_ == basic_astrodynamics::utc_scale || observableTimeScale_ == basic_astrodynamics::ut1_scale )
@@ -162,7 +162,7 @@ public:
                     basic_astrodynamics::tdb_scale, observableTimeScale_, fullPrecisionTimeAtReceiver2, nominalReceivingStationState2 );
 
             return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
-                     << static_cast< ObservationScalarType >( static_cast< long double >( utTimeAtReceiver - utTimeAtReceiver2 ) ) )
+                     << getTimeDifference< ObservationScalarType >( utTimeAtReceiver, utTimeAtReceiver2 ) )
                     .finished( );
         }
         else
@@ -172,8 +172,8 @@ public:
             TimeType convertedTimeAtReceiver2 = this->timeScaleConverter_->template getCurrentTime< TimeType >(
                     basic_astrodynamics::tdb_scale, observableTimeScale_, fullPrecisionTimeAtReceiver2 );
 
-            return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << static_cast< ObservationScalarType >(
-                             static_cast< long double >( convertedTimeAtReceiver - convertedTimeAtReceiver2 ) ) )
+            return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
+                     << getTimeDifference< ObservationScalarType >( convertedTimeAtReceiver, convertedTimeAtReceiver2 ) )
                     .finished( );
         }
     }

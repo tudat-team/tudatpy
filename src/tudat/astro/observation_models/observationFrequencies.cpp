@@ -43,21 +43,21 @@ std::string getFrequencyBandString( FrequencyBands frequencyBand )
     return frequencyBandString;
 }
 
-double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
+std::pair< int, int > getDsnDefaultTurnaroundRatioIntegers( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
 {
-    double numerator, denominator;
+    int numerator, denominator;
 
     if( uplinkBand == s_band )
     {
-        denominator = 221.0;
+        denominator = 221;
     }
     else if( uplinkBand == x_band )
     {
-        denominator = 749.0;
+        denominator = 749;
     }
     else if( uplinkBand == ka_band )
     {
-        denominator = 3599.0;
+        denominator = 3599;
     }
     else
     {
@@ -67,15 +67,15 @@ double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands 
 
     if( downlinkBand == s_band )
     {
-        numerator = 240.0;
+        numerator = 240;
     }
     else if( downlinkBand == x_band )
     {
-        numerator = 880.0;
+        numerator = 880;
     }
     else if( downlinkBand == ka_band )
     {
-        numerator = 3344.0;
+        numerator = 3344;
     }
     else
     {
@@ -83,7 +83,13 @@ double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands 
                                   getFrequencyBandString( downlinkBand ) + "is not recognized." );
     }
 
-    return numerator / denominator;
+    return std::make_pair( numerator, denominator );
+}
+
+double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
+{
+    const auto ratio = getDsnDefaultTurnaroundRatioIntegers( uplinkBand, downlinkBand );
+    return static_cast< double >( ratio.first ) / static_cast< double >( ratio.second );
 }
 
 double getCassiniKaBandTurnaroundRatio( )

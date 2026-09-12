@@ -278,8 +278,7 @@ public:
             for( int i = 0; i < numberOfStages_; i++ )
             {
                 int j = i + lowerEntry - offsetEntries_;
-                const ScalarType diff =
-                        convertIndependentVariableToScalar< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
+                const ScalarType diff = getTimeDifference< ScalarType >( targetIndependentVariableValue, independentValues_[ j ] );
 
                 // Only an exact match may return the tabulated value.  A tolerance based on the
                 // absolute epoch can incorrectly collapse a resolvable sub-second offset onto a
@@ -433,8 +432,8 @@ private:
                 {
                     if( k != j )
                     {
-                        denominators[ i ][ j ] *= convertIndependentVariableToScalar< ScalarType >(
-                                independentValues_[ j + currentIterationStart ] - independentValues_[ k + currentIterationStart ] );
+                        denominators[ i ][ j ] *= getTimeDifference< ScalarType >( independentValues_[ j + currentIterationStart ],
+                                                                                   independentValues_[ k + currentIterationStart ] );
                     }
                 }
             }

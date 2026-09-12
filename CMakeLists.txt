@@ -628,6 +628,9 @@ endif()
 # Additional contents from original tudat cmake
 # ========================================================================
 
+# Retain third-party attribution with binary installations.
+install(FILES LICENSE NOTICE DESTINATION share/tudatpy/licenses)
+
 # Installation of the header files.
 install(
     DIRECTORY include/

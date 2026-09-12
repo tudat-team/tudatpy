@@ -619,9 +619,196 @@ BOOST_AUTO_TEST_CASE( testPointMassOrbitDynamicsSimulatorNoiseFloor )
 #endif
 }
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+void checkDsnDurationArithmetic( )
+{
+    using namespace ground_stations;
+    using namespace observation_models;
+    const Scalar tolerance( "1e-22" );
+    const Scalar tinyCorrection( "1e-20" );
+    const auto close = [ & ]( const Scalar& actual, const Scalar& expected ) {
+        BOOST_CHECK_MESSAGE( abs( actual - expected ) < tolerance, "Frequency integral error: " << actual - expected );
+    };
+
+    // The ancillary API stays double. Exact integer durations must remain exact when promoted.
+    const auto ancillary = getDsnNWayAveragedDopplerAncillarySettings( { x_band, x_band }, x_band, 7.2e9, 60.0 );
+    const Scalar count = static_cast< Scalar >( ancillary->getAncillaryDoubleData( doppler_integration_time ) );
+    BOOST_CHECK( count == Scalar( 60 ) );
+    const Time start( 200000, 3000.0L );
+    const Time end = start + Time( count );
+    BOOST_CHECK( getTimeDifference< Scalar >( end, start ) == count );
+    BOOST_CHECK( end + Time( tinyCorrection ) == end );
+
+    // Subtract the stored components before rounding to an interval representation.
+    const Time beforeHour( 10, 1.0e-20L );
+    const Time nextHour( 11, 0.0L );
+    BOOST_CHECK( getTimeDifference< Scalar >( nextHour, beforeHour ) == Scalar( 3600 ) - Scalar( 1.0e-20L ) );
+
+    ConstantFrequencyInterpolator constant( 7.2e9 );
+    close( constant.getTemplatedFrequencyIntegral< Scalar >( beforeHour, nextHour ),
+           Scalar( 7200000000LL ) * ( Scalar( 3600 ) - Scalar( 1.0e-20L ) ) );
+    close( constant.getTemplatedFrequencyIntegral< Scalar >( start, end, tinyCorrection ),
+           Scalar( 7200000000LL ) * ( count + tinyCorrection ) );
+    close( constant.getTemplatedFrequencyIntegral< Scalar >( end, start, -tinyCorrection ),
+           -Scalar( 7200000000LL ) * ( count + tinyCorrection ) );
+
+    // Deliberately discontinuous ramps check which side of a boundary supplies the frequency.
+    PiecewiseLinearFrequencyInterpolator ramps(
+            { Time( 0.0L ), Time( 1.0L ) }, { Time( 1.0L ), Time( 3.0L ) }, { 2.0, 4.0 }, { 10.0, 100.0 } );
+    const auto integral = [ & ]( const long double a, const long double b, const Scalar& correction ) {
+        return ramps.getTemplatedFrequencyIntegral< Scalar >( Time( a ), Time( b ), correction );
+    };
+    close( integral( 0.0L, 1.0L, tinyCorrection ),
+           Scalar( 11 ) + Scalar( 100 ) * tinyCorrection + Scalar( 2 ) * tinyCorrection * tinyCorrection );
+    close( integral( 0.0L, 1.0L, -tinyCorrection ), Scalar( 11 ) - Scalar( 12 ) * tinyCorrection + tinyCorrection * tinyCorrection );
+    close( integral( 0.0L, 0.5L, Scalar( "0.25" ) ), Scalar( "8.0625" ) );
+    close( integral( 0.0L, 1.0L, Scalar( "0.25" ) ), Scalar( "36.125" ) );
+    close( integral( 1.25L, 0.0L, Scalar( 0 ) ), Scalar( "-36.125" ) );
+    close( integral( 0.0L, 0.5L, Scalar( "-0.5" ) ), Scalar( 0 ) );
+    close( integral( 0.0L, 0.0L, Scalar( "-0.25" ) ), Scalar( "-2.4375" ) );
+    const Time smallStart( 0, 1.0e-20L );
+    close( ramps.getTemplatedFrequencyIntegral< Scalar >( smallStart, Time( 1.0L ) ),
+           Scalar( 11 ) - Scalar( 10 ) * Scalar( 1.0e-20L ) - Scalar( 1.0e-20L ) * Scalar( 1.0e-20L ) );
+
+    PiecewiseLinearFrequencyInterpolator gaps(
+            { Time( 0.0L ), Time( 2.0L ) }, { Time( 1.0L ), Time( 3.0L ) }, { 2.0, 4.0 }, { 10.0, 100.0 }, throw_exception_at_gaps );
+    BOOST_CHECK_THROW( ( gaps.getTemplatedFrequencyIntegral< Scalar >( Time( 0.0L ), Time( 1.0L ), Scalar( "0.25" ) ) ),
+                       std::runtime_error );
+    // The corrected interval, rather than the uncorrected interval, determines gap overlap.
+    close( gaps.getTemplatedFrequencyIntegral< Scalar >( Time( 0.0L ), Time( 1.25L ), Scalar( "-0.25" ) ), Scalar( 11 ) );
+    BOOST_CHECK_THROW( ( gaps.getTemplatedFrequencyIntegral< Scalar >( Time( 2.0L ), Time( 2.0L ), Scalar( "-0.25" ) ) ),
+                       std::runtime_error );
+
+    PiecewiseLinearFrequencyInterpolator emptyRamps( {}, {}, {}, {} );
+    BOOST_CHECK_THROW( ( emptyRamps.getTemplatedFrequencyIntegral< Scalar >( Time( 0.0L ), Time( 1.0L ), Scalar( 0 ) ) ),
+                       std::runtime_error );
+
+    // Double endpoint callers must still retain the ramp table's finer Time epochs.
+    const Time shiftedRampStart = start + Time( 1.0e-9L );
+    PiecewiseLinearFrequencyInterpolator shiftedRamp( { shiftedRampStart }, { end + Time( 1 ) }, { 2.0 }, { 10.0 } );
+    const Scalar rampOffset = getTimeDifference< Scalar >( shiftedRampStart, start );
+    close( shiftedRamp.getTemplatedFrequencyIntegral< Scalar >( static_cast< double >( start ), static_cast< double >( end ), Scalar( 0 ) ),
+           count * ( Scalar( 10 ) - Scalar( 2 ) * rampOffset + count ) );
+
+    // Factory defaults must never narrow the epoch's native arithmetic for double states.
+    const auto settings = interpolators::lagrangeInterpolation( 4 );
+    std::map< Time, Eigen::Vector6d > doubleHistory;
+    std::map< Time, Scalar > quadHistory;
+    for( int i = 0; i < 6; ++i )
+    {
+        doubleHistory[ Time( i ) ] = Eigen::Vector6d::Constant( i );
+        quadHistory[ Time( i ) ] = Scalar( i ) * Scalar( i );
+    }
+    const auto doubleInterpolator = propagators::createStateInterpolator( doubleHistory, settings );
+    BOOST_CHECK( ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< Time, Eigen::Vector6d, long double > >(
+                           doubleInterpolator ) != nullptr ) );
+    const auto quadInterpolator = interpolators::createOneDimensionalInterpolator( quadHistory, settings );
+    BOOST_CHECK(
+            ( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< Time, Scalar, Scalar > >( quadInterpolator ) != nullptr ) );
+    const Time localQuery( 2.0L + 1.0e-12L );
+    const Scalar x = localQuery.getSeconds< Scalar >( );
+    close( quadInterpolator->interpolate( localQuery ), x * x );
+
+    // A query remainder can carry information smaller than a Time interval's spacing.
+    // Promote components before subtracting neighbouring node epochs, including negative differences.
+    std::map< Time, Scalar > polynomial;
+    const Time node( 12, 0.0L );
+    for( int i = -2; i <= 3; ++i )
+    {
+        polynomial[ node + Time( i ) ] = Scalar( i + 1 ) * Scalar( i + 1 );
+    }
+    const auto polynomialInterpolator = interpolators::createOneDimensionalInterpolator( polynomial, settings );
+    const Time tinyOffsetQuery( 12, 1.0e-20L );
+    const Scalar exactOffset( 1.0e-20L );
+    const Scalar expectedPolynomial = ( Scalar( 1 ) + exactOffset ) * ( Scalar( 1 ) + exactOffset );
+    BOOST_CHECK( abs( polynomialInterpolator->interpolate( tinyOffsetQuery ) - expectedPolynomial ) < Scalar( "1e-30" ) );
+
+    const std::function< double( FrequencyBands, FrequencyBands ) > dsn = &getDsnDefaultTurnaroundRatios;
+    const std::function< double( FrequencyBands, FrequencyBands ) > cassini = &getCassiniTurnaroundRatio;
+    const int numerator[] = { 240, 880, 3344 };
+    const int denominator[] = { 221, 749, 3599 };
+    for( int up = 0; up < 3; ++up )
+    {
+        for( int down = 0; down < 3; ++down )
+        {
+            const auto uplink = static_cast< FrequencyBands >( up );
+            const auto downlink = static_cast< FrequencyBands >( down );
+            BOOST_CHECK( evaluateTurnaroundRatio< Scalar >( dsn, uplink, downlink ) ==
+                         Scalar( numerator[ down ] ) / Scalar( denominator[ up ] ) );
+            BOOST_CHECK_EQUAL( evaluateTurnaroundRatio< double >( dsn, uplink, downlink ),
+                               getDsnDefaultTurnaroundRatios( uplink, downlink ) );
+        }
+    }
+    BOOST_CHECK( evaluateTurnaroundRatio< Scalar >( cassini, ka_band, ka_band ) == Scalar( 14 ) / Scalar( 15 ) );
+    int callbackCalls = 0;
+    const std::function< double( FrequencyBands, FrequencyBands ) > custom = [ & ]( FrequencyBands, FrequencyBands ) {
+        ++callbackCalls;
+        return 880.0 / 749.0;
+    };
+    BOOST_CHECK( evaluateTurnaroundRatio< Scalar >( custom, x_band, x_band ) == Scalar( 880.0 / 749.0 ) );
+    BOOST_CHECK_EQUAL( callbackCalls, 1 );
+}
+
+void checkDsnClockReference( )
+{
+    // Independent 55-decimal-digit mpmath evaluation of ERFA dtdb.c, promoting the same
+    // binary64 model coefficients before arithmetic. These check numerical evaluation,
+    // not the physical approximation error of the Fairhead-Bretagnon model or UT1=UTC.
+    struct Reference {
+        const char* epoch;
+        Eigen::Vector3d position;
+        const char* value;
+        const char* shortDifference;
+        const char* minuteDifference;
+    };
+    const Reference references[] = { { "43200.125",
+                                       Eigen::Vector3d( 6378137, 0, 0 ),
+                                       "-0.00008480657602397645518975028990822510283023454958810878",
+                                       "0.00000000004912062072782932166976065450329542696223694197785918",
+                                       "0.00000002947212891373738354523297349240912389893037841811277" },
+                                     { "600000000.125",
+                                       Eigen::Vector3d( 3000000, -2000000, 4000000 ),
+                                       "0.00006306375846667562224788264870619728510691175302541939",
+                                       "0.0000000000396288216742488907175978680336571968383345066438699",
+                                       "0.00000002378643224717068205840202598728826859543635377953576" },
+                                     { "800000000.125",
+                                       Eigen::Vector3d::Zero( ),
+                                       "0.001356694900721764795630373741713901435933847770036041",
+                                       "-0.000000000018237122666763896161195184358683760740895768455083",
+                                       "-0.00000001094237764667318255331170621812605892877463238470994" },
+                                     // TAI and UTC initially fall on opposite sides of the 2017 leap-second date.
+                                     { "536500840.125",
+                                       Eigen::Vector3d( 6378137, 0, 0 ),
+                                       "-0.00004947625554416918137837152951631133335809950911218749",
+                                       "0.00000000004948202121335256096584396378454642397848647059013051",
+                                       "0.00000002953297939613080319319276085009327141944120919626124" } };
+    for( const auto& reference : references )
+    {
+        const Scalar epoch( reference.epoch );
+        const Scalar value = sofa_interface::getHighPrecisionTDBminusTT( epoch, reference.position );
+        const Scalar shortDifference = sofa_interface::getHighPrecisionTDBminusTT( epoch + Scalar( 0.1 ), reference.position ) - value;
+        const Scalar minuteDifference = sofa_interface::getHighPrecisionTDBminusTT( epoch + Scalar( 60 ), reference.position ) - value;
+        BOOST_CHECK_MESSAGE( abs( value - Scalar( reference.value ) ) < Scalar( "1e-32" ),
+                             "TDB-TT error: " << value - Scalar( reference.value ) );
+        BOOST_CHECK( abs( shortDifference - Scalar( reference.shortDifference ) ) < Scalar( "1e-32" ) );
+        BOOST_CHECK( abs( minuteDifference - Scalar( reference.minuteDifference ) ) < Scalar( "1e-32" ) );
+    }
+    const auto converter = earth_orientation::createDefaultTimeConverter( );
+    const Scalar utcDifference =
+            converter->getTimeScaleConversionCorrectionDifference< Scalar, double >( basic_astrodynamics::utc_scale,
+                                                                                     basic_astrodynamics::tdb_scale,
+                                                                                     600000000.125,
+                                                                                     600000060.125,
+                                                                                     Eigen::Vector3d( 3000000, -2000000, 4000000 ) );
+    BOOST_CHECK( abs( utcDifference - Scalar( "0.0000000238074914297490497656670586275239645120484878138765" ) ) < Scalar( "1e-32" ) );
+}
+#endif
+
 BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
 {
 #if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    checkDsnDurationArithmetic( );
+    checkDsnClockReference( );
     PropagatedObservationEnvironment environment = createPropagatedObservationEnvironment( );
     const auto& stateHistory = environment.propagationResults->getEquationsOfMotionNumericalSolution( );
     BOOST_REQUIRE( !stateHistory.empty( ) );
@@ -896,6 +1083,50 @@ BOOST_AUTO_TEST_CASE( testResetPropagatedEphemerisInQuadRangeObservations )
     if constexpr( timeHasExtendedLongDoublePrecision )
     {
         BOOST_CHECK( doubleObservableError > getAbsoluteValue( quadDopplerChange ) * scalarFromDecimalString< Scalar >( "1e5" ) );
+    }
+
+    // Compare the double model with the original compensation-free observable, at both count times.
+    const auto doubleDsn =
+            std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< double, Time > >( doubleDsnModel );
+    const auto frequency = environment.bodies.at( "Earth" )->getGroundStation( stationName )->getTransmittingFrequencyCalculator( );
+    for( const double count : { 0.1, 60.0 } )
+    {
+        const auto ancillary = observation_models::getDsnNWayAveragedDopplerAncillarySettings(
+                { observation_models::x_band, observation_models::x_band }, observation_models::x_band, referenceFrequency, count );
+        std::vector< double > times;
+        std::vector< Eigen::Vector6d > states;
+        const Time receivingUtc = timeScaleConverter->getCurrentTime< Time >(
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, observationTime, stationPosition );
+        const auto transmitUtc = [ & ]( const Time& utc, const auto& rangeModel ) {
+            const Time tdb = timeScaleConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utc, stationPosition );
+            const double lightTime = rangeModel->computeIdealObservationsWithLinkEndData(
+                                             tdb, observation_models::receiver, times, states, ancillary )( 0 ) /
+                    physical_constants::SPEED_OF_LIGHT;
+            return timeScaleConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, tdb - Time( lightTime ), stationPosition );
+        };
+        const Time transmitStart = transmitUtc( receivingUtc - Time( count / 2 ), doubleDsn->getArcStartObservationModel( ) );
+        const Time transmitEnd = transmitUtc( receivingUtc + Time( count / 2 ), doubleDsn->getArcEndObservationModel( ) );
+        const double ratio = observation_models::getDsnDefaultTurnaroundRatios( observation_models::x_band, observation_models::x_band );
+        const double expected = ratio * referenceFrequency -
+                ratio / count * frequency->getTemplatedFrequencyIntegral< double >( transmitStart, transmitEnd );
+        const double actual = doubleDsn->computeIdealObservationsWithLinkEndData(
+                observationTime, observation_models::receiver, times, states, ancillary )( 0 );
+        BOOST_CHECK_EQUAL( actual, expected );
+
+        // Independent 55-decimal-digit reference: solve Jupiter's Kepler orbit from the fixture's initial
+        // elements and supplied binary64 mu, then solve tb + |rJ(tb)-rStation|/c = tr. The station is fixed,
+        // so ts = 2*tb-tr. Evaluate the same clock model in high precision and integrate the linear ramp
+        // analytically, with the exact ratio 880/749 and the supplied binary64 count. No Tudat states,
+        // light times, or locally estimated Doppler slope enter these reference values.
+        const Scalar analyticReference = count == 60.0 ? Scalar( "153133.087479532183025804886836537203504148582276905" )
+                                                       : Scalar( "153133.0874794791405044270373354796182308409941084762" );
+        const Scalar quadValue = quadDsnModel->computeIdealObservationsWithLinkEndData(
+                observationTime, observation_models::receiver, times, states, ancillary )( 0 );
+        BOOST_CHECK_MESSAGE( abs( quadValue - analyticReference ) < maximumDopplerTrendResidual,
+                             "Full analytic DSN error [Hz] at count " << count << " s: " << quadValue - analyticReference );
+        BOOST_TEST_MESSAGE( "Full analytic DSN error [Hz] at count " << count << " s: " << quadValue - analyticReference );
     }
 
     BOOST_TEST_MESSAGE( "TDB->UTC picosecond increment [s]: "

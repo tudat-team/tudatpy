@@ -289,10 +289,9 @@ public:
         else
         {
             // Standard non-periodic interpolation
-            const ScalarType interpolationFraction = convertIndependentVariableToScalar< ScalarType >(
-                                                             independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                    convertIndependentVariableToScalar< ScalarType >( independentValues_[ upperIndex ] -
-                                                                      independentValues_[ newNearestLowerIndex ] );
+            const ScalarType interpolationFraction =
+                    getTimeDifference< ScalarType >( independentVariableValue, independentValues_[ newNearestLowerIndex ] ) /
+                    getTimeDifference< ScalarType >( independentValues_[ upperIndex ], independentValues_[ newNearestLowerIndex ] );
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                     interpolationFraction * ( dependentValues_[ upperIndex ] - dependentValues_[ newNearestLowerIndex ] );
         }

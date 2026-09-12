@@ -210,7 +210,7 @@ public:
         TimeType utcTransmissionTime =
                 timeScaleConverter_->template getCurrentTime< TimeType >( basic_astrodynamics::tdb_scale,
                                                                           basic_astrodynamics::utc_scale,
-                                                                          subtractTimeIntervalFromEpoch( time, lightTime ),
+                                                                          ( time - static_cast< TimeType >( lightTime ) ),
                                                                           nominalReceivingStationState );
 
         ObservationScalarType uplinkFrequency =

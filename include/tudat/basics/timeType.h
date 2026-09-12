@@ -41,15 +41,15 @@ static constexpr int TIME_NORMALIZATION_TERMS_PER_HALF_DAY = TIME_NORMALIZATION_
 
 static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULIAN_DAY_INT * TIME_NORMALIZATION_TERMS_PER_DAY;
 
-//! Class for defining time with a resolution that is sub-fs for very long periods of time.
+//! Split epoch representation with resolution set by the native long-double format.
 /*!
- *  Class for defining time with a resolution that is sub-fs for very long periods of time. Using double or long double
+ *  Class for defining time with an epoch-independent fractional-second resolution. Using double or long double
  *  precision as a representation of time, the issue of reduced quality will occur that over long time-period. For instance,
  *  over a period of 10^8 seconds (about 3 years), double and long double representations have resolution of about 10^-8 and
  *  10^-11 s respectively, which is insufficient for various applications. This type uses an int to represent the number of
  *  hours since an epoch, and long double to represent the number of seconds into the present hour. This provides a
- *  resulution of < 1 femtosecond, over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for
- *  practical applications.
+ *  resolution finer than 1 femtosecond with a 64-bit significand, or about 0.45 picoseconds with a 53-bit
+ *  significand, over a range of 2147483647 hours (about 300,000 years). The remainder is not quad precision.
  */
 class Time
 {
@@ -994,6 +994,18 @@ public:
             return static_cast< ScalarType >( fullPeriods_ ) * static_cast< ScalarType >( TIME_NORMALIZATION_INTEGER_TERM ) +
                     static_cast< ScalarType >( secondsIntoFullPeriod_ );
         }
+    }
+
+    //! Subtract two stored epochs in the requested scalar, without normalizing an intermediate Time.
+    template< typename ScalarType >
+    ScalarType getSecondsDifference( const Time& other ) const
+    {
+        using ArithmeticScalar = std::conditional_t< std::is_arithmetic_v< ScalarType >, long double, ScalarType >;
+        return static_cast< ScalarType >(
+                ( static_cast< ArithmeticScalar >( fullPeriods_ ) - static_cast< ArithmeticScalar >( other.fullPeriods_ ) ) *
+                        static_cast< ArithmeticScalar >( TIME_NORMALIZATION_INTEGER_TERM ) +
+                ( static_cast< ArithmeticScalar >( secondsIntoFullPeriod_ ) -
+                  static_cast< ArithmeticScalar >( other.secondsIntoFullPeriod_ ) ) );
     }
 
     //! Function to get the total seconds since epoch, in int precision (cast of Time to int)

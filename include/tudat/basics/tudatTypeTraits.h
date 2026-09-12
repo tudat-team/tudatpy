@@ -109,6 +109,30 @@ OutputScalarType convertIndependentVariableToScalar( const IndependentVariableTy
     }
 }
 
+//! Difference of two epochs, retaining split Time components for quad arithmetic.
+template< typename OutputScalarType, typename TimeType >
+OutputScalarType getTimeDifference( const TimeType& endTime, const TimeType& startTime )
+{
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    if constexpr( std::is_same_v< OutputScalarType, HighPrecisionStateScalar > )
+    {
+        if constexpr( std::is_same_v< TimeType, Time > )
+        {
+            return endTime.template getSecondsDifference< OutputScalarType >( startTime );
+        }
+        else
+        {
+            return convertIndependentVariableToScalar< OutputScalarType >( endTime ) -
+                    convertIndependentVariableToScalar< OutputScalarType >( startTime );
+        }
+    }
+    else
+#endif
+    {
+        return convertIndependentVariableToScalar< OutputScalarType >( endTime - startTime );
+    }
+}
+
 template< typename T >
 struct is_direct_gravity_partial {
     static const bool value = false;

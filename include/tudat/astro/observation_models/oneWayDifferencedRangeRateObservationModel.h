@@ -143,10 +143,11 @@ public:
                     "Error when simulating one-way averaged Doppler observable; no ancillary settings found. Ancillary settings are "
                     "requiured for integration time" );
         }
-        double currentIntegrationTime;
+        ObservationScalarType currentIntegrationTime;
         try
         {
-            currentIntegrationTime = ancillarySetingsInput->getAncillaryDoubleData( doppler_integration_time, true );
+            currentIntegrationTime =
+                    static_cast< ObservationScalarType >( ancillarySetingsInput->getAncillaryDoubleData( doppler_integration_time, true ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -165,8 +166,10 @@ public:
                 getArcStartLightTimeCalculator( );
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator =
                 getArcEndLightTimeCalculator( );
-        const TimeType intervalStartTime = subtractTimeIntervalFromEpoch( time, currentIntegrationTime / 2.0 );
-        const TimeType intervalEndTime = addTimeIntervalToEpoch( time, currentIntegrationTime / 2.0 );
+        const TimeType intervalStartTime =
+                ( time - static_cast< TimeType >( currentIntegrationTime / static_cast< ObservationScalarType >( 2 ) ) );
+        const TimeType intervalEndTime =
+                ( time + static_cast< TimeType >( currentIntegrationTime / static_cast< ObservationScalarType >( 2 ) ) );
         if( linkEndAssociatedWithTime == receiver )
         {
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
