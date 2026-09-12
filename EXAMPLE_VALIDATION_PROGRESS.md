@@ -1,6 +1,6 @@
 # Example validation progress
 
-Last updated: 2026-09-12T20:01:27+00:00
+Last updated: 2026-09-12T20:08:05+00:00
 
 **The user authorized incremental commits and pushes on 2026-09-12. Publish each completed, verified part.**
 
@@ -20,7 +20,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 - MRO download/repair progress: 91/91 files verified against published byte sizes; inputs are installed only after successful verification.
 - Validate Python scripts and every generated plot only. Notebooks are left untouched; the two earlier notebook edits were undone.
 - `improved_estimation_with_mpc.py` is excluded at user request and flagged for separate correction (ignored satellite option and skipped weight plot).
-- Resource limit: one example at a time; hard affinity to eight CPUs; at most seven pool workers plus the parent; numerical libraries use one thread. The full-year MRO run uses two workers to limit memory while retaining all six intervals. All earlier processes were terminated and verified stopped before applying this limit.
+- Resource limit: hard affinity to eight CPUs and at most seven pool workers; numerical libraries use one thread. A reviewed serial script may use the spare eighth slot while the heavy example parent waits; otherwise full examples run sequentially. The full-year MRO run uses two workers to limit memory while retaining all six intervals. All earlier processes were terminated and verified stopped before applying this limit.
 - Kernel branch: `codex/pr900-review-by-category-20260912`; starting PR #1000 commit `4fca01f63`.
 - Examples branch: `examples/tudatpy`, `feature/data-refactor`; starting PR #157 commit `403f590`.
 - Focused MPC/plotting regressions: 31 passed with deprecations treated as errors. Fresh compilation of package and included example sources reports no warnings.
@@ -41,7 +41,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [estimation/covariance_estimated_parameters.py](examples/tudatpy/estimation/covariance_estimated_parameters.py) | Validated | 7.5 s | 2 | Full run; both covariance figures reviewed against notebook, finite outputs and expected ellipsoids; no deprecations. |
 | [estimation/covariance_propagation_example.py](examples/tudatpy/estimation/covariance_propagation_example.py) | Validated | 24.4 s | 2 | Full run; Cartesian/RSW uncertainty figures reviewed against notebook, expected magnitudes and evolution; no deprecations. |
 | [estimation/estimation_dynamical_models.py](examples/tudatpy/estimation/estimation_dynamical_models.py) | Validated | 33.0 s | 3 | Full run; all three figures reviewed against notebook, residual and state-error trends consistent; no deprecations. |
-| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Correction application fixed; rerun pending | 16.8 s | 6 | Found the collection factory default left requested catalogue corrections unapplied. Set apply_corrections=True; diagnostic confirmed old values were debiased and new values raw (bias difference agreement 2.2e-16 rad). Corrected comparison running; full six-figure rerun queued. |
+| [estimation/estimation_with_mpc.py](examples/tudatpy/estimation/estimation_with_mpc.py) | Validated | 44.4 s | 6 | Full corrected rerun passed: weighting and catalogue corrections explicitly applied; all six figures reviewed and match reference trends. Final position difference 35.23 km. Original/new ingestion agrees within 7.1e-14 rad and 2.1 microseconds; weights/link order identical. No modern deprecations; legacy warnings present. |
 | [estimation/full_estimation_example.py](examples/tudatpy/estimation/full_estimation_example.py) | Validated | 12.4 s | 3 | Full run; all three scientific figures reviewed, converged residuals consistent with reference; the extra old notebook figure is an empty placeholder; no deprecations. |
 | [estimation/galilean_moons_state_estimation.py](examples/tudatpy/estimation/galilean_moons_state_estimation.py) | Validated | 606.5 s | 2 | Full 2031–2035 fit; both figures visually match reference, position errors 0–15 km and Laplace-angle differences about 0.001 deg. All numerical outputs finite; no deprecations. |
 | [estimation/grail_examples_functions.py](examples/tudatpy/estimation/grail_examples_functions.py) | Helper — callers pending | — | — |  |
@@ -57,7 +57,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [estimation/mro_tnf_estimation.py](examples/tudatpy/estimation/mro_tnf_estimation.py) | Pending | — | — |  |
 | [estimation/mro_tnf_residuals_analysis.py](examples/tudatpy/estimation/mro_tnf_residuals_analysis.py) | Pending | — | — |  |
 | [estimation/mro_utils.py](examples/tudatpy/estimation/mro_utils.py) | Helper — callers pending | — | — |  |
-| [estimation/retrieving_mpc_observation_data.py](examples/tudatpy/estimation/retrieving_mpc_observation_data.py) | Plot layout adjustment; rerun pending | 8.7 s | 4 | All four corrected plots reviewed: complete sky coverage, per-object legends, correct wrapped RA and UTC time panels. Increased sky-axis label spacing to avoid tick overlap; final rerun pending. Optional TESS environment block unavailable and not claimed validated; satellite conversion explicitly deferred. |
+| [estimation/retrieving_mpc_observation_data.py](examples/tudatpy/estimation/retrieving_mpc_observation_data.py) | Validated | 70.5 s | 4 | Full final rerun passed; all four plots visually reviewed with complete sky coverage, correct wrapped RA, UTC axes and clear labels/legends. Corrected UTC filter prose afterward; executable AST unchanged. No deprecations. Optional TESS environment block unavailable and not claimed validated; satellite conversion explicitly deferred. |
 | [estimation/tudat_azimuth_elevation_example.py](examples/tudatpy/estimation/tudat_azimuth_elevation_example.py) | Validated | 10.7 s | 1 | Full run; all four station panels reviewed. Tudat and Horizons azimuth/elevation points agree visually, with sensible horizon crossings and complete labels; no deprecations. |
 | [mission_design/cassini1_mga_optimization.py](examples/tudatpy/mission_design/cassini1_mga_optimization.py) | Validated | 2.3 s | 2 | Full 800 generations; convergence and trajectory figures match reference; finite outputs, no deprecations. |
 | [mission_design/earth_mars_transfer_window.py](examples/tudatpy/mission_design/earth_mars_transfer_window.py) | Validated | 17.3 s | 5 | Full grid rerun; all five figures reviewed. Transfer windows and contour minima match reference; delta-v and C3 colorbars now correctly labeled km/s and km²/s². No deprecations. |
@@ -83,7 +83,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [pygmo/asteroid_orbit_optimization/aoo_optimization.py](examples/tudatpy/pygmo/asteroid_orbit_optimization/aoo_optimization.py) | Plot layout fixes; rerun pending | 114.0 s | 5 | Full 25-generation / 48-member optimisation passed with five inspected figures, finite arrays and no deprecations. Pareto front and near-polar final orbits sensible; adjusted overlapping first-generation colorbar labels and final orbit-panel titles. Rerun pending. |
 | [pygmo/himmelblau_minimization.py](examples/tudatpy/pygmo/himmelblau_minimization.py) | Validated | 8.3 s | 3 | Full run; all three plots reviewed. Optimiser convergence reaches about 3e-9, contour minima and zoom around (3, 2) agree with the objective; finite arrays and no deprecations. |
 
-Current counts: Awaiting credentials: 1; Correction application fixed; rerun pending: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout adjustment; rerun pending: 1; Plot layout fixes; rerun pending: 1; Plots reviewed; legacy comparison pending: 1; Running: 1; Validated: 31.
+Current counts: Awaiting credentials: 1; Excluded — correction required: 1; Helper fix verified; callers pending: 1; Helper — callers pending: 2; Pending: 4; Plot layout fixes; rerun pending: 1; Plots reviewed; legacy comparison pending: 1; Running: 1; Validated: 33.
 
 ## Later passes
 
@@ -96,3 +96,53 @@ PR #905 compatibility and migration: pending the completed PR #1000 passes.
 Per-example logs, figures, arrays, warnings and source hashes: `.validation/examples-pr157/pr1000-modern/`.
 Input inventory: `.validation/examples-pr157/input-cache-inventory.json`.
 Previously extracted reference figures: `.validation/examples-pr157/notebook-source-comparison.json` and `notebook-reference/`.
+
+
+## Original examples against PR #1000
+
+| File | Status | Runtime | Figures | Python deprecations | Review / issue |
+| --- | --- | ---: | ---: | ---: | --- |
+| `data_retrieval/spacetrack_example.py` | Pending | — | — | — |  |
+| `estimation/covariance_estimated_parameters.py` | Pending | — | — | — |  |
+| `estimation/covariance_propagation_example.py` | Pending | — | — | — |  |
+| `estimation/estimation_dynamical_models.py` | Pending | — | — | — |  |
+| `estimation/estimation_with_mpc.py` | Pending | — | — | — |  |
+| `estimation/full_estimation_example.py` | Pending | — | — | — |  |
+| `estimation/galilean_moons_state_estimation.py` | Pending | — | — | — |  |
+| `estimation/grail_odf_estimation.py` | Pending | — | — | — |  |
+| `estimation/grail_residuals.py` | Pending | — | — | — |  |
+| `estimation/grail_spice_fit.py` | Pending | — | — | — |  |
+| `estimation/improved_estimation_with_mpc.py` | Excluded — correction required | — | — | — | Excluded at user request in every phase. |
+| `estimation/kosmos482_reentry.py` | Pending | — | — | — |  |
+| `estimation/mex_open_loop_residuals.py` | Pending | — | — | — |  |
+| `estimation/mission_data_downloader.py` | Pending | — | — | — |  |
+| `estimation/mro_range_estimation.py` | Pending | — | — | — |  |
+| `estimation/mro_tnf_estimation.py` | Pending | — | — | — |  |
+| `estimation/mro_tnf_residuals_analysis.py` | Pending | — | — | — |  |
+| `estimation/retrieving_mpc_observation_data.py` | Pending | — | — | — |  |
+| `estimation/tudat_azimuth_elevation_example.py` | Pending | — | — | — |  |
+| `mission_design/cassini1_mga_optimization.py` | Pending | — | — | — |  |
+| `mission_design/earth_mars_transfer_window.py` | Pending | — | — | — |  |
+| `mission_design/hodographic_shaping_mga_optimization.py` | Pending | — | — | — |  |
+| `mission_design/low_thrust_earth_mars_transfer_window.py` | Pending | — | — | — |  |
+| `mission_design/mga_trajectories.py` | Pending | — | — | — |  |
+| `propagation/coupled_translational_rotational_dynamics.py` | Pending | — | — | — |  |
+| `propagation/impact_manifolds_lpo_cr3bp.py` | Pending | — | — | — |  |
+| `propagation/juice_flybys.py` | Pending | — | — | — |  |
+| `propagation/keplerian_satellite_orbit.py` | Pending | — | — | — |  |
+| `propagation/linear_sensitivity_analysis.py` | Pending | — | — | — |  |
+| `propagation/panelled_radiation_target.py` | Pending | — | — | — |  |
+| `propagation/perturbed_satellite_orbit.py` | Pending | — | — | — |  |
+| `propagation/reentry_trajectory.py` | Pending | — | — | — |  |
+| `propagation/separation_satellites_diff_drag.py` | Pending | — | — | — |  |
+| `propagation/solar_system_propagation.py` | Pending | — | — | — |  |
+| `propagation/thrust_between_Earth_Moon.py` | Pending | — | — | — |  |
+| `propagation/thrust_satellite_engine.py` | Pending | — | — | — |  |
+| `propagation/two_stage_rocket_ascent.py` | Pending | — | — | — |  |
+| `propagation/walker_constellation.py` | Pending | — | — | — |  |
+| `pygmo/asteroid_orbit_optimization/aoo_custom_environment.py` | Pending | — | — | — |  |
+| `pygmo/asteroid_orbit_optimization/aoo_design_space_exploration.py` | Pending | — | — | — |  |
+| `pygmo/asteroid_orbit_optimization/aoo_optimization.py` | Pending | — | — | — |  |
+| `pygmo/himmelblau_minimization.py` | Pending | — | — | — |  |
+
+Python warning counts include pre-existing escape-sequence warnings where present; migration messages and native worker logs require separate review.
