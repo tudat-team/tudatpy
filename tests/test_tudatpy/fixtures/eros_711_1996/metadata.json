@@ -1,0 +1,25 @@
+{
+  "target": "433 Eros",
+  "station": "711",
+  "station_name": "McDonald Observatory, Fort Davis",
+  "station_position_itrs_m": [
+    -1330748.1978392266,
+    -5328820.114195299,
+    3235692.68147
+  ],
+  "station_source": "MPC longitude and geocentric parallax constants; equatorial radius 6378137 m",
+  "number_of_observations": 20,
+  "start_utc": "1996-04-23T02:40:10.272",
+  "end_utc": "1996-06-25T02:54:35.136",
+  "retrieved_utc": "2026-09-12T15:29:12.359647+00:00",
+  "selection": "All catalogue-coded CCD observations from this observatory/year; no residual-based rejection.",
+  "bias_model": "EFCC18 / Eggl et al. 2020, debias_2018, NSIDE 64, RING",
+  "bias_file_sha256": "ef6a50830bb83d8b1161e7acb391eed988ea9708e9fbcccc0c834da6109476e3",
+  "horizons_vectors": "Geometric SSB, ICRF/J2000 equator, TDB seconds since J2000, m and m/s; hourly with two-day padding",
+  "horizons_observer_reference": "Quantity 1, MPC site, UTC, extra precision; astrometric ICRF/light-time only",
+  "sources": [
+    "https://minorplanetcenter.net/",
+    "https://ssd.jpl.nasa.gov/horizons/manual.html",
+    "https://ssd.jpl.nasa.gov/ftp/ssd/debias/debias_2018.tgz"
+  ]
+}
