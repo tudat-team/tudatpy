@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <limits>
 #include <string>
 
@@ -1461,7 +1462,19 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
 
                     if( currentObservationIsViable != currentObservationWasViable )
                     {
+                        const double requestedEpoch = unconstrainedTimesSegment.at( unconstrainedIndex );
+                        std::cout << std::setprecision( 17 );
                         std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                        std::cout << "Observation index: " << unconstrainedIndex << ", requested epoch: " << requestedEpoch
+                                  << ", interval: [" << initialTime << ", " << finalTime << "]"
+                                  << ", distances to interval boundaries: " << requestedEpoch - initialTime << ", "
+                                  << finalTime - requestedEpoch << std::endl;
+                        std::cout << "Link-end epochs:";
+                        for( const double linkEndTime : linkEndTimes )
+                        {
+                            std::cout << " " << linkEndTime;
+                        }
+                        std::cout << std::endl;
                         // Just for debugging purposes, print the value in case it still gets boost-checked
                         std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
                     }

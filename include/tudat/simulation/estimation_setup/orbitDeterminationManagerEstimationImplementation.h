@@ -116,6 +116,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     // Set current parameter estimate as both previous and current estimate
     ParameterVectorType newParameterEstimate = currentParameterEstimate_;
     ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
+    const ParameterVectorType aprioriParameterEstimate = currentParameterEstimate_;
 
     bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
@@ -144,8 +145,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
         // Normalise estimated parameters partials and inverse apriori covariance
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
+        const Eigen::VectorXd estimatedParameterNormalizationTerms = normalizationTerms.segment( 0, numberEstimatedParameters_ );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), estimatedParameterNormalizationTerms );
+        Eigen::VectorXd normalizedAprioriParameterDeviation = Eigen::VectorXd::Zero( 0 );
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            normalizedAprioriParameterDeviation = ( oldParameterEstimate - aprioriParameterEstimate )
+                                                          .template cast< double >( )
+                                                          .cwiseProduct( estimatedParameterNormalizationTerms );
+        }
 
         InterArcConstraintContribution interArcContribution;
         if( !interArcConstraints.empty( ) )
@@ -218,7 +227,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                        designMatrixConsiderParameters,
                                                                                        normalizedConsiderParametersDeviation,
                                                                                        interArcContribution.additionalNormalMatrix,
-                                                                                       interArcContribution.additionalRightHandSide ) );
+                                                                                       interArcContribution.additionalRightHandSide,
+                                                                                       normalizedAprioriParameterDeviation ) );
             }
             else
             {
@@ -233,7 +243,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                                                                                        designMatrixConsiderParameters,
                                                                                        normalizedConsiderParametersDeviation,
                                                                                        interArcContribution.additionalNormalMatrix,
-                                                                                       interArcContribution.additionalRightHandSide ) );
+                                                                                       interArcContribution.additionalRightHandSide,
+                                                                                       normalizedAprioriParameterDeviation ) );
             }
 
             if( constraintStateMultiplier.rows( ) > 0 )
@@ -250,9 +261,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             break;
         }
 
-        ParameterVectorType parameterAddition =
-                ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) )
-                        .template cast< ObservationScalarType >( );
+        ParameterVectorType parameterAddition = ( leastSquaresOutput.first.cwiseQuotient( estimatedParameterNormalizationTerms ) )
+                                                        .template cast< ObservationScalarType >( );
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -294,10 +304,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         {
             costFunction = linear_algebra::computeLeastSquaresCostFunction( weightsMatrixDiagonal, residuals.template cast< double >( ) );
         }
-        // The cost driving best-iteration selection combines the observation cost with the inter-arc continuity-prior
-        // cost (zero when no continuity priors are attached). Residual RMS is unchanged so observation-only diagnostics
-        // remain meaningful.
-        costFunction += interArcContribution.totalConstraintCost;
+        double aprioriCost = 0.0;
+        if( estimationInput->getApplyAprioriParameterDeviation( ) )
+        {
+            aprioriCost = 0.5 *
+                    normalizedAprioriParameterDeviation.dot( normalizedInverseAprioriCovarianceMatrix *
+                                                             normalizedAprioriParameterDeviation );
+        }
+        // In deviation-based mode, best-iteration selection additionally includes the absolute a priori cost. Residual RMS
+        // is unchanged so observation-only diagnostics remain meaningful.
+        costFunction += aprioriCost + interArcContribution.totalConstraintCost;
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
