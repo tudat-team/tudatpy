@@ -267,21 +267,21 @@ class BatchMPC:
         exclude_space_telescopes: bool = False,
         include_positions: bool = False,
     ) -> pd.DataFrame:
-        """Return a table with observatory counts for this batch.
+        """Return MPC observatory names and observation counts for this batch.
+
+        Observatory metadata is retrieved only when this method is called;
+        constructing or loading a batch does not require the station catalog.
 
         Parameters
         ----------
         only_in_batch : bool, default True
-            Whether to return only observatories present in this batch. Since
-            the new MPC interface does not maintain a separate global MPC
-            observatory catalog, this argument is retained for compatibility
-            and has no effect when ``True``.
+            Whether to return only observatories present in this batch.
         only_space_telescopes : bool, default False
             Whether to return only observatories marked as space telescopes in
-            the batch metadata.
+            the MPC observatory catalog.
         exclude_space_telescopes : bool, default False
             Whether to remove observatories marked as space telescopes in the
-            batch metadata.
+            MPC observatory catalog.
         include_positions : bool, default False
             Retained for compatibility. The current table does not include
             observatory positions.
@@ -291,22 +291,33 @@ class BatchMPC:
         pandas.DataFrame
             Dataframe with columns ``Code``, ``Name`` and ``count``.
         """
-        if self._table.empty:
+        if self._table.empty and only_in_batch:
             return pd.DataFrame(columns=["Code", "Name", "count"])
 
-        table = (
-            self._table.groupby("observatory")
-            .size()
-            .rename("count")
-            .reset_index()
-            .rename(columns={"observatory": "Code"})
-            .assign(Name=lambda x: x["Code"])
+        catalog = MPC.get_observatory_codes().to_pandas()
+        catalog["Code"] = catalog["Code"].astype(str).str.strip().str.zfill(3)
+        space_telescopes = catalog.loc[catalog["Longitude"].isna(), "Code"]
+        counts = (
+            self._table.groupby("observatory").size().rename("count")
+            if not self._table.empty
+            else pd.Series(dtype=int, name="count")
         )
+        if only_in_batch:
+            table = (
+                counts.rename_axis("Code")
+                .reset_index()
+                .merge(catalog[["Code", "Name"]], on="Code", how="left")
+            )
+            # Preserve observations with a code absent from the current catalog.
+            table["Name"] = table["Name"].fillna(table["Code"])
+        else:
+            table = catalog[["Code", "Name"]].copy()
+            table["count"] = table["Code"].map(counts).fillna(0).astype(int)
 
         if only_space_telescopes:
-            table = table.loc[table["Code"].isin(self.space_telescopes)]
+            table = table.loc[table["Code"].isin(space_telescopes)]
         if exclude_space_telescopes:
-            table = table.loc[~table["Code"].isin(self.space_telescopes)]
+            table = table.loc[~table["Code"].isin(space_telescopes)]
 
         columns = ["Code", "Name", "count"]
         return table.loc[:, columns].reset_index(drop=True)
