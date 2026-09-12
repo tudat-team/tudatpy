@@ -95,6 +95,48 @@ def test_legacy_mpc_default_weighting_is_numerical(legacy_mpc_table):
     np.testing.assert_allclose(collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2)
 
 
+def test_legacy_mpc_retains_space_records_until_conversion(legacy_mpc_table, monkeypatch):
+    """Retain legacy space-record inspection while excluding it from Earth-only conversion."""
+    kept_flags = ["C", "S", "s", "T", "t"]
+    dropped_flags = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
+    flags = kept_flags + dropped_flags
+    table = pd.concat([legacy_mpc_table] * len(flags), ignore_index=True)
+    table["note2"] = flags
+    table["observatory"] = ["500"] + ["C51"] * 4 + ["500"] * len(dropped_flags)
+    stations = Table(
+        {
+            "Code": ["500", "C51"],
+            "Name": ["Geocenter", "WISE"],
+            "Longitude": [0.0, np.nan],
+            "cos": [1.0, np.nan],
+            "sin": [0.0, np.nan],
+        }
+    )
+    monkeypatch.setattr(MPC, "get_observatory_codes", lambda: stations)
+    monkeypatch.setattr(MPC, "get_observations", lambda code: Table.from_pandas(table))
+
+    # Public legacy access must still warn; retrieval preserves the old filter.
+    batch = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
+    batch.get_observations([433])
+    assert batch.table.note2.tolist() == kept_flags
+    assert batch.observatories_table(only_space_telescopes=True).Code.tolist() == ["C51"]
+
+    # Earth-only conversion excludes space records without removing their preview data.
+    collection = batch.to_tudat(
+        earth_bodies(),
+        included_satellites=None,
+        apply_weights_VFCC17=False,
+        apply_star_catalog_debias=False,
+    )
+    assert len(collection.concatenated_observations) == 2
+    assert batch.table.note2.tolist() == kept_flags
+
+    # Explicitly disabling the legacy filter continues to retain every input flag.
+    unfiltered = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
+    unfiltered.get_observations([433], drop_misc_observations=False)
+    assert unfiltered.table.note2.tolist() == flags
+
+
 def test_legacy_horizons_ephemeris_methods():
     """Keep deprecated single-query and batch ephemeris helpers functional and warning."""
     Query = legacy_symbol("tudatpy.data.horizons", "HorizonsQuery")

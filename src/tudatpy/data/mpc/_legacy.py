@@ -33,12 +33,16 @@ from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data_input.tracking_data.obs_80_cols import parse_80cols_file
 from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
-from tudatpy.data_input.tracking_data.obs_80_cols.unpackers import OBS_TYPES_TO_DROP
 from tudatpy.data.mpc._vfcc17 import get_weights_VFCC17
 from tudatpy.data_input.tracking_data.optical_utilities import BIAS_LOWRES_FILE, load_bias_file
 from tudatpy.data_input.tracking_data.optical_utilities.optical_utilities import (
     _resolve_optical_target_names,
 )
+
+# Preserve the pre-refactor reader's filtering independently of the new parser.
+# Space observations remain available for inspection; to_tudat decides whether
+# to include them. Keep this policy inside the removable compatibility module.
+OBS_TYPES_TO_DROP = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
 
 
 def get_biases_EFCC18(
@@ -537,48 +541,46 @@ class BatchMPC:
             if drop_misc_observations:
                 obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
 
-                # Check for Comets/Interstellars (Astroquery returns 'comet_type' or 'comettype')
-                # If we have a number and a type, combine them (e.g., 3 + I = 3I)
-                type_col = None
-                if "comet_type" in obs.columns:
-                    type_col = "comet_type"
-                elif "comettype" in obs.columns:
-                    type_col = "comettype"
+            # Check for Comets/Interstellars (Astroquery returns 'comet_type' or 'comettype')
+            # If we have a number and a type, combine them (e.g., 3 + I = 3I)
+            type_col = None
+            if "comet_type" in obs.columns:
+                type_col = "comet_type"
+            elif "comettype" in obs.columns:
+                type_col = "comettype"
 
-                if type_col and pd.notna(obs[type_col].iloc[0]):  # checks first digit is not NA
-                    # It is a comet or interstellar object
-                    number_part = str(obs["number"].iloc[0])
-                    type_part = str(obs[type_col].iloc[0])
-                    identifier = f"{number_part}{type_part}"  # Result: "3I"
+            if type_col and pd.notna(obs[type_col].iloc[0]):  # checks first digit is not NA
+                # It is a comet or interstellar object
+                number_part = str(obs["number"].iloc[0])
+                type_part = str(obs[type_col].iloc[0])
+                identifier = f"{number_part}{type_part}"  # Result: "3I"
 
-                elif "number" in obs.columns:
-                    pd.set_option("future.no_silent_downcasting", True)
-                    valid_numbers = (
-                        obs["number"].dropna().astype(str).replace("<NA>", np.nan).dropna()
+            elif "number" in obs.columns:
+                pd.set_option("future.no_silent_downcasting", True)
+                valid_numbers = obs["number"].dropna().astype(str).replace("<NA>", np.nan).dropna()
+
+                if not valid_numbers.empty:
+                    potential_id = valid_numbers.iloc[0]
+                else:
+                    # fallback to designation if no number has been assigned yet
+                    valid_designations = (
+                        obs["desig"].dropna().astype(str).replace("<NA>", np.nan).dropna()
                     )
+                    potential_id = valid_designations.iloc[0]
 
-                    if not valid_numbers.empty:
-                        potential_id = valid_numbers.iloc[0]
-                    else:
-                        # fallback to designation if no number has been assigned yet
-                        valid_designations = (
-                            obs["desig"].dropna().astype(str).replace("<NA>", np.nan).dropna()
-                        )
-                        potential_id = valid_designations.iloc[0]
+                # We allow alphanumeric strings now (to support packed numbers like D4341)
+                # We only pad if it is a short digit string (e.g. '1' -> '00001')
+                # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
+                if len(potential_id) < 5:
+                    potential_id = potential_id.zfill(5)
 
-                    # We allow alphanumeric strings now (to support packed numbers like D4341)
-                    # We only pad if it is a short digit string (e.g. '1' -> '00001')
-                    # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
-                    if len(potential_id) < 5:
-                        potential_id = potential_id.zfill(5)
-
-                    try:
-                        # Try to unpack it. This handles '00001' and 'D4341'.
-                        identifier = unpackers.unpack_permanent_minor_planet(potential_id)
-                    except Exception:
-                        # If unpacking fails (e.g. it was already unpacked or invalid),
-                        # we keep the potential_id as is.
-                        identifier = potential_id
+                try:
+                    # Try to unpack it. This handles '00001' and 'D4341'.
+                    identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                except Exception:
+                    # If unpacking fails (e.g. it was already unpacked or invalid),
+                    # we keep the potential_id as is.
+                    identifier = potential_id
 
             if identifier is None and "desig" in obs.columns and pd.notna(obs["desig"].iloc[0]):
                 identifier = str(obs["desig"].iloc[0])
