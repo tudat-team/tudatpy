@@ -1,6 +1,6 @@
 # Example validation progress
 
-Last updated: 2026-09-12T20:08:05+00:00
+Last updated: 2026-09-12T20:11:53+00:00
 
 **The user authorized incremental commits and pushes on 2026-09-12. Publish each completed, verified part.**
 
@@ -47,7 +47,7 @@ Correction locations, evidence, and published commits: [EXAMPLE_VALIDATION_CORRE
 | [estimation/grail_examples_functions.py](examples/tudatpy/estimation/grail_examples_functions.py) | Helper — callers pending | — | — |  |
 | [estimation/grail_odf_estimation.py](examples/tudatpy/estimation/grail_odf_estimation.py) | Pending | — | — |  |
 | [estimation/grail_residuals.py](examples/tudatpy/estimation/grail_residuals.py) | Pending | — | — |  |
-| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 12/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
+| [estimation/grail_spice_fit.py](examples/tudatpy/estimation/grail_spice_fit.py) | Running | — | — | 13/20 full-day fits completed; all five dates and four model/parameter setups retained, at most seven workers. |
 | [estimation/improved_estimation_with_mpc.py](examples/tudatpy/estimation/improved_estimation_with_mpc.py) | Excluded — correction required | — | — | Excluded at user request. Satellite-data option is ignored, space observations are dropped, and the weight plot is skipped. Requires a separate correction; not validated. |
 | [estimation/kosmos482_reentry.py](examples/tudatpy/estimation/kosmos482_reentry.py) | Validated | 12.6 s | 2 | Full supplied-TLE rerun; both ground-track and altitude figures match reference. Correct PROJ data path eliminates native environment error; no deprecations. |
 | [estimation/load_pds_files.py](examples/tudatpy/estimation/load_pds_files.py) | Helper fix verified; callers pending | — | — | Fixed duplicate-first-file bug for cached days with multiple TNFs (present on 2012 day 152). Focused check retained both files exactly once without network. Added timeouts/status checks for archive listings; heavy callers pending. |
@@ -87,7 +87,7 @@ Current counts: Awaiting credentials: 1; Excluded — correction required: 1; He
 
 ## Later passes
 
-Original examples / PR #1000: pending completion of the updated-example validation.
+Original examples / PR #1000: targeted numerical comparisons have started; the remaining original-example pass follows updated-example validation.
 
 PR #905 compatibility and migration: pending the completed PR #1000 passes.
 
@@ -114,7 +114,7 @@ Previously extracted reference figures: `.validation/examples-pr157/notebook-sou
 | `estimation/grail_spice_fit.py` | Pending | — | — | — |  |
 | `estimation/improved_estimation_with_mpc.py` | Excluded — correction required | — | — | — | Excluded at user request in every phase. |
 | `estimation/kosmos482_reentry.py` | Pending | — | — | — |  |
-| `estimation/mex_open_loop_residuals.py` | Pending | — | — | — |  |
+| `estimation/mex_open_loop_residuals.py` | Running | — | — | 0 |  |
 | `estimation/mission_data_downloader.py` | Pending | — | — | — |  |
 | `estimation/mro_range_estimation.py` | Pending | — | — | — |  |
 | `estimation/mro_tnf_estimation.py` | Pending | — | — | — |  |

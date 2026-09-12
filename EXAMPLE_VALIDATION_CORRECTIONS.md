@@ -36,6 +36,10 @@ The complete rerun passed in 44.4 seconds on the spare single CPU; all six figur
 
 [estimation/retrieving_mpc_observation_data.py](examples/tudatpy/estimation/retrieving_mpc_observation_data.py): correct wrapped right ascension, UTC date axes, per-object legends and label spacing; clarify optional satellite environment setup and the UTC numeric filter convention. Commit [fe295ac](https://github.com/tudat-team/tudatpy-examples/commit/fe295ac20f9b319afa396d4e0439e49dd5e67f35), pushed to PR #157. Full final run passed in 70.5 seconds on the spare CPU with all four figures visually reviewed and no deprecations. The final prose-only UTC correction was checked to leave the executable AST unchanged (`source-revalidation.json`). The optional TESS block lacked its external kernel and is not claimed validated.
 
+## Completed observation-wrapper compatibility correction
+
+[observations_setup/__init__.py](src/tudatpy/estimation/observations_setup/__init__.py), [regression test](tests/test_tudatpy/test_data_deprecation_compatibility.py): restore lazy parent access to `observations_setup.observations_wrapper`; legacy function lookup retains its warning and user call-site attribution. Commit [e5b0de89b](https://github.com/tudat-team/tudatpy/commit/e5b0de89b76dcd41ae5ea8e779ced7a2b80b1b10), PR #1000. All 163 deprecation-compatibility tests passed (`.validation/examples-pr157/observations-wrapper-regressions.log`). The original MEX script now passes the missing-attribute failure and proceeds with the expected IFMS warning. Full residual comparison is still running. The original failure is preserved in `pr1000-legacy/estimation__mex_open_loop_residuals/missing-wrapper-failure.log`.
+
 ## Implemented corrections awaiting remaining verification
 
 | File | Correction | Remaining work |
