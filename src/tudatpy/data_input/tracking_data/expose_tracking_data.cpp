@@ -361,6 +361,12 @@ void expose_tracking_data( py::module& m )
          list
              Observation correction vectors.
       )doc" )
+            .def( "add_observation_metadata",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::addObservationMetadata,
+                  py::arg( "key" ),
+                  py::arg( "values" ),
+                  "Attach one string per observation. Values remain aligned when observations are removed; "
+                  "they are not interpreted as simulation ancillary settings." )
             .def( "remove_single_observation_entry",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationEntry,
                   py::arg( "index" ),
@@ -403,7 +409,7 @@ void expose_tracking_data( py::module& m )
          the corresponding environment models.
       )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const double, const double, const double, const double >( ),
+            .def( py::init< const tudat::Time, const tudat::Time, const double, const double >( ),
                   py::arg( "start_time" ),
                   py::arg( "end_time" ),
                   py::arg( "start_frequency" ),
@@ -411,16 +417,16 @@ void expose_tracking_data( py::module& m )
             .def_readwrite( "start_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startTime_, R"doc(
          **read-only**
 
-         Ramp start time.
+         Ramp start time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "end_time", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::endTime_, R"doc(
          **read-only**
 
-         Ramp end time.
+         Ramp end time, preserving extended epoch precision. Float inputs are accepted.
 
-         :type: float
+         :type: tudatpy.astro.time_representation.Time
       )doc" )
             .def_readwrite( "start_frequency", &tdat::RampedFrequencySupplementaryData::FrequencyRamp::startFrequency_, R"doc(
          **read-only**
@@ -456,10 +462,13 @@ void expose_tracking_data( py::module& m )
             .def( py::init< const std::vector< tdat::RampedFrequencySupplementaryData::FrequencyRamp >& >( ), py::arg( "frequency_ramps" ) )
             .def_property_readonly( "frequency_ramps",
                                     &tdat::RampedFrequencySupplementaryData::getFrequencyRamps,
+                                    py::return_value_policy::copy,
                                     R"doc(
          **read-only**
 
-         Frequency-ramp records.
+         Independent copies of the frequency-ramp records. Appending ramps to
+         the container does not invalidate previously retrieved records, and
+         editing a retrieved record does not change the container.
 
          :type: list[FrequencyRamp]
       )doc" )
@@ -474,9 +483,9 @@ void expose_tracking_data( py::module& m )
 
          Parameters
          ----------
-         start_time : float
+         start_time : tudatpy.astro.time_representation.Time | float
              Ramp start time.
-         end_time : float
+         end_time : tudatpy.astro.time_representation.Time | float
              Ramp end time.
          start_frequency : float
              Ramp start frequency.
@@ -499,6 +508,10 @@ void expose_tracking_data( py::module& m )
          the history is set on the associated
          :class:`~tudatpy.dynamics.environment.GroundStation`, or on the
          associated body's vehicle systems if no reference point is specified.
+         Each entry takes effect at its epoch and is installed as a ramp with
+         zero rate. The existing ramp calculator holds the first and last
+         frequencies outside the tabulated epochs. Later entries replace earlier
+         entries at the same epoch when histories or existing ramp tables are merged.
          See :ref:`ground_station`, :ref:`vehicle_systems`, and
          :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings`
          for the environment model to which this data is attached.

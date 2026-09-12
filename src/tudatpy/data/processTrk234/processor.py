@@ -1,7 +1,7 @@
 from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
-    "Trk234Processor": "tudatpy.data_input.tracking_data.tnf.TnfTrackingDataProcessor",
+    "Trk234Processor": "tudatpy.data.processTrk234._legacy.Trk234Processor",
 }
 
 __all__ = sorted(_ALIASES)

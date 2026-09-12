@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import warnings
+from tudatpy.data._compat import warn_custom_deprecation
 
 from typing import TYPE_CHECKING
 
@@ -35,9 +35,10 @@ def get_weights_VFCC17(
     import astropy.units as u
     from astroquery.mpc import MPC
 
-    warnings.warn(
+    warn_custom_deprecation(
+        "tudatpy.data.mpc",
+        "get_weights_VFCC17",
         (
-            "tudatpy.data.mpc.get_weights_VFCC17 is deprecated. "
             "There is no one-to-one equivalent in the new data_input workflow. "
             "The old function remains supported during the deprecation period. "
             "In the new setup, request VFCC17 weighting with add_weights=True "
@@ -46,8 +47,6 @@ def get_weights_VFCC17(
             "tables are no longer exposed as a standalone public interface. "
             f"See the TudatPy migration guide: {_MIGRATION_GUIDE_URL}"
         ),
-        DeprecationWarning,
-        stacklevel=2,
     )
 
     if (

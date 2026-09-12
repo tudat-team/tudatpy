@@ -1,8 +1,8 @@
 from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
-    "HorizonsBatch": "tudatpy.data_input.environment_data.horizons.HorizonsBatch",
-    "HorizonsQuery": "tudatpy.data_input.environment_data.horizons.HorizonsQuery",
+    "HorizonsBatch": "tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.HorizonsBatch",
+    "HorizonsQuery": "tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery",
 }
 
 __all__ = sorted(_ALIASES)

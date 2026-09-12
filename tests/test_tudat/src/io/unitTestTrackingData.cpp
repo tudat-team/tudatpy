@@ -13,6 +13,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/io/trackingData.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
@@ -99,6 +100,76 @@ BOOST_AUTO_TEST_CASE( testVectorObservableSizeValidation )
     wrongSingleCorrectionSize[ 0 ] = Eigen::Vector3d( 0.1, 0.2, 0.3 );
     wrongSingleCorrectionSize[ 1 ] = Eigen::Vector3d( 0.4, 0.5, 0.6 );
     BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
+}
+
+// Reject malformed replacements without losing existing weight or correction values.
+BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
+{
+    auto trackingData = createVectorTrackingData( );
+    const std::vector< Eigen::VectorXd > original = { Eigen::Vector2d( 3.0, 4.0 ), Eigen::Vector2d( 5.0, 6.0 ) };
+    trackingData.setObservationWeights( original );
+    trackingData.setObservationCorrections( original );
+    const std::vector< std::vector< Eigen::VectorXd > > invalid = { { Eigen::Vector2d( 7.0, 8.0 ) },
+                                                                    { Eigen::Vector2d( 7.0, 8.0 ), Eigen::Vector3d( 9.0, 10.0, 11.0 ) } };
+    // Check both outer-count and inner-component errors against populated data.
+    for( const auto& replacement : invalid )
+    {
+        BOOST_CHECK_THROW( trackingData.setObservationWeights( replacement ), std::runtime_error );
+        BOOST_CHECK_THROW( trackingData.setObservationCorrections( replacement ), std::runtime_error );
+        // Each rejected update must preserve every previously stored row and value.
+        BOOST_REQUIRE_EQUAL( trackingData.getObservationWeights( ).size( ), original.size( ) );
+        BOOST_REQUIRE_EQUAL( trackingData.getObservationCorrections( ).size( ), original.size( ) );
+        for( unsigned int i = 0; i < original.size( ); ++i )
+        {
+            BOOST_CHECK( trackingData.getObservationWeights( ).at( i ).isApprox( original.at( i ) ) );
+            BOOST_CHECK( trackingData.getObservationCorrections( ).at( i ).isApprox( original.at( i ) ) );
+        }
+    }
+}
+
+// Keep row metadata aligned after removal while preserving link-level settings.
+BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged )
+{
+    // Exercise first, middle, and last removal through the same metadata registration paths.
+    for( unsigned int removed = 0; removed < 3; ++removed )
+    {
+        data::TrackingData<> trackingData( "AngularPosition",
+                                           {},
+                                           { Eigen::Vector2d( 1, 2 ), Eigen::Vector2d( 3, 4 ), Eigen::Vector2d( 5, 6 ) },
+                                           { 10, 20, 30 },
+                                           "receiver" );
+        const std::vector< std::string > techniques = { "C", "P", "S" };
+        trackingData.addAncillarySettings( "note2", techniques );
+        trackingData.addObservationMetadata( "observer", { "Alice", "Bob", "Carol" } );
+        const std::vector< std::string > bands = { "X-band", "S-band", "X-band" };
+        trackingData.addAncillarySettings( "frequency bands", bands );
+        // Reject invalid metadata length before removing the selected observation.
+        BOOST_CHECK_THROW( trackingData.addObservationMetadata( "note2", { "C" } ), std::runtime_error );
+        trackingData.removeSingleObservationEntry( removed );
+        auto expected = techniques;
+        expected.erase( expected.begin( ) + removed );
+        // Registered row data shrinks in order; frequency bands are link metadata and stay intact.
+        BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) == expected );
+        BOOST_CHECK_EQUAL( trackingData.getAncillarySettingsStringVector( ).at( "observer" ).size( ), 2 );
+        BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
+        BOOST_CHECK_EQUAL( trackingData.getNumberOfObservations( ), 2 );
+    }
+}
+
+// Preserve sub-double epoch precision and continue accepting ordinary double times.
+BOOST_AUTO_TEST_CASE( testFrequencyRampPreservesExtendedEpochPrecision )
+{
+    const Time start( 194444, 1600.000000010L );
+    const Time end = start + 60.0;
+    data::RampedFrequencySupplementaryData ramps;
+    ramps.addFrequencyRamp( start, end, 8.4E9, 0.1 );
+    const auto& ramp = ramps.getFrequencyRamps( ).at( 0 );
+    // Both ramp boundaries retain the original extended-precision epoch.
+    BOOST_CHECK_SMALL( static_cast< long double >( ramp.startTime_ - start ), 1.0E-12L );
+    BOOST_CHECK_SMALL( static_cast< long double >( ramp.endTime_ - end ), 1.0E-12L );
+    // Existing callers with ordinary double epochs still compile and round-trip.
+    ramps.addFrequencyRamp( 1.0, 2.0, 8.4E9, 0.0 );
+    BOOST_CHECK_EQUAL( static_cast< double >( ramps.getFrequencyRamps( ).at( 1 ).startTime_ ), 1.0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

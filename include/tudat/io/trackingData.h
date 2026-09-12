@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -33,6 +34,12 @@ namespace data
 {
 
 using PlainLinkDefinition = std::vector< std::pair< std::pair< std::string, std::string >, std::string > >;
+
+inline bool isOpticalObservationMetadata( const std::string& key )
+{
+    return key == "note2" || key == "catalog" || key == "band" || key == "phottype" || key == "custom_name" || key == "mag" ||
+            key == "discovery" || key == "number";
+}
 
 template< typename ObservationScalarType = double,
           typename TimeType = double,
@@ -229,7 +236,29 @@ public:
     // Add ancillary settings (string type)
     void addAncillarySettings( const std::string ancillarySettingsType, const std::vector< std::string > ancillarySettingsValue )
     {
+        // Retain the original optical metadata entry point, with explicit row semantics.
+        if( isOpticalObservationMetadata( ancillarySettingsType ) || isObservationMetadata( ancillarySettingsType ) )
+        {
+            addObservationMetadata( ancillarySettingsType, ancillarySettingsValue );
+            return;
+        }
         ancillarySettingsStringVector_[ ancillarySettingsType ] = ancillarySettingsValue;
+    }
+
+    //! Register one string value per observation; link-level ancillary vectors use addAncillarySettings.
+    void addObservationMetadata( const std::string& key, const std::vector< std::string >& values )
+    {
+        if( values.size( ) != numberOfObservations_ )
+        {
+            throw std::runtime_error( "Observation metadata '" + key + "' must have one entry per observation." );
+        }
+        ancillarySettingsStringVector_[ key ] = values;
+        observationMetadataKeys_.insert( key );
+    }
+
+    bool isObservationMetadata( const std::string& key ) const
+    {
+        return observationMetadataKeys_.count( key ) != 0;
     }
 
     //! Function that returns map of ancillary settings (string type)
@@ -265,14 +294,6 @@ public:
     //! Set observation weights to the tracking data object (optional)
     void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
     {
-        // Check if observation weights already existed and overwrite them if they did (+throw a warning)
-        if( !weights_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
-                      << std::endl;
-            weights_.clear( );
-        }
-
         // Check size consistency (for the total number of observations)
         if( observationWeights.size( ) != numberOfObservations_ )
         {
@@ -346,15 +367,6 @@ public:
     //! Set corrections to the observations (optional)
     void setObservationCorrections( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationCorrections )
     {
-        // Check if observation corrections already existed and clear them if they did + throw a warning (overwritten)
-        if( !observationCorrections_.empty( ) )
-        {
-            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
-                         "overwritten ."
-                      << std::endl;
-            observationCorrections_.clear( );
-        }
-
         // Check size consistency (for the total number of observations)
         if( observationCorrections.size( ) != numberOfObservations_ )
         {
@@ -429,6 +441,12 @@ public:
         observations_.erase( observations_.begin( ) + index );
         epochs_.erase( epochs_.begin( ) + index );
 
+        for( const auto& key : observationMetadataKeys_ )
+        {
+            auto& values = ancillarySettingsStringVector_.at( key );
+            values.erase( values.begin( ) + index );
+        }
+
         // Remove associated weight (if it exists)
         if( !weights_.empty( ) )
         {
@@ -471,6 +489,8 @@ private:
     std::map< std::string, std::string > ancillarySettingsString_;
 
     std::map< std::string, std::vector< std::string > > ancillarySettingsStringVector_;
+
+    std::set< std::string > observationMetadataKeys_;
 
     std::map< std::string, double > ancillarySettingsDouble_;
 
