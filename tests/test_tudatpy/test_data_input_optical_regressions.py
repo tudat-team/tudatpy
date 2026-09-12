@@ -64,6 +64,19 @@ def test_catalog_bias_is_subtracted_in_final_collection(optical_table, monkeypat
     )
 
 
+@pytest.mark.parametrize("ancillary", [False, True])
+def test_optical_metadata_does_not_create_simulation_settings(optical_table, ancillary):
+    """Metadata-only optical input leaves no ancillary settings for the angular model to reject."""
+    data, _ = read_optical_data(optical_table, add_ancillary_data=ancillary)
+    collection = create_observation_collection_from_tracking_data(data, empty_bodies())
+
+    # Both the mandatory target identifier and optional catalogue fields remain metadata.
+    assert data[0].get_ancillary_settings_string_vector()["number"] == ["433"]
+    sets = collection.get_single_observation_sets()
+    assert len(sets) == 1
+    assert sets[0].ancillary_settings is None
+
+
 def weighting_bodies():
     """Provide the Earth station needed to calculate optical weights."""
     bodies = empty_bodies()

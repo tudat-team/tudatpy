@@ -137,8 +137,9 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
                 observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
     }
 
-    if( trackingData->getAncillarySettingsDouble( ).empty( ) && trackingData->getAncillarySettingsDoubleVector( ).empty( ) &&
-        trackingData->getAncillarySettingsStringVector( ).empty( ) && trackingData->getAncillarySettingsString( ).empty( ) )
+    // Metadata and reader-only settings may fill the input maps without producing
+    // simulation settings. Angular observations require nullptr in that case.
+    if( ancillarySettings->getDoubleData( ).empty( ) && ancillarySettings->getDoubleVectorData( ).empty( ) )
     {
         return nullptr;
     }
