@@ -50,3 +50,9 @@ The deprecated `HorizonsQuery`/`HorizonsBatch` wrappers in
 imports outside `tudatpy.data`. Retire those classes and their exports separately
 when that deprecation ends. Keep `jpl_horizons`, `jpl_horizons_from_query`, and
 `add_horizons_batch_ephemerides`: they implement the supported environment workflow.
+
+The deprecated `estimation/observations_setup/observations_wrapper/` package also
+serves imports outside `tudatpy.data`. When retiring it, delete that directory and
+the compatibility `__getattr__`/`__dir__` bridge in
+`estimation/observations_setup/__init__.py`. Keep the current kernel exports in
+that initializer and the supported `tudatpy.estimation.observations` namespace.
