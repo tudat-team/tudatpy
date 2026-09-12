@@ -153,6 +153,7 @@ BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
     BOOST_CHECK_EQUAL( trackingDataAndSupplementaryData.first.front( )->getSingleObservationSize( ), 2 );
 }
 
+// Create one image and camera attitude with controllable epoch and calibration.
 input_output::psf::RawPsfFileContents syntheticPsf( const double epoch, const double focalLength = 1.0 )
 {
     using namespace input_output::psf;
@@ -183,6 +184,7 @@ input_output::psf::RawPsfFileContents syntheticPsf( const double epoch, const do
     return file;
 }
 
+// Merge camera histories in either file order and reject incompatible inputs.
 BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
 {
     using namespace input_output::psf;
@@ -191,6 +193,7 @@ BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
     for( const auto& inputs : { std::vector< RawPsfFileContents >{ first, second }, std::vector< RawPsfFileContents >{ second, first } } )
     {
         const auto result = convertRawPsfFiles<>( inputs );
+        // Both images and their camera attitudes must survive conversion in either order.
         BOOST_REQUIRE_EQUAL( result.first.size( ), 1 );
         BOOST_CHECK_EQUAL( result.first.front( )->getNumberOfObservations( ), 2 );
         BOOST_REQUIRE_EQUAL( result.second.size( ), 1 );
@@ -205,8 +208,10 @@ BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
     }
     // Reusing raw inputs must not expose a merged history left by a previous conversion.
     BOOST_CHECK_EQUAL( getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
+    // Identical duplicates are accepted, but inconsistent calibration is rejected.
     BOOST_CHECK_NO_THROW( convertRawPsfFiles<>( { first, first } ) );
     BOOST_CHECK_THROW( convertRawPsfFiles<>( { first, syntheticPsf( 3600.0, 2.0 ) } ), std::runtime_error );
+    // Matching calibration cannot excuse conflicting pointing at the same epoch.
     auto conflicting = syntheticPsf( 0.0 );
     auto changedCamera = std::make_shared< data::CameraInstrumentSupplementaryData >(
             "NAC",

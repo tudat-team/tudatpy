@@ -102,6 +102,7 @@ BOOST_AUTO_TEST_CASE( testVectorObservableSizeValidation )
     BOOST_CHECK_THROW( trackingData.setObservationCorrections( wrongSingleCorrectionSize ), std::runtime_error );
 }
 
+// Reject malformed replacements without losing existing weight or correction values.
 BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
 {
     auto trackingData = createVectorTrackingData( );
@@ -110,10 +111,12 @@ BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
     trackingData.setObservationCorrections( original );
     const std::vector< std::vector< Eigen::VectorXd > > invalid = { { Eigen::Vector2d( 7.0, 8.0 ) },
                                                                     { Eigen::Vector2d( 7.0, 8.0 ), Eigen::Vector3d( 9.0, 10.0, 11.0 ) } };
+    // Check both outer-count and inner-component errors against populated data.
     for( const auto& replacement : invalid )
     {
         BOOST_CHECK_THROW( trackingData.setObservationWeights( replacement ), std::runtime_error );
         BOOST_CHECK_THROW( trackingData.setObservationCorrections( replacement ), std::runtime_error );
+        // Each rejected update must preserve every previously stored row and value.
         BOOST_REQUIRE_EQUAL( trackingData.getObservationWeights( ).size( ), original.size( ) );
         BOOST_REQUIRE_EQUAL( trackingData.getObservationCorrections( ).size( ), original.size( ) );
         for( unsigned int i = 0; i < original.size( ); ++i )
@@ -124,8 +127,10 @@ BOOST_AUTO_TEST_CASE( testRejectedReplacementPreservesWeightsAndCorrections )
     }
 }
 
+// Keep row metadata aligned after removal while preserving link-level settings.
 BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged )
 {
+    // Exercise first, middle, and last removal through the same metadata registration paths.
     for( unsigned int removed = 0; removed < 3; ++removed )
     {
         data::TrackingData<> trackingData( "AngularPosition",
@@ -138,10 +143,12 @@ BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged
         trackingData.addObservationMetadata( "observer", { "Alice", "Bob", "Carol" } );
         const std::vector< std::string > bands = { "X-band", "S-band", "X-band" };
         trackingData.addAncillarySettings( "frequency bands", bands );
+        // Reject invalid metadata length before removing the selected observation.
         BOOST_CHECK_THROW( trackingData.addObservationMetadata( "note2", { "C" } ), std::runtime_error );
         trackingData.removeSingleObservationEntry( removed );
         auto expected = techniques;
         expected.erase( expected.begin( ) + removed );
+        // Registered row data shrinks in order; frequency bands are link metadata and stay intact.
         BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) == expected );
         BOOST_CHECK_EQUAL( trackingData.getAncillarySettingsStringVector( ).at( "observer" ).size( ), 2 );
         BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
@@ -149,6 +156,7 @@ BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged
     }
 }
 
+// Preserve sub-double epoch precision and continue accepting ordinary double times.
 BOOST_AUTO_TEST_CASE( testFrequencyRampPreservesExtendedEpochPrecision )
 {
     const Time start( 194444, 1600.000000010L );
@@ -156,6 +164,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyRampPreservesExtendedEpochPrecision )
     data::RampedFrequencySupplementaryData ramps;
     ramps.addFrequencyRamp( start, end, 8.4E9, 0.1 );
     const auto& ramp = ramps.getFrequencyRamps( ).at( 0 );
+    // Both ramp boundaries retain the original extended-precision epoch.
     BOOST_CHECK_SMALL( static_cast< long double >( ramp.startTime_ - start ), 1.0E-12L );
     BOOST_CHECK_SMALL( static_cast< long double >( ramp.endTime_ - end ), 1.0E-12L );
     // Existing callers with ordinary double epochs still compile and round-trip.

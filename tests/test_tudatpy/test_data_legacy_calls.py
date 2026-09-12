@@ -14,11 +14,13 @@ from tudatpy.estimation.observations import ObservationCollection
 
 
 def legacy_symbol(module, name):
+    """Resolve a public legacy symbol and require its deprecation warning."""
     with pytest.warns(DeprecationWarning, match="is deprecated"):
         return getattr(importlib.import_module(module), name)
 
 
 def earth_bodies():
+    """Provide Earth with the shape model required by legacy station setup."""
     settings = environment_setup.BodyListSettings("SSB", "J2000")
     settings.add_empty_settings("Earth")
     settings.get("Earth").shape_settings = environment_setup.shape.spherical(6378137.0)
@@ -27,6 +29,7 @@ def earth_bodies():
 
 @pytest.fixture
 def legacy_mpc_table(monkeypatch):
+    """Provide deterministic MPC observations and station metadata without network access."""
     stations = Table({"Code": ["500"], "Longitude": [0.0], "cos": [1.0], "sin": [0.0]})
     monkeypatch.setattr(MPC, "get_observatory_codes", lambda: stations)
     return pd.DataFrame(
@@ -48,6 +51,7 @@ def legacy_mpc_table(monkeypatch):
 def test_legacy_mpc_ingestion_weights_and_environment(
     legacy_mpc_table, monkeypatch, module, source
 ):
+    """Preserve legacy ingestion, custom weights, collection results, and body/station setup."""
     BatchMPC = legacy_symbol(module, "BatchMPC")
     batch = BatchMPC()
     if source == "pandas":
@@ -68,33 +72,40 @@ def test_legacy_mpc_ingestion_weights_and_environment(
         apply_weights_VFCC17=False,
         apply_star_catalog_debias=False,
     )
+    # Preserve the legacy collection type and explicit per-component weights.
     assert isinstance(collection, ObservationCollection)
     np.testing.assert_allclose(
         np.array(collection.concatenated_observations).reshape(-1), [np.pi / 6, 0.0]
     )
     np.testing.assert_array_equal(np.array(collection.concatenated_weights).reshape(-1), [7.0, 7.0])
+    # Legacy conversion also creates the target body and receiving station.
     assert bodies.does_body_exist("Eros")
     assert "500" in bodies.get("Earth").ground_station_list
     assert batch.bodies_created["Eros"] == "empty body"
 
 
 def test_legacy_mpc_default_weighting_is_numerical(legacy_mpc_table):
+    """Retain the legacy weighting warning and the expected VFCC17 numerical weight."""
     batch = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
     batch.from_pandas(legacy_mpc_table)
     bodies = earth_bodies()
+    # Default weighting still warns and produces inverse-variance weights.
     with pytest.warns(DeprecationWarning, match="get_weights_VFCC17"):
         collection = batch.to_tudat(bodies, None, apply_star_catalog_debias=False)
     np.testing.assert_allclose(collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2)
 
 
 def test_legacy_horizons_ephemeris_methods():
+    """Keep deprecated single-query and batch ephemeris helpers functional and warning."""
     Query = legacy_symbol("tudatpy.data.horizons", "HorizonsQuery")
     query = Query.__new__(Query)
     states = np.array([[0.0, 1, 2, 3, 4, 5, 6], [60.0, 7, 8, 9, 10, 11, 12]])
     query.cartesian = lambda **kwargs: states
+    # The single-query helper warns and returns tabulated ephemeris settings.
     with pytest.warns(DeprecationWarning, match="create_ephemeris_tabulated"):
         ephemeris = query.create_ephemeris_tabulated("SSB", "J2000")
     assert isinstance(ephemeris, environment_setup.ephemeris.TabulatedEphemerisSettings)
+    # The batch helper warns, updates settings in place, and retains body names.
     Batch = legacy_symbol("tudatpy.data.horizons.horizons", "HorizonsBatch")
     batch = Batch.__new__(Batch)
     batch._query_objects = {"433": SimpleNamespace(name="Eros", cartesian=query.cartesian)}
@@ -110,15 +121,18 @@ def test_legacy_horizons_ephemeris_methods():
 
 
 def test_legacy_omm_tle_conversion_methods():
+    """Restore both OMMUtils helpers with their original Tudat return types."""
     Utils = legacy_symbol("tudatpy.data.spacetrack", "OMMUtils")
     first = "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753"
     second = "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667"
+    # Check both restored method names against their distinct environment types.
     assert isinstance(Utils.tle_to_Tle_object(first, second), environment.Tle)
     assert isinstance(Utils.tle_to_TleEphemeris_object(first, second), environment.TleEphemeris)
 
 
 @pytest.mark.parametrize("module", ["tudatpy.data", "tudatpy.data.processTrk234"])
 def test_legacy_tnf_process_returns_collection(monkeypatch, module):
+    """Return legacy observation collections for populated and empty TNF input."""
     Processor = legacy_symbol(module, "Trk234Processor")
     legacy = importlib.import_module("tudatpy.data.processTrk234._legacy")
     monkeypatch.setattr(
@@ -129,14 +143,17 @@ def test_legacy_tnf_process_returns_collection(monkeypatch, module):
     processor = Processor(["fixture.tnf"], ["doppler"], "Probe")
     monkeypatch.setattr(processor.converters["doppler"], "extract", lambda records: tnf_records())
     collection = processor.process()
+    # Nonempty processing retains both the old container type and measured value.
     assert isinstance(collection, ObservationCollection)
     np.testing.assert_array_equal(
         np.array(collection.concatenated_observations).reshape(-1), [123.0]
     )
+    # Empty input also returns a collection, rather than a list of TrackingData.
     assert isinstance(Processor([], []).process(), ObservationCollection)
 
 
 def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
+    """Install extracted TNF ramp data on the requested ground station."""
     Processor = legacy_symbol("tudatpy.data.processTrk234.processor", "Trk234Processor")
     legacy = importlib.import_module("tudatpy.data.processTrk234._legacy")
     monkeypatch.setattr(
@@ -167,6 +184,7 @@ def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
         bodies.get("Earth"),
         environment_setup.ground_station.basic_station("DSS-14", [6378137.0, 0.0, 0.0]),
     )
+    # Install the supplied station ramp and inspect its calculator and frequency.
     processor.set_tnf_information_in_bodies(bodies)
     calculator = bodies.get("Earth").get_ground_station("DSS-14").transmitting_frequency_calculator
     assert isinstance(calculator, environment.PiecewiseLinearFrequencyInterpolator)
@@ -174,6 +192,7 @@ def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
 
 
 def tnf_records():
+    """Provide one deterministic radiometric record with station and timing metadata."""
     return pd.DataFrame(
         {
             "epoch": [pd.Timestamp("2024-01-01T12:00:00").to_pydatetime()],
@@ -189,12 +208,14 @@ def tnf_records():
 
 @pytest.mark.parametrize("name", ["DerivedDopplerConverter", "DerivedSraRangeConverter"])
 def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
+    """Preserve legacy converter results, station-dependent epochs, and link helpers."""
     from tudatpy.estimation.observations import SingleObservationSet
 
     Converter = legacy_symbol("tudatpy.data.processTrk234.converters", name)
     converter = Converter()
     records = tnf_records()
     result = converter.process(records, "Probe")
+    # Both radiometric converters keep the single-set return type and observations.
     assert len(result) == 1
     assert isinstance(result[0], SingleObservationSet)
     np.testing.assert_array_equal(
@@ -205,6 +226,7 @@ def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
         get_approximate_dsn_ground_station_positions,
     )
 
+    # Compare with UTC-to-TDB conversion at the actual receiving station.
     expected_time = time_representation.default_time_scale_converter().convert_time(
         input_scale=time_representation.utc_scale,
         output_scale=time_representation.tdb_scale,
@@ -214,4 +236,5 @@ def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
         earth_fixed_position=get_approximate_dsn_ground_station_positions()["DSS-14"],
     )
     assert abs(float(result[0].observation_times[0]) - float(expected_time)) < 1.0e-9
+    # The former public link-construction helper remains available.
     assert isinstance(converter.build_link_ends_dict(("DSS-14", "123", "DSS-14"), "Probe"), dict)

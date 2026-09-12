@@ -639,9 +639,11 @@ std::shared_ptr< data::TrackingData<> > angularTracking( const double epoch = 10
             "TDB" );
 }
 
+// Accept one weight vector per observation and preserve values after dimension errors.
 BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
 {
     const LinkEnds linkEnds = { { transmitter, LinkEndId( "433", "" ) }, { receiver, LinkEndId( "Earth", "500" ) } };
+    // Cover scalar, angular, and position observables with one and two rows.
     for( const auto type : { one_way_range, angular_position, position_observable } )
     {
         const int size = getObservableSize( type );
@@ -654,24 +656,40 @@ BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
                 epochs[ i ] = i;
             }
             SingleObservationSet< double, double > observationSet( type, LinkDefinition( linkEnds ), observations, epochs, receiver );
-            const std::vector< Eigen::VectorXd > weights( count, Eigen::VectorXd::Constant( size, 3.0 ) );
+            // Distinct values expose reordered components or repeated weight rows.
+            std::vector< Eigen::VectorXd > weights( count, Eigen::VectorXd::Zero( size ) );
+            Eigen::VectorXd expectedWeights( count * size );
+            for( unsigned int row = 0; row < count; ++row )
+            {
+                for( int component = 0; component < size; ++component )
+                {
+                    const double value = 10.0 * ( row + 1 ) + component;
+                    weights.at( row )( component ) = value;
+                    expectedWeights( row * size + component ) = value;
+                }
+            }
             BOOST_CHECK_NO_THROW( observationSet.setWeights( weights ) );
-            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( Eigen::VectorXd::Constant( count * size, 3.0 ) ) );
+            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
+            // Incorrect outer counts must fail without changing stored weights.
             auto invalid = weights;
             invalid.pop_back( );
             BOOST_CHECK_THROW( observationSet.setWeights( invalid ), std::runtime_error );
+            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
             invalid = weights;
             invalid.push_back( weights.front( ) );
             BOOST_CHECK_THROW( observationSet.setWeights( invalid ), std::runtime_error );
+            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
+            // A bad final vector must not overwrite a valid earlier replacement row.
             invalid = weights;
             invalid.front( ).setConstant( 7.0 );
             invalid.back( ) = Eigen::VectorXd::Ones( size + 1 );
             BOOST_CHECK_THROW( observationSet.setWeights( invalid ), std::runtime_error );
-            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( Eigen::VectorXd::Constant( count * size, 3.0 ) ) );
+            BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
         }
     }
 }
 
+// Skip observation metadata but still validate actual simulation ancillary settings.
 BOOST_AUTO_TEST_CASE( testOpticalMetadataIsNotSimulationAncillaryData )
 {
     auto tracking = angularTracking( );
@@ -681,11 +699,14 @@ BOOST_AUTO_TEST_CASE( testOpticalMetadataIsNotSimulationAncillaryData )
     }
     tracking->addObservationMetadata( "observer", { "Alice" } );
     simulation_setup::SystemOfBodies bodies;
+    // Known optical fields and registered custom metadata permit collection creation.
     BOOST_CHECK_NO_THROW( createSingleObservationSetFromTrackingData( tracking, bodies ) );
+    // Actual frequency bands still convert to the expected simulation codes.
     tracking->addAncillarySettings( "frequency bands", std::vector< std::string >{ "X-band", "S-band" } );
     auto ancillary = getAncillarySettingsFromTrackingData( tracking );
     BOOST_CHECK( ancillary->getAncillaryDoubleVectorData( frequency_bands ) ==
                  std::vector< double >( { convertFrequencyBandToDouble( x_band ), convertFrequencyBandToDouble( s_band ) } ) );
+    // Invalid bands and unrecognized simulation keys remain errors.
     tracking->addAncillarySettings( "frequency bands", std::vector< std::string >{ "invalid-band" } );
     BOOST_CHECK_THROW( getAncillarySettingsFromTrackingData( tracking ), std::runtime_error );
     tracking = angularTracking( );
@@ -693,6 +714,7 @@ BOOST_AUTO_TEST_CASE( testOpticalMetadataIsNotSimulationAncillaryData )
     BOOST_CHECK_THROW( getAncillarySettingsFromTrackingData( tracking ), std::runtime_error );
 }
 
+// Apply available corrections without changing uncorrected data or original inputs.
 BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
 {
     auto corrected = angularTracking( );
@@ -705,7 +727,9 @@ BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
                                                                  "TDB" );
     simulation_setup::SystemOfBodies bodies;
     const std::vector< std::shared_ptr< data::TrackingData<> > > input = { corrected, uncorrected };
+    // A collection may mix inputs with and without correction vectors.
     BOOST_CHECK_NO_THROW( createObservationCollection( input, bodies, true ) );
+    // Check corrected angles, unchanged range values, and reusable source observations.
     auto correctedSet = createSingleObservationSetFromTrackingData( corrected, bodies, true );
     auto uncorrectedSet = createSingleObservationSetFromTrackingData( uncorrected, bodies, true );
     BOOST_CHECK( correctedSet->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 0.9, 1.8 ) ) );
@@ -713,6 +737,7 @@ BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
     BOOST_CHECK( corrected->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 1.0, 2.0 ) ) );
 }
 
+// Install zero-rate ramps on stations and vehicles; verify lookup, integration, and merging.
 BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRateRamps )
 {
     using FrequencyDataMap =
@@ -755,6 +780,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRat
         BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedFrequencyIntegral<>( Time( -5.0 ), Time( 30.0 ) ), 7000.0 );
         BOOST_CHECK_EQUAL( getCalculator( )->getTemplatedFrequencyIntegral<>( Time( 10.0 ), Time( 30.0 ) ), 4000.0 );
 
+        // Interleaved histories give one zero-rate segment per change epoch.
         frequencyData[ linkEnd ] = { first, second };
         setFrequencySupplementaryDataInBodies( bodies, frequencyData );
         auto calculator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( getCalculator( ) );
@@ -763,12 +789,14 @@ BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRat
 
         const std::map< double, double > expectedFrequencies = { { -5.0, 100.0 }, { 0.0, 100.0 },  { 9.0, 100.0 },  { 10.0, 200.0 },
                                                                  { 19.0, 200.0 }, { 20.0, 300.0 }, { 100.0, 300.0 } };
+        // Check transitions and extrapolation with both double and Time epochs.
         for( const auto& entry : expectedFrequencies )
         {
             BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( entry.first ), entry.second );
             BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( Time( entry.first ) ), entry.second );
         }
         BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( -5.0 ), Time( 30.0 ) ), 6500.0 );
+        // Reversing integration bounds reverses the sign of accumulated cycles.
         BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( 30.0 ), Time( -5.0 ) ), -6500.0 );
 
         // Reversing disjoint input histories preserves all changes and leaves the inputs reusable.
@@ -788,6 +816,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRat
         BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 25.0 ), 300.0 );
         BOOST_CHECK_EQUAL( calculator->getTemplatedFrequencyIntegral<>( Time( 5.0 ), Time( 25.0 ) ), 4500.0 );
 
+        // Nonzero ramps and constant segments coexist in the installed calculator.
         auto ramped = std::make_shared< data::RampedFrequencySupplementaryData >( );
         ramped->addFrequencyRamp( -20.0, 0.0, 50.0, 2.0 );
         frequencyData[ linkEnd ] = { ramped };
@@ -795,6 +824,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRat
         BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( -10.0 ), 70.0 );
         BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 5.0 ), 100.0 );
 
+        // Reject empty histories without replacing the existing calculator.
         frequencyData[ linkEnd ] = { std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( ) };
         BOOST_CHECK_THROW( setFrequencySupplementaryDataInBodies( bodies, frequencyData ), std::runtime_error );
         BOOST_CHECK( getCalculator( ) == calculator );
