@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_FLATTENED_OBSERVATION_DATA_H
-#define TUDAT_FLATTENED_OBSERVATION_DATA_H
+#ifndef TUDAT_OBSERVATION_VECTOR_DATA_H
+#define TUDAT_OBSERVATION_VECTOR_DATA_H
 
 #include <stdexcept>
 #include <vector>
@@ -28,10 +28,10 @@ namespace tudat
 namespace observation_models
 {
 
-//! Flattened vector representation of an ObservationDataset selection.
+//! Scalar-aligned vector representation of an ObservationDataset selection.
 /*!
  * This object is not primary storage. It stores selected observation rows as
- * flat observation, residual and diagonal weight vectors in a fixed row order.
+ * observation, residual and diagonal weight vectors in a fixed scalar order.
  * When block/correlation weights are present, it also stores the sparse weight
  * matrix. The id vectors map every scalar entry back to the dataset row, set
  * and scalar component from which it came.
@@ -39,7 +39,7 @@ namespace observation_models
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type >
-class FlattenedObservationData
+class ObservationVectorData
 {
 public:
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getObservationVector( ) const
@@ -102,17 +102,28 @@ public:
         return setIds_;
     }
 
+    std::vector< unsigned int > getLinkDefinitionIds( ) const
+    {
+        std::vector< unsigned int > linkDefinitionIds;
+        linkDefinitionIds.reserve( setIds_.size( ) );
+        for( const unsigned int setId : setIds_ )
+        {
+            linkDefinitionIds.push_back( metadataBySet_.at( setId ).linkDefinitionId_ );
+        }
+        return linkDefinitionIds;
+    }
+
     const std::vector< unsigned int >& getScalarComponentIds( ) const
     {
         return scalarComponentIds_;
     }
 
-    int getFlattenedRow( const unsigned int observationId, const unsigned int componentIndex ) const
+    int getVectorRow( const unsigned int observationId, const unsigned int componentIndex ) const
     {
         const auto row = rowMapping_.find( observationId );
         if( row == rowMapping_.end( ) || componentIndex >= row->second.second )
         {
-            throw std::runtime_error( "Observation/component pair is not present in the projection." );
+            throw std::runtime_error( "Observation/component pair is not present in the observation vector data." );
         }
         return row->second.first + componentIndex;
     }
@@ -126,7 +137,7 @@ public:
     {
         if( setId >= uniqueObservationIdsBySet_.size( ) || uniqueObservationIdsBySet_.at( setId ).empty( ) )
         {
-            throw std::runtime_error( "Error when retrieving flattened observation rows, requested set is not present." );
+            throw std::runtime_error( "Error when retrieving observation vector rows, requested set is not present." );
         }
         return uniqueObservationIdsBySet_.at( setId );
     }
@@ -185,7 +196,7 @@ private:
     std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > rowMapping_;
     std::weak_ptr< const int > source_;
     std::size_t structuralVersion_ = 0;
-    std::size_t projectionVersion_ = 0;
+    std::size_t vectorDataVersion_ = 0;
     std::unordered_map< unsigned int, ObservationSetMetadata< ObservationScalarType, TimeType > > metadataBySet_;
     std::unordered_map< unsigned int, LinkDefinition > linksBySet_;
     std::unordered_map< unsigned int, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillaryBySet_;
@@ -202,4 +213,4 @@ private:
 
 }  // namespace tudat
 
-#endif  // TUDAT_FLATTENED_OBSERVATION_DATA_H
+#endif  // TUDAT_OBSERVATION_VECTOR_DATA_H

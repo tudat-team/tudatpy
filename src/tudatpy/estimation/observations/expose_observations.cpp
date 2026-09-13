@@ -175,6 +175,90 @@ py::dict inspectionData( const InspectionDataset& dataset,
     return result;
 }
 
+void setDatasetReferencePoints( InspectionDataset& dataset,
+                                tss::SystemOfBodies& bodies,
+                                const std::map< double, Eigen::Vector3d >& referencePointHistory,
+                                const std::string& spacecraftName,
+                                const tom::LinkEndType linkEndType )
+{
+    if( referencePointHistory.size( ) < 2 )
+    {
+        throw std::runtime_error( "Reference-point history must contain at least two epochs." );
+    }
+    if( dataset.getNumberOfObservations( ) == 0 )
+    {
+        return;
+    }
+
+    const std::pair< TIME_TYPE, TIME_TYPE > observationTimeBounds = dataset.getTimeBounds( );
+    if( referencePointHistory.begin( )->first > observationTimeBounds.first ||
+        referencePointHistory.rbegin( )->first < observationTimeBounds.second )
+    {
+        throw std::runtime_error( "Reference-point history does not cover the observation time interval." );
+    }
+
+    std::map< double, std::string > referencePointNames;
+    unsigned int referencePointCounter = 0;
+    for( const auto& historyEntry : referencePointHistory )
+    {
+        const auto existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getFixedReferencePoints( );
+        for( const auto& referencePoint : existingReferencePoints )
+        {
+            if( referencePoint.second->getCartesianState( ).segment( 0, 3 ) == historyEntry.second )
+            {
+                referencePointNames[ historyEntry.first ] = referencePoint.first;
+                break;
+            }
+        }
+        if( referencePointNames.count( historyEntry.first ) == 0 )
+        {
+            const std::string name = "Antenna" + std::to_string( ++referencePointCounter );
+            bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( name, historyEntry.second );
+            referencePointNames[ historyEntry.first ] = name;
+        }
+    }
+
+    std::vector< double > switchTimes;
+    switchTimes.reserve( referencePointHistory.size( ) );
+    for( const auto& historyEntry : referencePointHistory )
+    {
+        switchTimes.push_back( historyEntry.first );
+    }
+
+    InspectionDataset updatedDataset;
+    for( unsigned int interval = 0; interval + 1 < switchTimes.size( ); ++interval )
+    {
+        InspectionCondition intervalCondition = InspectionCondition::timeLessEqual( switchTimes.at( interval + 1 ) );
+        intervalCondition = intervalCondition &&
+                ( interval == 0 ? InspectionCondition::timeGreaterEqual( switchTimes.at( interval ) )
+                                : InspectionCondition::timeGreaterThan( switchTimes.at( interval ) ) );
+        const std::shared_ptr< InspectionDataset > intervalDataset = dataset.createNewAndKeep( intervalCondition );
+        const auto intervalVectorData = intervalDataset->createObservationVectorData( true );
+        if( intervalVectorData.getObservationVector( ).size( ) == 0 )
+        {
+            continue;
+        }
+        intervalDataset->setLinkEndReferencePoint( spacecraftName, referencePointNames.at( switchTimes.at( interval ) ), linkEndType );
+        for( const unsigned int setId : intervalVectorData.getSetIdsInRowOrder( ) )
+        {
+            updatedDataset.addObservationSetFromDataset( *intervalDataset, setId );
+        }
+    }
+    dataset = std::move( updatedDataset );
+}
+
+void computeDatasetResiduals(
+        const std::shared_ptr< InspectionDataset >& observationDataset,
+        const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >& observationSimulators,
+        const tss::SystemOfBodies& bodies )
+{
+    if( observationDataset == nullptr )
+    {
+        throw std::runtime_error( "Error when computing residuals and dependent variables for dataset, input dataset is None." );
+    }
+    tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >( observationDataset, observationSimulators, bodies );
+}
+
 const char* legacyObservationDeprecationGuide =
         "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-dataset-deprecation.html";
 
@@ -548,7 +632,7 @@ within that set.
                            R"doc(int: Index of this observation within its observation set.)doc" )
             .def_readonly( "is_active",
                            &tom::ObservationDatasetRow< TIME_TYPE >::isActive_,
-                           R"doc(bool: Whether this row is active in estimation/covariance flattened data.)doc" )
+                           R"doc(bool: Whether this row is active in observation vector data.)doc" )
             .def_readonly( "rejection_reason",
                            &tom::ObservationDatasetRow< TIME_TYPE >::rejectionReason_,
                            R"doc(str: Optional text describing why this observation was rejected.)doc" );
@@ -602,10 +686,10 @@ scalar weights, per-observation matrix blocks or a full set-level block.
                          R"doc(Return settings using one full set-level matrix block.)doc" );
 
     {
-        py::class_< tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
-                                                                                     "FlattenedObservationData",
-                                                                                     R"doc(
-Flattened vector data created from an :class:`ObservationDataset`.
+        py::class_< tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                  "ObservationVectorData",
+                                                                                  R"doc(
+Scalar-aligned vector data created from an :class:`ObservationDataset`.
 
 This object contains the concatenated observation, residual and weight vectors,
 together with the scalar-component provenance needed to map each entry back to
@@ -614,32 +698,32 @@ available through :attr:`weight_vector`. The full matrix is returned as a sparse
 matrix and is only needed when off-diagonal terms are present.
 )doc" )
                 .def_property_readonly( "observation_vector",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationVector,
                                         R"doc(numpy.ndarray: Concatenated vector of observed values.)doc" )
                 .def_property_readonly( "residual_vector",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualVector,
                                         R"doc(numpy.ndarray: Concatenated vector of residual values.)doc" )
                 .def_property_readonly( "weight_vector",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightVector,
                                         R"doc(numpy.ndarray: Concatenated vector of scalar observation weights.)doc" )
                 .def_property_readonly( "sparse_weight_matrix",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSparseWeightMatrix,
                                         R"doc(
 scipy.sparse.spmatrix: Sparse weight matrix in the same row order as :attr:`observation_vector`.
 
-For diagonal-only flattened data, prefer :attr:`weight_vector`; requesting this
+For diagonal-only observation vector data, prefer :attr:`weight_vector`; requesting this
 property materializes the sparse diagonal matrix.
 )doc" )
                 .def_property_readonly( "is_diagonal_weight_only",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::isDiagonalWeightOnly,
                                         R"doc(bool: True when the weight matrix contains no off-diagonal entries.)doc" )
                 .def_property_readonly( "has_off_diagonal_weights",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::hasOffDiagonalWeights,
                                         R"doc(bool: True when the weight matrix contains off-diagonal entries.)doc" )
                 .def_property_readonly(
                         "times",
-                        []( const tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >& flattenedData ) {
-                            const std::vector< TIME_TYPE > rawTimes = flattenedData.getTimes( );
+                        []( const tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >& observationVectorData ) {
+                            const std::vector< TIME_TYPE > rawTimes = observationVectorData.getTimes( );
                             std::vector< double > convertedTimes;
                             convertedTimes.reserve( rawTimes.size( ) );
                             for( const TIME_TYPE& time : rawTimes )
@@ -650,26 +734,29 @@ property materializes the sparse diagonal matrix.
                         },
                         R"doc(list[float]: Observation time associated with each scalar component, in seconds since J2000 TDB.)doc" )
                 .def_property_readonly( "observation_ids",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationIds,
                                         R"doc(list[int]: Observation row identifier associated with each scalar component.)doc" )
                 .def_property_readonly( "set_ids",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIds,
                                         R"doc(list[int]: Observation set identifier associated with each scalar component.)doc" )
+                .def_property_readonly( "link_definition_ids",
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkDefinitionIds,
+                                        R"doc(list[int]: Link-definition identifier associated with each scalar component.)doc" )
                 .def_property_readonly( "scalar_component_ids",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
-                                        R"doc(list[int]: Scalar-component row identifier for each flattened scalar entry.)doc" )
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getScalarComponentIds,
+                                        R"doc(list[int]: Scalar-component row identifier for each observation vector entry.)doc" )
                 .def_property_readonly( "set_ids_in_row_order",
-                                        &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIdsInRowOrder,
+                                        &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getSetIdsInRowOrder,
                                         R"doc(list[int]: Unique observation set identifiers in the order in which they first appear.)doc" )
                 .def( "unique_observation_ids_for_set",
-                      &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getUniqueObservationIdsForSetInRowOrder,
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getUniqueObservationIdsForSetInRowOrder,
                       py::arg( "set_id" ),
-                      R"doc(Return unique observation row identifiers for one set in flattened-data row order.)doc" )
-                .def( "flattened_row",
-                      &tom::FlattenedObservationData< STATE_SCALAR_TYPE, TIME_TYPE >::getFlattenedRow,
+                      R"doc(Return unique observation row identifiers for one set in observation-vector row order.)doc" )
+                .def( "vector_row",
+                      &tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE >::getVectorRow,
                       py::arg( "observation_id" ),
                       py::arg( "component_index" ),
-                      R"doc(Return the flattened scalar row for one observation row and component index.
+                      R"doc(Return the scalar vector row for one observation row and component index.
 
 ``component_index``: Scalar component index inside the vector-valued observation.)doc" );
     }
@@ -1022,7 +1109,7 @@ All nested values are independent of the dataset in both directions and remain u
 after its destruction. The snapshot can itself be modified. Rejected events are
 included by default; use condition to exclude them. ordering is "internal" (default)
 or "estimation"; it changes sequence only. Copies allocate memory for requested
-fields, and no unrequested numerical projection payload is constructed.)doc" )
+fields, and no unrequested observation-vector payload is constructed.)doc" )
                 .def(
                         "add_observation_set",
                         []( tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >& self,
@@ -1278,6 +1365,9 @@ fields, and no unrequested numerical projection payload is constructed.)doc" )
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsForSet,
                       py::arg( "set_id" ),
                       R"doc(Return the minimum and maximum observation time in one set.)doc" )
+                .def_property_readonly( "observation_time_bounds",
+                                        &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
+                                        R"doc(tuple[Time, Time]: Minimum and maximum observation time in the dataset.)doc" )
                 .def( "computed_observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservationsForSet,
                       py::arg( "set_id" ),
@@ -1435,6 +1525,11 @@ fields, and no unrequested numerical projection payload is constructed.)doc" )
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::clearDependentVariablesForSet,
                       py::arg( "set_id" ),
                       R"doc(Clear all dependent-variable vectors in one set.)doc" )
+                .def( "add_dependent_variable",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariableToSets,
+                      py::arg( "dependent_variable_settings" ),
+                      py::arg( "condition" ) = tom::ObservationSelectionCondition< STATE_SCALAR_TYPE, TIME_TYPE >::all( ),
+                      R"doc(Add a dependent-variable setting to every compatible observation set selected by a condition.)doc" )
                 .def( "number_of_observations_for_set",
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservationsForSet,
                       py::arg( "set_id" ),
@@ -1460,6 +1555,36 @@ The condition selects observation rows. Every set containing at least one
 matching row is updated. This method changes dataset link metadata only; create
 the corresponding reference point in the system of bodies separately.
 )doc" )
+                .def( "set_reference_points",
+                      &setDatasetReferencePoints,
+                      py::arg( "bodies" ),
+                      py::arg( "reference_point_history" ),
+                      py::arg( "spacecraft_name" ),
+                      py::arg( "link_end_type" ),
+                      R"doc(Set time-varying fixed-frame reference points and split observation sets at each switch epoch.)doc" )
+                .def(
+                        "link_definitions_for_observable",
+                        []( const InspectionDataset& dataset, const tom::ObservableType observableType ) {
+                            std::map< unsigned int, tom::LinkDefinition > definitions;
+                            for( unsigned int setId = 0; setId < dataset.getNumberOfObservationSets( ); ++setId )
+                            {
+                                const auto& metadata = dataset.getObservationSetMetadata( setId );
+                                if( metadata.observableType_ == observableType && dataset.getNumberOfObservationsForSet( setId ) > 0 )
+                                {
+                                    definitions.emplace( metadata.linkDefinitionId_,
+                                                         dataset.getLinkDefinition( metadata.linkDefinitionId_ ) );
+                                }
+                            }
+                            std::vector< tom::LinkDefinition > result;
+                            result.reserve( definitions.size( ) );
+                            for( const auto& definition : definitions )
+                            {
+                                result.push_back( definition.second );
+                            }
+                            return result;
+                        },
+                        py::arg( "observable_type" ),
+                        R"doc(Return the distinct link definitions used by nonempty sets of one observable type.)doc" )
                 .def_property_readonly( "number_of_link_definitions",
                                         &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfLinkDefinitions,
                                         R"doc(Number of unique link definitions registered in the dataset.)doc" )
@@ -1505,22 +1630,18 @@ the corresponding reference point in the system of bodies separately.
                       &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::restoreObservations,
                       py::arg( "condition" ),
                       R"doc(Restore selected rows, retaining their identities, weights and last rejection reason.)doc" )
-                .def( "ordered_flattened_observation_data",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedFlattenedObservationData,
+                .def( "ordered_observation_vector_data",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createOrderedObservationVectorData,
                       py::arg( "include_inactive" ) = true,
-                      R"doc(Return flattened data in ordered output order.)doc" )
-                .def( "create_estimation_projection",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationProjection,
+                      R"doc(Return observation vector data in ordered output order.)doc" )
+                .def( "observation_vector_data",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createObservationVectorData,
                       py::arg( "include_rejected" ) = false,
-                      R"doc(Create a consistent snapshot in estimation order; rejected rows are excluded by default.)doc" )
-                .def( "estimation_flattened_observation_data",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createEstimationFlattenedObservationData,
-                      py::arg( "include_rejected" ) = false,
-                      R"doc(Create an estimator snapshot in observable/link/set/event/component order. Rejected rows are excluded by default.)doc" )
-                .def( "computation_flattened_observation_data",
-                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createComputationFlattenedObservationData,
+                      R"doc(Create scalar-aligned data in observable/link/set/event/component order. Rejected rows are excluded by default.)doc" )
+                .def( "computation_observation_vector_data",
+                      &tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >::createComputationObservationVectorData,
                       py::arg( "include_rejected" ) = true,
-                      R"doc(Return flattened data for recomputation.)doc" );
+                      R"doc(Return observation vector data for recomputation.)doc" );
     }
 
     m.def( "create_observation_dataset_from_tracking_data",
@@ -3409,7 +3530,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                             observationSimulators,
                     const tss::SystemOfBodies& bodies ) {
                     warnLegacyObservationInterface( "compute_residuals_and_dependent_variables",
-                                                    "compute_residuals_and_dependent_variables_for_dataset" );
+                                                    "compute_residuals_and_dependent_variables with an ObservationDataset" );
                     tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >(
                             observationCollection, observationSimulators, bodies );
                 },
@@ -3443,24 +3564,19 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
                py::arg( "bodies" ),
                R"doc(Create observation simulation settings from a dataset.)doc" );
 
-        m.def(
-                "compute_residuals_and_dependent_variables_for_dataset",
-                []( const std::shared_ptr< tom::ObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE > >& observationDataset,
-                    const std::vector< std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >&
-                            observationSimulators,
-                    const tss::SystemOfBodies& bodies ) {
-                    if( observationDataset == nullptr )
-                    {
-                        throw std::runtime_error(
-                                "Error when computing residuals and dependent variables for dataset, input dataset is None." );
-                    }
-                    tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >(
-                            observationDataset, observationSimulators, bodies );
-                },
-                py::arg( "observation_dataset" ),
-                py::arg( "observation_simulators" ),
-                py::arg( "bodies" ),
-                R"doc(Compute simulated observations, residuals and dependent variables for a dataset.)doc" );
+        m.def( "compute_residuals_and_dependent_variables",
+               &computeDatasetResiduals,
+               py::arg( "observation_dataset" ),
+               py::arg( "observation_simulators" ),
+               py::arg( "bodies" ),
+               R"doc(Compute simulated observations, residuals and dependent variables for a dataset.)doc" );
+
+        m.def( "compute_residuals_and_dependent_variables_for_dataset",
+               &computeDatasetResiduals,
+               py::arg( "observation_dataset" ),
+               py::arg( "observation_simulators" ),
+               py::arg( "bodies" ),
+               R"doc(Compute simulated observations, residuals and dependent variables for a dataset.)doc" );
     }
 
     {

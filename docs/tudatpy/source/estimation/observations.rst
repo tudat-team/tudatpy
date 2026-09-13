@@ -37,7 +37,7 @@ Functions
 .. autofunction:: tudatpy.estimation.observations.simulate_observation_dataset
 .. autofunction:: tudatpy.estimation.observations.create_compressed_doppler_dataset
 .. autofunction:: tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies
-.. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables_for_dataset
+.. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 .. autofunction:: tudatpy.estimation.observations.observation_simulation_settings_from_dataset
 
 Selecting observations
@@ -103,32 +103,32 @@ ObservationDataset
 
 .. autoclass:: tudatpy.estimation.observations.ObservationDataset
 
-Ownership, identities and projections
+Ownership, identities and vector data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The dataset owns observations, residuals, dependent-variable values and weights.
 Each event has a stable ``observation_id`` within its dataset. Removing another
 row, sorting a set, or appending data never reuses or renumbers that identity.
 ``set_id`` identifies metadata grouping. Scalar storage positions may change;
-use a fresh projection to obtain indices for numerical work.
-In C++, ``projection.getFlattenedRow(observation_id, component_index)`` gives
-the scalar offset in that projection. A set can span noncontiguous storage
+use fresh vector data to obtain indices for numerical work.
+In C++, ``vectorData.getVectorRow(observationId, componentIndex)`` gives
+the scalar offset in that vector data. A set can span noncontiguous storage
 after appends, so set counts alone do not define scalar offsets.
 
-``create_estimation_projection()`` selects active rows in estimation order: observable type, link ends, set, event within the set, then component.
-Estimation and covariance use this same route. Computation projections include
+``observation_vector_data()`` selects active rows in canonical vector order: observable type, link ends, set, event within the set, then component.
+Estimation and covariance use this same route. Computation vector data include
 rejected rows by default, so residual diagnostics can inspect them. Restoring a
 row retains its last rejection reason as well as its identity and weights.
 
-A projection is a snapshot. Its observations, times, residuals, weights,
+Observation vector data are a snapshot. Their observations, times, residuals, weights,
 dependent variables and link metadata describe one selection in one order.
 Residual writeback checks the originating dataset, structure, observed values,
-selection and ancillary settings. Rebuild the projection after adding, removing,
+selection and ancillary settings. Rebuild the vector data after adding, removing,
 regrouping, rejecting or restoring rows, changing observed values, or replacing
 link/layout metadata. Updating residuals or weights does not invalidate an iteration
-mapping, but does not refresh the projection's captured values. Estimation creates
-its input projection once per call and computes fresh residuals and design matrices
-on each iteration. Covariance also prepares its projection once per call. Set
+mapping, but does not refresh the captured values. Estimation creates its input
+vector data once per call and computes fresh residuals and design matrices on each
+iteration. Covariance also prepares its vector data once per call. Set
 observations, selection and weights before starting these numerical operations.
 
 Independent dataset copies also clone mutable
@@ -223,13 +223,13 @@ fields raise ``ValueError``.
 Extraction preserves the represented observation scalar and time precision. C++
 getters retain ``ObservationScalarType`` and ``TimeType``; the standard Python
 build uses double observation arrays and precise ``Time`` objects. Explicitly
-converting a time to ``float`` can lose precision. A flattened inspection array
+converting a time to ``float`` can lose precision. A scalar observation array
 can be assembled with ``np.concatenate(data["observations"])``; its component
 association is ``dataset.get_scalar_components`` for the same selection and order.
 Prefer requesting both fields in one ``get_data`` call when alignment matters.
 
 Copying costs memory proportional to requested values and selected metadata.
-Single-field getters do not construct a ``FlattenedObservationData``, and asking
+Single-field getters do not construct an ``ObservationVectorData``, and asking
 for times does not copy residuals, weights or dependent-variable values. Full
 weight access remains sparse; call ``.toarray()`` only when a dense quadratic-size
 matrix is explicitly needed. ``get_weight_diagonal`` does not assemble correlations.
@@ -246,7 +246,7 @@ and ordering conventions.
 
 The removed ``ObservationDatasetViewer`` and ``create_viewer`` API are replaced
 by these direct getters. Narrow a condition with ``&`` or reuse selected stable
-IDs through the existing condition mechanism. ``FlattenedObservationData`` and
+IDs through the existing condition mechanism. ``ObservationVectorData`` and
 its existing builders remain numerical inputs for estimation, covariance and
 residual computation, with their source identity and safe-writeback checks.
 
@@ -311,8 +311,11 @@ Inspecting datasets
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.number_of_observation_sets
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.number_of_observations
 .. autoattribute:: tudatpy.estimation.observations.ObservationDataset.total_scalar_size
+.. autoattribute:: tudatpy.estimation.observations.ObservationDataset.observation_time_bounds
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.get_observation_set_metadata
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.link_definitions_for_observable
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.set_link_end_reference_point
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.set_reference_points
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.ancillary_settings_for_set
 
 Creating views and reduced datasets
@@ -330,17 +333,17 @@ Rejecting, restoring, and removing observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.delete_rejected_observations
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.remove_rejected_observations
 
-Flattening data
-~~~~~~~~~~~~~~~
+Observation vector data
+~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.create_estimation_projection
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.estimation_flattened_observation_data
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.computation_flattened_observation_data
-.. automethod:: tudatpy.estimation.observations.ObservationDataset.ordered_flattened_observation_data
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.observation_vector_data
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.computation_observation_vector_data
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.ordered_observation_vector_data
 
 Diagnostics
 ~~~~~~~~~~~
 
+.. automethod:: tudatpy.estimation.observations.ObservationDataset.add_dependent_variable
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.rms_residuals_for_set
 .. automethod:: tudatpy.estimation.observations.ObservationDataset.mean_residuals_for_set
 
@@ -418,25 +421,25 @@ Weight API
 Supporting dataset objects
 --------------------------
 
-FlattenedObservationData
+ObservationVectorData
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tudatpy.estimation.observations.FlattenedObservationData
+.. autoclass:: tudatpy.estimation.observations.ObservationVectorData
 
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.observation_vector
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.residual_vector
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.weight_vector
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.weight_matrix
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.sparse_weight_matrix
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.is_diagonal_weight_only
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.has_off_diagonal_weights
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.times
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.observation_ids
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.set_ids
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.scalar_component_ids
-.. autoattribute:: tudatpy.estimation.observations.FlattenedObservationData.set_ids_in_row_order
-.. automethod:: tudatpy.estimation.observations.FlattenedObservationData.unique_observation_ids_for_set
-.. automethod:: tudatpy.estimation.observations.FlattenedObservationData.flattened_row
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.observation_vector
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.residual_vector
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.weight_vector
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.weight_matrix
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.sparse_weight_matrix
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.is_diagonal_weight_only
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.has_off_diagonal_weights
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.times
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.observation_ids
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.set_ids
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.scalar_component_ids
+.. autoattribute:: tudatpy.estimation.observations.ObservationVectorData.set_ids_in_row_order
+.. automethod:: tudatpy.estimation.observations.ObservationVectorData.unique_observation_ids_for_set
+.. automethod:: tudatpy.estimation.observations.ObservationVectorData.vector_row
 
 ObservationSetMetadata
 ~~~~~~~~~~~~~~~~~~~~~~

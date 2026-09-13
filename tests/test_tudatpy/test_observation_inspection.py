@@ -113,18 +113,18 @@ def test_ordering_membership_alignment_and_weight_axes(ordering, selection_kind)
         elif field not in ("rows", "metadata"):
             assert single == data[field]
     if ordering == "estimation":
-        projection = dataset.create_new_and_keep(condition).create_estimation_projection(
+        vector_data = dataset.create_new_and_keep(condition).observation_vector_data(
             include_rejected=True
         )
-        for field, projection_field in (
+        for field, vector_data_field in (
             ("observations", "observation_vector"),
             ("residuals", "residual_vector"),
         ):
             actual = np.concatenate(data[field]) if ids else np.empty(0)
-            np.testing.assert_array_equal(actual, getattr(projection, projection_field))
-        assert [event for event, _ in expected_components] == projection.observation_ids
+            np.testing.assert_array_equal(actual, getattr(vector_data, vector_data_field))
+        assert [event for event, _ in expected_components] == vector_data.observation_ids
         np.testing.assert_array_equal(
-            data["weight_matrix"].toarray(), projection.sparse_weight_matrix.toarray()
+            data["weight_matrix"].toarray(), vector_data.sparse_weight_matrix.toarray()
         )
     assert dataset.get_observation_ids() == original["observation_ids"]
     for a, b in zip(dataset.get_observations(), original["observations"]):
@@ -229,6 +229,22 @@ def test_nested_metadata_is_detached():
     del dataset, source, settings, setting
     gc.collect()
     assert captured.get_float_settings(ancillary.doppler_integration_time) == 30
+
+
+def test_add_dependent_variable_to_selected_sets():
+    """A dependent-variable setting is added only to compatible selected sets."""
+    dataset = obs.ObservationDataset()
+    dataset.add_observation_set(obs.one_way_range, link("A"), [[1]], [1], obs.receiver)
+    dataset.add_observation_set(obs.one_way_range, link("B"), [[2]], [2], obs.receiver)
+    setting = dependent.elevation_angle_dependent_variable(obs.transmitter)
+
+    # Select the second set and add every compatible concrete elevation-angle setting.
+    dataset.add_dependent_variable(setting, obs.observation_query.set_id == 1)
+
+    # The first set stays unchanged; the second receives one scalar dependent variable.
+    assert dataset.get_metadata()[0]["dependent_variable_layout"] == {}
+    second_layout = dataset.get_metadata()[1]["dependent_variable_layout"]
+    assert list(second_layout) == [(0, 1)]
 
 
 @pytest.mark.parametrize("ordering", ["internal", "estimation"])

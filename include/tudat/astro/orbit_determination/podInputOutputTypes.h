@@ -355,7 +355,7 @@ public:
             return;
         }
         auto& source = legacyObservationSource( );
-        const auto projection = prepared.createOrderedFlattenedObservationData( true );
+        const auto projection = prepared.createOrderedObservationVectorData( true );
         const auto currentObservations = source.getObservationVector( );
         if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
             currentObservations != projection.getObservationVector( ) || source.getConcatenatedTimeVector( ) != projection.getTimes( ) )
@@ -363,7 +363,7 @@ public:
             throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
         }
         const auto sets = source.getSingleObservationSets( );
-        const auto setIds = prepared.getSetIdsInOrderedFlattenedDataOrder( );
+        const auto setIds = prepared.getSetIdsInObservationVectorOrder( );
         if( sets.size( ) != setIds.size( ) )
         {
             throw std::runtime_error( "Legacy observation grouping changed during estimation." );
@@ -445,7 +445,7 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return observationDataset_ ? observationDataset_->createOrderedFlattenedObservationData( ).getWeightVector( )
+        return observationDataset_ ? observationDataset_->createOrderedObservationVectorData( ).getWeightVector( )
                                    : observationCollection_->getConcatenatedWeights( );
     }
 

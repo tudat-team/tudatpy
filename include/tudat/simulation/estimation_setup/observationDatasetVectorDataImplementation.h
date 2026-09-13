@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_OBSERVATIONDATASETFLATTENINGIMPLEMENTATION_H
-#define TUDAT_OBSERVATIONDATASETFLATTENINGIMPLEMENTATION_H
+#ifndef TUDAT_OBSERVATIONDATASETVECTORDATAIMPLEMENTATION_H
+#define TUDAT_OBSERVATIONDATASETVECTORDATAIMPLEMENTATION_H
 
 #include <iostream>
 #include <string>
@@ -25,34 +25,38 @@ namespace observation_models
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-FlattenedObservationData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createEstimationFlattenedObservationData( const bool includeRejected ) const
+ObservationVectorData< ObservationScalarType, TimeType >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationVectorData( const bool includeRejected ) const
 {
-    return createEstimationProjection( includeRejected );
+    return createObservationVectorDataFromObservationIds(
+            resolveObservationIds( ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
+                                   ObservationOrdering::estimation,
+                                   includeRejected ),
+            true );
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-FlattenedObservationData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createComputationFlattenedObservationData( const bool includeRejected ) const
+ObservationVectorData< ObservationScalarType, TimeType >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createComputationObservationVectorData( const bool includeRejected ) const
 {
-    return createFlattenedObservationDataFromObservationIds( getAllObservationIds( ), includeRejected );
+    return createObservationVectorDataFromObservationIds( getAllObservationIds( ), includeRejected );
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-FlattenedObservationData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createOrderedFlattenedObservationData( const bool includeInactive ) const
+ObservationVectorData< ObservationScalarType, TimeType >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createOrderedObservationVectorData( const bool includeInactive ) const
 {
-    return createEstimationProjection( includeInactive );
+    return createObservationVectorData( includeInactive );
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSetIdsInOrderedFlattenedDataOrder( ) const
+std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSetIdsInObservationVectorOrder( ) const
 {
     std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > setIdsByObservableAndLinkEnds;
     for( unsigned int setId = 0; setId < setMetadata_.size( ); ++setId )
@@ -177,12 +181,11 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationIdsInOrderedFlattenedDataOrder( )
-        const
+std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationIdsInObservationVectorOrder( ) const
 {
     std::vector< unsigned int > observationIds;
     observationIds.reserve( observationRows_.size( ) );
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const std::vector< unsigned int >& setObservationIds = observationIdsBySet_.at( setId );
         observationIds.insert( observationIds.end( ), setObservationIds.begin( ), setObservationIds.end( ) );
@@ -193,15 +196,15 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-FlattenedObservationData< ObservationScalarType, TimeType >
-ObservationDataset< ObservationScalarType, TimeType, Dummy >::createFlattenedObservationDataFromObservationIds(
+ObservationVectorData< ObservationScalarType, TimeType >
+ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationVectorDataFromObservationIds(
         const std::vector< unsigned int >& selectedObservationIds,
         const bool includeInactive ) const
 {
-    FlattenedObservationData< ObservationScalarType, TimeType > result;
+    ObservationVectorData< ObservationScalarType, TimeType > result;
     result.source_ = getLifetimeToken( );
     result.structuralVersion_ = structuralVersion_;
-    result.projectionVersion_ = projectionVersion_;
+    result.vectorDataVersion_ = vectorDataVersion_;
     result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
     std::vector< unsigned int > selected;
     for( const unsigned int id : selectedObservationIds )
@@ -265,7 +268,7 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
         const ObservableType observableType ) const
 {
     std::vector< unsigned int > setIds;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         if( getObservationSetMetadata( setId ).observableType_ == observableType )
         {
@@ -320,17 +323,17 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getSingleLinkObser
     const ObservationSelectionCondition< ObservationScalarType, TimeType > condition =
             ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( observableType ) &&
             ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition( linkDefinition );
-    const FlattenedObservationData< ObservationScalarType, TimeType > flattenedData =
-            createFlattenedObservationDataFromObservationIds( getObservationIdsMatchingCondition( condition ), true );
-    if( flattenedData.getObservationVector( ).size( ) == 0 )
+    const ObservationVectorData< ObservationScalarType, TimeType > observationVectorData =
+            createObservationVectorDataFromObservationIds( getObservationIdsMatchingCondition( condition ), true );
+    if( observationVectorData.getObservationVector( ).size( ) == 0 )
     {
         throw std::runtime_error( "Error when getting single-link observations from dataset, no matching observations found." );
     }
-    return std::make_pair( flattenedData.getObservationVector( ), flattenedData.getTimes( ) );
+    return std::make_pair( observationVectorData.getObservationVector( ), observationVectorData.getTimes( ) );
 }
 
 }  // namespace observation_models
 
 }  // namespace tudat
 
-#endif  // TUDAT_OBSERVATIONDATASETFLATTENINGIMPLEMENTATION_H
+#endif  // TUDAT_OBSERVATIONDATASETVECTORDATAIMPLEMENTATION_H

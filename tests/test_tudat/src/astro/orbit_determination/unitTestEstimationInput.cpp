@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( );
+    const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInObservationVectorOrder( );
 
     // The simulated dataset is intentionally inserted out of observable/link-end order.
     BOOST_REQUIRE_EQUAL( orderedSetIds.size( ), simulatedObservations->getNumberOfObservationSets( ) );
@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         currentStartIndex += currentSetSize;
     }
 
-    // The reference dense matrix must span the complete ordered flattened data vector.
+    // The reference dense matrix must span the complete ordered observation vector.
     BOOST_CHECK_EQUAL( currentStartIndex, totalObservationSize );
 
     std::vector< unsigned int > rangeSetIds;
@@ -582,8 +582,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     crossSetWeightBlock << 0.35, 0.04, 0.06, 0.31;
     simulatedObservations->setWeightBlock( rowBlockObservationIds, columnBlockObservationIds, crossSetWeightBlock );
 
-    auto getOrderedFlattenedDataIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
-                                                                                           const unsigned int componentIndex ) {
+    auto getOrderedObservationVectorIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
+                                                                                               const unsigned int componentIndex ) {
         const ObservationDatasetRow< double >& row = simulatedObservations->getObservationRow( observationId );
         return orderedSetStartIndex.at( row.setId_ ) + static_cast< int >( row.indexInSet_ * row.scalarSize_ + componentIndex );
     };
@@ -591,16 +591,16 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     {
         for( unsigned int j = 0; j < columnBlockObservationIds.size( ); ++j )
         {
-            const int rowIndex = getOrderedFlattenedDataIndex( rowBlockObservationIds.at( i ), 0 );
-            const int columnIndex = getOrderedFlattenedDataIndex( columnBlockObservationIds.at( j ), 0 );
+            const int rowIndex = getOrderedObservationVectorIndex( rowBlockObservationIds.at( i ), 0 );
+            const int columnIndex = getOrderedObservationVectorIndex( columnBlockObservationIds.at( j ), 0 );
             expectedFullWeightsMatrix( rowIndex, columnIndex ) = crossSetWeightBlock( i, j );
             expectedFullWeightsMatrix( columnIndex, rowIndex ) = crossSetWeightBlock( i, j );
         }
     }
 
-    const FlattenedObservationData< double, double > weightData = simulatedObservations->createOrderedFlattenedObservationData( );
+    const ObservationVectorData< double, double > weightData = simulatedObservations->createOrderedObservationVectorData( );
 
-    // Dataset flattened data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
+    // Dataset observation vector data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
     BOOST_CHECK( weightData.hasOffDiagonalWeights( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightVector( ), expectedFullWeightsMatrix.diagonal( ), 1.0E-15 );
@@ -681,9 +681,9 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     simulatedObservations->rejectObservations( rejectedObservationSelectionCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
-    const FlattenedObservationData< double, double > activeData = simulatedObservations->createOrderedFlattenedObservationData( false );
+    const ObservationVectorData< double, double > activeData = simulatedObservations->createOrderedObservationVectorData( false );
 
-    // Rejecting one observation must remove only its scalar rows from the estimator-facing flattened data.
+    // Rejecting one observation must remove only its scalar rows from the estimator-facing observation vector data.
     BOOST_CHECK_EQUAL( activeData.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );
 
     parametersToEstimate->resetParameterValues( perturbedState );
@@ -706,7 +706,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     const Eigen::MatrixXd rejectedSingleStepDesignMatrix = rejectedEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residualHistory_.at( 0 );
     // Independently remove the rejected event's scalar range from the hand-built matrix.
-    const int rejectedStart = getOrderedFlattenedDataIndex( rejectedObservationId, 0 );
+    const int rejectedStart = getOrderedObservationVectorIndex( rejectedObservationId, 0 );
     std::vector< int > retainedScalars;
     for( int i = 0; i < expectedFullWeightsMatrix.rows( ); ++i )
     {
@@ -742,7 +742,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< CovarianceAnalysisOutput< double, double > > rejectedCovarianceOutput =
             orbitDeterminationManager.computeCovariance( rejectedCovarianceInput );
 
-    // Covariance analysis must use the same active-only flattened data as differential correction.
+    // Covariance analysis must use the same active-only observation vector data as differential correction.
     BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
     const Eigen::MatrixXd expectedRejectedInverseCovariance = rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).transpose( ) *
             expectedActiveWeights * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
@@ -750,12 +750,12 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
             rejectedCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedRejectedInverseCovariance, 1.0E-13 );
 
     simulatedObservations->restoreObservations( rejectedObservationSelectionCondition );
-    const auto restoredProjection = simulatedObservations->createEstimationProjection( );
-    BOOST_CHECK( restoredProjection.getObservationIds( ) == weightData.getObservationIds( ) );
-    BOOST_CHECK( restoredProjection.getTimes( ) == weightData.getTimes( ) );
+    const auto restoredVectorData = simulatedObservations->createObservationVectorData( );
+    BOOST_CHECK( restoredVectorData.getObservationIds( ) == weightData.getObservationIds( ) );
+    BOOST_CHECK( restoredVectorData.getTimes( ) == weightData.getTimes( ) );
     BOOST_CHECK_EQUAL( simulatedObservations->getObservationRow( rejectedObservationId ).rejectionReason_,
                        "excluded from estimation system" );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredProjection.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredVectorData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
 
     // The base API accepts collections of shared legacy sets. Exercise its fresh
     // preparation and residual writeback through the actual estimation manager.
@@ -775,7 +775,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_CHECK( legacySets.front( )->getObservationDataset( ) == simulatedObservations );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyOutput->getWeightsMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            simulatedObservations->createEstimationProjection( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
+            simulatedObservations->createObservationVectorData( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
 
     simulatedObservations->rejectObservations( ObservationSelectionCondition<>::all( ) );
     const auto reportsEmptySelection = []( const std::runtime_error& error ) {

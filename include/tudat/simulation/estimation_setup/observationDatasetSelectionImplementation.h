@@ -65,7 +65,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::rejectObserva
     }
     if( !selected.empty( ) )
     {
-        ++projectionVersion_;
+        ++vectorDataVersion_;
     }
 }
 
@@ -83,7 +83,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::restoreObserv
     }
     if( !selected.empty( ) )
     {
-        ++projectionVersion_;
+        ++vectorDataVersion_;
     }
 }
 

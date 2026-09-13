@@ -100,6 +100,10 @@ public:
     void setLinkEnds( const LinkDefinition& linkEnds )
     {
         dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
+        if( filteredObservationSet_ != nullptr )
+        {
+            filteredObservationSet_->setLinkEnds( linkEnds );
+        }
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
@@ -332,6 +336,17 @@ public:
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( ) const
     {
         return dataset_;
+    }
+
+    void resetObservationDatasetReference( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
+                                           const int setId )
+    {
+        if( dataset == nullptr || setId < 0 || setId >= static_cast< int >( dataset->getNumberOfObservationSets( ) ) )
+        {
+            throw std::runtime_error( "Error when resetting observation dataset reference, invalid dataset or set id." );
+        }
+        dataset_ = dataset;
+        setId_ = setId;
     }
 
     int getObservationSetId( ) const
@@ -878,7 +893,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 } );
         const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > splitDataset =
                 observationSet->getObservationDataset( )->createNewAndKeep( selectedRowsCondition );
-        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet = createSingleObservationSet( splitDataset );
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet =
+                createSingleObservationSet( splitDataset, observationSet->getObservationSetId( ) );
 
         newObsSets.push_back( newSet );
     }

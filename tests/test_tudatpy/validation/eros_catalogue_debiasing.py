@@ -117,11 +117,12 @@ def run_case(case, stride=1, tides=True, station_offset=None, relativity=True):
     for name in ("raw", "subtract", "add"):
         if name == "add":
             tracking[0].set_observation_corrections((-stored_corrections).tolist())
-        collection = observations.create_observation_collection_from_tracking_data(
+        dataset = observations.create_observation_dataset_from_tracking_data(
             tracking, bodies, apply_corrections=name != "raw"
         )
-        observations.compute_residuals_and_dependent_variables(collection, simulators, bodies)
-        residuals = np.asarray(collection.get_concatenated_residuals()).reshape(-1, 2)
+        observations.compute_residuals_and_dependent_variables(dataset, simulators, bodies)
+        vector_data = dataset.observation_vector_data()
+        residuals = np.asarray(vector_data.residual_vector).reshape(-1, 2).copy()
         # Wrap RA at the meridian, then express both components in the tangent plane.
         residuals[:, 0] = (residuals[:, 0] + np.pi) % (2.0 * np.pi) - np.pi
         residuals *= ARCSEC_PER_RADIAN * projection
@@ -129,7 +130,7 @@ def run_case(case, stride=1, tides=True, station_offset=None, relativity=True):
         if name == "raw":
             # Ensure the converter preserved the input rows and coordinates before comparing signs.
             np.testing.assert_allclose(
-                np.asarray(collection.concatenated_observations).reshape(-1, 2),
+                np.asarray(vector_data.observation_vector).reshape(-1, 2),
                 raw_angles,
                 atol=1e-14,
                 rtol=0,

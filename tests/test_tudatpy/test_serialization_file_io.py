@@ -464,6 +464,7 @@ class TestLinkTypesFileIO:
 # ===========================================================================
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestObservationCollectionFileIO:
     """Binary roundtrip of the supported legacy observation facades."""
 

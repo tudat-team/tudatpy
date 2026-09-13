@@ -35,8 +35,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
     const auto observationDataset = estimationInput->getObservationDataset( );
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > weightData =
-            observationDataset->createEstimationProjection( );
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > weightData =
+            observationDataset->createObservationVectorData( );
     const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
     if( totalNumberOfObservations == 0 )
     {

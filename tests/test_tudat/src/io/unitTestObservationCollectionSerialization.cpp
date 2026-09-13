@@ -456,10 +456,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_serialization_preserves_surviving_identity_an
     BOOST_CHECK( *restoredDataset == *dataset );
     BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 1 ).rejectionReason_, "saved reason" );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            restoredDataset->createEstimationProjection( true ).getSparseWeightMatrix( ).toDense( ), weights, 1.0E-15 );
+            restoredDataset->createObservationVectorData( true ).getSparseWeightMatrix( ).toDense( ), weights, 1.0E-15 );
     restoredDataset->deleteRejectedObservations( );
     BOOST_CHECK_EQUAL( restoredDataset->getObservationRow( 2 ).setId_, angularSet );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredDataset->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredDataset->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
                                        weights.bottomRightCorner( 2, 2 ),
                                        1.0E-15 );
     restoredDataset->addObservationsToSet( angularSet, { Eigen::Vector2d( 40.0, 41.0 ) }, { 4.0 } );
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE( test_base_branch_binary_observation_archives_remain_readab
     BOOST_CHECK_EQUAL( restoredCollection.getTotalObservableSize( ), 4 );
     Eigen::Vector4d repeatedWeights( 2.0, 3.0, 2.0, 3.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            restoredCollection.getObservationDataset( )->createEstimationProjection( ).getWeightVector( ), repeatedWeights, 1.0E-15 );
+            restoredCollection.getObservationDataset( )->createObservationVectorData( ).getWeightVector( ), repeatedWeights, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

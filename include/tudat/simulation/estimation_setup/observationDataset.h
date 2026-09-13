@@ -32,7 +32,7 @@
 
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
-#include "tudat/simulation/estimation_setup/flattenedObservationData.h"
+#include "tudat/simulation/estimation_setup/observationVectorData.h"
 #include "tudat/simulation/estimation_setup/observationDatasetRows.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationCondition.h"
@@ -64,7 +64,7 @@ class SingleObservationSet;
  * observedValues_ is flat by scalar component, while observationRows_ records
  * the event boundary. Scalar reverse mappings are derived from those boundaries.
  * Set-level metadata is stored once in registries and referenced by id. Flat
- * estimator vectors are derived by explicit flattened-observation-data builders, not used as the
+ * estimator vectors are derived by explicit observation-vector-data builders, not used as the
  * primary data model. Inspection getters copy only requested fields into independent
  * values in internal or estimation order.
  */
@@ -209,7 +209,7 @@ public:
      * observation. Non-empty component lists are applied to every observation in
      * the corresponding row or column selection. Observation ids are converted
      * to scalar-component ids immediately, so the block remains valid under
-     * later flattened observation data as long as the dataset structure is unchanged.
+     * later observation vector data as long as the dataset structure is unchanged.
      * The public interface always preserves a symmetric total weight matrix:
      * a transposed block is added for different row and column selections, and
      * identical selections must already define a symmetric block.
@@ -482,29 +482,27 @@ public:
     void restoreObservations( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition );
 
     //////////////////////////////////////////////////////////
-    /////////////////       FLATTENED DATA          //////////
+    /////////////////    OBSERVATION VECTOR DATA    //////////
     //////////////////////////////////////////////////////////
 
-    //! Materialize the active-by-default flattened observation data used by estimation routines.
-    FlattenedObservationData< ObservationScalarType, TimeType > createEstimationFlattenedObservationData(
-            const bool includeRejected = false ) const;
+    //! Materialize scalar-aligned observation data in canonical vector order.
+    ObservationVectorData< ObservationScalarType, TimeType > createObservationVectorData( const bool includeRejected = false ) const;
 
-    //! Materialize the flattened observation data used by residual/dependent-variable computation.
-    FlattenedObservationData< ObservationScalarType, TimeType > createComputationFlattenedObservationData(
+    //! Materialize observation vector data used by residual/dependent-variable computation.
+    ObservationVectorData< ObservationScalarType, TimeType > createComputationObservationVectorData(
             const bool includeRejected = true ) const;
 
-    //! Materialize the flat vector view in observable-type/link-end order.
+    //! Materialize observation vector data in observable-type/link-end order.
     /*!
      * Row order is observable type, link ends, set index within that
      * group, observation row within the set, and scalar component within the
      * observation. Times and ids are repeated per scalar component, matching
      * concatenated-vector conventions.
      */
-    FlattenedObservationData< ObservationScalarType, TimeType > createOrderedFlattenedObservationData(
-            const bool includeInactive = true ) const;
+    ObservationVectorData< ObservationScalarType, TimeType > createOrderedObservationVectorData( const bool includeInactive = true ) const;
 
     //! Return set ids in the ordered observable-type/link-ends/index ordering.
-    std::vector< unsigned int > getSetIdsInOrderedFlattenedDataOrder( ) const;
+    std::vector< unsigned int > getSetIdsInObservationVectorOrder( ) const;
 
     std::size_t getStructuralVersion( ) const;
 
@@ -671,11 +669,11 @@ private:
     //! Return all observation ids in dataset row order.
     std::vector< unsigned int > getAllObservationIds( ) const;
 
-    //! Return observation ids in ordered flattened-data set order and row order within each set.
-    std::vector< unsigned int > getObservationIdsInOrderedFlattenedDataOrder( ) const;
+    //! Return observation ids in observation-vector set order and row order within each set.
+    std::vector< unsigned int > getObservationIdsInObservationVectorOrder( ) const;
 
-    //! Materialize flattened observation data for selected observation ids.
-    FlattenedObservationData< ObservationScalarType, TimeType > createFlattenedObservationDataFromObservationIds(
+    //! Materialize observation vector data for selected observation ids.
+    ObservationVectorData< ObservationScalarType, TimeType > createObservationVectorDataFromObservationIds(
             const std::vector< unsigned int >& selectedObservationIds,
             const bool includeInactive = true ) const;
 
@@ -694,10 +692,10 @@ public:
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations( const ObservableType observableType,
                                                                                          const LinkDefinition& linkDefinition ) const;
 
-    //! Return flattened times for a single observable/link-definition pair.
+    //! Return scalar-aligned times for a single observable/link-definition pair.
     std::vector< TimeType > getSingleLinkTimes( const ObservableType observableType, const LinkDefinition& linkDefinition ) const;
 
-    //! Return concatenated observations and flattened times for a single observable/link-definition pair.
+    //! Return concatenated observations and scalar-aligned times for a single observable/link-definition pair.
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > getSingleLinkObservationsAndTimes(
             const ObservableType observableType,
             const LinkDefinition& linkDefinition ) const;
@@ -730,38 +728,29 @@ public:
             const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
                     ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ) );
 
-    //! Authoritative estimator/covariance ordering: observable type, link ends, set, event, component.
-    FlattenedObservationData< ObservationScalarType, TimeType > createEstimationProjection( const bool includeRejected = false ) const
+    //! Fail before using vector data from another dataset or an invalidated mapping.
+    void validateObservationVectorData( const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData ) const
     {
-        return createFlattenedObservationDataFromObservationIds(
-                resolveObservationIds( ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ),
-                                       ObservationOrdering::estimation,
-                                       includeRejected ),
-                true );
-    }
-
-    //! Fail before using a projection from another dataset or an invalidated mapping.
-    void validateProjection( const FlattenedObservationData< ObservationScalarType, TimeType >& projection ) const
-    {
-        if( projection.source_.lock( ) != lifetimeToken_.value_ || projection.structuralVersion_ != structuralVersion_ ||
-            projection.projectionVersion_ != projectionVersion_ )
+        if( observationVectorData.source_.lock( ) != lifetimeToken_.value_ ||
+            observationVectorData.structuralVersion_ != structuralVersion_ ||
+            observationVectorData.vectorDataVersion_ != vectorDataVersion_ )
         {
-            throw std::runtime_error( "Observation projection belongs to another dataset or has been invalidated." );
+            throw std::runtime_error( "Observation vector data belong to another dataset or have been invalidated." );
         }
         // Legacy APIs expose mutable ancillary pointers. Check their values because
         // changes through such pointers cannot increment the dataset revision.
-        for( const auto& entry : projection.ancillaryBySet_ )
+        for( const auto& entry : observationVectorData.ancillaryBySet_ )
         {
             const auto& current = getAncillarySettingsForSet( entry.first );
             if( static_cast< bool >( current ) != static_cast< bool >( entry.second ) || ( current && !( *current == *entry.second ) ) )
             {
-                throw std::runtime_error( "Observation projection ancillary settings have changed." );
+                throw std::runtime_error( "Observation vector data ancillary settings have changed." );
             }
         }
     }
 
-    //! Set residuals for scalar rows described by flattened observation data.
-    void setResidualVector( const FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+    //! Set residuals for scalar rows described by observation vector data.
+    void setResidualVector( const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
                             const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
 private:
@@ -859,9 +848,9 @@ private:
     ObservationWeights observationWeights_;
     //! Monotonic counter used to invalidate numerical mappings after structural mutations.
     std::size_t structuralVersion_ = 0;
-    //! Invalidates solver writeback after observed-value or selection changes.
-    std::size_t projectionVersion_ = 0;
-    //! Source identity for numerical projection validation and dataset-backed compatibility facades.
+    //! Invalidates vector-data writeback after observed-value or selection changes.
+    std::size_t vectorDataVersion_ = 0;
+    //! Source identity for observation-vector-data validation and dataset-backed compatibility facades.
     LifetimeToken lifetimeToken_;
 };
 }  // namespace observation_models
@@ -875,7 +864,7 @@ private:
 #include "tudat/simulation/estimation_setup/observationDatasetWeightsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetAccessorsImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetSelectionImplementation.h"
-#include "tudat/simulation/estimation_setup/observationDatasetFlatteningImplementation.h"
+#include "tudat/simulation/estimation_setup/observationDatasetVectorDataImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetPrivateImplementation.h"
 #include "tudat/simulation/estimation_setup/observationDatasetLegacyImplementation.h"
 

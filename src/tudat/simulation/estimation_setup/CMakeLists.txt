@@ -68,11 +68,11 @@ set(estimation_HEADERS
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
         compressDopplerObservationCollection.h
-        flattenedObservationData.h
+        observationVectorData.h
         observationCondition.h
         observationDataset.h
         observationDatasetAccessorsImplementation.h
-        observationDatasetFlatteningImplementation.h
+        observationDatasetVectorDataImplementation.h
         observationDatasetMutationImplementation.h
         observationDatasetPrivateImplementation.h
         observationDatasetRows.h

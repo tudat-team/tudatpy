@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     std::shared_ptr< ObservationDataset<> > idealObservationsAndTimes =
             simulateObservationDataset< double, double >( idealMeasurementSimulationInput, observationSimulators, bodies );
-    std::vector< double > idealObservationTimes = idealObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
+    std::vector< double > idealObservationTimes = idealObservationsAndTimes->createObservationVectorData( ).getTimes( );
     std::vector< std::vector< double > > perArcIdealObservationTimes = splitArcTimes( idealObservationTimes );
     std::vector< double > idealArcLengths = getArcLengths( perArcIdealObservationTimes );
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         {
             caseTwoObservationsAndTimes = testObservationsAndTimes;
         }
-        std::vector< double > testObservationTimes = testObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
+        std::vector< double > testObservationTimes = testObservationsAndTimes->createObservationVectorData( ).getTimes( );
         std::vector< std::vector< double > > perArcTestObservationTimes = splitArcTimes( testObservationTimes );
         std::vector< double > testArcLengths = getArcLengths( perArcTestObservationTimes );
 
@@ -273,9 +273,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         if( test == 3 )
         {
-            std::vector< double > testObservationTimes = testObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
-            std::vector< double > referenceObservationTimes =
-                    caseTwoObservationsAndTimes->createEstimationFlattenedObservationData( ).getTimes( );
+            std::vector< double > testObservationTimes = testObservationsAndTimes->createObservationVectorData( ).getTimes( );
+            std::vector< double > referenceObservationTimes = caseTwoObservationsAndTimes->createObservationVectorData( ).getTimes( );
 
             std::shared_ptr< observation_models::ObservationModel< 1 > > observationModel =
                     std::dynamic_pointer_cast< ObservationSimulator< 1 > >( observationSimulators.at( 0 ) )

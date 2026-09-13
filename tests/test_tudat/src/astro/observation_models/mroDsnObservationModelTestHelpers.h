@@ -400,8 +400,8 @@ inline Eigen::VectorXd simulateAndGetResiduals( const std::shared_ptr< Observati
     std::shared_ptr< ObservationDataset< long double, Time > > simulatedObservationDataset =
             simulateObservationDataset< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
 
-    return ( simulatedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
-             observationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) )
+    return ( simulatedObservationDataset->createObservationVectorData( ).getObservationVector( ) -
+             observationDataset->createObservationVectorData( ).getObservationVector( ) )
             .template cast< double >( );
 }
 

@@ -52,10 +52,16 @@ def _download_file(url: str, directory: Path) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     file_path = directory / url.rsplit("/", 1)[1]
     if not file_path.exists() or file_path.stat().st_size == 0:
+        temporary_path = file_path.with_name(f"{file_path.name}.part")
         try:
-            urlretrieve(url, file_path)
+            urlretrieve(url, temporary_path)
         except URLError as error:
+            temporary_path.unlink(missing_ok=True)
             pytest.skip(f"Required remote test data is unavailable: {error}")
+        except BaseException:
+            temporary_path.unlink(missing_ok=True)
+            raise
+        temporary_path.replace(file_path)
     return file_path
 
 
@@ -535,6 +541,7 @@ def _simulate_pixel_coordinates(observation_dataset, bodies):
 
 
 def test_ifms_mex_residuals_are_millihertz_level():
+    """Verify compressed MeX IFMS Doppler residuals remain at millihertz level."""
     test_data_path = _test_data_path()
     bodies = _create_mex_bodies(test_data_path)
 
@@ -568,12 +575,14 @@ def test_ifms_mex_residuals_are_millihertz_level():
         computed_observations
     )
 
+    # The reference pass must retain its sample count and small mean/RMS residuals.
     assert residuals.size == 321
     assert np.sqrt(np.mean(residuals**2)) < 3.5e-3
     assert abs(np.mean(residuals)) < 1.0e-3
 
 
 def test_odf_grail_short_arc_residuals_are_millihertz_level():
+    """Verify a corrected, compressed GRAIL ODF arc has millihertz residuals."""
     test_data_path = _test_data_path()
     grail_data_path = test_data_path / "grail_residuals_download"
     _, antenna_files = _download_grail_residual_files(test_data_path)
@@ -634,6 +643,7 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
         computed_observations
     )
 
+    # The selected arc must retain its sample count and small mean/RMS residuals.
     assert residuals.size == 49
     assert abs(np.mean(residuals)) < 3.0e-3
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
@@ -644,11 +654,7 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression(capfd):
     test_data_path = _test_data_path()
     mro_data_path = test_data_path / "mro_dsn_observation_model"
     mro_kernel_path = mro_data_path / "kernel_download"
-    tnf_file = _download_file(
-        "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/"
-        "mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf",
-        mro_data_path / "tnf_download",
-    )
+    tnf_file = Path(__file__).parent / "fixtures" / "mro_short_arc_2012_077.tnf"
     for url in (
         "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
         "mrosp_1000/data/ck/mro_sc_psp_120313_120319.bc",
@@ -682,10 +688,10 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression(capfd):
     observed_observations = create_compressed_doppler_dataset(uncompressed_observations, 60, 10)
 
     # Conversion and compression preserve both station delays and the spacecraft calibration.
-    for observation_set in observed_observations.get_single_observation_sets():
-        actual_delays = observation_set.ancillary_settings.get_float_list_settings(
-            ancillary_settings.link_ends_delays
-        )
+    for set_id in range(observed_observations.number_of_observation_sets):
+        actual_delays = observed_observations.ancillary_settings_for_set(
+            set_id
+        ).get_float_list_settings(ancillary_settings.link_ends_delays)
         assert tuple(actual_delays) in expected_link_delays
 
     # Model the antenna offset and atmospheric corrections for the observed short arc.
@@ -754,6 +760,7 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression(capfd):
 
 
 def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
+    """Verify six Voyager images reproduce Triton's pixel-line position within one pixel."""
     test_data_path = _test_data_path()
     psf_file = test_data_path / "psf" / "psf_vgr2_neptune.txt"
     spice.load_standard_kernels([])
@@ -806,12 +813,14 @@ def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():
             _observation_vector(computed_observations) - _observation_vector(observed_observations)
         )
 
+    # Every reference image contributes one pixel-line pair with a subpixel residual norm.
     residuals = np.vstack(residuals)
     assert residuals.shape == (6, 2)
     assert np.max(np.linalg.norm(residuals, axis=1)) < 1.0
 
 
 def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
+    """Verify a 120-point JUICE FDETS arc has millihertz residual scatter."""
     test_data_path = _test_data_path()
     bodies = _create_juice_bodies(test_data_path)
 
@@ -837,6 +846,7 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
     )
     residual_scatter = residuals - np.mean(residuals)
 
+    # The complete selected arc must retain its size and low RMS/peak scatter.
     assert residuals.size == 120
     assert np.sqrt(np.mean(residual_scatter**2)) < 1.0e-2
     assert np.max(np.abs(residual_scatter)) < 2.5e-2

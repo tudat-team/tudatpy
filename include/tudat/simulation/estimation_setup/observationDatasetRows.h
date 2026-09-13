@@ -46,7 +46,7 @@ class ObservationSelectionCondition;
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-class FlattenedObservationData;
+class ObservationVectorData;
 
 //! Metadata shared by all observations in one logical observation set.
 /*!
@@ -124,7 +124,7 @@ struct ObservationDatasetRow {
     //! Dependent-variable values computed for this observation event.
     Eigen::VectorXd dependentVariableValues_;
 
-    //! Status flag used by flattened data objects that exclude inactive observations.
+    //! Status flag used by vector-data objects that exclude inactive observations.
     bool isActive_;
 
     //! Optional human-readable reason for rejection or deactivation.

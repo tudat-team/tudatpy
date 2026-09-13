@@ -115,23 +115,22 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+        const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
         const std::map< observation_models::ObservableType,
                         std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
                 observationSimulator,
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
-    observationDataset->validateProjection( flattenedObservationData );
-    residuals =
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( flattenedObservationData.getObservationVector( ).size( ), 1 );
+    observationDataset->validateObservationVectorData( observationVectorData );
+    residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observationVectorData.getObservationVector( ).size( ), 1 );
 
-    for( const unsigned int setId : flattenedObservationData.getSetIdsInRowOrder( ) )
+    for( const unsigned int setId : observationVectorData.getSetIdsInRowOrder( ) )
     {
-        const std::vector< unsigned int >& setObservationIds = flattenedObservationData.getUniqueObservationIdsForSetInRowOrder( setId );
+        const std::vector< unsigned int >& setObservationIds = observationVectorData.getUniqueObservationIdsForSetInRowOrder( setId );
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                flattenedObservationData.getSetMetadata( setId );
+                observationVectorData.getSetMetadata( setId );
         const observation_models::ObservableType currentObservableType = metadata.observableType_;
-        const observation_models::LinkEnds currentLinkEnds = flattenedObservationData.getLinkDefinitionForSet( setId ).linkEnds_;
+        const observation_models::LinkEnds currentLinkEnds = observationVectorData.getLinkDefinitionForSet( setId ).linkEnds_;
         const unsigned int observableSize = metadata.observableSize_;
         const int currentObservationSize = static_cast< int >( setObservationIds.size( ) * observableSize );
 
@@ -141,7 +140,7 @@ void calculateResiduals(
             times.reserve( setObservationIds.size( ) );
             for( const unsigned int observationId : setObservationIds )
             {
-                times.push_back( flattenedObservationData.getTimes( ).at( flattenedObservationData.getFlattenedRow( observationId, 0 ) ) );
+                times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
             }
 
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
@@ -149,7 +148,7 @@ void calculateResiduals(
                     ->computeObservations( times,
                                            currentLinkEnds,
                                            metadata.referenceLinkEnd_,
-                                           flattenedObservationData.getAncillarySettingsForSet( setId ),
+                                           observationVectorData.getAncillarySettingsForSet( setId ),
                                            observationsVector );
 
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualBlock =
@@ -160,9 +159,9 @@ void calculateResiduals(
                 for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
                 {
                     const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = flattenedObservationData.getFlattenedRow( observationId, componentIndex );
+                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
                     residualBlock( sourceRow ) =
-                            flattenedObservationData.getObservationVector( )( targetRow ) - observationsVector( sourceRow );
+                            observationVectorData.getObservationVector( )( targetRow ) - observationsVector( sourceRow );
                 }
             }
             checkObservationResidualDiscontinuities< ObservationScalarType >(
@@ -173,7 +172,7 @@ void calculateResiduals(
                 for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
                 {
                     const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = flattenedObservationData.getFlattenedRow( observationId, componentIndex );
+                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
                     residuals( targetRow ) = residualBlock( sourceRow );
                 }
             }
@@ -192,7 +191,7 @@ void calculateResiduals(
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
     calculateResiduals< ObservationScalarType, TimeType >(
-            observationDataset, observationDataset->createComputationFlattenedObservationData( true ), observationSimulator, residuals );
+            observationDataset, observationDataset->createComputationObservationVectorData( true ), observationSimulator, residuals );
 }
 
 template< typename ObservationScalarType = double,
@@ -207,7 +206,7 @@ void calculateResiduals(
 {
     const auto dataset = observationsCollection->getObservationDataset( );
     calculateResiduals< ObservationScalarType, TimeType >(
-            dataset, dataset->createOrderedFlattenedObservationData( true ), observationSimulator, residuals );
+            dataset, dataset->createOrderedObservationVectorData( true ), observationSimulator, residuals );
 }
 
 //! Function to calculate the observation partials matrix and residuals
@@ -226,7 +225,7 @@ template< typename ObservationScalarType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrixAndResiduals(
         std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > observationDataset,
-        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+        const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
         const std::map< observation_models::ObservableType,
                         std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
                 observationManagers,
@@ -236,14 +235,14 @@ void calculateDesignMatrixAndResiduals(
         const bool calculateResiduals = true,
         const bool calculatePartials = true )
 {
-    observationDataset->validateProjection( flattenedObservationData );
+    observationDataset->validateObservationVectorData( observationVectorData );
     if( calculatePartials && totalNumberParameters <= 0 )
     {
         throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " +
                                   std::to_string( totalNumberParameters ) );
     }
 
-    const int totalObservationSize = static_cast< int >( flattenedObservationData.getObservationVector( ).size( ) );
+    const int totalObservationSize = static_cast< int >( observationVectorData.getObservationVector( ).size( ) );
     if( calculatePartials )
     {
         designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters );
@@ -254,13 +253,13 @@ void calculateDesignMatrixAndResiduals(
         residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservationSize, 1 );
     }
 
-    for( const unsigned int setId : flattenedObservationData.getSetIdsInRowOrder( ) )
+    for( const unsigned int setId : observationVectorData.getSetIdsInRowOrder( ) )
     {
-        const std::vector< unsigned int >& setObservationIds = flattenedObservationData.getUniqueObservationIdsForSetInRowOrder( setId );
+        const std::vector< unsigned int >& setObservationIds = observationVectorData.getUniqueObservationIdsForSetInRowOrder( setId );
         const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& metadata =
-                flattenedObservationData.getSetMetadata( setId );
+                observationVectorData.getSetMetadata( setId );
         const observation_models::ObservableType currentObservableType = metadata.observableType_;
-        const observation_models::LinkEnds currentLinkEnds = flattenedObservationData.getLinkDefinitionForSet( setId ).linkEnds_;
+        const observation_models::LinkEnds currentLinkEnds = observationVectorData.getLinkDefinitionForSet( setId ).linkEnds_;
         const unsigned int observableSize = metadata.observableSize_;
         const int currentObservationSize = static_cast< int >( setObservationIds.size( ) * observableSize );
 
@@ -270,7 +269,7 @@ void calculateDesignMatrixAndResiduals(
             times.reserve( setObservationIds.size( ) );
             for( const unsigned int observationId : setObservationIds )
             {
-                times.push_back( flattenedObservationData.getTimes( ).at( flattenedObservationData.getFlattenedRow( observationId, 0 ) ) );
+                times.push_back( observationVectorData.getTimes( ).at( observationVectorData.getVectorRow( observationId, 0 ) ) );
             }
 
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
@@ -279,7 +278,7 @@ void calculateDesignMatrixAndResiduals(
                     ->computeObservationsWithPartials( times,
                                                        currentLinkEnds,
                                                        metadata.referenceLinkEnd_,
-                                                       flattenedObservationData.getAncillarySettingsForSet( setId ),
+                                                       observationVectorData.getAncillarySettingsForSet( setId ),
                                                        observationsVector,
                                                        partialsMatrix,
                                                        calculateResiduals,
@@ -297,7 +296,7 @@ void calculateDesignMatrixAndResiduals(
                 for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
                 {
                     const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                    const int targetRow = flattenedObservationData.getFlattenedRow( observationId, componentIndex );
+                    const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
                     if( calculatePartials )
                     {
                         designMatrix.row( targetRow ) = partialsMatrix.row( sourceRow );
@@ -305,7 +304,7 @@ void calculateDesignMatrixAndResiduals(
                     if( calculateResiduals )
                     {
                         residualBlock( sourceRow ) =
-                                flattenedObservationData.getObservationVector( )( targetRow ) - observationsVector( sourceRow );
+                                observationVectorData.getObservationVector( )( targetRow ) - observationsVector( sourceRow );
                     }
                 }
             }
@@ -320,7 +319,7 @@ void calculateDesignMatrixAndResiduals(
                     for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
                     {
                         const int sourceRow = static_cast< int >( observationIndex * observableSize + componentIndex );
-                        const int targetRow = flattenedObservationData.getFlattenedRow( observationId, componentIndex );
+                        const int targetRow = observationVectorData.getVectorRow( observationId, componentIndex );
                         residuals( targetRow ) = residualBlock( sourceRow );
                     }
                 }
@@ -344,14 +343,15 @@ void calculateDesignMatrixAndResiduals(
         const bool calculateResiduals = true,
         const bool calculatePartials = true )
 {
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > flattenedObservationData =
-            observationDataset->createEstimationProjection( !calculatePartials );
-    if( flattenedObservationData.getObservationVector( ).size( ) != totalObservationSize )
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > observationVectorData =
+            observationDataset->createObservationVectorData( !calculatePartials );
+    if( observationVectorData.getObservationVector( ).size( ) != totalObservationSize )
     {
-        throw std::runtime_error( "Error when computing observation partials, requested size is inconsistent with flattened data size." );
+        throw std::runtime_error(
+                "Error when computing observation partials, requested size is inconsistent with observation vector data size." );
     }
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
-                                                                          flattenedObservationData,
+                                                                          observationVectorData,
                                                                           observationManagers,
                                                                           totalNumberParameters,
                                                                           designMatrix,

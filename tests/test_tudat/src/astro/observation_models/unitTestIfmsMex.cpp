@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                observedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
-                computedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( );
+                observedObservationDataset->createObservationVectorData( ).getObservationVector( ) -
+                computedObservationDataset->createObservationVectorData( ).getObservationVector( );
         double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
         double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 

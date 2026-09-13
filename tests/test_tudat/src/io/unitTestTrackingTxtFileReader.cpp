@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     auto observationDataset = tom::createObservationDatasetFromTrackingData< double, Time >( trackingData, bodies );
-    std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedFlattenedObservationData( ).getTimes( );
+    std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedObservationVectorData( ).getTimes( );
     const Eigen::Vector3d earthFixedPosition =
             bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
     Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(

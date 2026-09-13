@@ -367,17 +367,17 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 
     # The dataset-level flag verifies that the Python set_weight_block call stored advanced blocks.
     assert sample_dataset.has_extra_weight_blocks is True
-    flattened = sample_dataset.estimation_flattened_observation_data(True)
-    # A cross-observation block must mark the flattened data as non-diagonal.
-    assert flattened.has_off_diagonal_weights is True
+    vector_data = sample_dataset.observation_vector_data(True)
+    # A cross-observation block must mark the vector data as non-diagonal.
+    assert vector_data.has_off_diagonal_weights is True
     # The inverse flag should also reflect the presence of off-diagonal weights.
-    assert flattened.is_diagonal_weight_only is False
+    assert vector_data.is_diagonal_weight_only is False
 
-    dense_weight_matrix = _to_dense_matrix(flattened.sparse_weight_matrix)
-    first_row_start = flattened.flattened_row(angular_ids[0], 0)
-    second_row_start = flattened.flattened_row(angular_ids[1], 0)
+    dense_weight_matrix = _to_dense_matrix(vector_data.sparse_weight_matrix)
+    first_row_start = vector_data.vector_row(angular_ids[0], 0)
+    second_row_start = vector_data.vector_row(angular_ids[1], 0)
 
-    # The requested block must materialize at the flattened rows of the selected observations.
+    # The requested block must appear at the vector rows of the selected observations.
     np.testing.assert_allclose(
         dense_weight_matrix[
             first_row_start : first_row_start + 2, second_row_start : second_row_start + 2
@@ -394,7 +394,7 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 
 
 def test_python_snapshot_estimation_order():
-    """Check snapshot estimation order against the numerical projection."""
+    """Check snapshot estimation order against the observation vector data."""
     angular_dataset = _new_dataset_single_set(
         observations.angular_position,
         "Mars",
@@ -413,10 +413,19 @@ def test_python_snapshot_estimation_order():
     assert angular_dataset.get_observation_ids(ordering="estimation") == [2, 3, 0, 1]
     values = angular_dataset.get_observations(ordering="estimation")
     np.testing.assert_array_equal(np.concatenate(values), [10, 20, 1, 2, 3, 4])
-    np.testing.assert_array_equal(
-        np.concatenate(values),
-        angular_dataset.create_estimation_projection().observation_vector,
-    )
+    vector_data = angular_dataset.observation_vector_data()
+    np.testing.assert_array_equal(np.concatenate(values), vector_data.observation_vector)
+
+    # Scalar-aligned link IDs follow the same estimation order as the observation vector.
+    assert vector_data.link_definition_ids == [1, 1, 0, 0, 0, 0]
+    # Dataset bounds and observable-specific links remain available without a legacy collection.
+    assert [bound.to_float() for bound in angular_dataset.observation_time_bounds] == [
+        1.0,
+        4.0,
+    ]
+    assert angular_dataset.link_definitions_for_observable(observations.one_way_range) == [
+        range_dataset.link_definition(0)
+    ]
 
 
 def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
@@ -435,15 +444,15 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     # Row metadata should preserve the rejection reason for diagnostics.
     assert sample_dataset.observation_row(1).rejection_reason == "large"
 
-    # Estimation flattening should exclude rejected rows by default.
-    assert sample_dataset.estimation_flattened_observation_data().observation_ids == [
+    # Estimation vector data should exclude rejected rows by default.
+    assert sample_dataset.observation_vector_data().observation_ids == [
         0,
         2,
         3,
         3,
     ]
     # include_rejected=True should keep all scalar components, including rejected rows.
-    assert sample_dataset.estimation_flattened_observation_data(True).observation_ids == [
+    assert sample_dataset.observation_vector_data(True).observation_ids == [
         0,
         1,
         2,

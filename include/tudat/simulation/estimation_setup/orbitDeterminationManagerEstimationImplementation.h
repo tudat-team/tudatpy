@@ -40,8 +40,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
     const auto observationDataset = estimationInput->getObservationDataset( );
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > estimationData =
-            observationDataset->createEstimationProjection( );
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > estimationData =
+            observationDataset->createObservationVectorData( );
     const int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
     if( totalNumberOfObservations == 0 )
     {
@@ -369,7 +369,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             }
             else
             {
-                const auto computationData = observationDataset->createComputationFlattenedObservationData( true );
+                const auto computationData = observationDataset->createComputationObservationVectorData( true );
                 Eigen::MatrixXd unusedDesignMatrix;
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > computationResiduals;
                 calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
@@ -531,13 +531,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
         std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
         const ParameterVectorType& newParameterEstimate,
-        const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+        const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
         const bool calculateResiduals,
         const int numberOfIterations,
         bool& exceptionDuringPropagation,
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
 {
-    const int totalNumberOfObservations = static_cast< int >( flattenedObservationData.getObservationVector( ).size( ) );
+    const int totalNumberOfObservations = static_cast< int >( observationVectorData.getObservationVector( ).size( ) );
 
     // Re-integrate equations of motion and variational equations with new parameter estimate.
     try
@@ -575,12 +575,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     if( calculateResiduals )
     {
         calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-                observationDataset, flattenedObservationData, observationManagers_, totalNumberParameters_, designMatrix, residuals, true );
+                observationDataset, observationVectorData, observationManagers_, totalNumberParameters_, designMatrix, residuals, true );
     }
     else
     {
         calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationDataset,
-                                                                              flattenedObservationData,
+                                                                              observationVectorData,
                                                                               observationManagers_,
                                                                               totalNumberParameters_,
                                                                               designMatrix,

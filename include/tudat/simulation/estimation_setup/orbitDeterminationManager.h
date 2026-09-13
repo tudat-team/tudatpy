@@ -24,7 +24,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolverBase.h"
 #include "tudat/simulation/estimation_setup/estimationInterfacesForwardDeclarations.h"
-#include "tudat/simulation/estimation_setup/flattenedObservationData.h"
+#include "tudat/simulation/estimation_setup/observationVectorData.h"
 #include "tudat/simulation/estimation_setup/observationInterfacesForwardDeclarations.h"
 
 namespace tudat
@@ -271,7 +271,7 @@ protected:
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
             const ParameterVectorType& newParameterEstimate,
-            const observation_models::FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+            const observation_models::ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
             const bool calculateResiduals,
             const int numberOfIterations,
             bool& exceptionDuringPropagation,

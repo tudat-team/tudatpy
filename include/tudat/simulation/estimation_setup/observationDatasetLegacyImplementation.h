@@ -535,7 +535,7 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
         const std::shared_ptr< ObservationCollectionParser >& observationParser ) const
 {
     std::vector< unsigned int > setIds;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         if( isObservationSetSelectedByLegacyParser( *this, setId, observationParser ) )
         {
@@ -554,7 +554,7 @@ std::vector< std::pair< int, int > > ObservationDataset< ObservationScalarType, 
     startAndSize.reserve( getNumberOfObservationSets( ) );
 
     int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
         startAndSize.push_back( std::make_pair( currentIndex, currentSize ) );
@@ -572,7 +572,7 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationSetS
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > startAndSizeByLink;
 
     int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
         const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
@@ -592,7 +592,7 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationType
     std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > startAndSize;
 
     int currentIndex = 0;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
         const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
@@ -619,7 +619,7 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservableTypeS
     std::map< ObservableType, std::pair< int, int > > startAndSize;
     int currentIndex = 0;
 
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const ObservableType observableType = getObservationSetMetadata( setId ).observableType_;
         const int currentSize = static_cast< int >( getTotalScalarSizeForSet( setId ) );
@@ -643,7 +643,7 @@ std::map< ObservableType, std::vector< LinkEnds > >
 ObservationDataset< ObservationScalarType, TimeType, Dummy >::getLinkEndsPerObservableType( ) const
 {
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
         const LinkEnds linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;

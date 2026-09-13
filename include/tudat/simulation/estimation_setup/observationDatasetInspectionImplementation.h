@@ -155,7 +155,7 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
     const std::unordered_set< unsigned int > membership( selected.begin( ), selected.end( ) );
     selected.clear( );
     // This is the existing authoritative observable/link/set/event ordering, including equal-time ties.
-    for( const auto id : getObservationIdsInOrderedFlattenedDataOrder( ) )
+    for( const auto id : getObservationIdsInObservationVectorOrder( ) )
     {
         if( membership.count( id ) != 0 )
         {

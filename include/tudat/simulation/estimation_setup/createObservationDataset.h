@@ -65,7 +65,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type scalar doubles
     for( auto& it : trackingData->getAncillarySettingsDouble( ) )
     {
-        if( shouldSkipObservationDatasetAncillarySetting( it.first ) )
+        if( trackingData->isObservationMetadata( it.first ) || shouldSkipObservationDatasetAncillarySetting( it.first ) )
         {
             continue;
         }
@@ -75,12 +75,22 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type double vectors
     for( auto& it : trackingData->getAncillarySettingsDoubleVector( ) )
     {
+        if( trackingData->isObservationMetadata( it.first ) )
+        {
+            continue;
+        }
         ancillarySettings->setAncillaryDoubleVectorData( ancillarySettings->getAncillaryVariableFromString( it.first ), it.second );
     }
 
     // Parse and add ancillary settings of type string vectors (frequency band(s))
     for( auto& it : trackingData->getAncillarySettingsStringVector( ) )
     {
+        // Per-observation metadata is retained by TrackingData and is not an
+        // observation-model ancillary setting (for example, MPC object IDs).
+        if( trackingData->isObservationMetadata( it.first ) )
+        {
+            continue;
+        }
         observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
                 ancillarySettings->getAncillaryVariableFromString( it.first );
 
@@ -107,6 +117,10 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
     // Parse and add ancillary settings of type string (reception reference frequency band)
     for( auto& it : trackingData->getAncillarySettingsString( ) )
     {
+        if( trackingData->isObservationMetadata( it.first ) )
+        {
+            continue;
+        }
         observation_models::ObservationAncillarySimulationVariable ancillaryVariable =
                 ancillarySettings->getAncillaryVariableFromString( it.first );
 
@@ -124,8 +138,7 @@ std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ge
                 observation_models::convertFrequencyBandToDouble( observation_models::getFrequencyBandFromString( it.second ) ) );
     }
 
-    if( trackingData->getAncillarySettingsDouble( ).empty( ) && trackingData->getAncillarySettingsDoubleVector( ).empty( ) &&
-        trackingData->getAncillarySettingsStringVector( ).empty( ) && trackingData->getAncillarySettingsString( ).empty( ) )
+    if( ancillarySettings->getDoubleData( ).empty( ) && ancillarySettings->getDoubleVectorData( ).empty( ) )
     {
         return nullptr;
     }

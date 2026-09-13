@@ -76,11 +76,11 @@ private:
 };
 
 /*!
- * Verifies the primary ObservationDataset storage model and flattened data output.
+ * Verifies the primary ObservationDataset storage model and observation vector data output.
  *
  * Test outline: creates range, angular-position and position sets with explicit
  * weights and residuals. It checks set ids, row/scalar-component bookkeeping,
- * estimator-vector flattened data ordering, time replication for vector
+ * observation vector ordering, time replication for vector
  * observables, weight vector assembly and residual calculation through
  * observation simulators.
  */
@@ -101,7 +101,7 @@ Eigen::VectorXd concatenateInspectionValues( const std::vector< Eigen::VectorXd 
     return result;
 }
 
-BOOST_AUTO_TEST_CASE( test_dataset_storage_flattened_data_and_residuals )
+BOOST_AUTO_TEST_CASE( test_dataset_storage_observation_vector_data_and_residuals )
 {
     const LinkDefinition stationALinkDefinition = createOneWayLinkDefinition( "StationA" );
     const LinkDefinition stationBLinkDefinition = createOneWayLinkDefinition( "StationB" );
@@ -155,25 +155,26 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_flattened_data_and_residuals )
 
     Eigen::VectorXd expectedObservations( 9 );
     expectedObservations << 10.0, 11.0, 20.0, 21.0, 22.0, 23.0, 30.0, 31.0, 32.0;
-    const FlattenedObservationData< double, double > flattenedData = dataset.createEstimationFlattenedObservationData( );
+    const ObservationVectorData< double, double > observationVectorData = dataset.createObservationVectorData( );
 
     // These sets were inserted in the established observable/link order.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getObservationVector( ), expectedObservations, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getObservationVector( ), expectedObservations, 1.0E-15 );
 
     const std::vector< double > expectedTimes = { 1.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0, 5.0 };
-    const std::vector< double >& flattenedDataTimes = flattenedData.getTimes( );
+    const std::vector< double >& observationVectorDataTimes = observationVectorData.getTimes( );
 
     // Vector-valued observables must repeat their event time once per scalar component.
-    BOOST_CHECK_EQUAL_COLLECTIONS( flattenedDataTimes.begin( ), flattenedDataTimes.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+            observationVectorDataTimes.begin( ), observationVectorDataTimes.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
 
-    // Projection-local component positions come from the same mapping as the vectors.
+    // Vector-data component positions come from the same mapping as the vectors.
     const std::vector< int > expectedStarts = { 0, 1, 2, 4, 6 };
     const std::vector< int > expectedSizes = { 1, 1, 2, 2, 3 };
     for( unsigned int id = 0; id < expectedStarts.size( ); ++id )
     {
         for( int component = 0; component < expectedSizes.at( id ); ++component )
         {
-            BOOST_CHECK_EQUAL( flattenedData.getFlattenedRow( id, component ), expectedStarts.at( id ) + component );
+            BOOST_CHECK_EQUAL( observationVectorData.getVectorRow( id, component ), expectedStarts.at( id ) + component );
         }
     }
 
@@ -181,7 +182,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_flattened_data_and_residuals )
     expectedWeights << 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0;
 
     // Compact weights must be assembled in the same scalar-component order as the observations.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getWeightVector( ), expectedWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getWeightVector( ), expectedWeights, 1.0E-15 );
 
     std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > simulators;
     simulators[ one_way_range ] = std::make_shared< ZeroObservationSimulator >( one_way_range, 1 );
@@ -236,7 +237,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
             { ( Eigen::Vector2d( ) << 4.0, 5.0 ).finished( ), ( Eigen::Vector2d( ) << 6.0, 7.0 ).finished( ) },
             { ( Eigen::Vector2d( ) << 0.4, 0.5 ).finished( ), ( Eigen::Vector2d( ) << 0.6, 0.7 ).finished( ) } );
     std::shared_ptr< ObservationDataset< double, double > > singleDataset = createObservationDataset( angularConversionSet );
-    const FlattenedObservationData< double, double > singleData = singleDataset->createOrderedFlattenedObservationData( );
+    const ObservationVectorData< double, double > singleData = singleDataset->createOrderedObservationVectorData( );
 
     // Converting a legacy single set to a dataset must preserve observations, residuals and weights.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( singleData.getObservationVector( ), angularConversionSet->getObservationsVector( ), 1.0E-15 );
@@ -310,14 +311,14 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     std::shared_ptr< ObservationDataset< double, double > > collectionDataset =
             createObservationDataset( std::make_shared< ObservationCollection< double, double > >( observationCollection ) );
 
-    // Collection-to-dataset conversion must use the same ordered flattened data for observations, residuals and weights.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedFlattenedObservationData( ).getObservationVector( ),
+    // Collection-to-dataset conversion must use the same ordered observation vector data for observations, residuals and weights.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedObservationVectorData( ).getObservationVector( ),
                                        observationCollection.getObservationVector( ),
                                        1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedFlattenedObservationData( ).getResidualVector( ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedObservationVectorData( ).getResidualVector( ),
                                        observationCollection.getConcatenatedResiduals( ),
                                        1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedFlattenedObservationData( ).getWeightVector( ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( collectionDataset->createOrderedObservationVectorData( ).getWeightVector( ),
                                        observationCollection.getConcatenatedWeights( ),
                                        1.0E-15 );
 
@@ -468,7 +469,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     // Weight mutation through the legacy collection must update both the legacy vector and backing dataset.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), expectedWeightsAfterRangeConstant, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            observationCollection.getObservationDataset( )->createOrderedFlattenedObservationData( ).getWeightVector( ),
+            observationCollection.getObservationDataset( )->createOrderedObservationVectorData( ).getWeightVector( ),
             expectedWeightsAfterRangeConstant,
             1.0E-15 );
 
@@ -533,9 +534,9 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
 
     // Residual updates through the legacy collection must be visible through both input objects.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            covarianceInputDataset->createOrderedFlattenedObservationData( ).getResidualVector( ), residuals, 1.0E-15 );
+            covarianceInputDataset->createOrderedObservationVectorData( ).getResidualVector( ), residuals, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            estimationInputDataset->createOrderedFlattenedObservationData( ).getResidualVector( ), residuals, 1.0E-15 );
+            estimationInputDataset->createOrderedObservationVectorData( ).getResidualVector( ), residuals, 1.0E-15 );
 
     estimationCollection->filterObservations(
             observationFilter( epochs_filtering, std::vector< double >( { 2.0 } ) ), observationParser( one_way_range ), true );
@@ -548,8 +549,8 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     BOOST_CHECK_EQUAL( estimationCollection->getTotalObservableSize( ), 2 );
 
     const std::vector< double > expectedTimes = { 1.0, 3.0 };
-    const std::vector< double > covarianceInputTimes = covarianceInputDataset->createOrderedFlattenedObservationData( ).getTimes( );
-    const std::vector< double > estimationInputTimes = estimationInputDataset->createOrderedFlattenedObservationData( ).getTimes( );
+    const std::vector< double > covarianceInputTimes = covarianceInputDataset->createOrderedObservationVectorData( ).getTimes( );
+    const std::vector< double > estimationInputTimes = estimationInputDataset->createOrderedObservationVectorData( ).getTimes( );
     const std::vector< double > collectionTimes = estimationCollection->getConcatenatedTimeVector( );
 
     // After filtering, the remaining times must agree across covariance input, estimation input and collection views.
@@ -568,10 +569,10 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     BOOST_CHECK_EQUAL( covarianceInputDataset->getTotalScalarSize( ), 3 );
     BOOST_CHECK_EQUAL( estimationInputDataset->getTotalScalarSize( ), 3 );
     const std::vector< double > expectedRestoredTimes = { 1.0, 2.0, 3.0 };
-    const std::vector< double > restoredCovarianceInputTimes = covarianceInputDataset->createOrderedFlattenedObservationData( ).getTimes( );
-    const std::vector< double > restoredEstimationInputTimes = estimationInputDataset->createOrderedFlattenedObservationData( ).getTimes( );
+    const std::vector< double > restoredCovarianceInputTimes = covarianceInputDataset->createOrderedObservationVectorData( ).getTimes( );
+    const std::vector< double > restoredEstimationInputTimes = estimationInputDataset->createOrderedObservationVectorData( ).getTimes( );
 
-    // Restored input flattened data must recover the original event-time sequence.
+    // Restored input observation vector data must recover the original event-time sequence.
     BOOST_CHECK_EQUAL_COLLECTIONS( restoredCovarianceInputTimes.begin( ),
                                    restoredCovarianceInputTimes.end( ),
                                    expectedRestoredTimes.begin( ),
@@ -590,7 +591,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
     const std::vector< double > externallyMutatedTimes = estimationCollection->getConcatenatedTimeVector( );
     const std::vector< double > expectedExternallyMutatedTimes = { 1.0, 2.0, 3.0, 4.0 };
 
-    // The refreshed collection flattened data must include rows added outside the legacy wrapper.
+    // The refreshed collection observation vector data must include rows added outside the legacy wrapper.
     BOOST_CHECK_EQUAL_COLLECTIONS( externallyMutatedTimes.begin( ),
                                    externallyMutatedTimes.end( ),
                                    expectedExternallyMutatedTimes.begin( ),
@@ -627,8 +628,8 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
     const auto checkWeights = [ & ]( const Eigen::VectorXd& expectedWeights ) {
         dataset = observationCollection.getObservationDataset( );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), expectedWeights, 1.0E-15 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedObservationVectorData( ).getWeightVector( ), expectedWeights, 1.0E-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createOrderedObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
                                            expectedWeights.asDiagonal( ),
                                            1.0E-15 );
     };
@@ -657,7 +658,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
     Eigen::VectorXd expectedTabulatedWeights( 7 );
     expectedTabulatedWeights << 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4;
 
-    // Parser-map tabulated weights must remain diagonal and agree with the dataset flattened sparse matrix.
+    // Parser-map tabulated weights must remain diagonal and agree with the dataset observation-vector sparse matrix.
     checkWeights( expectedTabulatedWeights );
 
     const auto staleSnapshot = dataset->getRows( );
@@ -666,13 +667,13 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
     // A converted snapshot stays independent when legacy collection membership changes.
     BOOST_CHECK_EQUAL( staleSnapshot.size( ), 5 );
     BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 2 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createEstimationProjection( ).getWeightVector( ), expectedTabulatedWeights, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset->createObservationVectorData( ).getWeightVector( ), expectedTabulatedWeights, 1.0E-15 );
     dataset = observationCollection.getObservationDataset( );
     BOOST_CHECK_EQUAL( dataset->getNumberOfObservationSets( ), 1 );
     BOOST_CHECK_EQUAL( dataset->getObservationSetMetadata( 0 ).observableType_, angular_position );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationCollection.getConcatenatedWeights( ), angularTabulatedWeights, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset->createOrderedFlattenedObservationData( ).getWeightVector( ), angularTabulatedWeights, 1.0E-15 );
+            dataset->createOrderedObservationVectorData( ).getWeightVector( ), angularTabulatedWeights, 1.0E-15 );
 }
 
 /*!
@@ -943,7 +944,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_null_inputs_allow_configuration_and_validate_d
  * Verifies empty-set behavior and invalid input validation.
  *
  * Test outline: creates an empty observation set and checks that all counters,
- * flattened data and time bounds are well-defined. It then exercises inconsistent
+ * observation vector data and time bounds are well-defined. It then exercises inconsistent
  * observation/time/weight dimensions and invalid set mutation requests to
  * ensure they fail with runtime errors.
  */
@@ -955,11 +956,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
     const int emptySetId = dataset.addObservationSet(
             one_way_range, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );
 
-    // Empty sets must remain valid metadata containers with zero-length flattened data and undefined time bounds.
+    // Empty sets must remain valid metadata containers with zero-length observation vector data and undefined time bounds.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservationSets( ), 1 );
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservationsForSet( emptySetId ), 0 );
     BOOST_CHECK_EQUAL( dataset.getTotalScalarSizeForSet( emptySetId ), 0 );
-    BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), 0 );
+    BOOST_CHECK_EQUAL( dataset.createObservationVectorData( ).getObservationVector( ).size( ), 0 );
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).first ) );
     BOOST_CHECK( std::isnan( dataset.getTimeBoundsForSet( emptySetId ).second ) );
     ObservationCollection< double, double > emptyCollection( std::make_shared< ObservationDataset< double, double > >( dataset ) );
@@ -1336,14 +1337,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
 }
 
 /*!
- * Verifies that snapshot ordered flattening follows dataset ordered-output order.
+ * Verifies that snapshot ordered vector data follows dataset ordered-output order.
  *
  * Test outline: inserts angular-position rows before one-way range rows, so
- * dataset row order differs from ordered flattened-data order. Snapshot
- * selections retain dataset order while numerical projections use the established
+ * dataset row order differs from ordered observation-vector-data order. Snapshot
+ * selections retain dataset order while numerical vector data use the established
  * observable/link/set ordering, including after interleaved appends.
  */
-BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_flattening_reorders_selected_rows )
+BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_vector_data_reorders_selected_rows )
 {
     ObservationDataset< double, double > dataset;
     const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1368,8 +1369,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_flattening_reorders_selected
     // Estimation projects selected identities into the established numerical order.
     checkIds( dataset.getObservationIds( ObservationSelectionCondition<>::all( ), ObservationOrdering::estimation ), { 2, 3, 0, 1 } );
 
-    // The compatibility projection uses the same ordering: range before angular position.
-    checkIds( dataset.createOrderedFlattenedObservationData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
+    // The numerical vector data use the same ordering: range before angular position.
+    checkIds( dataset.createOrderedObservationVectorData( ).getObservationIds( ), { 2, 3, 0, 0, 1, 1 } );
 
     std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< double, double > > > simulators;
     simulators[ one_way_range ] = std::make_shared< ZeroObservationSimulator >( one_way_range, 1 );
@@ -1389,21 +1390,21 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_flattening_reorders_selected
     dataset.addObservationsToSet( 0, { Eigen::Vector2d( 24.0, 25.0 ) }, { 2.5 }, {}, {}, {}, true );
     BOOST_CHECK_EQUAL( snapshot.size( ), 4 );
     BOOST_CHECK_EQUAL( snapshot.at( 0 ).observationId_, 0 );
-    const auto appendedProjection = dataset.createEstimationProjection( );
-    checkIds( appendedProjection.getObservationIds( ), { 2, 3, 4, 4, 0, 0, 1, 1 } );
-    checkIds( appendedProjection.getScalarComponentIds( ), { 4, 5, 6, 7, 0, 1, 2, 3 } );
+    const auto appendedVectorData = dataset.createObservationVectorData( );
+    checkIds( appendedVectorData.getObservationIds( ), { 2, 3, 4, 4, 0, 0, 1, 1 } );
+    checkIds( appendedVectorData.getScalarComponentIds( ), { 4, 5, 6, 7, 0, 1, 2, 3 } );
     Eigen::VectorXd expectedAppended( 8 );
     expectedAppended << 10.0, 11.0, 24.0, 25.0, 20.0, 21.0, 22.0, 23.0;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( appendedProjection.getObservationVector( ), expectedAppended, 1.0E-15 );
-    BOOST_CHECK_EQUAL( appendedProjection.getFlattenedRow( 4, 1 ), 3 );
-    BOOST_CHECK_EQUAL( appendedProjection.getFlattenedRow( 0, 1 ), 5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( appendedVectorData.getObservationVector( ), expectedAppended, 1.0E-15 );
+    BOOST_CHECK_EQUAL( appendedVectorData.getVectorRow( 4, 1 ), 3 );
+    BOOST_CHECK_EQUAL( appendedVectorData.getVectorRow( 0, 1 ), 5 );
 }
 
 /*!
  * Verifies snapshots, rejection/restoration and reduced dataset creation.
  *
  * Test outline: builds a dataset, selects rows with conditions, creates snapshots and
- * reduced datasets, rejects/restores observations and checks flattened data sizes.
+ * reduced datasets, rejects/restores observations and checks observation vector data sizes.
  * It also confirms that snapshots survive structural mutations.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_dataset )
@@ -1453,11 +1454,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
 
     const std::shared_ptr< ObservationDataset< double, double > > keptDataset = dataset.createNewAndKeep( middleTimes );
 
-    // A reduced keep-dataset must contain only selected rows and preserve their scalar flattened data.
+    // A reduced keep-dataset must contain only selected rows and preserve their scalar observation vector data.
     BOOST_CHECK_EQUAL( keptDataset->getNumberOfObservationSets( ), 1 );
     BOOST_CHECK_EQUAL( keptDataset->getNumberOfObservations( ), 2 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            keptDataset->createEstimationFlattenedObservationData( ).getObservationVector( ), expectedSnapshotObservations, 1.0E-15 );
+            keptDataset->createObservationVectorData( ).getObservationVector( ), expectedSnapshotObservations, 1.0E-15 );
 
     const std::shared_ptr< ObservationDataset< double, double > > droppedDataset = dataset.createNewAndDrop( middleTimes );
     Eigen::VectorXd expectedDroppedObservations( 2 );
@@ -1465,19 +1466,19 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
 
     // A reduced drop-dataset must contain the complement of the selected rows.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            droppedDataset->createEstimationFlattenedObservationData( ).getObservationVector( ), expectedDroppedObservations, 1.0E-15 );
+            droppedDataset->createObservationVectorData( ).getObservationVector( ), expectedDroppedObservations, 1.0E-15 );
 
     dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), "test rejection" );
 
-    // Rejection must store row status and reason while removing the row from active flattened data.
+    // Rejection must store row status and reason while removing the row from active observation vector data.
     BOOST_CHECK( !dataset.getObservationRow( 2 ).isActive_ );
     BOOST_CHECK_EQUAL( dataset.getObservationRow( 2 ).rejectionReason_, "test rejection" );
 
     Eigen::VectorXd expectedActiveObservations( 3 );
     expectedActiveObservations << 10.0, 20.0, 40.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationFlattenedObservationData( ).getObservationVector( ), expectedActiveObservations, 1.0E-15 );
-    BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), 4 );
+            dataset.createObservationVectorData( ).getObservationVector( ), expectedActiveObservations, 1.0E-15 );
+    BOOST_CHECK_EQUAL( dataset.createObservationVectorData( true ).getObservationVector( ).size( ), 4 );
     BOOST_CHECK_EQUAL( dataset.getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) ).size( ), 1 );
 
     dataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
@@ -1485,7 +1486,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
     // Restoration must reactivate rejected rows and clear their rejection reason.
     BOOST_CHECK( dataset.getObservationRow( 2 ).isActive_ );
     BOOST_CHECK_EQUAL( dataset.getObservationRow( 2 ).rejectionReason_, "test rejection" );
-    BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( ).getObservationVector( ).size( ), 4 );
+    BOOST_CHECK_EQUAL( dataset.createObservationVectorData( ).getObservationVector( ).size( ), 4 );
 
     dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 2.5, 3.5 ), "delete rejection" );
     dataset.removeRejectedObservations( );
@@ -1495,7 +1496,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
     expectedAfterRejectedDeletion << 10.0, 20.0, 40.0;
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterRejectedDeletion, 1.0E-15 );
+            dataset.createObservationVectorData( true ).getObservationVector( ), expectedAfterRejectedDeletion, 1.0E-15 );
     BOOST_CHECK_EQUAL( dataset.getObservationIds( ObservationSelectionCondition< double, double >::rejected( ) ).size( ), 0 );
 
     dataset.removeObservations( ObservationSelectionCondition< double, double >::timeBounds( 3.5, 4.5 ) );
@@ -1505,7 +1506,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
     expectedAfterConditionRemoval << 10.0, 20.0;
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 2 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationFlattenedObservationData( true ).getObservationVector( ), expectedAfterConditionRemoval, 1.0E-15 );
+            dataset.createObservationVectorData( true ).getObservationVector( ), expectedAfterConditionRemoval, 1.0E-15 );
 
     const auto invalidatedSnapshot = dataset.getRows( );
     dataset.addObservationSet( one_way_range, linkDefinition, std::vector< Eigen::VectorXd >( ), std::vector< double >( ), receiver );
@@ -1570,7 +1571,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_lifetime_and_legacy_cache_invalidati
  * Test outline: covers scalar weights, per-observation blocks, set-level blocks,
  * observation-id selected cross blocks, symmetric transpose insertion,
  * component selection and rejection/restoration of weighted observations. It
- * checks both compact weight vectors and materialized sparse flattened data
+ * checks both compact weight vectors and materialized sparse observation vector data
  * matrices.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
@@ -1592,11 +1593,10 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     expectedScalarWeights << 5.0, 5.0, 5.0, 5.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scalarWeightDataset.getWeightVectorForSet( scalarSetId ), expectedScalarWeights, 1.0E-15 );
     const Eigen::MatrixXd expectedScalarWeightMatrix = 5.0 * Eigen::MatrixXd::Identity( 4, 4 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scalarWeightDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       expectedScalarWeightMatrix,
-                                       1.0E-15 );
-    BOOST_CHECK_EQUAL( scalarWeightDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).nonZeros( ), 4 );
-    BOOST_CHECK( scalarWeightDataset.createEstimationFlattenedObservationData( ).isDiagonalWeightOnly( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            scalarWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedScalarWeightMatrix, 1.0E-15 );
+    BOOST_CHECK_EQUAL( scalarWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).nonZeros( ), 4 );
+    BOOST_CHECK( scalarWeightDataset.createObservationVectorData( ).isDiagonalWeightOnly( ) );
     BOOST_CHECK( !scalarWeightDataset.hasWeightMatrixForObservation( scalarWeightDataset.getObservationIdsForSet( scalarSetId ).at( 0 ) ) );
 
     Eigen::Matrix2d observationWeightBlock;
@@ -1614,11 +1614,11 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     expectedObservationBlockMatrix.block( 2, 2, 2, 2 ) = observationWeightBlock;
 
     // Per-observation weight blocks must be repeated for each vector-valued observation and force sparse weighting.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( blockWeightDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( blockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
                                        expectedObservationBlockMatrix,
                                        1.0E-15 );
-    BOOST_CHECK_EQUAL( blockWeightDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).nonZeros( ), 8 );
-    BOOST_CHECK( blockWeightDataset.createEstimationFlattenedObservationData( ).hasOffDiagonalWeights( ) );
+    BOOST_CHECK_EQUAL( blockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).nonZeros( ), 8 );
+    BOOST_CHECK( blockWeightDataset.createObservationVectorData( ).hasOffDiagonalWeights( ) );
     BOOST_CHECK( blockWeightDataset.hasWeightMatrixForObservation( blockWeightDataset.getObservationIdsForSet( blockSetId ).at( 0 ) ) );
     Eigen::VectorXd expectedBlockWeightDiagonal( 4 );
     expectedBlockWeightDiagonal << 2.0, 3.0, 2.0, 3.0;
@@ -1634,10 +1634,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
             { 1.0, 2.0 },
             receiver );
     setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, observationWeightBlock );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            setConstantMatrixDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-            expectedObservationBlockMatrix,
-            1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setConstantMatrixDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedObservationBlockMatrix,
+                                       1.0E-15 );
     BOOST_CHECK_THROW(
             setConstantMatrixDataset.setConstantSingleObservationMatrixWeightForSet( constantMatrixSetId, Eigen::Matrix3d::Identity( ) ),
             std::runtime_error );
@@ -1700,11 +1699,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     BOOST_CHECK( setBlockWeightDataset.hasWeightMatrixForSet( setBlockSetId ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockWeightDataset.getWeightMatrixForSet( setBlockSetId ), setWeightBlock, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            setBlockWeightDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-            setWeightBlock,
-            1.0E-15 );
+            setBlockWeightDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            setBlockWeightDataset.createEstimationFlattenedObservationData( ).getWeightVector( ), setWeightBlock.diagonal( ), 1.0E-15 );
+            setBlockWeightDataset.createObservationVectorData( ).getWeightVector( ), setWeightBlock.diagonal( ), 1.0E-15 );
 
     ObservationDataset< double, double > extraBlockDataset;
     extraBlockDataset.addObservationSetWithWeights(
@@ -1729,9 +1726,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     expectedExtraBlockWeightMatrix( 2, 2 ) = 5.0;
     expectedExtraBlockWeightMatrix( 0, 2 ) = 0.25;
     expectedExtraBlockWeightMatrix( 2, 0 ) = 0.25;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( extraBlockDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       expectedExtraBlockWeightMatrix,
-                                       1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            extraBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedExtraBlockWeightMatrix, 1.0E-15 );
 
     ObservationDataset< double, double > symmetricComponentBlockDataset;
     symmetricComponentBlockDataset.addObservationSetWithWeights( angular_position,
@@ -1756,10 +1752,9 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     expectedSymmetricComponentWeightMatrix( 2, 5 ) = 0.8;
     expectedSymmetricComponentWeightMatrix( 5, 0 ) = 0.7;
     expectedSymmetricComponentWeightMatrix( 5, 2 ) = 0.8;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            symmetricComponentBlockDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-            expectedSymmetricComponentWeightMatrix,
-            1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( symmetricComponentBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedSymmetricComponentWeightMatrix,
+                                       1.0E-15 );
 
     // Component indices outside the observable size must be rejected before a malformed block can be stored.
     BOOST_CHECK_THROW(
@@ -1767,15 +1762,16 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
                     { symmetricObservationIds.at( 0 ) }, { symmetricObservationIds.at( 1 ) }, Eigen::MatrixXd::Ones( 1, 1 ), { 3 }, { 0 } ),
             std::runtime_error );
     const Eigen::MatrixXd beforeInvalidBlock =
-            symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( );
+            symmetricComponentBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( );
     BOOST_CHECK_THROW( symmetricComponentBlockDataset.setWeightBlock( { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
                                                                       { symmetricObservationIds.at( 0 ), symmetricObservationIds.at( 1 ) },
                                                                       ( Eigen::Matrix2d( ) << 1.0, 2.0, 3.0, 4.0 ).finished( ),
                                                                       {},
                                                                       {} ),
                        std::runtime_error );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            symmetricComponentBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), beforeInvalidBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( symmetricComponentBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       beforeInvalidBlock,
+                                       1.0E-15 );
 
     ObservationDataset< double, double > invalidAddWeightDataset;
     BOOST_CHECK_THROW( invalidAddWeightDataset.addObservationSetWithWeights(
@@ -1840,17 +1836,14 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
     }
 
     // Projecting after rejection must keep only the active rows and columns of a full set weight block.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            rejectedSetBlockDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-            expectedRejectedWeightBlock,
-            1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rejectedSetBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
+                                       expectedRejectedWeightBlock,
+                                       1.0E-15 );
     rejectedSetBlockDataset.restoreObservations( ObservationSelectionCondition< double, double >::rejected( ) );
 
-    // Restoring rejected rows must restore the full original weight block in the flattened data.
+    // Restoring rejected rows must restore the full original weight block in the observation vector data.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            rejectedSetBlockDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-            fullSetWeightBlock,
-            1.0E-15 );
+            rejectedSetBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), fullSetWeightBlock, 1.0E-15 );
 }
 
 /*!
@@ -1860,7 +1853,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
  * overwrites part of it with an explicit per-observation block and finally
  * overwrites cross-observation entries with an extra scalar-component block. It
  * checks the resulting dense sparse matrix and confirms that conflicts report
- * the affected flattened/scalar-component indices.
+ * the affected observation-vector and scalar-component indices.
  */
 BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries )
 {
@@ -1890,7 +1883,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries 
     extraWeightBlock << 20.0, 21.0, 22.0, 23.0;
     dataset.setWeightBlock( { observationIds.at( 0 ) }, { observationIds.at( 1 ) }, extraWeightBlock );
 
-    const auto flattenedData = dataset.createEstimationProjection( );
+    const auto observationVectorData = dataset.createObservationVectorData( );
 
     Eigen::MatrixXd expectedWeightMatrix = setWeightBlock;
     expectedWeightMatrix.block( 0, 0, 2, 2 ) = perObservationWeightBlock;
@@ -1900,12 +1893,13 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries 
 
     // Set-level blocks provide the baseline, explicit matrix/vector observation weights overwrite that baseline,
     // and extra scalar-component blocks overwrite both lower-priority layers while preserving matrix symmetry.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getSparseWeightMatrix( ).toDense( ), expectedWeightMatrix, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( flattenedData.getWeightVector( ), expectedWeightMatrix.diagonal( ), 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getSparseWeightMatrix( ).toDense( ), expectedWeightMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationVectorData.getWeightVector( ), expectedWeightMatrix.diagonal( ), 1.0E-15 );
 
     // A later set-wide assignment replaces previous row and cross-row coefficients as well.
     dataset.setWeightMatrixForSet( setId, setWeightBlock );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), setWeightBlock, 1.0E-15 );
 }
 
 /*!
@@ -1934,12 +1928,12 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
 
     std::ostringstream implicitWarningStream;
     std::streambuf* originalWarningBuffer = std::cerr.rdbuf( implicitWarningStream.rdbuf( ) );
-    const Eigen::MatrixXd implicitFlattenedWeightMatrix =
-            implicitAppendDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( );
+    const Eigen::MatrixXd implicitObservationVectorWeightMatrix =
+            implicitAppendDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( );
     std::cerr.rdbuf( originalWarningBuffer );
 
     // The later set assignment replaces appended defaults.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( implicitFlattenedWeightMatrix, setWeightBlock, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( implicitObservationVectorWeightMatrix, setWeightBlock, 1.0E-15 );
     // Assignments have no competing precedence layers or conflict warnings.
     BOOST_CHECK( implicitWarningStream.str( ).empty( ) );
 
@@ -1956,13 +1950,13 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
 
     std::ostringstream explicitWarningStream;
     originalWarningBuffer = std::cerr.rdbuf( explicitWarningStream.rdbuf( ) );
-    const Eigen::MatrixXd explicitFlattenedWeightMatrix =
-            explicitAppendDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( );
+    const Eigen::MatrixXd explicitObservationVectorWeightMatrix =
+            explicitAppendDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( );
     std::cerr.rdbuf( originalWarningBuffer );
 
     Eigen::Matrix3d expectedExplicitWeightMatrix = setWeightBlock;
     // The later full-set assignment also replaces explicitly supplied append weights.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitFlattenedWeightMatrix, expectedExplicitWeightMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( explicitObservationVectorWeightMatrix, expectedExplicitWeightMatrix, 1.0E-15 );
     // Explicit append weights likewise require no conflict warning.
     BOOST_CHECK( explicitWarningStream.str( ).empty( ) );
 }
@@ -1972,7 +1966,7 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
  *
  * Test outline: creates rejected rows and off-diagonal weights, then exercises
  * keep/drop, explicit removal and append operations. It checks that rejecting a
- * row never deletes it, that active flattened data exclude it, and that compact,
+ * row never deletes it, that active observation vector data exclude it, and that compact,
  * per-observation, set-level and arbitrary weight blocks are preserved or
  * subsetted when the operation has a well-defined mapping.
  */
@@ -1999,19 +1993,19 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
                             {} );
     dataset.rejectObservations( ObservationSelectionCondition< double, double >::timeBounds( 1.5, 2.5 ), "manual rejection" );
 
-    // Rejected observations remain stored for computation/inspection, while the default estimation flattened data excludes them.
+    // Rejected observations remain stored for computation/inspection, while the default estimation observation vector data excludes them.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
-    BOOST_CHECK_EQUAL( dataset.createComputationFlattenedObservationData( true ).getObservationVector( ).size( ), 3 );
-    BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( false ).getObservationVector( ).size( ), 2 );
+    BOOST_CHECK_EQUAL( dataset.createComputationObservationVectorData( true ).getObservationVector( ).size( ), 3 );
+    BOOST_CHECK_EQUAL( dataset.createObservationVectorData( false ).getObservationVector( ).size( ), 2 );
 
     const std::shared_ptr< ObservationDataset< double, double > > keepAll =
             dataset.createNewAndKeep( ObservationSelectionCondition< double, double >::all( ) );
 
-    // Copy-style reduction with all rows must preserve row rejection state and the complete sparse weight flattened data.
+    // Copy-style reduction with all rows must preserve row rejection state and the complete sparse weight observation vector data.
     BOOST_CHECK( !keepAll->getObservationRow( 1 ).isActive_ );
     BOOST_CHECK_EQUAL( keepAll->getObservationRow( 1 ).rejectionReason_, "manual rejection" );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keepAll->createComputationFlattenedObservationData( true ).getSparseWeightMatrix( ).toDense( ),
-                                       dataset.createComputationFlattenedObservationData( true ).getSparseWeightMatrix( ).toDense( ),
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keepAll->createComputationObservationVectorData( true ).getSparseWeightMatrix( ).toDense( ),
+                                       dataset.createComputationObservationVectorData( true ).getSparseWeightMatrix( ).toDense( ),
                                        1.0E-15 );
 
     const std::shared_ptr< ObservationDataset< double, double > > activeOnly =
@@ -2020,7 +2014,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     // Explicit drop is the only operation here that physically removes the rejected observation from the new dataset.
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 3 );
     BOOST_CHECK_EQUAL( activeOnly->getNumberOfObservations( ), 2 );
-    BOOST_CHECK_EQUAL( activeOnly->createEstimationFlattenedObservationData( true ).getObservationVector( ).size( ), 2 );
+    BOOST_CHECK_EQUAL( activeOnly->createObservationVectorData( true ).getObservationVector( ).size( ), 2 );
 
     dataset.removeObservationsFromSet( setId, std::vector< unsigned int >( { 0 } ) );
 
@@ -2028,8 +2022,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     BOOST_CHECK_EQUAL( dataset.getNumberOfObservations( ), 2 );
     BOOST_CHECK( !dataset.getObservationRow( observationIds.at( 1 ) ).isActive_ );
     BOOST_CHECK_EQUAL( dataset.getObservationRow( observationIds.at( 1 ) ).rejectionReason_, "manual rejection" );
-    BOOST_CHECK_EQUAL( dataset.createEstimationFlattenedObservationData( false ).getObservationVector( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( dataset.createComputationFlattenedObservationData( true ).getObservationVector( ).size( ), 2 );
+    BOOST_CHECK_EQUAL( dataset.createObservationVectorData( false ).getObservationVector( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( dataset.createComputationObservationVectorData( true ).getObservationVector( ).size( ), 2 );
 
     dataset.addObservationsToSet( setId,
                                   { Eigen::Vector1d::Constant( 40.0 ) },
@@ -2063,18 +2057,18 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
                                  false );
     BOOST_REQUIRE_EQUAL( splitSets.size( ), 2 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            splitSets.at( 0 )->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            splitSets.at( 0 )->getObservationDataset( )->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
             setWeightBlock.topLeftCorner( 2, 2 ),
             1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            splitSets.at( 1 )->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            splitSets.at( 1 )->getObservationDataset( )->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
             Eigen::MatrixXd::Constant( 1, 1, setWeightBlock( 2, 2 ) ),
             1.0E-15 );
 
     const std::shared_ptr< ObservationCollection< double, double > > copiedCollection = createNewObservationCollection(
             createObservationCollection( std::make_shared< ObservationDataset< double, double > >( setBlockDataset ) ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            copiedCollection->getObservationDataset( )->createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
+            copiedCollection->getObservationDataset( )->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ),
             setWeightBlock,
             1.0E-15 );
 
@@ -2082,9 +2076,8 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     const Eigen::Matrix2d expectedSubsetSetWeightBlock = ( Eigen::Matrix2d( ) << 1.0, 0.2, 0.2, 3.0 ).finished( );
 
     // Removing from a set-level block has a clear subsetting rule and must keep the corresponding rows/columns.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( setBlockDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       expectedSubsetSetWeightBlock,
-                                       1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            setBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedSubsetSetWeightBlock, 1.0E-15 );
 
     // Appended rows start with unit diagonal weights and no correlations with existing rows.
     const auto survivorIds = setBlockDataset.getObservationIdsForSet( setBlockSetId );
@@ -2092,7 +2085,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     Eigen::Matrix3d expectedAppended = Eigen::Matrix3d::Identity( );
     expectedAppended.topLeftCorner< 2, 2 >( ) = expectedSubsetSetWeightBlock;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            setBlockDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expectedAppended, 1.0E-15 );
+            setBlockDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedAppended, 1.0E-15 );
     BOOST_CHECK_EQUAL( setBlockDataset.getObservationIdsForSet( setBlockSetId ).at( 0 ), survivorIds.at( 0 ) );
     BOOST_CHECK_EQUAL( setBlockDataset.getObservationIdsForSet( setBlockSetId ).at( 1 ), survivorIds.at( 1 ) );
 
@@ -2114,7 +2107,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
     moveSourceDataset.moveObservationsToSet( moveSourceSetId, moveTargetDataset, moveTargetSetId, { 0, 2 }, false );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            moveTargetDataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ), movedWeightBlock, 1.0E-15 );
+            moveTargetDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), movedWeightBlock, 1.0E-15 );
 }
 
 /*!
@@ -2172,15 +2165,16 @@ BOOST_AUTO_TEST_CASE( test_add_observation_set_from_dataset_preserves_status_and
 
     // Default estimation data must still exclude the copied rejected row while keeping the unrelated pre-existing target row.
     BOOST_CHECK_EQUAL( targetDataset.getNumberOfObservations( ), 4 );
-    BOOST_CHECK_EQUAL( targetDataset.createEstimationFlattenedObservationData( false ).getObservationVector( ).size( ), 5 );
-    BOOST_CHECK_EQUAL( targetDataset.createComputationFlattenedObservationData( true ).getObservationVector( ).size( ), 7 );
+    BOOST_CHECK_EQUAL( targetDataset.createObservationVectorData( false ).getObservationVector( ).size( ), 5 );
+    BOOST_CHECK_EQUAL( targetDataset.createComputationObservationVectorData( true ).getObservationVector( ).size( ), 7 );
 
-    const FlattenedObservationData< double, double > copiedFlattenedData = targetDataset.createComputationFlattenedObservationData( true );
-    const Eigen::MatrixXd copiedDenseWeightMatrix = copiedFlattenedData.getSparseWeightMatrix( ).toDense( );
-    const int copiedFirstRowStart = copiedFlattenedData.getFlattenedRow( copiedObservationIds.at( 0 ), 0 );
-    const int copiedThirdRowStart = copiedFlattenedData.getFlattenedRow( copiedObservationIds.at( 2 ), 0 );
+    const ObservationVectorData< double, double > copiedObservationVectorData =
+            targetDataset.createComputationObservationVectorData( true );
+    const Eigen::MatrixXd copiedDenseWeightMatrix = copiedObservationVectorData.getSparseWeightMatrix( ).toDense( );
+    const int copiedFirstRowStart = copiedObservationVectorData.getVectorRow( copiedObservationIds.at( 0 ), 0 );
+    const int copiedThirdRowStart = copiedObservationVectorData.getVectorRow( copiedObservationIds.at( 2 ), 0 );
 
-    // Downstream consumers use the flattened sparse matrix, so the remapped block must materialize at the copied row positions.
+    // Downstream consumers use the observation-vector sparse matrix, so the remapped block must materialize at the copied row positions.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             copiedDenseWeightMatrix.block( copiedFirstRowStart, copiedThirdRowStart, 2, 2 ), sourceExtraWeightBlock, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -2272,7 +2266,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
     expectedCopiedWeights.topLeftCorner< 2, 2 >( ) << 3.0, 0.25, 0.25, 4.0;
     expectedCopiedWeights.bottomRightCorner< 2, 2 >( ) = expectedCopiedWeights.topLeftCorner< 2, 2 >( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            selfCopyDataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expectedCopiedWeights, 1.0E-15 );
+            selfCopyDataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expectedCopiedWeights, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( selfCopyDataset.getObservationVectorForSet( newSelfCopiedSetId ),
                                        selfCopyDataset.getObservationVectorForSet( selfCopySetId ),
                                        1.0E-15 );
@@ -2337,7 +2331,7 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
     checkIds( std::vector< unsigned int >( updatedIds.begin( ) + 1, updatedIds.end( ) ), { originalIds.at( 1 ), originalIds.at( 2 ) } );
 }
 
-BOOST_AUTO_TEST_CASE( test_projection_writeback_checks_source_and_structure )
+BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_checks_source_and_structure )
 {
     ObservationDataset<> dataset;
     const unsigned int setId = dataset.addObservationSet( one_way_range,
@@ -2345,20 +2339,20 @@ BOOST_AUTO_TEST_CASE( test_projection_writeback_checks_source_and_structure )
                                                           { Eigen::Vector1d::Constant( 10.0 ), Eigen::Vector1d::Constant( 20.0 ) },
                                                           { 1.0, 2.0 },
                                                           receiver );
-    const auto projection = dataset.createEstimationFlattenedObservationData( );
+    const auto vectorData = dataset.createObservationVectorData( );
     ObservationDataset<> independentCopy( dataset );
     const Eigen::Vector2d residuals( 3.0, 4.0 );
 
-    BOOST_CHECK_THROW( independentCopy.setResidualVector( projection, residuals ), std::runtime_error );
+    BOOST_CHECK_THROW( independentCopy.setResidualVector( vectorData, residuals ), std::runtime_error );
     BOOST_CHECK_SMALL( independentCopy.getResidualVectorForSet( setId ).norm( ), 1.0E-15 );
 
     // A metadata change can alter design-matrix ordering without changing vector dimensions.
     dataset.setLinkEndReferencePoint( "Earth", "Station2", transmitter );
-    BOOST_CHECK_THROW( dataset.setResidualVector( projection, residuals ), std::runtime_error );
+    BOOST_CHECK_THROW( dataset.setResidualVector( vectorData, residuals ), std::runtime_error );
     BOOST_CHECK_SMALL( dataset.getResidualVectorForSet( setId ).norm( ), 1.0E-15 );
 
-    const auto currentProjection = dataset.createEstimationFlattenedObservationData( );
-    dataset.setResidualVector( currentProjection, residuals );
+    const auto currentVectorData = dataset.createObservationVectorData( );
+    dataset.setResidualVector( currentVectorData, residuals );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getResidualVectorForSet( setId ), residuals, 1.0E-15 );
 }
 
@@ -2396,9 +2390,8 @@ BOOST_AUTO_TEST_CASE( test_weight_assignments_validate_overlapping_selections )
                        std::runtime_error );
     BOOST_CHECK_THROW( dataset.setConstantSingleObservationScalarWeightForSet( setId, std::numeric_limits< double >::quiet_NaN( ) ),
                        std::runtime_error );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createComputationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ),
-                                       Eigen::Matrix2d::Identity( ),
-                                       1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            dataset.createComputationObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), Eigen::Matrix2d::Identity( ), 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
@@ -2423,8 +2416,7 @@ BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightVectorForSet( setId ), expected.diagonal( ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightValue( ids.back( ) ), expected.diagonal( ).tail( 2 ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getWeightMatrixForSet( setId ), expected, 1.0E-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationFlattenedObservationData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_copy_constructor_and_filter_isolate_nested_mutable_metadata )
@@ -2474,12 +2466,12 @@ BOOST_AUTO_TEST_CASE( test_same_dataset_regrouping_preserves_cross_set_correlati
     Eigen::Matrix3d regroupedWeights;
     regroupedWeights << 4.0, 0.3, 0.2, 0.3, 5.0, 0.5, 0.2, 0.5, 3.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), regroupedWeights, 1.0E-15 );
+            dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), regroupedWeights, 1.0E-15 );
     dataset.removeObservationsFromSet( secondSet, { 0 } );
     Eigen::Matrix2d survivingWeights;
     survivingWeights << 4.0, 0.2, 0.2, 3.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            dataset.createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), survivingWeights, 1.0E-15 );
+            dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), survivingWeights, 1.0E-15 );
 }
 
 BOOST_AUTO_TEST_CASE( test_invalid_weight_policy_leaves_no_partial_set )
@@ -2532,12 +2524,12 @@ BOOST_AUTO_TEST_CASE( test_overlapping_legacy_collections_do_not_migrate_shared_
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( first->getObservationVector( ), Eigen::Vector2d( 7.0, 2.0 ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( second.getObservationVector( ), Eigen::Vector1d::Constant( 7.0 ), 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            snapshot->createEstimationProjection( ).getObservationVector( ), Eigen::Vector2d( 1.0, 2.0 ), 1.0E-15 );
+            snapshot->createObservationVectorData( ).getObservationVector( ), Eigen::Vector2d( 1.0, 2.0 ), 1.0E-15 );
     simulation_setup::CovarianceAnalysisInput< double, double > input( first );
     BOOST_CHECK( input.getObservationCollection( ) == first );
     shared->addObservations( { Eigen::Vector1d::Constant( 8.0 ) }, { 3.0 } );
     input.setConstantWeightsMatrix( 5.0 );
-    const auto prepared = input.getObservationDataset( )->createEstimationProjection( );
+    const auto prepared = input.getObservationDataset( )->createObservationVectorData( );
     Eigen::Vector3d expected;
     expected << 7.0, 8.0, 2.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( prepared.getObservationVector( ), expected, 1.0E-15 );
@@ -2562,17 +2554,17 @@ BOOST_AUTO_TEST_CASE( test_legacy_collection_snapshot_restricts_cross_set_weight
     const auto snapshot = subset.getObservationDataset( );
     Eigen::Matrix2d expected;
     expected << 5.0, 0.2, 0.2, 3.0;
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
     dataset->setConstantSingleObservationScalarWeightForSet( 0, 8.0 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( snapshot->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
     expected( 1, 1 ) = 8.0;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            subset.getObservationDataset( )->createEstimationProjection( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
+            subset.getObservationDataset( )->createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
     ObservationCollection< double, double > facade( dataset );
     BOOST_CHECK( facade.getObservationDataset( ) == dataset );
 }
 
-BOOST_AUTO_TEST_CASE( test_projection_rejects_changed_values_and_mutable_ancillary_settings )
+BOOST_AUTO_TEST_CASE( test_observation_vector_data_rejects_changed_values_and_mutable_ancillary_settings )
 {
     ObservationDataset<> dataset;
     auto ancillary = std::make_shared< ObservationAncillarySimulationSettings >( );
@@ -2586,20 +2578,20 @@ BOOST_AUTO_TEST_CASE( test_projection_rejects_changed_values_and_mutable_ancilla
                                                   nullptr,
                                                   ancillary );
     const auto snapshot = dataset.getRows( );
-    const auto beforeValues = dataset.createEstimationProjection( );
+    const auto beforeValues = dataset.createObservationVectorData( );
     dataset.setObservationsForSet( setId, { Eigen::Vector1d::Constant( 20.0 ) } );
     BOOST_CHECK_THROW( dataset.setResidualVector( beforeValues, Eigen::Vector1d::Ones( ) ), std::runtime_error );
     BOOST_CHECK_EQUAL( snapshot.size( ), 1 );
     BOOST_CHECK_EQUAL( beforeValues.getObservationVector( )( 0 ), 10.0 );
 
-    const auto beforeAncillary = dataset.createEstimationProjection( );
+    const auto beforeAncillary = dataset.createObservationVectorData( );
     dataset.getAncillarySettingsForSet( setId )->setAncillaryDoubleData( doppler_integration_time, 20.0 );
     BOOST_CHECK_THROW( dataset.setResidualVector( beforeAncillary, Eigen::Vector1d::Ones( ) ), std::runtime_error );
     BOOST_CHECK_EQUAL( beforeAncillary.getAncillarySettingsForSet( setId )->getAncillaryDoubleData( doppler_integration_time ), 10.0 );
     BOOST_CHECK_SMALL( dataset.getResidualVectorForSet( setId ).norm( ), 1.0E-15 );
 
     // Residual updates and no-op removals do not invalidate an iteration's mapping.
-    const auto current = dataset.createEstimationProjection( );
+    const auto current = dataset.createObservationVectorData( );
     dataset.removeObservations( !ObservationSelectionCondition<>::all( ) );
     dataset.setResidualVector( current, Eigen::Vector1d::Constant( 2.0 ) );
     dataset.setResidualVector( current, Eigen::Vector1d::Constant( 3.0 ) );
@@ -2620,7 +2612,7 @@ BOOST_AUTO_TEST_CASE( test_regrouping_rejects_incompatible_ancillary_settings_wi
     BOOST_CHECK( dataset == original );
 }
 
-BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimension_projection )
+BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimension_vector_data )
 {
     auto dataset = std::make_shared< ObservationDataset<> >( );
     const auto link = createOneWayLinkDefinition( "Station1" );
@@ -2805,14 +2797,14 @@ BOOST_AUTO_TEST_CASE( test_inspection_ordering_alignment_and_correlations )
             }
             if( ordering == ObservationOrdering::estimation )
             {
-                const auto projection = dataset.createNewAndKeep( condition )->createEstimationProjection( true );
-                BOOST_CHECK( concatenateInspectionValues( values ) == projection.getObservationVector( ) );
-                BOOST_CHECK( concatenateInspectionValues( residuals ) == projection.getResidualVector( ) );
-                BOOST_CHECK( selectedWeights == projection.getSparseWeightMatrix( ).toDense( ) );
+                const auto vectorData = dataset.createNewAndKeep( condition )->createObservationVectorData( true );
+                BOOST_CHECK( concatenateInspectionValues( values ) == vectorData.getObservationVector( ) );
+                BOOST_CHECK( concatenateInspectionValues( residuals ) == vectorData.getResidualVector( ) );
+                BOOST_CHECK( selectedWeights == vectorData.getSparseWeightMatrix( ).toDense( ) );
                 for( unsigned int i = 0; i < components.size( ); ++i )
                 {
-                    BOOST_CHECK_EQUAL( projection.getObservationIds( ).at( i ), components.at( i ).first );
-                    BOOST_CHECK_EQUAL( projection.getTimes( ).at( i ), dataset.getObservationTime( components.at( i ).first ) );
+                    BOOST_CHECK_EQUAL( vectorData.getObservationIds( ).at( i ), components.at( i ).first );
+                    BOOST_CHECK_EQUAL( vectorData.getTimes( ).at( i ), dataset.getObservationTime( components.at( i ).first ) );
                 }
             }
         }

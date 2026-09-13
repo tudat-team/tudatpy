@@ -233,6 +233,12 @@ def test_tracking_data_can_create_observation_dataset():
 
     assert np.max(np.abs(actual_observations - expected_observations)) == pytest.approx(0.0)
     assert np.max(np.abs(actual_times - expected_times)) < 1.0e-5
+    # MPC row metadata is retained in TrackingData but must not become an empty
+    # observation-model ancillary-settings object for angular-position data.
+    assert all(
+        metadata["ancillary_settings"] is None
+        for metadata in observation_dataset.get_metadata().values()
+    )
 
 
 def test_tracking_data_observation_corrections_are_optional_during_dataset_creation():

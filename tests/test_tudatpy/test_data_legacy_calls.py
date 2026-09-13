@@ -12,6 +12,10 @@ from astroquery.mpc import MPC
 from tudatpy.dynamics import environment, environment_setup
 from tudatpy.estimation.observations import ObservationCollection
 
+# These tests assert the public entry-point warnings explicitly. Ignore nested
+# warnings from the legacy implementations while testing their returned data.
+pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
+
 
 def legacy_symbol(module, name):
     """Resolve a public legacy symbol and require its deprecation warning."""

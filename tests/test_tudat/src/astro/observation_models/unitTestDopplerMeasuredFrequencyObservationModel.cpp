@@ -150,9 +150,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         std::shared_ptr< observation_models::ObservationDataset< double, Time > > observationDataset =
                 createObservationDatasetFromTrackingData< double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        auto flattenedData = observationDataset->createEstimationFlattenedObservationData( );
-        auto observationTimes = flattenedData.getTimes( );
-        auto observations = flattenedData.getObservationVector( );
+        auto observationVectorData = observationDataset->createObservationVectorData( );
+        auto observationTimes = observationVectorData.getTimes( );
+        auto observations = observationVectorData.getObservationVector( );
 
         // Compute observables
         std::vector< double > linkEndTimes;

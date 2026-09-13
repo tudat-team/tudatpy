@@ -145,20 +145,19 @@ template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualVector(
-        const FlattenedObservationData< ObservationScalarType, TimeType >& flattenedObservationData,
+        const ObservationVectorData< ObservationScalarType, TimeType >& observationVectorData,
         const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector )
 {
-    validateProjection( flattenedObservationData );
-    if( residualVector.size( ) != flattenedObservationData.getObservationVector( ).size( ) )
+    validateObservationVectorData( observationVectorData );
+    if( residualVector.size( ) != observationVectorData.getObservationVector( ).size( ) )
     {
         throw std::runtime_error(
-                "Error when setting dataset residual vector from flattened observation data, input size is inconsistent with flattened "
-                "data size." );
+                "Error when setting dataset residual vector, input size is inconsistent with the observation vector data size." );
     }
 
     for( int i = 0; i < residualVector.size( ); ++i )
     {
-        residualValues_.at( flattenedObservationData.getScalarComponentIds( ).at( i ) ) = residualVector( i );
+        residualValues_.at( observationVectorData.getScalarComponentIds( ).at( i ) ) = residualVector( i );
     }
 }
 
@@ -307,7 +306,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setObservatio
     {
         observedValues_.at( row.firstScalarComponent_ + i ) = observation( i );
     }
-    ++projectionVersion_;
+    ++vectorDataVersion_;
 }
 
 template< typename ObservationScalarType,

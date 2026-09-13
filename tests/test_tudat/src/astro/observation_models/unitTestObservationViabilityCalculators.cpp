@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE( testDarknessAndSunlightViabilityAtAllLinkEndEpochs )
                         observableType, linkEnds, observationTimes, receiver, { viabilitySetting }, nullptr, ancillarySettings )
             };
             return simulateObservationDataset( simulationSettings, observationSimulators, bodies )
-                    ->createOrderedFlattenedObservationData( )
+                    ->createOrderedObservationVectorData( )
                     .getTimes( );
         };
 
@@ -962,9 +962,9 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         std::vector< Eigen::Vector6d > linkEndStates;
 
         std::vector< double > unconstrainedConcatenatedTimes =
-                unconstrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
+                unconstrainedSimulatedObservables->createOrderedObservationVectorData( ).getTimes( );
         std::vector< double > constrainedConcatenatedTimes =
-                constrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
+                constrainedSimulatedObservables->createOrderedObservationVectorData( ).getTimes( );
 
         // Iterate over all observations and check viability constraints
         for( int i = 0; i < numberOfObservables; i++ )
@@ -1323,9 +1323,8 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     std::vector< Eigen::Vector6d > linkEndStates;
 
     std::vector< double > unconstrainedConcatenatedTimes =
-            unconstrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
-    std::vector< double > constrainedConcatenatedTimes =
-            constrainedSimulatedObservables->createOrderedFlattenedObservationData( ).getTimes( );
+            unconstrainedSimulatedObservables->createOrderedObservationVectorData( ).getTimes( );
+    std::vector< double > constrainedConcatenatedTimes = constrainedSimulatedObservables->createOrderedObservationVectorData( ).getTimes( );
 
     // Iterate over all observations and check viability constraints
     for( int i = 0; i < numberOfObservables; i++ )

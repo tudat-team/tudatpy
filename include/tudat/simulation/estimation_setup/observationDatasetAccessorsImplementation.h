@@ -250,7 +250,7 @@ std::vector< unsigned int > ObservationDataset< ObservationScalarType, TimeType,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings ) const
 {
     std::vector< unsigned int > matchingSetIds;
-    for( const unsigned int setId : getSetIdsInOrderedFlattenedDataOrder( ) )
+    for( const unsigned int setId : getSetIdsInObservationVectorOrder( ) )
     {
         const ObservationSetMetadata< ObservationScalarType, TimeType >& metadata = getObservationSetMetadata( setId );
         const LinkEnds& linkEnds = getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_;
