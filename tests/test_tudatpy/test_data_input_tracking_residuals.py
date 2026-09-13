@@ -639,7 +639,8 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
 
 
-def test_tnf_mro_short_arc_residuals_are_low_after_compression():
+def test_tnf_mro_short_arc_residuals_are_low_after_compression(capfd):
+    """Compressed MRO Doppler data retain millihertz residuals with the calibrated link delays."""
     test_data_path = _test_data_path()
     mro_data_path = test_data_path / "mro_dsn_observation_model"
     mro_kernel_path = mro_data_path / "kernel_download"
@@ -669,11 +670,25 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     bodies = _create_mro_bodies(mro_kernel_path, interval_start - 3600.0, interval_end + 3600.0)
     tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
+    # Set the spacecraft delay in tracking data without replacing TNF station delays.
+    expected_link_delays = set()
+    for data_set in tracking_data:
+        link_delays = data_set.get_ancillary_settings_double_vector()["link ends time delays"]
+        expected_link_delays.add((link_delays[0], 1.4149e-6, link_delays[2]))
+        link_delays[1] = 1.4149e-6
+        data_set.add_double_vector_ancillary_setting("link ends time delays", link_delays)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     uncompressed_observations = create_observation_dataset_from_tracking_data(tracking_data, bodies)
     observed_observations = create_compressed_doppler_dataset(uncompressed_observations, 60, 10)
-    bodies.get_body("MRO").system_models.transponder_delay = 1.4149e-6
 
+    # Conversion and compression preserve both station delays and the spacecraft calibration.
+    for observation_set in observed_observations.get_single_observation_sets():
+        actual_delays = observation_set.ancillary_settings.get_float_list_settings(
+            ancillary_settings.link_ends_delays
+        )
+        assert tuple(actual_delays) in expected_link_delays
+
+    # Model the antenna offset and atmospheric corrections for the observed short arc.
     mro_center_of_mass_position = np.array([0.0, -1.11, 0.0])
     antenna_position_history = {}
     for set_id in range(observed_observations.number_of_observation_sets):
@@ -728,9 +743,14 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
         observed_observations
     )
 
+    # Compression preserves the expected sample count and small mean/RMS residuals.
     assert residuals.size == 59
     assert abs(np.mean(residuals)) < 1.5e-3
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3
+
+    # The modern tracking-data path must also avoid native deprecation diagnostics.
+    captured = capfd.readouterr()
+    assert "deprecated" not in (captured.out + captured.err).lower()
 
 
 def test_psf_voyager_triton_pixel_line_residuals_are_subpixel():

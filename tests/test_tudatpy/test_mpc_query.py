@@ -60,6 +60,37 @@ def _batch_from_optical_table(table, in_degrees=True, custom_name=None):
     return batch
 
 
+def test_observatory_names_counts_and_catalog_filters():
+    """Explicit station queries retain names, counts, and terrestrial/space filters."""
+    batch = BatchMPC()
+    batch._table = pd.DataFrame({"observatory": ["089", "089", "C51", "ZZZ"]})
+    catalog = Table(
+        {
+            "Code": ["89", "C51", "500"],
+            "Name": ["Nikolaev", "WISE", "Geocenter"],
+            "Longitude": [31.98, np.nan, 0.0],
+        }
+    )
+    with patch("astroquery.mpc.MPC.get_observatory_codes", return_value=catalog):
+        # Known station names are joined to counts; unknown codes remain visible.
+        stations = batch.observatories_table().set_index("Code")
+        assert stations["Name"].to_dict() == {"089": "Nikolaev", "C51": "WISE", "ZZZ": "ZZZ"}
+        assert stations["count"].to_dict() == {"089": 2, "C51": 1, "ZZZ": 1}
+
+        # Space classification comes from catalog metadata, including with no batch.
+        assert batch.observatories_table(only_space_telescopes=True).Code.tolist() == ["C51"]
+        assert batch.observatories_table(exclude_space_telescopes=True).Code.tolist() == [
+            "089",
+            "ZZZ",
+        ]
+        full_catalog = batch.observatories_table(only_in_batch=False).set_index("Code")
+        assert full_catalog.loc["500", "count"] == 0
+        assert full_catalog.loc["089", "count"] == 2
+        empty_catalog = BatchMPC().observatories_table(only_in_batch=False)
+        assert len(empty_catalog) == 3
+        assert (empty_catalog["count"] == 0).all()
+
+
 # ---------------------------------------------------------------------------
 # standardize_optical_dataframe: normalizes observatory codes and MPC numbers
 # before they're stored, so downstream lookups/joins are consistent.

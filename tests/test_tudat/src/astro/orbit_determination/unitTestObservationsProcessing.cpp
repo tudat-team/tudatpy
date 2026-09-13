@@ -501,6 +501,146 @@ BOOST_AUTO_TEST_CASE( test_dataset_flattened_data_weights_residuals_and_ordering
     BOOST_CHECK_EQUAL( flattenedData.getResidualVector( ).size( ), static_cast< int >( observationTimes.size( ) ) );
 }
 
+// Bulk removal must preserve the association between angular observations and all row metadata.
+BOOST_AUTO_TEST_CASE( testBulkObservationRemovalPreservesMetadata )
+{
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    const std::vector< std::vector< unsigned int > > removalCases = {
+        {}, { 0, 2, 5, 7 }, { 0, 1, 2 }, { 5, 6, 7 }, { 0, 1, 2, 3, 4, 5, 6, 7 }
+    };
+    for( bool withDependentVariables : { false, true } )
+    {
+        std::vector< Eigen::VectorXd > values, weights, residuals, dependentVariables;
+        std::vector< double > times;
+        auto bookkeeping = std::make_shared< ObservationDependentVariableBookkeeping >( angular_position, links );
+        bookkeeping->addDependentVariable( targetRangeBetweenLinkEndsDependentVariable( transmitter, receiver ) );
+        for( unsigned int i = 0; i < 8; ++i )
+        {
+            times.push_back( 10.0 * i );
+            values.push_back( Eigen::Vector2d( i, 100.0 + i ) );
+            weights.push_back( Eigen::Vector2d( 10.0 + i, 20.0 + i ) );
+            residuals.push_back( Eigen::Vector2d( -static_cast< double >( i ), -100.0 - i ) );
+            if( withDependentVariables )
+            {
+                dependentVariables.push_back( Eigen::VectorXd::Constant( 1, 5.0 * i ) );
+            }
+        }
+        for( const auto& removed : removalCases )
+        {
+            SingleObservationSet<> set(
+                    angular_position, links, values, times, receiver, dependentVariables, bookkeeping, nullptr, weights, residuals );
+            set.removeObservations( removed );
+
+            // Sparse, prefix, suffix and empty removals retain the original row order and values.
+            unsigned int retained = 0;
+            for( unsigned int original = 0; original < times.size( ); ++original )
+            {
+                if( std::find( removed.begin( ), removed.end( ), original ) != removed.end( ) )
+                {
+                    continue;
+                }
+                BOOST_CHECK_EQUAL( set.getObservationTime( retained ), times[ original ] );
+                BOOST_CHECK_SMALL( ( set.getObservation( retained ) - values[ original ] ).norm( ), 1.0e-15 );
+                BOOST_CHECK_SMALL( ( set.getWeights( ).at( retained ) - weights[ original ] ).norm( ), 1.0e-15 );
+                BOOST_CHECK_SMALL( ( set.getResidual( retained ) - residuals[ original ] ).norm( ), 1.0e-15 );
+                if( withDependentVariables )
+                {
+                    BOOST_CHECK_SMALL(
+                            ( set.getDependentVariablesForSingleObservation( retained ) - dependentVariables[ original ] ).norm( ),
+                            1.0e-15 );
+                }
+                ++retained;
+            }
+            BOOST_CHECK_EQUAL( set.getNumberOfObservables( ), retained );
+
+            // Removing every row empties metadata and makes bounds unavailable; otherwise bounds span retained rows.
+            BOOST_CHECK_EQUAL( set.getWeights( ).size( ), retained );
+            BOOST_CHECK_EQUAL( set.getResiduals( ).size( ), retained );
+            BOOST_CHECK_EQUAL( set.getObservationsDependentVariables( ).size( ), withDependentVariables ? retained : 0 );
+            if( retained == 0 )
+            {
+                BOOST_CHECK_THROW( set.getTimeBounds( ), std::runtime_error );
+            }
+            else
+            {
+                BOOST_CHECK_EQUAL( set.getTimeBounds( ).first, set.getObservationTimes( ).front( ) );
+                BOOST_CHECK_EQUAL( set.getTimeBounds( ).second, set.getObservationTimes( ).back( ) );
+            }
+        }
+
+        // Out-of-range, repeated and unordered indices fail before changing the observation set.
+        for( const auto& invalid : std::vector< std::vector< unsigned int > >{ { 8 }, { 1, 8 }, { 1, 1 }, { 3, 2 } } )
+        {
+            SingleObservationSet<> set(
+                    angular_position, links, values, times, receiver, dependentVariables, bookkeeping, nullptr, weights, residuals );
+            BOOST_CHECK_THROW( set.removeObservations( invalid ), std::runtime_error );
+            const auto retainedTimes = set.getObservationTimes( );
+            BOOST_CHECK_EQUAL_COLLECTIONS( retainedTimes.begin( ), retainedTimes.end( ), times.begin( ), times.end( ) );
+            BOOST_CHECK_EQUAL( set.getNumberOfObservables( ), times.size( ) );
+        }
+    }
+}
+
+// Exercise a large contiguous time filter without a timing threshold tied to CI hardware.
+BOOST_AUTO_TEST_CASE( testBulkTimeFilteringRetainsRequestedInterval )
+{
+    const unsigned int count = 20000;
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    std::vector< Eigen::VectorXd > values;
+    std::vector< double > times;
+    for( unsigned int i = 0; i < count; ++i )
+    {
+        values.push_back( Eigen::VectorXd::Constant( 1, 2.0 * i ) );
+        times.push_back( i );
+    }
+    SingleObservationSet<> set( one_way_range, links, values, times, receiver );
+    set.filterObservations( observationFilter( time_bounds_filtering, std::make_pair( 5000.0, 14999.0 ), true, true ), false );
+
+    // Both rejected tails disappear, leaving aligned times and values throughout the retained interval.
+    BOOST_REQUIRE_EQUAL( set.getNumberOfObservables( ), 10000 );
+    BOOST_CHECK_EQUAL( set.getTimeBounds( ).first, 5000.0 );
+    BOOST_CHECK_EQUAL( set.getTimeBounds( ).second, 14999.0 );
+    for( unsigned int i : { 0u, 4999u, 9999u } )
+    {
+        BOOST_CHECK_EQUAL( set.getObservationTime( i ), 5000.0 + i );
+        BOOST_CHECK_EQUAL( set.getObservation( i )( 0 ), 2.0 * ( 5000.0 + i ) );
+    }
+}
+
+// Splitting angular data must keep each component's distinct weight with its original observation.
+BOOST_AUTO_TEST_CASE( testAngularObservationSplittingPreservesComponentWeights )
+{
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    std::vector< Eigen::VectorXd > values, weights;
+    const std::vector< double > times = { 0.0, 1.0, 10.0, 11.0, 20.0, 21.0 };
+    for( unsigned int i = 0; i < times.size( ); ++i )
+    {
+        values.push_back( Eigen::Vector2d( i, 100.0 + i ) );
+        weights.push_back( Eigen::Vector2d( 10.0 + i, 1000.0 + i ) );
+    }
+    auto original = std::make_shared< SingleObservationSet<> >( angular_position, links, values, times, receiver );
+    original->setWeights( weights );
+
+    // Both count- and gap-based splits retain nonzero scalar offsets in the later sets.
+    for( const auto& splitter :
+         { observationSetSplitter( nb_observations_splitter, 2, 1 ), observationSetSplitter( time_interval_splitter, 5.0, 1 ) } )
+    {
+        const auto parts = splitObservationSet( original, splitter );
+        BOOST_REQUIRE_EQUAL( parts.size( ), 3 );
+        for( unsigned int part = 0; part < parts.size( ); ++part )
+        {
+            BOOST_REQUIRE_EQUAL( parts[ part ]->getNumberOfObservables( ), 2 );
+            for( unsigned int row = 0; row < 2; ++row )
+            {
+                const unsigned int source = part * 2 + row;
+                BOOST_CHECK_EQUAL( parts[ part ]->getObservationTime( row ), times[ source ] );
+                BOOST_CHECK_SMALL( ( parts[ part ]->getObservation( row ) - values[ source ] ).norm( ), 1.0e-15 );
+                BOOST_CHECK_SMALL( ( parts[ part ]->getWeights( ).at( row ) - weights[ source ] ).norm( ), 1.0e-15 );
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

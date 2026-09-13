@@ -1,7 +1,7 @@
 from tudatpy.data._compat import deprecated_dir, deprecated_getattr
 
 _ALIASES = {
-    "RadioBase": "tudatpy.data_input.tracking_data.tnf._converters.RadioBase",
+    "RadioBase": "tudatpy.data.processTrk234._legacy_converters.RadioBase",
 }
 
 __all__ = sorted(_ALIASES)
