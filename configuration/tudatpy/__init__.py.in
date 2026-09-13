@@ -1,4 +1,46 @@
 # Copyright 2025 - Tudat Development Team
 # This file is part of tudatpy.
 
+import sys
+
 __version__ = "@TUDATPY_FULL_VERSION@"
+
+_quad_precision_available = @TUDATPY_QUAD_PRECISION_AVAILABLE@
+_requested_state_scalar_type = "double"
+_state_scalar_type_is_locked = False
+
+
+def set_state_scalar_type(state_scalar_type: str) -> None:
+    """Select the C++ state scalar used by TudatPy before loading its kernel."""
+    global _requested_state_scalar_type
+
+    normalized_type = state_scalar_type.strip().lower()
+    if normalized_type not in ("double", "quad"):
+        raise ValueError("state_scalar_type must be either 'double' or 'quad'.")
+    if normalized_type == "quad" and not _quad_precision_available:
+        raise RuntimeError("This TudatPy build does not contain quad-precision Python bindings.")
+    if _state_scalar_type_is_locked or "tudatpy.kernel" in sys.modules:
+        raise RuntimeError(
+            "The TudatPy state scalar must be selected before importing "
+            "tudatpy.kernel or a module that imports it."
+        )
+
+    _requested_state_scalar_type = normalized_type
+
+
+def get_state_scalar_type() -> str:
+    """Return the requested, or already active, C++ state scalar."""
+    return _requested_state_scalar_type
+
+
+def quad_precision_available() -> bool:
+    """Return whether this TudatPy build contains quad-precision bindings."""
+    return _quad_precision_available
+
+
+def _lock_state_scalar_type(active_state_scalar_type: str) -> None:
+    global _requested_state_scalar_type
+    global _state_scalar_type_is_locked
+
+    _requested_state_scalar_type = active_state_scalar_type
+    _state_scalar_type_is_locked = True

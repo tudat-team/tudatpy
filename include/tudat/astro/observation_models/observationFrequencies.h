@@ -15,8 +15,13 @@
 #ifndef TUDAT_OBSERVATIONFREQUENCIES_H
 #define TUDAT_OBSERVATIONFREQUENCIES_H
 
+#include <functional>
+#include <type_traits>
+#include <utility>
 #include <string>
 #include <vector>
+
+#include "tudat/basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -58,6 +63,34 @@ double getCassiniKaBandTurnaroundRatio( );
  * @return Turnaround ratio
  */
 double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
+
+//! Exact integer components of the DSN frequency-band ratios (Moyer, table 13-1).
+std::pair< int, int > getDsnDefaultTurnaroundRatioIntegers( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
+
+//! Evaluate known rational models in quad, preserving double callbacks and all native-precision behavior.
+template< typename Scalar >
+Scalar evaluateTurnaroundRatio( const std::function< double( FrequencyBands, FrequencyBands ) >& function,
+                                const FrequencyBands uplink,
+                                const FrequencyBands downlink )
+{
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    if constexpr( std::is_same_v< Scalar, HighPrecisionStateScalar > )
+    {
+        // Identify the supplied function, never its rounded numeric result: an arbitrary custom callback
+        // must not be replaced by a DSN default just because it happens to return the same double.
+        using FunctionPointer = double ( * )( FrequencyBands, FrequencyBands );
+        const auto pointer = function.target< FunctionPointer >( );
+        if( pointer != nullptr && ( *pointer == &getDsnDefaultTurnaroundRatios || *pointer == &getCassiniTurnaroundRatio ) )
+        {
+            const auto ratio = *pointer == &getCassiniTurnaroundRatio && uplink == ka_band && downlink == ka_band
+                    ? std::make_pair( 14, 15 )
+                    : getDsnDefaultTurnaroundRatioIntegers( uplink, downlink );
+            return static_cast< Scalar >( ratio.first ) / static_cast< Scalar >( ratio.second );
+        }
+    }
+#endif
+    return static_cast< Scalar >( function( uplink, downlink ) );
+}
 
 /*!
  * Converts a vector of frequency bands to the corresponding vector of doubles, using the correspondence between each

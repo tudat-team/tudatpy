@@ -21,6 +21,8 @@
 
 #include <iostream>
 
+#include "tudat/basics/basicTypedefs.h"
+
 namespace tudat
 {
 namespace numerical_integrators
@@ -62,13 +64,13 @@ struct RungeKuttaCoefficients {
     enum OrderEstimateToIntegrate { lower = 0, higher = 1 };
 
     // Main table of the Butcher tableau.
-    Eigen::MatrixXd aCoefficients;
+    Eigen::MatrixXhps aCoefficients;
 
     // Bottom rows of the Butcher tableau.
-    Eigen::MatrixXd bCoefficients;
+    Eigen::MatrixXhps bCoefficients;
 
     // First column of the Butcher tableau.
-    Eigen::VectorXd cCoefficients;
+    Eigen::VectorXhps cCoefficients;
 
     // Order of the higher order estimate.
     unsigned int higherOrder;
@@ -107,9 +109,9 @@ struct RungeKuttaCoefficients {
      * \param isFixedStepSize_ Boolean denoting whether the coefficient set is made for a fixed step size.
      * \param name_ Name of the coefficient set.
      */
-    RungeKuttaCoefficients( const Eigen::MatrixXd& aCoefficients_,
-                            const Eigen::MatrixXd& bCoefficients_,
-                            const Eigen::MatrixXd& cCoefficients_,
+    RungeKuttaCoefficients( const Eigen::MatrixXhps& aCoefficients_,
+                            const Eigen::MatrixXhps& bCoefficients_,
+                            const Eigen::VectorXhps& cCoefficients_,
                             const unsigned int higherOrder_,
                             const unsigned int lowerOrder_,
                             OrderEstimateToIntegrate order,

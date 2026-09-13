@@ -34,6 +34,9 @@ namespace observations_setup
 {
 namespace observations_simulation_settings
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 void expose_observation_simulation_settings_factory_bindings( py::module& m )
 {
@@ -116,6 +119,7 @@ replacement_observable_types : dict[ObservableType, ObservableType], default = D
      )doc" );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace observations_simulation_settings
 }  // namespace observations_setup
 }  // namespace estimation

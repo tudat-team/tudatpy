@@ -94,10 +94,11 @@ public:
         std::vector< double > arcEndLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcEndLinkEndStates;
 
-        TimeType integrationTime;
+        ObservationScalarType integrationTime;
         try
         {
-            integrationTime = ancillarySetings->getAncillaryDoubleData( doppler_integration_time, true );
+            integrationTime =
+                    static_cast< ObservationScalarType >( ancillarySetings->getAncillaryDoubleData( doppler_integration_time, true ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -106,16 +107,18 @@ public:
         }
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData( time + integrationTime / 2.0,
-                                                                                    linkEndAssociatedWithTime,
-                                                                                    arcEndLinkEndTimes,
-                                                                                    arcEndLinkEndStates,
-                                                                                    ancillarySetings ) -
-                  arcStartObservationModel_->computeIdealObservationsWithLinkEndData( time - integrationTime / 2.0,
-                                                                                      linkEndAssociatedWithTime,
-                                                                                      arcStartLinkEndTimes,
-                                                                                      arcStartLinkEndStates,
-                                                                                      ancillarySetings ) ) /
+                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
+                          ( time + static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) ),
+                          linkEndAssociatedWithTime,
+                          arcEndLinkEndTimes,
+                          arcEndLinkEndStates,
+                          ancillarySetings ) -
+                  arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
+                          ( time - static_cast< TimeType >( integrationTime / static_cast< ObservationScalarType >( 2 ) ) ),
+                          linkEndAssociatedWithTime,
+                          arcStartLinkEndTimes,
+                          arcStartLinkEndStates,
+                          ancillarySetings ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );

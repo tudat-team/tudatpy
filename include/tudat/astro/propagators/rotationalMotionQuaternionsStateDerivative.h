@@ -177,7 +177,8 @@ public:
             // Normalize quaternions
             quaternionsVector = unprocessedState.block( i * 7, 0, 4, 1 );
             quaternionsMagnitude = quaternionsVector.norm( );
-            if( std::fabs( quaternionsMagnitude - 1.0 ) >= tolerance )
+            using std::abs;
+            if( abs( quaternionsMagnitude - mathematical_constants::getFloatingInteger< StateScalarType >( 1 ) ) >= tolerance )
             {
                 // Normalize
                 quaternionsVector /= quaternionsMagnitude;

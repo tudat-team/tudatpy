@@ -17,8 +17,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/createEphemeris.h>
 
-#include "scalarTypes.h"
-
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -67,6 +65,8 @@ namespace environment_setup
 {
 namespace ephemeris
 {
+
+void expose_ephemeris_setup_state_scalar( py::module& m );
 
 void expose_ephemeris_setup( py::module& m )
 {
@@ -428,11 +428,6 @@ void expose_ephemeris_setup( py::module& m )
 
          :type: Dict[[float], numpy.ndarray[numpy.float64[6, 1]]]
       )doc" );
-
-    m.def( "create_ephemeris",
-           &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "ephemeris_settings" ),
-           py::arg( "body_name" ) );
 
     m.def( "keplerian",
            &tss::keplerEphemerisSettings,
@@ -1255,6 +1250,8 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "custom_state_function" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000" );
+
+    expose_ephemeris_setup_state_scalar( m );
 }
 
 }  // namespace ephemeris

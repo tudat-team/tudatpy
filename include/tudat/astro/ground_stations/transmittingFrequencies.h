@@ -14,11 +14,14 @@
 #ifndef TUDAT_TRANSMITTINGFREQUENCIES_H
 #define TUDAT_TRANSMITTINGFREQUENCIES_H
 
+#include <algorithm>
 #include <iostream>
+#include <type_traits>
 
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 #include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/basics/tudatTypeTraits.h"
 
 namespace tudat
 {
@@ -60,7 +63,42 @@ public:
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    //! Integrate from the stored start to the stored end plus a separately retained duration correction.
+    //! Built-in models integrate this interval exactly; custom subclasses inherit a first-order correction.
+    template< typename ObservationScalarType, typename TimeType >
+    ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime,
+                                                         const TimeType& quadratureEndTime,
+                                                         const ObservationScalarType& durationCorrection )
+    {
+        static_assert( std::is_same_v< ObservationScalarType, HighPrecisionStateScalar >,
+                       "Frequency-integral duration compensation is reserved for quad states." );
+        static_assert( is_time_type< TimeType >::value, "Frequency integrals support double and Time epochs." );
+        return getFrequencyIntegralWithDurationCorrection( quadratureStartTime, quadratureEndTime, durationCorrection );
+    }
+#endif
+
 private:
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    // Preserve the previous first-order behavior for custom interpolators. Built-in interpolators override this
+    // with an exact integral of their frequency model, including ramp boundaries and gap handling.
+    virtual HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const double startTime,
+                                                                                 const double endTime,
+                                                                                 const HighPrecisionStateScalar& durationCorrection )
+    {
+        const HighPrecisionStateScalar integral = getLongFrequencyIntegral( startTime, endTime );
+        return durationCorrection == 0 ? integral : integral + getCurrentLongFrequency( endTime ) * durationCorrection;
+    }
+
+    virtual HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const Time& startTime,
+                                                                                 const Time& endTime,
+                                                                                 const HighPrecisionStateScalar& durationCorrection )
+    {
+        const HighPrecisionStateScalar integral = getLongFrequencyIntegral( startTime, endTime );
+        return durationCorrection == 0 ? integral : integral + getCurrentLongFrequency( endTime ) * durationCorrection;
+    }
+#endif
+
     //! Get frequency (with long double as observation scalar type and double as time type).
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
 
@@ -68,10 +106,10 @@ private:
     virtual double getCurrentFrequency( const Time& lookupTime ) = 0;
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual long double getCurrentLongFrequency( const double lookupTime ) = 0;
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime ) = 0;
 
     //! Get frequency (with long double as observation scalar type and Time as time type).
-    virtual long double getCurrentLongFrequency( const Time& lookupTime ) = 0;
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime ) = 0;
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
     virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
@@ -80,10 +118,10 @@ private:
     virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
-    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
 };
 
 class ConstantFrequencyInterpolator : public StationFrequencyInterpolator
@@ -104,56 +142,76 @@ public:
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime, const TimeType quadratureEndTime )
     {
-        return frequency_ * ( quadratureEndTime - quadratureStartTime );
+        return static_cast< ObservationScalarType >( frequency_ ) *
+                getTimeDifference< ObservationScalarType >( quadratureEndTime, quadratureStartTime );
     }
 
 private:
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const double startTime,
+                                                                         const double endTime,
+                                                                         const HighPrecisionStateScalar& durationCorrection ) override
+    {
+        return static_cast< HighPrecisionStateScalar >( frequency_ ) *
+                ( getTimeDifference< HighPrecisionStateScalar >( endTime, startTime ) + durationCorrection );
+    }
+
+    HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const Time& startTime,
+                                                                         const Time& endTime,
+                                                                         const HighPrecisionStateScalar& durationCorrection ) override
+    {
+        return static_cast< HighPrecisionStateScalar >( frequency_ ) *
+                ( getTimeDifference< HighPrecisionStateScalar >( endTime, startTime ) + durationCorrection );
+    }
+
+#endif
+
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual double getCurrentFrequency( const double lookupTime )
+    virtual double getCurrentFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< double, double >( lookupTime );
     }
 
     //! Get frequency (with double as observation scalar type and Time as time type).
-    virtual double getCurrentFrequency( const Time& lookupTime )
+    virtual double getCurrentFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< double, Time >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual long double getCurrentLongFrequency( const double lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime ) override
     {
-        return computeCurrentFrequency< long double, double >( lookupTime );
+        return computeCurrentFrequency< HighPrecisionStateScalar, double >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and Time as time type).
-    virtual long double getCurrentLongFrequency( const Time& lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime ) override
     {
-        return computeCurrentFrequency< long double, Time >( lookupTime );
+        return computeCurrentFrequency< HighPrecisionStateScalar, Time >( lookupTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with double as observation scalar type and Time as time type).
-    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
-        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
+        return computeFrequencyIntegral< HighPrecisionStateScalar, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
-    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
-        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
+        return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     double frequency_;
@@ -235,8 +293,10 @@ public:
             }
         }
 
-        return startFrequencies_.at( lowerNearestNeighbour ) +
-                rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
+        return static_cast< ObservationScalarType >( startFrequencies_.at( lowerNearestNeighbour ) ) +
+                static_cast< ObservationScalarType >( rampRates_.at( lowerNearestNeighbour ) ) *
+                convertIndependentVariableToScalar< ObservationScalarType >(
+                        lookupTime - static_cast< TimeType >( startTimes_.at( lowerNearestNeighbour ) ) );
     }
 
     /*! Templated function to compute the integral of the transmitted frequency.
@@ -252,6 +312,12 @@ public:
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime, const TimeType quadratureEndTime )
     {
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+        if constexpr( std::is_same_v< ObservationScalarType, HighPrecisionStateScalar > )
+        {
+            return computeFrequencyIntegralWithDurationCorrection( quadratureStartTime, quadratureEndTime, ObservationScalarType( 0 ) );
+        }
+#endif
         if( quadratureEndTime < quadratureStartTime )
         {
             return -computeFrequencyIntegral< ObservationScalarType, TimeType >( quadratureEndTime, quadratureStartTime );
@@ -305,14 +371,18 @@ public:
                 nextRampStartTime = startTimes_.at( currentRamp + 1 );
             }
 
-            ObservationScalarType timeDelta = static_cast< ObservationScalarType >( nextRampStartTime - currentTime );
-            ObservationScalarType frequencyAtCurrentTime = startFrequencies_.at( currentRamp ) +
+            ObservationScalarType timeDelta =
+                    convertIndependentVariableToScalar< ObservationScalarType >( nextRampStartTime - currentTime );
+            ObservationScalarType frequencyAtCurrentTime = static_cast< ObservationScalarType >( startFrequencies_.at( currentRamp ) ) +
                     static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) *
-                            static_cast< ObservationScalarType >( currentTime - startTimes_.at( currentRamp ) );
-            ObservationScalarType frequencyAtNextRampStartTime = startFrequencies_.at( currentRamp ) +
+                            convertIndependentVariableToScalar< ObservationScalarType >(
+                                    currentTime - static_cast< TimeType >( startTimes_.at( currentRamp ) ) );
+            ObservationScalarType frequencyAtNextRampStartTime =
+                    static_cast< ObservationScalarType >( startFrequencies_.at( currentRamp ) ) +
                     static_cast< ObservationScalarType >( rampRates_.at( currentRamp ) ) *
-                            static_cast< ObservationScalarType >( nextRampStartTime - startTimes_.at( currentRamp ) );
-            integral += timeDelta * ( frequencyAtCurrentTime + frequencyAtNextRampStartTime ) / 2.0;
+                            convertIndependentVariableToScalar< ObservationScalarType >(
+                                    nextRampStartTime - static_cast< TimeType >( startTimes_.at( currentRamp ) ) );
+            integral += timeDelta * ( frequencyAtCurrentTime + frequencyAtNextRampStartTime ) / static_cast< ObservationScalarType >( 2 );
 
             currentTime = nextRampStartTime;
             if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) && currentTime == startTimes_.at( currentRamp + 1 ) )
@@ -323,6 +393,69 @@ public:
 
         return integral;
     }
+
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    template< typename TimeType >
+    HighPrecisionStateScalar computeFrequencyIntegralWithDurationCorrection( const TimeType& startTime,
+                                                                             const TimeType& endTime,
+                                                                             const HighPrecisionStateScalar& durationCorrection )
+    {
+        using Scalar = HighPrecisionStateScalar;
+        const Scalar duration = getTimeDifference< Scalar >( endTime, startTime ) + durationCorrection;
+        const Scalar lower = duration < 0 ? duration : Scalar( 0 );
+        const Scalar upper = duration < 0 ? Scalar( 0 ) : duration;
+        if( lower == upper )
+        {
+            return Scalar( 0 );
+        }
+        if( startTimes_.empty( ) )
+        {
+            throw std::runtime_error( "Error when integrating ramp reference frequency: no ramps are defined." );
+        }
+        const auto offset = [ & ]( const Time& epoch ) {
+            if constexpr( std::is_same_v< TimeType, Time > )
+            {
+                return getTimeDifference< Scalar >( epoch, startTime );
+            }
+            else
+            {
+                return epoch.template getSeconds< Scalar >( ) - static_cast< Scalar >( startTime );
+            }
+        };
+
+        for( unsigned int i = 0; i < invalidTimeBlocksStartTimes_.size( ); ++i )
+        {
+            if( lower < offset( invalidTimeBlocksEndTimes_[ i ] ) && upper > offset( invalidTimeBlocksStartTimes_[ i ] ) )
+            {
+                handleGap( "Error when integrating ramp reference frequency: corrected interval overlaps a gap." );
+            }
+        }
+
+        const auto firstLaterRamp =
+                std::upper_bound( startTimes_.begin( ), startTimes_.end( ), lower, [ & ]( const Scalar& value, const Time& epoch ) {
+                    return value < offset( epoch );
+                } );
+        int currentRamp = std::max( 0, static_cast< int >( firstLaterRamp - startTimes_.begin( ) ) - 1 );
+        Scalar current = lower;
+        Scalar integral = 0;
+        while( current < upper )
+        {
+            Scalar next = upper;
+            if( currentRamp + 1 < static_cast< int >( startTimes_.size( ) ) )
+            {
+                next = std::min( next, offset( startTimes_[ currentRamp + 1 ] ) );
+            }
+            const Scalar step = next - current;
+            const Scalar rate = static_cast< Scalar >( rampRates_[ currentRamp ] );
+            const Scalar frequency =
+                    static_cast< Scalar >( startFrequencies_[ currentRamp ] ) + rate * ( current - offset( startTimes_[ currentRamp ] ) );
+            integral += step * ( frequency + rate * step / Scalar( 2 ) );
+            current = next;
+            ++currentRamp;
+        }
+        return duration < 0 ? -integral : integral;
+    }
+#endif
 
     //! Function to retrieve ramp start times
     std::vector< Time > getStartTimes( )
@@ -369,6 +502,23 @@ public:
     void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd );
 
 private:
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+    HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const double startTime,
+                                                                         const double endTime,
+                                                                         const HighPrecisionStateScalar& durationCorrection ) override
+    {
+        return computeFrequencyIntegralWithDurationCorrection( startTime, endTime, durationCorrection );
+    }
+
+    HighPrecisionStateScalar getFrequencyIntegralWithDurationCorrection( const Time& startTime,
+                                                                         const Time& endTime,
+                                                                         const HighPrecisionStateScalar& durationCorrection ) override
+    {
+        return computeFrequencyIntegralWithDurationCorrection( startTime, endTime, durationCorrection );
+    }
+
+#endif
+
     void handleGap( const std::string& gapMessage )
     {
         switch( gapHandling_ )
@@ -393,51 +543,51 @@ private:
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual double getCurrentFrequency( const double lookupTime )
+    virtual double getCurrentFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< double, double >( lookupTime );
     }
 
     //! Get frequency (with double as observation scalar type and Time as time type).
-    virtual double getCurrentFrequency( const Time& lookupTime )
+    virtual double getCurrentFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< double, Time >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual long double getCurrentLongFrequency( const double lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime ) override
     {
-        return computeCurrentFrequency< long double, double >( lookupTime );
+        return computeCurrentFrequency< HighPrecisionStateScalar, double >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and Time as time type).
-    virtual long double getCurrentLongFrequency( const Time& lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime ) override
     {
-        return computeCurrentFrequency< long double, Time >( lookupTime );
+        return computeCurrentFrequency< HighPrecisionStateScalar, Time >( lookupTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with double as observation scalar type and Time as time type).
-    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
-        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
+        return computeFrequencyIntegral< HighPrecisionStateScalar, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
-    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
-        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
+        return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Start time of each ramp

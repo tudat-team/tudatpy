@@ -69,7 +69,7 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double currentTime );
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongState( const double currentTime );
 
     //! Get state from ephemeris (Time time input)
     /*!
@@ -85,7 +85,7 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State currentTime ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime );
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime );
 
     //! Function to reset the constituent arc ephemerides
     /*!

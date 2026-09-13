@@ -55,7 +55,9 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 3
+            # Bound peak memory while compiling the template-heavy state-scalar
+            # pybind translation units, matching the Windows and macOS jobs.
+            build_jobs: 2
             ccache: ON
           - os: windows-latest
             label: win-64
@@ -205,6 +207,8 @@ jobs:
           -DTUDAT_BUILD_WITH_PCH=ON \
           -DTUDAT_BUILD_WITH_MCD_INTERFACE=${BUILD_WITH_MCD} \
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
+          -DTUDAT_HIGH_PRECISION_STATE_SCALAR=CPP_BIN_FLOAT_QUAD \
+          -DTUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=ON \
           -DCMAKE_UNITY_BUILD=ON
 
     - name: Configure CMake
@@ -242,6 +246,8 @@ jobs:
           -DTUDAT_BUILD_WITH_PCH=ON ^
           -DTUDAT_BUILD_WITH_MCD_INTERFACE=%BUILD_WITH_MCD% ^
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
+          -DTUDAT_HIGH_PRECISION_STATE_SCALAR=CPP_BIN_FLOAT_QUAD ^
+          -DTUDATPY_BUILD_WITH_QUAD_PRECISION_EXPOSURE=ON ^
           -DCMAKE_UNITY_BUILD=ON
 
     - name: Build C++ kernel
@@ -275,7 +281,7 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
     - name: Build Python package
       shell: bash -l {0}

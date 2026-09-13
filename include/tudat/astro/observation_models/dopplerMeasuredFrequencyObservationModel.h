@@ -189,14 +189,14 @@ public:
                                                  currentTurnAroundRatio );
         }
         // Calculate the light time
-        TimeType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+        ObservationScalarType lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         // Get the time when the signal left the transmitter
         Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
                 ? Eigen::Vector3d::Zero( )
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
-        TimeType transmitterTime = time - lightTime;
+        TimeType transmitterTime = ( time - static_cast< TimeType >( lightTime ) );
 
         TimeType transmitterUtcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
@@ -214,7 +214,7 @@ public:
 
         ObservationScalarType receivedFrequency =
                 ( transmittedFrequency * ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + twoWayDoppler ) ) *
-                turnaroundRatio_( uplinkBand, downlinkBand );
+                evaluateTurnaroundRatio< ObservationScalarType >( turnaroundRatio_, uplinkBand, downlinkBand );
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
                 ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << receivedFrequency ).finished( );

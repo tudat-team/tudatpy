@@ -16,8 +16,26 @@
 // to delegate the actual tests to.
 #include <Eigen/Core>
 
+#include <cmath>
+
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
+
+namespace tudat
+{
+namespace test_helpers
+{
+
+//! Return the absolute value of built-in and argument-dependent numeric types.
+template< typename ValueType >
+inline auto getAbsoluteValue( const ValueType& value )
+{
+    using std::abs;
+    return abs( value );
+}
+
+}  // namespace test_helpers
+}  // namespace tudat
 
 /************************************************************************/
 /* INTERNAL MACROS (Not for use by general users, use with caution)     */
@@ -32,9 +50,10 @@
 /*!
  * Creates an error message which displays row/col/left/right/tolerance and and additional string.
  */
-#define _TUDAT_CHECK_MESSAGE( L, R, T, additionalString )                                                                          \
-    boost::str( boost::format( _TUDAT_CHECK_MATRIX_MESSAGE ) % row % col % std::abs( L.coeff( row, col ) - R.coeff( row, col ) ) % \
-                L.coeff( row, col ) % R.coeff( row, col ) % T % additionalString )
+#define _TUDAT_CHECK_MESSAGE( L, R, T, additionalString )                                                                    \
+    boost::str( boost::format( _TUDAT_CHECK_MATRIX_MESSAGE ) % row % col %                                                   \
+                ::tudat::test_helpers::getAbsoluteValue( L.coeff( row, col ) - R.coeff( row, col ) ) % L.coeff( row, col ) % \
+                R.coeff( row, col ) % T % additionalString )
 
 //! This macro imports the correct boost namespace for percent_tolerance.
 /*!

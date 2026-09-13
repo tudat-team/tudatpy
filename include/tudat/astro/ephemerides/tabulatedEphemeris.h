@@ -106,15 +106,15 @@ public:
      */
     Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
-    //! Get cartesian state from ephemeris (in long double precision).
+    //! Get cartesian state from ephemeris (using the configured high-precision state scalar).
     /*!
-     * Returns cartesian state from ephemeris  (in long double precision), as calculated from interpolator_. For
+     * Returns a configured high-precision cartesian state, as calculated from interpolator_. For
      * double StateScalarType class template argument, this function returns the double precision interpolated values,
-     * cast to long double. Only for long double StateScalarType argument is this function used to its fullest.
+     * cast to the configured scalar. Only for HighPrecisionStateScalar StateScalarType is the full precision retained.
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch );
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongState( const double secondsSinceEpoch );
 
     //! Get cartesian state from ephemeris (in double precision from Time input).
     /*!
@@ -124,15 +124,15 @@ public:
      */
     Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& time );
 
-    //! Get cartesian state from ephemeris (in long double precision from Time input).
+    //! Get cartesian state from ephemeris (using the configured high-precision state scalar from Time input).
     /*!
-     * Returns cartesian state from ephemeris  (in long double precision from Time input), as calculated from interpolator_.
+     * Returns a configured high-precision cartesian state from Time input, as calculated from interpolator_.
      * For double StateScalarType class template argument, this function returns the double precision interpolated values,
-     * cast to long double. Only for long double StateScalarType argument is this function used to its fullest.
+     * cast to the configured scalar. Only for HighPrecisionStateScalar StateScalarType is the full precision retained.
      * \param time Time at which ephemeris is to be evaluated
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time );
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time );
 
     //! Function to return the interpolator
     /*!

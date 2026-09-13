@@ -46,9 +46,9 @@ public:
         return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< double >( );
     }
 
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
-        return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< long double >( );
+        return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< HighPrecisionStateScalar >( );
     }
 
     Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& time )
@@ -56,9 +56,9 @@ public:
         return stateFunction_( static_cast< TimeType >( time ) ).template cast< double >( );
     }
 
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time )
     {
-        return stateFunction_( static_cast< TimeType >( time ) ).template cast< long double >( );
+        return stateFunction_( static_cast< TimeType >( time ) ).template cast< HighPrecisionStateScalar >( );
     }
 
 private:

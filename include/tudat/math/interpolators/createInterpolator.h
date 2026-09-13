@@ -12,8 +12,10 @@
 #define TUDAT_CREATEINTERPOLATOR_H
 
 #include <iostream>
+#include <limits>
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include "tudat/math/interpolators/linearInterpolator.h"
@@ -556,10 +558,34 @@ public:
     std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
 
+//! Scalar of a sampled value; Eigen state vectors expose it through Scalar.
+namespace detail
+{
+template< typename Value, typename = void >
+struct InterpolationValueScalar {
+    using type = Value;
+};
+
+template< typename Value >
+struct InterpolationValueScalar< Value, std::void_t< typename Value::Scalar > > {
+    using type = typename Value::Scalar;
+};
+
+template< typename Independent, typename Dependent >
+using DefaultInterpolationScalar =
+        std::conditional_t< ( !std::numeric_limits< typename InterpolationValueScalar< Dependent >::type >::is_integer &&
+                              std::numeric_limits< typename InterpolationValueScalar< Dependent >::type >::digits >
+                                      std::numeric_limits< typename scalar_type< Independent >::value_type >::digits ),
+                            typename InterpolationValueScalar< Dependent >::type,
+                            typename scalar_type< Independent >::value_type >;
+}  // namespace detail
+
 //! Function to create a one-dimensional interpolator
 /*!
  *  Function to create a one-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
+ *  \tparam ScalarType Scalar used for interpolation weights and coefficients. Defaults to the more precise of
+ *      the epoch scalar and the sampled-value scalar, so quad values never acquire double weights by default.
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
  *      variables, value = dependent variables).
  *  \param interpolatorSettings Settings that are to be used to create interpolator.
@@ -570,7 +596,9 @@ public:
  *      be supplied if the selected interpolator requires this data (e.g. Hermite spline).
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType,
+          typename DependentVariableType,
+          typename ScalarType = detail::DefaultInterpolationScalar< IndependentVariableType, DependentVariableType > >
 std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
@@ -594,14 +622,14 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
     switch( interpolatorSettings->getInterpolatorType( ) )
     {
         case linear_interpolator:
-            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator = std::make_shared< LinearInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ),
                     defaultExtrapolationValue );
             break;
         case cubic_spline_interpolator: {
-            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
+            createdInterpolator = std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
                     dataToInterpolate,
                     interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
@@ -613,13 +641,14 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
                     std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
             if( lagrangeInterpolatorSettings != nullptr )
             {
-                createdInterpolator = std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType > >(
-                        dataToInterpolate,
-                        lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                        interpolatorSettings->getSelectedLookupScheme( ),
-                        lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
-                        interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                        defaultExtrapolationValue );
+                createdInterpolator =
+                        std::make_shared< LagrangeInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
+                                dataToInterpolate,
+                                lagrangeInterpolatorSettings->getInterpolatorOrder( ),
+                                interpolatorSettings->getSelectedLookupScheme( ),
+                                lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),
+                                interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                                defaultExtrapolationValue );
             }
             else
             {
@@ -632,12 +661,13 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentV
             {
                 throw std::runtime_error( "Error when creating hermite spline interpolator, derivative size is inconsistent" );
             }
-            createdInterpolator = std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType > >(
-                    dataToInterpolate,
-                    firstDerivativeOfDependentVariables,
-                    interpolatorSettings->getSelectedLookupScheme( ),
-                    interpolatorSettings->getBoundaryHandling( ).at( 0 ),
-                    defaultExtrapolationValue );
+            createdInterpolator =
+                    std::make_shared< HermiteCubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >(
+                            dataToInterpolate,
+                            firstDerivativeOfDependentVariables,
+                            interpolatorSettings->getSelectedLookupScheme( ),
+                            interpolatorSettings->getBoundaryHandling( ).at( 0 ),
+                            defaultExtrapolationValue );
             break;
         }
         case piecewise_constant_interpolator:

@@ -14,6 +14,8 @@
 #include <functional>
 #include <string>
 
+#include <tudat/config.hpp>
+
 #include <Eigen/Core>
 
 #include "tudat/basics/timeType.h"
@@ -74,7 +76,7 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time ) = 0;
+    virtual Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getBaseFrameLongDoubleState( const double time ) = 0;
 
     //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
@@ -88,11 +90,11 @@ protected:
     //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
      *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and long double state scalar).
+     *  (Time object time and the configured high-precision state scalar).
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time ) = 0;
+    virtual Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getBaseFrameLongDoubleState( const Time& time ) = 0;
 
     //! Name of frame origin for which inertial state is computed by this class
     std::string baseFrameId_;
@@ -149,9 +151,10 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getBaseFrameLongDoubleState( const double time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
+        return static_cast< HighPrecisionStateScalar >( stateMultiplier_ ) *
+                stateFunction_( time ).template cast< HighPrecisionStateScalar >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -169,13 +172,14 @@ protected:
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
      *  Function through which the state of baseFrameId_ in the inertial frame can be determined
-     *  (Time object time and long double state scalar).
+     *  (Time object time and the configured high-precision state scalar).
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
+    Eigen::Matrix< HighPrecisionStateScalar, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
+        return static_cast< HighPrecisionStateScalar >( stateMultiplier_ ) *
+                std::move( stateFunction_( time ) ).template cast< HighPrecisionStateScalar >( );
     }
 
 private:

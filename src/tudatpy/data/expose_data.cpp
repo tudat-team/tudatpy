@@ -759,7 +759,7 @@ Read a mapping from DOMES id to station name.
            py::arg( "weather_file_names" ),
            py::arg_v( "interpolator_settings", tudat::interpolators::linearInterpolation( ), "..." ),
            py::arg_v( "ground_stations_per_complex",
-                      tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+                      tio::getDefaultDsnStationNamesPerComplex( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_default_dsn_station_names_per_complex()" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(

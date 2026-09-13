@@ -189,6 +189,16 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000,
  */
 double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& stationCartesianPosition );
 
+#if TUDAT_HIGH_PRECISION_STATE_SCALAR_IS_CPP_BIN_FLOAT_QUAD
+//! Evaluate the SOFA/ERFA TDB-TT model in quad arithmetic for short-interval differences.
+/*! The model coefficients and station coordinates retain their supplied precision. This changes the
+ *  numerical evaluation, not the physical accuracy of the Fairhead-Bretagnon/Moyer approximation.
+ *  Like getTDBminusTT, the daily rotation term approximates UT1 by UTC and TT by TDB.
+ */
+HighPrecisionStateScalar getHighPrecisionTDBminusTT( const HighPrecisionStateScalar& ttOrTdbSinceJ2000,
+                                                     const Eigen::Vector3d& earthFixedPosition );
+#endif
+
 //! Determine the number of seconds that have passed in the current year.
 /*!
  * Determine the number of seconds that have passed in the current year.

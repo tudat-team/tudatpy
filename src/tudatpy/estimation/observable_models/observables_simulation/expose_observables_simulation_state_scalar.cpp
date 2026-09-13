@@ -28,6 +28,9 @@ namespace observable_models
 
 namespace observables_simulation
 {
+// This translation unit is compiled once for each enabled state scalar.
+namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
+{
 
 void expose_observables_simulation( py::module& m )
 {
@@ -116,6 +119,7 @@ void expose_observables_simulation( py::module& m )
             m, "ObservationSimulator_6", R"doc(No documentation found.)doc" );
 }
 
+}  // namespace TUDATPY_STATE_SCALAR_BINDING_NAMESPACE
 }  // namespace observables_simulation
 }  // namespace observable_models
 }  // namespace estimation

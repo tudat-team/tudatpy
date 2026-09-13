@@ -599,12 +599,17 @@ public:
         Eigen::VectorXd rmsResiduals = Eigen::VectorXd::Zero( singleObservationSize_ );
         for( unsigned int i = 0; i < singleObservationSize_; i++ )
         {
+            ObservationScalarType squaredResidualSum = ObservationScalarType( 0 );
+
             // Calculate RMS of the residuals for each observation component
             for( unsigned int j = 0; j < numberOfObservations_; j++ )
             {
-                rmsResiduals[ i ] += residuals_[ j ]( i, 0 ) * residuals_[ j ]( i, 0 );
+                squaredResidualSum += residuals_[ j ]( i, 0 ) * residuals_[ j ]( i, 0 );
             }
-            rmsResiduals[ i ] = std::sqrt( rmsResiduals[ i ] / numberOfObservations_ );
+
+            using std::sqrt;
+            rmsResiduals[ i ] =
+                    static_cast< double >( sqrt( squaredResidualSum / static_cast< ObservationScalarType >( numberOfObservations_ ) ) );
         }
 
         return rmsResiduals;
@@ -615,12 +620,14 @@ public:
         Eigen::VectorXd meanResiduals = Eigen::VectorXd::Zero( singleObservationSize_ );
         for( unsigned int i = 0; i < singleObservationSize_; i++ )
         {
+            ObservationScalarType residualSum = ObservationScalarType( 0 );
+
             // Calculate mean residual for each observation component
             for( unsigned int j = 0; j < numberOfObservations_; j++ )
             {
-                meanResiduals[ i ] += residuals_[ j ]( i, 0 );
+                residualSum += residuals_[ j ]( i, 0 );
             }
-            meanResiduals[ i ] /= numberOfObservations_;
+            meanResiduals[ i ] = static_cast< double >( residualSum / static_cast< ObservationScalarType >( numberOfObservations_ ) );
         }
         return meanResiduals;
     }
@@ -826,8 +833,12 @@ public:
                     bool removeObservation = false;
                     for( unsigned int k = 0; k < singleObservationSize_; k++ )
                     {
-                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
-                            ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
+                        using std::abs;
+                        const ObservationScalarType absoluteResidual = abs( singleObservationResidual[ k ] );
+                        const ObservationScalarType residualCutOffValue = static_cast< ObservationScalarType >( residualCutOff[ k ] );
+
+                        if( ( !useOppositeCondition && ( absoluteResidual > residualCutOffValue ) ) ||
+                            ( useOppositeCondition && ( absoluteResidual <= residualCutOffValue ) ) )
                         {
                             removeObservation = true;
                         }
