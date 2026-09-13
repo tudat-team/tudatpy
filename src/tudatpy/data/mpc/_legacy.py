@@ -1305,7 +1305,7 @@ class BatchMPC:
 
         axRA.set_ylabel(r"Right Ascension $[\deg]$")
         axDEC.set_ylabel(r"Declination $[\deg]$")
-        axDEC.set_xlabel(r"Time [year]")
+        axDEC.set_xlabel("Time since J2000 (TDB) [s]")
 
         axRA.grid()
         axDEC.grid()

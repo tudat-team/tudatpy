@@ -223,47 +223,32 @@ void expose_tracking_data( py::module& m )
             .def( "get_ancillary_settings_string_vector",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsStringVector,
                   R"doc(
-         Return a string-vector ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all string-vector ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         list[str]
-             Ancillary setting values.
+         dict[str, list[str]]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "get_ancillary_settings_double",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDouble,
                   R"doc(
-         Return a floating-point ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all floating-point ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         float
-             Ancillary setting value.
+         dict[str, float]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "get_ancillary_settings_double_vector",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettingsDoubleVector,
                   R"doc(
-         Return a floating-point-vector ancillary setting.
-
-         Parameters
-         ----------
-         ancillary_settings_type : str
-             Ancillary setting identifier.
+         Return all floating-point-vector ancillary settings, keyed by setting identifier.
 
          Returns
          -------
-         list[float]
-             Ancillary setting values.
+         dict[str, list[float]]
+             Ancillary setting identifiers and their values.
       )doc" )
             .def( "set_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights,

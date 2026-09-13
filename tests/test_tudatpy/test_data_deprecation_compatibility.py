@@ -1,6 +1,9 @@
 import importlib
 import inspect
 from pathlib import Path
+import subprocess
+import sys
+import textwrap
 from unittest.mock import patch
 
 import numpy as np
@@ -247,6 +250,41 @@ def test_observations_wrapper_is_available_through_parent(monkeypatch):
     # Unknown names retain normal attribute semantics rather than being redirected.
     with pytest.raises(AttributeError, match="not_a_tudat_attribute"):
         parent.not_a_tudat_attribute
+
+
+@pytest.mark.parametrize(
+    "import_statement",
+    [
+        "from tudatpy.estimation import observations_setup",
+        "from tudatpy import estimation; observations_setup = estimation.observations_setup",
+    ],
+)
+def test_fresh_estimation_import_retains_observations_wrapper(import_statement):
+    """Both public parent imports expose the legacy simulator in a fresh interpreter."""
+    # A separate process prevents earlier submodule imports from masking the bug.
+    script = import_statement + "\n" + textwrap.dedent("""\
+        import inspect
+        import warnings
+        from tudatpy.estimation import observations
+
+        # The alias preserves function identity and warns at the user's access line.
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter("always", DeprecationWarning)
+            expected_line = inspect.currentframe().f_lineno + 1
+            simulator = observations_setup.observations_wrapper.simulate_observations
+        assert simulator is observations.simulate_observations
+        assert len(captured) == 1
+        assert captured[0].category is DeprecationWarning
+        assert "simulate_observations is deprecated" in str(captured[0].message)
+        assert captured[0].filename == "<string>"
+        assert captured[0].lineno == expected_line
+        """)
+    subprocess.run(
+        [sys.executable, "-W", "error::DeprecationWarning", "-c", script],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
 
 def test_deprecated_crd_single_file_reader_warns_and_delegates():

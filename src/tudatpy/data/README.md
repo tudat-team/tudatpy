@@ -56,3 +56,6 @@ serves imports outside `tudatpy.data`. When retiring it, delete that directory a
 the compatibility `__getattr__`/`__dir__` bridge in
 `estimation/observations_setup/__init__.py`. Keep the current kernel exports in
 that initializer and the supported `tudatpy.estimation.observations` namespace.
+The explicit Python-package import in `estimation/__init__.py` can also be
+removed when this wrapper is retired, provided `observations_setup` has no
+remaining Python-level functionality.
