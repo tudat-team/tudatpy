@@ -167,49 +167,49 @@ private:
 #endif
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual double getCurrentFrequency( const double lookupTime )
+    virtual double getCurrentFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< double, double >( lookupTime );
     }
 
     //! Get frequency (with double as observation scalar type and Time as time type).
-    virtual double getCurrentFrequency( const Time& lookupTime )
+    virtual double getCurrentFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< double, Time >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< HighPrecisionStateScalar, double >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and Time as time type).
-    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< HighPrecisionStateScalar, Time >( lookupTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with double as observation scalar type and Time as time type).
-    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
-    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
     }
@@ -543,49 +543,49 @@ private:
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual double getCurrentFrequency( const double lookupTime )
+    virtual double getCurrentFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< double, double >( lookupTime );
     }
 
     //! Get frequency (with double as observation scalar type and Time as time type).
-    virtual double getCurrentFrequency( const Time& lookupTime )
+    virtual double getCurrentFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< double, Time >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and double as time type).
-    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const double lookupTime ) override
     {
         return computeCurrentFrequency< HighPrecisionStateScalar, double >( lookupTime );
     }
 
     //! Get frequency (with long double as observation scalar type and Time as time type).
-    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime )
+    virtual HighPrecisionStateScalar getCurrentLongFrequency( const Time& lookupTime ) override
     {
         return computeCurrentFrequency< HighPrecisionStateScalar, Time >( lookupTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with double as observation scalar type and Time as time type).
-    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and double as time type).
-    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) override
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, double >( quadratureStartTime, quadratureEndTime );
     }
 
     //! Get frequency integral (with long double as observation scalar type and Time as time type).
-    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    virtual HighPrecisionStateScalar getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) override
     {
         return computeFrequencyIntegral< HighPrecisionStateScalar, Time >( quadratureStartTime, quadratureEndTime );
     }
