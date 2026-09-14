@@ -427,6 +427,7 @@ BOOST_AUTO_TEST_CASE( marinerSimpleReading )
 }
 
 //! Test observation dataset and time conversions with Viking Data
+//! Verify Viking range tracking data convert to an observation dataset.
 BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
 {
     // Load the observations from the Viking file

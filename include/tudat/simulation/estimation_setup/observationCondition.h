@@ -52,6 +52,7 @@ enum class ObservationSelectionConditionType {
     custom
 };
 
+//! Return the stable diagnostic name for an observation-selection condition type.
 inline std::string getObservationSelectionConditionTypeString( const ObservationSelectionConditionType conditionType )
 {
     switch( conditionType )
@@ -116,12 +117,15 @@ class ObservationSelectionCondition
 public:
     using Evaluator = std::function< bool( const ObservationDataset< ObservationScalarType, TimeType >&, const int ) >;
 
+    //! Create a condition that selects every observation row.
     ObservationSelectionCondition( ): type_( ObservationSelectionConditionType::all ) {}
 
+    //! Create an opaque condition evaluated by a custom row predicate.
     explicit ObservationSelectionCondition( const Evaluator& evaluator ):
         type_( ObservationSelectionConditionType::custom ), customEvaluator_( evaluator )
     {}
 
+    //! Evaluate this condition for one observation identity in a dataset.
     bool operator( )( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         switch( type_ )
@@ -169,6 +173,7 @@ public:
         }
     }
 
+    //! Combine two conditions with logical AND.
     ObservationSelectionCondition operator&&( const ObservationSelectionCondition& other ) const
     {
         ObservationSelectionCondition condition;
@@ -177,6 +182,7 @@ public:
         return condition;
     }
 
+    //! Combine two conditions with logical OR.
     ObservationSelectionCondition operator||( const ObservationSelectionCondition& other ) const
     {
         ObservationSelectionCondition condition;
@@ -185,6 +191,7 @@ public:
         return condition;
     }
 
+    //! Negate this condition.
     ObservationSelectionCondition operator!( ) const
     {
         ObservationSelectionCondition condition;
@@ -193,76 +200,91 @@ public:
         return condition;
     }
 
+    //! Return the inspectable node type for this condition.
     ObservationSelectionConditionType getConditionType( ) const
     {
         return type_;
     }
 
+    //! Return the stable diagnostic name of this condition's node type.
     std::string getConditionTypeString( ) const
     {
         return getObservationSelectionConditionTypeString( type_ );
     }
 
+    //! Return child nodes used by logical composite conditions.
     const std::vector< ObservationSelectionCondition >& getChildConditions( ) const
     {
         return children_;
     }
 
+    //! Return the observable-type value stored by an observable-type condition.
     ObservableType getObservableType( ) const
     {
         return observableType_;
     }
 
+    //! Return the link definition stored by a link-definition condition.
     LinkDefinition getLinkDefinition( ) const
     {
         return linkDefinition_;
     }
 
+    //! Return the link-end role stored by a link-end condition.
     LinkEndType getLinkEndType( ) const
     {
         return linkEndType_;
     }
 
+    //! Return the link-end identity stored by a link-end condition.
     LinkEndId getLinkEndId( ) const
     {
         return linkEndId_;
     }
 
+    //! Return the set identity stored by a set-id condition.
     unsigned int getSetId( ) const
     {
         return setId_;
     }
 
+    //! Return the inclusive limits stored by a time-bounds condition.
     std::pair< TimeType, TimeType > getTimeBounds( ) const
     {
         return std::make_pair( startTime_, endTime_ );
     }
 
+    //! Return the epoch stored by a one-sided time condition.
     TimeType getTimeValue( ) const
     {
         return timeValue_;
     }
 
+    //! Return component limits stored by a value-threshold condition.
     const Eigen::VectorXd& getVectorLimit( ) const
     {
         return vectorLimit_;
     }
 
+    //! Return settings matched by a dependent-variable condition.
     std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > getDependentVariableSettings( ) const
     {
         return dependentVariableSettings_;
     }
 
+    //! Return whether the first compatible dependent-variable setting may be selected.
     bool getReturnFirstCompatibleDependentVariableSettings( ) const
     {
         return returnFirstCompatibleSettings_;
     }
 
+    //! Create a condition that selects every observation row.
     static ObservationSelectionCondition all( )
     {
         return ObservationSelectionCondition( );
     }
 
+    //! Create a condition matching one observable type.
     static ObservationSelectionCondition observableType( const ObservableType observableType )
     {
         ObservationSelectionCondition condition;
@@ -271,6 +293,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching one complete link definition.
     static ObservationSelectionCondition linkDefinition( const LinkDefinition& linkDefinition )
     {
         ObservationSelectionCondition condition;
@@ -279,6 +302,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching sets that contain one link-end role.
     static ObservationSelectionCondition linkEndType( const LinkEndType linkEndType )
     {
         ObservationSelectionCondition condition;
@@ -287,6 +311,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching one link-end role and identity.
     static ObservationSelectionCondition linkEnd( const LinkEndType linkEndType, const LinkEndId& linkEndId )
     {
         ObservationSelectionCondition condition;
@@ -296,6 +321,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching one logical observation set.
     static ObservationSelectionCondition setId( const unsigned int setId )
     {
         ObservationSelectionCondition condition;
@@ -304,6 +330,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching epochs within inclusive bounds.
     static ObservationSelectionCondition timeBounds( const TimeType startTime, const TimeType endTime )
     {
         ObservationSelectionCondition condition;
@@ -313,6 +340,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching epochs greater than or equal to a limit.
     static ObservationSelectionCondition timeGreaterEqual( const TimeType time )
     {
         ObservationSelectionCondition condition;
@@ -321,6 +349,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching epochs strictly greater than a limit.
     static ObservationSelectionCondition timeGreaterThan( const TimeType time )
     {
         ObservationSelectionCondition condition;
@@ -329,6 +358,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching epochs less than or equal to a limit.
     static ObservationSelectionCondition timeLessEqual( const TimeType time )
     {
         ObservationSelectionCondition condition;
@@ -337,6 +367,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching epochs strictly less than a limit.
     static ObservationSelectionCondition timeLessThan( const TimeType time )
     {
         ObservationSelectionCondition condition;
@@ -345,6 +376,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching active observation rows.
     static ObservationSelectionCondition active( )
     {
         ObservationSelectionCondition condition;
@@ -352,11 +384,13 @@ public:
         return condition;
     }
 
+    //! Create a condition matching rejected observation rows.
     static ObservationSelectionCondition rejected( )
     {
         return !active( );
     }
 
+    //! Create a condition matching rows whose absolute residual exceeds component limits.
     static ObservationSelectionCondition residualAbsoluteValueGreaterThan( const Eigen::VectorXd& residualLimit )
     {
         // Selects a row when any scalar residual component exceeds the absolute limit.
@@ -366,11 +400,13 @@ public:
         return condition;
     }
 
+    //! Create a condition matching rows whose absolute residual exceeds a scalar limit.
     static ObservationSelectionCondition residualAbsoluteValueGreaterThan( const double residualLimit )
     {
         return residualAbsoluteValueGreaterThan( ( Eigen::VectorXd( 1 ) << residualLimit ).finished( ) );
     }
 
+    //! Create a condition matching rows whose absolute observation exceeds component limits.
     static ObservationSelectionCondition observationAbsoluteValueGreaterThan( const Eigen::VectorXd& observationLimit )
     {
         // Selects a row when any scalar observation component exceeds the absolute limit.
@@ -380,11 +416,13 @@ public:
         return condition;
     }
 
+    //! Create a condition matching rows whose absolute observation exceeds a scalar limit.
     static ObservationSelectionCondition observationAbsoluteValueGreaterThan( const double observationLimit )
     {
         return observationAbsoluteValueGreaterThan( ( Eigen::VectorXd( 1 ) << observationLimit ).finished( ) );
     }
 
+    //! Create a condition matching dependent-variable components above vector limits.
     static ObservationSelectionCondition dependentVariableGreaterThan(
             const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
             const Eigen::VectorXd& dependentVariableLimit,
@@ -403,6 +441,7 @@ public:
         return condition;
     }
 
+    //! Create a condition matching dependent-variable components above a scalar limit.
     static ObservationSelectionCondition dependentVariableGreaterThan(
             const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings >& dependentVariableSettings,
             const double dependentVariableLimit,
@@ -413,6 +452,7 @@ public:
     }
 
 private:
+    //! Evaluate an observable-type leaf for one row.
     bool evaluateObservableType( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                                  const unsigned int observationId ) const
     {
@@ -420,6 +460,7 @@ private:
         return dataset.getObservationSetMetadata( row.setId_ ).observableType_ == observableType_;
     }
 
+    //! Evaluate a complete link-definition leaf for one row.
     bool evaluateLinkDefinition( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                                  const unsigned int observationId ) const
     {
@@ -428,6 +469,7 @@ private:
         return dataset.getLinkDefinition( metadata.linkDefinitionId_ ) == linkDefinition_;
     }
 
+    //! Evaluate a link-end-role leaf for one row.
     bool evaluateLinkEndType( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
@@ -435,6 +477,7 @@ private:
         return dataset.getLinkDefinition( metadata.linkDefinitionId_ ).linkEnds_.count( linkEndType_ ) > 0;
     }
 
+    //! Evaluate a link-end-role-and-identity leaf for one row.
     bool evaluateLinkEnd( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const ObservationDatasetRow< TimeType >& row = dataset.getObservationRow( observationId );
@@ -443,12 +486,14 @@ private:
         return linkEnds.count( linkEndType_ ) > 0 && linkEnds.at( linkEndType_ ) == linkEndId_;
     }
 
+    //! Evaluate an inclusive time-bounds leaf for one row.
     bool evaluateTimeBounds( const ObservationDataset< ObservationScalarType, TimeType >& dataset, const unsigned int observationId ) const
     {
         const TimeType observationTime = dataset.getObservationTime( observationId );
         return observationTime >= startTime_ && observationTime <= endTime_;
     }
 
+    //! Evaluate a dependent-variable threshold leaf for one row.
     bool evaluateDependentVariable( const ObservationDataset< ObservationScalarType, TimeType >& dataset,
                                     const unsigned int observationId ) const
     {
@@ -491,6 +536,7 @@ private:
                 dependentVariables.segment( indexAndSize.first, indexAndSize.second ), vectorLimit_, "dependent-variable" );
     }
 
+    //! Return a broadcast or component-specific threshold value.
     static double limitForComponent( const Eigen::VectorXd& limit,
                                      const int componentIndex,
                                      const int expectedSize,
@@ -508,6 +554,7 @@ private:
                                   " but expected either 1 or " + std::to_string( expectedSize ) + "." );
     }
 
+    //! Return whether any value is greater than its corresponding signed limit.
     static bool evaluateGreaterThanLimit( const Eigen::VectorXd& values, const Eigen::VectorXd& limit, const std::string& valueName )
     {
         for( int i = 0; i < values.size( ); ++i )
@@ -520,6 +567,7 @@ private:
         return false;
     }
 
+    //! Return whether any absolute value is greater than its corresponding limit.
     template< typename VectorType >
     static bool evaluateVectorLimit( const VectorType& values, const Eigen::VectorXd& limit, const std::string& valueName )
     {

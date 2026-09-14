@@ -23,6 +23,7 @@ inline bool shouldSkipObservationCollectionAncillarySetting( const std::string& 
     return shouldSkipObservationDatasetAncillarySetting( ancillarySetting );
 }
 
+//! Create a legacy single-set facade from one generic tracking-data object.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

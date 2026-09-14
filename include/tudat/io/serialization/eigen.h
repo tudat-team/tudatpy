@@ -99,6 +99,7 @@ void load( Archive& ar, Eigen::Matrix< Scalar, Rows, Cols, Options, MaxRows, Max
     }
 }
 
+//! Serialize an Eigen sparse matrix as dimensions followed by indexed nonzero coefficients.
 template< class Archive, typename Scalar, int Options, typename StorageIndex >
 void save( Archive& ar, const Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
 {
@@ -113,6 +114,7 @@ void save( Archive& ar, const Eigen::SparseMatrix< Scalar, Options, StorageIndex
     }
 }
 
+//! Deserialize and validate an Eigen sparse matrix from indexed nonzero coefficients.
 template< class Archive, typename Scalar, int Options, typename StorageIndex >
 void load( Archive& ar, Eigen::SparseMatrix< Scalar, Options, StorageIndex >& matrix )
 {

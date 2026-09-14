@@ -255,6 +255,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
     return std::make_pair( sortedMatrix, sortOutput.second );
 }
 
+//! Return a time-ordered design matrix for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
@@ -400,6 +401,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     return covarianceMatrixHistory;
 }
 
+//! Calculate covariance history at explicit epochs for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
@@ -417,6 +419,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                                                      unnormalizedInverseAPrioriCovariance );
 }
 
+//! Calculate covariance history at a fixed cadence for an observation dataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > measurementData,
@@ -456,6 +459,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                   unnormalizedInverseAPrioriCovariance );
 }
 
+//! Calculate covariance history at a fixed cadence for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,

@@ -227,6 +227,7 @@ simulateObservationDatasetWithCheckAndLinkEndIdOutput(
     return observationDataset;
 }
 
+//! Simulate one dataset set with per-arc observation settings.
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulatePerArcObservationDataset(
         const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
@@ -581,6 +582,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return observationDataset;
 }
 
+//! Create an observation dataset from externally supplied observation values and times.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > setExistingObservationDataset(
         const std::map< observation_models::ObservableType,

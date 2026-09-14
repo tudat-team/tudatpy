@@ -26,7 +26,7 @@
 #include "tudat/simulation/estimation_setup/createObservationCollection.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
 #include "tudat/simulation/environment_setup/defaultGroundStationSettings.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;

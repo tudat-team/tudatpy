@@ -365,6 +365,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
  * parameter update, final estimation inverse covariance and covariance-analysis
  * inverse covariance.
  */
+//! Verify estimation and covariance analysis preserve off-diagonal observation weights.
 BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 {
     using namespace observation_models;

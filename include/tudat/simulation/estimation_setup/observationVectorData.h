@@ -42,21 +42,25 @@ template< typename ObservationScalarType,
 class ObservationVectorData
 {
 public:
+    //! Return the scalar observation vector represented by this snapshot.
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getObservationVector( ) const
     {
         return observations_;
     }
 
+    //! Return residuals in the same scalar order as the observation vector.
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getResidualVector( ) const
     {
         return residuals_;
     }
 
+    //! Return diagonal weights in the same scalar order as the observation vector.
     const Eigen::VectorXd& getWeightVector( ) const
     {
         return weights_;
     }
 
+    //! Return the full sparse weight matrix, materializing diagonal storage on demand.
     const Eigen::SparseMatrix< double >& getSparseWeightMatrix( ) const
     {
         // This lazy materialization mutates cached storage and is not safe for concurrent const access.
@@ -77,31 +81,37 @@ public:
         return weightMatrix_;
     }
 
+    //! Return whether this snapshot contains diagonal weights only.
     bool isDiagonalWeightOnly( ) const
     {
         return isDiagonalWeightOnly_;
     }
 
+    //! Return whether this snapshot contains at least one off-diagonal weight.
     bool hasOffDiagonalWeights( ) const
     {
         return !isDiagonalWeightOnly_;
     }
 
+    //! Return one reference-link-end time for every scalar component.
     const std::vector< TimeType >& getTimes( ) const
     {
         return times_;
     }
 
+    //! Return the observation identity associated with every scalar component.
     const std::vector< unsigned int >& getObservationIds( ) const
     {
         return observationIds_;
     }
 
+    //! Return the observation-set identity associated with every scalar component.
     const std::vector< unsigned int >& getSetIds( ) const
     {
         return setIds_;
     }
 
+    //! Return the link-definition identity associated with every scalar component.
     std::vector< unsigned int > getLinkDefinitionIds( ) const
     {
         std::vector< unsigned int > linkDefinitionIds;
@@ -113,11 +123,13 @@ public:
         return linkDefinitionIds;
     }
 
+    //! Return each component's index within its vector-valued observation.
     const std::vector< unsigned int >& getScalarComponentIds( ) const
     {
         return scalarComponentIds_;
     }
 
+    //! Resolve an observation/component pair to its scalar row in this snapshot.
     int getVectorRow( const unsigned int observationId, const unsigned int componentIndex ) const
     {
         const auto row = rowMapping_.find( observationId );
@@ -128,11 +140,13 @@ public:
         return row->second.first + componentIndex;
     }
 
+    //! Return set identities in their first-appearance order in this snapshot.
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
     {
         return setIdsInRowOrder_;
     }
 
+    //! Return the unique observation identities represented for one set, in row order.
     const std::vector< unsigned int >& getUniqueObservationIdsForSetInRowOrder( const unsigned int setId ) const
     {
         if( setId >= uniqueObservationIdsBySet_.size( ) || uniqueObservationIdsBySet_.at( setId ).empty( ) )
@@ -142,19 +156,23 @@ public:
         return uniqueObservationIdsBySet_.at( setId );
     }
 
+    //! Return the captured metadata for one represented set.
     const ObservationSetMetadata< ObservationScalarType, TimeType >& getSetMetadata( const unsigned int setId ) const
     {
         return metadataBySet_.at( setId );
     }
+    //! Return the captured link definition for one represented set.
     const LinkDefinition& getLinkDefinitionForSet( const unsigned int setId ) const
     {
         return linksBySet_.at( setId );
     }
+    //! Return an independent copy of captured ancillary settings for one set.
     std::shared_ptr< ObservationAncillarySimulationSettings > getAncillarySettingsForSet( const unsigned int setId ) const
     {
         const auto& settings = ancillaryBySet_.at( setId );
         return settings ? std::make_shared< ObservationAncillarySimulationSettings >( *settings ) : nullptr;
     }
+    //! Return captured dependent-variable values for one observation identity.
     const Eigen::VectorXd& getDependentVariables( const unsigned int observationId ) const
     {
         return dependentVariables_.at( observationId );
@@ -193,13 +211,21 @@ private:
     //! Scalar component id for each scalar entry.
     std::vector< unsigned int > scalarComponentIds_;
 
+    //! Mapping from observation identity to its first scalar row and component count.
     std::unordered_map< unsigned int, std::pair< unsigned int, unsigned int > > rowMapping_;
+    //! Weak identity token for validating writeback to the originating dataset.
     std::weak_ptr< const int > source_;
+    //! Structural revision captured when this snapshot was created.
     std::size_t structuralVersion_ = 0;
+    //! Value/selection revision captured when this snapshot was created.
     std::size_t vectorDataVersion_ = 0;
+    //! Detached set metadata keyed by stable set identity.
     std::unordered_map< unsigned int, ObservationSetMetadata< ObservationScalarType, TimeType > > metadataBySet_;
+    //! Detached link definitions keyed by stable set identity.
     std::unordered_map< unsigned int, LinkDefinition > linksBySet_;
+    //! Detached ancillary settings keyed by stable set identity.
     std::unordered_map< unsigned int, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillaryBySet_;
+    //! Dependent-variable values keyed by stable observation identity.
     std::unordered_map< unsigned int, Eigen::VectorXd > dependentVariables_;
 
     //! Unique observation ids grouped by set, preserving this object's row order.

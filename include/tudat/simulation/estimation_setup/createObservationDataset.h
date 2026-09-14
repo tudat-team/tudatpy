@@ -41,17 +41,22 @@ namespace tudat
 namespace observation_models
 {
 
+//! Parse an observable type stored in generic tracking data.
 observation_models::ObservableType getObservableTypeFromTrackingDataString( const std::string& observableTypeString );
 
+//! Convert generic tracking-data link ends to Tudat link ends.
 observation_models::LinkEnds getLinkEndsFromTrackingData(
         const std::vector< std::pair< std::pair< std::string, std::string >, std::string > >& rawLinkEnds );
 
+//! Validate tracking-data link ends and their reference role for an observable.
 void checkTrackingDataLinkEnds( const observation_models::ObservableType observableType,
                                 const observation_models::LinkEnds& linkEnds,
                                 const observation_models::LinkEndType referenceLinkEnd );
 
+//! Return whether a tracking-data field is not an observation ancillary setting.
 bool shouldSkipObservationDatasetAncillarySetting( const std::string& ancillarySetting );
 
+//! Convert ancillary fields stored in tracking data to observation simulation settings.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -271,6 +276,7 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
                                                  true );
 }
 
+//! Create a dataset from one or more generic tracking-data objects.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -287,6 +293,7 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createO
     return observationDataset;
 }
 
+//! Reset a typed tabulated ephemeris from supplementary translational states.
 template< typename EphemerisScalarType, typename EphemerisTimeType >
 inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
         const std::map< double, Eigen::Vector6d >& stateHistory,
@@ -298,10 +305,12 @@ inline void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory(
     tabulatedEphemeris->resetInterpolator(
             interpolators::createOneDimensionalInterpolator( castStateHistory, interpolators::linearInterpolation( ) ) );
 }
+//! Reset a runtime-typed ephemeris from supplementary translational states.
 void resetTabulatedEphemerisFromTrackingSupplementaryStateHistory( const std::map< double, Eigen::Vector6d >& stateHistory,
                                                                    const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
                                                                    const std::string& bodyName );
 
+//! Reset a typed tabulated rotational ephemeris from supplementary rotational states.
 template< typename EphemerisScalarType, typename EphemerisTimeType >
 inline void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
         const std::map< double, Eigen::Vector7d >& rotationalStateHistory,
@@ -316,36 +325,44 @@ inline void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHisto
             interpolators::createOneDimensionalInterpolator( castRotationalStateHistory, interpolators::linearInterpolation( ) ) );
 }
 
+//! Reset a runtime-typed rotational ephemeris from supplementary rotational states.
 void resetTabulatedRotationalEphemerisFromTrackingSupplementaryStateHistory(
         const std::map< double, Eigen::Vector7d >& rotationalStateHistory,
         const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         const std::string& bodyName );
+//! Derive a Cartesian state history with velocity from supplementary state data.
 std::map< double, Eigen::Vector6d > getTranslationalStateHistoryWithVelocity(
         const data::TranslationalStateSupplementaryData& translationalStateSupplementaryData );
 
+//! Apply supplementary translational state histories to matching bodies.
 void setTranslationalStateSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< data::TranslationalStateSupplementaryData > >&
                 translationalStateSupplementaryData );
 
+//! Apply supplementary rotational state histories to matching bodies.
 void setRotationalStateSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< data::RotationalStateSupplementaryData > >&
                 rotationalStateSupplementaryData );
 
+//! Apply supplementary transmitted-frequency histories to matching bodies.
 void setFrequencySupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >&
                 frequencySupplementaryData );
 
+//! Apply supplementary instrument metadata to matching bodies.
 void setInstrumentSupplementaryDataInBodies(
         simulation_setup::SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::InstrumentSupplementaryData > > >&
                 instrumentSupplementaryData );
 
+//! Apply value-based tracking supplementary data to a body system.
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
                                            const std::vector< data::TrackingSupplementaryData >& supplementaryData );
 
+//! Apply pointer-based tracking supplementary data to a body system.
 void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bodies,
                                            const std::vector< std::shared_ptr< data::TrackingSupplementaryData > >& supplementaryData );
 }  // namespace observation_models

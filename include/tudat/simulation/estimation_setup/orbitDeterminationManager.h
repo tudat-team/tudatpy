@@ -266,6 +266,7 @@ protected:
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true );
 
+    //! Prepare propagation, design matrices, and residuals for one estimation iteration.
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,

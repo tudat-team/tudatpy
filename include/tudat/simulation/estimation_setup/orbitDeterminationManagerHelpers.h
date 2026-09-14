@@ -110,6 +110,7 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
     }
 }
 
+//! Calculate residuals using an explicit dataset vector mapping.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -180,6 +181,7 @@ void calculateResiduals(
     }
 }
 
+//! Calculate residuals for the dataset's computation vector data.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -194,6 +196,7 @@ void calculateResiduals(
             observationDataset, observationDataset->createComputationObservationVectorData( true ), observationSimulator, residuals );
 }
 
+//! Calculate residuals for a legacy observation collection.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -220,6 +223,7 @@ void calculateResiduals(
  *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
  *  observables w.r.t. parameter vector (return by reference).
  */
+//! Calculate design-matrix rows and residuals using a dataset-derived vector mapping.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -328,6 +332,7 @@ void calculateDesignMatrixAndResiduals(
     }
 }
 
+//! Calculate design-matrix rows and residuals for an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -360,6 +365,7 @@ void calculateDesignMatrixAndResiduals(
                                                                           calculatePartials );
 }
 
+//! Calculate design-matrix rows and residuals for a legacy observation collection.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -385,6 +391,7 @@ void calculateDesignMatrixAndResiduals(
                                                                           calculatePartials );
 }
 
+//! Calculate a design matrix for an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -402,6 +409,7 @@ void calculateDesignMatrix(
             observationDataset, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
 }
 
+//! Calculate a design matrix for a legacy observation collection.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -421,6 +429,7 @@ void calculateDesignMatrix(
                                                               designMatrix );
 }
 
+//! Calculate residuals with observation managers for an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -437,6 +446,7 @@ void calculateResiduals(
             observationDataset, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
 }
 
+//! Calculate residuals with observation managers for a legacy collection.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

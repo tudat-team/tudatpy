@@ -251,6 +251,7 @@ std::size_t getScalarSizeForSetIds( const ObservationDataset< double, double >& 
  * dataset. It checks the registered observable/link metadata, selection by
  * observable type and link end, snapshot creation and scalar observation vector data size.
  */
+//! Verify dataset metadata registration and row selection.
 BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
 {
     const double startTime = 1.0E7;
@@ -351,6 +352,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_metadata_and_selection )
  * rejected observation vector data/snapshots have the expected sizes, restores the data and
  * then creates a reduced dataset for a time-window selection.
  */
+//! Verify rejecting, restoring, and reducing dataset rows preserves expected membership.
 BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
 {
     const double startTime = 1.0E7;
@@ -447,6 +449,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rejection_restoration_and_reduced_views )
  * residuals, requests time sorting and then confirms the sorted rows retain
  * their original observation, weight and residual values in observation vector data order.
  */
+//! Verify vector data aligns observations, weights, residuals, and ordering.
 BOOST_AUTO_TEST_CASE( test_dataset_observation_vector_data_weights_residuals_and_ordering )
 {
     LinkEnds linkEnds;

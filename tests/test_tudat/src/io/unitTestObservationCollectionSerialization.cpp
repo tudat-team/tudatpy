@@ -426,6 +426,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionSerialization )
     }
 }
 
+//! Verify dataset serialization preserves surviving row identities and sparse weights.
 BOOST_AUTO_TEST_CASE( test_dataset_serialization_preserves_surviving_identity_and_sparse_weights )
 {
     using namespace observation_models;
@@ -468,6 +469,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_serialization_preserves_surviving_identity_an
     BOOST_CHECK_EQUAL( restored.getTotalObservableSize( ), 4 );
 }
 
+//! Verify serialized overlapping collections preserve shared set ownership.
 BOOST_AUTO_TEST_CASE( test_serialized_overlapping_collections_preserve_shared_set_ownership )
 {
     using namespace observation_models;
@@ -492,6 +494,7 @@ BOOST_AUTO_TEST_CASE( test_serialized_overlapping_collections_preserve_shared_se
     BOOST_CHECK_EQUAL( first.getConcatenatedWeights( )( 0 ), 1.0 );
 }
 
+//! Verify observation archives written by the base branch remain readable.
 BOOST_AUTO_TEST_CASE( test_base_branch_binary_observation_archives_remain_readable )
 {
     using namespace observation_models;

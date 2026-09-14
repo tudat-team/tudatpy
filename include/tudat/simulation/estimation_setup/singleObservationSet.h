@@ -77,6 +77,7 @@ public:
                                               eraseDuplicates );
     }
 
+    //! Create a legacy single-set facade for one set in an observation dataset.
     SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
         dataset_( dataset ), setId_( setId )
     {
@@ -97,6 +98,7 @@ public:
         return dataset_->getLinkDefinition( dataset_->getObservationSetMetadata( setId_ ).linkDefinitionId_ );
     }
 
+    //! Replace the link definition associated with this dataset-backed set.
     void setLinkEnds( const LinkDefinition& linkEnds )
     {
         dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
@@ -333,11 +335,13 @@ public:
         return dataset_->getAncillarySettings( dataset_->getObservationSetMetadata( setId_ ).ancillarySettingsId_ );
     }
 
+    //! Return the live dataset backing this compatibility facade.
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( ) const
     {
         return dataset_;
     }
 
+    //! Rebind this facade to a set in another dataset after collection reconstruction.
     void resetObservationDatasetReference( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
                                            const int setId )
     {
@@ -349,6 +353,7 @@ public:
         setId_ = setId;
     }
 
+    //! Return the stable set identity represented by this facade.
     int getObservationSetId( ) const
     {
         return setId_;
@@ -626,7 +631,7 @@ public:
     TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
 
 protected:
-    // Default constructor for serialization
+    //! Create an empty facade for deserialization.
     SingleObservationSet( ): setId_( 0 ) {}
 
 private:
@@ -636,12 +641,14 @@ private:
     // old binary files readable while storing the shared backend in new files.
     static constexpr std::underlying_type_t< ObservableType > binaryFormatTag_ = 0x544F5331;
 
+    //! Serialize the dataset backend, set identity, and optional filtered set.
     template< class Archive >
     void save( Archive& ar ) const
     {
         ar( binaryFormatTag_, dataset_, setId_, filteredObservationSet_ );
     }
 
+    //! Deserialize the current dataset-backed or legacy inline-set layout.
     template< class Archive >
     void load( Archive& ar )
     {
@@ -713,6 +720,7 @@ private:
     }
 };
 
+//! Copy one legacy single observation set into an independent dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -730,6 +738,7 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createO
     return dataset;
 }
 
+//! Create a legacy single-set facade for a set in an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

@@ -227,6 +227,7 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysisOutputSerialization )
     // checkEstimationOutputRoundTrip< tudat::Time >( );
 }
 
+//! Verify base-branch covariance output archives retain diagonal weights.
 BOOST_AUTO_TEST_CASE( test_base_output_archives_preserve_diagonal_weights )
 {
     checkBaseOutputArchives< double >( );

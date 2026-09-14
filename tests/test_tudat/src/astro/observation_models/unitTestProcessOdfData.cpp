@@ -19,7 +19,7 @@
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
 
 using namespace tudat::input_output;
 using namespace tudat::observation_models;

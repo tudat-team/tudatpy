@@ -78,12 +78,14 @@ struct ObservationSetMetadata {
     //! Registry id of dependent-variable layout/bookkeeping; may point to nullptr.
     unsigned int dependentVariableLayoutId_;
 
+    //! Serialize the metadata identifiers and observable description for this set.
     template< class Archive >
     void serialize( Archive& ar )
     {
         ar( observableType_, linkDefinitionId_, referenceLinkEnd_, observableSize_, ancillarySettingsId_, dependentVariableLayoutId_ );
     }
 
+    //! Compare every metadata field for exact equality.
     bool operator==( const ObservationSetMetadata& rhs ) const
     {
         return observableType_ == rhs.observableType_ && linkDefinitionId_ == rhs.linkDefinitionId_ &&
@@ -130,6 +132,7 @@ struct ObservationDatasetRow {
     //! Optional human-readable reason for rejection or deactivation.
     std::string rejectionReason_;
 
+    //! Serialize the observation row, including status and dependent-variable values.
     template< class Archive >
     void serialize( Archive& ar )
     {
@@ -144,6 +147,7 @@ struct ObservationDatasetRow {
             rejectionReason_ );
     }
 
+    //! Compare every stored row field for exact equality.
     bool operator==( const ObservationDatasetRow& rhs ) const
     {
         return observationId_ == rhs.observationId_ && time_ == rhs.time_ && setId_ == rhs.setId_ &&
@@ -166,12 +170,14 @@ struct ObservationScalarComponentRow {
     //! Component number inside the owning observation event.
     unsigned int componentIndex_;
 
+    //! Serialize the observation identity and component index.
     template< class Archive >
     void serialize( Archive& ar )
     {
         ar( observationId_, componentIndex_ );
     }
 
+    //! Compare both scalar-component mapping fields.
     bool operator==( const ObservationScalarComponentRow& rhs ) const
     {
         return observationId_ == rhs.observationId_ && componentIndex_ == rhs.componentIndex_;

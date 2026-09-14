@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H
-#define TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H
+#ifndef TUDAT_COMPRESSDOPPLEROBSERVATIONDATASET_H
+#define TUDAT_COMPRESSDOPPLEROBSERVATIONDATASET_H
 
 #include <memory>
 
@@ -22,6 +22,7 @@ namespace tudat
 namespace observation_models
 {
 
+//! Compress one Doppler observation set by averaging consecutive fixed-cadence blocks.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > compressDopplerData(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
@@ -143,6 +144,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return compressedDataset;
 }
 
+//! Compress every eligible Doppler arc in a dataset while retaining other observable types.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > createCompressedDopplerDataset(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > originalDopplerData,
@@ -216,6 +218,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return compressedData;
 }
 
+//! Compress a legacy single observation set through its dataset backend.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
         const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
@@ -230,6 +233,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                     approximateGroundStationPositions ) );
 }
 
+//! Compress a legacy observation collection and return a compatibility facade.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
@@ -250,4 +254,4 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 }  // namespace observation_models
 }  // namespace tudat
 
-#endif  // TUDAT_COMPRESSDOPPLEROBSERVATIONCOLLECTION_H
+#endif  // TUDAT_COMPRESSDOPPLEROBSERVATIONDATASET_H

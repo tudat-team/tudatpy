@@ -45,6 +45,7 @@ namespace tudat
 
 namespace observation_models
 {
+//! Return whether one dataset set is selected by a legacy collection parser.
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -74,10 +75,15 @@ template< typename ObservationScalarType,
 class ObservationDataset : public std::enable_shared_from_this< ObservationDataset< ObservationScalarType, TimeType > >
 {
 public:
+    //! Create an empty observation dataset.
     ObservationDataset( ) = default;
+    //! Copy an observation dataset while creating an independent lifetime identity.
     ObservationDataset( const ObservationDataset& other );
+    //! Move an observation dataset into a new owner.
     ObservationDataset( ObservationDataset&& ) = default;
+    //! Move-assign an observation dataset.
     ObservationDataset& operator=( ObservationDataset&& ) = default;
+    //! Copy-assign an observation dataset while refreshing its lifetime identity.
     ObservationDataset& operator=( const ObservationDataset& other )
     {
         if( this != &other )
@@ -88,6 +94,7 @@ public:
         return *this;
     }
 
+    //! Return whether two datasets contain equivalent observation data and metadata.
     bool operator==( const ObservationDataset& rhs ) const
     {
         const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
@@ -255,11 +262,13 @@ public:
     //! Physically remove all currently rejected observation events.
     void removeRejectedObservations( );
 
+    //! Compatibility alias for physically removing all rejected observations.
     void deleteRejectedObservations( )
     {
         removeRejectedObservations( );
     }
 
+    //! Return the time bounds of one observation set.
     std::pair< TimeType, TimeType > getTimeBoundsForSet( const unsigned int setId ) const;
 
     //! Return time bounds for all observations in the dataset.
@@ -351,24 +360,34 @@ public:
     //! Compute component-wise mean residuals over all observations in one set.
     Eigen::VectorXd getMeanResidualsForSet( const unsigned int setId ) const;
 
+    //! Return the number of logical observation sets.
     std::size_t getNumberOfObservationSets( ) const;
 
+    //! Return the number of observation events.
     std::size_t getNumberOfObservations( ) const;
 
+    //! Return the total number of scalar observation components.
     std::size_t getTotalScalarSize( ) const;
 
+    //! Return metadata for every observation set.
     const std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > >& getObservationSetMetadata( ) const;
 
+    //! Return metadata for one observation set.
     const ObservationSetMetadata< ObservationScalarType, TimeType >& getObservationSetMetadata( const unsigned int setId ) const;
 
+    //! Return all event rows in internal storage order.
     const std::vector< ObservationDatasetRow< TimeType > >& getObservationRows( ) const;
 
+    //! Return the event row with a stable observation identity.
     const ObservationDatasetRow< TimeType >& getObservationRow( const unsigned int observationId ) const;
 
+    //! Return derived rows for every scalar observation component.
     std::vector< ObservationScalarComponentRow > getScalarComponentRows( ) const;
 
+    //! Return the derived row for one scalar observation component.
     ObservationScalarComponentRow getScalarComponentRow( const unsigned int scalarComponentId ) const;
 
+    //! Return stable observation identities belonging to one set.
     const std::vector< unsigned int >& getObservationIdsForSet( const unsigned int setId ) const;
 
     //! Return one vector-valued measurement per observation event in a set.
@@ -380,6 +399,7 @@ public:
     //! Return one reference-link-end time per observation event in a set.
     std::vector< TimeType > getObservationTimesForSet( const unsigned int setId ) const;
 
+    //! Return the reference-link-end time for one observation event.
     TimeType getObservationTime( const unsigned int observationId ) const;
 
     //! Return one vector of scalar-component weights per observation event.
@@ -407,6 +427,7 @@ public:
     //! Return per-observation dependent-variable vectors for one set.
     std::vector< Eigen::VectorXd > getDependentVariablesForSet( const unsigned int setId ) const;
 
+    //! Return the dependent-variable vector for one observation event.
     Eigen::VectorXd getDependentVariables( const unsigned int observationId ) const;
 
     //! Extract one dependent-variable block by column start and size.
@@ -435,12 +456,16 @@ public:
     //! Clear dependent-variable values for every observation event in one set.
     void clearDependentVariablesForSet( const unsigned int setId );
 
+    //! Return the number of observation events in one set.
     std::size_t getNumberOfObservationsForSet( const unsigned int setId ) const;
 
+    //! Return the scalar observation size of one set.
     std::size_t getTotalScalarSizeForSet( const unsigned int setId ) const;
 
+    //! Return a registered link definition by registry identity.
     const LinkDefinition& getLinkDefinition( const unsigned int linkDefinitionId ) const;
 
+    //! Return the number of registered link definitions.
     std::size_t getNumberOfLinkDefinitions( ) const;
 
     //! Replace a named reference point for matching link ends in selected observation sets.
@@ -450,11 +475,13 @@ public:
                                    const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition =
                                            ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ) );
 
+    //! Return registered ancillary settings by registry identity.
     const std::shared_ptr< ObservationAncillarySimulationSettings >& getAncillarySettings( const unsigned int ancillarySettingsId ) const;
 
     //! Return ancillary settings associated with one observation set.
     const std::shared_ptr< ObservationAncillarySimulationSettings >& getAncillarySettingsForSet( const unsigned int setId ) const;
 
+    //! Return registered dependent-variable bookkeeping by registry identity.
     const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& getDependentVariableBookkeeping(
             const unsigned int dependentVariableLayoutId ) const;
 
@@ -504,86 +531,114 @@ public:
     //! Return set ids in the ordered observable-type/link-ends/index ordering.
     std::vector< unsigned int > getSetIdsInObservationVectorOrder( ) const;
 
+    //! Return the revision used to invalidate structural observation mappings.
     std::size_t getStructuralVersion( ) const;
 
     //////////////////////////////////////////////////////////
     /////////////////       LEGACY INTERFACES       //////////
     //////////////////////////////////////////////////////////
 
+    //! Replace the legacy concatenated observation vector for one set.
     void setObservationVectorForSet( const unsigned int setId,
                                      const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationVector );
 
+    //! Replace the legacy concatenated residual vector for one set.
     void setResidualVectorForSet( const unsigned int setId,
                                   const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
+    //! Replace the legacy concatenated diagonal weight vector for one set.
     void setWeightVectorForSet( const unsigned int setId, const Eigen::VectorXd& weightVector );
 
+    //! Set a constant scalar weight on sets selected by a legacy parser.
     void setConstantWeight(
             const double weight = 1.0,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
 
+    //! Set constant component weights on sets selected by a legacy parser.
     void setConstantWeight(
             const Eigen::VectorXd weight,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
 
+    //! Set scalar weights for multiple legacy parser selections.
     void setConstantWeightPerObservable(
             const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser );
 
+    //! Set component weights for multiple legacy parser selections.
     void setConstantWeightPerObservable(
             const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
 
+    //! Set a tabulated diagonal weight vector on a legacy parser selection.
     void setTabulatedWeights(
             const Eigen::VectorXd tabulatedWeights,
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) );
 
+    //! Set tabulated diagonal weights for multiple legacy parser selections.
     void setTabulatedWeights(
             const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser );
 
+    //! Return per-set indices accepted by a legacy observation filter.
     std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
                                                                const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
 
+    //! Move or copy selected observations from one set to a target dataset set.
     void moveObservationsToSet( const unsigned int sourceSetId,
                                 ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
                                 const unsigned int targetSetId,
                                 const std::vector< unsigned int >& indices,
                                 const bool removeFromSource = true );
 
+    //! Remove duplicate time tags from one set through the legacy interface.
     void eraseDuplicateObservationsFromSet( const unsigned int setId, const bool printWarning = true );
 
+    //! Return the legacy concatenated computed-observation vector for one set.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getComputedObservationVectorForSet( const unsigned int setId ) const;
 
+    //! Return the legacy concatenated observed-value vector for one set.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForSet( const unsigned int setId ) const;
 
+    //! Return the legacy concatenated diagonal weight vector for one set.
     Eigen::VectorXd getWeightVectorForSet( const unsigned int setId ) const;
 
+    //! Return the legacy concatenated residual vector for one set.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidualVectorForSet( const unsigned int setId ) const;
 
+    //! Return set identities selected by a legacy parser.
     std::vector< unsigned int > getObservationSetIds( const std::shared_ptr< ObservationCollectionParser >& observationParser =
                                                               std::make_shared< ObservationCollectionParser >( ) ) const;
 
+    //! Return legacy start-and-size entries for all sets in vector order.
     std::vector< std::pair< int, int > > getObservationSetStartAndSize( ) const;
 
+    //! Return legacy set start-and-size entries grouped by observable and link ends.
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizeByLink( ) const;
 
+    //! Return aggregate legacy start-and-size entries grouped by observable and link ends.
     std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( ) const;
 
+    //! Return aggregate legacy start-and-size entries grouped by observable type.
     std::map< ObservableType, std::pair< int, int > > getObservableTypeStartAndSize( ) const;
 
+    //! Return legacy link-end groups for each observable type.
     std::map< ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( ) const;
 
+    //! Return concatenated observed values for one observable type.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getObservationVectorForObservableType(
             const ObservableType observableType ) const;
 
+    //! Replace concatenated observed values for one observable type.
     void setObservationVectorForObservableType( const ObservableType observableType,
                                                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations );
 
+    //! Replace concatenated diagonal weights for one observable type.
     void setWeightVectorForObservableType( const ObservableType observableType, const Eigen::VectorXd& weights );
 
+    //! Replace the complete residual vector in observation-vector order.
     void setResidualVector( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualVector );
 
 private:
     friend class cereal::access;
 
+    //! Serialize dataset rows, registries, scalar values, and weights.
     template< class Archive >
     void save( Archive& ar ) const
     {
@@ -599,6 +654,7 @@ private:
             observationWeights_ );
     }
 
+    //! Deserialize dataset storage and rebuild derived row indexing.
     template< class Archive >
     void load( Archive& ar )
     {
@@ -633,18 +689,24 @@ private:
                                        int >::type >
     friend class ObservationCollection;
 
+    //! Non-copyable identity value used to detect mappings from another dataset instance.
     struct LifetimeToken {
+        //! Create a fresh lifetime identity.
         LifetimeToken( ): value_( std::make_shared< const int >( 0 ) ) {}
+        //! Copy construction deliberately creates a fresh identity.
         LifetimeToken( const LifetimeToken& ): LifetimeToken( ) {}
+        //! Move construction invalidates both the old and new identities.
         LifetimeToken( LifetimeToken&& other ): LifetimeToken( )
         {
             other.value_ = std::make_shared< const int >( 0 );
         }
+        //! Copy assignment replaces the current identity.
         LifetimeToken& operator=( const LifetimeToken& )
         {
             value_ = std::make_shared< const int >( 0 );
             return *this;
         }
+        //! Move assignment refreshes both source and destination identities.
         LifetimeToken& operator=( LifetimeToken&& other )
         {
             value_ = std::make_shared< const int >( 0 );
@@ -652,16 +714,20 @@ private:
             return *this;
         }
 
+        //! Shared marker observed weakly by derived vector-data mappings.
         std::shared_ptr< const int > value_;
     };
 
+    //! Return a weak view of this dataset's current lifetime identity.
     std::weak_ptr< const int > getLifetimeToken( ) const
     {
         return lifetimeToken_.value_;
     }
 
+    //! Replace the registered link definition associated with one set.
     void resetLinkDefinitionForSet( const unsigned int setId, const LinkDefinition& linkDefinition );
 
+    //! Replace dependent-variable bookkeeping associated with one set.
     void resetDependentVariableBookkeepingForSet(
             const unsigned int setId,
             const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping );
@@ -765,8 +831,11 @@ private:
 
     //! Compact all selected rows/scalars together, preserving event and metadata identities.
     void retainObservationRows( const std::vector< unsigned int >& retainedIds );
+    //! Rebuild the derived observation-id to row-position lookup.
     void rebuildRowIndex( );
+    //! Sort one set's observation identities by observation time.
     void sortObservationIdsForSet( const unsigned int setId );
+    //! Return mutable access to one event row by stable identity.
     ObservationDatasetRow< TimeType >& mutableObservationRow( const unsigned int id )
     {
         return observationRows_.at( rowPositionById_.at( id ) );
@@ -827,6 +896,7 @@ private:
     std::vector< ObservationDatasetRow< TimeType > > observationRows_;
     //! Derived lookup from persistent identity to packed row position.
     std::unordered_map< unsigned int, std::size_t > rowPositionById_;
+    //! Next stable identity assigned to a newly added observation event.
     unsigned int nextObservationId_ = 0;
     //! One metadata record per observation set.
     std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > > setMetadata_;

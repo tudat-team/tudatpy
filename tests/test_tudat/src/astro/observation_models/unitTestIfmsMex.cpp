@@ -25,7 +25,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
+#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 

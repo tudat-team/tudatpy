@@ -62,6 +62,7 @@ def dataset_with_mixed_rows():
 @pytest.mark.parametrize("ordering", ["internal", "estimation"])
 @pytest.mark.parametrize("selection_kind", ["all", "active", "noncontiguous", "empty"])
 def test_ordering_membership_alignment_and_weight_axes(ordering, selection_kind):
+    """Verify every inspection field stays aligned under selection and ordering."""
     dataset, weights = dataset_with_mixed_rows()
     query = obs.observation_query
     condition = {
@@ -134,6 +135,7 @@ def test_ordering_membership_alignment_and_weight_axes(ordering, selection_kind)
 @pytest.mark.parametrize("ordering", ["internal", "estimation"])
 @pytest.mark.parametrize("multi", [False, True])
 def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi):
+    """Verify detached inspection results survive source mutation and destruction."""
     dataset, _ = dataset_with_mixed_rows()
     if multi:
         saved = dataset.get_data(fields=FIELDS, ordering=ordering)
@@ -194,6 +196,7 @@ def test_snapshots_survive_all_mutations_and_dataset_destruction(ordering, multi
 
 
 def test_nested_metadata_is_detached():
+    """Verify inspection metadata recursively owns mutable nested settings."""
     definition = link("Station")
     settings = simulation.tabulated_simulation_settings(obs.one_way_range, definition, [1.0])
     setting = dependent.elevation_angle_dependent_variable(
@@ -249,6 +252,7 @@ def test_add_dependent_variable_to_selected_sets():
 
 @pytest.mark.parametrize("ordering", ["internal", "estimation"])
 def test_precise_times_and_empty_missing_fields(ordering):
+    """Verify empty fields and high-precision epochs survive detached inspection."""
     dataset = obs.ObservationDataset()
     data = dataset.get_data(fields=FIELDS, ordering=ordering)
     assert all(
@@ -281,6 +285,7 @@ def test_precise_times_and_empty_missing_fields(ordering):
 
 
 def test_invalid_ordering_fields_and_removed_api():
+    """Verify invalid inspection requests fail and removed viewer APIs stay hidden."""
     dataset = obs.ObservationDataset()
     for field in FIELDS:
         with pytest.raises(ValueError, match="ordering"):

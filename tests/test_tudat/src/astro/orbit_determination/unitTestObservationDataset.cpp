@@ -34,6 +34,7 @@ namespace unit_tests
 
 using namespace tudat::observation_models;
 
+//! Test observation-dataset storage, selection, mutation, weighting, inspection, and legacy compatibility.
 BOOST_AUTO_TEST_SUITE( test_observation_dataset )
 
 LinkDefinition createOneWayLinkDefinition( const std::string& stationName )
@@ -101,6 +102,7 @@ Eigen::VectorXd concatenateInspectionValues( const std::vector< Eigen::VectorXd 
     return result;
 }
 
+//! Verify dataset storage, scalar-vector projection, weights, and residual calculation.
 BOOST_AUTO_TEST_CASE( test_dataset_storage_observation_vector_data_and_residuals )
 {
     const LinkDefinition stationALinkDefinition = createOneWayLinkDefinition( "StationA" );
@@ -205,6 +207,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_observation_vector_data_and_residuals
  * selection, weight/residual/observation mutation and EstimationInput/
  * CovarianceAnalysisInput references are delegated to the same dataset backend.
  */
+//! Verify legacy observation facades delegate their operations to the dataset backend.
 BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_backend )
 {
     const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -598,6 +601,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_interfaces_delegate_to_dataset_bac
                                    expectedExternallyMutatedTimes.end( ) );
 }
 
+//! Verify legacy weight setters update the dataset-backed weight representation.
 BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -686,6 +690,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_weight_setters_delegate_to_dataset_backend )
  * each set, including the legacy minimum-observation rule that drops too-small
  * split fragments.
  */
+//! Verify legacy collection splitting preserves the selected observations and metadata.
 BOOST_AUTO_TEST_CASE( test_legacy_observation_collection_splitters )
 {
     const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -788,6 +793,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_observation_collection_splitters )
     }
 }
 
+//! Verify shared legacy sets remain live and dependent variables can be cleared safely.
 BOOST_AUTO_TEST_CASE( test_legacy_collection_preserves_single_set_sharing_and_dependent_variable_clearing )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -836,6 +842,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_collection_preserves_single_set_sharing_and_de
     BOOST_CHECK( collection.getObservationsSets( ).at( one_way_range ).at( linkDefinition.linkEnds_ ).at( 0 ) == sharedSet );
 }
 
+//! Verify weighted design-matrix output applies sparse observation weights.
 BOOST_AUTO_TEST_CASE( test_weighted_design_matrix_output_uses_sparse_weights )
 {
     Eigen::MatrixXd normalizedDesignMatrix( 2, 2 );
@@ -866,6 +873,7 @@ BOOST_AUTO_TEST_CASE( test_weighted_design_matrix_output_uses_sparse_weights )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput.getUnnormalizedWeightedDesignMatrix( ), expectedWeightedDesignMatrix, 1.0E-15 );
 }
 
+//! Verify large correlated systems use the sparse Cholesky weighting path.
 BOOST_AUTO_TEST_CASE( test_large_sparse_weighted_design_matrix_uses_sparse_cholesky )
 {
     const int numberOfObservations = 5000;
@@ -924,6 +932,7 @@ BOOST_AUTO_TEST_CASE( test_large_sparse_weighted_design_matrix_uses_sparse_chole
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightedDesignMatrix.row( 2500 ), expectedWeightedRows.row( 2 ), 1.0E-15 );
 }
 
+//! Verify null legacy inputs permit configuration but fail when observations are required.
 BOOST_AUTO_TEST_CASE( test_legacy_null_inputs_allow_configuration_and_validate_data_access )
 {
     std::shared_ptr< ObservationCollection<> > noCollection;
@@ -948,6 +957,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_null_inputs_allow_configuration_and_validate_d
  * observation/time/weight dimensions and invalid set mutation requests to
  * ensure they fail with runtime errors.
  */
+//! Verify empty-set behavior and validation of malformed dataset inputs.
 BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1042,6 +1052,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_empty_sets_and_invalid_inputs )
  * duplicates, validates sorted row order, copies and moves selected observations
  * between sets and confirms invalid transfer requests are rejected.
  */
+//! Verify duplicate removal, row selection, and observation-move edge cases.
 BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1155,6 +1166,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_duplicate_selection_and_move_edge_cases )
  * selects exactly the intended observation ids and that combined conditions can
  * be used to build consistent snapshots.
  */
+//! Verify row conditions select links, values, status, and dependent variables correctly.
 BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_dependent_variables )
 {
     const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1344,6 +1356,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_row_conditions_cover_links_values_status_and_
  * selections retain dataset order while numerical vector data use the established
  * observable/link/set ordering, including after interleaved appends.
  */
+//! Verify ordered vector snapshots reorder selected rows without changing membership.
 BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_vector_data_reorders_selected_rows )
 {
     ObservationDataset< double, double > dataset;
@@ -1407,6 +1420,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_vector_data_reorders_selecte
  * reduced datasets, rejects/restores observations and checks observation vector data sizes.
  * It also confirms that snapshots survive structural mutations.
  */
+//! Verify condition snapshots drive rejection and reduced-dataset creation.
 BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_dataset )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1527,6 +1541,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_condition_snapshot_rejection_and_reduced_data
                        "StationX" );
 }
 
+//! Verify snapshots outlive datasets and legacy caches invalidate after mutation.
 BOOST_AUTO_TEST_CASE( test_dataset_snapshot_lifetime_and_legacy_cache_invalidation )
 {
     const LinkDefinition station1LinkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1574,6 +1589,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_lifetime_and_legacy_cache_invalidati
  * checks both compact weight vectors and materialized sparse observation vector data
  * matrices.
  */
+//! Verify compact weight policies and full matrix weights produce the expected coefficients.
 BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1855,6 +1871,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_compact_and_matrix_weights )
  * checks the resulting dense sparse matrix and confirms that conflicts report
  * the affected observation-vector and scalar-component indices.
  */
+//! Verify weight assignments replace only the addressed matrix entries.
 BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1909,6 +1926,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_weight_assignments_replace_addressed_entries 
  * first dataset omits append weights, and the second supplies them explicitly.
  * A later set-level assignment must replace the addressed matrix in both cases.
  */
+//! Verify appended default weights do not overwrite a subsequently assigned set block.
 BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_block )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -1970,6 +1988,7 @@ BOOST_AUTO_TEST_CASE( test_appended_default_weights_do_not_override_later_set_bl
  * per-observation, set-level and arbitrary weight blocks are preserved or
  * subsetted when the operation has a well-defined mapping.
  */
+//! Verify dataset rebuilds preserve row status and the restricted weight matrix.
 BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -2119,6 +2138,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_rebuild_preserves_status_and_weights )
  * the extra weight block is remapped from source scalar-component ids to target
  * scalar-component ids.
  */
+//! Verify copying a set preserves rejection status and off-diagonal weights.
 BOOST_AUTO_TEST_CASE( test_add_observation_set_from_dataset_preserves_status_and_extra_weights )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -2181,6 +2201,7 @@ BOOST_AUTO_TEST_CASE( test_add_observation_set_from_dataset_preserves_status_and
             copiedDenseWeightMatrix.block( copiedThirdRowStart, copiedFirstRowStart, 2, 2 ), sourceExtraWeightBlock.transpose( ), 1.0E-15 );
 }
 
+//! Verify dataset copies own mutable metadata and safely support self-copy operations.
 BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_copy )
 {
     const LinkDefinition linkDefinition = createOneWayLinkDefinition( "Station1" );
@@ -2279,6 +2300,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_copies_own_mutable_metadata_and_support_self_
  * sparse weights and compares the returned parameter update and normal matrix
  * against an independently assembled dense reference calculation.
  */
+//! Verify least-squares adjustment uses a sparse full observation weight matrix.
 BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
 {
     Eigen::MatrixXd designMatrix( 3, 2 );
@@ -2309,6 +2331,7 @@ BOOST_AUTO_TEST_CASE( test_sparse_weighted_least_squares )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sparseLeastSquaresOutput.first, expectedParameterUpdate, 1.0E-15 );
 }
 
+//! Verify removing rows does not renumber surviving observation identities.
 BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
 {
     ObservationDataset<> dataset;
@@ -2331,6 +2354,7 @@ BOOST_AUTO_TEST_CASE( test_removal_preserves_observation_identity )
     checkIds( std::vector< unsigned int >( updatedIds.begin( ) + 1, updatedIds.end( ) ), { originalIds.at( 1 ), originalIds.at( 2 ) } );
 }
 
+//! Verify residual writeback rejects vector data from a different or changed dataset.
 BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_checks_source_and_structure )
 {
     ObservationDataset<> dataset;
@@ -2356,6 +2380,7 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_writeback_checks_source_and_s
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.getResidualVectorForSet( setId ), residuals, 1.0E-15 );
 }
 
+//! Verify invalid batched value updates leave the dataset unchanged.
 BOOST_AUTO_TEST_CASE( test_invalid_batch_value_updates_are_atomic )
 {
     ObservationDataset<> dataset;
@@ -2373,6 +2398,7 @@ BOOST_AUTO_TEST_CASE( test_invalid_batch_value_updates_are_atomic )
     BOOST_CHECK_SMALL( dataset.getResidualVectorForSet( setId ).norm( ), 1.0E-15 );
 }
 
+//! Verify overlapping weight selections are validated before assignment.
 BOOST_AUTO_TEST_CASE( test_weight_assignments_validate_overlapping_selections )
 {
     ObservationDataset<> dataset;
@@ -2394,6 +2420,7 @@ BOOST_AUTO_TEST_CASE( test_weight_assignments_validate_overlapping_selections )
             dataset.createComputationObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), Eigen::Matrix2d::Identity( ), 1.0E-15 );
 }
 
+//! Verify all weight getters expose the same effective matrix coefficients.
 BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
 {
     ObservationDataset<> dataset;
@@ -2419,6 +2446,7 @@ BOOST_AUTO_TEST_CASE( test_weight_getters_return_the_effective_matrix )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), expected, 1.0E-15 );
 }
 
+//! Verify copying and filtering isolate nested mutable metadata objects.
 BOOST_AUTO_TEST_CASE( test_copy_constructor_and_filter_isolate_nested_mutable_metadata )
 {
     const LinkDefinition link = createOneWayLinkDefinition( "Station1" );
@@ -2449,6 +2477,7 @@ BOOST_AUTO_TEST_CASE( test_copy_constructor_and_filter_isolate_nested_mutable_me
                        "Vehicle" );
 }
 
+//! Verify regrouping rows within one dataset preserves cross-set correlations.
 BOOST_AUTO_TEST_CASE( test_same_dataset_regrouping_preserves_cross_set_correlations )
 {
     ObservationDataset< double, double > dataset;
@@ -2474,6 +2503,7 @@ BOOST_AUTO_TEST_CASE( test_same_dataset_regrouping_preserves_cross_set_correlati
             dataset.createObservationVectorData( ).getSparseWeightMatrix( ).toDense( ), survivingWeights, 1.0E-15 );
 }
 
+//! Verify invalid weight policies do not leave partially added observation sets.
 BOOST_AUTO_TEST_CASE( test_invalid_weight_policy_leaves_no_partial_set )
 {
     ObservationDataset< double, double > dataset;
@@ -2499,6 +2529,7 @@ BOOST_AUTO_TEST_CASE( test_invalid_weight_policy_leaves_no_partial_set )
     }
 }
 
+//! Verify overlapping legacy collections do not migrate shared set ownership.
 BOOST_AUTO_TEST_CASE( test_overlapping_legacy_collections_do_not_migrate_shared_sets )
 {
     const auto link = createOneWayLinkDefinition( "Station1" );
@@ -2538,6 +2569,7 @@ BOOST_AUTO_TEST_CASE( test_overlapping_legacy_collections_do_not_migrate_shared_
     BOOST_CHECK_EQUAL( second.getObservationVector( ).size( ), 2 );
 }
 
+//! Verify legacy collection snapshots restrict correlated weights to represented sets.
 BOOST_AUTO_TEST_CASE( test_legacy_collection_snapshot_restricts_cross_set_weights )
 {
     auto dataset = std::make_shared< ObservationDataset< double, double > >( );
@@ -2564,6 +2596,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_collection_snapshot_restricts_cross_set_weight
     BOOST_CHECK( facade.getObservationDataset( ) == dataset );
 }
 
+//! Verify vector-data writeback detects changed values and mutable ancillary settings.
 BOOST_AUTO_TEST_CASE( test_observation_vector_data_rejects_changed_values_and_mutable_ancillary_settings )
 {
     ObservationDataset<> dataset;
@@ -2598,6 +2631,7 @@ BOOST_AUTO_TEST_CASE( test_observation_vector_data_rejects_changed_values_and_mu
     BOOST_CHECK_EQUAL( dataset.getResidualValue( 0 )( 0 ), 3.0 );
 }
 
+//! Verify regrouping rejects incompatible ancillary settings atomically.
 BOOST_AUTO_TEST_CASE( test_regrouping_rejects_incompatible_ancillary_settings_without_mutation )
 {
     ObservationDataset<> dataset;
@@ -2612,6 +2646,7 @@ BOOST_AUTO_TEST_CASE( test_regrouping_rejects_incompatible_ancillary_settings_wi
     BOOST_CHECK( dataset == original );
 }
 
+//! Verify design matrices use active mixed-dimension observations in estimation order.
 BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimension_vector_data )
 {
     auto dataset = std::make_shared< ObservationDataset<> >( );
@@ -2631,6 +2666,7 @@ BOOST_AUTO_TEST_CASE( test_time_ordered_design_matrix_uses_active_mixed_dimensio
     BOOST_CHECK_EQUAL_COLLECTIONS( sorted.second.begin( ), sorted.second.end( ), expectedTimes.begin( ), expectedTimes.end( ) );
 }
 
+//! Verify covariance propagation reports an empty active observation selection.
 BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_explicitly )
 {
     auto dataset = std::make_shared< ObservationDataset<> >( );
@@ -2651,6 +2687,7 @@ BOOST_AUTO_TEST_CASE( test_covariance_history_rejects_empty_active_selection_exp
                        std::runtime_error );
 }
 
+//! Verify dependent-variable layout replacement validates metadata and stored dimensions.
 BOOST_AUTO_TEST_CASE( test_dependent_layout_replacement_validates_metadata_and_stored_dimensions )
 {
     ObservationDataset<> dataset;
@@ -2686,6 +2723,7 @@ BOOST_AUTO_TEST_CASE( test_dependent_layout_replacement_validates_metadata_and_s
                        1 );
 }
 
+//! Verify legacy caches detect backend replacement even when revision values match.
 BOOST_AUTO_TEST_CASE( test_legacy_caches_detect_dataset_replacement_with_equal_revision )
 {
     ObservationDataset<> first, second;
@@ -2711,6 +2749,7 @@ BOOST_AUTO_TEST_CASE( test_legacy_caches_detect_dataset_replacement_with_equal_r
     }
 }
 
+//! Verify inspection getters preserve ordering, alignment, and weight correlations.
 BOOST_AUTO_TEST_CASE( test_inspection_ordering_alignment_and_correlations )
 {
     ObservationDataset<> dataset;
@@ -2817,6 +2856,7 @@ BOOST_AUTO_TEST_CASE( test_inspection_ordering_alignment_and_correlations )
     BOOST_CHECK( dataset.getObservations( ) == originalObservations );
 }
 
+//! Verify detached inspection snapshots survive dataset mutation and destruction.
 BOOST_AUTO_TEST_CASE( test_inspection_snapshots_survive_mutation_and_destruction )
 {
     ObservationDataset<>::InspectionMetadata metadata;
@@ -2908,6 +2948,7 @@ BOOST_AUTO_TEST_CASE( test_inspection_snapshots_survive_mutation_and_destruction
     BOOST_CHECK_EQUAL( std::get< 2 >( metadata.at( 0 ) )->getAncillaryDoubleData( doppler_integration_time ), 30 );
 }
 
+//! Verify inspection handles empty data, missing fields, precise times, and one-pass selection.
 BOOST_AUTO_TEST_CASE( test_inspection_empty_missing_precision_and_single_resolution )
 {
     ObservationDataset<> empty;

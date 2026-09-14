@@ -77,6 +77,7 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
 class ObservationDependentVariableSettings
 {
 public:
+    //! Clone these dependent-variable settings without slicing derived state.
     virtual std::shared_ptr< ObservationDependentVariableSettings > clone( ) const
     {
         if( typeid( *this ) != typeid( ObservationDependentVariableSettings ) )
@@ -256,6 +257,7 @@ std::string getIntegrationHandlingString( const IntegratedObservationPropertyHan
 class StationAngleObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    //! Clone station-angle dependent-variable settings.
     std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
     {
         if( typeid( *this ) != typeid( StationAngleObservationDependentVariableSettings ) )
@@ -359,6 +361,7 @@ private:
 class InterlinkObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    //! Clone interlink dependent-variable settings.
     std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
     {
         if( typeid( *this ) != typeid( InterlinkObservationDependentVariableSettings ) )
@@ -482,6 +485,7 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
 class AncillaryObservationDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    //! Clone ancillary dependent-variable settings.
     std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
     {
         if( typeid( *this ) != typeid( AncillaryObservationDependentVariableSettings ) )
@@ -759,6 +763,7 @@ inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDepe
 class LightTimeCorrectionComponentsDependentVariableSettings : public ObservationDependentVariableSettings
 {
 public:
+    //! Clone light-time-correction component settings.
     std::shared_ptr< ObservationDependentVariableSettings > clone( ) const override
     {
         if( typeid( *this ) != typeid( LightTimeCorrectionComponentsDependentVariableSettings ) )

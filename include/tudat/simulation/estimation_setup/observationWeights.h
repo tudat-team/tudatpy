@@ -38,13 +38,16 @@ namespace observation_models
  * observable-size per-observation blocks and full set-level blocks.
  */
 struct ObservationWeightSettings {
+    //! Supported compact representations for weights supplied with a new set.
     enum class Type { default_weights, constant_scalar, scalar_per_observation, constant_block, block_per_observation, set_block };
 
+    //! Create settings that assign unit diagonal weights.
     static ObservationWeightSettings defaultWeights( )
     {
         return ObservationWeightSettings( );
     }
 
+    //! Create settings for one scalar weight repeated over all observations and components.
     static ObservationWeightSettings constantScalar( const double weight )
     {
         ObservationWeightSettings settings;
@@ -53,6 +56,7 @@ struct ObservationWeightSettings {
         return settings;
     }
 
+    //! Create settings with one scalar weight per observation event.
     static ObservationWeightSettings scalarPerObservation( const std::vector< double >& weights )
     {
         ObservationWeightSettings settings;
@@ -61,6 +65,7 @@ struct ObservationWeightSettings {
         return settings;
     }
 
+    //! Create settings with one component block repeated for every observation event.
     static ObservationWeightSettings constantBlock( const Eigen::MatrixXd& weightBlock )
     {
         ObservationWeightSettings settings;
@@ -69,6 +74,7 @@ struct ObservationWeightSettings {
         return settings;
     }
 
+    //! Create settings with a separate component block for every observation event.
     static ObservationWeightSettings blockPerObservation( const std::vector< Eigen::MatrixXd >& weightBlocks )
     {
         ObservationWeightSettings settings;
@@ -77,6 +83,7 @@ struct ObservationWeightSettings {
         return settings;
     }
 
+    //! Create settings with one full principal block for the complete set.
     static ObservationWeightSettings setBlock( const Eigen::MatrixXd& weightBlock )
     {
         ObservationWeightSettings settings;
@@ -85,10 +92,15 @@ struct ObservationWeightSettings {
         return settings;
     }
 
+    //! Selected compact weight representation.
     Type type_ = Type::default_weights;
+    //! Scalar value used by the constant-scalar representation.
     double scalarWeight_ = 1.0;
+    //! Per-observation values used by the scalar-per-observation representation.
     std::vector< double > scalarWeights_;
+    //! Shared component block or complete set block, depending on type_.
     Eigen::MatrixXd weightBlock_;
+    //! Per-observation component blocks used by the block-per-observation representation.
     std::vector< Eigen::MatrixXd > weightBlocks_;
 };
 
@@ -172,16 +184,19 @@ public:
         return result;
     }
 
+    //! Return the number of scalar rows represented by this weight matrix.
     std::size_t size( ) const
     {
         return diagonal_.size( );
     }
 
+    //! Return whether at least one nonzero off-diagonal coefficient is stored.
     bool hasOffDiagonalWeights( ) const
     {
         return !offDiagonal_.empty( );
     }
 
+    //! Validate that diagonal weights are finite and nonnegative.
     static void validateDiagonal( const Eigen::VectorXd& diagonal )
     {
         if( !diagonal.allFinite( ) || ( diagonal.array( ) < 0.0 ).any( ) )
@@ -190,6 +205,7 @@ public:
         }
     }
 
+    //! Append validated diagonal coefficients to scalar storage.
     void appendDiagonal( const Eigen::VectorXd& diagonal )
     {
         validateDiagonal( diagonal );
@@ -199,6 +215,7 @@ public:
         }
     }
 
+    //! Gather diagonal coefficients in the requested scalar-index order.
     Eigen::VectorXd getDiagonal( const std::vector< Index >& indices ) const
     {
         Eigen::VectorXd diagonal( indices.size( ) );
@@ -342,6 +359,7 @@ public:
         }
     }
 
+    //! Return all diagonal coefficients as an Eigen vector.
     Eigen::VectorXd diagonalVector( ) const
     {
         Eigen::VectorXd result( diagonal_.size( ) );
@@ -349,6 +367,7 @@ public:
         return result;
     }
 
+    //! Materialize the complete symmetric sparse weight matrix.
     Eigen::SparseMatrix< double > sparseMatrix( ) const
     {
         Eigen::SparseMatrix< double > result( size( ), size( ) );
@@ -370,17 +389,20 @@ public:
         return result;
     }
 
+    //! Compare the effective compact weight storage for exact equality.
     bool operator==( const ObservationWeights& other ) const
     {
         return diagonal_ == other.diagonal_ && offDiagonal_ == other.offDiagonal_;
     }
 
+    //! Serialize compact diagonal and upper-triangular weight storage.
     template< class Archive >
     void save( Archive& archive ) const
     {
         archive( diagonal_, offDiagonal_ );
     }
 
+    //! Deserialize and validate compact observation-weight storage.
     template< class Archive >
     void load( Archive& archive )
     {
@@ -398,6 +420,7 @@ public:
     }
 
 private:
+    //! Validate scalar indices and map each selected source index to its output position.
     std::unordered_map< Index, Index > indexMap( const std::vector< Index >& indices ) const
     {
         std::unordered_map< Index, Index > result;
@@ -412,6 +435,7 @@ private:
         return result;
     }
 
+    //! Assign one canonical upper-triangular entry in compact storage.
     void setEntry( const Entry& key, const double value )
     {
         if( key.first == key.second )
@@ -428,7 +452,9 @@ private:
         }
     }
 
+    //! Diagonal coefficients in dataset scalar-storage order.
     std::vector< double > diagonal_;
+    //! Nonzero off-diagonal coefficients stored once in the upper triangle.
     std::map< Entry, double > offDiagonal_;
 };
 

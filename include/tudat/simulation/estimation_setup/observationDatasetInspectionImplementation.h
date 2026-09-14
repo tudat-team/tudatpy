@@ -17,11 +17,13 @@ struct ObservationSelectionIndices {
     using Dataset = ObservationDataset< ObservationScalarType, TimeType >;
     using Vector = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >;
 
+    //! Resolve selected observation identities once for the requested ordering.
     ObservationSelectionIndices( const Dataset& dataset,
                                  const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
                                  const ObservationOrdering ordering ): ids( dataset.resolveObservationIds( condition, ordering ) )
     {}
 
+    //! Gather one detached value per selected observation identity.
     template< typename Value, typename Getter >
     std::vector< Value > gather( Getter getter ) const
     {
@@ -34,41 +36,49 @@ struct ObservationSelectionIndices {
         return result;
     }
 
+    //! Gather event times for the current selection.
     std::vector< TimeType > getTimes( const Dataset& dataset ) const
     {
         return gather< TimeType >( [ & ]( const auto id ) { return dataset.getObservationTime( id ); } );
     }
 
+    //! Gather observed vectors for the current selection.
     std::vector< Vector > getObservations( const Dataset& dataset ) const
     {
         return gather< Vector >( [ & ]( const auto id ) { return dataset.getObservationValue( id ); } );
     }
 
+    //! Gather residual vectors for the current selection.
     std::vector< Vector > getResiduals( const Dataset& dataset ) const
     {
         return gather< Vector >( [ & ]( const auto id ) { return dataset.getResidualValue( id ); } );
     }
 
+    //! Return the selected stable observation identities.
     std::vector< unsigned int > getObservationIds( const Dataset& ) const
     {
         return ids;
     }
 
+    //! Gather owning set identities for the current selection.
     std::vector< unsigned int > getSetIds( const Dataset& dataset ) const
     {
         return gather< unsigned int >( [ & ]( const auto id ) { return dataset.getObservationRow( id ).setId_; } );
     }
 
+    //! Gather detached event rows for the current selection.
     std::vector< ObservationDatasetRow< TimeType > > getRows( const Dataset& dataset ) const
     {
         return gather< ObservationDatasetRow< TimeType > >( [ & ]( const auto id ) { return dataset.getObservationRow( id ); } );
     }
 
+    //! Gather dependent-variable vectors for the current selection.
     std::vector< Eigen::VectorXd > getDependentVariableValues( const Dataset& dataset ) const
     {
         return gather< Eigen::VectorXd >( [ & ]( const auto id ) { return dataset.getDependentVariables( id ); } );
     }
 
+    //! Expand selected events to stable observation/component pairs.
     std::vector< std::pair< unsigned int, unsigned int > > getScalarComponents( const Dataset& dataset ) const
     {
         std::vector< std::pair< unsigned int, unsigned int > > result;
@@ -82,16 +92,19 @@ struct ObservationSelectionIndices {
         return result;
     }
 
+    //! Gather the effective diagonal weights for the current selection.
     Eigen::VectorXd getWeightDiagonal( const Dataset& dataset ) const
     {
         return dataset.observationWeights_.getDiagonal( dataset.getScalarComponentIdsForObservationSelection( ids, {} ) );
     }
 
+    //! Gather the effective principal weight matrix for the current selection.
     Eigen::SparseMatrix< double > getWeightMatrix( const Dataset& dataset ) const
     {
         return dataset.observationWeights_.restricted( dataset.getScalarComponentIdsForObservationSelection( ids, {} ) ).sparseMatrix( );
     }
 
+    //! Clone metadata for sets represented in the current selection.
     typename Dataset::InspectionMetadata getMetadata( const Dataset& dataset ) const
     {
         typename Dataset::InspectionMetadata result;
@@ -122,6 +135,7 @@ struct ObservationSelectionIndices {
         return result;
     }
 
+    //! Stable observation identities in the requested extraction order.
     std::vector< unsigned int > ids;
 };
 }  // namespace detail

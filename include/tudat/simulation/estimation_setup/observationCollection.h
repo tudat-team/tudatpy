@@ -88,6 +88,7 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
+    //! Create a legacy collection facade backed by a live observation dataset.
     ObservationCollection( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& observationDataset ):
         observationDataset_( observationDataset )
     {
@@ -1991,6 +1992,7 @@ public:
     }
 
 private:
+    //! Rebuild the dataset after structural edits made through legacy set wrappers.
     void rebuildObservationDatasetFromObservationSetList( )
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > existingWrappers;
@@ -2019,6 +2021,7 @@ private:
         setConcatenatedObservationsAndTimes( false );
     }
 
+    //! Rebuild legacy set wrappers after structural edits made through the dataset.
     void rebuildObservationSetListFromObservationDataset( ) const
     {
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > existingWrappersBySetId =
@@ -2078,6 +2081,7 @@ private:
         return result;
     }
 
+    //! Refresh legacy concatenated values from the current dataset-backed sets.
     void refreshLegacyConcatenatedDataFromObservationDataset( )
     {
         refreshFromDatasetIfNeeded( );
@@ -2086,6 +2090,7 @@ private:
         setLegacyConcatenatedDataFromObservationSets( );
     }
 
+    //! Refresh wrapper structure when an observed dataset revision has changed.
     void refreshFromDatasetIfNeeded( ) const
     {
         bool changed = false;
@@ -2182,6 +2187,7 @@ private:
         }
     }
 
+    //! Recompute legacy vector indexing and optionally rebuild the dataset backend.
     void setConcatenatedObservationsAndTimes( const bool rebuildObservationDataset = true )
     {
         if( rebuildObservationDataset )
@@ -2279,6 +2285,7 @@ private:
         }
     }
 
+    //! Regenerate legacy concatenated values and times from the current set list.
     void setLegacyConcatenatedDataFromObservationSets( )
     {
         concatenatedObservations_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_ );
@@ -2530,8 +2537,10 @@ public:
 private:
     friend class cereal::access;
 
+    //! Binary tag distinguishing the dataset-backed serialization layout.
     static constexpr std::uint64_t binaryFormatTag_ = 0x544F434F4C4C3031ULL;
 
+    //! Serialize both the dataset backend and compatibility set wrappers.
     template< class Archive >
     void save( Archive& ar ) const
     {
@@ -2539,6 +2548,7 @@ private:
         ar( binaryFormatTag_, observationDataset_, observationSetList_ );
     }
 
+    //! Deserialize current or legacy collection layouts and rebuild derived indices.
     template< class Archive >
     void load( Archive& ar )
     {
@@ -2592,6 +2602,7 @@ private:
     }
 };
 
+//! Convert a legacy observation collection to its dataset backend or snapshot.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -2606,6 +2617,7 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createO
     return observationCollection->getObservationDataset( );
 }
 
+//! Create a legacy collection facade backed by an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

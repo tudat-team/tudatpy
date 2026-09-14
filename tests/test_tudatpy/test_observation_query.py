@@ -339,6 +339,7 @@ def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
 
 
 def test_query_conditions_drive_snapshot_getters(sample_dataset):
+    """Verify query conditions select aligned fields in detached snapshots."""
     query = observations.observation_query
     selection = (query.set_id == 1) | (query.time < 2.0)
     data = sample_dataset.get_data(
@@ -583,6 +584,7 @@ def test_redundant_dataset_only_aliases_are_not_public(sample_dataset):
 
 @pytest.mark.parametrize("epoch, expected_ids", [(1.0, [0]), (3.0, [3]), (7.0, [])])
 def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, expected_ids):
+    """Verify time equality and inequality queries partition dataset rows."""
     query = observations.observation_query
     equal = sample_dataset.observation_ids_matching_condition(query.time == epoch)
     unequal = sample_dataset.observation_ids_matching_condition(query.time != epoch)
@@ -592,6 +594,7 @@ def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, e
 
 
 def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dataset):
+    """Verify Python row and metadata snapshots survive dataset removal."""
     dataset = sample_dataset
     row = dataset.observation_rows[0]
     metadata = dataset.observation_set_metadata[0]

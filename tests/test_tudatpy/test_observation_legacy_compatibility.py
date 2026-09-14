@@ -98,6 +98,7 @@ def _to_dense_matrix(matrix):
 
 
 def test_legacy_single_observation_set_conversion_matches_dataset():
+    """Verify legacy single-set conversion preserves dataset values and metadata."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         observation_set = observations.create_single_observation_set(
@@ -340,6 +341,7 @@ def test_legacy_ephemeris_reference_point_adopts_grouped_collection_dataset():
 
 
 def test_dataset_add_observation_set_accepts_single_observation_set_object():
+    """Verify a legacy single-set object can be added directly to a dataset."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         observation_set = observations.create_single_observation_set(
@@ -361,6 +363,7 @@ def test_dataset_add_observation_set_accepts_single_observation_set_object():
 
 
 def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
+    """Verify positional and keyword dataset construction preserve component shape."""
     link_definition = observations.LinkDefinition(_link_ends("Earth"))
     observation_values = [np.array([20.0]), np.array([10.0])]
     observation_times = [2.0, 1.0]
@@ -404,6 +407,7 @@ def test_dataset_add_observation_set_component_shape_matches_keyword_constructio
 
 
 def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
+    """Verify invalid add-observation-set calls report both supported signatures."""
     with pytest.raises(TypeError) as exception_info:
         observations.ObservationDataset().add_observation_set(object())
 
@@ -414,6 +418,7 @@ def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
 
 
 def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
+    """Verify dataset legacy vector properties match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -439,6 +444,7 @@ def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
 
 
 def test_dataset_exposes_legacy_collection_metadata_properties(sample_dataset):
+    """Verify dataset legacy metadata properties match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -479,6 +485,7 @@ def test_dataset_exposes_legacy_collection_metadata_properties(sample_dataset):
 
 
 def test_dataset_exposes_legacy_collection_lookup_methods(sample_dataset):
+    """Verify dataset legacy lookup methods match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -518,6 +525,7 @@ def test_dataset_exposes_legacy_collection_lookup_methods(sample_dataset):
 
 
 def test_dataset_delegates_remaining_legacy_collection_method_names(sample_dataset):
+    """Verify retained legacy method names delegate to dataset behavior."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -540,6 +548,7 @@ def test_dataset_delegates_remaining_legacy_collection_method_names(sample_datas
 
 
 def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
+    """Verify legacy full-vector setters update the dataset backend."""
     vector_data = sample_dataset.ordered_observation_vector_data()
     new_observations = np.asarray(vector_data.observation_vector, dtype=float) + 100.0
     new_residuals = np.asarray(vector_data.residual_vector, dtype=float) - 0.25
@@ -555,6 +564,7 @@ def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
 
 
 def test_legacy_weight_setters_match_dataset(sample_dataset):
+    """Verify legacy collection weight setters match dataset weights."""
     legacy_collection = _legacy_collection(sample_dataset)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
@@ -619,6 +629,7 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
 
 @pytest.mark.parametrize("container", [list, lambda values: np.array(values, dtype=object)])
 def test_dataset_preserves_precise_time_objects(container):
+    """Verify dataset input preserves precise time objects in common containers."""
     from tudatpy.astro.time_representation import Time
 
     epoch = Time(1000000, 0.000000001)
@@ -631,6 +642,7 @@ def test_dataset_preserves_precise_time_objects(container):
 
 
 def test_scalar_setters_accept_one_dimensional_arrays(sample_dataset):
+    """Verify scalar observation and residual setters accept one-dimensional arrays."""
     sample_dataset.set_observations_for_set(0, np.array([101.0, 102.0, 103.0]))
     sample_dataset.set_residuals_for_set(0, np.array([0.5, 1.5, 2.5]))
     np.testing.assert_array_equal(
