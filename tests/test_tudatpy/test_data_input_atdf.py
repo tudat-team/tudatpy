@@ -129,7 +129,7 @@ def expected_epoch(timestamp: pd.Timestamp) -> float:
 def msr_df() -> pd.DataFrame:
     """The fixture's ``.msr`` table, parsed once. Treated as read-only by tests."""
     processor = AtdfTrackingDataProcessor([Path(FIXTURE_STEM)], SPACECRAFT)
-    processor.read_atdf_ascii_msr(FIXTURE_DIR)
+    processor._read_atdf_ascii_msr(FIXTURE_DIR)
     return processor.df_processed_msr
 
 
@@ -137,7 +137,7 @@ def msr_df() -> pd.DataFrame:
 def ramp_df() -> pd.DataFrame:
     """The fixture's ``.ramp`` table, parsed once. Treated as read-only by tests."""
     processor = AtdfTrackingDataProcessor([Path(FIXTURE_STEM)], SPACECRAFT)
-    processor.read_atdf_ascii_ramp(FIXTURE_DIR)
+    processor._read_atdf_ascii_ramp(FIXTURE_DIR)
     return processor.df_processed_rmp
 
 
