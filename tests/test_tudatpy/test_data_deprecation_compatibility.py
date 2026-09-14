@@ -1,6 +1,9 @@
 import importlib
 import inspect
 from pathlib import Path
+import subprocess
+import sys
+import textwrap
 from unittest.mock import patch
 
 import numpy as np
@@ -171,13 +174,13 @@ def test_deprecated_data_alias_resolves_to_new_object(module_name, old_name, new
         (
             "tudatpy.data.horizons",
             "HorizonsQuery",
-            "tudatpy.data_input.environment_data.horizons.HorizonsQuery",
+            "tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery",
         ),
-        ("tudatpy.data.mpc", "BatchMPC", "tudatpy.data_input.tracking_data.mpc.BatchMPC"),
+        ("tudatpy.data.mpc", "BatchMPC", "tudatpy.data.mpc._legacy.BatchMPC"),
         (
             "tudatpy.data.processTrk234",
             "Trk234Processor",
-            "tudatpy.data_input.tracking_data.tnf.TnfTrackingDataProcessor",
+            "tudatpy.data.processTrk234._legacy.Trk234Processor",
         ),
     ),
 )
@@ -224,6 +227,41 @@ def test_deprecated_observations_wrapper_alias_warns():
         imported_object = getattr(module, "create_observation_collection_from_tracking_data")
 
     assert imported_object is observations.create_observation_collection_from_tracking_data
+
+
+@pytest.mark.parametrize(
+    "import_statement",
+    [
+        "from tudatpy.estimation import observations_setup",
+        "from tudatpy import estimation; observations_setup = estimation.observations_setup",
+    ],
+)
+def test_fresh_estimation_import_retains_observations_wrapper(import_statement):
+    """In a new Python session, reach the old observation tools in both supported ways."""
+    # Starting afresh shows whether the old route works before anything else has prepared it.
+    script = import_statement + "\n" + textwrap.dedent("""\
+        import inspect
+        import warnings
+        from tudatpy.estimation import observations
+
+        # The old route must select the current simulator and place one warning on this exact line.
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter("always", DeprecationWarning)
+            expected_line = inspect.currentframe().f_lineno + 1
+            simulator = observations_setup.observations_wrapper.simulate_observations
+        assert simulator is observations.simulate_observations
+        assert len(captured) == 1
+        assert captured[0].category is DeprecationWarning
+        assert "simulate_observations is deprecated" in str(captured[0].message)
+        assert captured[0].filename == "<string>"
+        assert captured[0].lineno == expected_line
+        """)
+    subprocess.run(
+        [sys.executable, "-W", "error::DeprecationWarning", "-c", script],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
 
 def test_deprecated_crd_single_file_reader_warns_and_delegates():

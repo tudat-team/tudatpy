@@ -106,7 +106,7 @@ def dual_y_axis(
     c2: str = "tab:red",
     grid: str = "",
 ):
-    """Plot two y-axis that share a common x-axis.
+    r"""Plot two y-axis that share a common x-axis.
 
     Parameters
     ----------
