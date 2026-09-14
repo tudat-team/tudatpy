@@ -11,9 +11,12 @@
 
 #define BOOST_TEST_MAIN
 
+#include <cmath>
+
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatExceptions.h"
 
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
@@ -549,6 +552,135 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         runtimeErrorOccurred = false;
         coefficients.clear( );
         dataVector.clear( );
+    }
+}
+
+// Test interpolation near a tabulated Time when the normalized difference vanishes.
+//
+// Time stores the number of full periods and the seconds into the current period separately.
+// Two Time values can therefore compare unequal because their seconds members differ by one
+// ULP, while subtracting and normalizing them produces a difference that casts to zero. Since
+// the barycentric formula contains terms proportional to 1 / ( x - x_j ), the interpolator
+// must recognize this case as a coinciding stencil point and return its tabulated value.
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_sub_ulp_time_offset )
+{
+    // Number of points per interpolant, and offset from the domain edges within which the
+    // centered interpolant is used.
+    const int numberOfStages = 8;
+    const int offsetEntries = numberOfStages / 2 - 1;
+
+    // Number of full periods (hours) since J2000 of the first tabulated epoch (mid-2014).
+    const int baseFullPeriods = 130000;
+
+    // This remainder is deliberately small compared with a full period, so a one-ULP offset
+    // from it is rounded away when the difference of two epochs is normalized. This holds for
+    // both 64-bit and 80-bit long double representations.
+    const long double secondsIntoFullPeriod = 0.125L;
+
+    // Create tabulated epochs, uniformly spaced by one full period.
+    const int numberOfNodes = 12;
+    std::vector< Time > independentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        independentVariableVector.push_back( Time( baseFullPeriods + i, secondsIntoFullPeriod ) );
+    }
+
+    // Create dependent variables from a polynomial of order numberOfStages - 1, evaluated in
+    // full periods since the first tabulated epoch, so that the interpolant reproduces it exactly.
+    const std::map< int, double > coefficients = getPolynomialCoefficients( numberOfStages - 1 );
+    std::vector< double > dependentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        dependentVariableVector.push_back( evaluatePolynomial( coefficients, static_cast< double >( i ) ) );
+    }
+
+    interpolators::LagrangeInterpolator< Time, double > interpolator( independentVariableVector,
+                                                                      dependentVariableVector,
+                                                                      numberOfStages,
+                                                                      interpolators::huntingAlgorithm,
+                                                                      interpolators::lagrange_no_boundary_interpolation );
+
+    // Iterate over epochs for which a centered stencil is used both immediately below and
+    // immediately above the tabulated value.
+    for( int i = offsetEntries + 1; i < numberOfNodes - offsetEntries - 1; i++ )
+    {
+        const Time tabulatedEpoch = independentVariableVector.at( i );
+        const double tabulatedValue = dependentVariableVector.at( i );
+
+        // The epoch immediately below produces a zero normalized difference. The epoch
+        // immediately above provides the corresponding finite-difference control case.
+        const Time epochJustBelow( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 0.0L ) );
+        const Time epochJustAbove( baseFullPeriods + i, std::nextafter( secondsIntoFullPeriod, 1.0L ) );
+
+        // Verify that both epochs are distinct from the tabulated epoch and that normalization
+        // maps the lower difference to zero in the interpolator's scalar precision.
+        BOOST_CHECK( epochJustBelow != tabulatedEpoch );
+        BOOST_CHECK( epochJustAbove != tabulatedEpoch );
+        BOOST_CHECK_EQUAL( static_cast< long double >( epochJustBelow - tabulatedEpoch ), 0.0L );
+
+        const double valueJustBelow = interpolator.interpolate( epochJustBelow );
+        const double valueJustAbove = interpolator.interpolate( epochJustAbove );
+
+        BOOST_CHECK( std::isfinite( valueJustBelow ) );
+        BOOST_CHECK( std::isfinite( valueJustAbove ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( valueJustBelow, tabulatedValue, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( valueJustAbove, tabulatedValue, 1.0E-14 );
+    }
+}
+
+// Test exact reproduction of a constant function by barycentric Lagrange interpolation.
+//
+// The Lagrange basis functions form a partition of unity, so a constant function is reproduced
+// exactly in real arithmetic. In barycentric form, the numerator is the constant-scaled version
+// of the denominator. Using a power-of-two constant makes that scaling exact in floating-point
+// arithmetic, allowing bitwise equality to test the partition-of-unity property directly.
+//
+// The double independent-variable type selects 64-bit scalar accumulation on every platform.
+// This ensures that the test exercises the precision used when long double provides no extra
+// precision over double.
+BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_partition_of_unity )
+{
+    // Constant dependent variable: 2^37 metres, of the order of a heliocentric distance.
+    const double constantValue = 137438953472.0;
+
+    // Tabulated epochs, uniformly spaced by 60 s, at a realistic epoch (seconds since J2000).
+    const double firstEpoch = 4.7E8;
+    const double timeStep = 60.0;
+    const int numberOfNodes = 12;
+
+    std::vector< double > independentVariableVector;
+    std::vector< double > dependentVariableVector;
+    for( int i = 0; i < numberOfNodes; i++ )
+    {
+        independentVariableVector.push_back( firstEpoch + static_cast< double >( i ) * timeStep );
+        dependentVariableVector.push_back( constantValue );
+    }
+
+    // Test interpolator for 4;6;8;10 data points per interpolant.
+    for( int numberOfStages = 4; numberOfStages < 11; numberOfStages += 2 )
+    {
+        const int offsetEntries = numberOfStages / 2 - 1;
+
+        interpolators::LagrangeInterpolator< double, double > interpolator( independentVariableVector,
+                                                                            dependentVariableVector,
+                                                                            numberOfStages,
+                                                                            interpolators::huntingAlgorithm,
+                                                                            interpolators::lagrange_no_boundary_interpolation );
+
+        // Iterate over all intervals in which the centered interpolant is used, and sample each
+        // of them densely away from the tabulated epochs themselves.
+        for( int i = offsetEntries; i < numberOfNodes - offsetEntries - 1; i++ )
+        {
+            for( int j = 1; j < 50; j++ )
+            {
+                const double currentEpoch = independentVariableVector.at( i ) + timeStep * static_cast< double >( j ) / 50.0;
+
+                // Bitwise equality: the interpolated value of a constant function may not depend
+                // on where in the interval it is evaluated.
+                BOOST_CHECK_EQUAL( interpolator.interpolate( currentEpoch ), constantValue );
+            }
+        }
     }
 }
 
