@@ -714,7 +714,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerVehicleSystemTransponderDelay )
 
     observationModel->computeIdealObservationsWithLinkEndData(
             observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 
