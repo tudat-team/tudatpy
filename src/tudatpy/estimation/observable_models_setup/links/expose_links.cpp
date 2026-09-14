@@ -338,6 +338,11 @@ Examples
 
 
       )doc" ) TUDATPY_DEF_PICKLE( tom::LinkEndId )
+            .def_property_readonly( "reference_point_name",
+                                    &tom::LinkEndId::getReferencePointName,
+                                    R"doc(
+         Legacy alias for :attr:`reference_point`.
+      )doc" )
             .def_property_readonly( "station_name",
                                     &tom::LinkEndId::getReferencePointName,
                                     R"doc(
