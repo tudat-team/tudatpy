@@ -12,6 +12,8 @@
 #ifndef EXECUTEEARTHORBITERPARAMETERESTIMATIONTESTCASE_H
 #define EXECUTEEARTHORBITERPARAMETERESTIMATIONTESTCASE_H
 
+#include <functional>
+
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCaseUtilities.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -40,7 +42,9 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         const int numberOfDaysOfData = 3,
         const int numberOfIterations = 5,
         const bool useFullParameterSet = true,
-        const bool saveDesignMatrix = true )
+        const bool saveDesignMatrix = true,
+        const std::function< void( const std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > >&,
+                                   const std::shared_ptr< EstimationInput< StateScalarType, TimeType > >& ) >& configureEstimation = nullptr )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -305,6 +309,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
             std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations );
     estimationInput->defineEstimationSettings( true, true, saveDesignMatrix, true, true, true );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    if( configureEstimation )
+    {
+        configureEstimation( simulatedObservations, estimationInput );
+    }
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput =

@@ -1247,6 +1247,8 @@ public:
 //! Data structure through which the output of the orbit determination is communicated
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType, TimeType > {
+    using ActiveFlagsVector = Eigen::Matrix< bool, Eigen::Dynamic, 1 >;
+
     //! Constructor
     /*!
      * Constructor
@@ -1259,11 +1261,13 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      * matrix were divided to normalize its entries.
      * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
-     * \param residualHistory Vector of residuals per iteration
+     * \param residualHistory Vector of residuals per iteration, including inactive observations
      * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
      * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
      * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
      * motion (and variational equations).
+     * \param activeFlagsPerIteration Vector of active-observation flags per iteration, in the same scalar-row order as
+     * residualHistory. A true entry denotes a residual that was included in the corresponding estimation iteration.
      */
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
@@ -1282,7 +1286,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
-                      const bool exceptionDuringPropagation = false ):
+                      const bool exceptionDuringPropagation = false,
+                      const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
                                                                      weightsMatrixDiagonal,
                                                                      designMatrixTransformationDiagonal,
@@ -1295,7 +1300,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      weightsMatrix ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
+        activeFlagsPerIteration_( activeFlagsPerIteration ), exceptionDuringInversion_( exceptionDuringInversion ),
+        numberOfParameters_( normalizedDesignMatrix.cols( ) )
     {}
 
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
@@ -1314,7 +1320,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
-                      const bool exceptionDuringPropagation = false ):
+                      const bool exceptionDuringPropagation = false,
+                      const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
         EstimationOutput( parameterEstimate,
                           residuals,
                           normalizedDesignMatrix,
@@ -1331,7 +1338,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                           covarianceConsiderContribution,
                           considerCovariance,
                           exceptionDuringInversion,
-                          exceptionDuringPropagation )
+                          exceptionDuringPropagation,
+                          activeFlagsPerIteration )
     {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix
@@ -1343,20 +1351,6 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     {
         if( residualHistory_.size( ) > 0 )
         {
-            // When observations are rejected or recovered during the estimation, the number of residuals differs
-            // between iterations, and the history cannot be represented as a single matrix.
-            for( unsigned int i = 1; i < residualHistory_.size( ); i++ )
-            {
-                if( residualHistory_.at( i ).rows( ) != residualHistory_.at( 0 ).rows( ) )
-                {
-                    std::cerr << "Warning, requesting residual history as a matrix, but the number of residuals differs between "
-                                 "iterations (most likely because outlier rejection was used). Returning empty 0x0 matrix; the "
-                                 "residuals per iteration remain available as a list."
-                              << std::endl;
-                    return Eigen::MatrixXd::Zero( 0, 0 );
-                }
-            }
-
             Eigen::MatrixXd residualHistoryMatrix = Eigen::MatrixXd( residualHistory_.at( 0 ).rows( ), residualHistory_.size( ) );
             for( unsigned int i = 0; i < residualHistory_.size( ); i++ )
             {
@@ -1368,6 +1362,31 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         {
             std::cerr << "Warning, requesting residual history, but history not saved." << std::endl;
             return Eigen::MatrixXd::Zero( 0, 0 );
+        }
+    }
+
+    //! Function to get active-observation flags per iteration concatenated into a matrix
+    /*!
+     * Function to get active-observation flags per iteration concatenated into a matrix (one column per iteration).
+     * The matrix has the same dimensions and scalar-row order as the residual history matrix.
+     * \return Active-observation flags per iteration concatenated into a matrix
+     */
+    Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > getActiveFlagsPerIterationMatrix( )
+    {
+        if( activeFlagsPerIteration_.size( ) > 0 )
+        {
+            Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlagsMatrix( activeFlagsPerIteration_.at( 0 ).rows( ),
+                                                                                     activeFlagsPerIteration_.size( ) );
+            for( unsigned int i = 0; i < activeFlagsPerIteration_.size( ); i++ )
+            {
+                activeFlagsMatrix.block( 0, i, activeFlagsPerIteration_.at( 0 ).rows( ), 1 ) = activeFlagsPerIteration_.at( i );
+            }
+            return activeFlagsMatrix;
+        }
+        else
+        {
+            std::cerr << "Warning, requesting active flags per iteration, but history not saved." << std::endl;
+            return Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 
@@ -1463,11 +1482,14 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
 
-    //! Vector of residuals per iteration
+    //! Vector of residuals per iteration, including inactive observations
     std::vector< Eigen::VectorXd > residualHistory_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
+
+    //! Active-observation flags per iteration, in the same scalar-row order as residualHistory_
+    std::vector< ActiveFlagsVector > activeFlagsPerIteration_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;

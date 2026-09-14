@@ -39,32 +39,29 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 {
     currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-    // Create the object that rejects and recovers outlying observations during the estimation. A null pointer is
-    // returned (and no outlier rejection is performed) when the user did not provide outlier rejection settings.
     const std::shared_ptr< OutlierRejection< ObservationScalarType, TimeType > > outlierRejection =
             createOutlierRejection< ObservationScalarType, TimeType >( estimationInput->getOutlierRejectionSettings( ),
                                                                        estimationInput->getObservationDataset( ) );
     const bool applyOutlierRejection = ( outlierRejection != nullptr );
+    const bool saveIterationHistory = estimationInput->getSaveResidualsAndParametersFromEachIteration( );
+    const bool computeResidualsForAllObservations = applyOutlierRejection || saveIterationHistory;
 
-    // Flattened data of the observations that are used in the estimation (that is, all observations that are not
-    // rejected). When outlier rejection is used, this data is recreated at the start of every iteration, since
-    // observations may have been rejected or recovered in the previous iteration.
     observation_models::FlattenedObservationData< ObservationScalarType, TimeType > estimationData =
             estimationInput->getObservationDataset( )->createOrderedFlattenedObservationData( false );
     int totalNumberOfObservations = static_cast< int >( estimationData.getObservationVector( ).size( ) );
 
-    // Flattened data of all observations, including the rejected ones. Outlier rejection algorithms must be able to
-    // evaluate their criteria for rejected observations as well, since those observations may have to be recovered.
-    // Rejecting an observation only changes whether it is active, and never the structure of the dataset, so this
-    // data (and the observation covariance derived from it) is created only once.
+    // computationData containing all observations for outlier rejection and residual history
     observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computationData;
     Eigen::MatrixXd observationCovariance;
-    if( applyOutlierRejection )
+    if( computeResidualsForAllObservations )
     {
         computationData = estimationInput->getObservationDataset( )->createOrderedFlattenedObservationData( true );
+    }
 
-        // The observation weights represent the inverse of the observation covariance, and do not change during the
-        // estimation, so the covariance is computed once here.
+    if( applyOutlierRejection )
+    {
+        // TODO: ideally, observation covariance is stored alongside weights in the dataset to avoid expensive and potentially
+        // inaccurate inversion
         observationCovariance = Eigen::MatrixXd( computationData.getSparseWeightMatrix( ) ).inverse( );
     }
 
@@ -110,6 +107,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
 
     std::vector< Eigen::VectorXd > residualHistory;
     std::vector< ParameterVectorType > parameterHistory;
+    std::vector< typename EstimationOutput< ObservationScalarType, TimeType >::ActiveFlagsVector > activeFlagsPerIteration;
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration;
 
     // Declare residual bookkeeping variables
@@ -147,14 +145,13 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                     estimationData, weightsMatrixDiagonals, weightsMatrix, hasOffDiagonalWeights );
         }
 
-        // Compute design matrices (for estimated and consider parameters) and residuals. When outlier rejection is
-        // used, these are computed for all observations (including the rejected ones), and the rows of the
-        // observations that are used in the estimation are extracted from them afterwards.
+        // Compute design matrices (for estimated and consider parameters) and residuals. When saving residual history or
+        // applying outlier rejection, these are computed for all observations and the active rows are extracted afterwards.
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
         std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
                 designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
                                                                         newParameterEstimate,
-                                                                        applyOutlierRejection ? computationData : estimationData,
+                                                                        computeResidualsForAllObservations ? computationData : estimationData,
                                                                         true,
                                                                         numberOfIterations,
                                                                         exceptionDuringPropagation,
@@ -167,7 +164,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
         Eigen::MatrixXd designMatrixEstimatedParameters;
         Eigen::MatrixXd designMatrixConsiderParameters;
-        if( applyOutlierRejection )
+        if( computeResidualsForAllObservations )
         {
             residuals = extractEstimationObservationRows( computationData, estimationData, computedResiduals );
             designMatrixEstimatedParameters =
@@ -331,9 +328,17 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         rmsResidualHistory.push_back( residualRms );
         costFunctionHistory.push_back( costFunction );
 
-        if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
+        if( saveIterationHistory )
         {
-            residualHistory.push_back( residuals.template cast< double >( ) );
+            residualHistory.push_back( computedResiduals.template cast< double >( ) );
+            typename EstimationOutput< ObservationScalarType, TimeType >::ActiveFlagsVector activeFlags( computedResiduals.rows( ) );
+            for( int row = 0; row < activeFlags.rows( ); row++ )
+            {
+                activeFlags( row ) = estimationInput->getObservationDataset( )
+                                             ->getObservationRow( computationData.getObservationIds( ).at( row ) )
+                                             .isActive_;
+            }
+            activeFlagsPerIteration.push_back( activeFlags );
             if( numberOfIterations == 0 )
             {
                 parameterHistory.push_back( oldParameterEstimate );
@@ -381,7 +386,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             bestParameterEstimate = oldParameterEstimate;
             bestResiduals = std::move( residuals.template cast< double >( ) );
 
-            if( applyOutlierRejection )
+            if( computeResidualsForAllObservations )
             {
                 // Residuals were already computed for all observations, rejected ones included.
                 estimationInput->getObservationDataset( )->setResidualVector( computationData, computedResiduals );
@@ -462,7 +467,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
             newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-            if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
+            if( saveIterationHistory )
             {
                 parameterHistory.push_back( newParameterEstimate );
             }
@@ -505,7 +510,8 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                     bestConsiderCovarianceContribution,
                     estimationInput->getConsiderCovariance( ),
                     exceptionDuringInversion,
-                    exceptionDuringPropagation );
+                    exceptionDuringPropagation,
+                    activeFlagsPerIteration );
 
     if( estimationInput->getSaveStateHistoryForEachIteration( ) )
     {

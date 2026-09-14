@@ -346,6 +346,71 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 }
 
+//! Test that residual and active-flag histories retain all observation rows.
+BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
+{
+    using Dataset = ObservationDataset< double, double >;
+    using Input = EstimationInput< double, double >;
+
+    unsigned int disabledObservationId = 0;
+    unsigned int rejectedObservationId = 0;
+    std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< Input > > rejectedPodData;
+    executeEarthOrbiterParameterEstimation< double, double >(
+            rejectedPodData,
+            1.0E7,
+            1,
+            2,
+            false,
+            true,
+            [ &disabledObservationId, &rejectedObservationId ]( const std::shared_ptr< Dataset >& dataset,
+                                                                const std::shared_ptr< Input >& input ) {
+                const unsigned int angularSetId = dataset->getObservationSetIdsForObservableType( angular_position ).at( 0 );
+                const std::vector< unsigned int >& angularObservationIds = dataset->getObservationIdsForSet( angularSetId );
+                disabledObservationId = angularObservationIds.at( 0 );
+                rejectedObservationId = angularObservationIds.at( 1 );
+
+                const ObservationSelectionCondition< double, double > initiallyInactive(
+                        [ &disabledObservationId ]( const Dataset&, const unsigned int observationId ) {
+                            return observationId == disabledObservationId;
+                        } );
+                dataset->rejectObservations( initiallyInactive, "disabled before estimation" );
+
+                Eigen::VectorXd angularObservations = dataset->getObservationVectorForSet( angularSetId );
+                const unsigned int angularSize = dataset->getObservationRow( rejectedObservationId ).scalarSize_;
+                angularObservations.segment( angularSize, angularSize ).array( ) += 1.0;
+                dataset->setObservationVectorForSet( angularSetId, angularObservations );
+
+                const std::map< ObservableType, double > thresholds = {
+                    { one_way_range, 1.0E12 }, { one_way_doppler, 1.0E12 }, { angular_position, 0.5 }
+                };
+                input->setOutlierRejectionSettings( simpleOutlierRejectionSettings( thresholds, 0, false ) );
+            } );
+
+    const FlattenedObservationData< double, double > rejectedFullData =
+            rejectedPodData.second->getObservationDataset( )->createOrderedFlattenedObservationData( true );
+    const Eigen::MatrixXd rejectedResidualHistory = rejectedPodData.first->getResidualHistoryMatrix( );
+    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags =
+            rejectedPodData.first->getActiveFlagsPerIterationMatrix( );
+
+    BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
+    BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedResidualHistory.rows( ) );
+    BOOST_REQUIRE_EQUAL( activeFlags.cols( ), rejectedResidualHistory.cols( ) );
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        const unsigned int observationId = rejectedFullData.getObservationIds( ).at( row );
+        BOOST_CHECK_EQUAL( activeFlags( row, 0 ), observationId != disabledObservationId );
+        BOOST_CHECK_EQUAL( activeFlags( row, 1 ),
+                           observationId != disabledObservationId && observationId != rejectedObservationId );
+    }
+
+    int numberOfActiveRowsInBestIteration = 0;
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        numberOfActiveRowsInBestIteration += activeFlags( row, rejectedPodData.first->bestIteration_ );
+    }
+    BOOST_CHECK_EQUAL( rejectedPodData.first->residuals_.rows( ), numberOfActiveRowsInBestIteration );
+}
+
 //! Test that best-iteration selection during estimation uses the least-squares cost function
 BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 {
@@ -496,6 +561,13 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
 
         std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
                 orbitDeterminationManager.estimateParameters( estimationInput );
+
+        const Eigen::MatrixXd residualHistoryMatrix = estimationOutput->getResidualHistoryMatrix( );
+        const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags =
+                estimationOutput->getActiveFlagsPerIterationMatrix( );
+        BOOST_CHECK_EQUAL( activeFlags.rows( ), residualHistoryMatrix.rows( ) );
+        BOOST_CHECK_EQUAL( activeFlags.cols( ), residualHistoryMatrix.cols( ) );
+        BOOST_CHECK( activeFlags.array( ).all( ) );
 
         BOOST_CHECK( estimationOutput->residualHistory_.size( ) >= 2 );
         BOOST_CHECK( estimationOutput->bestIteration_ >= 0 );

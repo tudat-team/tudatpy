@@ -1044,9 +1044,20 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Residual vectors, concatenated per iteration into a matrix; the :math:`i^{th}` column has the residuals from the :math:`i^{th}` iteration.
+         Residual vectors, concatenated per iteration into a matrix. The :math:`i^{th}` column contains the residuals from the :math:`i^{th}` iteration. Vector residuals are flattened into its scalar components (e.g. ``[dRA1,dDEC1,dRA2,dDEC2...]`` for angular observations).
+         This holds the residuals for **all** observations, including those that were inactive/rejected.
 
          :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
+            .def_property_readonly( "active_flags_per_iteration",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getActiveFlagsPerIterationMatrix,
+                                    R"doc(
+
+         **read-only**
+
+         Boolean flags indicating which observations were active in each estimation iteration. This matrix has the same shape and row ordering as :attr:`~tudatpy.estimation.estimation_analysis.EstimationOutput.residual_history`. ``True`` means the observation was included in the fit for that iteration.
+
+         :type: numpy.ndarray[numpy.bool_[m, n]]
       )doc" )
             .def_property_readonly( "parameter_history",
                                     &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getParameterHistoryMatrix,
@@ -1074,7 +1085,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Vector of post-fit observation residuals, for the iteration with the lowest rms residuals.
+         Vector of post-fit observation residuals for the iteration with the lowest rms residuals, active observations only.
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
