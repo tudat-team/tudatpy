@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -13,7 +13,9 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <memory>
+
 #include <tuple>
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
@@ -23,6 +25,8 @@
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 // #include "tudat/math/interpolators/createInterpolator.h"
 
@@ -47,18 +51,53 @@ namespace simulation_setup
 class AccelerationSettings
 {
 public:
-    // Constructor, sets type of acceleration.
-    /*
-     *  Constructor, sets type of acceleration.
-     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
-     */
+    // Constructor
     AccelerationSettings( const basic_astrodynamics::AvailableAcceleration accelerationType ): accelerationType_( accelerationType ) {}
 
-    // Destructor.
-    virtual ~AccelerationSettings( ) {}
+    virtual ~AccelerationSettings( ) = default;
 
-    // Type of acceleration from AvailableAcceleration enum.
+    // Type of acceleration
     basic_astrodynamics::AvailableAcceleration accelerationType_;
+
+    // Used for serialization testing
+    bool operator==( const AccelerationSettings& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const AccelerationSettings& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save acceleration settings to a JSON file
+    TUDAT_DECLARE_FILE_IO_POLYMORPHIC( AccelerationSettings )
+
+protected:
+    // Default constructor for serialization
+    AccelerationSettings( ): accelerationType_( basic_astrodynamics::undefined_acceleration ) {}
+
+    // Each derived class should implement this function such that it returns true if a deserialized object is
+    // equal to the original object.
+    virtual bool equals( const AccelerationSettings& rhs ) const
+    {
+        return accelerationType_ == rhs.accelerationType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( accelerationType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( accelerationType_ ) );
+    }
 };
 
 class RadiationPressureAccelerationSettings : public AccelerationSettings
@@ -82,6 +121,58 @@ public:
     virtual ~RadiationPressureAccelerationSettings( ) {}
 
     RadiationPressureTargetModelType targetModelType_;
+
+protected:
+    // Default constructor for serialization
+    RadiationPressureAccelerationSettings( int ): targetModelType_( undefined_target ) {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RadiationPressureAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && targetModelType_ == rhs->targetModelType_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( targetModelType_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( targetModelType_ ) );
+    }
+};
+
+//! Settings for the three-coefficient radiation-pressure acceleration of McMahon and Scheeres (2015).
+/*!
+ * The three coefficients are effective areas, in square metres, resolved in the model's source/reference-body UVW
+ * frame. If no reference body is specified, the propagation central body is used.
+ */
+class ThreeCoefficientRadiationPressureAccelerationSettings : public AccelerationSettings
+{
+public:
+    explicit ThreeCoefficientRadiationPressureAccelerationSettings( const Eigen::Vector3d& coefficients,
+                                                                    const std::string& referenceBody = "" ):
+        AccelerationSettings( basic_astrodynamics::three_coefficient_radiation_pressure ), coefficients_( coefficients ),
+        referenceBody_( referenceBody )
+    {}
+
+    Eigen::Vector3d coefficients_;
+
+    //! Reference body defining the source-centred UVW frame; empty selects the propagation central body.
+    std::string referenceBody_;
 };
 
 inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType )
@@ -118,6 +209,13 @@ inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
     return std::make_shared< RadiationPressureAccelerationSettings >( targetModelType );
 }
 
+//! Create settings for three-coefficient radiation pressure, with coefficients in square metres.
+inline std::shared_ptr< AccelerationSettings > threeCoefficientRadiationPressureAcceleration( const Eigen::Vector3d& coefficients,
+                                                                                              const std::string& referenceBody = "" )
+{
+    return std::make_shared< ThreeCoefficientRadiationPressureAccelerationSettings >( coefficients, referenceBody );
+}
+
 // Class for providing settings for spherical harmonics acceleration model.
 /*
  *  Class for providing settings for spherical harmonics acceleration model,
@@ -146,6 +244,43 @@ public:
     int maximumOrder_;
 
     bool removePointMass_;
+
+protected:
+    // Default constructor for serialization
+    SphericalHarmonicAccelerationSettings( ): maximumDegree_( 0 ), maximumOrder_( 0 ), removePointMass_( false ) {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const SphericalHarmonicAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && maximumDegree_ == rhs->maximumDegree_ && maximumOrder_ == rhs->maximumOrder_ &&
+                removePointMass_ == rhs->removePointMass_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
+        ar( CEREAL_NVP( removePointMass_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegree_ ) );
+        ar( CEREAL_NVP( maximumOrder_ ) );
+        ar( CEREAL_NVP( removePointMass_ ) );
+    }
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
@@ -205,6 +340,58 @@ public:
 
     // Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+
+protected:
+    // Default constructor for serialization
+    MutualSphericalHarmonicAccelerationSettings( ):
+        maximumDegreeOfBodyExertingAcceleration_( 0 ), maximumOrderOfBodyExertingAcceleration_( 0 ),
+        maximumDegreeOfBodyUndergoingAcceleration_( 0 ), maximumOrderOfBodyUndergoingAcceleration_( 0 ), maximumDegreeOfCentralBody_( 0 ),
+        maximumOrderOfCentralBody_( 0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const MutualSphericalHarmonicAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) &&
+                maximumDegreeOfBodyExertingAcceleration_ == rhs->maximumDegreeOfBodyExertingAcceleration_ &&
+                maximumOrderOfBodyExertingAcceleration_ == rhs->maximumOrderOfBodyExertingAcceleration_ &&
+                maximumDegreeOfBodyUndergoingAcceleration_ == rhs->maximumDegreeOfBodyUndergoingAcceleration_ &&
+                maximumOrderOfBodyUndergoingAcceleration_ == rhs->maximumOrderOfBodyUndergoingAcceleration_ &&
+                maximumDegreeOfCentralBody_ == rhs->maximumDegreeOfCentralBody_ &&
+                maximumOrderOfCentralBody_ == rhs->maximumOrderOfCentralBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+        ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyExertingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumOrderOfBodyUndergoingAcceleration_ ) );
+        ar( CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+        ar( CEREAL_NVP( maximumOrderOfCentralBody_ ) );
+    }
 };
 
 //! @get_docstring(mutualSphericalHarmonicAcceleration)
@@ -294,6 +481,47 @@ public:
     int maximumDegreeOfBody2_;
 
     int maximumDegreeOfCentralBody_;
+
+protected:
+    // Default constructor for serialization
+    FullTwoBodySphericalHarmonicAccelerationSettings( ):
+        maximumDegreeOfBody1_( 0 ), maximumDegreeOfBody2_( 0 ), maximumDegreeOfCentralBody_( 0 )
+    {}
+
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const FullTwoBodySphericalHarmonicAccelerationSettings* >( &other );
+        return rhs != nullptr && AccelerationSettings::equals( other ) &&
+                coefficientCombinationsToUse_ == rhs->coefficientCombinationsToUse_ &&
+                coefficientCombinationsToUseForCentralBody_ == rhs->coefficientCombinationsToUseForCentralBody_ &&
+                maximumDegreeOfBody1_ == rhs->maximumDegreeOfBody1_ && maximumDegreeOfBody2_ == rhs->maximumDegreeOfBody2_ &&
+                maximumDegreeOfCentralBody_ == rhs->maximumDegreeOfCentralBody_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( coefficientCombinationsToUse_ ),
+            CEREAL_NVP( coefficientCombinationsToUseForCentralBody_ ),
+            CEREAL_NVP( maximumDegreeOfBody1_ ),
+            CEREAL_NVP( maximumDegreeOfBody2_ ),
+            CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( coefficientCombinationsToUse_ ),
+            CEREAL_NVP( coefficientCombinationsToUseForCentralBody_ ),
+            CEREAL_NVP( maximumDegreeOfBody1_ ),
+            CEREAL_NVP( maximumDegreeOfBody2_ ),
+            CEREAL_NVP( maximumDegreeOfCentralBody_ ) );
+    }
 };
 
 inline std::shared_ptr< AccelerationSettings > fullTwoBodySphericalHarmonicAcceleration(
@@ -373,6 +601,54 @@ public:
 
     // Constant angular momentum of central body
     Eigen::Vector3d centralBodyAngularMomentum_;
+
+protected:
+    // Default constructor for serialization
+    RelativisticAccelerationCorrectionSettings( int ):
+        calculateSchwarzschildCorrection_( false ), calculateLenseThirringCorrection_( false ), calculateDeSitterCorrection_( false ),
+        centralBodyAngularMomentum_( Eigen::Vector3d::Zero( ) )
+    {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameters above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RelativisticAccelerationCorrectionSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && calculateSchwarzschildCorrection_ == rhs->calculateSchwarzschildCorrection_ &&
+                calculateLenseThirringCorrection_ == rhs->calculateLenseThirringCorrection_ &&
+                calculateDeSitterCorrection_ == rhs->calculateDeSitterCorrection_ && primaryBody_ == rhs->primaryBody_ &&
+                centralBodyAngularMomentum_ == rhs->centralBodyAngularMomentum_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( calculateSchwarzschildCorrection_ ) );
+        ar( CEREAL_NVP( calculateLenseThirringCorrection_ ) );
+        ar( CEREAL_NVP( calculateDeSitterCorrection_ ) );
+        ar( CEREAL_NVP( primaryBody_ ) );
+        ar( CEREAL_NVP( centralBodyAngularMomentum_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( calculateSchwarzschildCorrection_ ) );
+        ar( CEREAL_NVP( calculateLenseThirringCorrection_ ) );
+        ar( CEREAL_NVP( calculateDeSitterCorrection_ ) );
+        ar( CEREAL_NVP( primaryBody_ ) );
+        ar( CEREAL_NVP( centralBodyAngularMomentum_ ) );
+    }
 };
 
 //! @get_docstring(relativisticAccelerationCorrection)
@@ -422,6 +698,48 @@ public:
 
     // Acceleration (in RSW frame) that scales with cosine of true anomaly
     Eigen::Vector3d cosineAcceleration_;
+
+protected:
+    // Default constructor for serialization
+    EmpiricalAccelerationSettings( int ):
+        constantAcceleration_( Eigen::Vector3d::Zero( ) ), sineAcceleration_( Eigen::Vector3d::Zero( ) ),
+        cosineAcceleration_( Eigen::Vector3d::Zero( ) )
+    {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameters above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const EmpiricalAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && constantAcceleration_ == rhs->constantAcceleration_ &&
+                sineAcceleration_ == rhs->sineAcceleration_ && cosineAcceleration_ == rhs->cosineAcceleration_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( constantAcceleration_ ) );
+        ar( CEREAL_NVP( sineAcceleration_ ) );
+        ar( CEREAL_NVP( cosineAcceleration_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( constantAcceleration_ ) );
+        ar( CEREAL_NVP( sineAcceleration_ ) );
+        ar( CEREAL_NVP( cosineAcceleration_ ) );
+    }
 };
 
 //! @get_docstring(empiricalAcceleration)
@@ -449,6 +767,40 @@ public:
 
     // Yarkovsky parameter (A2) au d^{-1}
     double yarkovskyParameter_;
+
+protected:
+    // Default constructor for serialization
+    YarkovskyAccelerationSettings( int ): yarkovskyParameter_( 0.0 ) {}
+    //! Zero-arg default constructor for cereal
+    // (constructor with default parameter above is already default-constructible)
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const YarkovskyAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && yarkovskyParameter_ == rhs->yarkovskyParameter_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( yarkovskyParameter_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( yarkovskyParameter_ ) );
+    }
 };
 
 //! @get_docstring(yarkovskyAcceleration)
@@ -590,6 +942,38 @@ public:
 
     bool useAllEngines_;
 
+protected:
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const ThrustAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && engineIds_ == rhs->engineIds_ && useAllEngines_ == rhs->useAllEngines_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( engineIds_ ) );
+        ar( CEREAL_NVP( useAllEngines_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( engineIds_ ) );
+        ar( CEREAL_NVP( useAllEngines_ ) );
+    }
+
+public:
     template< typename ReturnType >
     ReturnType printDeprecationError( )
     {
@@ -694,6 +1078,45 @@ public:
     {}
 
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
+
+protected:
+    // Default constructor for serialization
+    CustomAccelerationSettings( int ): accelerationFunction_( nullptr ) {}
+    //! Zero-arg default constructor for cereal
+    CustomAccelerationSettings( ): accelerationFunction_( nullptr ) {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const CustomAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        // std::function does not support equality comparison.
+        // Check that both are either null or both non-null.
+        return AccelerationSettings::equals( other ) &&
+                ( ( !accelerationFunction_ && !rhs->accelerationFunction_ ) || ( accelerationFunction_ && rhs->accelerationFunction_ ) );
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomAccelerationSettings cannot be serialized: std::function member 'accelerationFunction_' is not serializable." );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        static_cast< void >( ar );
+        throw std::runtime_error(
+                "CustomAccelerationSettings cannot be serialized: std::function member 'accelerationFunction_' is not serializable." );
+    }
 };
 
 //! @get_docstring(customAccelerationSettings)
@@ -723,9 +1146,53 @@ public:
         referenceEpoch_( referenceEpoch )
     {}
 
-    const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
-    const double decayScaleFactor_;
-    const double referenceEpoch_;
+    Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
+    double decayScaleFactor_;
+    double referenceEpoch_;
+
+protected:
+    // Default constructor for serialization
+    RTGAccelerationSettings( int ):
+        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 )
+    {}
+    //! Zero-arg default constructor for cereal
+    RTGAccelerationSettings( ):
+        bodyFixedForceVectorAtReferenceEpoch_( Eigen::Vector3d::Zero( ) ), decayScaleFactor_( 0.0 ), referenceEpoch_( 0.0 )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const RTGAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) &&
+                bodyFixedForceVectorAtReferenceEpoch_ == rhs->bodyFixedForceVectorAtReferenceEpoch_ &&
+                decayScaleFactor_ == rhs->decayScaleFactor_ && referenceEpoch_ == rhs->referenceEpoch_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( bodyFixedForceVectorAtReferenceEpoch_ ) );
+        ar( CEREAL_NVP( decayScaleFactor_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( bodyFixedForceVectorAtReferenceEpoch_ ) );
+        ar( CEREAL_NVP( decayScaleFactor_ ) );
+        ar( CEREAL_NVP( referenceEpoch_ ) );
+    }
 };
 
 //! @get_docstring(rtgAcceleration)
@@ -817,6 +1284,68 @@ public:
     bool useTideRaisedOnPlanet_;
 
     bool explicitLibraionalTideOnSatellite_;
+
+protected:
+    // Default constructor for serialization
+    DirectTidalDissipationAccelerationSettings( int ):
+        k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false )
+    {}
+    //! Zero-arg default constructor for cereal
+    DirectTidalDissipationAccelerationSettings( ):
+        k2LoveNumber_( 0.0 ), timeLag_( 0.0 ), inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( false ), useTideRaisedOnPlanet_( false ), explicitLibraionalTideOnSatellite_( false )
+    {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const DirectTidalDissipationAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        if( !AccelerationSettings::equals( other ) ) return false;
+
+        // IEEE 754: NaN != NaN, so we must treat (NaN, NaN) as equal to correctly
+        // round-trip representation A (where these fields are intentionally NaN).
+        auto nanAwareEqual = []( double a, double b ) { return ( std::isnan( a ) && std::isnan( b ) ) || a == b; };
+
+        return k2LoveNumber_ == rhs->k2LoveNumber_ && nanAwareEqual( timeLag_, rhs->timeLag_ ) &&
+                nanAwareEqual( inverseTidalQualityFactor_, rhs->inverseTidalQualityFactor_ ) &&
+                nanAwareEqual( tidalPeriod_, rhs->tidalPeriod_ ) && includeDirectRadialComponent_ == rhs->includeDirectRadialComponent_ &&
+                useTideRaisedOnPlanet_ == rhs->useTideRaisedOnPlanet_ &&
+                explicitLibraionalTideOnSatellite_ == rhs->explicitLibraionalTideOnSatellite_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( k2LoveNumber_ ) );
+        ar( CEREAL_NVP( timeLag_ ) );
+        ar( CEREAL_NVP( inverseTidalQualityFactor_ ) );
+        ar( CEREAL_NVP( tidalPeriod_ ) );
+        ar( CEREAL_NVP( includeDirectRadialComponent_ ) );
+        ar( CEREAL_NVP( useTideRaisedOnPlanet_ ) );
+        ar( CEREAL_NVP( explicitLibraionalTideOnSatellite_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( k2LoveNumber_ ) );
+        ar( CEREAL_NVP( timeLag_ ) );
+        ar( CEREAL_NVP( inverseTidalQualityFactor_ ) );
+        ar( CEREAL_NVP( tidalPeriod_ ) );
+        ar( CEREAL_NVP( includeDirectRadialComponent_ ) );
+        ar( CEREAL_NVP( useTideRaisedOnPlanet_ ) );
+        ar( CEREAL_NVP( explicitLibraionalTideOnSatellite_ ) );
+    }
 };
 
 //! @get_docstring(directTidalDissipationAcceleration)
@@ -883,6 +1412,47 @@ public:
 
     // Desaturation maneuvers rise time.
     double maneuverRiseTime_;
+
+protected:
+    // Default constructor for serialization
+    MomentumWheelDesaturationAccelerationSettings( int ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
+    //! Zero-arg default constructor for cereal
+    MomentumWheelDesaturationAccelerationSettings( ): totalManeuverTime_( 0.0 ), maneuverRiseTime_( 0.0 ) {}
+
+    // Used for serialization testing
+    bool equals( const AccelerationSettings& other ) const override
+    {
+        const auto* rhs = dynamic_cast< const MomentumWheelDesaturationAccelerationSettings* >( &other );
+        if( !rhs )
+        {
+            return false;
+        }
+        return AccelerationSettings::equals( other ) && thrustMidTimes_ == rhs->thrustMidTimes_ && deltaVValues_ == rhs->deltaVValues_ &&
+                totalManeuverTime_ == rhs->totalManeuverTime_ && maneuverRiseTime_ == rhs->maneuverRiseTime_;
+    }
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( thrustMidTimes_ ) );
+        ar( CEREAL_NVP( deltaVValues_ ) );
+        ar( CEREAL_NVP( totalManeuverTime_ ) );
+        ar( CEREAL_NVP( maneuverRiseTime_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( cereal::base_class< AccelerationSettings >( this ) );
+        ar( CEREAL_NVP( thrustMidTimes_ ) );
+        ar( CEREAL_NVP( deltaVValues_ ) );
+        ar( CEREAL_NVP( totalManeuverTime_ ) );
+        ar( CEREAL_NVP( maneuverRiseTime_ ) );
+    }
 };
 
 //! @get_docstring(momentumWheelDesaturationAcceleration)

@@ -209,14 +209,14 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust force magnitude.
- specific_impulse_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ specific_impulse_function : callable[[float], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
-     From function thrust magnitude settings object.
+ CustomThrustMagnitudeSettings
+     Custom thrust magnitude settings object.
 
 
 
@@ -255,14 +255,14 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust force magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
-     From function thrust magnitude settings object.
+ CustomThrustMagnitudeSettings
+     Custom thrust magnitude settings object.
 
 
 
@@ -286,14 +286,14 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_acceleration_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust acceleration magnitude.
- specific_impulse_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ specific_impulse_function : callable[[float], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
-     From function thrust magnitude settings object.
+ CustomThrustMagnitudeSettings
+     Custom thrust magnitude settings object.
 
 
 
@@ -313,14 +313,14 @@ void expose_thrust_setup( py::module& m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ thrust_acceleration_magnitude_function : callable[[float], float]
      Function of time returning the value of the thrust acceleration magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
- FromFunctionThrustMagnitudeSettings
-     From function thrust magnitude settings object.
+ CustomThrustMagnitudeSettings
+     Custom thrust magnitude settings object.
 
 
 
@@ -371,7 +371,11 @@ void expose_thrust_setup( py::module& m )
     py::class_< tss::CustomThrustOrientationSettings,
                 std::shared_ptr< tss::CustomThrustOrientationSettings >,
                 tss::ThrustDirectionSettings >( m, "CustomThrustOrientationSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_ );
+            .def_property_readonly( "thrust_orientation_function", []( const tss::CustomThrustOrientationSettings& settings ) {
+                const auto quaternion_function = settings.thrustOrientationFunction_;
+                return std::function< Eigen::Matrix3d( const double ) >(
+                        [ quaternion_function ]( const double time ) { return quaternion_function( time ).toRotationMatrix( ); } );
+            } );
 
     m.def( "thrust_direction_from_state_guidance",
            &tss::thrustDirectionFromStateGuidanceSettings,

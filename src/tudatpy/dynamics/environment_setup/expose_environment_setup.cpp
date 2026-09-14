@@ -64,6 +64,21 @@ namespace dynamics
 namespace environment_setup
 {
 
+void expose_environment_setup_types( py::module& m )
+{
+    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_types( aerodynamic_coefficient_setup );
+
+    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_types( radiation_pressure_setup );
+
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_types( gravity_variation_setup );
+
+    auto space_time_setup = m.def_submodule( "space_time" );
+    space_time::expose_space_time_types( space_time_setup );
+}
+
 std::shared_ptr< tss::DirectRelativisticTimeConverterSettings< STATE_SCALAR_TYPE, TIME_TYPE > > directRelativisticTimeConverterSettings(
         const std::shared_ptr< tp::RelativisticTimeStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >&
                 barycentric_to_bodycentric_settings,
@@ -85,10 +100,10 @@ void setRelativisticTimeConverters(
 
 void expose_environment_setup( py::module& m )
 {
-    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    auto aerodynamic_coefficient_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients" );
     aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
-    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    auto radiation_pressure_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.radiation_pressure" );
     radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
 
     auto rotation_model_setup = m.def_submodule( "rotation_model" );
@@ -106,7 +121,7 @@ void expose_environment_setup( py::module& m )
     auto shape_setup = m.def_submodule( "shape" );
     shape::expose_shape_setup( shape_setup );
 
-    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    auto gravity_variation_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.gravity_field_variation" );
     gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
 
     auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
@@ -121,7 +136,7 @@ void expose_environment_setup( py::module& m )
     auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
     vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
-    auto space_time_setup = m.def_submodule( "space_time" );
+    auto space_time_setup = py::module_::import( "tudatpy.kernel.dynamics.environment_setup.space_time" );
     space_time::expose_space_time_setup( space_time_setup );
 
     //        m.def("get_body_gravitational_parameter",
@@ -230,7 +245,8 @@ void expose_environment_setup( py::module& m )
                             &tss::BodySettings::cameraSettings,
                             R"doc(
             List of objects that define the settings of the cameras on the body, which are used as link ends of observations
-            Entries in this list are  typically assigned by using a function from the :ref:`cameras` module.
+            Entries in this list are typically created with
+            :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.pinhole_camera`.
             )doc" )
             .def_readwrite( "ground_station_settings",
                             &tss::BodySettings::groundStationSettings,
@@ -281,6 +297,17 @@ void expose_environment_setup( py::module& m )
 
 
          :type: FullPanelledBodySettings
+      )doc" )
+            .def_readwrite( "climate_model_settings",
+                            &tss::BodySettings::climateModelSettings,
+                            R"doc(
+
+         Object that defines the settings of the climate model that is to be created. Currently it only supports
+         the Mars Climate Database (MCD; only available when users have a local copy and have built tudatpy locally), configured with
+         :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_climate_database_climate_model`.
+
+
+         :type: ClimateModelSettings
       )doc" );
 
     py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
@@ -674,10 +701,10 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a System of bodies from associated settings.
 
- Function that creates a class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
+ Function that creates a :class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a :class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
  This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
- objects and stores them in a ``SystemOfBodies`` object. This ``SystemOfBodies`` object represents the full
- physical environment in the simulation, and this function is responsible for creating this envitronent from the user-defined settings
+ objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This :class:`~tudatpy.dynamics.environment.SystemOfBodies` object represents the full
+ physical environment in the simulation, and this function is responsible for creating this environment from the user-defined settings.
 
 
  Parameters
@@ -712,7 +739,27 @@ void expose_environment_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "observer_name" ),
            py::arg( "reference_frame_name" ),
-           py::arg( "interpolator_settings" ) = std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
+           py::arg_v( "interpolator_settings", std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ), "..." ),
+           R"doc(
+Create a tabulated ephemeris from SPICE data.
+
+Parameters
+----------
+body : dynamics.environment.Body
+    Body for which the tabulated ephemeris is created.
+initial_time : float
+    Start epoch of the tabulation.
+end_time : float
+    End epoch of the tabulation.
+time_step : float
+    Time interval between consecutive tabulated states.
+observer_name : str
+    Name of the SPICE observer.
+reference_frame_name : str
+    Name of the SPICE reference frame.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.lagrange_interpolation(8, boundary_interpolation=math.interpolators.extrapolate_at_boundary)
+    Settings used to interpolate the tabulated ephemeris.
+)doc" );
 
     m.def( "create_body_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,

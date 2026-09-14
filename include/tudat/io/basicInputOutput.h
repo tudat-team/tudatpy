@@ -18,6 +18,7 @@
 #define TUDAT_BASIC_INPUT_OUTPUT_H
 
 #include <fstream>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -27,8 +28,6 @@
 #include <utility>
 
 #include <Eigen/Core>
-
-#include <boost/filesystem.hpp>
 
 #include <tudat/io/streamFilters.h>
 
@@ -150,10 +149,10 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
  * \param directory Absolute directory path.
  * \param isRecurseIntoSubdirectories Flag to set if algorithm should recurse
  * through subdirectories. Set to false by default. \return Container of
- * filenames in directory, stored as Boost path variables.
+ * filenames in directory, stored as filesystem paths.
  */
-std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::filesystem::path& directory,
-                                                                const bool isRecurseIntoSubdirectories = false );
+std::vector< std::filesystem::path > listAllFilesInDirectory( const std::filesystem::path& directory,
+                                                              const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!
@@ -246,16 +245,16 @@ template< typename InputIterator >
 void writeDataMapToTextFile( InputIterator iteratorDataMap,
                              InputIterator last,
                              const std::string& outputFilename,
-                             const boost::filesystem::path& outputDirectory,
+                             const std::filesystem::path& outputDirectory,
                              const std::string& fileHeader,
                              const int precisionOfKeyType,
                              const int precisionOfValueType,
                              const std::string& delimiter )
 {
     // Check if output directory exists; create it if it doesn't.
-    if( !boost::filesystem::exists( outputDirectory ) )
+    if( !std::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem::create_directories( outputDirectory );
+        std::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
@@ -297,7 +296,7 @@ void writeDataMapToTextFile( InputIterator iteratorDataMap,
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
                              const std::string& outputFilename,
-                             const boost::filesystem::path& outputDirectory,
+                             const std::filesystem::path& outputDirectory,
                              const std::string& fileHeader = "",
                              const int precisionOfKeyType = 16,
                              const int precisionOfValueType = 16,
@@ -402,7 +401,7 @@ void writeDataMapToTextFile(
  */
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
-                             const boost::filesystem::path& outputPath,
+                             const std::filesystem::path& outputPath,
                              const std::string& fileHeader,
                              const int precision )
 {
@@ -433,14 +432,14 @@ template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
                         const int precisionOfMatrixEntries = 16,
-                        const boost::filesystem::path& outputDirectory = get_tudat_path( ),
+                        const std::filesystem::path& outputDirectory = get_tudat_path( ),
                         const std::string& delimiter = "\t",
                         const std::string& header = "" )
 {
     // Check if output directory exists; create it if it doesn't.
-    if( !boost::filesystem::exists( outputDirectory ) )
+    if( !std::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem::create_directories( outputDirectory );
+        std::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
@@ -470,7 +469,7 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
  */
 void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string >& idMap,
                            const std::string& outputFilename,
-                           const boost::filesystem::path& outputDirectory,
+                           const std::filesystem::path& outputDirectory,
                            const std::string& delimiter = "\t" );
 
 //! Typedef for double-KeyType, double-ValueType map.

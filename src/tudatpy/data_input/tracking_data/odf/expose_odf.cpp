@@ -7,6 +7,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <fstream>
+
 #include "scalarTypes.h"
 #include "tudat/io/preProcessOdfFile.h"
 #include "tudat/io/readOdfFile.h"
@@ -78,10 +80,14 @@ void expose_odf( py::module& m )
             .def_readonly( "uplink_band_id", &tio::OdfCommonDataBlock::uplinkBandId_ )
             .def_readonly( "reference_band_id", &tio::OdfCommonDataBlock::referenceBandId_ )
             .def_readonly( "is_invalid", &tio::OdfCommonDataBlock::validity_ )
-            .def( "print_data_block",
-                  &tio::OdfCommonDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(
+            .def(
+                    "print_data_block",
+                    []( tio::OdfCommonDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(
          Write the contents of the data block to a text file
 
                            The file is created if it does not exist, and it can have, for example, txt extension
@@ -117,10 +123,14 @@ void expose_odf( py::module& m )
             m, "OdfDataBlock", R"doc(Contents of a line of the data section of an ODF)doc" )
             .def_property_readonly( "observable_specific_data_block", &tio::OdfDataBlock::getObservableSpecificDataBlock )
             .def_property_readonly( "common_data_block", &tio::OdfDataBlock::getCommonDataBlock )
-            .def( "print_data_block",
-                  &tio::OdfDataBlock::printDataBlock,
-                  py::arg( "output_file" ),
-                  R"doc(
+            .def(
+                    "print_data_block",
+                    []( tio::OdfDataBlock& block, const std::string& output_file ) {
+                        std::ofstream output_stream( output_file );
+                        block.printDataBlock( output_stream );
+                    },
+                    py::arg( "output_file" ),
+                    R"doc(
          Write the contents of the data block to a text file
 
                            The file is created if it does not exist, and it can have, for example, txt extension
@@ -138,6 +148,11 @@ void expose_odf( py::module& m )
             .def_property_readonly( "ramp_start_epoch", &tio::OdfRampBlock::getRampStartTime )
             .def_property_readonly( "ramp_end_epoch", &tio::OdfRampBlock::getRampEndTime )
             .def_property_readonly( "transmitting_station_id", &tio::OdfRampBlock::getTransmittingStationId );
+
+    py::class_< tio::OdfClockOffsetBlock, std::shared_ptr< tio::OdfClockOffsetBlock > >( m, "OdfClockOffsetBlock" )
+            .def_property_readonly( "start_time", &tio::OdfClockOffsetBlock::getStartTime )
+            .def_property_readonly( "end_time", &tio::OdfClockOffsetBlock::getEndTime )
+            .def_property_readonly( "clock_offset", &tio::OdfClockOffsetBlock::getClockOffset );
 
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "RawOdfFileContents", R"doc(Raw contents of a parsed ODF file.)doc" )
@@ -160,7 +175,7 @@ void expose_odf( py::module& m )
 
          ODF clock-offset blocks.
 
-         :type: list
+         :type: list[OdfClockOffsetBlock]
       )doc" )
             .def_readonly( "file_reference_date", &tio::OdfRawFileContents::fileReferenceDate_, R"doc(
          **read-only**

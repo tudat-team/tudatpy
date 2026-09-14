@@ -107,7 +107,7 @@ class _MetaKernelMixin:
 
     #########################################################################################################
 
-    def extract_kernels_from_meta_kernel(self, input_mission):
+    def extract_kernels_from_meta_kernel(self, input_mission) -> dict:
         """
         Fetches a meta-kernel file from an HTTPS URL and categorizes kernel files by type
         using the type-to-extension mapping.
@@ -290,7 +290,7 @@ class _MetaKernelMixin:
 
     #########################################################################################################
 
-    def get_latest_meta_kernel(self, input_mission):
+    def get_latest_meta_kernel(self, input_mission) -> str:
         """
         Finds the most recent meta-kernel file URL based on year and version.
 

@@ -2,6 +2,7 @@
 
 from tudatpy.kernel.data_input.tracking_data.odf import (
     OdfCommonDataBlock,
+    OdfClockOffsetBlock,
     OdfDataBlock,
     OdfDataSpecificBlock,
     OdfDataType,
@@ -15,6 +16,7 @@ from tudatpy.kernel.data_input.tracking_data.odf import (
 __all__ = [
     "read_odf_data",
     "OdfCommonDataBlock",
+    "OdfClockOffsetBlock",
     "OdfDataBlock",
     "OdfDataSpecificBlock",
     "OdfDataType",

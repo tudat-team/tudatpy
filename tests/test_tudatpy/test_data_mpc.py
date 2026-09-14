@@ -17,6 +17,8 @@ import pytest
 spice.load_standard_kernels()
 _TIME_SCALE_CONVERTER = time_representation.default_time_scale_converter()
 
+pytestmark = pytest.mark.remote_data
+
 # coverage = 88%
 # TESTS DO NOT CHECK/VALIDATE:
 # positions of observatories.

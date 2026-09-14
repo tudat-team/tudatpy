@@ -142,6 +142,21 @@ def test_save_batch_to_individual_files(temp_tle_folder):
     assert second_dict == [batch_data[2]]
 
 
+def test_get_tles_skips_omm_records_without_tle_lines():
+    records = [
+        {
+            "NORAD_CAT_ID": "111",
+            "TLE_LINE1": "line 1",
+            "TLE_LINE2": "line 2",
+        },
+        {"NORAD_CAT_ID": "222"},
+        {"NORAD_CAT_ID": "333", "TLE_LINE1": "line 1"},
+        {"NORAD_CAT_ID": "444", "TLE_LINE1": "", "TLE_LINE2": "line 2"},
+    ]
+
+    assert OMMUtils.get_tles(records) == {"111": [("line 1", "line 2")]}
+
+
 # --- 4. Cleaning Logic ---
 def test_clean_file_dict_format(temp_tle_folder):
     """Verifies cleaning works on the dictionary/metadata format."""
@@ -337,20 +352,12 @@ def test_get_tudat_keplerian_element_set_full_conversion(mock_login, temp_tle_fo
 
 
 # --- Integration Tests (Online) ---
-@pytest.mark.remote_data
+@pytest.mark.remote_data(required_env=("SPACETRACK_USER", "SPACETRACK_PASS"), service="Space-Track")
 def test_live_api_query(temp_tle_folder):
-    """Actually hits the testing API. Skipped unless credentials are provided."""
+    """Actually hit the Space-Track API."""
 
-    # 1. Retrieve credentials from environment
     username = os.getenv("SPACETRACK_USER")
     password = os.getenv("SPACETRACK_PASS")
-
-    # 2. Skip if credentials aren't set (even if --remote-data is passed)
-    if not username or not password:
-        pytest.skip(
-            "Skipping custom live api query test:\n"
-            "Space-Track credentials not found in environment variables."
-        )
 
     query = SpaceTrackQuery(username=username, password=password, tle_data_folder=temp_tle_folder)
 
@@ -362,25 +369,16 @@ def test_live_api_query(temp_tle_folder):
         assert res[0]["NORAD_CAT_ID"] == "25544"
 
 
-@pytest.mark.remote_data
+@pytest.mark.remote_data(required_env=("SPACETRACK_USER", "SPACETRACK_PASS"), service="Space-Track")
 def test_custom_query_from_url_live(temp_tle_folder):
     """
     Verifies that a full Space-Track GUI-style URL
     can be ingested and returns valid OMM data.
     """
 
-    # 1. Retrieve credentials from environment
     username = os.getenv("SPACETRACK_USER")
     password = os.getenv("SPACETRACK_PASS")
 
-    # 2. Skip if credentials aren't set (even if --remote-data is passed)
-    if not username or not password:
-        pytest.skip(
-            "Skipping custom query url test:\n "
-            "Space-Track credentials not found in environment variables."
-        )
-
-    # Instantiate query (credentials must be set in env for CI)
     query = SpaceTrackQuery(username=username, password=password, tle_data_folder=temp_tle_folder)
 
     full_url = (
