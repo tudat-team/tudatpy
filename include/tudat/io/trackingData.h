@@ -313,6 +313,14 @@ public:
             }
         }
 
+        // Warn only after the complete replacement has passed validation. Rejected
+        // replacements must leave the existing weights untouched.
+        if( !weights_.empty( ) )
+        {
+            std::cerr << "Warning when adding observation weights to tracking data object, weights already existed and are overwritten ."
+                      << std::endl;
+        }
+
         // If all sizes are consistent, store observation weights
         weights_ = observationWeights;
     }
@@ -384,6 +392,15 @@ public:
                                           std::to_string( correction.size( ) ) + ") does not match single observable size (should be " +
                                           std::to_string( singleObservationSize_ ) + ")." );
             }
+        }
+
+        // Warn only after the complete replacement has passed validation. Rejected
+        // replacements must leave the existing corrections untouched.
+        if( !observationCorrections_.empty( ) )
+        {
+            std::cerr << "Warning when adding observation corrections to tracking data object, corrections already existed and are "
+                         "overwritten ."
+                      << std::endl;
         }
 
         // If all sizes are consistent, store observation corrections

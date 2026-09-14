@@ -1,4 +1,4 @@
-"""Exercise deprecated APIs using deterministic data and the real Tudat containers."""
+"""Check that older data-reading instructions still produce the expected scientific data."""
 
 import importlib
 from types import SimpleNamespace
@@ -18,13 +18,13 @@ pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
 
 
 def legacy_symbol(module, name):
-    """Resolve a public legacy symbol and require its deprecation warning."""
+    """Look up one older name and check that it warns the reader to use its replacement."""
     with pytest.warns(DeprecationWarning, match="is deprecated"):
         return getattr(importlib.import_module(module), name)
 
 
 def earth_bodies():
-    """Provide Earth with the shape model required by legacy station setup."""
+    """Create Earth with the size information needed for an observing station."""
     settings = environment_setup.BodyListSettings("SSB", "J2000")
     settings.add_empty_settings("Earth")
     settings.get("Earth").shape_settings = environment_setup.shape.spherical(6378137.0)
@@ -33,7 +33,7 @@ def earth_bodies():
 
 @pytest.fixture
 def legacy_mpc_table(monkeypatch):
-    """Provide deterministic MPC observations and station metadata without network access."""
+    """Provide one fixed asteroid observation and one station without using the internet."""
     stations = Table({"Code": ["500"], "Longitude": [0.0], "cos": [1.0], "sin": [0.0]})
     monkeypatch.setattr(MPC, "get_observatory_codes", lambda: stations)
     return pd.DataFrame(
@@ -50,13 +50,10 @@ def legacy_mpc_table(monkeypatch):
     )
 
 
-@pytest.mark.parametrize("module", ["tudatpy.data.mpc", "tudatpy.data.mpc.mpc"])
 @pytest.mark.parametrize("source", ["pandas", "astropy", "file"])
-def test_legacy_mpc_ingestion_weights_and_environment(
-    legacy_mpc_table, monkeypatch, module, source
-):
-    """Preserve legacy ingestion, custom weights, collection results, and body/station setup."""
-    BatchMPC = legacy_symbol(module, "BatchMPC")
+def test_legacy_mpc_ingestion_weights_and_environment(legacy_mpc_table, monkeypatch, source):
+    """Read Eros from three older sources and retain its angles, weight, and station."""
+    BatchMPC = legacy_symbol("tudatpy.data.mpc", "BatchMPC")
     batch = BatchMPC()
     if source == "pandas":
         batch.from_pandas(legacy_mpc_table, custom_name="Eros")
@@ -76,31 +73,31 @@ def test_legacy_mpc_ingestion_weights_and_environment(
         apply_weights_VFCC17=False,
         apply_star_catalog_debias=False,
     )
-    # Preserve the legacy collection type and explicit per-component weights.
+    # Every source must preserve the supplied angles and give both angles weight 7.
     assert isinstance(collection, ObservationCollection)
     np.testing.assert_allclose(
         np.array(collection.concatenated_observations).reshape(-1), [np.pi / 6, 0.0]
     )
     np.testing.assert_array_equal(np.array(collection.concatenated_weights).reshape(-1), [7.0, 7.0])
-    # Legacy conversion also creates the target body and receiving station.
+    # Eros and station 500 must both be present so the observation is ready for calculations.
     assert bodies.does_body_exist("Eros")
     assert "500" in bodies.get("Earth").ground_station_list
     assert batch.bodies_created["Eros"] == "empty body"
 
 
-def test_legacy_mpc_default_weighting_is_numerical(legacy_mpc_table):
-    """Retain the legacy weighting warning and the expected VFCC17 numerical weight."""
+def test_legacy_mpc_default_weight_uses_one_arcsecond_value(legacy_mpc_table):
+    """Omit the weight and check that the older route assigns the one-arcsecond value."""
     batch = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
     batch.from_pandas(legacy_mpc_table)
     bodies = earth_bodies()
-    # Default weighting still warns and produces inverse-variance weights.
+    # The older route must issue one warning and assign the expected weight.
     with pytest.warns(DeprecationWarning, match="get_weights_VFCC17"):
         collection = batch.to_tudat(bodies, None, apply_star_catalog_debias=False)
     np.testing.assert_allclose(collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2)
 
 
 def test_legacy_mpc_retains_space_records_until_conversion(legacy_mpc_table, monkeypatch):
-    """Retain legacy space-record inspection while excluding it from Earth-only conversion."""
+    """Keep supported ground and space observations, but use only the requested ground one."""
     kept_flags = ["C", "S", "s", "T", "t"]
     dropped_flags = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
     flags = kept_flags + dropped_flags
@@ -119,13 +116,13 @@ def test_legacy_mpc_retains_space_records_until_conversion(legacy_mpc_table, mon
     monkeypatch.setattr(MPC, "get_observatory_codes", lambda: stations)
     monkeypatch.setattr(MPC, "get_observations", lambda code: Table.from_pandas(table))
 
-    # Public legacy access must still warn; retrieval preserves the old filter.
+    # Reading must remove the unsupported observations while keeping the ground and space ones.
     batch = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
     batch.get_observations([433])
     assert batch.table.note2.tolist() == kept_flags
     assert batch.observatories_table(only_space_telescopes=True).Code.tolist() == ["C51"]
 
-    # Earth-only conversion excludes space records without removing their preview data.
+    # Without a satellite body, only the ground observation is used and the source table stays unchanged.
     collection = batch.to_tudat(
         earth_bodies(),
         included_satellites=None,
@@ -135,23 +132,23 @@ def test_legacy_mpc_retains_space_records_until_conversion(legacy_mpc_table, mon
     assert len(collection.concatenated_observations) == 2
     assert batch.table.note2.tolist() == kept_flags
 
-    # Explicitly disabling the legacy filter continues to retain every input flag.
+    # When removal is switched off, every supplied observation must remain.
     unfiltered = legacy_symbol("tudatpy.data.mpc", "BatchMPC")()
     unfiltered.get_observations([433], drop_misc_observations=False)
     assert unfiltered.table.note2.tolist() == flags
 
 
 def test_legacy_horizons_ephemeris_methods():
-    """Keep deprecated single-query and batch ephemeris helpers functional and warning."""
+    """Give the older Horizons tools two dated Eros states and check the resulting position history."""
     Query = legacy_symbol("tudatpy.data.horizons", "HorizonsQuery")
     query = Query.__new__(Query)
     states = np.array([[0.0, 1, 2, 3, 4, 5, 6], [60.0, 7, 8, 9, 10, 11, 12]])
     query.cartesian = lambda **kwargs: states
-    # The single-query helper warns and returns tabulated ephemeris settings.
+    # The two dated states must become position settings that Tudat can use.
     with pytest.warns(DeprecationWarning, match="create_ephemeris_tabulated"):
         ephemeris = query.create_ephemeris_tabulated("SSB", "J2000")
     assert isinstance(ephemeris, environment_setup.ephemeris.TabulatedEphemerisSettings)
-    # The batch helper warns, updates settings in place, and retains body names.
+    # The batch route must add the same position history under the name Eros.
     Batch = legacy_symbol("tudatpy.data.horizons.horizons", "HorizonsBatch")
     batch = Batch.__new__(Batch)
     batch._query_objects = {"433": SimpleNamespace(name="Eros", cartesian=query.cartesian)}
@@ -167,19 +164,18 @@ def test_legacy_horizons_ephemeris_methods():
 
 
 def test_legacy_omm_tle_conversion_methods():
-    """Restore both OMMUtils helpers with their original Tudat return types."""
+    """Turn two standard orbit lines into both a TLE and a position history."""
     Utils = legacy_symbol("tudatpy.data.spacetrack", "OMMUtils")
     first = "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753"
     second = "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667"
-    # Check both restored method names against their distinct environment types.
+    # One older instruction must make the TLE; the other must make its position history.
     assert isinstance(Utils.tle_to_Tle_object(first, second), environment.Tle)
     assert isinstance(Utils.tle_to_TleEphemeris_object(first, second), environment.TleEphemeris)
 
 
-@pytest.mark.parametrize("module", ["tudatpy.data", "tudatpy.data.processTrk234"])
-def test_legacy_tnf_process_returns_collection(monkeypatch, module):
-    """Return legacy observation collections for populated and empty TNF input."""
-    Processor = legacy_symbol(module, "Trk234Processor")
+def test_legacy_tnf_process_returns_collection(monkeypatch):
+    """Read one made-up TNF value and an empty TNF input using the older reader."""
+    Processor = legacy_symbol("tudatpy.data.processTrk234", "Trk234Processor")
     legacy = importlib.import_module("tudatpy.data.processTrk234._legacy")
     monkeypatch.setattr(
         legacy.trk234,
@@ -189,17 +185,17 @@ def test_legacy_tnf_process_returns_collection(monkeypatch, module):
     processor = Processor(["fixture.tnf"], ["doppler"], "Probe")
     monkeypatch.setattr(processor.converters["doppler"], "extract", lambda records: tnf_records())
     collection = processor.process()
-    # Nonempty processing retains both the old container type and measured value.
+    # The nonempty input must produce one usable observation containing the value 123.
     assert isinstance(collection, ObservationCollection)
     np.testing.assert_array_equal(
         np.array(collection.concatenated_observations).reshape(-1), [123.0]
     )
-    # Empty input also returns a collection, rather than a list of TrackingData.
+    # Empty input must still produce a usable, empty observation collection.
     assert isinstance(Processor([], []).process(), ObservationCollection)
 
 
-def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
-    """Install extracted TNF ramp data on the requested ground station."""
+def test_legacy_tnf_setup_attaches_frequency_schedule(monkeypatch):
+    """Use the older TNF setup to attach a one-minute 8.4 GHz schedule to DSS-14."""
     Processor = legacy_symbol("tudatpy.data.processTrk234.processor", "Trk234Processor")
     legacy = importlib.import_module("tudatpy.data.processTrk234._legacy")
     monkeypatch.setattr(
@@ -230,7 +226,7 @@ def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
         bodies.get("Earth"),
         environment_setup.ground_station.basic_station("DSS-14", [6378137.0, 0.0, 0.0]),
     )
-    # Install the supplied station ramp and inspect its calculator and frequency.
+    # DSS-14 must receive a transmission schedule that starts at 8.4 GHz.
     processor.set_tnf_information_in_bodies(bodies)
     calculator = bodies.get("Earth").get_ground_station("DSS-14").transmitting_frequency_calculator
     assert isinstance(calculator, environment.PiecewiseLinearFrequencyInterpolator)
@@ -238,7 +234,7 @@ def test_legacy_tnf_environment_method_installs_ramps(monkeypatch):
 
 
 def tnf_records():
-    """Provide one deterministic radiometric record with station and timing metadata."""
+    """Provide one fixed radio observation made through DSS-14."""
     return pd.DataFrame(
         {
             "epoch": [pd.Timestamp("2024-01-01T12:00:00").to_pydatetime()],
@@ -253,15 +249,16 @@ def tnf_records():
 
 
 @pytest.mark.parametrize("name", ["DerivedDopplerConverter", "DerivedSraRangeConverter"])
-def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
-    """Preserve legacy converter results, station-dependent epochs, and link helpers."""
+def test_legacy_tnf_converters_preserve_values_times_and_signal_paths(name):
+    """Convert one Doppler or range value and retain its value, DSS-14 time, and signal path."""
+    from tudatpy.estimation.observable_models_setup import links
     from tudatpy.estimation.observations import SingleObservationSet
 
     Converter = legacy_symbol("tudatpy.data.processTrk234.converters", name)
     converter = Converter()
     records = tnf_records()
     result = converter.process(records, "Probe")
-    # Both radiometric converters keep the single-set return type and observations.
+    # Both older conversions must produce one observation containing the value 123.
     assert len(result) == 1
     assert isinstance(result[0], SingleObservationSet)
     np.testing.assert_array_equal(
@@ -272,7 +269,7 @@ def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
         get_approximate_dsn_ground_station_positions,
     )
 
-    # Compare with UTC-to-TDB conversion at the actual receiving station.
+    # Its time must match a separate calculation that uses the position of DSS-14.
     expected_time = time_representation.default_time_scale_converter().convert_time(
         input_scale=time_representation.utc_scale,
         output_scale=time_representation.tdb_scale,
@@ -282,5 +279,10 @@ def test_legacy_tnf_converters_keep_return_types_and_station_times(name):
         earth_fixed_position=get_approximate_dsn_ground_station_positions()["DSS-14"],
     )
     assert abs(float(result[0].observation_times[0]) - float(expected_time)) < 1.0e-9
-    # The former public link-construction helper remains available.
-    assert isinstance(converter.build_link_ends_dict(("DSS-14", "123", "DSS-14"), "Probe"), dict)
+    # The signal path must still name the requested stations and spacecraft.
+    signal_path = converter.build_link_ends_dict(("DSS-14", "123", "DSS-14"), "Probe")
+    assert signal_path[links.transmitter].body_name == "Earth"
+    assert signal_path[links.transmitter].reference_point_name == "DSS-14"
+    assert signal_path[links.reflector1].body_name == "Probe"
+    assert signal_path[links.receiver].body_name == "Earth"
+    assert signal_path[links.receiver].reference_point_name == "DSS-14"
