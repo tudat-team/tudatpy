@@ -371,6 +371,111 @@ BOOST_AUTO_TEST_CASE( testMultiImagePointingIndependence )
     BOOST_CHECK( ( computePixel( modelB ) - pixelBNominal ).norm( ) > 1.0E-3 );
 }
 
+//! The conversion result yields one pointing parameter setting per image, on the receiver body, ordered by
+//! camera name, and can be restricted to a subset of the images.
+BOOST_AUTO_TEST_CASE( testPointingParameterSettingsCreation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+    const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", { "L1", "L2" }, -10000.0 ),
+                                                                        makeImage( "IMGB", { "L1", "L2" }, -10000.0 ) };
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+
+    BOOST_CHECK_EQUAL( conversionResult.receiverBodyName_, "Spacecraft" );
+
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > allSettings =
+            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+    BOOST_REQUIRE_EQUAL( allSettings.size( ), 2 );
+
+    // Ordered by camera name, on the receiver body, with the camera as reference point.
+    std::vector< std::string > settingCameraNames;
+    for( const std::shared_ptr< EstimatableParameterSettings >& setting : allSettings )
+    {
+        BOOST_CHECK_EQUAL( setting->parameterType_.first, camera_pointing_correction );
+        BOOST_CHECK_EQUAL( setting->parameterType_.second.first, "Spacecraft" );
+        settingCameraNames.push_back( setting->parameterType_.second.second );
+    }
+    BOOST_CHECK( std::is_sorted( settingCameraNames.begin( ), settingCameraNames.end( ) ) );
+    BOOST_CHECK_EQUAL( settingCameraNames.at( 0 ), conversionResult.imageIdToCameraName_.at( "IMGA" ) );
+    BOOST_CHECK_EQUAL( settingCameraNames.at( 1 ), conversionResult.imageIdToCameraName_.at( "IMGB" ) );
+
+    // Restricting to a subset of the images.
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > subsetSettings =
+            createSumLmkPointingParameterSettings< double, double >( conversionResult, { "IMGB" } );
+    BOOST_REQUIRE_EQUAL( subsetSettings.size( ), 1 );
+    BOOST_CHECK_EQUAL( subsetSettings.at( 0 )->parameterType_.second.second, conversionResult.imageIdToCameraName_.at( "IMGB" ) );
+
+    // An unknown image ID is an error rather than being silently ignored.
+    BOOST_CHECK_THROW( ( createSumLmkPointingParameterSettings< double, double >( conversionResult, { "NOT_AN_IMAGE" } ) ),
+                       std::runtime_error );
+}
+
+//! The per-image SIGMA_PTG a-priori is assembled onto the diagonal of the matching parameter blocks, leaving
+//! other parameters untouched, and entries for parameters that are not estimated are skipped.
+BOOST_AUTO_TEST_CASE( testInverseAprioriCovarianceAssembly )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+    const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", { "L1", "L2" }, -10000.0 ),
+                                                                        makeImage( "IMGB", { "L1", "L2" }, -10000.0 ) };
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+    BOOST_REQUIRE_EQUAL( conversionResult.inverseAprioriCovarianceDiagonalEntries_.size( ), 2 );
+
+    // makeImage uses SIGMA_PTG = 1e-4 rad on all three axes.
+    const double expectedInverseVariance = 1.0 / ( 1.0E-4 * 1.0E-4 );
+
+    // --- Both images estimated: both blocks are filled.
+    {
+        const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
+                createSumLmkPointingParameterSettings< double, double >( conversionResult ), bodies );
+        const int numberOfParameters = parametersToEstimate->getEstimatedParameterSetSize( );
+        BOOST_REQUIRE_EQUAL( numberOfParameters, 6 );
+
+        const Eigen::MatrixXd inverseAprioriCovariance =
+                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+        BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), numberOfParameters );
+        BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.cols( ), numberOfParameters );
+
+        // Diagonal carries the inverse variances; the matrix has no off-diagonal content.
+        BOOST_CHECK_SMALL( ( inverseAprioriCovariance.diagonal( ) - Eigen::VectorXd::Constant( 6, expectedInverseVariance ) ).norm( ) /
+                                   expectedInverseVariance,
+                           1.0E-12 );
+        BOOST_CHECK_SMALL( ( inverseAprioriCovariance - Eigen::MatrixXd( inverseAprioriCovariance.diagonal( ).asDiagonal( ) ) ).norm( ),
+                           1.0E-12 );
+
+        // Adding onto an existing a-priori accumulates rather than overwrites.
+        const Eigen::MatrixXd baseCovariance = Eigen::MatrixXd::Identity( numberOfParameters, numberOfParameters );
+        const Eigen::MatrixXd combined =
+                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate, baseCovariance );
+        BOOST_CHECK_SMALL( ( combined - ( inverseAprioriCovariance + baseCovariance ) ).norm( ) / expectedInverseVariance, 1.0E-12 );
+
+        // A base matrix of the wrong size is an error.
+        BOOST_CHECK_THROW( ( createSumLmkInverseAprioriCovariance< double, double, double >(
+                                   conversionResult, parametersToEstimate, Eigen::MatrixXd::Identity( 3, 3 ) ) ),
+                           std::runtime_error );
+    }
+
+    // --- Only one image estimated: the other image's a-priori is skipped, not an error.
+    {
+        const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
+                createSumLmkPointingParameterSettings< double, double >( conversionResult, { "IMGB" } ), bodies );
+        BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
+
+        const Eigen::MatrixXd inverseAprioriCovariance =
+                createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+        BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), 3 );
+        BOOST_CHECK_SMALL( ( inverseAprioriCovariance.diagonal( ) - Eigen::VectorXd::Constant( 3, expectedInverseVariance ) ).norm( ) /
+                                   expectedInverseVariance,
+                           1.0E-12 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 BOOST_AUTO_TEST_SUITE( test_pixel_landmark_state_estimation )

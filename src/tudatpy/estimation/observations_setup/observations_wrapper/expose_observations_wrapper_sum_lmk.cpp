@@ -79,6 +79,9 @@ void expose_observations_wrapper_sum_lmk_bindings( py::module& m )
                     "inverse_apriori_covariance_diagonal_entries",
                     &tom::SumLmkObservationConversionResult< STATE_SCALAR_TYPE, TIME_TYPE >::inverseAprioriCovarianceDiagonalEntries_,
                     R"doc(Per-image camera_pointing_correction inverse a-priori covariance diagonal entries derived from SIGMA_PTG.)doc" )
+            .def_readonly( "receiver_body_name",
+                           &tom::SumLmkObservationConversionResult< STATE_SCALAR_TYPE, TIME_TYPE >::receiverBodyName_,
+                           R"doc(Name of the body carrying the per-image cameras, i.e. the body the pointing parameters belong to.)doc" )
             .def_readonly( "image_id_to_camera_name",
                            &tom::SumLmkObservationConversionResult< STATE_SCALAR_TYPE, TIME_TYPE >::imageIdToCameraName_,
                            R"doc(Map from SUM image ID to the registered Camera_<imageId> reference-point name.)doc" );
@@ -145,6 +148,31 @@ void expose_observations_wrapper_sum_lmk_bindings( py::module& m )
            R"doc(
         Build pixel-coordinate observation model settings matching every (image, landmark) link end in a
         SUM/LMK observation collection (light-time geometric single-leg on, stellar aberration off).
+        )doc" );
+
+    m.def( "create_sum_lmk_pointing_parameter_settings",
+           &tom::createSumLmkPointingParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "conversion_result" ),
+           py::arg( "image_ids" ) = std::vector< std::string >( ),
+           R"doc(
+        Create the ``camera_pointing_correction`` parameter settings for the per-image cameras registered by a
+        SUM/LMK conversion: one 3-vector pointing parameter per image, on the conversion's receiver body. The
+        settings are ordered by camera name, so the resulting parameter vector has a reproducible layout. Pass
+        ``image_ids`` to restrict the settings to a subset of the images; an unknown image ID raises.
+        )doc" );
+
+    m.def( "create_sum_lmk_inverse_apriori_covariance",
+           &tom::createSumLmkInverseAprioriCovariance< STATE_SCALAR_TYPE, TIME_TYPE, STATE_SCALAR_TYPE >,
+           py::arg( "conversion_result" ),
+           py::arg( "parameters_to_estimate" ),
+           py::arg( "base_inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+           R"doc(
+        Assemble an inverse a-priori covariance matrix for an ``EstimationInput`` from the per-image SIGMA_PTG
+        pointing a-priori carried by a SUM/LMK conversion result. Each entry is written onto the diagonal of its
+        parameter's block in the full parameter vector; entries for parameters that are not being estimated are
+        skipped, since a conversion produces an a-priori for every image while only a subset may be estimated.
+        Pass ``base_inverse_apriori_covariance`` to add these entries on top of an existing a-priori (for example
+        one already constraining the initial state).
         )doc" );
 
     m.def( "compute_sum_lmk_residuals",
