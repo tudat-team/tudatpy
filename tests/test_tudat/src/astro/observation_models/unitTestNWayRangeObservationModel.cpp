@@ -788,7 +788,24 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
 
     observationModel->computeIdealObservationsWithLinkEndData(
             observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+
+    const double ancillaryTransmitterDelay = 9.0E-6;
+    const double ancillaryReceiverDelay = 12.0E-6;
+    std::shared_ptr< ObservationAncillarySimulationSettings > fullAncillarySettings =
+            getNWayRangeAncillarySettings( { ancillaryTransmitterDelay, ancillaryDelay, ancillaryReceiverDelay } );
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, receiver, linkEndTimes, linkEndStates, fullAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 3 ) - ancillaryReceiverDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    observationModel->computeIdealObservationsWithLinkEndData(
+            observationTime, transmitter, linkEndTimes, linkEndStates, fullAncillarySettings );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
+                       observationTime * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 0 ) - observationTime - ancillaryTransmitterDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 
     LinkEnds nWayLinkEndsWithTwoRetransmitters;
@@ -820,9 +837,9 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
             linkEndTimes,
             linkEndStates,
             getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay } ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryMarsDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - ancillaryMoonDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 
     LinkEnds nWayLinkEndsWithThreeRetransmitters;
@@ -855,11 +872,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
             linkEndTimes,
             linkEndStates,
             getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay, ancillarySunDelay } ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryMarsDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - ancillaryMoonDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - ancillarySunDelay ),
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - sunDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 
