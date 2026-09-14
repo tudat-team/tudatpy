@@ -120,16 +120,6 @@ inline bool isCloseVector( const Eigen::Vector3d& lhs, const Eigen::Vector3d& rh
     return ( lhs - rhs ).norm( ) <= tolerance * std::max( 1.0, std::max( lhs.norm( ), rhs.norm( ) ) );
 }
 
-inline Eigen::Quaterniond getQuaternionFromRotationVector( const Eigen::Vector3d& rotationVector )
-{
-    const double angle = rotationVector.norm( );
-    if( angle <= std::numeric_limits< double >::epsilon( ) )
-    {
-        return Eigen::Quaterniond::Identity( );
-    }
-    return Eigen::Quaterniond( Eigen::AngleAxisd( angle, rotationVector / angle ) );
-}
-
 template< typename TimeType >
 TimeType convertSumUtcStringToSecondsSinceJ2000( const input_output::sum_lmk::SumImageData& image )
 {
@@ -354,23 +344,21 @@ inline void addSumLmkCamerasToBody( const std::vector< input_output::sum_lmk::Su
         }
 
         const Eigen::Matrix3d rotationFromTargetBodyFixedToCamera = image.cameraAxes_;
-        const std::shared_ptr< Eigen::Vector3d > pointingCorrection = std::make_shared< Eigen::Vector3d >( Eigen::Vector3d::Zero( ) );
         const std::shared_ptr< ephemerides::RotationalEphemeris > targetRotationalEphemeris = targetBody->getRotationalEphemeris( );
+        // Nominal (uncorrected) picture-specific pointing; the estimated pointing correction is applied on top of
+        // this by the Camera itself, so that it is applied identically for every way the camera frame is reached.
         std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToCameraFrameFunction =
-                [ rotationFromTargetBodyFixedToCamera, pointingCorrection, targetRotationalEphemeris ]( const double time ) {
-                    const Eigen::Quaterniond correctionRotation = getQuaternionFromRotationVector( *pointingCorrection );
-                    const Eigen::Quaterniond nominalRotation(
-                            rotationFromTargetBodyFixedToCamera *
-                            targetRotationalEphemeris->getRotationToTargetFrame( time ).toRotationMatrix( ) );
-                    return Eigen::Quaterniond( correctionRotation * nominalRotation ).normalized( );
+                [ rotationFromTargetBodyFixedToCamera, targetRotationalEphemeris ]( const double time ) {
+                    return Eigen::Quaterniond( rotationFromTargetBodyFixedToCamera *
+                                               targetRotationalEphemeris->getRotationToTargetFrame( time ).toRotationMatrix( ) )
+                            .normalized( );
                 };
 
         std::shared_ptr< system_models::Camera > camera =
                 std::make_shared< system_models::Camera >( cameraName,
                                                            Eigen::Quaterniond( rotationFromTargetBodyFixedToCamera ),
                                                            projectionModel,
-                                                           rotationFromInertialToCameraFrameFunction,
-                                                           pointingCorrection );
+                                                           rotationFromInertialToCameraFrameFunction );
         receiverBody->getVehicleSystems( )->addCamera( cameraName, camera, conversionSettings.bodyFixedCameraPosition_ );
     }
 }

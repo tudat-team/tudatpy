@@ -18,6 +18,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -30,6 +31,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
 #include "tudat/simulation/estimation_setup/processSumLmkFiles.h"
 #include "tudat/support/numericalObservationPartial.h"
 #include "tudat/simulation/environment_setup/createCameras.h"
@@ -629,6 +631,117 @@ BOOST_AUTO_TEST_CASE( testCameraPointingPartialRoutingGuard )
                 ObservationPartialCreator< 2, double, double >::createObservationPartials( pixelCoordinatesModel, bodies, parameterSet );
         BOOST_CHECK_EQUAL( partials.first.size( ), 0 );
     }
+}
+
+//! Regression test for the pointing correction being applied by the Camera itself rather than by the
+//! picture-specific rotation function that the SUM/LMK conversion installs. A camera created through the
+//! ordinary environment-setup path has no such function and reaches the camera frame via the host body's
+//! rotational ephemeris instead; the estimated correction must affect that path identically, otherwise the
+//! pointing partial would be non-zero while the observable is insensitive to the parameter.
+BOOST_AUTO_TEST_CASE( testPointingCorrectionAppliedForBodyFixedCamera )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+
+    // Landmark off the camera boresight, so that all three rotation degrees of freedom (including the one
+    // about the boresight) move the pixel and the partial has no structurally vanishing column.
+    createGroundStation( bodies.at( "Target" ),
+                         "LMK0001",
+                         ( Eigen::Vector3d( ) << 400.0, -250.0, 100.0 ).finished( ),
+                         coordinate_conversions::cartesian_position,
+                         std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) );
+
+    // Ordinary camera creation: boresight Euler angles chosen such that the body-fixed-to-camera rotation is
+    // the identity, so the camera looks along +Z body-fixed, towards the target.
+    const std::string cameraName = "Camera_BodyFixed";
+    createCamera( bodies.at( "Spacecraft" ),
+                  cameraName,
+                  ( Eigen::Vector3d( ) << -mathematical_constants::PI / 2.0, mathematical_constants::PI / 2.0, 0.0 ).finished( ),
+                  std::make_pair( 1200.0, 900.0 ),
+                  std::make_pair( 320.0, 240.0 ),
+                  Eigen::Vector3d::Zero( ) );
+
+    std::shared_ptr< system_models::Camera > camera = bodies.at( "Spacecraft" )->getVehicleSystems( )->getCamera( cameraName );
+    BOOST_REQUIRE( !camera->hasRotationFromInertialToCameraFrameFunction( ) );
+    BOOST_CHECK_SMALL(
+            ( camera->getNominalRotationFromBodyFixedToCameraFrame( ).toRotationMatrix( ) - Eigen::Matrix3d::Identity( ) ).norm( ),
+            1.0E-12 );
+
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Target", "LMK0001" );
+    linkEnds[ receiver ] = LinkEndId( "Spacecraft", cameraName );
+    std::shared_ptr< ObservationModel< 2, double, double > > pixelCoordinatesModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel( pixelCoordinatesSettings( LinkDefinition( linkEnds ) ),
+                                                                                  bodies );
+
+    std::shared_ptr< CameraPointingCorrection > pointingParameter =
+            std::make_shared< CameraPointingCorrection >( bodies.at( "Spacecraft" )->getVehicleSystems( ), "Spacecraft", cameraName );
+    std::shared_ptr< EstimatableParameterSet< double > > parameterSet = std::make_shared< EstimatableParameterSet< double > >(
+            std::vector< std::shared_ptr< EstimatableParameter< double > > >( ),
+            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( { pointingParameter } ) );
+
+    auto partialsAndScaling =
+            ObservationPartialCreator< 2, double, double >::createObservationPartials( pixelCoordinatesModel, bodies, parameterSet );
+    BOOST_REQUIRE_EQUAL( partialsAndScaling.first.size( ), 1 );
+    std::shared_ptr< ObservationPartial< 2 > > pointingPartial = partialsAndScaling.first.begin( )->second;
+
+    const double observationTime = 0.0;
+    auto computePixelObservation = [ & ]( const Eigen::Vector3d& correction ) {
+        pointingParameter->setParameterValue( correction );
+        std::vector< Eigen::Vector6d > currentStates;
+        std::vector< double > currentTimes;
+        return pixelCoordinatesModel->computeObservationsWithLinkEndData( observationTime, receiver, currentTimes, currentStates, nullptr );
+    };
+
+    auto computeAnalyticalPointingPartial = [ & ]( const Eigen::Vector3d& correction ) {
+        pointingParameter->setParameterValue( correction );
+        std::vector< Eigen::Vector6d > currentStates;
+        std::vector< double > currentTimes;
+        const Eigen::Vector2d currentObservation = pixelCoordinatesModel->computeObservationsWithLinkEndData(
+                observationTime, receiver, currentTimes, currentStates, nullptr );
+        partialsAndScaling.second->update( currentStates, currentTimes, receiver, currentObservation );
+        return pointingPartial->calculatePartial( currentStates, currentTimes, receiver, nullptr, currentObservation ).at( 0 ).first;
+    };
+
+    auto computeNumericalPointingPartial = [ & ]( const Eigen::Vector3d& correction ) {
+        const double perturbation = 1.0E-7;
+        Eigen::Matrix< double, 2, 3 > numericalPartial = Eigen::Matrix< double, 2, 3 >::Zero( );
+        for( int i = 0; i < 3; ++i )
+        {
+            Eigen::Vector3d perturbationVector = Eigen::Vector3d::Zero( );
+            perturbationVector( i ) = perturbation;
+            numericalPartial.col( i ) = ( computePixelObservation( correction + perturbationVector ) -
+                                          computePixelObservation( correction - perturbationVector ) ) /
+                    ( 2.0 * perturbation );
+        }
+        pointingParameter->setParameterValue( correction );
+        return numericalPartial;
+    };
+
+    const Eigen::Vector2d nominalObservation = computePixelObservation( Eigen::Vector3d::Zero( ) );
+
+    // The observable must actually respond to the correction on this code path.
+    const Eigen::Vector3d correction = ( Eigen::Vector3d( ) << 2.0E-4, -1.0E-4, 3.0E-4 ).finished( );
+    BOOST_CHECK( ( computePixelObservation( correction ) - nominalObservation ).norm( ) > 1.0E-2 );
+
+    // ... and the analytical partial must agree with the observable's actual sensitivity, both at zero and at
+    // a non-zero correction (where the left Jacobian of SO(3) differs from the identity).
+    for( const Eigen::Vector3d& evaluationPoint : { Eigen::Vector3d( Eigen::Vector3d::Zero( ) ), correction } )
+    {
+        const Eigen::Matrix< double, 2, 3 > analyticalPartial = computeAnalyticalPointingPartial( evaluationPoint );
+        const Eigen::Matrix< double, 2, 3 > numericalPartial = computeNumericalPointingPartial( evaluationPoint );
+        BOOST_CHECK_SMALL( ( analyticalPartial - numericalPartial ).norm( ), 1.0E-4 );
+        BOOST_CHECK( analyticalPartial.norm( ) > 1.0E-2 );
+    }
+
+    pointingParameter->setParameterValue( Eigen::Vector3d::Zero( ) );
+
+    // Requesting the parameter on a body without vehicle systems must fail cleanly rather than segfault.
+    bodies.createEmptyBody< double, double >( "NoSystemsBody", false );
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettingsWithoutSystems = { cameraPointingCorrection(
+            "NoSystemsBody", cameraName ) };
+    BOOST_CHECK_THROW( createParametersToEstimate( parameterSettingsWithoutSystems, bodies ), std::runtime_error );
 }
 
 //! The conversion result carries one pixel-coordinate observation model setting per (image, landmark).

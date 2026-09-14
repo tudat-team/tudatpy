@@ -2311,7 +2311,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 break;
             }
             case camera_pointing_correction: {
-                if( currentBody->getVehicleSystems( )->getCameraMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
+                if( currentBody->getVehicleSystems( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, requested camera pointing correction parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but no system models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getVehicleSystems( )->getCameraMap( ).count( vectorParameterName->parameterType_.second.second ) ==
+                         0 )
                 {
                     std::string errorMessage = "Error, requested camera pointing correction parameter of " +
                             vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +

@@ -132,6 +132,10 @@ public:
         return currentLinkEndType_;
     }
 
+    //! Camera-frame quantities cached by the last update( ) call, for partials that need the observation
+    //! geometry in the camera frame rather than a scaling of a state partial (see PixelCoordinatesPointingPartial).
+    //! This follows the scaling-object-as-shared-cache pattern also used by e.g. OneWayDopplerScaling, and
+    //! guarantees that every partial of a given observation sees the same camera-frame geometry.
     Eigen::Vector3d getCurrentRelativeRangeVectorCameraFrame( ) const
     {
         if( !hasCurrentCameraFrameQuantities_ )

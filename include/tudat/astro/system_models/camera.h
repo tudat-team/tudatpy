@@ -21,6 +21,8 @@
 #include <Eigen/Geometry>
 #include <Eigen/LU>
 
+#include "tudat/math/basic/rotationRepresentations.h"
+
 namespace tudat
 {
 
@@ -334,20 +336,40 @@ public:
         return static_cast< bool >( rotationFromInertialToCameraFrameFunction_ );
     }
 
-    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame.
-     *  \return The rotation from body-fixed to camera frame.
+    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, including the
+     *  current pointing correction.
+     *  \return The effective rotation from body-fixed to camera frame.
      */
     Eigen::Quaterniond getRotationFromBodyFixedToCameraFrame( ) const
+    {
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ );
+    }
+
+    /*! \brief Get quaternion representing active rotation from body-fixed to camera frame, excluding the
+     *  current pointing correction.
+     *  \return The nominal rotation from body-fixed to camera frame.
+     */
+    Eigen::Quaterniond getNominalRotationFromBodyFixedToCameraFrame( ) const
     {
         return rotationFromBodyFixedToCameraFrame_;
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const Eigen::Quaterniond& rotationFromInertialToBodyFixedFrame ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame;
+        return applyPointingCorrection_( rotationFromBodyFixedToCameraFrame_ * rotationFromInertialToBodyFixedFrame );
     }
 
     Eigen::Quaterniond getRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
+    {
+        return applyPointingCorrection_( getNominalRotationFromInertialToCameraFrame( secondsSinceEpoch ) );
+    }
+
+    /*! \brief Get the rotation from inertial to camera frame from the picture-specific pointing data, excluding
+     *  the current pointing correction.
+     *  \param secondsSinceEpoch Epoch at which the rotation is to be evaluated.
+     *  \return The nominal rotation from inertial to camera frame.
+     */
+    Eigen::Quaterniond getNominalRotationFromInertialToCameraFrame( const double secondsSinceEpoch ) const
     {
         if( !rotationFromInertialToCameraFrameFunction_ )
         {
@@ -424,7 +446,25 @@ private:
      */
     Eigen::Vector3d bodyFixedToCameraFrame_( const Eigen::Vector3d& positionOfObservedBodyInBodyFrame ) const
     {
-        return rotationFromBodyFixedToCameraFrame_ * positionOfObservedBodyInBodyFrame;
+        return getRotationFromBodyFixedToCameraFrame( ) * positionOfObservedBodyInBodyFrame;
+    }
+
+    /*! \brief Apply the current pointing correction to a nominal rotation to the camera frame.
+     *  The correction is a small rotation expressed in the camera frame, and is therefore applied on the left:
+     *  a direction that nominally maps to r_cam maps to Exp(theta) * r_cam once the correction is applied. This
+     *  convention is the one differentiated by PixelCoordinatesPointingPartial, and must be kept consistent with it.
+     *  \param nominalRotationToCameraFrame Rotation to the camera frame without pointing correction.
+     *  \return The rotation to the camera frame including the pointing correction.
+     */
+    Eigen::Quaterniond applyPointingCorrection_( const Eigen::Quaterniond& nominalRotationToCameraFrame ) const
+    {
+        if( pointingCorrection_->isZero( 0.0 ) )
+        {
+            return nominalRotationToCameraFrame;
+        }
+        return Eigen::Quaterniond( basic_mathematics::getQuaternionFromRotationVector( *pointingCorrection_ ) *
+                                   nominalRotationToCameraFrame )
+                .normalized( );
     }
 
     //! Name of the camera
