@@ -172,16 +172,8 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
     setObservationWeightsFromTrackingDataScheme< ObservationScalarType, TimeType >( trackingData, bodies, rawLinkEnds, referenceLinkEnd );
 
     // Apply corrections if requested (and if they exist)
-    if( applyCorrections )
+    if( applyCorrections && !trackingData->getObservationCorrections( ).empty( ) )
     {
-        // Check if corrections are available in the TrackingData object
-        if( trackingData->getObservationCorrections( ).empty( ) )
-        {
-            std::cerr << "Warning when applying corrections while adding tracking data to an observation dataset: "
-                         "no such corrections available in the tracking data object."
-                      << std::endl;
-        }
-
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > corrections = trackingData->getObservationCorrections( );
 
         // Check size consistency

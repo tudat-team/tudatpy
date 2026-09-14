@@ -403,11 +403,16 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObserva
 {
     const auto& ids = observationIdsBySet_.at( setId );
     std::unordered_set< unsigned int > removed;
-    for( const unsigned int index : indicesToRemove )
+    for( std::size_t i = 0; i < indicesToRemove.size( ); ++i )
     {
+        const unsigned int index = indicesToRemove.at( i );
         if( index >= ids.size( ) )
         {
             throw std::runtime_error( "Observation removal index is out of bounds." );
+        }
+        if( i > 0 && index <= indicesToRemove.at( i - 1 ) )
+        {
+            throw std::runtime_error( "Observation removal indices must be strictly increasing and unique." );
         }
         removed.insert( ids.at( index ) );
     }
