@@ -24,13 +24,9 @@ class AtdfTrackingDataProcessor:
 
     For the observable groups enabled through the ``doppler_*``/``range_*``
     flags, the processor first runs ``atdf2ascii`` to decode the ATDF files
-    into intermediate ``.msr``/``.ramp`` ASCII tables, reads those tables back
-    into ``pandas`` DataFrames, and then dispatches them to the range,
-    Doppler, and ramp converters. The converters produce
-    :class:`~tudatpy.data_input.tracking_data.TrackingData` objects for the
-    enabled observable groups, and one
-    :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` object
-    per ground station, holding that station's frequency ramps.
+    into intermediate ``.msr``/``.ramp`` ASCII tables, and then converts them to
+    :class:`~tudatpy.data_input.tracking_data.TrackingData` and
+    :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects.
 
     Parameters
     ----------
@@ -40,9 +36,7 @@ class AtdfTrackingDataProcessor:
         Spacecraft body name used in generated link definitions.
     doppler_one_way, doppler_two_way, doppler_three_way, range_one_way, range_two_way : bool
         Observable groups to be decoded by ``atdf2ascii``. ``doppler_one_way``
-        and ``range_one_way`` are reserved for future support and currently
-        raise ``NotImplementedError`` if set to ``True``, since no converter
-        exists yet for 1-way Doppler/range data.
+        and ``range_one_way`` are not yet supported and will raise a ``NotImplementedError``.
     """
 
     atdf_time_tag_format = "%d-%b-%Y %H:%M:%S.%f"
@@ -84,6 +78,19 @@ class AtdfTrackingDataProcessor:
         output_dir: Path,
         count_time: list[float] | None = None,
     ):
+        """
+        Decode ATDF files to ASCII tables.
+
+        This function converts the binary ATDF files given in the class constructor to ASCII tables using the ``atdf2ascii`` :cite:p:`verma2022PythonbasedToolConstructing` tool. The ASCII tables are stored in the given ``output_dir`` and optionally compressed to the given ``count_time``.
+        For each ATDF file a ``.msr`` table (containing the decoded observations), and a ``.ramp`` table (containing the decoded frequency ramps) are created.
+
+        Parameters
+        ----------
+        output_dir : Path
+            Directory where the `.msr` and `.ramp` ASCII tables will be stored.
+        count_time : list[float] | None, optional
+            Count time that Doppler observations should be compressed to. If None, the original count times are preserved, if a list with a single float the observations are compressed to that count time, by default None
+        """
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if count_time is not None:
@@ -177,11 +184,28 @@ class AtdfTrackingDataProcessor:
     def any_observable_enabled(self) -> bool:
         return self.nway_doppler_enabled() or self.nway_range_enabled()
 
-    def process(
+    def process_ascii_tables(
         self,
         output_dir: Path,
         earth_name: str = "Earth",
     ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+        """
+        Process ATDF ASCII tables into tracking data objects.
+
+        This method processes the ATDF ASCII tables, generated using the ``atdf2ascii`` tool into Tudat-compatible :class:`~tudatpy.data_input.tracking_data.TrackingData` and :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects. It assumes that ASCII tables of the ``atdf_file_paths`` have already been generated using the :meth:`convert_atdf_to_ascii` method and are present in the ``output_dir``.
+
+        Parameters
+        ----------
+        output_dir : Path
+            Path to the directory where the ASCII tables are stored.
+        earth_name : str, optional
+            Name of the body with ground stations, by default "Earth"
+
+        Returns
+        -------
+        tuple[list[TrackingData], list[TrackingSupplementaryData]]
+            Tracking data and supplementary data objects with the contents of the ASCII tables.
+        """
 
         if self.any_observable_enabled():
             self.read_atdf_ascii_msr(output_dir)

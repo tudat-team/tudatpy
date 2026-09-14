@@ -588,9 +588,9 @@ class TestReadAtdfData:
 @pytest.fixture(scope="module")
 def observation_collection(dsn_bodies):
     """The full fixture converted and handed to tudat's estimation interface."""
-    tracking_data, _ = AtdfTrackingDataProcessor([Path(FIXTURE_STEM)], SPACECRAFT).process(
-        FIXTURE_DIR
-    )
+    tracking_data, _ = AtdfTrackingDataProcessor(
+        [Path(FIXTURE_STEM)], SPACECRAFT
+    ).process_ascii_tables(FIXTURE_DIR)
     return create_observation_collection_from_tracking_data(tracking_data, dsn_bodies)
 
 

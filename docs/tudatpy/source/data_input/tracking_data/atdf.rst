@@ -6,13 +6,14 @@
 .. automodule:: tudatpy.data_input.tracking_data.atdf
 
 This submodule contains functionality to load tracking data from ATDF/TRK-2-25
-files. These NASA Deep Space Network (DSN) closed-loop archival tracking data
-files are the earliest closed-loop DSN radio-science products, encoding
-Doppler, range, and ramp records. The ``atdf2ascii`` Python package is used to
-decode the binary ATDF files into intermediate ASCII tables. The
-:func:`read_atdf_data` function is the main interface for loading the decoded
-data and converting it to objects that Tudat can process further; see also
-:ref:`tracking_data`.
+files, based on the ``atdf2ascii`` :cite:p:`verma2022PythonbasedToolConstructing` Python
+package, which is used to decode the binary ATDF files into intermediate ASCII tables.
+The :func:`read_atdf_data` function decodes the binary ATDF files and converts them to
+Tudat-compatible tracking data objects; see also :ref:`tracking_data`.
+
+Alternatively, the lower-level :class:`AtdfTrackingDataProcessor` class can be used to
+decode the binary ATDF files into ASCII tables, using the :meth:`AtdfTrackingDataProcessor.convert_atdf_to_ascii` method,
+and then convert the ASCII tables to tracking-data and supplementary-data objects, using the :meth:`AtdfTrackingDataProcessor.process_ascii_tables` method.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.atdf
 

@@ -69,6 +69,27 @@ def read_atdf_data(
     -------
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         Tracking data objects and supplementary data objects.
+
+
+    Example
+    -------
+    ```python
+
+    from pathlib import Path
+    from tudatpy.data_input.tracking_data.atdf import read_atdf_data
+
+    atdf_files = [Path("data/TDF/2267276A.TDF"), Path("data/TDF/2276282A.TDF")] # download from https://pds-geosciences.wustl.edu/mgn/mgn-v-rss-1-tracking-v1/mg_2601/
+    tracking_data, supplementary_data = read_atdf_data(
+        atdf_file_path=atdf_files,
+        spacecraft_name="MGN",
+        output_dir=Path("output/atdf2ascii"),
+        count_time=[60.0],  # Compress Doppler observations to 60 seconds
+        doppler_two_way=True,
+        doppler_three_way=True,
+        range_two_way=False,
+    )
+    ```
+
     """
     processor = AtdfTrackingDataProcessor(
         atdf_file_path=atdf_file_path,
@@ -81,4 +102,4 @@ def read_atdf_data(
         range_two_way=range_two_way,
     )
     processor.convert_atdf_to_ascii(output_dir, count_time=count_time)
-    return processor.process(output_dir)
+    return processor.process_ascii_tables(output_dir)
