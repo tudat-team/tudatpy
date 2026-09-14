@@ -1179,21 +1179,22 @@ BOOST_AUTO_TEST_CASE( testRealRosettaInitialStateEstimation )
 //! For scale: OSIRIS NAC has a 717.3 mm focal length at 13.5 um pixels, so one pixel is about 1.9e-5 rad
 //! and the SIGMA_PTG values in these files (1.0e-4 to 1.9e-4 rad) are of order 8-10 pixels.
 //!
-//! Two things measured here are worth recording, because they are not what one might assume.
+//! Two measured properties of this solve are worth recording, because neither is what one might assume.
 //!
-//! First, the SIGMA_PTG a-priori is numerically negligible at these weights and does NOT regularise the
-//! solve. Each image carries ~36 landmarks, i.e. ~72 pixel observations at unit weight, so the data's
-//! information on one pointing angle is about f^2 * n = 53135^2 * 72 ~ 2e11, against the a-priori's
-//! 1/sigma^2 ~ 5e7. The landmarks pin the pointing roughly 4000 times more tightly than SPC's a-priori
-//! does. The a-priori is still assembled and passed, because that is the workflow, but it is not what
-//! makes this solve well posed - the sheer number of landmarks per image is.
+//! First, the per-image pointing is very nearly degenerate with the spacecraft position. A camera
+//! rotation and a transverse spacecraft translation produce almost the same image motion, separated only
+//! by parallax across the landmarks, which here is the comet's ~2 km extent against a ~165 km range, i.e.
+//! about 1%. Taking the converged solution and zeroing only the pointing corrections moves the pixels by
+//! ~30 px RMS, yet the corrections buy only ~0.5 px of final fit (1.37 px state-only -> 0.88 px joint):
+//! almost all of that motion is cancelled by a compensating ~350 m shift of the estimated state. The
+//! individual pointing values are therefore a point on a flat ridge, not a measurement of camera pointing.
 //!
-//! Second, the estimated corrections reach ~1.7e-3 rad (~90 pixels), far outside SPC's stated pointing
-//! uncertainty. That is expected on reflection: a comet attitude error and a camera pointing error are
-//! geometrically indistinguishable, since both rotate the landmark pattern relative to the camera. Our
-//! comet orientation is a tabulated CK sampled from SPICE while SPC solved its own, so any disagreement
-//! between the two is absorbed by this parameter. SIGMA_PTG describes only SPC's camera pointing
-//! knowledge, so it is not the right yardstick for what this correction actually represents.
+//! Second, and consequently, the SIGMA_PTG a-priori is what pins the solution down. Dropping it lets the
+//! pointing run from ~1.4e-3 rad to ~6.6e-3 rad while the state moves ~905 m to compensate. Note that
+//! comparing the data's information on pointing against the a-priori's (f^2*n ~ 2e11 versus 1/sigma^2 ~
+//! 5e7, a ratio of ~4000) is misleading: that is the information with the state held fixed, whereas what
+//! decides a joint solve is the information along the degenerate direction, where the data has almost
+//! none. A nominally weak a-priori dominates exactly where the data is blind.
 //!
 //! What is therefore asserted is what the data can genuinely establish: the pointing parameter improves
 //! the fit relative to a state-only solve, it stays within a bounded envelope rather than running away,
@@ -1289,9 +1290,10 @@ BOOST_AUTO_TEST_CASE( testRealRosettaJointStateAndPointingEstimation )
     BOOST_CHECK_LT( finalRms, stateOnlyRms );
     BOOST_CHECK_LT( finalRms, 0.1 * initialRms );
 
-    // The corrections stay bounded well inside the pointing-equivalent size of the initial a-priori error
-    // (~6e-3 rad at this range): the solve absorbs a real systematic, it does not run away. A sign or
-    // handedness error in the partial would instead fight the data and fail the residual checks above.
+    // The corrections stay bounded. With the a-priori in place they settle around 1.4e-3 rad; without it
+    // they reach ~6.6e-3 rad, so this bound also confirms the a-priori is actually reaching the normal
+    // equations. A sign or handedness error in the partial would instead fight the data and fail the
+    // residual checks above.
     BOOST_CHECK_LT( largestCorrection, 5.0E-3 );
 
     // The extra freedom must not destroy the orbit solution.
