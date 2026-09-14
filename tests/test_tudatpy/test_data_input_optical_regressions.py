@@ -90,9 +90,7 @@ def weighting_bodies():
 
 
 @pytest.mark.parametrize("technique,sigma", [("C", 1.0), ("P", 2.5)])
-def test_vfcc17_assigns_weight_without_requesting_extra_details(
-    optical_table, technique, sigma
-):
+def test_vfcc17_assigns_weight_without_requesting_extra_details(optical_table, technique, sigma):
     """Without extra details, assign catalogue U's weight for CCD and photographic data."""
     optical_table["note2"] = technique
     data, _ = read_optical_data(optical_table, add_weights=True, add_ancillary_data=False)

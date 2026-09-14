@@ -142,10 +142,8 @@ BOOST_AUTO_TEST_CASE( testRemovalKeepsRowMetadataAlignedAndLinkMetadataUnchanged
     trackingData.removeSingleObservationEntry( 1 );
 
     // Bob and the matching method disappear; the remaining notes stay in their original order.
-    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) ==
-                 std::vector< std::string >( { "C", "S" } ) );
-    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "observer" ) ==
-                 std::vector< std::string >( { "Alice", "Carol" } ) );
+    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "note2" ) == std::vector< std::string >( { "C", "S" } ) );
+    BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "observer" ) == std::vector< std::string >( { "Alice", "Carol" } ) );
     BOOST_CHECK( trackingData.getAncillarySettingsStringVector( ).at( "frequency bands" ) == bands );
     BOOST_CHECK_EQUAL( trackingData.getNumberOfObservations( ), 2 );
 }

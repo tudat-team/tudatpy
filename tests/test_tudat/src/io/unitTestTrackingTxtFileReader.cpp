@@ -657,8 +657,7 @@ BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
     // Too few rows or too many values in one row must be rejected without changing valid weights.
     BOOST_CHECK_THROW( observationSet.setWeights( { weights.front( ) } ), std::runtime_error );
     BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
-    BOOST_CHECK_THROW(
-            observationSet.setWeights( { weights.front( ), Eigen::Vector3d( 30.0, 31.0, 32.0 ) } ), std::runtime_error );
+    BOOST_CHECK_THROW( observationSet.setWeights( { weights.front( ), Eigen::Vector3d( 30.0, 31.0, 32.0 ) } ), std::runtime_error );
     BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
 }
 

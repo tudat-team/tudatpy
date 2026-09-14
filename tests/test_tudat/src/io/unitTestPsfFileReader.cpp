@@ -208,8 +208,7 @@ BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
                 Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) ) );
     }
     // Combining files must not alter either supplied file for later use.
-    BOOST_CHECK_EQUAL(
-            getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
     // An identical duplicate is allowed, but a different focal length is not.
     BOOST_CHECK_NO_THROW( convertRawPsfFiles<>( { first, first } ) );
     BOOST_CHECK_THROW( convertRawPsfFiles<>( { first, syntheticPsf( 3600.0, 2.0 ) } ), std::runtime_error );

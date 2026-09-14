@@ -1113,8 +1113,8 @@ BOOST_AUTO_TEST_CASE( testBulkObservationRemovalPreservesMetadata )
         BOOST_CHECK_SMALL( ( set.getObservation( retained ) - values.at( original ) ).norm( ), 1.0e-15 );
         BOOST_CHECK_SMALL( ( set.getWeights( ).at( retained ) - weights.at( original ) ).norm( ), 1.0e-15 );
         BOOST_CHECK_SMALL( ( set.getResidual( retained ) - residuals.at( original ) ).norm( ), 1.0e-15 );
-        BOOST_CHECK_SMALL(
-                ( set.getDependentVariablesForSingleObservation( retained ) - dependentVariables.at( original ) ).norm( ), 1.0e-15 );
+        BOOST_CHECK_SMALL( ( set.getDependentVariablesForSingleObservation( retained ) - dependentVariables.at( original ) ).norm( ),
+                           1.0e-15 );
     }
     // The reported time range must now run from the first to the last remaining observation.
     BOOST_CHECK_EQUAL( set.getTimeBounds( ).first, 0.0 );

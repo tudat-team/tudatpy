@@ -74,9 +74,7 @@ def test_legacy_mpc_ingestion_weights_and_environment(legacy_mpc_table, monkeypa
     np.testing.assert_allclose(
         np.array(collection.concatenated_observations).reshape(-1), [np.pi / 6, 0.0]
     )
-    np.testing.assert_array_equal(
-        np.array(collection.concatenated_weights).reshape(-1), [7.0, 7.0]
-    )
+    np.testing.assert_array_equal(np.array(collection.concatenated_weights).reshape(-1), [7.0, 7.0])
     # Eros and station 500 must both be present so the observation is ready for calculations.
     assert bodies.does_body_exist("Eros")
     assert "500" in bodies.get("Earth").ground_station_list
@@ -91,9 +89,7 @@ def test_legacy_mpc_default_weight_uses_one_arcsecond_value(legacy_mpc_table):
     # The older route must issue one warning and assign the expected weight.
     with pytest.warns(DeprecationWarning, match="get_weights_VFCC17"):
         collection = batch.to_tudat(bodies, None, apply_star_catalog_debias=False)
-    np.testing.assert_allclose(
-        collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2
-    )
+    np.testing.assert_allclose(collection.concatenated_weights, 1.0 / np.deg2rad(1.0 / 3600.0) ** 2)
 
 
 def test_legacy_mpc_retains_space_records_until_conversion(legacy_mpc_table, monkeypatch):
