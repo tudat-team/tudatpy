@@ -24,10 +24,8 @@ def read_atdf_data(
     output_dir: Path = Path("output/atdf2ascii"),
     count_time: list[float] | None = None,
     proc_count: int = _DEFAULT_PROC_COUNT,
-    doppler_one_way: bool = False,
     doppler_two_way: bool = True,
     doppler_three_way: bool = True,
-    range_one_way: bool = False,
     range_two_way: bool = True,
 ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
     """Read ATDF/TRK-2-25 files into tracking-data containers.
@@ -59,11 +57,8 @@ def read_atdf_data(
     proc_count : int
         Number of processors to use for the ``atdf2ascii`` decoding step.
         Defaults to half the available cores.
-    doppler_one_way, doppler_two_way, doppler_three_way, range_one_way, range_two_way : bool
-        Observable groups to be decoded by ``atdf2ascii``. ``doppler_one_way``
-        and ``range_one_way`` are reserved for future support and currently
-        raise ``NotImplementedError`` if set to ``True``, since no converter
-        exists yet for 1-way Doppler/range data.
+    doppler_two_way, doppler_three_way, range_two_way : bool
+        Observable groups to be decoded and converted.
 
     Returns
     -------
@@ -73,33 +68,38 @@ def read_atdf_data(
 
     Example
     -------
-    ```python
+    .. code-block:: python
 
-    from pathlib import Path
-    from tudatpy.data_input.tracking_data.atdf import read_atdf_data
+        from pathlib import Path
+        from tudatpy.data_input.tracking_data.atdf import read_atdf_data
 
-    atdf_files = [Path("data/TDF/2267276A.TDF"), Path("data/TDF/2276282A.TDF")] # download from https://pds-geosciences.wustl.edu/mgn/mgn-v-rss-1-tracking-v1/mg_2601/
-    tracking_data, supplementary_data = read_atdf_data(
-        atdf_file_path=atdf_files,
-        spacecraft_name="MGN",
-        output_dir=Path("output/atdf2ascii"),
-        count_time=[60.0],  # Compress Doppler observations to 60 seconds
-        doppler_two_way=True,
-        doppler_three_way=True,
-        range_two_way=False,
-    )
-    ```
-
+        # download from https://pds-geosciences.wustl.edu/mgn/mgn-v-rss-1-tracking-v1/mg_2601/
+        atdf_files = [Path("data/TDF/2267276A.TDF"), Path("data/TDF/2276282A.TDF")]
+        tracking_data, supplementary_data = read_atdf_data(
+            atdf_file_path=atdf_files,
+            spacecraft_name="MGN",
+            output_dir=Path("output/atdf2ascii"),
+            count_time=[60.0],  # Compress Doppler observations to 60 seconds
+            doppler_two_way=True,
+            doppler_three_way=True,
+            range_two_way=False,
+        )
     """
     processor = AtdfTrackingDataProcessor(
         atdf_file_path=atdf_file_path,
         spacecraft_name=spacecraft_name,
+    )
+    processor.convert_atdf_to_ascii(
+        output_dir,
+        count_time=count_time,
         proc_count=proc_count,
-        doppler_one_way=doppler_one_way,
         doppler_two_way=doppler_two_way,
         doppler_three_way=doppler_three_way,
-        range_one_way=range_one_way,
         range_two_way=range_two_way,
     )
-    processor.convert_atdf_to_ascii(output_dir, count_time=count_time)
-    return processor.process_ascii_tables(output_dir)
+    return processor.process_ascii_tables(
+        output_dir,
+        doppler_two_way=doppler_two_way,
+        doppler_three_way=doppler_three_way,
+        range_two_way=range_two_way,
+    )

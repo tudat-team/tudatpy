@@ -125,18 +125,6 @@ def expected_epoch(timestamp: pd.Timestamp) -> float:
 # -----------------------------------------------------------------------------
 # Fixtures
 # -----------------------------------------------------------------------------
-@pytest.fixture
-def make_processor():
-    """Factory for a processor reading the MGS fixture, with overridable flags."""
-
-    def _make(**overrides) -> AtdfTrackingDataProcessor:
-        return AtdfTrackingDataProcessor(
-            atdf_file_path=[Path(FIXTURE_STEM)], spacecraft_name=SPACECRAFT, **overrides
-        )
-
-    return _make
-
-
 @pytest.fixture(scope="module")
 def msr_df() -> pd.DataFrame:
     """The fixture's ``.msr`` table, parsed once. Treated as read-only by tests."""
