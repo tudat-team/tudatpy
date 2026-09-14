@@ -278,7 +278,7 @@ def test_legacy_tnf_converters_preserve_values_times_and_signal_paths(name):
     # The signal path must still name the requested stations and spacecraft.
     signal_path = converter.build_link_ends_dict(("DSS-14", "123", "DSS-14"), "Probe")
     assert signal_path[links.transmitter].body_name == "Earth"
-    assert signal_path[links.transmitter].reference_point_name == "DSS-14"
+    assert signal_path[links.transmitter].reference_point == "DSS-14"
     assert signal_path[links.reflector1].body_name == "Probe"
     assert signal_path[links.receiver].body_name == "Earth"
-    assert signal_path[links.receiver].reference_point_name == "DSS-14"
+    assert signal_path[links.receiver].reference_point == "DSS-14"
