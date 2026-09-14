@@ -219,11 +219,12 @@ std::shared_ptr< BodyInSunlightCalculator > createBodyInSunlightCalculator(
     {
         throw std::runtime_error( "Error when making body-in-sunlight calculator, inconsistent settings type" );
     }
-    if( bodies.count( "Sun" ) == 0 )
+    if( bodies.count( "Sun" ) == 0 || bodies.at( "Sun" )->getShapeModel( ) == nullptr )
     {
-        throw std::runtime_error( "Error when making body-in-sunlight calculator, Sun not found." );
+        throw std::runtime_error( "Error when making body-in-sunlight calculator, Sun or Sun shape model not found." );
     }
 
+    const double sunRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     const std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
             &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >, bodies.at( "Sun" ), std::placeholders::_1 );
     std::vector< std::function< Eigen::Vector6d( const double ) > > occultingBodyStateFunctions;
@@ -244,8 +245,10 @@ std::shared_ptr< BodyInSunlightCalculator > createBodyInSunlightCalculator(
     return std::make_shared< BodyInSunlightCalculator >(
             getLinkStateAndTimeIndicesForLinkEnd( linkEnds, observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
             sunStateFunction,
+            sunRadius,
             occultingBodyStateFunctions,
-            occultingBodyRadii );
+            occultingBodyRadii,
+            sunlightSettings->getDoubleParameter( ) );
 }
 
 std::shared_ptr< ObservationBoundariesViabilityCalculator > createObservationBoundariesCalculator(

@@ -349,13 +349,16 @@ Examples
            &tom::bodyInSunlightViabilitySettings,
            py::arg( "link_end_id" ),
            py::arg( "occulting_bodies" ),
+           py::arg( "minimum_shadow_function_value" ) = 1.0,
            R"doc(
 
  Function for defining a body-in-sunlight viability setting.
 
- Observations are retained only when the Sun is not occulted by any of ``occulting_bodies`` at every epoch at which the
- specified link end participates in the observation. Sun and occulting-body states are obtained from the environment in
- the global frame, independently of the other observation link-end states.
+ Observations are retained only when the shadow function of the Sun, as occulted by any of ``occulting_bodies``, is at least
+ ``minimum_shadow_function_value`` at every epoch at which the specified link end participates in the observation. The Sun is
+ treated as an extended (rather than point) source, with its radius retrieved automatically from its shape model. Sun and
+ occulting-body states are obtained from the environment in the global frame, independently of the other observation
+ link-end states.
 
  Parameters
  ----------
@@ -363,6 +366,9 @@ Examples
      Link end representing the body that must be illuminated by the Sun.
  occulting_bodies : list[str]
      Bodies that may occult the Sun, using their spherical average radii.
+ minimum_shadow_function_value : float, default = 1.0
+     Minimum value of the shadow function (0: umbra, 1: fully illuminated) for which the observation is considered viable.
+     The default requires the body to be fully exposed to the Sun, excluding any degree of penumbra/antumbra/umbra.
 
  Returns
  -------

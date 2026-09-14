@@ -645,6 +645,8 @@ public:
      * \param observationCollection Total data structure of observations and associated times/link ends/type
      * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
      * size 0) by default
+     * \param applyAprioriParameterDeviation Whether to apply the a priori constraint to the total parameter deviation from
+     * the parameter vector at the start of the estimation. If false, the legacy correction-only regularization is used.
      */
     EstimationInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
@@ -652,11 +654,13 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const bool applyFinalParameterCorrection = true ):
+            const bool applyFinalParameterCorrection = true,
+            const bool applyAprioriParameterDeviation = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
+        applyAprioriParameterDeviation_( applyAprioriParameterDeviation )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -748,6 +752,12 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    //! Return whether the a priori constraint is applied to the total deviation from the initial parameter vector.
+    bool getApplyAprioriParameterDeviation( ) const
+    {
+        return applyAprioriParameterDeviation_;
+    }
+
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
@@ -762,6 +772,9 @@ public:
     bool conditionNumberWarningEachIteration_;
 
     bool applyFinalParameterCorrection_;
+
+    //! Whether to use the total parameter deviation for the iterative a priori constraint.
+    bool applyAprioriParameterDeviation_;
 };
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker( const unsigned int maximumNumberOfIterations = 5,

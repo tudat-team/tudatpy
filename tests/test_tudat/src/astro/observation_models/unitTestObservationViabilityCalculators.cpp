@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <limits>
 #include <string>
 
@@ -19,6 +20,7 @@
 
 #include "tudat/basics/testMacros.h"
 
+#include "tudat/astro/basic_astro/missionGeometry.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
 #include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
@@ -196,7 +198,7 @@ BOOST_AUTO_TEST_CASE( testDarknessAndSunlightViabilityAtAllLinkEndEpochs )
                 secondStationDarkOnlyCount++;
             }
 
-            // Independently evaluate sunlight at each spacecraft epoch using occultation by Earth.
+            // Independently evaluate sunlight at each spacecraft epoch using the Sun's shadow function, as occulted by Earth.
             std::vector< bool > spacecraftIsSunlit;
             for( const std::pair< int, int >& spacecraftIndex : spacecraftIndices )
             {
@@ -206,8 +208,13 @@ BOOST_AUTO_TEST_CASE( testDarknessAndSunlightViabilityAtAllLinkEndEpochs )
                 const Eigen::Vector3d earthPosition =
                         bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< double, double >( spacecraftTime ).segment( 0, 3 );
                 const Eigen::Vector3d spacecraftPosition = linkEndStates.at( spacecraftIndex.first ).segment( 0, 3 );
-                spacecraftIsSunlit.push_back( !computeOccultation(
-                        spacecraftPosition, sunPosition, earthPosition, bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ) ) );
+                const double shadowFunction =
+                        mission_geometry::computeShadowFunction( sunPosition,
+                                                                 bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( ),
+                                                                 earthPosition,
+                                                                 bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ),
+                                                                 spacecraftPosition );
+                spacecraftIsSunlit.push_back( shadowFunction >= 1.0 );
             }
             const bool sunlightIsViable =
                     std::all_of( spacecraftIsSunlit.begin( ), spacecraftIsSunlit.end( ), []( const bool isSunlit ) { return isSunlit; } );
@@ -1461,7 +1468,19 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
 
                     if( currentObservationIsViable != currentObservationWasViable )
                     {
+                        const double requestedEpoch = unconstrainedTimesSegment.at( unconstrainedIndex );
+                        std::cout << std::setprecision( 17 );
                         std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                        std::cout << "Observation index: " << unconstrainedIndex << ", requested epoch: " << requestedEpoch
+                                  << ", interval: [" << initialTime << ", " << finalTime << "]"
+                                  << ", distances to interval boundaries: " << requestedEpoch - initialTime << ", "
+                                  << finalTime - requestedEpoch << std::endl;
+                        std::cout << "Link-end epochs:";
+                        for( const double linkEndTime : linkEndTimes )
+                        {
+                            std::cout << " " << linkEndTime;
+                        }
+                        std::cout << std::endl;
                         // Just for debugging purposes, print the value in case it still gets boost-checked
                         std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
                     }
