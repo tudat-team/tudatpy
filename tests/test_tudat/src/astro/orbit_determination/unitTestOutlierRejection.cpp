@@ -44,13 +44,6 @@ LinkDefinition createTestLinkDefinition( const std::string& stationName )
 }
 
 //! Weights of the test datasets, which are the inverse of the square of an uncertainty of the observations.
-/*!
- * The algorithm of Carpino et al. (2003) derives the covariance of a residual from the weight of the observation, and
- * therefore requires weights that represent the uncertainty of the observations. It refuses to run on a dataset whose
- * weights are all equal to one, since those are the weights that a dataset has when no weights were set at all. The
- * test datasets below therefore set weights explicitly, from an uncertainty of two metres for the range observations
- * and of half a unit for both components of the angular position observations.
- */
 const double testRangeUncertainty = 2.0;
 const double testAngularPositionUncertainty = 0.5;
 const double testRangeWeight = 1.0 / ( testRangeUncertainty * testRangeUncertainty );

@@ -35,16 +35,8 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
          Base class for defining the settings of an outlier rejection algorithm.
 
-         Base class for defining the settings of an algorithm that rejects (and recovers) outlying observations during
-         an estimation. Settings objects of this type are not created directly, but through the factory function of a
-         specific algorithm, such as :func:`~tudatpy.estimation.estimation_analysis.carpino_outlier_rejection_settings`.
-         The resulting object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
-         class, after which the algorithm is applied once per iteration of the estimation.
-
-         Observations that are rejected during the estimation are marked as rejected in the
-         :class:`~tudatpy.estimation.observations.ObservationDataset`, and are excluded from the subsequent iterations.
-         Which observations were rejected can therefore be inspected on the observation dataset after the estimation
-         has finished.
+         Base class for defining the settings of an outlier rejection algorithm. This object is not instantiated directly but is created
+         through one of its derived classes.
 
       )doc" );
 
@@ -112,13 +104,24 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
  Function for creating settings for the outlier rejection algorithm of Carpino et al. (2003).
 
- Function for creating settings for the outlier rejection algorithm of Carpino et al. (2003). The algorithm computes,
- for each observation, a chi-squared value from the residual of that observation and the covariance of that residual,
- and compares this value against two thresholds. An observation that is used in the estimation is rejected when its
- chi-squared value exceeds ``chi2_rejection_threshold``. An observation that was rejected in an earlier iteration is
- recovered when its chi-squared value drops below ``chi2_recovery_threshold``. Using a recovery threshold that is
- lower than the rejection threshold prevents observations from oscillating between the rejected and the accepted
- state in successive iterations.
+ Function for creating settings for the outlier rejection algorithm of Carpino et al. (2003). This algorithm rejects and recovers
+outliers based on the :math:`\chi^2` value of the residual:
+
+ .. math::
+        \chi^2 = \xi_i \gamma^{-1}_{\xi_i} \xi_i^T
+
+where :math:`\xi_i` is the residual and, :math:`\gamma_{\xi_i}` is the covariance matrix of the residuals. For a scalar observable, this
+simply becomes the ratio of the residual value to its uncertainty. For a vector observable, it is the Mahalanobis distance of the residual.
+Note that :math:`\gamma_{\xi_i}` is **not** equal to the observation covariance/uncertainty. The residual covariance also takes into account
+whether an observation was included in the least-squares inversion or not.
+
+When the :math:`\chi^2` value of the observation exceeds the rejection threshold, the observation is marked as an outlier and excluded
+from the next iteration. If a rejected observation has a :math:`\chi^2` below the recovery threshold, it is no longer an outlier, and is
+included in the next iteration of the least-squares fit again. Seperate recovery and rejection threshold are adopted to avoid observations
+from jumping between rejected and recovered in the later iterations.
+
+Note that this algorithm requires that the observation covariance (or the inverse weight matrix) is compatible with the true errors. If no
+weights are set on the observations, the algorithm will throw an error. If inaccurate weights are set, it may produce unexpected results.
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.
@@ -134,9 +137,7 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  maximum_rejected_fraction : float, default = 0.25
      Maximum fraction (between 0 and 1) of all observations that may be in the rejected state.
  first_iteration_with_rejection : int, default = 1
-     Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
-     value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
-     a priori parameter values and can be large for all observations.
+     Index of the first estimation iteration in which observations may be rejected, counted from zero.
 
  Returns
  -------
@@ -213,14 +214,10 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
 
  Function for creating settings for the simple outlier rejection algorithm.
 
- Function for creating settings for an outlier rejection algorithm that compares the residual of each observation
- against a maximum allowed value. An observation is rejected when the size of its residual exceeds
- ``maximum_allowed_residual_value``. If ``allow_restore`` is true, an observation that was rejected in an earlier
- iteration is recovered as soon as the size of its residual drops back below that value. Observations that were
- excluded from the estimation by the user are never modified by this algorithm.
-
- The residual is compared against the value component by component, so an observation of an observable type with
- more than one component is rejected if any of its components exceeds the maximum allowed value.
+Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an observation
+based on the absolute residual value of the observation (or the largest element in the residual vector in case of vector observations).
+If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true, it can be recovered again in a later
+iteration. One threshold is used for all observable types in the estimation (in SI units).
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.
@@ -231,9 +228,7 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
  maximum_allowed_residual_value : float
      Maximum allowed size of a residual, used for every observable type. Must be positive.
  first_iteration_with_rejection : int, default = 1
-     Index of the first estimation iteration in which observations may be rejected, counted from zero. The default
-     value of 1 leaves the first iteration untouched, since the residuals of that iteration are computed with the
-     a priori parameter values and can be large for all observations.
+     Index of the first estimation iteration in which observations may be rejected, counted from zero.
  allow_restore : bool, default = True
      Whether an observation that was rejected in an earlier iteration may be recovered in a later iteration.
 
@@ -253,21 +248,13 @@ void expose_estimation_analysis_outlier_rejection( py::module& m )
            py::arg( "allow_restore" ) = true,
            R"doc(
 
- Function for creating settings for the simple outlier rejection algorithm, with a separate maximum allowed residual
- value for each observable type.
+ Function for creating settings for the simple outlier rejection algorithm.
 
- Function for creating settings for an outlier rejection algorithm that compares the residual of each observation
- against a maximum allowed value, where this value is defined separately for each observable type. An observation is
- rejected when the size of its residual exceeds the value that is provided for its observable type. If
- ``allow_restore`` is true, an observation that was rejected in an earlier iteration is recovered as soon as the size
- of its residual drops back below that value. Observations that were excluded from the estimation by the user are
- never modified by this algorithm.
-
- The residual is compared against the value component by component, so an observation of an observable type with
- more than one component is rejected if any of its components exceeds the maximum allowed value.
-
- An exception is thrown during the estimation if the observations contain an observable type that is not present in
- ``maximum_allowed_residual_value_per_observable_type``.
+Function for creating settings for the simple outlier rejection algorithm. This algorithm decides the rejection status of an observation
+based on the absolute residual value of the observation (or the largest element in the residual vector in case of vector observations).
+If it exceeds the threshold, it will be excluded from the next iteration. If ``allow_restore`` is true, it can be recovered again in a later
+iteration. A dictionary containing the residual threshold for each observable type used in the estimation must be provided. In case an
+observable type is used in the estimation, but missing from the dict, an error will be thrown.
 
  The resulting settings object is provided to the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
  class, through its ``outlier_rejection_settings`` input.

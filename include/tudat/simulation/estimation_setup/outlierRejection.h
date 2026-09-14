@@ -37,20 +37,8 @@ using ObservableType = tudat::observation_models::ObservableType;
 
 //! Data from a single estimation iteration that is provided to an outlier rejection algorithm.
 /*!
- * This object bundles the quantities that the least-squares iteration has computed anyway. Which of these an
- * algorithm uses is up to the algorithm: an algorithm that only inspects residual values simply ignores the
- * remaining entries. The object stores references only, so creating it is cheap.
- *
- * All quantities are unnormalized (that is, they are the physical quantities, not the internally scaled ones that
- * the least-squares solution uses), and they cover *all* observations in the dataset, including those that are
- * currently rejected and that therefore did not contribute to the estimation. The latter is required for algorithms
- * to be able to recover observations that were rejected in an earlier iteration.
- *
- * The observation covariance is the inverse of the complete weight matrix. The complete matrix is inverted, rather
- * than the weight block of each observation, because the weight matrix is not assumed to be block diagonal:
- * correlations between arbitrary observations may be defined, and in that case the covariance of a single
- * observation is a block of the inverse of the complete matrix, which is not the same as the inverse of that
- * observation's own weight block.
+ * Bundles information from the estimation that may be used in the outlier rejection algorithms, such as the observation covariance matrix,
+ * residuals, parameter covariance, design matrix, iteration number etc.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct OutlierRejectionInput {
@@ -136,9 +124,7 @@ private:
 /*!
  * One object of this type is created at the start of an estimation, from the settings that the user provided, and is
  * called once per iteration of the least-squares process. The object keeps the rejection status of every observation
- * and writes that status through to the ObservationDataset, which is what the estimation reads to decide which
- * observations to use. The dataset therefore remains the single place where the rejection status is stored.
- *
+ * and writes that status through to the ObservationDataset. The base class is not instantiated, the derived classes are.
  * Derived classes implement one function only: computeRejectionStatus, which fills the isRejected_ vector for the
  * current iteration. The surrounding steps (initializing the status from the dataset, and writing the new status back
  * to it) are identical for every algorithm and are handled by this base class.
@@ -171,7 +157,7 @@ public:
         numberOfDisabledObservations_ = getNumberOfRejectedObservations(  );
     }
 
-    //! Destructor (virtual, since objects of derived types are deleted through a pointer to this base class).
+    //! Destructor
     virtual ~OutlierRejection( ) = default;
 
     //! Update the rejection status of all observations, using the data of the current estimation iteration.
@@ -219,15 +205,7 @@ public:
     }
 
 protected:
-    //! Determine which observations are outliers, by filling the isRejected_ vector.
-    /*!
-     * The '= 0' makes this function pure virtual: this class provides no implementation, every derived class must
-     * provide one, and an object of this base class can no longer be created directly.
-     *
-     * Implementations must set an entry for every observation in the dataset, both for observations that are
-     * currently used in the estimation (which may become rejected) and for observations that are currently rejected
-     * (which may be recovered).
-     */
+    //! A method that must update the isRejected_ member of OutlierRejection
     virtual void computeRejectionStatus( const OutlierRejectionInput< ObservationScalarType, TimeType >& outlierRejectionInput ) = 0;
 
     //! Write the current rejection status to the observation dataset.
@@ -288,8 +266,8 @@ public:
             throw std::runtime_error( "Error when creating Carpino outlier rejection object, settings are null." );
         }
 
-        //! If the weights of the observation dataset are all equal to 1 (i.e. default), they are not meaningful and the Carpino outlier
-        //! rejection algorithm produces garbage results
+        // If the weights of the observation dataset are all equal to 1 (i.e. default), they are not meaningful and the Carpino outlier
+        // rejection algorithm produces garbage results
         FlattenedObservationData<ObservationScalarType, TimeType> flattenedData =
             observationDataset->createComputationFlattenedObservationData(  );
         const Eigen::VectorXd& observationWeightVector = flattenedData.getWeightVector(  );
@@ -355,12 +333,8 @@ protected:
 
     //! Limit the number of observations rejected in this iteration to the fraction that the settings allow.
     /*!
-     * Observations that were already rejected before this iteration take up part of the allowed number of rejected
-     * observations, but are not reconsidered here: their chi-squared is computed with the observation outside the
-     * fit, and is therefore not comparable with the chi-squared of the observations that are rejected in this
-     * iteration. Of the newly rejected observations, only those with the highest chi-squared remain rejected, and
-     * the remainder is accepted again. Observations with an equal chi-squared are ordered by observation id, so that
-     * the result does not depend on the order in which the observations happen to be stored.
+     * If more observations are rejected in this iteration than allowed, the best ones are kept. This does not touch observations
+     * that were already rejected and are still rejected during this iteration.
      *
      * \param newRejectionStatus Rejection status for the next iteration, modified in place by this function.
      * \param chiSquaredPerObservation Chi-squared value of each observation, indexed by observation id.
@@ -476,7 +450,7 @@ protected:
         return isCurrentlyRejected; // Return unchanged
     }
 
-    // Compute Chi2 for one observation
+    //! Compute Chi2 for one observation. See Carpino (2003) for details
     double computeChiSquared(const Eigen::MatrixXd& partialsForObservation,
                              const Eigen::VectorXd& residualVector,
                              const Eigen::VectorXd& parameterCorrection,
@@ -488,7 +462,7 @@ protected:
         Eigen::VectorXd residualsVectorPostFit;
         residualsVectorPostFit = residualVector -  partialsForObservation * parameterCorrection;
 
-        // Residual covariance
+        // Residual covariance. Note this is different from pure observation covariance
         Eigen::MatrixXd residualCovariance;
         if( isRejected )
         {
@@ -511,6 +485,11 @@ protected:
     std::shared_ptr< CarpinoOutlierRejectionSettings > outlierRejectionSettings_;
 };
 
+//! Simple outlier rejection algorithm
+/*!
+ * This algorithm rejects and recovers outliers based on only the residual value. It is compared against the maximum allowed residual value
+ * provided in the settings, and rejected or recovered accordingly.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class SimpleOutlierRejection : public OutlierRejection< ObservationScalarType, TimeType >
 {
@@ -553,7 +532,7 @@ protected:
                 const ObservableType observableType = this->getObservableType( observationId );
                 if(maximumAllowedResidualValueMap.find(observableType) == maximumAllowedResidualValueMap.end())
                 {
-                    throw std::runtime_error("Error in outlier rejection: no maximum allowed residual value was provided for the"
+                    throw std::runtime_error("Error in outlier rejection: no maximum allowed residual value was provided for the "
                                              "observable type "
                                              + tudat::observation_models::getObservableName( observableType ));
                 }

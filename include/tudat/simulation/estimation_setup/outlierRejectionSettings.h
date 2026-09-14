@@ -48,10 +48,8 @@ inline std::string getOutlierRejectionTypeString( const OutlierRejectionType out
 
 //! Base class for the settings of an outlier rejection algorithm.
 /*!
- * Objects of this type only carry the user's choices; they perform no computation. They are provided to an
- * EstimationInput object, and are converted into the corresponding OutlierRejection object (which does the actual
- * work) when the estimation starts. Each algorithm defines its own derived settings class, holding the parameters
- * that are meaningful for that algorithm only.
+ * The base class is never instantiated itself, the derived classes are. They hold the configuration settings for the outlier rejection
+ * mechanisms. The settings object is used to create the actual OutlierRejection object when the estimation is performed.
  */
 class OutlierRejectionSettings
 {
@@ -59,13 +57,9 @@ public:
     OutlierRejectionSettings( const OutlierRejectionType outlierRejectionType ): outlierRejectionType_( outlierRejectionType ) { }
 
     //! Destructor.
-    /*!
-     * This destructor is virtual because objects of derived types are stored and deleted through a pointer to this
-     * base class. Without the virtual keyword, deleting such a pointer would only destroy the base class part of the
-     * object, and the members added by the derived class would be leaked.
-     */
     virtual ~OutlierRejectionSettings( ) = default;
 
+    //! Return the type of the outlier rejection algorithm
     OutlierRejectionType getOutlierRejectionType( ) const
     {
         return outlierRejectionType_;
@@ -78,8 +72,10 @@ protected:
 
 //! Settings for the outlier rejection algorithm of Carpino et al. (2003).
 /*!
- * The algorithm computes a chi-squared value for each observation from its residual and the covariance of that
- * residual, and compares this value against two thresholds. An observation that is currently used in the estimation
+ * This algorithm rejects and recovers observations based on a per-observation chi-squared value. For scalar observations, this is the ratio
+ * of the residual to the residual uncertainty. For vector observations, this is the Mahalanobis distance of the residual vector. Note that the
+ * residual covariance, that is used in this algorithm, is different from the typical observation covariance. The former also takes into account
+ * whether an observation was used in the least-squares inversion or not. An observation that is currently used in the estimation
  * is rejected when its chi-squared value exceeds the rejection threshold. An observation that was rejected in an
  * earlier iteration is recovered when its chi-squared value drops below the recovery threshold. Using a recovery
  * threshold that is lower than the rejection threshold prevents observations from oscillating between the rejected
@@ -165,10 +161,21 @@ protected:
     const int firstIterationWithRejection_;
 };
 
+//! Create settings for the Simple outlier rejection algorithm
+/*!
+ * This algorithm rejects and recovers observations based on the absolute value of the O-C residuals. If a residual exceeds the threshold,
+ * the observation is rejected. There are two options: a scalar residual threshold is provided, which holds for all types of observation
+ * used in the estimation, or a map (dictionary) of thresholds is provided per observable type. Units are assumed SI.
+*/
 class SimpleOutlierRejectionSettings : public OutlierRejectionSettings
 {
 public:
-    // Use a single value for the residuals
+    //! Constructor
+    /*!
+     *\param maximumAllowedResidualValue: the absolute threshold for residuals
+     *\param firstIterationWithRejection: iteration at which outlier rejection kicks in
+     *\param allowRestore: bool if observations are allowed to be restored in later iterations or not
+     */
     SimpleOutlierRejectionSettings(
         const double maximumAllowedResidualValue,
         const int firstIterationWithRejection = 1,
@@ -186,7 +193,13 @@ public:
         }
     }
 
-    // Use different values for each type of observable
+    //! Constructor
+    /*!
+     *\param maximumAllowedResidualValueMap: absolute residual threshold for each observable type that may be used in the estimation. Will
+     *throw an error downstream if an entry is missing. Units are assumed SI
+     *\param firstIterationWithRejection: iteration at which outlier rejection kicks in
+     *\param allowRestore: bool if observations are allowed to be restored in later iterations or not
+     */
     SimpleOutlierRejectionSettings(
         const std::map<tudat::observation_models::ObservableType, double>& maximumAllowedResidualValueMap,
         const int firstIterationWithRejection = 1,
