@@ -38,7 +38,8 @@ struct NRLMSISE00Input {
      * \param f107 Current daily F10.7 flux for previous day
      * \param f107a 81 day average of F10.7 flux (centered on current dayOfTheYear).
      * \param apDaily Current daily magnetic index
-     * \param apVector Current magnetic index data vector: \sa ap_array
+     * \param apVector Seven magnetic indices in native ap_array order: daily Ap, current three-hour Ap,
+     * the three preceding three-hour values, and the 12--33 and 36--57 hour averages. \sa ap_array
      * \param switches List of NRLMSISE-specific flags: \sa nrlmsise_flags
      */
     NRLMSISE00Input( int year = 0,
@@ -48,7 +49,7 @@ struct NRLMSISE00Input {
                      double f107 = 0.0,
                      double f107a = 0.0,
                      double apDaily = 0.0,
-                     std::vector< double > apVector = std::vector< double >( 6, 0.0 ),
+                     std::vector< double > apVector = std::vector< double >( 7, 0.0 ),
                      std::vector< int > switches = std::vector< int >( ) ):
         year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay ), localSolarTime( localSolarTime ), f107( f107 ),
         f107a( f107a ), apDaily( apDaily ), apVector( apVector ), switches( switches )
@@ -82,7 +83,7 @@ struct NRLMSISE00Input {
     //! Current daily magnetic index
     double apDaily;
 
-    //! Current magnetic index data vector: \sa ap_array
+    //! Seven magnetic indices in native ap_array order (daily Ap followed by six history values).
     std::vector< double > apVector;
 
     //! List of NRLMSISE-specific flags: \sa nrlmsise_flag
