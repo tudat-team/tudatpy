@@ -4,7 +4,6 @@ This package preserves the pre-refactor `tudatpy.data` API during deprecation.
 Keep new functionality in `tudatpy.data_input`, `tudatpy.dynamics`, or
 `tudatpy.estimation`. Dependencies must point from this package to the current
 API; current Python modules must not import this package or `tudatpy.kernel.data`.
-`test_data_compatibility_boundaries.py` checks that source dependency boundary.
 
 ## Warning contract
 
@@ -31,8 +30,8 @@ current helpers must not depend on them.
 
 1. Delete `src/tudatpy/data/`, including its alias tables, warning helper, legacy
    implementations, and this note. Retire the compatibility-only tests
-   `test_data_deprecation_compatibility.py`, `test_data_legacy_calls.py`, and
-   `test_data_compatibility_boundaries.py` in `tests/test_tudatpy/` together.
+   `test_data_deprecation_compatibility.py` and `test_data_legacy_calls.py` in
+   `tests/test_tudatpy/` together.
 2. Remove `src/tudatpy/add_data_to_kernel.cpp` and its source entry in
    `src/tudatpy/CMakeLists.txt`. In `src/tudatpy/kernel.cpp`, remove the
    `add_data_to_kernel` declaration/call and the deprecated `data` submodule

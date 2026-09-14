@@ -410,6 +410,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )
             linkEndStates,
             getDsnNWayAveragedDopplerAncillarySettings(
                     frequencyBands, receptionReferenceFrequencyBand, referenceFrequency, integrationTime, { ancillaryDelay } ) );
+    // Both spacecraft responses must use the stored spacecraft delay instead of the different supplied delay.
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ), 1.0E-8 );
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 6 ) - linkEndTimes.at( 5 ) - vehicleSystemDelay ), 1.0E-8 );
 }

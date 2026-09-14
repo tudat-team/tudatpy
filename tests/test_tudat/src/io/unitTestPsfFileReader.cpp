@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( testSinglePsfFileReader )
     BOOST_CHECK_EQUAL( trackingDataAndSupplementaryData.first.front( )->getSingleObservationSize( ), 2 );
 }
 
-// Create one image and camera attitude with controllable epoch and calibration.
+// Create one image with a chosen time, camera direction, and focal length.
 input_output::psf::RawPsfFileContents syntheticPsf( const double epoch, const double focalLength = 1.0 )
 {
     using namespace input_output::psf;
@@ -184,7 +184,8 @@ input_output::psf::RawPsfFileContents syntheticPsf( const double epoch, const do
     return file;
 }
 
-// Merge camera histories in either file order and reject incompatible inputs.
+// Combine two camera files in both orders, verify that both images and directions
+// remain, and reject files that disagree about the camera or its direction.
 BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
 {
     using namespace input_output::psf;
@@ -193,7 +194,7 @@ BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
     for( const auto& inputs : { std::vector< RawPsfFileContents >{ first, second }, std::vector< RawPsfFileContents >{ second, first } } )
     {
         const auto result = convertRawPsfFiles<>( inputs );
-        // Both images and their camera attitudes must survive conversion in either order.
+        // Either file order must produce two observations and two camera directions.
         BOOST_REQUIRE_EQUAL( result.first.size( ), 1 );
         BOOST_CHECK_EQUAL( result.first.front( )->getNumberOfObservations( ), 2 );
         BOOST_REQUIRE_EQUAL( result.second.size( ), 1 );
@@ -206,12 +207,13 @@ BOOST_AUTO_TEST_CASE( testMultiFilePsfCameraHistoriesAreOrderInvariant )
         BOOST_CHECK( history.at( 3600.0 ).toRotationMatrix( ).isApprox(
                 Eigen::AngleAxisd( 1.0, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( ) ) );
     }
-    // Reusing raw inputs must not expose a merged history left by a previous conversion.
-    BOOST_CHECK_EQUAL( getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
-    // Identical duplicates are accepted, but inconsistent calibration is rejected.
+    // Combining files must not alter either supplied file for later use.
+    BOOST_CHECK_EQUAL(
+            getPsfCameraInstrumentSupplementaryData( first, "NAC" )->getRotationFromInertialToCameraFrameHistory( ).size( ), 1 );
+    // An identical duplicate is allowed, but a different focal length is not.
     BOOST_CHECK_NO_THROW( convertRawPsfFiles<>( { first, first } ) );
     BOOST_CHECK_THROW( convertRawPsfFiles<>( { first, syntheticPsf( 3600.0, 2.0 ) } ), std::runtime_error );
-    // Matching calibration cannot excuse conflicting pointing at the same epoch.
+    // Two different camera directions recorded at the same time must also be rejected.
     auto conflicting = syntheticPsf( 0.0 );
     auto changedCamera = std::make_shared< data::CameraInstrumentSupplementaryData >(
             "NAC",

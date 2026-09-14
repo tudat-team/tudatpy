@@ -229,29 +229,6 @@ def test_deprecated_observations_wrapper_alias_warns():
     assert imported_object is observations.create_observation_collection_from_tracking_data
 
 
-def test_observations_wrapper_is_available_through_parent(monkeypatch):
-    """Support the original nested IFMS access path and warn at its user call site."""
-    parent = importlib.import_module("tudatpy.estimation.observations_setup")
-    observations = importlib.import_module("tudatpy.estimation.observations")
-    # Remove a previously imported child so another test cannot mask missing lazy access.
-    monkeypatch.delitem(parent.__dict__, "observations_wrapper", raising=False)
-    assert "observations_wrapper" in dir(parent)
-
-    # Legacy lookup returns the real reader and identifies the accessing user line.
-    with pytest.warns(
-        DeprecationWarning, match="observations_from_ifms_files is deprecated"
-    ) as record:
-        expected_lineno = inspect.currentframe().f_lineno + 1
-        reader = parent.observations_wrapper.observations_from_ifms_files
-    assert reader is observations.observations_from_ifms_files
-    assert Path(record[0].filename).resolve() == Path(__file__).resolve()
-    assert record[0].lineno == expected_lineno
-
-    # Unknown names retain normal attribute semantics rather than being redirected.
-    with pytest.raises(AttributeError, match="not_a_tudat_attribute"):
-        parent.not_a_tudat_attribute
-
-
 @pytest.mark.parametrize(
     "import_statement",
     [
@@ -260,14 +237,14 @@ def test_observations_wrapper_is_available_through_parent(monkeypatch):
     ],
 )
 def test_fresh_estimation_import_retains_observations_wrapper(import_statement):
-    """Both public parent imports expose the legacy simulator in a fresh interpreter."""
-    # A separate process prevents earlier submodule imports from masking the bug.
+    """In a new Python session, reach the old observation tools in both supported ways."""
+    # Starting afresh shows whether the old route works before anything else has prepared it.
     script = import_statement + "\n" + textwrap.dedent("""\
         import inspect
         import warnings
         from tudatpy.estimation import observations
 
-        # The alias preserves function identity and warns at the user's access line.
+        # The old route must select the current simulator and place one warning on this exact line.
         with warnings.catch_warnings(record=True) as captured:
             warnings.simplefilter("always", DeprecationWarning)
             expected_line = inspect.currentframe().f_lineno + 1

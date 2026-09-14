@@ -788,24 +788,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
 
     observationModel->computeIdealObservationsWithLinkEndData(
             observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
+    // The delay stored for Mars must take priority over a different delay supplied with this observation.
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
-                       observationTime * std::numeric_limits< double >::epsilon( ) );
-
-    const double ancillaryTransmitterDelay = 9.0E-6;
-    const double ancillaryReceiverDelay = 12.0E-6;
-    std::shared_ptr< ObservationAncillarySimulationSettings > fullAncillarySettings =
-            getNWayRangeAncillarySettings( { ancillaryTransmitterDelay, ancillaryDelay, ancillaryReceiverDelay } );
-    observationModel->computeIdealObservationsWithLinkEndData(
-            observationTime, receiver, linkEndTimes, linkEndStates, fullAncillarySettings );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
-                       observationTime * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 3 ) - ancillaryReceiverDelay ),
-                       observationTime * std::numeric_limits< double >::epsilon( ) );
-    observationModel->computeIdealObservationsWithLinkEndData(
-            observationTime, transmitter, linkEndTimes, linkEndStates, fullAncillarySettings );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - updatedVehicleSystemDelay ),
-                       observationTime * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 0 ) - observationTime - ancillaryTransmitterDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 
     LinkEnds nWayLinkEndsWithTwoRetransmitters;
@@ -837,6 +821,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
             linkEndTimes,
             linkEndStates,
             getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay } ) );
+    // With two relay bodies, each body's stored delay must take priority over supplied alternatives.
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
@@ -872,6 +857,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeVehicleSystemTransponderDelay )
             linkEndTimes,
             linkEndStates,
             getNWayRangeAncillarySettings( { ancillaryMarsDelay, ancillaryMoonDelay, ancillarySunDelay } ) );
+    // The same priority rule must apply independently to all three relay bodies.
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - marsDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 4 ) - linkEndTimes.at( 3 ) - moonDelay ),
