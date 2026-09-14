@@ -589,11 +589,7 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression(capfd):
     test_data_path = _test_data_path()
     mro_data_path = test_data_path / "mro_dsn_observation_model"
     mro_kernel_path = mro_data_path / "kernel_download"
-    tnf_file = _download_file(
-        "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/"
-        "mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf",
-        mro_data_path / "tnf_download",
-    )
+    tnf_file = Path(__file__).parent / "fixtures" / "mro_short_arc_2012_077.tnf"
     for url in (
         "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
         "mrosp_1000/data/ck/mro_sc_psp_120313_120319.bc",
