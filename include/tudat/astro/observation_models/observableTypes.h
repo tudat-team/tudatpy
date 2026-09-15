@@ -221,6 +221,12 @@ struct ResidualWrappingRange {
     }
 };
 
+//! Settings defining model-dependent residual wrapping behavior.
+struct ResidualWrappingSettings {
+    //! Whether the right ascension component of an angular position observable is normalized by cos(declination).
+    bool normalizeRightAscension = false;
+};
+
 //! Function to check if an observable type requires residual wrapping.
 /*!
  * Function to check if an observable type requires residual wrapping (e.g. for angular

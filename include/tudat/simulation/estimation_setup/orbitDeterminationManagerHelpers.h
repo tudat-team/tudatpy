@@ -12,10 +12,9 @@
 #define TUDAT_ORBITDETERMINATIONMANAGERHELPERS_H
 
 #include <cmath>
-#include <iostream>
+#include <limits>
 
 #include "tudat/basics/timeType.h"
-#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
@@ -27,55 +26,36 @@ namespace simulation_setup
 {
 
 template< typename ObservationScalarType >
-void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-                                              const std::pair< int, int > observableStartAndSize,
-                                              const observation_models::ObservableType observableType )
-{
-    if( observation_models::isResidualWrappingRequired( observableType ) )
-    {
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
-                residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
-        for( int i = 1; i < residualsBlock.rows( ); i++ )
-        {
-            if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 6.0 )
-            {
-                if( residualsBlock( i, 0 ) > 0 )
-                {
-                    residualsBlock( i, 0 ) = residualsBlock( i, 0 ) - 2.0 * mathematical_constants::PI;
-                }
-                else
-                {
-                    residualsBlock( i, 0 ) = residualsBlock( i, 0 ) + 2.0 * mathematical_constants::PI;
-                }
-            }
-            else if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 3.0 )
-            {
-                std::cerr << "Warning, detected jump in observation residual of size "
-                          << std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) << " for observable type " << observableType
-                          << std::endl;
-            }
-        }
-        residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
-    }
-}
-
-template< typename ObservationScalarType >
-void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-                               const std::pair< int, int > observableStartAndSize,
-                               const observation_models::ObservableType observableType )
+void wrapObservationResiduals(
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+        const std::pair< int, int > observableResidualStartAndSize,
+        const observation_models::ObservableType observableType,
+        const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observedObservationBlock =
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >( ),
+        const observation_models::ResidualWrappingSettings& residualWrappingSettings = observation_models::ResidualWrappingSettings( ) )
 {
     // Get the block of residuals for this observable type
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
-            residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentResidualBlock =
+            residuals.block( observableResidualStartAndSize.first, 0, observableResidualStartAndSize.second, 1 );
 
-    int observableSize = observableStartAndSize.second;
-    if( observableSize == 0 )
+    const int residualBlockSize = observableResidualStartAndSize.second;
+    if( residualBlockSize == 0 )
     {
         return;
     }
 
-    int observationCount = observableSize / observation_models::getObservableSize( observableType );
-    int singleObsSize = observation_models::getObservableSize( observableType );
+    const int singleObservationSize = observation_models::getObservableSize( observableType );
+    const int numberOfObservations = residualBlockSize / singleObservationSize;
+
+    if( observableType == observation_models::angular_position && residualWrappingSettings.normalizeRightAscension &&
+        observedObservationBlock.rows( ) != residualBlockSize )
+    {
+        throw std::runtime_error( "Error when wrapping normalized angular position residuals: observed observation block has size " +
+                                  std::to_string( residualBlockSize ) + "." );
+                                  std::to_string( observedObservationBlock.rows( ) ) + ", expected " +
+                                  std::to_string( residualBlockSize ) + "." );
+                                  std::to_string( residualBlockSize ) + "." );
+    }
 
     // Determine which components are periodic and their wrapping ranges
     // based on the observable type
@@ -86,22 +66,40 @@ void wrapObservationResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dyna
     }
 
     // Wrap each periodic component per observation
-    for( int obsIdx = 0; obsIdx < observationCount; obsIdx++ )
+    for( int currentObservationIndex = 0; currentObservationIndex < numberOfObservations; currentObservationIndex++ )
     {
-        for( int compIdx = 0; compIdx < singleObsSize; compIdx++ )
+        for( int currentObservableComponentIndex = 0; currentObservableComponentIndex < singleObservationSize;
+             currentObservableComponentIndex++ )
         {
-            if( compIdx < static_cast< int >( wrappingRanges.size( ) ) && wrappingRanges[ compIdx ].period( ) > 0.0 )
+            if( currentObservableComponentIndex < static_cast< int >( wrappingRanges.size( ) ) &&
+                wrappingRanges[ currentObservableComponentIndex ].period( ) > 0.0 )
             {
-                int linearIdx = obsIdx * singleObsSize + compIdx;
-                double period = wrappingRanges[ compIdx ].period( );
-                double center = wrappingRanges[ compIdx ].center( );
-                residualsBlock( linearIdx, 0 ) =
-                        residualsBlock( linearIdx, 0 ) - period * std::round( ( residualsBlock( linearIdx, 0 ) - center ) / period );
+                const int currentResidualComponentIndex = currentObservationIndex * singleObservationSize + currentObservableComponentIndex;
+                double residualWrappingPeriod = wrappingRanges[ currentObservableComponentIndex ].period( );
+                double residualWrappingCenter = wrappingRanges[ currentObservableComponentIndex ].center( );
+
+                if( observableType == observation_models::angular_position && residualWrappingSettings.normalizeRightAscension &&
+                    currentObservableComponentIndex == 0 )
+                {
+                    const double rightAscensionNormalizationFactor =
+                            std::abs( std::cos( static_cast< double >( observedObservationBlock( currentResidualComponentIndex + 1 ) ) ) );
+                    if( rightAscensionNormalizationFactor <= 10.0 * std::numeric_limits< double >::epsilon( ) )
+                    {
+                        continue;
+                    }
+                    residualWrappingPeriod *= rightAscensionNormalizationFactor;
+                    residualWrappingCenter *= rightAscensionNormalizationFactor;
+                }
+
+                currentResidualBlock( currentResidualComponentIndex, 0 ) = currentResidualBlock( currentResidualComponentIndex, 0 ) -
+                        residualWrappingPeriod *
+                                std::round( ( currentResidualBlock( currentResidualComponentIndex, 0 ) - residualWrappingCenter ) /
+                                            residualWrappingPeriod );
             }
         }
     }
 
-    residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
+    residuals.block( observableResidualStartAndSize.first, 0, observableResidualStartAndSize.second, 1 ) = currentResidualBlock;
 }
 
 template< typename ObservationScalarType = double,
@@ -128,6 +126,8 @@ void calculateResiduals(
         for( auto dataIterator : observablesIterator.second )
         {
             observation_models::LinkEnds currentLinkEnds = dataIterator.first;
+            const observation_models::ResidualWrappingSettings residualWrappingSettings =
+                    observationSimulator.at( currentObservableType )->getResidualWrappingSettings( currentLinkEnds );
             for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
             {
                 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
@@ -146,14 +146,14 @@ void calculateResiduals(
 
                 residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
                         ( currentObservations->getObservationsVector( ) - observationsVector );
+
+                wrapObservationResiduals< ObservationScalarType >( residuals,
+                                                                   observationIndices,
+                                                                   currentObservableType,
+                                                                   currentObservations->getObservationsVector( ),
+                                                                   residualWrappingSettings );
             }
         }
-
-        std::pair< int, int > observableStartAndSize =
-                observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
-
-        checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
-        wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
     }
 }
 
@@ -212,6 +212,13 @@ void calculateDesignMatrixAndResiduals(
         for( auto linkEndIt : observableIt.second )
         {
             observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
+            observation_models::ResidualWrappingSettings residualWrappingSettings;
+            if( calculateResiduals )
+            {
+                residualWrappingSettings = observationManagers.at( currentObservableType )
+                                                   ->getObservationSimulator( )
+                                                   ->getResidualWrappingSettings( currentLinkEnds );
+            }
             for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
             {
                 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
@@ -247,17 +254,15 @@ void calculateDesignMatrixAndResiduals(
                         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
                                 currentObservations->getObservationsVector( ) - observationsVector;
                         residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) = ( residualsVector );
+
+                        wrapObservationResiduals< ObservationScalarType >( residuals,
+                                                                           observationIndices,
+                                                                           currentObservableType,
+                                                                           currentObservations->getObservationsVector( ),
+                                                                           residualWrappingSettings );
                     }
                 }
             }
-        }
-
-        if( calculateResiduals )
-        {
-            std::pair< int, int > observableStartAndSize =
-                    observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
-            checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
-            wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
         }
     }
 }

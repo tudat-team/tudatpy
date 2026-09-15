@@ -10,11 +10,15 @@
 
 #define BOOST_TEST_MAIN
 
+#include <utility>
+#include <vector>
+
+#include <Eigen/Core>
 #include <boost/test/included/unit_test.hpp>
 
-#include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -67,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testResidualWrappingRangeStruct )
 
     // [0, 2*pi] range
     ResidualWrappingRange range0Pi( 0.0, 2.0 * PI );
-    BOOST_CHECK_CLOSE( range0Pi.minimumRange, 0.0, 1.0e-15 );
+    BOOST_CHECK_SMALL( range0Pi.minimumRange, 1.0e-15 );
     BOOST_CHECK_CLOSE( range0Pi.maximumRange, 2.0 * PI, 1.0e-15 );
     BOOST_CHECK_CLOSE( range0Pi.period( ), 2.0 * PI, 1.0e-15 );
     BOOST_CHECK_CLOSE( range0Pi.center( ), PI, 1.0e-15 );
@@ -87,19 +91,36 @@ BOOST_AUTO_TEST_CASE( testResidualWrappingRangeStruct )
     BOOST_CHECK_SMALL( rangeHalfPi.center( ), 1.0e-15 );
 }
 
-//! Test getResidualWrappingRanges for angular_position.
-BOOST_AUTO_TEST_CASE( testAngularPositionWrappingRanges )
+//! Test getResidualWrappingRanges for two-component angular observables.
+BOOST_AUTO_TEST_CASE( testAngularObservableWrappingRanges )
 {
-    std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( angular_position );
-    BOOST_CHECK_EQUAL( ranges.size( ), 2 );
+    const std::vector< ObservableType > observableTypes = { angular_position, relative_angular_position, azimuth_elevation_angle };
 
-    // Component 0: RA wraps to [-pi, pi]
+    for( const ObservableType observableType : observableTypes )
+    {
+        const std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( observableType );
+        BOOST_REQUIRE_EQUAL( ranges.size( ), 2 );
+
+        // Component 0 (RA / azimuth) wraps to [-pi, pi].
+        BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, -PI, 1.0e-15 );
+        BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, PI, 1.0e-15 );
+
+        // Component 1 (DEC / elevation) is not periodic.
+        BOOST_CHECK_SMALL( ranges[ 1 ].period( ), 1.0e-15 );
+    }
+}
+
+//! Test getResidualWrappingRanges for the 3-1-3 Euler angle observable.
+BOOST_AUTO_TEST_CASE( testEulerAngleWrappingRanges )
+{
+    const std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( euler_angle_313_observable );
+    BOOST_REQUIRE_EQUAL( ranges.size( ), 3 );
+
     BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, -PI, 1.0e-15 );
     BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, PI, 1.0e-15 );
-
-    // Component 1: DEC wraps to [-pi/2, pi/2]
-    BOOST_CHECK_CLOSE( ranges[ 1 ].minimumRange, -0.5 * PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( ranges[ 1 ].maximumRange, 0.5 * PI, 1.0e-15 );
+    BOOST_CHECK_SMALL( ranges[ 1 ].period( ), 1.0e-15 );
+    BOOST_CHECK_CLOSE( ranges[ 2 ].minimumRange, -PI, 1.0e-15 );
+    BOOST_CHECK_CLOSE( ranges[ 2 ].maximumRange, PI, 1.0e-15 );
 }
 
 //! Test getResidualWrappingRanges for non-wrapped observable types.
@@ -112,82 +133,79 @@ BOOST_AUTO_TEST_CASE( testNonWrappedObservableTypes )
     BOOST_CHECK( getResidualWrappingRanges( pixel_coordinates ).empty( ) );
 }
 
-//! Test the wrapping function directly for angular_position residuals.
-BOOST_AUTO_TEST_CASE( testWrappingOfAngularPositionResiduals )
+//! Test the production wrapping function for two-component angular observables.
+BOOST_AUTO_TEST_CASE( testWrappingOfAngularObservableResiduals )
 {
-    // We test the wrapping concept directly: a residual with value outside [0, 2*pi]
-    // for RA should get wrapped back.
+    const std::vector< ObservableType > observableTypes = { angular_position, relative_angular_position, azimuth_elevation_angle };
 
-    std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( angular_position );
+    for( const ObservableType observableType : observableTypes )
+    {
+        Eigen::VectorXd residuals( 10 );
+        residuals << 42.0, 3.0 * PI, PI, -3.0 * PI, -PI, 0.5 * PI, 0.75 * PI, 10.0 * PI, -0.75 * PI, -42.0;
 
-    // Test RA component wrapping: wrap to [-pi, pi]
-    double raResidual = 3.0 * PI;  // Should wrap to -PI (since 3*pi - 2*pi*round(1.5) = 3*pi - 4*pi = -pi)
-    double period = ranges[ 0 ].period( );
-    double center = ranges[ 0 ].center( );
-    double wrappedRa = raResidual - period * std::round( ( raResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedRa, -PI, 1.0e-15 );
-    BOOST_CHECK( wrappedRa >= ranges[ 0 ].minimumRange - 1.0e-12 );
-    BOOST_CHECK( wrappedRa <= ranges[ 0 ].maximumRange + 1.0e-12 );
+        simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 8 ), observableType );
 
-    // Test RA with negative value
-    raResidual = -0.5 * PI;  // Already in [-pi, pi], should stay at -0.5*pi
-    wrappedRa = raResidual - period * std::round( ( raResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedRa, -0.5 * PI, 1.0e-15 );
-    BOOST_CHECK( wrappedRa >= ranges[ 0 ].minimumRange - 1.0e-12 );
-    BOOST_CHECK( wrappedRa <= ranges[ 0 ].maximumRange + 1.0e-12 );
+        const Eigen::VectorXd expectedResiduals =
+                ( Eigen::VectorXd( 10 ) << 42.0, -PI, PI, PI, -PI, 0.5 * PI, 0.75 * PI, 0.0, -0.75 * PI, -42.0 ).finished( );
 
-    // Test RA with value within range (shouldn't change)
-    raResidual = 0.5 * PI;
-    wrappedRa = raResidual - period * std::round( ( raResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedRa, 0.5 * PI, 1.0e-15 );
-
-    // Test DEC component wrapping: wrap to [-pi/2, pi/2]
-    double decResidual = 2.0 * PI;  // Should wrap to 0 (since 2*pi, center=0: round((2*pi)/(pi)) = 2, so 2*pi - pi*2 = 0)
-    period = ranges[ 1 ].period( );
-    center = ranges[ 1 ].center( );
-    double wrappedDec = decResidual - period * std::round( ( decResidual - center ) / period );
-    BOOST_CHECK_SMALL( wrappedDec, 1.0e-15 );
-    BOOST_CHECK( wrappedDec >= ranges[ 1 ].minimumRange - 1.0e-12 );
-    BOOST_CHECK( wrappedDec <= ranges[ 1 ].maximumRange + 1.0e-12 );
-
-    // Test DEC with value at range boundary
-    decResidual = 0.75 * PI;  // Should wrap to -0.25*pi (since 0.75*pi - pi = -0.25*pi)
-    wrappedDec = decResidual - period * std::round( ( decResidual - center ) / period );
-    BOOST_CHECK_CLOSE( wrappedDec, -0.25 * PI, 1.0e-15 );
+        for( int i = 0; i < residuals.rows( ); i++ )
+        {
+            BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
+        }
+    }
 }
 
-//! Test the wrapping function for Euler angle 313 residuals.
+//! Test normalized right ascension residual wrapping using the observed declination.
+BOOST_AUTO_TEST_CASE( testWrappingOfNormalizedAngularPositionResiduals )
+{
+    Eigen::VectorXd residuals( 8 );
+    residuals << 42.0, 0.75 * PI, 0.2, 1.5 * PI, -0.4, 0.3, 0.1, -42.0;
+
+    Eigen::VectorXd observedObservations( 6 );
+    observedObservations << 0.1, PI / 3.0, -0.2, 0.0, 0.0, PI / 2.0;
+
+    ResidualWrappingSettings residualWrappingSettings;
+    residualWrappingSettings.normalizeRightAscension = true;
+    simulation_setup::wrapObservationResiduals< double >(
+            residuals, std::make_pair( 1, 6 ), angular_position, observedObservations, residualWrappingSettings );
+
+    const Eigen::VectorXd expectedResiduals =
+            ( Eigen::VectorXd( 8 ) << 42.0, -0.25 * PI, 0.2, -0.5 * PI, -0.4, 0.3, 0.1, -42.0 ).finished( );
+
+    for( int i = 0; i < residuals.rows( ); i++ )
+    {
+        BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
+    }
+}
+
+//! Test the production wrapping function for Euler angle 313 residuals.
 BOOST_AUTO_TEST_CASE( testWrappingOfEulerAngleResiduals )
 {
-    std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( euler_angle_313_observable );
-    BOOST_CHECK_EQUAL( ranges.size( ), 3 );
+    Eigen::VectorXd residuals( 8 );
+    residuals << 42.0, 1.5 * PI, PI, -1.5 * PI, 10.0 * PI, -PI, 3.0 * PI, -42.0;
 
-    for( int comp = 0; comp < 3; comp++ )
+    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 6 ), euler_angle_313_observable );
+
+    const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 8 ) << 42.0, -0.5 * PI, PI, 0.5 * PI, 0.0, -PI, -PI, -42.0 ).finished( );
+
+    for( int i = 0; i < residuals.rows( ); i++ )
     {
-        double period = ranges[ comp ].period( );
-        double center = ranges[ comp ].center( );
+        BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
+    }
+}
 
-        // Test wrapping of a value outside [-pi, pi]
-        double residual = 1.5 * PI;
-        double wrapped = residual - period * std::round( ( residual - center ) / period );
-        BOOST_CHECK_CLOSE( wrapped, -0.5 * PI, 1.0e-15 );
-        BOOST_CHECK( wrapped >= ranges[ comp ].minimumRange - 1.0e-12 );
-        BOOST_CHECK( wrapped <= ranges[ comp ].maximumRange + 1.0e-12 );
+//! Test that the production wrapping function is a no-op for nonperiodic observables.
+BOOST_AUTO_TEST_CASE( testWrappingOfNonperiodicObservableResiduals )
+{
+    Eigen::VectorXd residuals( 3 );
+    residuals << 3.0 * PI, -4.0 * PI, 5.0 * PI;
+    const Eigen::VectorXd expectedResiduals = residuals;
 
-        // Test negative wrapping
-        residual = -1.5 * PI;
-        wrapped = residual - period * std::round( ( residual - center ) / period );
-        BOOST_CHECK_CLOSE( wrapped, 0.5 * PI, 1.0e-15 );
+    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 3 ), position_observable );
 
-        // Test value already within range
-        residual = 0.5 * PI;
-        wrapped = residual - period * std::round( ( residual - center ) / period );
-        BOOST_CHECK_CLOSE( wrapped, 0.5 * PI, 1.0e-15 );
-
-        // Test large offset
-        residual = 10.0 * PI;
-        wrapped = residual - period * std::round( ( residual - center ) / period );
-        BOOST_CHECK_SMALL( wrapped, 1.0e-15 );
+    for( int i = 0; i < residuals.rows( ); i++ )
+    {
+        BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-15 );
     }
 }
 

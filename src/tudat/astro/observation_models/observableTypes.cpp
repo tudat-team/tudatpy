@@ -1775,14 +1775,13 @@ std::vector< ResidualWrappingRange > getResidualWrappingRanges( const Observable
             wrappingRanges.resize( 2 );
             // Component 0 (RA / azimuth): residual wraps to [-pi, pi]
             wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
-            // Component 1 (DEC / elevation): residual wraps to [-pi/2, pi/2]
-            wrappingRanges[ 1 ] = ResidualWrappingRange( -0.5 * mathematical_constants::PI, 0.5 * mathematical_constants::PI );
+            // Component 1 (DEC / elevation) is bounded, but not periodic, and must not be wrapped.
             break;
         }
         case euler_angle_313_observable: {
             wrappingRanges.resize( 3 );
             wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
-            wrappingRanges[ 1 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            // The middle Euler angle is bounded to [0, pi], but is not periodic.
             wrappingRanges[ 2 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
             break;
         }

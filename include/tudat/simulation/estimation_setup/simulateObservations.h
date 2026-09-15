@@ -744,11 +744,35 @@ void computeResidualsAndDependentVariables(
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
             observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
 
-    // Wrap periodic observable residuals (e.g. angular position) to [-pi, pi]
+    std::map< observation_models::ObservableType,
+              std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+            observationSimulatorMap;
+    for( const std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > >& observationSimulator :
+         observationSimulators )
+    {
+        observationSimulatorMap[ observationSimulator->getObservableType( ) ] = observationSimulator;
+    }
+
+    // Wrap periodic observable residuals for each observation set.
     for( auto observableIt : observationCollection->getObservationsSets( ) )
     {
-        std::pair< int, int > observableStartAndSize = observationCollection->getObservationTypeStartAndSize( ).at( observableIt.first );
-        wrapObservationResiduals< ObservationScalarType >( residuals, observableStartAndSize, observableIt.first );
+        for( auto linkEndsIt : observableIt.second )
+        {
+            const observation_models::ResidualWrappingSettings residualWrappingSettings =
+                    observationSimulatorMap.at( observableIt.first )->getResidualWrappingSettings( linkEndsIt.first );
+            for( unsigned int setIndex = 0; setIndex < linkEndsIt.second.size( ); setIndex++ )
+            {
+                const std::pair< int, int > observationIndices = observationCollection->getObservationSetStartAndSize( )
+                                                                         .at( observableIt.first )
+                                                                         .at( linkEndsIt.first )
+                                                                         .at( setIndex );
+                wrapObservationResiduals< ObservationScalarType >( residuals,
+                                                                   observationIndices,
+                                                                   observableIt.first,
+                                                                   linkEndsIt.second.at( setIndex )->getObservationsVector( ),
+                                                                   residualWrappingSettings );
+            }
+        }
     }
 
     observationCollection->setResiduals( residuals );
