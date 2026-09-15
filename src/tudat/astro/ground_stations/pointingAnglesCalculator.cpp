@@ -103,6 +103,18 @@ double calculateGroundStationAzimuthAngle( const std::shared_ptr< PointingAngles
     return angleCalculator->calculateAzimuthAngleFromInertialVector( targetRelativeState, stationTime );
 }
 
+//! Function to determine whether a target is above a given elevation angle as seen from a ground station.
+bool isTargetVisibleFromGroundStation( const Eigen::Vector3d& groundStationPosition,
+                                       const Eigen::Vector3d& targetPosition,
+                                       const double timeTdb,
+                                       const double minimumElevationAngle,
+                                       const std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator )
+{
+    const double elevationAngle =
+            pointingAnglesCalculator->calculateElevationAngleFromInertialVector( targetPosition - groundStationPosition, timeTdb );
+    return elevationAngle >= minimumElevationAngle;
+}
+
 }  // namespace ground_stations
 
 }  // namespace tudat

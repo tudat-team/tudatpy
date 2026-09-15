@@ -346,6 +346,7 @@ def test_handle_open_ramps_close_silently_leaves_closed_untouched():
     assert result["end_time"].iloc[1] == open_start + pd.Timedelta(seconds=1)
 
 
+@pytest.mark.remote_data
 def test_reader():
     # Use the current directory as temporary path.
     tmp_dir = os.getcwd()

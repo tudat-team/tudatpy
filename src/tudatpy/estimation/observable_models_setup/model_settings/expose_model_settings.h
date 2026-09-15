@@ -25,6 +25,7 @@ namespace observable_models_setup
 namespace model_settings
 {
 
+void expose_observable_type( py::module& m );
 void expose_model_settings( py::module& m );
 
 }  // namespace model_settings

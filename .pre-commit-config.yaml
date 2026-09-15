@@ -9,4 +9,3 @@ repos:
   - id: clang-format
     types_or: [c++, c]
     args: [-style=file:.clang-format]
-exclude: tests/test_tudat/src/interface/json/inputs

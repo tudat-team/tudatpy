@@ -16,11 +16,14 @@
 #include <memory>
 #include <vector>
 
+#include "tudat/astro/observation_models/dsnNWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/orbit_determination/observation_partials/dsnNWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
+#include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/simulation/estimation_setup/createObservationBiasPartial.h"
 
 namespace tudat
@@ -178,6 +181,102 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     }
 
     return std::make_pair( nWayRangePartialList, nWayRangeScaler );
+}
+
+//! Function to generate DSN n-way range partials and associated scaler for single link ends.
+/*!
+ *  Function to generate DSN n-way (sequential) range partials and associated scaler for all parameters that are
+ *  to be estimated, for a single link ends set. The partials are created as the partials of an equivalent n-way
+ *  range observable (defined on the same link ends and light time calculator), scaled by the factor converting a
+ *  range change in meters to a change of the observable in range units (Moyer (2003), eq. 13-128).
+ *  \param observationModel DSN n-way range observation model for which partials are to be created.
+ *  \param bodies List of all bodies, for creating the partials.
+ *  \param parametersToEstimate Set of parameters that are to be estimated.
+ *  \return Set of observation partials with associated indices in complete vector of parameters that are
+ *  estimated, and NWayRangeScaling object, used for scaling the position partial members of the partials.
+ */
+template< typename ParameterType, typename TimeType >
+std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createDsnNWayRangePartials(
+        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+{
+    using namespace observation_models;
+
+    auto dsnNWayRangeObservationModel =
+            std::dynamic_pointer_cast< observation_models::DsnNWayRangeObservationModel< ParameterType, TimeType > >( observationModel );
+    if( dsnNWayRangeObservationModel == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating DSN n-way range partials; input observation model is not DSN "
+                "n-way range" );
+    }
+
+    observation_models::LinkEnds linkEnds = dsnNWayRangeObservationModel->getLinkEnds( );
+
+    // Create partials of equivalent n-way range observable, defined on the same light time calculator. Partials
+    // w.r.t. link properties (e.g. observation biases) are suppressed here (they are created at the level of the
+    // DSN n-way range observable, without frequency scaling).
+    auto equivalentNWayRangeModel = std::make_shared< observation_models::NWayRangeObservationModel< ParameterType, TimeType > >(
+            linkEnds, dsnNWayRangeObservationModel->getLightTimeCalculator( ) );
+    std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > nWayRangePartials =
+            createNWayRangePartials< ParameterType, TimeType >( equivalentNWayRangeModel, bodies, parametersToEstimate, true );
+
+    // Create function returning the transmitted frequency of the transmitting ground station (passing the first
+    // retransmitter as receiving link end ensures that no transponder turnaround ratios are applied).
+    const std::function< double( std::vector< FrequencyBands >, double ) > transmittedFrequencyFunction =
+            createLinkFrequencyFunction( bodies, linkEnds, observation_models::transmitter, observation_models::retransmitter );
+    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            dsnNWayRangeObservationModel->getTimeScaleConverter( );
+
+    const std::function< double( const std::vector< double >&,
+                                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
+            scalingFactorFunction =
+                    [ transmittedFrequencyFunction, timeScaleConverter ](
+                            const std::vector< double >& linkEndTimes,
+                            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) {
+                        return getDsnNWayRangeScalingFactor(
+                                transmittedFrequencyFunction, timeScaleConverter, linkEndTimes, ancillarySettings );
+                    };
+
+    // Scale n-way range partials (in meters) to DSN n-way range partials (in range units)
+    SingleLinkObservationPartialList dsnNWayRangePartialList;
+    for( auto const& [ partialKey, partialValue ] : nWayRangePartials.first )
+    {
+        auto const& nWayRangePartial = std::dynamic_pointer_cast< NWayRangePartial >( partialValue );
+        if( nWayRangePartial == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating DSN n-way range partials; constituent n-way range partial "
+                    "is of incompatible type" );
+        }
+        dsnNWayRangePartialList[ partialKey ] = std::make_shared< DsnNWayRangePartial >( nWayRangePartial, scalingFactorFunction );
+    }
+
+    // Create partials w.r.t. link properties (e.g. observation biases) of the DSN n-way range observable; these
+    // are not scaled by the frequency factor.
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
+            parametersToEstimate->getVectorParameters( );
+    for( auto const& [ parameterIndex, parameter ] : vectorParametersToEstimate )
+    {
+        std::shared_ptr< ObservationPartial< 1 > > currentDsnNWayRangePartial;
+        if( isParameterObservationLinkProperty( parameter->getParameterName( ).first ) &&
+            !isParameterObservationLinkTimeProperty( parameter->getParameterName( ).first ) )
+        {
+            currentDsnNWayRangePartial =
+                    createObservationPartialWrtLinkProperty< 1 >( linkEnds, observation_models::dsn_n_way_range, parameter, bodies );
+        }
+
+        // Check if partial is non-nullptr
+        if( currentDsnNWayRangePartial != nullptr )
+        {
+            // Add partial to the list.
+            std::pair< int, int > currentPair = std::make_pair( parameterIndex, parameter->getParameterSize( ) );
+            dsnNWayRangePartialList[ currentPair ] = currentDsnNWayRangePartial;
+        }
+    }
+
+    return std::make_pair( dsnNWayRangePartialList, nWayRangePartials.second );
 }
 
 }  // namespace observation_partials
