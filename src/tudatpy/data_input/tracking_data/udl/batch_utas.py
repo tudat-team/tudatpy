@@ -85,6 +85,8 @@ class BatchUTAS:
     multiple targets, you must filter them beforehand and create separate BatchUTAS
     instances for each target. Multiple station pairs across files are supported
     (as long as all files observe the same target).
+    The reader expects correlated UTAS records containing ``satNo``, both TDOA and
+    FDOA values, and explicit, static geodetic positions for both sensors.
 
     Examples
     ----------
