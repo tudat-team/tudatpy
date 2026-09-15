@@ -98,33 +98,37 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create observation settings for all three models
-    std::shared_ptr< ObservationModelSettings > paSettings =
+    std::shared_ptr< ObservationModelSettings > positionAngleSettings =
             std::make_shared< PositionAngleObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
-    std::shared_ptr< ObservationModelSettings > sepSettings =
+    std::shared_ptr< ObservationModelSettings > separationSettings =
             std::make_shared< SeparationObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
-    std::shared_ptr< ObservationModelSettings > pasSettings =
+    std::shared_ptr< ObservationModelSettings > positionAngleAndSeparationSettings =
             std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds, lightTimeCorrectionSettings );
 
     // Create observation models
-    std::shared_ptr< ObservationModel< 1 > > paModel =
-            ObservationModelCreator< 1, double, double >::createObservationModel( paSettings, bodies );
-    std::shared_ptr< ObservationModel< 1 > > sepModel =
-            ObservationModelCreator< 1, double, double >::createObservationModel( sepSettings, bodies );
-    std::shared_ptr< ObservationModel< 2 > > pasModel =
-            ObservationModelCreator< 2, double, double >::createObservationModel( pasSettings, bodies );
+    std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( positionAngleSettings, bodies );
+    std::shared_ptr< ObservationModel< 1 > > separationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( separationSettings, bodies );
+    std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel( positionAngleAndSeparationSettings, bodies );
 
     // Test at several epochs
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
-    std::vector< double > linkEndTimesPA, linkEndTimesSep, linkEndTimesPAS;
-    std::vector< Eigen::Vector6d > linkEndStatesPA, linkEndStatesSep, linkEndStatesPAS;
+    std::vector< double > positionAngleLinkEndTimes;
+    std::vector< double > separationLinkEndTimes;
+    std::vector< double > positionAngleAndSeparationLinkEndTimes;
+    std::vector< Eigen::Vector6d > positionAngleLinkEndStates;
+    std::vector< Eigen::Vector6d > separationLinkEndStates;
+    std::vector< Eigen::Vector6d > positionAngleAndSeparationLinkEndStates;
 
-    Eigen::VectorXd positionAngleObservation =
-            paModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesPA, linkEndStatesPA );
-    Eigen::VectorXd separationObservation =
-            sepModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesSep, linkEndStatesSep );
-    Eigen::VectorXd positionAngleAndSeparationObservation =
-            pasModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesPAS, linkEndStatesPAS );
+    Eigen::VectorXd positionAngleObservation = positionAngleModel->computeObservationsWithLinkEndData(
+            receiverObservationTime, receiver, positionAngleLinkEndTimes, positionAngleLinkEndStates );
+    Eigen::VectorXd separationObservation = separationModel->computeObservationsWithLinkEndData(
+            receiverObservationTime, receiver, separationLinkEndTimes, separationLinkEndStates );
+    Eigen::VectorXd positionAngleAndSeparationObservation = positionAngleAndSeparationModel->computeObservationsWithLinkEndData(
+            receiverObservationTime, receiver, positionAngleAndSeparationLinkEndTimes, positionAngleAndSeparationLinkEndStates );
 
     // Verify combined model matches individual models
     BOOST_CHECK_CLOSE_FRACTION(
@@ -135,54 +139,66 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
     // Verify link end states match
     for( int i = 0; i < 3; i++ )
     {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesPA[ i ], linkEndStatesPAS[ i ], std::numeric_limits< double >::epsilon( ) );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesSep[ i ], linkEndStatesPAS[ i ], std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                positionAngleLinkEndStates[ i ], positionAngleAndSeparationLinkEndStates[ i ], std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                separationLinkEndStates[ i ], positionAngleAndSeparationLinkEndStates[ i ], std::numeric_limits< double >::epsilon( ) );
     }
 
     // ===== Cross-consistency check with RA/DEC (relative angular position) model =====
     // Compute RA/DEC from the relative angular position model's link end states,
     // then convert to position angle and separation using spherical trig.
-    std::shared_ptr< ObservationModelSettings > relAngPosSettings =
+    std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings =
             std::make_shared< ObservationModelSettings >( relative_angular_position, linkEnds, lightTimeCorrectionSettings );
-    std::shared_ptr< ObservationModel< 2 > > relAngPosModel =
-            ObservationModelCreator< 2, double, double >::createObservationModel( relAngPosSettings, bodies );
+    std::shared_ptr< ObservationModel< 2 > > relativeAngularPositionModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel( relativeAngularPositionSettings, bodies );
 
-    std::vector< double > linkEndTimesRelAngPos;
-    std::vector< Eigen::Vector6d > linkEndStatesRelAngPos;
-    relAngPosModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesRelAngPos, linkEndStatesRelAngPos );
+    std::vector< double > relativeAngularPositionLinkEndTimes;
+    std::vector< Eigen::Vector6d > relativeAngularPositionLinkEndStates;
+    relativeAngularPositionModel->computeObservationsWithLinkEndData(
+            receiverObservationTime, receiver, relativeAngularPositionLinkEndTimes, relativeAngularPositionLinkEndStates );
 
-    // linkEndStatesRelAngPos: [0]=Mars (transmitter), [1]=Phobos (transmitter2), [2]=Earth (receiver)
+    // relativeAngularPositionLinkEndStates: [0]=Mars (transmitter), [1]=Phobos (transmitter2), [2]=Earth (receiver)
     const Eigen::Matrix3d globalToJ2000 = reference_frames::getECLIPJ2000toJ2000TransformationMatrix( );
-    auto computeRaDec = [ globalToJ2000 ]( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState ) {
-        const Eigen::Vector3d posDiff = globalToJ2000 * ( transmitterState - receiverState ).segment( 0, 3 );
-        double ra =
-                2.0 * std::atan( posDiff( 1 ) / ( std::sqrt( posDiff( 0 ) * posDiff( 0 ) + posDiff( 1 ) * posDiff( 1 ) ) + posDiff( 0 ) ) );
-        double dec = mathematical_constants::PI / 2.0 - std::acos( posDiff( 2 ) / posDiff.norm( ) );
-        return std::make_pair( ra, dec );
+    auto computeRightAscensionAndDeclination = [ globalToJ2000 ]( const Eigen::Vector6d& transmitterState,
+                                                                  const Eigen::Vector6d& receiverState ) {
+        const Eigen::Vector3d relativePosition = globalToJ2000 * ( transmitterState - receiverState ).segment( 0, 3 );
+        double rightAscension = 2.0 *
+                std::atan( relativePosition( 1 ) /
+                           ( std::sqrt( relativePosition( 0 ) * relativePosition( 0 ) + relativePosition( 1 ) * relativePosition( 1 ) ) +
+                             relativePosition( 0 ) ) );
+        double declination = mathematical_constants::PI / 2.0 - std::acos( relativePosition( 2 ) / relativePosition.norm( ) );
+        return std::make_pair( rightAscension, declination );
     };
 
-    auto [ raMars, decMars ] = computeRaDec( linkEndStatesRelAngPos[ 0 ], linkEndStatesRelAngPos[ 2 ] );
-    auto [ raPhobos, decPhobos ] = computeRaDec( linkEndStatesRelAngPos[ 1 ], linkEndStatesRelAngPos[ 2 ] );
+    auto [ marsRightAscension, marsDeclination ] =
+            computeRightAscensionAndDeclination( relativeAngularPositionLinkEndStates[ 0 ], relativeAngularPositionLinkEndStates[ 2 ] );
+    auto [ phobosRightAscension, phobosDeclination ] =
+            computeRightAscensionAndDeclination( relativeAngularPositionLinkEndStates[ 1 ], relativeAngularPositionLinkEndStates[ 2 ] );
 
     // Convert RA/DEC to position angle and separation
-    double deltaRa = raPhobos - raMars;
-    double computedSeparation =
-            std::acos( std::sin( decMars ) * std::sin( decPhobos ) + std::cos( decMars ) * std::cos( decPhobos ) * std::cos( deltaRa ) );
+    double rightAscensionDifference = phobosRightAscension - marsRightAscension;
+    double computedSeparationDistance =
+            std::acos( std::sin( marsDeclination ) * std::sin( phobosDeclination ) +
+                       std::cos( marsDeclination ) * std::cos( phobosDeclination ) * std::cos( rightAscensionDifference ) );
     double computedPositionAngle =
-            std::atan2( std::cos( decPhobos ) * std::sin( deltaRa ),
-                        std::sin( decPhobos ) * std::cos( decMars ) - std::cos( decPhobos ) * std::sin( decMars ) * std::cos( deltaRa ) );
+            std::atan2( std::cos( phobosDeclination ) * std::sin( rightAscensionDifference ),
+                        std::sin( phobosDeclination ) * std::cos( marsDeclination ) -
+                                std::cos( phobosDeclination ) * std::sin( marsDeclination ) * std::cos( rightAscensionDifference ) );
 
     // Compare against dedicated models
     BOOST_CHECK_SMALL( computedPositionAngle - positionAngleObservation( 0 ), 1.0e-11 );
-    BOOST_CHECK_SMALL( computedSeparation - separationObservation( 0 ), 1.0e-11 );
+    BOOST_CHECK_SMALL( computedSeparationDistance - separationObservation( 0 ), 1.0e-11 );
     BOOST_CHECK_SMALL( computedPositionAngle - positionAngleAndSeparationObservation( 0 ), 1.0e-11 );
-    BOOST_CHECK_SMALL( computedSeparation - positionAngleAndSeparationObservation( 1 ), 1.0e-11 );
+    BOOST_CHECK_SMALL( computedSeparationDistance - positionAngleAndSeparationObservation( 1 ), 1.0e-11 );
 
     // Test error: wrong reference link end
-    BOOST_CHECK_THROW( paModel->computeObservationsWithLinkEndData( receiverObservationTime, transmitter, linkEndTimesPA, linkEndStatesPA ),
+    BOOST_CHECK_THROW( positionAngleModel->computeObservationsWithLinkEndData(
+                               receiverObservationTime, transmitter, positionAngleLinkEndTimes, positionAngleLinkEndStates ),
                        std::runtime_error );
     BOOST_CHECK_THROW(
-            pasModel->computeObservationsWithLinkEndData( receiverObservationTime, transmitter, linkEndTimesPAS, linkEndStatesPAS ),
+            positionAngleAndSeparationModel->computeObservationsWithLinkEndData(
+                    receiverObservationTime, transmitter, positionAngleAndSeparationLinkEndTimes, positionAngleAndSeparationLinkEndStates ),
             std::runtime_error );
 }
 

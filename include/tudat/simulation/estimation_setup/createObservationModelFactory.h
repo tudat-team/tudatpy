@@ -37,8 +37,6 @@
 #include "tudat/astro/observation_models/oneWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
 #include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
-#include "tudat/astro/observation_models/positionAngleObservationModel.h"
-#include "tudat/astro/observation_models/separationObservationModel.h"
 #include "tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h"
 #include "tudat/astro/observation_models/relativePositionObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
@@ -2568,28 +2566,32 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             break;
         }
         case observation_models::position_angle: {
-            std::shared_ptr< observation_models::PositionAngleObservationModel< ObservationScalarType, TimeType > > paModel =
+            std::shared_ptr< observation_models::PositionAngleObservationModel< ObservationScalarType, TimeType > > positionAngleModel =
                     std::dynamic_pointer_cast< observation_models::PositionAngleObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );
-            currentLightTimeCorrections.push_back( paModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
-            currentLightTimeCorrections.push_back( paModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back(
+                    positionAngleModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back(
+                    positionAngleModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::separation_distance: {
-            std::shared_ptr< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > > sepModel =
+            std::shared_ptr< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > > separationModel =
                     std::dynamic_pointer_cast< observation_models::SeparationObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );
-            currentLightTimeCorrections.push_back( sepModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
-            currentLightTimeCorrections.push_back( sepModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( separationModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( separationModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::position_angle_and_separation: {
-            std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > > pasModel =
-                    std::dynamic_pointer_cast<
+            std::shared_ptr< observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >
+                    positionAngleAndSeparationModel = std::dynamic_pointer_cast<
                             observation_models::PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
                             observationModel );
-            currentLightTimeCorrections.push_back( pasModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
-            currentLightTimeCorrections.push_back( pasModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back(
+                    positionAngleAndSeparationModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back(
+                    positionAngleAndSeparationModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::relative_position_observable: {
