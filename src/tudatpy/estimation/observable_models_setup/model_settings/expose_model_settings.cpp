@@ -81,7 +81,7 @@ Examples
             .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
             .value( "differenced_frequency_of_arrival_type", tom::ObservableType::differenced_frequency_of_arrival )
             .value( "position_angle_type", tom::ObservableType::position_angle )
-            .value( "separation_type", tom::ObservableType::separation_distance )
+            .value( "separation_distance_type", tom::ObservableType::separation_distance )
             .value( "position_angle_and_separation_type", tom::ObservableType::position_angle_and_separation )
             .export_values( );
 
@@ -1728,8 +1728,11 @@ Function for creating settings for a position angle observable.
 
 Function for creating observation model settings of position angle type observables.
 It computes the position angle :math:`\theta` between two transmitters as seen from a receiver.
-The position angle is measured from north through east, i.e. from the direction of the first transmitter
-towards the second transmitter.
+The position angle is measured from ICRF/J2000 north through east at the first transmitter's line of sight,
+towards the second transmitter. Like unnormalised right ascension, its principal value is in :math:`[-\pi,\pi]`.
+The reference pole is fixed for now and is intended to become configurable in a future update.
+The model raises an error when the first line of sight is parallel to the reference pole, or when the two
+lines of sight are coincident or antipodal.
 
 The observable :math:`h` of size 1 is computed as follows (in the unbiased case):
 
@@ -1739,7 +1742,7 @@ The observable :math:`h` of size 1 is computed as follows (in the unbiased case)
     h &= \operatorname{atan2}\!\big(\sin\Delta\alpha \cdot \cos\delta_2,\;
            \cos\delta_1 \cdot \sin\delta_2 - \sin\delta_1 \cdot \cos\delta_2 \cdot \cos\Delta\alpha\big)
 
-where :math:`[\alpha_i;\delta_i]` are the right ascension and declination of transmitter :math:`i` as seen from the receiver.
+where :math:`[\alpha_i;\delta_i]` are the ICRF/J2000 right ascension and declination of transmitter :math:`i` as seen from the receiver.
 
 Parameters
 ----------
@@ -1771,10 +1774,11 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular separation_distance observable.
+Function for creating settings for an angular separation-distance observable.
 
-Function for creating observation model settings of angular separation_distance type observables.
-It computes the angular separation_distance :math:`\rho` between two transmitters as seen from a receiver.
+Function for creating observation model settings of angular separation-distance type observables.
+It computes the angular separation distance :math:`\rho` between two transmitters as seen from a receiver.
+The model raises an error for coincident or antipodal lines of sight, where its partial derivative is singular.
 
 The observable :math:`h` of size 1 is computed as follows (in the unbiased case):
 
@@ -1803,7 +1807,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation_distance observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation-distance observable.
 
 )doc" );
 
@@ -1815,10 +1819,11 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a position angle and separation_distance observable.
+Function for creating settings for a position-angle and separation-distance observable.
 
-Function for creating observation model settings of position angle and separation_distance type observables.
-It computes both the position angle :math:`\theta` and angular separation_distance :math:`\rho` between two transmitters as seen from a receiver.
+Function for creating observation model settings of position-angle and separation-distance type observables.
+It computes both the position angle :math:`\theta` and angular separation distance :math:`\rho` between two transmitters as seen from a receiver.
+The model uses the same reference-pole, angle-range, and singularity conventions as the individual observables.
 
 The observable :math:`\mathbf{h}` of size 2 is computed as follows (in the unbiased case):
 
@@ -1827,7 +1832,7 @@ The observable :math:`\mathbf{h}` of size 2 is computed as follows (in the unbia
     \mathbf{h} = [\theta; \rho]
 
 where :math:`\theta` is the position angle (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle`)
-and :math:`\rho` is the angular separation_distance (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`).
+and :math:`\rho` is the angular separation distance (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.separation_distance`).
 
 Parameters
 ----------
@@ -1847,7 +1852,7 @@ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_
 Returns
 -------
 :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
-    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position angle and separation_distance observable.
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position-angle and separation-distance observable.
 
 )doc" );
 

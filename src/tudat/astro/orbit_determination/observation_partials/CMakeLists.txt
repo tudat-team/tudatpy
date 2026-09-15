@@ -20,7 +20,6 @@ set(observation_partials_SOURCES
   "nWayRangePartial.cpp"
   "oneWayDopplerPartial.cpp"
   "relativeAngularPositionPartial.cpp"
-  "positionAngleAndSeparationPartial.cpp"
   "observationPartial.cpp"
   "lightTimeCorrectionPartial.cpp"
   "firstOrderRelativisticPartial.cpp"

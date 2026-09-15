@@ -31,8 +31,26 @@ void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarTy
                                               const std::pair< int, int > observableStartAndSize,
                                               const observation_models::ObservableType observableType )
 {
-    if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable ||
-        observableType == observation_models::relative_angular_position )
+    if( observableType == observation_models::position_angle_and_separation )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
+                residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
+        for( int i = 2; i < residualsBlock.rows( ); i += 2 )
+        {
+            if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 2, 0 ) ) > 6.0 )
+            {
+                residualsBlock( i, 0 ) += residualsBlock( i, 0 ) > 0 ? -2.0 * mathematical_constants::PI : 2.0 * mathematical_constants::PI;
+            }
+            else if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 2, 0 ) ) > 3.0 )
+            {
+                std::cerr << "Warning, detected jump in position-angle residual of size "
+                          << std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 2, 0 ) ) << std::endl;
+            }
+        }
+        residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
+    }
+    else if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable ||
+             observableType == observation_models::relative_angular_position || observableType == observation_models::position_angle )
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
                 residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );

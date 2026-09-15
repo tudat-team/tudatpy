@@ -44,6 +44,7 @@
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/system_models/camera.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
@@ -54,6 +55,23 @@ namespace tudat
 
 namespace observation_models
 {
+
+inline Eigen::Vector3d getJ2000NorthPoleDirectionInGlobalFrame( const simulation_setup::SystemOfBodies& bodies )
+{
+    const std::string globalFrameOrientation = bodies.getFrameOrientation( );
+    if( globalFrameOrientation == "J2000" || globalFrameOrientation == "ICRF" )
+    {
+        return Eigen::Vector3d::UnitZ( );
+    }
+    if( globalFrameOrientation == "ECLIPJ2000" )
+    {
+        return reference_frames::getJ2000toECLIPJ2000TransformationMatrix( ) * Eigen::Vector3d::UnitZ( );
+    }
+
+    throw std::runtime_error( "Position-angle observations currently require a J2000/ICRF or ECLIPJ2000 global frame; found " +
+                              globalFrameOrientation + ". Support for a configurable reference frame is not yet implemented." );
+}
+
 //! Function to create the proper time rate calculator for use in one-way Doppler
 /*!
  *  Function to create the proper time rate calculator for use in one-way Doppler
@@ -1723,7 +1741,8 @@ public:
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
-                        observationBias );
+                        observationBias,
+                        getJ2000NorthPoleDirectionInGlobalFrame( bodies ) );
                 break;
             }
             case separation_distance: {
@@ -1992,7 +2011,8 @@ public:
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
-                        observationBias );
+                        observationBias,
+                        getJ2000NorthPoleDirectionInGlobalFrame( bodies ) );
 
                 break;
             }

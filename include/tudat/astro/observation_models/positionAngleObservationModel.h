@@ -24,21 +24,12 @@ namespace tudat
 namespace observation_models
 {
 
-inline double getPositionAngleScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
-                                             const std::vector< Eigen::Vector6d >& linkEndStates,
-                                             const std::vector< double >& linkEndTimes,
-                                             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
-                                             const bool isFirstPartial )
-{
-    return 1.0;
-}
-
 //! Class for simulating position angle observables, derived from the combined PS model.
 /*!
  *  Class for simulating position angle observables, using the PositionAngleAndSeparationObservationModel
  *  internally and extracting the position angle component (first element).
- *  The position angle is measured from north through east, i.e. from the direction of the first
- *  transmitter towards the second transmitter.
+ *  The position angle is measured from ICRF/J2000 north through east at the first transmitter's line of sight.
+ *  Its principal value is returned in [-pi, pi], matching the unnormalised right-ascension convention.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -76,13 +67,15 @@ public:
      *  between second transmitter and receiver
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
+     *  \param j2000NorthPoleDirection Direction of the ICRF/J2000 north pole in the frame of the link-end states.
      */
     PositionAngleObservationModel( const LinkEnds linkEnds,
                                    const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                                            lightTimeCalculatorFirstTransmitter,
                                    const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                                            lightTimeCalculatorSecondTransmitter,
-                                   const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+                                   const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+                                   const Eigen::Vector3d& j2000NorthPoleDirection = Eigen::Vector3d::UnitZ( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >(
                 position_angle,
                 linkEnds,
@@ -91,7 +84,7 @@ public:
     {
         // Create internal PS model with no bias (bias is handled at this level)
         psModel_ = std::make_shared< PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
-                linkEnds, lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter, nullptr );
+                linkEnds, lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter, nullptr, j2000NorthPoleDirection );
     }
 
     //! Destructor
@@ -148,6 +141,11 @@ public:
         secondLinkEnds[ transmitter ] = this->linkEnds_[ transmitter2 ];
         secondLinkEnds[ receiver ] = this->linkEnds_[ receiver ];
         return secondLinkEnds;
+    }
+
+    Eigen::Vector3d getJ2000NorthPoleDirection( ) const
+    {
+        return psModel_->getJ2000NorthPoleDirection( );
     }
 
     std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >

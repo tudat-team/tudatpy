@@ -202,14 +202,7 @@ createSingleLinkObservationPartials(
         auto fullLightTimeCorrections = observation_models::getLightTimeCorrections( observationModel );
         if( fullLightTimeCorrections.size( ) > 1 )
         {
-            // For multi-leg models, combine all corrections from all legs
-            for( unsigned int i = 0; i < fullLightTimeCorrections.size( ); i++ )
-            {
-                for( unsigned int j = 0; j < fullLightTimeCorrections.at( i ).size( ); j++ )
-                {
-                    lightTimeCorrections.push_back( fullLightTimeCorrections.at( i ).at( j ) );
-                }
-            }
+            throw std::runtime_error( "Error when creating direct observation partial, light-time correction list has an incorrect size." );
         }
         else if( fullLightTimeCorrections.size( ) == 1 )
         {

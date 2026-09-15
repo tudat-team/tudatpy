@@ -19,6 +19,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
@@ -37,6 +38,30 @@ using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 
 BOOST_AUTO_TEST_SUITE( test_position_angle_and_separation_observation_model )
+
+BOOST_AUTO_TEST_CASE( testPositionAngleConventionAndSingularities )
+{
+    const Eigen::Vector3d northPole = Eigen::Vector3d::UnitZ( );
+    const Eigen::Vector3d xDirection = Eigen::Vector3d::UnitX( );
+    const Eigen::Vector3d yDirection = Eigen::Vector3d::UnitY( );
+    const Eigen::Vector3d negativeXDirection = -xDirection;
+    const Eigen::Vector3d negativeYDirection = -yDirection;
+
+    Eigen::Vector2d observation = calculatePositionAngleAndSeparation( xDirection, yDirection, northPole );
+    BOOST_CHECK_SMALL( observation( 0 ) - mathematical_constants::PI / 2.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( observation( 1 ) - mathematical_constants::PI / 2.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    observation = calculatePositionAngleAndSeparation( xDirection, negativeYDirection, northPole );
+    BOOST_CHECK_SMALL( observation( 0 ) + mathematical_constants::PI / 2.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    BOOST_CHECK_THROW( calculatePositionAngleAndSeparation( northPole, xDirection, northPole ), std::runtime_error );
+    BOOST_CHECK_THROW( calculatePositionAngleAndSeparation( xDirection, xDirection, northPole ), std::runtime_error );
+    BOOST_CHECK_THROW( calculatePositionAngleAndSeparation( xDirection, negativeXDirection, northPole ), std::runtime_error );
+
+    // Separation remains well-defined when the first line of sight is at the reference pole.
+    observation = calculatePositionAngleAndSeparation( northPole, xDirection, northPole, false );
+    BOOST_CHECK_SMALL( observation( 1 ) - mathematical_constants::PI / 2.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+}
 
 BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
 {
@@ -127,8 +152,9 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
     relAngPosModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimesRelAngPos, linkEndStatesRelAngPos );
 
     // linkEndStatesRelAngPos: [0]=Mars (transmitter), [1]=Phobos (transmitter2), [2]=Earth (receiver)
-    auto computeRaDec = []( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState ) {
-        Eigen::Vector3d posDiff = ( transmitterState - receiverState ).segment( 0, 3 );
+    const Eigen::Matrix3d globalToJ2000 = reference_frames::getECLIPJ2000toJ2000TransformationMatrix( );
+    auto computeRaDec = [ globalToJ2000 ]( const Eigen::Vector6d& transmitterState, const Eigen::Vector6d& receiverState ) {
+        const Eigen::Vector3d posDiff = globalToJ2000 * ( transmitterState - receiverState ).segment( 0, 3 );
         double ra =
                 2.0 * std::atan( posDiff( 1 ) / ( std::sqrt( posDiff( 0 ) * posDiff( 0 ) + posDiff( 1 ) * posDiff( 1 ) ) + posDiff( 0 ) ) );
         double dec = mathematical_constants::PI / 2.0 - std::acos( posDiff( 2 ) / posDiff.norm( ) );

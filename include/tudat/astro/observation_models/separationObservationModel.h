@@ -25,15 +25,6 @@ namespace tudat
 namespace observation_models
 {
 
-inline double getSeparationScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
-                                          const std::vector< Eigen::Vector6d >& linkEndStates,
-                                          const std::vector< double >& linkEndTimes,
-                                          const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
-                                          const bool isFirstPartial )
-{
-    return 1.0;
-}
-
 //! Class for simulating angular separation distance observables, derived from the combined PS model.
 /*!
  *  Class for simulating angular separation distance observables, using the PositionAngleAndSeparationObservationModel
@@ -91,7 +82,12 @@ public:
     {
         // Create internal PS model with no bias (bias is handled at this level)
         psModel_ = std::make_shared< PositionAngleAndSeparationObservationModel< ObservationScalarType, TimeType > >(
-                linkEnds, lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter, nullptr );
+                linkEnds,
+                lightTimeCalculatorFirstTransmitter,
+                lightTimeCalculatorSecondTransmitter,
+                nullptr,
+                Eigen::Vector3d::UnitZ( ),
+                false );
     }
 
     //! Destructor
