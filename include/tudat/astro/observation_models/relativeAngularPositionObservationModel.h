@@ -115,6 +115,10 @@ public:
             const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr ) override
 
     {
+        using std::acos;
+        using std::atan;
+        using std::sqrt;
+
         // Check link end associated with input time and compute observable.
         if( linkEndAssociatedWithTime != receiver )
         {
@@ -167,25 +171,27 @@ public:
         // Compute right ascension and declination first transmitter.
         //        double rightAscensionFirstTransmitter = sphericalRelativeCoordinatesFirstTransmitter.z( );
         //        double declinationFirstTransmitter = mathematical_constants::PI / 2.0 - sphericalRelativeCoordinatesFirstTransmitter.y( );
-        double rightAscensionFirstTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter1[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter1[ 0 ] * relativeStateTransmitter1[ 0 ] +
-                                        relativeStateTransmitter1[ 1 ] * relativeStateTransmitter1[ 1 ] ) +
-                             relativeStateTransmitter1[ 0 ] ) );
-        double declinationFirstTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter1[ 2 ] / relativeStateTransmitter1.norm( ) );
+        ObservationScalarType rightAscensionFirstTransmitter = mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) *
+                atan( relativeStateTransmitter1[ 1 ] /
+                      ( sqrt( relativeStateTransmitter1[ 0 ] * relativeStateTransmitter1[ 0 ] +
+                              relativeStateTransmitter1[ 1 ] * relativeStateTransmitter1[ 1 ] ) +
+                        relativeStateTransmitter1[ 0 ] ) );
+        ObservationScalarType declinationFirstTransmitter = mathematical_constants::getPi< ObservationScalarType >( ) /
+                        mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) -
+                acos( relativeStateTransmitter1[ 2 ] / relativeStateTransmitter1.norm( ) );
 
         // Compute right ascension and declination second transmitter.
         //        double rightAscensionSecondTransmitter = sphericalRelativeCoordinatesSecondTransmitter.z( );
         //        double declinationSecondTransmitter = mathematical_constants::PI / 2.0 - sphericalRelativeCoordinatesSecondTransmitter.y(
         //        );
-        double rightAscensionSecondTransmitter = 2.0 *
-                std::atan( relativeStateTransmitter2[ 1 ] /
-                           ( std::sqrt( relativeStateTransmitter2[ 0 ] * relativeStateTransmitter2[ 0 ] +
-                                        relativeStateTransmitter2[ 1 ] * relativeStateTransmitter2[ 1 ] ) +
-                             relativeStateTransmitter2[ 0 ] ) );
-        double declinationSecondTransmitter =
-                mathematical_constants::PI / 2.0 - std::acos( relativeStateTransmitter2[ 2 ] / relativeStateTransmitter2.norm( ) );
+        ObservationScalarType rightAscensionSecondTransmitter = mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) *
+                atan( relativeStateTransmitter2[ 1 ] /
+                      ( sqrt( relativeStateTransmitter2[ 0 ] * relativeStateTransmitter2[ 0 ] +
+                              relativeStateTransmitter2[ 1 ] * relativeStateTransmitter2[ 1 ] ) +
+                        relativeStateTransmitter2[ 0 ] ) );
+        ObservationScalarType declinationSecondTransmitter = mathematical_constants::getPi< ObservationScalarType >( ) /
+                        mathematical_constants::getFloatingInteger< ObservationScalarType >( 2 ) -
+                acos( relativeStateTransmitter2[ 2 ] / relativeStateTransmitter2.norm( ) );
 
         // Set link end times and states.
         linkEndTimes.clear( );

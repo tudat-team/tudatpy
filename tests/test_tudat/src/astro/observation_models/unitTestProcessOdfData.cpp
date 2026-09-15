@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     std::vector< observation_models::ObservableType > obsType = processedOdfFileContents->getProcessedObservableTypes( );
 
     // Create data structure that handles Observed Data in Tudat
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            observation_models::createOdfObservedObservationCollection< long double, Time >( processedOdfFileContents,
-                                                                                             { dsn_n_way_averaged_doppler, n_way_range } );
+    std::shared_ptr< observation_models::ObservationCollection< HighPrecisionStateScalar, Time > > observedObservationCollection =
+            observation_models::createOdfObservedObservationCollection< HighPrecisionStateScalar, Time >(
+                    processedOdfFileContents, { dsn_n_way_averaged_doppler, n_way_range } );
 
     auto observationSets = observedObservationCollection->getObservationsSets( );
 

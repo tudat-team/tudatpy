@@ -1623,14 +1623,16 @@ template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
 createProperTimeEquationEnvironmentUpdaterSettings< double, tudat::Time >(
         const std::shared_ptr< RelativisticTimeStatePropagatorSettings< double, tudat::Time > >,
         const simulation_setup::SystemOfBodies& );
+#if TUDAT_BUILD_WITH_HIGH_PRECISION_STATE_SCALAR
 template std::map< EnvironmentModelsToUpdate, std::vector< std::string > >
-createProperTimeEquationEnvironmentUpdaterSettings< long double, double >(
-        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< long double, double > >,
+createProperTimeEquationEnvironmentUpdaterSettings< HighPrecisionStateScalar, double >(
+        const std::shared_ptr< RelativisticTimeStatePropagatorSettings< HighPrecisionStateScalar, double > >,
         const simulation_setup::SystemOfBodies& );
 template std::map< tudat::propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
-createProperTimeEquationEnvironmentUpdaterSettings< long double, tudat::Time >(
-        const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< long double, tudat::Time > >,
+createProperTimeEquationEnvironmentUpdaterSettings< HighPrecisionStateScalar, tudat::Time >(
+        const std::shared_ptr< tudat::propagators::RelativisticTimeStatePropagatorSettings< HighPrecisionStateScalar, tudat::Time > >,
         const tudat::simulation_setup::SystemOfBodies& );
+#endif
 
 }  // namespace propagators
 

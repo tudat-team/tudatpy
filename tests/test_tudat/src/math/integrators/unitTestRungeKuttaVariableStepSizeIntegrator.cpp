@@ -252,12 +252,13 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
         // Compute the intermediate state.
         for( int column = 0; column < stage; column++ )
         {
-            intermediateState += stepSize * rkf45Coefficients.aCoefficients( stage, column ) * directStateDerivativeValues[ column ];
+            intermediateState += stepSize * static_cast< double >( rkf45Coefficients.aCoefficients( stage, column ) ) *
+                    directStateDerivativeValues[ column ];
         }
 
         // Compute state derivative.
-        directStateDerivativeValues.push_back(
-                computeVanDerPolStateDerivative( previousTime + rkf45Coefficients.cCoefficients( stage ) * stepSize, intermediateState ) );
+        directStateDerivativeValues.push_back( computeVanDerPolStateDerivative(
+                previousTime + static_cast< double >( rkf45Coefficients.cCoefficients( stage ) ) * stepSize, intermediateState ) );
 
         // Check if manual result matched result from NumericalIntegrator.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directStateDerivativeValues.at( stage ), stateDerivatives.at( stage ), 1.0E-15 );

@@ -175,13 +175,14 @@ void resetIntegratedEphemerisOfBody( const simulation_setup::SystemOfBodies& bod
                                                         bodies.at( bodyToIntegrate )->getEphemeris( ) ),
                                                 interpolatorSettings );
             }
-            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >(
                              bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
-                resetIntegratedEphemerisOfBody( ephemerisInput,
-                                                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
-                                                        bodies.at( bodyToIntegrate )->getEphemeris( ) ),
-                                                interpolatorSettings );
+                resetIntegratedEphemerisOfBody(
+                        ephemerisInput,
+                        std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, double > >(
+                                bodies.at( bodyToIntegrate )->getEphemeris( ) ),
+                        interpolatorSettings );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
                              bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
@@ -191,11 +192,11 @@ void resetIntegratedEphemerisOfBody( const simulation_setup::SystemOfBodies& bod
                                                         bodies.at( bodyToIntegrate )->getEphemeris( ) ),
                                                 interpolatorSettings );
             }
-            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >(
                              bodies.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody( ephemerisInput,
-                                                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                                                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< HighPrecisionStateScalar, Time > >(
                                                         bodies.at( bodyToIntegrate )->getEphemeris( ) ),
                                                 interpolatorSettings );
             }

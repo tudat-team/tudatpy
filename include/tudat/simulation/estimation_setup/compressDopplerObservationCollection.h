@@ -93,7 +93,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             }
 
             newObservable /= floatingCompressionRatio;
-            newTime = newTime / floatingCompressionRatio;
+            newTime = newTime / static_cast< long double >( compressionRatio );
 
             compressedObservations.push_back( newObservable );
             compressedObservationTimesUtc.push_back( newTime );

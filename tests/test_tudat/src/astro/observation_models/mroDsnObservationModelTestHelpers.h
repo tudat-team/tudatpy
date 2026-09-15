@@ -210,7 +210,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettin
     throw std::runtime_error( "Unsupported observable type for MRO DSN fixture." );
 }
 
-inline std::shared_ptr< ObservationCollection< long double, Time > > createObservationCollectionFromTrk234Csv(
+inline std::shared_ptr< ObservationCollection< HighPrecisionStateScalar, Time > > createObservationCollectionFromTrk234Csv(
         const std::string& fileName,
         const ObservableType observableType )
 {
@@ -220,20 +220,20 @@ inline std::shared_ptr< ObservationCollection< long double, Time > > createObser
         rowsPerSet[ std::stoi( row.at( 0 ) ) ].push_back( row );
     }
 
-    std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > observationSets;
+    std::vector< std::shared_ptr< SingleObservationSet< HighPrecisionStateScalar, Time > > > observationSets;
     for( auto& setRows : rowsPerSet )
     {
-        std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observations;
+        std::vector< Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > > observations;
         std::vector< Time > observationTimes;
         for( const std::vector< std::string >& row : setRows.second )
         {
-            Eigen::Matrix< long double, Eigen::Dynamic, 1 > observation( 1 );
+            Eigen::Matrix< HighPrecisionStateScalar, Eigen::Dynamic, 1 > observation( 1 );
             observation( 0 ) = std::stold( row.at( 2 ) );
             observations.push_back( observation );
             observationTimes.push_back( Time( std::stod( row.at( 1 ) ) ) );
         }
 
-        observationSets.push_back( std::make_shared< SingleObservationSet< long double, Time > >(
+        observationSets.push_back( std::make_shared< SingleObservationSet< HighPrecisionStateScalar, Time > >(
                 observableType,
                 LinkDefinition( linkEndsFromFixtureStrings( setRows.second.front( ) ) ),
                 observations,
@@ -244,7 +244,7 @@ inline std::shared_ptr< ObservationCollection< long double, Time > > createObser
                 ancillarySettingsFromFixtureRow( observableType, setRows.second.front( ) ) ) );
     }
 
-    return std::make_shared< ObservationCollection< long double, Time > >( observationSets );
+    return std::make_shared< ObservationCollection< HighPrecisionStateScalar, Time > >( observationSets );
 }
 
 inline void loadMroSpiceKernels( )
@@ -276,7 +276,7 @@ inline SystemOfBodies createMroSystemOfBodies( const Time& initialTime, const Ti
             globalFrameOrientation,
             "MRO_SPACECRAFT" );
 
-    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< HighPrecisionStateScalar, Time >( bodySettings );
     bodies.at( "MRO" )->getVehicleSystems( )->setDefaultTransponderTurnaroundRatio( );
     return bodies;
 }
@@ -321,7 +321,7 @@ inline std::shared_ptr< ephemerides::Ephemeris > createMroAntennaEphemeris( cons
 }
 
 inline void applyMroNotebookObservationCollectionPostProcessing(
-        const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
+        const std::shared_ptr< ObservationCollection< HighPrecisionStateScalar, Time > >& observationCollection,
         SystemOfBodies& bodies )
 {
     observationCollection->setTransponderDelay( "MRO", mroTransponderDelay );
@@ -347,7 +347,7 @@ inline std::vector< std::shared_ptr< LightTimeCorrectionSettings > > getMroDsnLi
 }
 
 inline std::vector< std::shared_ptr< ObservationModelSettings > > createMroObservationModelSettings(
-        const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
+        const std::shared_ptr< ObservationCollection< HighPrecisionStateScalar, Time > >& observationCollection,
         const bool includeSolarCoronaCorrection )
 {
     std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings;
@@ -373,18 +373,19 @@ inline std::vector< std::shared_ptr< ObservationModelSettings > > createMroObser
     return observationModelSettings;
 }
 
-inline Eigen::VectorXd simulateAndGetResiduals( const std::shared_ptr< ObservationCollection< long double, Time > >& observationCollection,
-                                                SystemOfBodies& bodies,
-                                                const bool includeSolarCoronaCorrection )
+inline Eigen::VectorXd simulateAndGetResiduals(
+        const std::shared_ptr< ObservationCollection< HighPrecisionStateScalar, Time > >& observationCollection,
+        SystemOfBodies& bodies,
+        const bool includeSolarCoronaCorrection )
 {
     std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings =
             createMroObservationModelSettings( observationCollection, includeSolarCoronaCorrection );
-    std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
-            createObservationSimulators< long double, Time >( observationModelSettings, bodies );
+    std::vector< std::shared_ptr< ObservationSimulatorBase< HighPrecisionStateScalar, Time > > > observationSimulators =
+            createObservationSimulators< HighPrecisionStateScalar, Time >( observationModelSettings, bodies );
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations< long double, Time >( observationCollection, bodies );
-    std::shared_ptr< ObservationCollection< long double, Time > > simulatedObservationCollection =
-            simulateObservations< long double, Time >( observationSimulationSettings, observationSimulators, bodies );
+            getObservationSimulationSettingsFromObservations< HighPrecisionStateScalar, Time >( observationCollection, bodies );
+    std::shared_ptr< ObservationCollection< HighPrecisionStateScalar, Time > > simulatedObservationCollection =
+            simulateObservations< HighPrecisionStateScalar, Time >( observationSimulationSettings, observationSimulators, bodies );
 
     return ( simulatedObservationCollection->getConcatenatedObservations( ) - observationCollection->getConcatenatedObservations( ) )
             .template cast< double >( );

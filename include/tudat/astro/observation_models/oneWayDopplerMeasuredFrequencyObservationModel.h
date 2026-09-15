@@ -178,7 +178,7 @@ public:
         // Calculate the light time using correct signature
         StateType receiverState, transmitterState;
         bool isTimeAtReception = ( linkEndAssociatedWithTime == receiver );
-        TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+        ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 receiverState, transmitterState, time, isTimeAtReception, ancillarySettings );
 
         // Update link end states and times
@@ -189,16 +189,16 @@ public:
         if( isTimeAtReception )
         {
             linkEndTimes[ 1 ] = static_cast< double >( time );
-            linkEndTimes[ 0 ] = static_cast< double >( time - lightTime );
+            linkEndTimes[ 0 ] = static_cast< double >( subtractTimeIntervalFromEpoch( time, lightTime ) );
         }
         else
         {
             linkEndTimes[ 0 ] = static_cast< double >( time );
-            linkEndTimes[ 1 ] = static_cast< double >( time + lightTime );
+            linkEndTimes[ 1 ] = static_cast< double >( addTimeIntervalToEpoch( time, lightTime ) );
         }
 
         // Get the frequency of the transmitter
-        TimeType transmitterTime = time - lightTime;
+        TimeType transmitterTime = subtractTimeIntervalFromEpoch( time, lightTime );
 
         Eigen::Vector3d transmitterPosition = transmitterState.template segment< 3 >( 0 ).template cast< double >( );
         Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )

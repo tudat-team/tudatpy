@@ -68,13 +68,13 @@ public:
         }
 
         // Define step size to the left and right.
-        double stepSize = sqrt_epsilon_double * independentVariable;
+        const IndependentVariable stepSize = static_cast< IndependentVariable >( sqrt_epsilon_double ) * independentVariable;
 
         // Return derivative according to formula:
         // f'(x) = [f(x+h)-f(x-h)]/2h
         return ( computeDerivative( order - 1, independentVariable + stepSize ) -
                  computeDerivative( order - 1, independentVariable - stepSize ) ) /
-                ( 2.0 * stepSize );
+                ( static_cast< IndependentVariable >( 2 ) * stepSize );
     }
 
     //! Alias for computeDefiniteIntegral, but with an extra variable. Should not be used!

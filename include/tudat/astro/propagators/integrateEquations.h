@@ -39,6 +39,25 @@ namespace tudat
 namespace propagators
 {
 
+template< typename MatrixType >
+void printStateMatrix( std::ostream& stream, const MatrixType& matrix, const bool transpose )
+{
+    const Eigen::Index outputRows = transpose ? matrix.cols( ) : matrix.rows( );
+    const Eigen::Index outputColumns = transpose ? matrix.rows( ) : matrix.cols( );
+    for( Eigen::Index i = 0; i < outputRows; ++i )
+    {
+        for( Eigen::Index j = 0; j < outputColumns; ++j )
+        {
+            stream << ( transpose ? matrix( j, i ) : matrix( i, j ) );
+            if( j + 1 < outputColumns )
+            {
+                stream << " ";
+            }
+        }
+        stream << std::endl;
+    }
+}
+
 //! Function to determine, for a given time step of the numerical integrator, the error in termination dependent variable
 /*!
  *  Function to determine, for a given time step of the numerical integrator, the error in termination dependent variable. This
@@ -532,11 +551,15 @@ void integrateEquationsFromIntegrator(
 
         if( newState.cols( ) == 1 )
         {
-            std::cout << "   Initial state (transpose): " << std::endl << newState.transpose( ) << std::endl << std::endl;
+            std::cout << "   Initial state (transpose): " << std::endl;
+            printStateMatrix( std::cout, newState, true );
+            std::cout << std::endl;
         }
         else
         {
-            std::cout << "   Initial state: " << std::endl << newState << std::endl << std::endl;
+            std::cout << "   Initial state: " << std::endl;
+            printStateMatrix( std::cout, newState, false );
+            std::cout << std::endl;
         }
         timeOfLastPrint = currentTime;
         stepsSinceLastPrint = 0;
@@ -562,11 +585,15 @@ void integrateEquationsFromIntegrator(
 
                     if( newState.cols( ) == 1 )
                     {
-                        std::cout << "   Current state (transpose): " << std::endl << newState.transpose( ) << std::endl << std::endl;
+                        std::cout << "   Current state (transpose): " << std::endl;
+                        printStateMatrix( std::cout, newState, true );
+                        std::cout << std::endl;
                     }
                     else
                     {
-                        std::cout << "   Current state: " << std::endl << newState << std::endl << std::endl;
+                        std::cout << "   Current state: " << std::endl;
+                        printStateMatrix( std::cout, newState, false );
+                        std::cout << std::endl;
                     }
                 }
 
@@ -618,7 +645,8 @@ void integrateEquationsFromIntegrator(
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
                                 ", found NaN/Inf entry, returning propagation data up to current time. Current state (transposed) is: "
-                          << newState.transpose( ) << std::endl;
+                          << std::endl;
+                printStateMatrix( std::cerr, newState, true );
                 breakPropagation = true;
                 propagationTerminationReason = std::make_shared< PropagationTerminationDetails >( nan_or_inf_detected_in_state );
             }
@@ -692,11 +720,15 @@ void integrateEquationsFromIntegrator(
 
         if( newState.cols( ) == 1 )
         {
-            std::cout << "   Final state (transpose): " << std::endl << newState.transpose( ) << std::endl << std::endl;
+            std::cout << "   Final state (transpose): " << std::endl;
+            printStateMatrix( std::cout, newState, true );
+            std::cout << std::endl;
         }
         else
         {
-            std::cout << "   Final state: " << std::endl << newState << std::endl << std::endl;
+            std::cout << "   Final state: " << std::endl;
+            printStateMatrix( std::cout, newState, false );
+            std::cout << std::endl;
         }
         timeOfLastPrint = currentTime;
     }

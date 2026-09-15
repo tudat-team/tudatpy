@@ -447,7 +447,7 @@ protected:
                                                      time,
                                                      linkEndAssociatedWithTime,
                                                      ancillarySetingsToUse,
-                                                     getTurnaroundRatio( ancillarySetingsToUse ) );
+                                                     static_cast< double >( getTurnaroundRatio( ancillarySetingsToUse ) ) );
             }
             return true;
         }

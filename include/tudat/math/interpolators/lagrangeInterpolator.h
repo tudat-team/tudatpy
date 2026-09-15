@@ -278,32 +278,15 @@ public:
             for( int i = 0; i < numberOfStages_; i++ )
             {
                 int j = i + lowerEntry - offsetEntries_;
-                ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
+                const ScalarType diff =
+                        convertIndependentVariableToScalar< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
 
-                // Check for exact match to avoid division by zero in barycentric formula.
-                // Using 10 ULP tolerance to catch:
-                // - Bitwise identical values
-                // - Values differing due to float/double/long double conversions
-                // - Values with small differences due to cross-platform rounding (Mac Silicon vs x86)
-                ScalarType gridValue = static_cast< ScalarType >( independentValues_[ j ] );
-                ScalarType targetValue = static_cast< ScalarType >( targetIndependentVariableValue );
-
-                // Compute relative tolerance based on the larger magnitude (symmetric comparison)
-                ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
-                ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
-                        mathematical_constants::getFloatingInteger< ScalarType >( 10 );
-
-                // Provide minimum absolute tolerance for near-zero grid points
-                // This handles cases where both gridValue and targetValue are close to zero
-                ScalarType absoluteTolerance =
-                        std::numeric_limits< ScalarType >::epsilon( ) * mathematical_constants::getFloatingInteger< ScalarType >( 10 );
-
-                ScalarType tolerance = std::max( relativeTolerance, absoluteTolerance );
-
-                if( std::abs( diff ) <= tolerance )
+                // Only an exact match may return the tabulated value.  A tolerance based on the
+                // absolute epoch can incorrectly collapse a resolvable sub-second offset onto a
+                // grid point, particularly when IndependentVariableType is tudat::Time.
+                if( diff == mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
                 {
-                    // Target coincides with grid point within tolerance: return exact tabulated value
-                    // This avoids division by zero and potential numerical issues in barycentric formula
+                    // Avoid division by zero in the barycentric formula at a grid point.
                     return dependentValues_[ j ];
                 }
 
@@ -450,8 +433,8 @@ private:
                 {
                     if( k != j )
                     {
-                        denominators[ i ][ j ] *= static_cast< ScalarType >( independentValues_[ j + currentIterationStart ] -
-                                                                             independentValues_[ k + currentIterationStart ] );
+                        denominators[ i ][ j ] *= convertIndependentVariableToScalar< ScalarType >(
+                                independentValues_[ j + currentIterationStart ] - independentValues_[ k + currentIterationStart ] );
                     }
                 }
             }
