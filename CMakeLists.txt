@@ -352,11 +352,6 @@ if (UNIX OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
-# Get tudat resource manager dependency.
-find_package(TudatResources REQUIRED)
-message(STATUS "TudatResources_INCLUDE_DIRS: ${TudatResources_INCLUDE_DIRS}")
-include_directories(${TudatResources_INCLUDE_DIRS})
-
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
 set(_TUDAT_EIGEN_INCLUDE_DIRS "")
