@@ -2,7 +2,7 @@ import json
 import pytest
 import numpy as np
 
-from tudatpy.data.UDL.batch_utas import BatchUTAS
+from tudatpy.data_input.tracking_data.udl import BatchUTAS, read_utas_data
 
 # =========================================================================
 # Fixtures: create temporary UTAS JSON files for testing
@@ -24,7 +24,7 @@ SINGLE_STATION_PAIR_OBS = [
         "sen2alt": 0.0,
         "origSensorId1": "KATHERINE",
         "origSensorId2": "HOBART",
-        "ucts": 0,
+        "uct": False,
         "sensor1Delay": 0.0,
         "sensor2Delay": 0.0,
         "bandwidth": 0.0,
@@ -168,7 +168,7 @@ class TestBatchUTASProperties:
         assert meta.data_mode == "REAL"
         assert meta.origin == "Converted on Bingus"
         assert meta.source == "Unknown"
-        assert meta.ucts == 0
+        assert meta.uct is False
 
     def test_get_observations_success(self, single_pair_file):
         batch = BatchUTAS([single_pair_file])
@@ -439,28 +439,48 @@ class TestBatchUTASErrors:
 
 
 def test_convert_to_tudat_geodetic(single_pair_file):
-    """Degrees → radians, altitude in metres unchanged."""
+    """Degrees → radians and UDL kilometres → Tudat metres."""
     batch = BatchUTAS([single_pair_file])
-    position = {"altitude": 100.0, "latitude": 45.0, "longitude": -90.0}
+    position = {"altitude": 0.1, "latitude": 45.0, "longitude": -90.0}
     result = batch._convert_to_tudat_geodetic(position)
     assert result[0] == pytest.approx(100.0)
     assert result[1] == pytest.approx(45.0 * np.pi / 180.0)
     assert result[2] == pytest.approx(-90.0 * np.pi / 180.0)
 
+    station_result = batch._convert_to_tudat_geodetic(batch._station_positions["KATHERINE"])
+    assert station_result[0] == pytest.approx(189.3)
+
+
+def test_multiple_station_pairs_in_one_file_raise(tmp_path):
+    file_path = tmp_path / "multiple_pairs.json"
+    _write_json(str(file_path), [SINGLE_STATION_PAIR_OBS[0], SECOND_STATION_PAIR_OBS[0]])
+
+    with pytest.raises(RuntimeError, match="Multiple station pairs detected in one file"):
+        BatchUTAS([str(file_path)])
+
+
+def test_varying_station_positions_raise(tmp_path):
+    observations = [entry.copy() for entry in SINGLE_STATION_PAIR_OBS]
+    observations[1]["senalt"] = 0.2
+    file_path = tmp_path / "moving_station.json"
+    _write_json(str(file_path), observations)
+
+    with pytest.raises(RuntimeError, match="Station positions vary"):
+        BatchUTAS([str(file_path)])
+
 
 # =========================================================================
-# Integration: to_tudat with real Tudat objects
+# Integration: refactored TrackingData pipeline with real Tudat objects
 # =========================================================================
 
 
-@pytest.mark.slow
-def test_to_tudat_returns_valid_collection(single_pair_file):
+def test_to_tracking_dataset_returns_valid_collection(single_pair_file):
     """Round-trip: parse two observations, convert to Tudat ObservationCollection.
 
     Uses real SPICE kernels and body creation so we validate that the ground
     stations, link definitions, and observation sets are structurally correct.
     """
-    from tudatpy.interface import spice
+    from tudatpy.data_input.environment_data import spice
     from tudatpy.dynamics import environment_setup
     from tudatpy.estimation import observations
     from tudatpy.estimation.observable_models_setup import model_settings
@@ -471,7 +491,25 @@ def test_to_tudat_returns_valid_collection(single_pair_file):
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     batch = BatchUTAS([single_pair_file])
-    obs_collection = batch.to_tudat(bodies, target_name_override="KPLO")
+    tracking_data, supplementary_data = batch.to_tracking_dataset(spacecraft_name="KPLO")
+    batch.create_ground_stations(bodies)
+    obs_collection = observations.create_observation_collection_from_tracking_data(
+        tracking_data, bodies
+    )
+
+    assert supplementary_data == []
+    assert [data.observable_type for data in tracking_data] == [
+        "DifferencedTimeOfArrival",
+        "DifferencedFrequencyOfArrival",
+    ]
+    assert all(data.time_scale == "UTC" for data in tracking_data)
+    assert tracking_data[0].link_ends == [
+        (("KPLO", ""), "transmitter"),
+        (("Earth", "KATHERINE"), "receiver"),
+        (("Earth", "HOBART"), "receiver_2"),
+    ]
+    assert tracking_data[0].observations[0][0] == pytest.approx(-0.0049952785)
+    assert tracking_data[1].observations[0][0] == pytest.approx(-1004.84432812)
 
     # --- structural checks ---
     assert isinstance(obs_collection, observations.ObservationCollection)
@@ -493,3 +531,10 @@ def test_to_tudat_returns_valid_collection(single_pair_file):
     earth = bodies.get_body("Earth")
     assert "KATHERINE" in earth.ground_station_list
     assert "HOBART" in earth.ground_station_list
+
+
+def test_read_utas_data_uses_target_id(single_pair_file):
+    tracking_data, supplementary_data = read_utas_data([single_pair_file])
+
+    assert supplementary_data == []
+    assert tracking_data[0].link_ends[0] == (("53365", ""), "transmitter")

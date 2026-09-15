@@ -1,19 +1,13 @@
-import json
-import numpy as np
-from tudatpy.dynamics import environment_setup
-from tudatpy.dynamics import environment
-from tudatpy.estimation import observations
-from tudatpy.estimation.observable_models_setup import (
-    model_settings,
-    links,
-)
-from tudatpy.astro import time_representation
-from tudatpy.astro.time_representation import DateTime
+"""Unified Data Library TDOA/FDOA tracking-data reader."""
 
-# Create time scale converter once at module level (expensive to recreate)
-_time_scale_converter = time_representation.default_time_scale_converter()
-_utc_scale = time_representation.utc_scale
-_tdb_scale = time_representation.tdb_scale
+import json
+
+import numpy as np
+
+from tudatpy.astro import element_conversion
+from tudatpy.astro.time_representation import DateTime
+from tudatpy.data_input.tracking_data import TrackingData, TrackingSupplementaryData
+from tudatpy.dynamics import environment, environment_setup
 
 
 class StationPairObservations:
@@ -22,7 +16,7 @@ class StationPairObservations:
     Attributes
     ----------
     epochs : list[float]
-        Observation epochs in TDB seconds since J2000.
+        Observation epochs in UTC seconds since J2000.
     tdoa : list[float]
         Time Difference of Arrival observations in seconds.
     tdoa_uncertainties : list[float]
@@ -45,7 +39,7 @@ class StationPairObservations:
 
 
 class UTASMetadata:
-    """Strongly-typed metadata structure for UTAS observations.
+    """Metadata from the first UTAS observation in a batch.
 
     Attributes
     ----------
@@ -65,7 +59,7 @@ class UTASMetadata:
         Originating system identifier.
     source : str
         Data source name.
-    ucts : int
+    uct : bool
         Uncorrelated track status flag.
     """
 
@@ -78,7 +72,7 @@ class UTASMetadata:
         self.data_mode = ""
         self.origin = ""
         self.source = ""
-        self.ucts = 0
+        self.uct = False
 
 
 class BatchUTAS:
@@ -104,14 +98,13 @@ class BatchUTAS:
     >>> print(f"Station names: {batch.station_names}")
     >>> print(f"Number of observations: {batch.num_observations}")
 
-    Convert to Tudat format (creates ground stations automatically):
+    Convert to the common tracking-data format:
 
-    >>> bodies = environment_setup.create_system_of_bodies(body_settings)
-    >>> observation_collection = batch.to_tudat(bodies)
+    >>> tracking_data, supplementary_data = batch.to_tracking_dataset()
 
     Use custom target name instead of NORAD ID:
 
-    >>> observation_collection = batch.to_tudat(bodies, target_name_override="MySatellite")
+    >>> tracking_data, _ = batch.to_tracking_dataset(spacecraft_name="MySatellite")
     """
 
     def __init__(self, file_paths: list[str]) -> None:
@@ -148,7 +141,7 @@ class BatchUTAS:
 
     @property
     def num_observations(self) -> int:
-        """Total number of observations across all station pairs."""
+        """Total number of TDOA/FDOA record pairs across all station pairs."""
         return sum(len(obs) for obs in self._observations_by_station_pair.values())
 
     @property
@@ -171,7 +164,7 @@ class BatchUTAS:
     # =========================================================================
 
     def get_metadata(self) -> UTASMetadata:
-        """Get full UTAS metadata.
+        """Get metadata from the first UTAS observation in the batch.
 
         Returns
         -------
@@ -231,85 +224,32 @@ class BatchUTAS:
         """
         return self._observations_by_station_pair
 
-    def to_tudat(
-        self,
-        bodies: environment.SystemOfBodies,
-        station_body: str = "Earth",
-        target_name_override: str = "",
-    ) -> observations.ObservationCollection:
-        """Convert to Tudat observation collection.
-
-        This method performs all necessary setup:
-        1. Ensures the station body has a compatible shape model
-        2. Creates ground stations on the body
-        3. Builds and returns the observation collection
+    def to_tracking_dataset(
+        self, station_body: str = "Earth", spacecraft_name: str | None = None
+    ) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+        """Convert to the common tracking-data containers.
 
         Parameters
         ----------
-        bodies : SystemOfBodies
-            System of bodies (will be modified to add ground stations).
         station_body : str, default="Earth"
             Name of the body on which to place ground stations.
-        target_name_override : str, default=""
-            Custom name for the target in link definitions. If empty, uses the
+        spacecraft_name : str | None, default=None
+            Custom name for the target in link definitions. If omitted, uses the
             target ID from the data (typically NORAD ID). Use this to match
             the body name in your simulation.
 
         Returns
         -------
-        ObservationCollection
-            Tudat observation collection containing TDOA and FDOA observation sets.
-
-        Raises
-        ------
-        RuntimeError
-            If station body has an incompatible shape model (must be OblateSpheroidBodyShapeModel).
+        tuple[list[TrackingData], list[TrackingSupplementaryData]]
+            TDOA and FDOA tracking data, and an empty supplementary-data list.
 
         Examples
         --------
         Use custom target name instead of NORAD ID:
 
-        >>> observation_collection = batch.to_tudat(bodies, target_name_override="MySatellite")
+        >>> tracking_data, _ = batch.to_tracking_dataset(spacecraft_name="MySatellite")
         """
-        self._ensure_shape_model(bodies, station_body)
-        self._create_ground_stations(bodies, station_body)
-        return self._get_observation_collection(station_body, target_name_override)
-
-    def ensure_shape_model(
-        self,
-        bodies: environment.SystemOfBodies,
-        station_body: str = "Earth",
-    ) -> None:
-        """Ensure the station body has a compatible shape model.
-
-        Creates an oblate spheroid shape model from SPICE if none exists.
-        Called automatically by to_tudat().
-
-        Parameters
-        ----------
-        bodies : SystemOfBodies
-            System of bodies.
-        station_body : str, default="Earth"
-            Name of the body to check/modify.
-
-        Raises
-        ------
-        RuntimeError
-            If body has an incompatible (non-oblate-spheroid) shape model.
-        """
-        try:
-            bodies.get_body(station_body)
-        except Exception:
-            bodies.add_body(environment.Body(), station_body)
-
-        body = bodies.get_body(station_body)
-
-        if body.shape_model is None:
-            shape_model = environment_setup.create_body_shape_model(
-                environment_setup.from_spice_oblate_spherical_body_shape_settings(),
-                station_body,
-            )
-            body.shape_model = shape_model
+        return self._get_tracking_data(station_body, spacecraft_name), []
 
     def create_ground_stations(
         self,
@@ -317,8 +257,6 @@ class BatchUTAS:
         station_body: str = "Earth",
     ) -> list[str]:
         """Create ground stations on the specified body.
-
-        Called automatically by to_tudat().
 
         Parameters
         ----------
@@ -334,6 +272,11 @@ class BatchUTAS:
         """
         station_names = []
         body = bodies.get_body(station_body)
+        if body.shape_model is None:
+            raise RuntimeError(
+                f"BatchUTAS: Body '{station_body}' needs a shape model to create "
+                "stations from geodetic coordinates"
+            )
 
         for station_name, position in self._station_positions.items():
             tudat_position = self._convert_to_tudat_geodetic(position)
@@ -341,6 +284,7 @@ class BatchUTAS:
             settings = environment_setup.ground_station.basic_station(
                 station_name=station_name,
                 station_nominal_position=tudat_position.tolist(),
+                station_position_element_type=element_conversion.geodetic_position_type,
             )
 
             if station_name not in body.ground_station_list:
@@ -352,7 +296,7 @@ class BatchUTAS:
     def get_link_definitions(
         self,
         station_body: str = "Earth",
-        target_name_override: str = "",
+        spacecraft_name: str | None = None,
     ) -> list:
         """Get the link definitions for all station pairs in this batch.
 
@@ -360,56 +304,29 @@ class BatchUTAS:
         ----------
         station_body : str, default="Earth"
             Name of body hosting ground stations.
-        target_name_override : str, default=""
-            Custom name for the target in link definitions. If empty, uses the
+        spacecraft_name : str | None, default=None
+            Custom name for the target in link definitions. If omitted, uses the
             target ID from the data (typically NORAD ID).
 
         Returns
         -------
-        list[LinkDefinition]
-            Link definitions with receiver, receiver2, and transmitter link ends,
-            one per station pair.
+        list[list]
+            Plain link definitions with receiver, receiver_2, and transmitter link
+            ends, one per station pair.
         """
-        target_name = target_name_override if target_name_override else self._metadata.target_id
+        target_name = spacecraft_name or self._metadata.target_id
 
         link_definitions = []
         for station_pair in self.station_pairs:
-            link_ends = dict()
-            link_ends[links.receiver] = links.body_reference_point_link_end_id(
-                station_body, station_pair[0]
+            link_definitions.append(
+                [
+                    ((target_name, ""), "transmitter"),
+                    ((station_body, station_pair[0]), "receiver"),
+                    ((station_body, station_pair[1]), "receiver_2"),
+                ]
             )
-            link_ends[links.receiver2] = links.body_reference_point_link_end_id(
-                station_body, station_pair[1]
-            )
-            link_ends[links.transmitter] = links.body_origin_link_end_id(target_name)
-
-            link_definitions.append(links.link_definition(link_ends))
 
         return link_definitions
-
-    def get_observation_collection(
-        self,
-        station_body: str = "Earth",
-        target_name_override: str = "",
-    ) -> observations.ObservationCollection:
-        """Get observation collection without modifying bodies.
-
-        Use this if you've already created ground stations manually.
-
-        Parameters
-        ----------
-        station_body : str, default="Earth"
-            Name of body hosting ground stations.
-        target_name_override : str, default=""
-            Custom name for the target in link definitions. If empty, uses the
-            target ID from the data (typically NORAD ID).
-
-        Returns
-        -------
-        ObservationCollection
-            Observation collection with TDOA and FDOA sets.
-        """
-        return self._get_observation_collection(station_body, target_name_override)
 
     # =========================================================================
     # Private methods
@@ -478,23 +395,35 @@ class BatchUTAS:
         # Extract station info for this file
         station1_id = self._get_required(first_obs, "origSensorId1", str)
         station2_id = self._get_required(first_obs, "origSensorId2", str)
+        if station1_id == station2_id:
+            raise RuntimeError("BatchUTAS: A station cannot be paired with itself")
         station_pair = (station1_id, station2_id)
 
         # Extract station positions
         station1_pos = {
-            "altitude": self._get_required(first_obs, "senlat", float),
+            "altitude": self._get_required(first_obs, "senalt", float),
             "latitude": self._get_required(first_obs, "senlat", float),
             "longitude": self._get_required(first_obs, "senlon", float),
         }
         station2_pos = {
-            "altitude": self._get_required(first_obs, "sen2lat", float),
+            "altitude": self._get_required(first_obs, "sen2alt", float),
             "latitude": self._get_required(first_obs, "sen2lat", float),
             "longitude": self._get_required(first_obs, "sen2lon", float),
         }
 
-        # Store station positions
-        self._station_positions[station1_id] = station1_pos
-        self._station_positions[station2_id] = station2_pos
+        # Store station positions, rejecting moving sensors because Tudat ground
+        # stations are static unless an explicit motion model is provided.
+        for station_id, position in (
+            (station1_id, station1_pos),
+            (station2_id, station2_pos),
+        ):
+            if station_id in self._station_positions:
+                if self._station_positions[station_id] != position:
+                    raise RuntimeError(
+                        f"BatchUTAS: Position of station '{station_id}' differs across files"
+                    )
+            else:
+                self._station_positions[station_id] = position
 
         # Initialize metadata from first file
         if not self._metadata_initialized:
@@ -506,7 +435,10 @@ class BatchUTAS:
             self._metadata.data_mode = self._get_optional(first_obs, "dataMode", "", str)
             self._metadata.origin = self._get_optional(first_obs, "origin", "", str)
             self._metadata.source = self._get_optional(first_obs, "source", "", str)
-            self._metadata.ucts = self._get_optional(first_obs, "ucts", 0, int)
+            if first_obs.get("uct") is not None:
+                self._metadata.uct = self._get_required(first_obs, "uct", bool)
+            else:
+                self._metadata.uct = bool(self._get_optional(first_obs, "ucts", 0, int))
             self._metadata_initialized = True
 
         # Get or create observation storage for this station pair
@@ -521,6 +453,22 @@ class BatchUTAS:
             obs_target = self._get_string_or_number(obs, "satNo")
             self._found_targets.add(obs_target)
             self._validate_single_target(obs_target, file_path)
+
+            obs_station_pair = (
+                self._get_required(obs, "origSensorId1", str),
+                self._get_required(obs, "origSensorId2", str),
+            )
+            if obs_station_pair != station_pair:
+                raise RuntimeError(
+                    "BatchUTAS: Multiple station pairs detected in one file. "
+                    f"Expected {station_pair}, found {obs_station_pair} in {file_path}."
+                )
+            position_keys = ("senalt", "senlat", "senlon", "sen2alt", "sen2lat", "sen2lon")
+            if any(
+                self._get_required(obs, key, float) != self._get_required(first_obs, key, float)
+                for key in position_keys
+            ):
+                raise RuntimeError(f"BatchUTAS: Station positions vary within {file_path}")
 
             # Time
             ob_time = self._get_required(obs, "obTime", str)
@@ -560,7 +508,7 @@ class BatchUTAS:
             )
 
     def _convert_iso_to_epoch(self, iso_time: str) -> float:
-        """Convert an ISO time string to TDB seconds since J2000.
+        """Convert an ISO time string to UTC seconds since J2000.
 
         Parameters
         ----------
@@ -570,7 +518,7 @@ class BatchUTAS:
         Returns
         -------
         float
-            Time in TDB seconds since J2000.
+            Time in UTC seconds since J2000.
         """
         # Strip trailing 'Z' if present
         time_str = iso_time
@@ -582,21 +530,15 @@ class BatchUTAS:
 
         try:
             dt = DateTime.from_iso_string(time_str)
-            time_utc = dt.epoch()
-
-            time_tdb = _time_scale_converter.convert_time(
-                input_scale=_utc_scale,
-                output_scale=_tdb_scale,
-                input_value=time_utc,
-            )
-            return time_tdb
+            return dt.epoch()
         except Exception as e:
             raise RuntimeError(f"BatchUTAS: Failed to parse time '{time_str}': {e}")
 
     def _convert_to_tudat_geodetic(self, position: dict[str, float]) -> np.ndarray:
         """Convert a geodetic position to Tudat format (altitude[m], latitude[rad], longitude[rad]).
 
-        Assumes input is in meters and degrees.
+        Assumes input altitude is in kilometres and angles are in degrees, as
+        defined by the UDL schema.
 
         Parameters
         ----------
@@ -608,135 +550,64 @@ class BatchUTAS:
         np.ndarray
             3-element array [altitude[m], latitude[rad], longitude[rad]].
         """
+        if not -90.0 <= position["latitude"] <= 90.0:
+            raise RuntimeError("BatchUTAS: Station latitude must be in [-90, 90] degrees")
+        if not -180.0 <= position["longitude"] <= 180.0:
+            raise RuntimeError("BatchUTAS: Station longitude must be in [-180, 180] degrees")
+
         return np.array(
             [
-                position["altitude"],
+                1000.0 * position["altitude"],
                 position["latitude"] * np.pi / 180.0,
                 position["longitude"] * np.pi / 180.0,
             ]
         )
 
-    def _ensure_shape_model(self, bodies: environment.SystemOfBodies, station_body: str) -> None:
-        """Ensure the station body has a compatible shape model.
-
-        Parameters
-        ----------
-        bodies : SystemOfBodies
-            System of bodies.
-        station_body : str
-            Name of body to check/modify.
-        """
-        try:
-            bodies.get_body(station_body)
-        except Exception:
-            bodies.add_body(environment.Body(), station_body)
-
-        body = bodies.get_body(station_body)
-
-        if body.shape_model is None:
-            shape_model = environment_setup.create_body_shape_model(
-                environment_setup.from_spice_oblate_spherical_body_shape_settings(),
-                station_body,
-            )
-            body.shape_model = shape_model
-
-    def _create_ground_stations(
-        self, bodies: environment.SystemOfBodies, station_body: str
-    ) -> None:
-        """Create ground stations on the specified body.
-
-        Parameters
-        ----------
-        bodies : SystemOfBodies
-            System of bodies (modified in place).
-        station_body : str
-            Body on which to create stations.
-        """
-        body = bodies.get_body(station_body)
-
-        for station_name, position in self._station_positions.items():
-            tudat_pos = self._convert_to_tudat_geodetic(position)
-
-            settings = environment_setup.ground_station.basic_station(
-                station_name=station_name,
-                station_nominal_position=tudat_pos.tolist(),
-            )
-
-            if station_name not in body.ground_station_list:
-                environment_setup.add_ground_station(body, settings)
-
-    def _get_observation_collection(
+    def _get_tracking_data(
         self,
         station_body: str,
-        target_name_override: str,
-    ) -> observations.ObservationCollection:
-        """Build the Tudat observation collection.
+        spacecraft_name: str | None,
+    ) -> list[TrackingData]:
+        """Build the common Tudat tracking-data containers.
 
         Parameters
         ----------
         station_body : str
             Name of body hosting ground stations.
-        target_name_override : str
+        spacecraft_name : str | None
             Custom name for the target in link definitions.
 
         Returns
         -------
-        ObservationCollection
-            Observation collection with TDOA and FDOA sets.
+        list[TrackingData]
+            One TDOA and one FDOA container per station pair.
         """
-        target_name = target_name_override if target_name_override else self._metadata.target_id
+        tracking_data_list = []
 
-        observation_set_list = []
-
-        for station_pair in self.station_pairs:
+        for station_pair, link_ends in zip(
+            self.station_pairs,
+            self.get_link_definitions(station_body, spacecraft_name),
+        ):
             station_obs = self._observations_by_station_pair[station_pair]
 
-            # Build link ends
-            link_ends = dict()
-            link_ends[links.receiver] = links.body_reference_point_link_end_id(
-                station_body, station_pair[0]
-            )
-            link_ends[links.receiver2] = links.body_reference_point_link_end_id(
-                station_body, station_pair[1]
-            )
-            link_ends[links.transmitter] = links.body_origin_link_end_id(target_name)
-            link_def = links.link_definition(link_ends)
+            # UDL uses sensor2 - sensor1, while Tudat's differenced models use
+            # receiver - receiver_2. Negate the source values to match Tudat.
+            for observable_type, values in (
+                ("DifferencedTimeOfArrival", station_obs.tdoa),
+                ("DifferencedFrequencyOfArrival", station_obs.fdoa),
+            ):
+                tracking_data_list.append(
+                    TrackingData(
+                        observable_type=observable_type,
+                        link_ends=link_ends,
+                        observations=[np.array([-value]) for value in values],
+                        epochs=station_obs.epochs,
+                        reference_link_end="receiver",
+                        time_scale="UTC",
+                    )
+                )
 
-            # Build observation data
-            observation_times = []
-            tdoa_observations = []
-            fdoa_observations = []
-
-            for i in range(len(station_obs)):
-                observation_times.append(station_obs.epochs[i])
-
-                tdoa_entry = np.array([[station_obs.tdoa[i]]])
-                tdoa_observations.append(tdoa_entry)
-
-                fdoa_entry = np.array([[station_obs.fdoa[i]]])
-                fdoa_observations.append(fdoa_entry)
-
-            # Create TDOA observation set
-            tdoa_set = observations.create_single_observation_set(
-                model_settings.differenced_time_of_arrival_type,
-                link_def.link_ends,
-                tdoa_observations,
-                observation_times,
-                links.receiver,
-            )
-            observation_set_list.append(tdoa_set)
-
-            # Create FDOA observation set
-            fdoa_set = observations.create_single_observation_set(
-                model_settings.differenced_frequency_of_arrival_type,
-                link_def.link_ends,
-                fdoa_observations,
-                observation_times,
-                links.receiver,
-            )
-            observation_set_list.append(fdoa_set)
-
-        return observations.ObservationCollection(observation_set_list)
+        return tracking_data_list
 
     # =========================================================================
     # Static helper methods
@@ -770,7 +641,11 @@ class BatchUTAS:
         val = obj[key]
         if not isinstance(val, expected_type):
             # Allow int where float is expected
-            if expected_type is float and isinstance(val, (int, np.integer)):
+            if (
+                expected_type is float
+                and isinstance(val, (int, np.integer))
+                and not isinstance(val, (bool, np.bool_))
+            ):
                 return float(val)
             raise RuntimeError(
                 f"BatchUTAS: Field '{key}' has wrong type. "
@@ -801,10 +676,19 @@ class BatchUTAS:
             return default
 
         val = obj[key]
-        if not isinstance(val, expected_type):
-            if expected_type is float and isinstance(val, (int, np.integer)):
-                return float(val)
+        if val is None:
             return default
+        if not isinstance(val, expected_type):
+            if (
+                expected_type is float
+                and isinstance(val, (int, np.integer))
+                and not isinstance(val, (bool, np.bool_))
+            ):
+                return float(val)
+            raise RuntimeError(
+                f"BatchUTAS: Field '{key}' has wrong type. "
+                f"Expected {expected_type.__name__}, got {type(val).__name__}"
+            )
         return val
 
     @staticmethod
@@ -832,13 +716,44 @@ class BatchUTAS:
             raise RuntimeError(f"BatchUTAS: Required field '{key}' not found")
 
         val = obj[key]
-        if isinstance(val, str):
+        if isinstance(val, (bool, np.bool_)):
+            raise RuntimeError(f"BatchUTAS: Field '{key}' must be string or number")
+        if isinstance(val, str) and val:
             return val
         elif isinstance(val, (int, np.integer)):
             return str(int(val))
-        elif isinstance(val, (float, np.floating)):
-            return str(float(val))
+        elif isinstance(val, (float, np.floating)) and np.isfinite(val) and val.is_integer():
+            return str(int(val))
         else:
             raise RuntimeError(
                 f"BatchUTAS: Field '{key}' must be string or number, got {type(val).__name__}"
             )
+
+
+def read_utas_data(
+    utas_file_names: list[str],
+    spacecraft_name: str | None = None,
+    station_body: str = "Earth",
+) -> tuple[list[TrackingData], list[TrackingSupplementaryData]]:
+    """Read single-target UDL TDOA/FDOA JSON files.
+
+    The receiving stations must exist on ``station_body`` before the returned
+    tracking data is converted to an observation collection. Use
+    :class:`BatchUTAS` directly to create stations from the positions in the
+    source records.
+
+    Parameters
+    ----------
+    utas_file_names : list[str]
+        Paths to UDL JSON files.
+    spacecraft_name : str | None, default=None
+        Name of the transmitting body. The UDL target ID is used if omitted.
+    station_body : str, default="Earth"
+        Body on which both receiving stations are located.
+
+    Returns
+    -------
+    tuple[list[TrackingData], list[TrackingSupplementaryData]]
+        TDOA and FDOA tracking data, and an empty supplementary-data list.
+    """
+    return BatchUTAS(utas_file_names).to_tracking_dataset(station_body, spacecraft_name)
