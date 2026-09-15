@@ -1082,6 +1082,99 @@ BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMe
     }
 }
 
+//! Verifies that filtering/unfiltering preserves block and full weight contributions exactly.
+BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsFilteringAndUnfiltering )
+{
+    typedef double ObservationScalarType;
+    typedef double TimeType;
+
+    std::map< LinkEndType, LinkEndId > linkEnds;
+    linkEnds[ receiver ] = LinkEndId( "Earth", "Station1" );
+    linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
+    LinkDefinition linkDefinition( linkEnds );
+
+    std::vector< TimeType > observationTimes = { 10.0, 20.0, 30.0, 40.0 };
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    for( unsigned int i = 0; i < observationTimes.size( ); i++ )
+    {
+        Eigen::VectorXd obs = Eigen::VectorXd::Zero( 2 );
+        obs << static_cast< double >( i + 1 ), 100.0 + static_cast< double >( i );
+        observations.push_back( obs );
+    }
+
+    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet =
+            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                    angular_position, linkDefinition, observations, observationTimes, receiver );
+
+    std::vector< Eigen::MatrixXd > blockWeights;
+    for( unsigned int i = 0; i < observationTimes.size( ); i++ )
+    {
+        Eigen::MatrixXd blockWeight = Eigen::MatrixXd::Zero( 2, 2 );
+        blockWeight( 0, 0 ) = 5.0 + static_cast< double >( i );
+        blockWeight( 1, 1 ) = 4.5 + static_cast< double >( i );
+        blockWeight( 0, 1 ) = 0.15;
+        blockWeight( 1, 0 ) = 0.15;
+        blockWeights.push_back( blockWeight );
+    }
+    observationSet->setBlockDiagonalWeights( blockWeights );
+
+    Eigen::MatrixXd fullWeightContribution = Eigen::MatrixXd::Zero( 8, 8 );
+    fullWeightContribution.diagonal( ).setConstant( 1.5 );
+    fullWeightContribution.block( 0, 4, 2, 2 ) << 0.03, 0.01, 0.01, 0.02;
+    fullWeightContribution.block( 4, 0, 2, 2 ) = fullWeightContribution.block( 0, 4, 2, 2 ).transpose( );
+    fullWeightContribution.block( 2, 6, 2, 2 ) << 0.02, 0.005, 0.005, 0.025;
+    fullWeightContribution.block( 6, 2, 2, 2 ) = fullWeightContribution.block( 2, 6, 2, 2 ).transpose( );
+    fullWeightContribution.block( 0, 2, 2, 2 ) << 0.012, 0.004, 0.004, 0.010;
+    fullWeightContribution.block( 2, 0, 2, 2 ) = fullWeightContribution.block( 0, 2, 2, 2 ).transpose( );
+    fullWeightContribution.block( 4, 6, 2, 2 ) << 0.009, 0.003, 0.003, 0.008;
+    fullWeightContribution.block( 6, 4, 2, 2 ) = fullWeightContribution.block( 4, 6, 2, 2 ).transpose( );
+    observationSet->setFullWeightMatrix( fullWeightContribution );
+
+    const Eigen::MatrixXd originalWeightsMatrix = observationSet->getWeightMatrix( );
+
+    auto getWeightSubMatrix = []( const Eigen::MatrixXd& inputWeightMatrix, const std::vector< unsigned int >& observationIndices ) {
+        const int blockSize = 2;
+        Eigen::MatrixXd outputWeightMatrix = Eigen::MatrixXd::Zero( static_cast< int >( observationIndices.size( ) ) * blockSize,
+                                                                    static_cast< int >( observationIndices.size( ) ) * blockSize );
+        for( unsigned int i = 0; i < observationIndices.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < observationIndices.size( ); j++ )
+            {
+                outputWeightMatrix.block( static_cast< int >( i ) * blockSize, static_cast< int >( j ) * blockSize, blockSize, blockSize ) =
+                        inputWeightMatrix.block( static_cast< int >( observationIndices.at( i ) ) * blockSize,
+                                                 static_cast< int >( observationIndices.at( j ) ) * blockSize,
+                                                 blockSize,
+                                                 blockSize );
+            }
+        }
+        return outputWeightMatrix;
+    };
+
+    const std::vector< double > epochsToFilter = { 20.0, 40.0 };
+    observationSet->filterObservations( observationFilter( epochs_filtering, epochsToFilter, true, false ), true );
+
+    BOOST_CHECK_EQUAL( observationSet->getNumberOfObservables( ), 2 );
+    BOOST_CHECK( observationSet->hasOffDiagonalWeights( ) );
+    BOOST_CHECK( observationSet->hasFullWeightMatrixContribution( ) );
+    BOOST_CHECK( observationSet->getWeightsMatrixType( ) == block_diagonal_weights_matrix );
+    BOOST_CHECK( observationSet->getFilteredObservationSet( ) != nullptr );
+    BOOST_CHECK( observationSet->getFilteredObservationSet( )->getWeightsMatrixType( ) == block_diagonal_weights_matrix );
+    BOOST_CHECK( observationSet->getFilteredObservationSet( )->hasFullWeightMatrixContribution( ) );
+
+    const Eigen::MatrixXd expectedRemainingWeightMatrix = getWeightSubMatrix( originalWeightsMatrix, { 0, 2 } );
+    const Eigen::MatrixXd expectedFilteredWeightMatrix = getWeightSubMatrix( originalWeightsMatrix, { 1, 3 } );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationSet->getWeightMatrix( ), expectedRemainingWeightMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            observationSet->getFilteredObservationSet( )->getWeightMatrix( ), expectedFilteredWeightMatrix, 1.0E-15 );
+
+    observationSet->filterObservations( observationFilter( epochs_filtering, epochsToFilter, false, false ), true );
+
+    BOOST_CHECK_EQUAL( observationSet->getNumberOfObservables( ), 4 );
+    BOOST_CHECK( observationSet->hasOffDiagonalWeights( ) );
+    BOOST_CHECK( observationSet->hasFullWeightMatrixContribution( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observationSet->getWeightMatrix( ), originalWeightsMatrix, 1.0E-15 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
