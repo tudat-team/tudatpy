@@ -20,6 +20,7 @@
 
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
+#include "tudat/interface/sofa/fundamentalArguments.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
 
@@ -258,6 +259,30 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     // Check if UTC-UT1 is zero before c04 file starts
     BOOST_CHECK_EQUAL( ut1CorrectionPreC04 == 0, true );
     BOOST_CHECK_EQUAL( ut1CorrectionPostC04 == 0, false );
+
+    // Verify that the complete rotation-angle path uses historical Delta T instead of attempting a pre-UTC SOFA conversion.
+    const double historicalEpoch = basic_astrodynamics::DateTime( 1893, 1, 1, 0, 0, 0.0 ).epoch< double >( );
+    const std::pair< Eigen::Vector5d, double > historicalAngles =
+            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(
+                    historicalEpoch, basic_astrodynamics::tdb_scale );
+
+    std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
+            earthOrientationCalculator->getTerrestrialTimeScaleConverter( );
+    const double barycentricDynamicalTime =
+            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tdb_scale, historicalEpoch );
+    const double terrestrialTime =
+            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tt_scale, historicalEpoch );
+    const double universalTime1 =
+            timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::ut1_scale, historicalEpoch );
+    const Eigen::Vector6d historicalFundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
+            barycentricDynamicalTime, terrestrialTime, universalTime1 );
+    const Eigen::Vector2d expectedPolarMotion =
+            earthOrientationCalculator->getPolarMotionCalculator( )
+                    ->getShortPeriodPolarMotionCalculator( )
+                    ->getCorrectionsFromFundamentalArgument( historicalFundamentalArguments );
+
+    BOOST_CHECK_SMALL( ( historicalAngles.first.segment< 2 >( 3 ) - expectedPolarMotion ).norm( ),
+                       std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
