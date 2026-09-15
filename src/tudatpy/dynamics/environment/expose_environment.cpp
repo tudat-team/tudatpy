@@ -2802,7 +2802,32 @@ bool
                     R"doc(
             **read-only**
 
-            Orientation of the camera. Returns a 4x1 numpy array [w, x, y, z].
+            Orientation of the camera, including the current :attr:`~Camera.pointing_correction`. Returns a 4x1
+            numpy array [w, x, y, z].
+            )doc" )
+            .def_property_readonly(
+                    "nominal_quaternion",
+                    []( const tsm::Camera& self ) -> Eigen::Vector4d {
+                        Eigen::Quaterniond q = self.getNominalRotationFromBodyFixedToCameraFrame( );
+                        return tudat::linear_algebra::convertQuaternionToVectorFormat( q );
+                    },
+                    R"doc(
+            **read-only**
+
+            Orientation of the camera, excluding the current :attr:`~Camera.pointing_correction`. Returns a 4x1
+            numpy array [w, x, y, z].
+            )doc" )
+            .def_property( "pointing_correction",
+                           &tsm::Camera::getPointingCorrection,
+                           &tsm::Camera::setPointingCorrection,
+                           R"doc(
+
+            Small pointing correction of this camera, as a rotation vector (axis times angle, in radians)
+            expressed in the camera frame. It is applied on top of the camera's nominal orientation for every
+            observable computed with this camera, and is the quantity estimated by the
+            :func:`~tudatpy.dynamics.parameters_setup.camera_pointing_correction` parameter. Defaults to zero.
+
+            :type: numpy.ndarray[numpy.float64[3, 1]]
             )doc" );
     /*
      **************   GROUND STATION FUNCTIONALITY
