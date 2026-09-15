@@ -3165,8 +3165,12 @@ void resetSingleArcInitialStates(
 template< typename StateScalarType = double, typename TimeType = double >
 void toggleIntegratedResultSettings( const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
-        nullptr )
+    if( propagatorSettings == nullptr )
+    {
+        return;
+    }
+    else if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings )
                 ->getOutputSettings( )

@@ -60,7 +60,7 @@ void expose_estimation_analysis_estimator( py::module& m )
                   py::arg( "bodies" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "observation_settings" ),
-                  py::arg( "propagator_settings" ),
+                  py::arg_v( "propagator_settings", std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >( ), "None" ),
                   py::arg( "integrate_on_creation" ) = true,
                   R"doc(
 
@@ -88,9 +88,10 @@ void expose_estimation_analysis_estimator( py::module& m )
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
 
-         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings` or None, default = None
              Settings to create the propagator that is to be
-             used for the propagation of dynamics
+             used for the propagation of dynamics. Use ``None`` for observation-only estimation, where no
+             dynamics are propagated and only parameters with direct observation partials are estimated.
 
          integrate_on_creation : bool, default = True
              Boolean defining whether the propagation should be
