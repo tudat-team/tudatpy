@@ -11,6 +11,7 @@
 #include "tudat/astro/observation_models/observationFrequencies.h"
 
 #include <iostream>
+#include <map>
 
 namespace tudat
 {
@@ -37,10 +38,21 @@ std::string getFrequencyBandString( FrequencyBands frequencyBand )
             break;
         default:
             std::string errorMessage =
-                    "Error when getting link end string for type " + std::to_string( frequencyBand ) + ", type not found.";
+                    "Error when getting frequency band string for " + std::to_string( frequencyBand ) + ", frequency band not found.";
             throw std::runtime_error( errorMessage );
     }
     return frequencyBandString;
+}
+
+FrequencyBands getFrequencyBandFromString( const std::string& frequencyBand )
+{
+    static const std::map< std::string, FrequencyBands > frequencyBandFromStringMap = {
+        { "S-band", s_band }, { "X-band", x_band }, { "Ka-band", ka_band }, { "Ku-band", ku_band }
+    };
+    const auto it = frequencyBandFromStringMap.find( frequencyBand );
+    if( it == frequencyBandFromStringMap.end( ) )
+        throw std::runtime_error( "Error when getting frequency band from string identifier, " + frequencyBand + " not recognised." );
+    return it->second;
 }
 
 double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand )

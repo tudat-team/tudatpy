@@ -329,7 +329,7 @@ public:
 
     virtual void setTimeScaleConverter( )
     {
-        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( nullptr, true );
     }
 
     void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
