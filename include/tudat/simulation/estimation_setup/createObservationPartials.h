@@ -19,6 +19,7 @@
 #include "tudat/simulation/estimation_setup/createNWayRangePartials.h"
 #include "tudat/simulation/estimation_setup/createObservationBiasPartial.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
+#include "tudat/astro/orbit_determination/observation_partials/positionAngleAndSeparationPartial.h"
 
 namespace tudat
 {
@@ -66,6 +67,16 @@ template< typename ParameterType, typename TimeType, int ObservationSize >
 std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
            std::shared_ptr< PositionPartialScaling > >
 createDifferencedObservablePartials(
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const bool isPartialForDifferencedObservable = false,
+        const bool isPartialForConcatenatedObservable = false );
+
+template< typename ParameterType, typename TimeType, int ObservationSize >
+std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
+           std::shared_ptr< PositionPartialScaling > >
+createPositionAngleAndSeparationPartials(
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
@@ -218,6 +229,21 @@ public:
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
                 break;
+            case observation_models::position_angle:
+            case observation_models::separation_distance:
+                if( isPartialForConcatenatedObservable )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting partial creation for position angle/separation distance; concatenated partial not "
+                            "supported" );
+                }
+                observationPartials = createPositionAngleAndSeparationPartials< ObservationScalarType, TimeType, 1 >(
+                        observationModel,
+                        bodies,
+                        parametersToEstimate,
+                        isPartialForDifferencedObservable,
+                        isPartialForConcatenatedObservable );
+                break;
             case observation_models::n_way_differenced_range:
             case observation_models::dsn_n_way_averaged_doppler:
                 if( isPartialForDifferencedObservable )
@@ -317,6 +343,14 @@ public:
                                                                                                    parametersToEstimate,
                                                                                                    isPartialForDifferencedObservable,
                                                                                                    isPartialForConcatenatedObservable );
+                break;
+            case observation_models::position_angle_and_separation:
+                observationPartials = createPositionAngleAndSeparationPartials< ObservationScalarType, TimeType, 2 >(
+                        observationModel,
+                        bodies,
+                        parametersToEstimate,
+                        isPartialForDifferencedObservable,
+                        isPartialForConcatenatedObservable );
                 break;
             default:
                 std::string errorMessage =
@@ -827,6 +861,125 @@ mergeUndifferencedPartialContribution(
         }
     }
     return mergedPartials;
+}
+
+template< typename ParameterType, typename TimeType, int ObservationSize >
+std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
+           std::shared_ptr< PositionPartialScaling > >
+createPositionAngleAndSeparationPartials(
+        const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const bool isPartialForDifferencedObservable,
+        const bool isPartialForConcatenatedObservable )
+{
+    using namespace observation_models;
+
+    if( isPartialForConcatenatedObservable )
+    {
+        throw std::runtime_error( "Concatenated position-angle and separation partials are not supported." );
+    }
+
+    LinkEnds firstLinkEnds;
+    LinkEnds secondLinkEnds;
+    std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > firstLightTimeCalculator;
+    std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > secondLightTimeCalculator;
+    Eigen::Vector3d j2000NorthPoleDirection;
+    int componentIndex = -1;
+
+    switch( observationModel->getObservableType( ) )
+    {
+        case position_angle: {
+            const auto typedModel =
+                    std::dynamic_pointer_cast< PositionAngleObservationModel< ParameterType, TimeType > >( observationModel );
+            if( typedModel == nullptr )
+            {
+                throw std::runtime_error( "Cannot create position-angle partials: observation model has an incompatible type." );
+            }
+            firstLinkEnds = typedModel->getFirstLinkEnds( );
+            secondLinkEnds = typedModel->getSecondLinkEnds( );
+            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
+            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
+            j2000NorthPoleDirection = typedModel->getJ2000NorthPoleDirection( );
+            componentIndex = 0;
+            break;
+        }
+        case separation_distance: {
+            const auto typedModel = std::dynamic_pointer_cast< SeparationObservationModel< ParameterType, TimeType > >( observationModel );
+            if( typedModel == nullptr )
+            {
+                throw std::runtime_error( "Cannot create separation-distance partials: observation model has an incompatible type." );
+            }
+            firstLinkEnds = typedModel->getFirstLinkEnds( );
+            secondLinkEnds = typedModel->getSecondLinkEnds( );
+            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
+            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
+            j2000NorthPoleDirection = Eigen::Vector3d::UnitZ( );
+            componentIndex = 1;
+            break;
+        }
+        case position_angle_and_separation: {
+            const auto typedModel =
+                    std::dynamic_pointer_cast< PositionAngleAndSeparationObservationModel< ParameterType, TimeType > >( observationModel );
+            if( typedModel == nullptr )
+            {
+                throw std::runtime_error(
+                        "Cannot create position-angle and separation partials: observation model has an incompatible type." );
+            }
+            firstLinkEnds = typedModel->getFirstLinkEnds( );
+            secondLinkEnds = typedModel->getSecondLinkEnds( );
+            firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
+            secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
+            j2000NorthPoleDirection = typedModel->getJ2000NorthPoleDirection( );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Cannot create position-angle partials for observable " +
+                                      getObservableName( observationModel->getObservableType( ) ) + "." );
+    }
+
+    const auto firstAngularPositionModel =
+            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( firstLinkEnds, firstLightTimeCalculator );
+    const auto secondAngularPositionModel =
+            std::make_shared< AngularPositionObservationModel< ParameterType, TimeType > >( secondLinkEnds, secondLightTimeCalculator );
+
+    const auto firstAngularPartials = ObservationPartialCreator< 2, ParameterType, TimeType >::createObservationPartials(
+            firstAngularPositionModel, bodies, parametersToEstimate, true, isPartialForConcatenatedObservable );
+    const auto secondAngularPartials = ObservationPartialCreator< 2, ParameterType, TimeType >::createObservationPartials(
+            secondAngularPositionModel, bodies, parametersToEstimate, true, isPartialForConcatenatedObservable );
+    const auto mergedAngularPartials =
+            mergeUndifferencedPartialContribution< 2 >( firstAngularPartials.first, secondAngularPartials.first );
+
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > partials;
+    for( const auto& partial : mergedAngularPartials )
+    {
+        partials[ partial.first ] = std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >(
+                partial.second.first, partial.second.second, j2000NorthPoleDirection, componentIndex );
+    }
+
+    // Biases acting on the final observable are not part of either angular-position leg.
+    const auto vectorParametersToEstimate = parametersToEstimate->getVectorParameters( );
+    for( const auto& parameter : vectorParametersToEstimate )
+    {
+        if( !isParameterObservationLinkTimeProperty( parameter.second->getParameterName( ).first ) &&
+            isParameterObservationLinkProperty( parameter.second->getParameterName( ).first ) )
+        {
+            const auto biasPartial = createObservationPartialWrtLinkProperty< ObservationSize >( observationModel->getLinkEnds( ),
+                                                                                                 observationModel->getObservableType( ),
+                                                                                                 parameter.second,
+                                                                                                 bodies,
+                                                                                                 isPartialForDifferencedObservable,
+                                                                                                 isPartialForConcatenatedObservable );
+            if( biasPartial != nullptr )
+            {
+                partials[ std::make_pair( parameter.first, parameter.second->getParameterSize( ) ) ] = biasPartial;
+            }
+        }
+    }
+
+    return std::make_pair(
+            partials,
+            std::make_shared< PositionAngleAndSeparationPartialScaling >( firstAngularPartials.second, secondAngularPartials.second ) );
 }
 
 template< typename ParameterType, typename TimeType, int ObservationSize >
