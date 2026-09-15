@@ -10,14 +10,19 @@
 
 #define BOOST_TEST_MAIN
 
+#include <cmath>
+#include <iomanip>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/matrixTextFileReader.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
@@ -200,6 +205,75 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationObservationModel )
             positionAngleAndSeparationModel->computeObservationsWithLinkEndData(
                     receiverObservationTime, transmitter, positionAngleAndSeparationLinkEndTimes, positionAngleAndSeparationLinkEndStates ),
             std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
+{
+    const std::string validationDataDirectory = paths::getTudatTestDataPath( ) + "position_angle_and_separation/";
+    spice_interface::loadStandardSpiceKernels( { validationDataDirectory + "plu060_pm0001_subset.bsp" } );
+
+    BodyListSettings bodySettings( "SSB", "J2000" );
+    const std::vector< std::string > bodiesToCreate = { "Earth", "Pluto", "Charon" };
+    for( const std::string& bodyName : bodiesToCreate )
+    {
+        bodySettings.addSettings( bodyName );
+        bodySettings.at( bodyName )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "J2000", bodyName );
+    }
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    LinkDefinition linkEnds;
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Pluto", "" );
+    linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Charon", "" );
+
+    const std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
+            ObservationModelCreator< 2, double, double >::createObservationModel(
+                    std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds ), bodies );
+
+    // Tholen and Buie (1997), as distributed in the IMCCE Natural Satellites Data Base.
+    // Columns used here are UTC Julian date at exposure midpoint, separation [arcsec], and
+    // position angle [deg] measured from J2000 north through east.  Every epoch matches its
+    // corresponding MAST HST exposure midpoint to within 6 ms.  Earth's centre is used as
+    // receiver because the archived HST states change either observable by less than 0.002 mas.
+    const Eigen::MatrixXd observations = input_output::readMatrixFromFile( validationDataDirectory + "pm0001.txt", " \t" );
+    BOOST_REQUIRE_EQUAL( observations.rows( ), 60 );
+    BOOST_REQUIRE( observations.cols( ) >= 3 );
+
+    double squaredSeparationResidualSum = 0.0;
+    double squaredTransversePositionAngleResidualSum = 0.0;
+    for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
+    {
+        std::ostringstream utcJulianDate;
+        utcJulianDate << "JD " << std::setprecision( 16 ) << observations( observationIndex, 0 ) << " UTC";
+        const double receiverObservationTime = spice_interface::convertDateStringToEphemerisTime( utcJulianDate.str( ) );
+
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Vector6d > linkEndStates;
+        const Eigen::Vector2d computedObservation = positionAngleAndSeparationModel->computeObservationsWithLinkEndData(
+                receiverObservationTime, receiver, linkEndTimes, linkEndStates );
+
+        const double observedPositionAngle = unit_conversions::convertDegreesToRadians( observations( observationIndex, 2 ) );
+        const double observedSeparation = unit_conversions::convertDegreesToRadians( observations( observationIndex, 1 ) / 3600.0 );
+        const double wrappedPositionAngleResidual = std::atan2( std::sin( observedPositionAngle - computedObservation( 0 ) ),
+                                                                std::cos( observedPositionAngle - computedObservation( 0 ) ) );
+        const double separationResidual = observedSeparation - computedObservation( 1 );
+        const double transversePositionAngleResidual = observedSeparation * wrappedPositionAngleResidual;
+
+        squaredSeparationResidualSum += separationResidual * separationResidual;
+        squaredTransversePositionAngleResidualSum += transversePositionAngleResidual * transversePositionAngleResidual;
+    }
+
+    const double radiansToMilliarcseconds = 180.0 / mathematical_constants::PI * 3600.0 * 1000.0;
+    const double separationResidualRms =
+            std::sqrt( squaredSeparationResidualSum / static_cast< double >( observations.rows( ) ) ) * radiansToMilliarcseconds;
+    const double transversePositionAngleResidualRms =
+            std::sqrt( squaredTransversePositionAngleResidualSum / static_cast< double >( observations.rows( ) ) ) *
+            radiansToMilliarcseconds;
+
+    // PLU060 gives milliarcsecond-level pre-fit residuals comparable to the 1997 fitted-orbit
+    // residuals (2.93 mas radial and 2.70 mas transverse) stored in the source data file.
+    BOOST_CHECK_SMALL( separationResidualRms - 4.2227973382, 1.0e-6 );
+    BOOST_CHECK_SMALL( transversePositionAngleResidualRms - 4.4095016757, 1.0e-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
