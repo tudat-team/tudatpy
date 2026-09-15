@@ -77,13 +77,13 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
     BOOST_CHECK_SMALL( std::fabs( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ) ), 1.0E-15 );
 
     // Before UTC existed, the approximate overload must not call SOFA's UTC conversion.
-    const double utcIntroductionEpochInTai = convertUTCtoTAI(
-            ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-            physical_constants::JULIAN_DAY );
+    const double utcIntroductionEpochInTai =
+            convertUTCtoTAI( ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                             physical_constants::JULIAN_DAY );
     const double preUtcTime = basic_astrodynamics::convertTAItoTT( utcIntroductionEpochInTai - 0.5 );
     const Eigen::Vector6d preUtcArguments = calculateApproximateDelaunayFundamentalArgumentsWithGmst( preUtcTime );
-    const Eigen::Vector6d expectedPreUtcArguments = calculateDelaunayFundamentalArgumentsWithGmst(
-            preUtcTime, preUtcTime, basic_astrodynamics::convertTTtoTAI( preUtcTime ) );
+    const Eigen::Vector6d expectedPreUtcArguments =
+            calculateDelaunayFundamentalArgumentsWithGmst( preUtcTime, preUtcTime, basic_astrodynamics::convertTTtoTAI( preUtcTime ) );
     BOOST_CHECK_SMALL( ( preUtcArguments - expectedPreUtcArguments ).norm( ), std::numeric_limits< double >::epsilon( ) );
 
     // Once UTC exists, retain the previous UTC-as-UT1 approximation exactly.

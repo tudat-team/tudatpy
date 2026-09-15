@@ -257,12 +257,11 @@ public:
         {
             TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                     timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
-            Eigen::Vector6d fundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-                    static_cast< double >( barycentricDynamicalTime ),
-                    static_cast< double >( terrestrialTime ),
-                    static_cast< double >( ut1 ) );
-            positionOfCipInItrs =
-                    polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
+            Eigen::Vector6d fundamentalArguments =
+                    sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
+                                                                                   static_cast< double >( terrestrialTime ),
+                                                                                   static_cast< double >( ut1 ) );
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
         }
         else
         {

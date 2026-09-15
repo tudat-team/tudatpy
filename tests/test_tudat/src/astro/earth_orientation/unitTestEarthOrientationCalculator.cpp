@@ -263,23 +263,20 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     // Verify that the complete rotation-angle path uses historical Delta T instead of attempting a pre-UTC SOFA conversion.
     const double historicalEpoch = basic_astrodynamics::DateTime( 1893, 1, 1, 0, 0, 0.0 ).epoch< double >( );
     const std::pair< Eigen::Vector5d, double > historicalAngles =
-            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(
-                    historicalEpoch, basic_astrodynamics::tdb_scale );
+            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >( historicalEpoch, basic_astrodynamics::tdb_scale );
 
-    std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
-            earthOrientationCalculator->getTerrestrialTimeScaleConverter( );
+    std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter = earthOrientationCalculator->getTerrestrialTimeScaleConverter( );
     const double barycentricDynamicalTime =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tdb_scale, historicalEpoch );
     const double terrestrialTime =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tt_scale, historicalEpoch );
     const double universalTime1 =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::ut1_scale, historicalEpoch );
-    const Eigen::Vector6d historicalFundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst(
-            barycentricDynamicalTime, terrestrialTime, universalTime1 );
-    const Eigen::Vector2d expectedPolarMotion =
-            earthOrientationCalculator->getPolarMotionCalculator( )
-                    ->getShortPeriodPolarMotionCalculator( )
-                    ->getCorrectionsFromFundamentalArgument( historicalFundamentalArguments );
+    const Eigen::Vector6d historicalFundamentalArguments =
+            sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( barycentricDynamicalTime, terrestrialTime, universalTime1 );
+    const Eigen::Vector2d expectedPolarMotion = earthOrientationCalculator->getPolarMotionCalculator( )
+                                                        ->getShortPeriodPolarMotionCalculator( )
+                                                        ->getCorrectionsFromFundamentalArgument( historicalFundamentalArguments );
 
     BOOST_CHECK_SMALL( ( historicalAngles.first.segment< 2 >( 3 ) - expectedPolarMotion ).norm( ),
                        std::numeric_limits< double >::epsilon( ) );
