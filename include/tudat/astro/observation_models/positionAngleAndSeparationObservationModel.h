@@ -202,10 +202,11 @@ public:
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
         const Eigen::Matrix< ObservationScalarType, 2, 1 > positionAngleAndSeparation =
-                calculatePositionAngleAndSeparation( relativeStateTransmitter1,
-                                                     relativeStateTransmitter2,
-                                                     j2000NorthPoleDirection_.template cast< ObservationScalarType >( ),
-                                                     calculatePositionAngle_ );
+                calculatePositionAngleAndSeparation< ObservationScalarType >(
+                        relativeStateTransmitter1,
+                        relativeStateTransmitter2,
+                        j2000NorthPoleDirection_.template cast< ObservationScalarType >( ),
+                        calculatePositionAngle_ );
 
         // Set link end times and states.
         linkEndTimes.clear( );
