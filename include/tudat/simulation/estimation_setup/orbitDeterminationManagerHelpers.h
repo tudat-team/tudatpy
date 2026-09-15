@@ -102,10 +102,8 @@ void wrapObservationResiduals(
         observedObservationBlock.rows( ) != residualBlockSize )
     {
         throw std::runtime_error( "Error when wrapping normalized angular position residuals: observed observation block has size " +
-                                  std::to_string( residualBlockSize ) + "." );
-                                  std::to_string( observedObservationBlock.rows( ) ) + ", expected " +
-                                  std::to_string( residualBlockSize ) + "." );
-                                  std::to_string( residualBlockSize ) + "." );
+                                  std::to_string( observedObservationBlock.rows( ) ) + ", expected " + std::to_string( residualBlockSize ) +
+                                  "." );
     }
 
     // Determine which components are periodic and their wrapping ranges
