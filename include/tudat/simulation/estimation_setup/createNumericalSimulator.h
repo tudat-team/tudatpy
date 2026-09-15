@@ -166,8 +166,17 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
-        nullptr )
+    if( propagatorSettings == nullptr )
+    {
+        if( dynamicalStateSize != 0 )
+        {
+            throw std::runtime_error(
+                    "Error when creating observation-only state transition interface: dynamical state size must be zero." );
+        }
+        return std::make_shared< propagators::ObservationOnlyStateTransitionAndSensitivityMatrixInterface >( totalParameterSize );
+    }
+    else if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         return std::make_shared< propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
