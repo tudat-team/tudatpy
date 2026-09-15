@@ -55,20 +55,20 @@ namespace tudat
 namespace observation_models
 {
 
-inline Eigen::Vector3d getJ2000NorthPoleDirectionInGlobalFrame( const simulation_setup::SystemOfBodies& bodies )
+inline Eigen::Matrix3d getJ2000ToGlobalFrameTransformation( const simulation_setup::SystemOfBodies& bodies )
 {
     const std::string globalFrameOrientation = bodies.getFrameOrientation( );
     if( globalFrameOrientation == "J2000" || globalFrameOrientation == "ICRF" )
     {
-        return Eigen::Vector3d::UnitZ( );
+        return Eigen::Matrix3d::Identity( );
     }
     if( globalFrameOrientation == "ECLIPJ2000" )
     {
-        return reference_frames::getJ2000toECLIPJ2000TransformationMatrix( ) * Eigen::Vector3d::UnitZ( );
+        return reference_frames::getJ2000toECLIPJ2000TransformationMatrix( );
     }
 
-    throw std::runtime_error( "Position-angle observations currently require a J2000/ICRF or ECLIPJ2000 global frame; found " +
-                              globalFrameOrientation + ". Support for a configurable reference frame is not yet implemented." );
+    throw std::runtime_error( "Position-angle observations require a J2000/ICRF or ECLIPJ2000 global frame; found " +
+                              globalFrameOrientation + "." );
 }
 
 //! Function to create the proper time rate calculator for use in one-way Doppler
@@ -1781,7 +1781,7 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias,
-                        getJ2000NorthPoleDirectionInGlobalFrame( bodies ) );
+                        getJ2000ToGlobalFrameTransformation( bodies ) );
                 break;
             }
             case separation_distance: {
@@ -2053,7 +2053,7 @@ public:
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias,
-                        getJ2000NorthPoleDirectionInGlobalFrame( bodies ) );
+                        getJ2000ToGlobalFrameTransformation( bodies ) );
 
                 break;
             }

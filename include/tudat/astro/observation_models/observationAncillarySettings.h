@@ -11,6 +11,7 @@
 #ifndef TUDAT_ANCILLARYSETTINGS_H
 #define TUDAT_ANCILLARYSETTINGS_H
 
+#include <cmath>
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
@@ -41,6 +42,20 @@ enum ObservationAncillarySimulationVariable {
     doppler_reference_frequency,
     sequential_range_lowest_ranging_component,
     range_conversion_factor,
+    position_angle_reference_frame,
+    position_angle_reference_epoch,
+    position_angle_reference_pole,
+};
+
+//! Celestial reference frame whose north pole defines a position-angle observable.
+enum PositionAngleReferenceFrame {
+    j2000_position_angle_reference_frame = 0,
+    b1950_position_angle_reference_frame = 1,
+    mean_of_date_iau_1976_position_angle_reference_frame = 2,
+    true_of_date_iau_1976_1980_position_angle_reference_frame = 3,
+    mean_of_date_iau_2006_position_angle_reference_frame = 4,
+    true_of_date_iau_2006_2000a_position_angle_reference_frame = 5,
+    custom_position_angle_reference_pole = 6
 };
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
@@ -63,6 +78,8 @@ public:
             case reception_reference_frequency_band:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
+            case position_angle_reference_frame:
+            case position_angle_reference_epoch:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -79,6 +96,7 @@ public:
         {
             case link_ends_delays:
             case frequency_bands:
+            case position_angle_reference_pole:
                 doubleVectorData_[ variableType ] = variable;
                 break;
             default:
@@ -101,6 +119,8 @@ public:
                 case reception_reference_frequency_band:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
+                case position_angle_reference_frame:
+                case position_angle_reference_epoch:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -137,6 +157,7 @@ public:
             {
                 case link_ends_delays:
                 case frequency_bands:
+                case position_angle_reference_pole:
                     returnVariable = doubleVectorData_.at( variableType );
                     break;
                 default:
@@ -189,6 +210,15 @@ public:
                 break;
             case range_conversion_factor:
                 name = "DSN range conversion factor from RU to meter";
+                break;
+            case position_angle_reference_frame:
+                name = "position-angle celestial reference frame";
+                break;
+            case position_angle_reference_epoch:
+                name = "position-angle celestial reference epoch";
+                break;
+            case position_angle_reference_pole:
+                name = "custom position-angle reference pole";
                 break;
             default:
                 throw std::runtime_error(
@@ -309,6 +339,32 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopp
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
+    return ancillarySettings;
+}
+
+//! Create ancillary settings selecting the celestial pole used for position angle.
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getPositionAngleAncillarySettings(
+        const PositionAngleReferenceFrame referenceFrame = j2000_position_angle_reference_frame,
+        const double referenceEpoch = TUDAT_NAN )
+{
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleData( position_angle_reference_frame, static_cast< double >( referenceFrame ) );
+    if( !std::isnan( referenceEpoch ) )
+    {
+        ancillarySettings->setAncillaryDoubleData( position_angle_reference_epoch, referenceEpoch );
+    }
+    return ancillarySettings;
+}
+
+//! Create ancillary settings defining a custom position-angle reference pole in ICRF/J2000 coordinates.
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositionAngleAncillarySettings(
+        const Eigen::Vector3d& referencePole )
+{
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            getPositionAngleAncillarySettings( custom_position_angle_reference_pole );
+    ancillarySettings->setAncillaryDoubleVectorData( position_angle_reference_pole,
+                                                     { referencePole.x( ), referencePole.y( ), referencePole.z( ) } );
     return ancillarySettings;
 }
 

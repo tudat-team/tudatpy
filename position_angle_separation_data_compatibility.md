@@ -1,6 +1,6 @@
 # Position-Angle and Separation Observation Data Compatibility
 
-## Intermediate conclusion — 15 September 2026
+## Intermediate conclusion — 16 September 2026
 
 The literature supports three definite additions to this branch's forward `P/S` model: a selectable celestial reference pole/frame, stellar aberration applied to each sight line, and optical atmospheric refraction applied to each sight line. These must be independently selectable: an archived observation called **apparent** need not still contain refraction. A fourth, conditional extension is a tangent-plane/projected-polar output convention for data that have not been reduced to spherical `P/S`.
 
@@ -12,7 +12,7 @@ This is an implementation conclusion from the papers reviewed below, not an exha
 - A focused C++ test now evaluates all 60 `pm0001` observations through `PositionAngleAndSeparationObservationModel` using independent light-time solutions for Pluto and Charon.
 - On 15 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all three test cases with no errors.
 - The verified Tudat C++ pre-fit RMS is **4.222797 mas in separation** and **4.409502 mas in the transverse position-angle direction**.
-- This stage validates the existing astrometric J2000 model. It does not yet add the selectable reference-pole/frame adaptation.
+- The selectable reference-pole/frame adaptation is now implemented locally. Its focused C++ target compiles and all four tests pass, including the original J2000 Pluto--Charon regression and the new true-of-date Mars-satellite test. The Python kernel also builds and all new enum values and ancillary factories import successfully.
 
 ## Current validation datasets
 
@@ -62,11 +62,33 @@ To keep the test fixture small, a 604-KiB Type-9 SPK was sampled from PLU060 eve
 - Convention: astrometric, topocentric, true equator and equinox of date, UTC/UT1.
 - Reduction: marked as corrected for phase.
 
-The frame convention is not directly compatible with the current position-angle implementation because Tudat currently uses a fixed J2000 north pole. A pure frame rotation does not change separation; position angle requires a date-dependent pole or conversion of the observation into J2000. This statement concerns frame compatibility only, not certification of all other corrections.
+This dataset exercises the new date-dependent position-angle pole. A pure frame rotation does not change separation; position angle requires a date-dependent pole or conversion of the observation into J2000. The implementation uses the observation reception epoch unless an explicit reference epoch is supplied and evaluates the IAU 1976/1980 precession-nutation matrix in TT. Only the pole is required: changing the equinox origin rotates axes about that pole and does not alter local celestial north/east.
 
-The original short paper describes calibration using star trails and a double star, but leaves a fuller reduction analysis to later work. Its text alone does not establish all aberration/refraction conventions required for a clean test. [Jones, Sinclair & Williams (1989), original paper](https://articles.adsabs.harvard.edu/pdf/1989MNRAS.237P..15J).
+The receiver uses the Jacobus Kapteyn Telescope coordinates published by the Isaac Newton Group (28 deg 45 min 40.1 sec N, 17 deg 52 min 41.2 sec W, 2364 m) and Tudat's IAU-2006 GCRS/ITRS rotation with Earth-orientation data. The station position is formed on a WGS84 ellipsoid. At the roughly 0.2-arcsecond precision of these observations, uncertainty in the historical site realization is negligible.
 
-MPC observatory code 950 supplies a usable geocentric site position for La Palma, but a surveyed Jacobus Kapteyn Telescope coordinate and its reference epoch would be preferable for a final high-accuracy result. Tudat's high-accuracy Earth rotation should be used with Earth-orientation data appropriate to 1988.
+The validation uses a compact 824-KiB Type-9 SPK made from JPL Horizons geometric ICRF vectors over 1988-09-19 through 1988-10-02. Horizons identifies DE441 for Earth and MAR099 for Mars, Phobos, and Deimos. The state vectors are sampled every five minutes and interpolated at degree 15. Against fresh Horizons vectors at 288 independent half-grid epochs per body, the largest position difference is 1.19 m. The kernel SHA-256 is `a504982dfa91452a20e0babdf2f81245f0a8968d9715384a1b7115acc3d85c07`.
+
+All 166 accepted records are evaluated with their documented body ordering, UTC-to-TDB conversion, separate converged light times, and the JKT receiver. Current pre-fit RMS values are:
+
+- Separation: **0.183369789 arcsec**.
+- Transverse position angle with a deliberately incorrect J2000 pole: **0.150921158 arcsec**.
+- Transverse position angle with the documented IAU-1976/1980 true-of-date pole: **0.152725650 arcsec**.
+
+The true-of-date frame correction itself is about 6 milliarcseconds transverse, far below the individual 0.2-arcsecond uncertainties. It does not reduce this unweighted RMS because the series has a larger positive position-angle bias and its differential-refraction status is unknown. The test therefore compares against independently reproduced numerical results; it does **not** use "RMS becomes smaller" as a validity criterion. An independent Python calculation using ERFA `pnm80`, direct SPICE light-time iteration, and the same JPL vectors reproduced the sign and magnitude (Earth-centre approximation: 0.152827 arcsec true-of-date RMS and a -0.005981-arcsec mean transverse true-of-date-minus-J2000 correction).
+
+The frame is unambiguous in the NSDB metadata, but this is not yet a clean atmospheric-reduction benchmark. The original short paper describes calibration using star trails and a double star, but leaves a fuller reduction analysis to later work. Its text does not establish whether differential refraction was removed. [Jones, Sinclair & Williams (1989), original paper](https://articles.adsabs.harvard.edu/pdf/1989MNRAS.237P..15J).
+
+#### True-of-date implementation log
+
+- Added ancillary selectors for J2000, B1950, IAU-1976 mean-of-date, IAU-1976/1980 true-of-date, IAU-2006 mean-of-date, IAU-2006/2000A true-of-date, and a custom ICRF/J2000 pole.
+- Moved non-templated reference-pole evaluation into `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp` so future changes do not require recompiling every template consumer.
+- Preserved J2000 as the default and separation invariance under every pole choice.
+- Added equivalent Python enum and ancillary-settings factories.
+- Added `mm0012.txt`, its provenance documentation, and `mar099_de441_mm0012_subset.bsp` to `tests/test_tudat/data.zip`; archive integrity passes `unzip -t`.
+- Focused build command: `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6`.
+- Focused test command: `build/tests/test_observation_models_PositionAngleAndSeparationObservationModel --log_level=test_suite`.
+- Python build command: `cmake --build build --target kernel -j6`; result: `kernel.so` linked successfully. A direct import check created every predefined-frame setting and a custom-pole setting.
+- The first build of the new test exposed two `std::make_pair` values inferred with `const char*`; they were changed to explicit `std::string` station names. The next build completed. The first test run rejected an invalid assumption that the correct frame must lower noisy pre-fit RMS; the independent calculation confirmed the implementation and the regression now checks the reproduced physical values instead.
 
 ### Large but heterogeneous set: IMCCE `sm0034`
 
@@ -84,12 +106,6 @@ The list below contains only physical or reference-convention capabilities that 
 Relativistic angular light deflection, phase/photocentre correction, and star-catalogue astrometric reduction are implemented on other branches. They are therefore not additions to make here and cannot be enabled in the present baseline validation test. Their absence must still be respected when selecting data and interpreting residuals.
 
 Line counts below are rough engineering estimates, not measured patches. They cover the named model option and integration/tests, not a general historical re-reduction package or a complete extension of all analytical partials.
-
-- **Selectable position-angle reference pole and celestial frame**
-  - **Confidence:** High for explicit pole rotations and modern mean/true-of-date frames; medium for faithful reproduction of legacy FK4 reductions and undocumented historical formulae.
-  - **Current Tudat support:** Partial. Tudat has the underlying precession/nutation and frame-rotation machinery, but the `P/S` observable currently uses a fixed J2000 pole.
-  - **Estimated size:** 150–250 production lines plus 150–250 binding, documentation, and test lines.
-  - **Physical model:** Define local north/east using the observation's celestial reference frame. Support ICRS, explicitly specified FK5 J2000, B1950 north, mean equator/equinox at a supplied epoch, and true equator/equinox of date, including historical year-start epochs. A user-provided pole/frame function is useful. ICRS and FK5 J2000 should not be silently conflated for precision work. A rigid pole change affects `P`, not `S`. **B1950 north does not automatically imply a full FK4 catalogue transformation:** whether legacy E-terms or other non-rigid conventions are relevant must be established from the reduction. The separate star-catalogue implementation is not to be duplicated here.
 
 - **Stellar aberration / astrometric versus aberrated direction**
   - **Confidence:** High for the required architecture and aberration physics; medium for classifying individual historical datasets whose use of `apparent` is underspecified.
@@ -141,10 +157,9 @@ These are direction transformations and an output-frame/geometry choice, not new
 ## Recommended implementation order
 
 1. **Completed:** run `pm0001` through Tudat itself as an astrometric J2000 geometry benchmark, retaining the photocentre caveat and quantifying the HST-receiver approximation.
-2. **Next:** add explicit ancillary settings for direction convention and celestial reference frame, retaining astrometric J2000 as the default.
-3. Add true-equator/equinox-of-date support. Use `mm0012` only after resolving its remaining reduction conventions, with a high-accuracy La Palma receiver state.
-4. Factor stellar aberration into a shared angular-direction correction and add an explicit apparent-direction option.
-5. Add optical refraction only where the observation metadata provide enough information.
+2. **Completed:** add explicit ancillary settings for the celestial reference frame, retaining astrometric J2000 as the default, and validate true-equator/equinox-of-date against all 166 `mm0012` observations from the high-accuracy JKT receiver.
+3. **Next:** factor stellar aberration into a shared angular-direction correction and add an explicit astrometric/aberrated-direction option.
+4. Add optical refraction only where the observation metadata provide enough information.
 
 Integration of the separately implemented angular light-deflection, photocentre, and star-catalogue-reduction capabilities is explicitly outside this branch and baseline test. Assess projected-polar support against a specifically documented dataset before implementing it.
 
@@ -158,11 +173,11 @@ The aim can be full support for all sufficiently documented observations, but no
 - **Branch:** `feature/position-angle-and-separation-observation-model-and-partials`
 - **Baseline before this validation:** `f76b40736` — `Checkpoint before natural-satellite observation validation`.
 - **Earlier work:** `40af0d1c3` consolidated the models; `3b0daf3bb` merged PR #857 residual wrapping into PR #860's branch.
-- **Local changes for this validation:** the focused C++ test, the three archived fixture files in `tests/test_tudat/data.zip`, and this report. Preserve the unrelated dirty `examples/tudatpy` submodule and other pre-existing untracked files. Nothing has been pushed.
-- **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `include/tudat/simulation/estimation_setup/createObservationModelFactory.h` (`getJ2000NorthPoleDirectionInGlobalFrame`); `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h` (existing aberration utility).
-- **Build:** No build remains active. The focused C++ target built successfully with `-j6`, and its executable passed. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
+- **Local milestone content:** the selectable-frame implementation and bindings, both real-data C++ tests, the five archived files in `tests/test_tudat/data.zip`, and this report. Preserve the unrelated dirty `examples/tudatpy` submodule and other pre-existing untracked files. Nothing has been pushed.
+- **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp`; `include/tudat/simulation/estimation_setup/createObservationModelFactory.h`; `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h` (existing aberration utility).
+- **Build:** No build remains active. The focused C++ target and Python kernel built successfully with `-j6`; all four focused C++ test cases and the Python import check passed. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
 - **Temporary research inputs:** `/tmp/ps-literature/` contains downloaded papers and extracted text; `/tmp/tudatpy-hst-validation/` contains retrieved HST header products; `/tmp/tudatpy-pm0001-subset-20260915-a/` contains the generated compact SPK. Temporary paths may disappear after reboot; permanent sources and the required regression fixtures are recorded in the repository data archive.
-- **Outstanding work:** implement and validate the selectable position-angle reference pole/celestial frame as the first model adaptation. Stellar aberration follows only after that case is independently validated; optical atmospheric refraction remains lowest priority.
+- **Outstanding work:** implement stellar aberration/astrometric-versus-aberrated directions against one explicitly documented apparent dataset. Optical atmospheric refraction remains lowest priority.
 
 The command below resumes this specific saved conversation and supplies this worktree as its working directory. Its syntax was checked using the OpenAI Docs skill against the [official CLI command documentation](https://learn.chatgpt.com/docs/developer-commands?surface=cli) and the installed `codex resume --help`. It does not build, commit or push anything by itself. Run it later, after leaving the current session:
 

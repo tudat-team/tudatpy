@@ -13,6 +13,7 @@
 #include <cmath>
 #include <iomanip>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -21,14 +22,18 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/matrixTextFileReader.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/estimation_setup/createObservationModelFactory.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createBodyShapeModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat
 {
@@ -274,6 +279,131 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
     // residuals (2.93 mas radial and 2.70 mas transverse) stored in the source data file.
     BOOST_CHECK_SMALL( separationResidualRms - 4.2227973382, 1.0e-6 );
     BOOST_CHECK_SMALL( transversePositionAngleResidualRms - 4.4095016757, 1.0e-6 );
+}
+
+BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
+{
+    const std::string validationDataDirectory = paths::getTudatTestDataPath( ) + "position_angle_and_separation/";
+    spice_interface::loadStandardSpiceKernels( { validationDataDirectory + "mar099_de441_mm0012_subset.bsp" } );
+
+    BodyListSettings bodySettings( "SSB", "J2000" );
+    const std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Phobos", "Deimos" };
+    for( const std::string& bodyName : bodiesToCreate )
+    {
+        bodySettings.addSettings( bodyName );
+        bodySettings.at( bodyName )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "J2000", bodyName );
+    }
+    bodySettings.at( "Earth" )->shapeModelSettings = oblateSphericalBodyShapeSettings( 6378137.0, 1.0 / 298.257223563 );
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, "J2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Coordinates published by the Isaac Newton Group for the Jacobus Kapteyn Telescope.
+    const Eigen::Vector3d jacobusKapteynTelescopeGeodeticPosition(
+            2364.0,
+            unit_conversions::convertDegreesToRadians( 28.0 + 45.0 / 60.0 + 40.1 / 3600.0 ),
+            unit_conversions::convertDegreesToRadians( -( 17.0 + 52.0 / 60.0 + 41.2 / 3600.0 ) ) );
+    createGroundStation( bodies.at( "Earth" ), "JKT", jacobusKapteynTelescopeGeodeticPosition, coordinate_conversions::geodetic_position );
+
+    const std::map< int, std::pair< std::string, std::string > > observedBodyPairs = { { 1, { "Mars", "Phobos" } },
+                                                                                       { 2, { "Mars", "Deimos" } },
+                                                                                       { 3, { "Phobos", "Deimos" } } };
+    std::map< int, std::shared_ptr< ObservationModel< 2 > > > positionAngleAndSeparationModels;
+    for( const auto& observedBodyPair : observedBodyPairs )
+    {
+        LinkDefinition linkEnds;
+        linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "JKT" );
+        linkEnds[ transmitter ] = std::make_pair( observedBodyPair.second.first, std::string( "" ) );
+        linkEnds[ transmitter2 ] = std::make_pair( observedBodyPair.second.second, std::string( "" ) );
+        positionAngleAndSeparationModels[ observedBodyPair.first ] = ObservationModelCreator< 2, double, double >::createObservationModel(
+                std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds ), bodies );
+    }
+
+    const std::shared_ptr< ObservationAncillarySimulationSettings > j2000AncillarySettings =
+            getPositionAngleAncillarySettings( j2000_position_angle_reference_frame );
+    const std::shared_ptr< ObservationAncillarySimulationSettings > trueOfDateAncillarySettings =
+            getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame );
+    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter =
+            earth_orientation::createDefaultTimeConverter( );
+
+    // Jones, Sinclair, and Williams (1989), as distributed in the IMCCE Natural
+    // Satellites Data Base.  Columns 14 and 15 contain separation [arcsec] and
+    // position angle [deg] referred to the true equator and equinox of date.
+    const Eigen::MatrixXd observations = input_output::readMatrixFromFile( validationDataDirectory + "mm0012.txt", " \t" );
+    BOOST_REQUIRE_EQUAL( observations.rows( ), 166 );
+    BOOST_REQUIRE_EQUAL( observations.cols( ), 18 );
+
+    double squaredSeparationResidualSum = 0.0;
+    double squaredJ2000TransversePositionAngleResidualSum = 0.0;
+    double squaredTrueOfDateTransversePositionAngleResidualSum = 0.0;
+    double maximumSeparationModelDifference = 0.0;
+    for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
+    {
+        BOOST_REQUIRE_EQUAL( static_cast< int >( observations( observationIndex, 0 ) ), 1 );
+        BOOST_REQUIRE_EQUAL( static_cast< int >( observations( observationIndex, 9 ) ), 0 );
+        BOOST_REQUIRE_EQUAL( static_cast< int >( observations( observationIndex, 10 ) ), 1 );
+        BOOST_REQUIRE_EQUAL( static_cast< int >( observations( observationIndex, 11 ) ), 1 );
+        BOOST_REQUIRE_EQUAL( static_cast< int >( observations( observationIndex, 12 ) ), 1 );
+
+        const int year = static_cast< int >( observations( observationIndex, 2 ) );
+        const int month = static_cast< int >( observations( observationIndex, 3 ) );
+        const double decimalDay = observations( observationIndex, 4 );
+        const int day = static_cast< int >( std::floor( decimalDay ) );
+        const double secondsOfDay = ( decimalDay - static_cast< double >( day ) ) * physical_constants::JULIAN_DAY;
+        const int hour = static_cast< int >( secondsOfDay / 3600.0 );
+        const int minute = static_cast< int >( ( secondsOfDay - 3600.0 * hour ) / 60.0 );
+        const long double second = secondsOfDay - 3600.0 * hour - 60.0 * minute;
+        const basic_astrodynamics::DateTime utcDateTime( year, month, day, hour, minute, second );
+        const double receiverObservationTime = timeScaleConverter->getCurrentTime(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcDateTime.epoch< double >( ) );
+
+        const int observedBodyPairCode = static_cast< int >( observations( observationIndex, 8 ) );
+        BOOST_REQUIRE( positionAngleAndSeparationModels.count( observedBodyPairCode ) == 1 );
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Vector6d > linkEndStates;
+        const Eigen::Vector2d j2000ComputedObservation =
+                positionAngleAndSeparationModels.at( observedBodyPairCode )
+                        ->computeObservationsWithLinkEndData(
+                                receiverObservationTime, receiver, linkEndTimes, linkEndStates, j2000AncillarySettings );
+        const Eigen::Vector2d trueOfDateComputedObservation =
+                positionAngleAndSeparationModels.at( observedBodyPairCode )
+                        ->computeObservationsWithLinkEndData(
+                                receiverObservationTime, receiver, linkEndTimes, linkEndStates, trueOfDateAncillarySettings );
+
+        const double observedSeparation = unit_conversions::convertDegreesToRadians( observations( observationIndex, 13 ) / 3600.0 );
+        const double observedPositionAngle = unit_conversions::convertDegreesToRadians( observations( observationIndex, 14 ) );
+        const double separationResidual = observedSeparation - trueOfDateComputedObservation( 1 );
+        const double j2000PositionAngleResidual = std::atan2( std::sin( observedPositionAngle - j2000ComputedObservation( 0 ) ),
+                                                              std::cos( observedPositionAngle - j2000ComputedObservation( 0 ) ) );
+        const double trueOfDatePositionAngleResidual = std::atan2( std::sin( observedPositionAngle - trueOfDateComputedObservation( 0 ) ),
+                                                                   std::cos( observedPositionAngle - trueOfDateComputedObservation( 0 ) ) );
+
+        squaredSeparationResidualSum += separationResidual * separationResidual;
+        squaredJ2000TransversePositionAngleResidualSum += std::pow( observedSeparation * j2000PositionAngleResidual, 2 );
+        squaredTrueOfDateTransversePositionAngleResidualSum += std::pow( observedSeparation * trueOfDatePositionAngleResidual, 2 );
+        maximumSeparationModelDifference = std::max( maximumSeparationModelDifference,
+                                                     std::abs( j2000ComputedObservation( 1 ) - trueOfDateComputedObservation( 1 ) ) );
+    }
+
+    const double radiansToArcseconds = 180.0 / mathematical_constants::PI * 3600.0;
+    const double numberOfObservations = static_cast< double >( observations.rows( ) );
+    const double separationResidualRms = std::sqrt( squaredSeparationResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double j2000TransversePositionAngleResidualRms =
+            std::sqrt( squaredJ2000TransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double trueOfDateTransversePositionAngleResidualRms =
+            std::sqrt( squaredTrueOfDateTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+
+    BOOST_TEST_MESSAGE( "mm0012 separation RMS [arcsec]: " << std::setprecision( 12 ) << separationResidualRms );
+    BOOST_TEST_MESSAGE( "mm0012 J2000 transverse PA RMS [arcsec]: " << j2000TransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "mm0012 true-of-date transverse PA RMS [arcsec]: " << trueOfDateTransversePositionAngleResidualRms );
+    BOOST_CHECK_SMALL( maximumSeparationModelDifference, 5.0 * std::numeric_limits< double >::epsilon( ) );
+
+    // The frame correction is only about 6 mas in the transverse direction and is
+    // smaller than the 0.2-arcsec measurement noise.  It therefore need not reduce
+    // the unweighted RMS.  These values were independently reproduced with ERFA's
+    // pnm80 matrix, SPICE light-time iteration, and the compact JPL ephemeris.
+    BOOST_CHECK_SMALL( separationResidualRms - 0.183369789212, 1.0e-6 );
+    BOOST_CHECK_SMALL( j2000TransversePositionAngleResidualRms - 0.150921157572, 1.0e-6 );
+    BOOST_CHECK_SMALL( trueOfDateTransversePositionAngleResidualRms - 0.152725650254, 1.0e-6 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

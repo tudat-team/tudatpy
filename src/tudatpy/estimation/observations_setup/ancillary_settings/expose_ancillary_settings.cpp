@@ -90,6 +90,25 @@ void expose_ancillary_settings_types( py::module& m )
             .value( "ka_band", tom::FrequencyBands::ka_band )
             .value( "ku_band", tom::FrequencyBands::ku_band );
 
+    py::enum_< tom::PositionAngleReferenceFrame >( m,
+                                                   "PositionAngleReferenceFrame",
+                                                   R"doc(
+        Enumeration of celestial reference frames whose north pole can define a position-angle observable.
+
+        The mean- and true-of-date choices are explicit about their IAU precession/nutation convention. A reference epoch supplied to
+        :func:`position_angle_ancillary_settings` overrides the observation epoch for these time-dependent frames.
+        )doc" )
+            .value( "j2000", tom::PositionAngleReferenceFrame::j2000_position_angle_reference_frame )
+            .value( "b1950", tom::PositionAngleReferenceFrame::b1950_position_angle_reference_frame )
+            .value( "mean_of_date_iau_1976", tom::PositionAngleReferenceFrame::mean_of_date_iau_1976_position_angle_reference_frame )
+            .value( "true_of_date_iau_1976_1980",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_1976_1980_position_angle_reference_frame )
+            .value( "mean_of_date_iau_2006", tom::PositionAngleReferenceFrame::mean_of_date_iau_2006_position_angle_reference_frame )
+            .value( "true_of_date_iau_2006_2000a",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_2006_2000a_position_angle_reference_frame )
+            .value( "custom_pole", tom::PositionAngleReferenceFrame::custom_position_angle_reference_pole )
+            .export_values( );
+
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
                                                               R"doc(
@@ -164,6 +183,22 @@ void expose_ancillary_settings_types( py::module& m )
                     This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "position_angle_reference_frame",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_frame,
+                    R"doc(
+                    Celestial reference-frame enum value defining the north pole used by a position-angle observable.
+                    )doc" )
+            .value( "position_angle_reference_epoch",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_epoch,
+                    R"doc(
+                    Optional TDB epoch, in seconds since J2000, at which a time-dependent position-angle reference frame is evaluated.
+                    If omitted, the observation's reception epoch is used.
+                    )doc" )
+            .value( "position_angle_reference_pole",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_pole,
+                    R"doc(
+                    Custom position-angle north-pole vector expressed in ICRF/J2000 coordinates.
                     )doc" )
             .export_values( );
 
@@ -307,6 +342,47 @@ void expose_ancillary_settings( py::module& m )
  -------
  ObservationAncillarySimulationSettings
      Empty ancillary settings.
+
+     )doc" );
+
+    m.def( "position_angle_ancillary_settings",
+           &tom::getPositionAngleAncillarySettings,
+           py::arg( "reference_frame" ) = tom::j2000_position_angle_reference_frame,
+           py::arg( "reference_epoch" ) = TUDAT_NAN,
+           R"doc(
+
+ Create ancillary settings selecting the celestial north pole used for position-angle observations.
+
+ Parameters
+ ----------
+ reference_frame : PositionAngleReferenceFrame, default = j2000
+     Celestial reference-frame convention for the position angle.
+ reference_epoch : float, optional
+     TDB seconds since J2000 at which to evaluate a mean- or true-of-date frame. If omitted, each observation's reception epoch is used.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Ancillary settings for position-angle simulation.
+
+     )doc" );
+
+    m.def( "custom_position_angle_ancillary_settings",
+           &tom::getCustomPositionAngleAncillarySettings,
+           py::arg( "reference_pole" ),
+           R"doc(
+
+ Create ancillary settings using a custom celestial north-pole direction for position angle.
+
+ Parameters
+ ----------
+ reference_pole : numpy.ndarray
+     Non-zero three-vector expressed in ICRF/J2000 coordinates.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Ancillary settings for position-angle simulation.
 
      )doc" );
 

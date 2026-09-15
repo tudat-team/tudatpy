@@ -27,6 +27,17 @@ namespace tudat
 namespace observation_models
 {
 
+//! Return the celestial north-pole direction selected by ancillary settings, expressed in ICRF/J2000.
+/*!
+ * \param observationTime Observation reception time in TDB seconds since J2000. This epoch is used for a time-dependent frame unless
+ * an explicit reference epoch is present in the ancillary settings.
+ * \param ancillarySettings Settings selecting a predefined celestial frame or custom pole. A null pointer selects J2000.
+ * \return Unit north-pole direction expressed in ICRF/J2000.
+ */
+Eigen::Vector3d getPositionAngleReferencePoleInJ2000(
+        const double observationTime,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
+
 template< typename ScalarType >
 Eigen::Matrix< ScalarType, 2, 1 > calculatePositionAngleAndSeparation(
         const Eigen::Matrix< ScalarType, 3, 1 >& relativePositionFirstTransmitter,
@@ -82,8 +93,8 @@ Eigen::Matrix< ScalarType, 2, 1 > calculatePositionAngleAndSeparation(
  *  Class for simulating combined position-angle and angular-separation observables, using light-time
  *  (with light-time corrections) to determine the states of the link ends (two transmitters and receiver).
  *  Returns a size-2 observable: [position_angle; angular_separation].
- *  Position angle is measured from ICRF/J2000 north through east and returned in [-pi, pi], matching the
- *  unnormalised right-ascension convention. The fixed reference pole is intended to become configurable in a future update.
+ *  Position angle is measured from the celestial north pole selected in the observation ancillary settings through east and returned
+ *  in [-pi, pi], matching the unnormalised right-ascension convention. ICRF/J2000 is used when no reference-frame setting is supplied.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -121,7 +132,7 @@ public:
      *  between second transmitter and receiver
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
-     *  \param j2000NorthPoleDirection Direction of the ICRF/J2000 north pole in the frame of the link-end states.
+     *  \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
      *  \param calculatePositionAngle Whether to calculate position angle. This is false only for the separation-only wrapper.
      */
     PositionAngleAndSeparationObservationModel(
@@ -131,14 +142,14 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                     lightTimeCalculatorSecondTransmitter,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr,
-            const Eigen::Vector3d& j2000NorthPoleDirection = Eigen::Vector3d::UnitZ( ),
+            const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ),
             const bool calculatePositionAngle = true ):
         ObservationModel< 2, ObservationScalarType, TimeType >(
                 position_angle_and_separation,
                 linkEnds,
                 observationBiasCalculator,
                 createFullLinkLightTimeCalculators( lightTimeCalculatorFirstTransmitter, lightTimeCalculatorSecondTransmitter ) ),
-        j2000NorthPoleDirection_( j2000NorthPoleDirection ), calculatePositionAngle_( calculatePositionAngle )
+        j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ), calculatePositionAngle_( calculatePositionAngle )
     {}
 
     //! Destructor
@@ -201,10 +212,17 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter2 =
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
+        Eigen::Vector3d positionAngleReferencePoleDirection = j2000ToGlobalFrameTransformation_ * Eigen::Vector3d::UnitZ( );
+        if( calculatePositionAngle_ )
+        {
+            positionAngleReferencePoleDirection = j2000ToGlobalFrameTransformation_ *
+                    getPositionAngleReferencePoleInJ2000( static_cast< double >( time ), ancillarySettingsInput );
+        }
+
         const Eigen::Matrix< ObservationScalarType, 2, 1 > positionAngleAndSeparation =
                 calculatePositionAngleAndSeparation( relativeStateTransmitter1,
                                                      relativeStateTransmitter2,
-                                                     j2000NorthPoleDirection_.template cast< ObservationScalarType >( ),
+                                                     positionAngleReferencePoleDirection.template cast< ObservationScalarType >( ),
                                                      calculatePositionAngle_ );
 
         // Set link end times and states.
@@ -252,7 +270,7 @@ public:
 
     Eigen::Vector3d getJ2000NorthPoleDirection( ) const
     {
-        return j2000NorthPoleDirection_;
+        return j2000ToGlobalFrameTransformation_ * Eigen::Vector3d::UnitZ( );
     }
 
     std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
@@ -263,7 +281,7 @@ public:
     }
 
 private:
-    Eigen::Vector3d j2000NorthPoleDirection_;
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
     bool calculatePositionAngle_;
 };
 
@@ -271,7 +289,8 @@ private:
 /*!
  *  Class for simulating position angle observables, using the PositionAngleAndSeparationObservationModel
  *  internally and extracting the position angle component (first element).
- *  The position angle is measured from ICRF/J2000 north through east at the first transmitter's line of sight.
+ *  The position angle is measured from the celestial north pole selected in the observation ancillary settings through east at the
+ *  first transmitter's line of sight. ICRF/J2000 is used when no reference-frame setting is supplied.
  *  Its principal value is returned in [-pi, pi], matching the unnormalised right-ascension convention.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
@@ -310,7 +329,7 @@ public:
      *  between second transmitter and receiver
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
-     *  \param j2000NorthPoleDirection Direction of the ICRF/J2000 north pole in the frame of the link-end states.
+     *  \param j2000ToGlobalFrameTransformation Rotation from ICRF/J2000 to the frame of the link-end states.
      */
     PositionAngleObservationModel( const LinkEnds linkEnds,
                                    const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
@@ -318,7 +337,7 @@ public:
                                    const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
                                            lightTimeCalculatorSecondTransmitter,
                                    const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-                                   const Eigen::Vector3d& j2000NorthPoleDirection = Eigen::Vector3d::UnitZ( ) ):
+                                   const Eigen::Matrix3d& j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >(
                 position_angle,
                 linkEnds,
@@ -332,7 +351,7 @@ public:
                         lightTimeCalculatorFirstTransmitter,
                         lightTimeCalculatorSecondTransmitter,
                         nullptr,
-                        j2000NorthPoleDirection );
+                        j2000ToGlobalFrameTransformation );
     }
 
     //! Destructor
@@ -471,7 +490,7 @@ public:
                         lightTimeCalculatorFirstTransmitter,
                         lightTimeCalculatorSecondTransmitter,
                         nullptr,
-                        Eigen::Vector3d::UnitZ( ),
+                        Eigen::Matrix3d::Identity( ),
                         false );
     }
 
