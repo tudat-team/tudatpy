@@ -11,15 +11,20 @@
 #ifndef TUDAT_READ_PSF_FILE_H
 #define TUDAT_READ_PSF_FILE_H
 
-#include <string>
-#include <vector>
+#include <cstdint>
 #include <map>
 #include <memory>
-#include <cstdint>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
-#include "tudat/astro/system_models/camera.h"
+#include "tudat/basics/timeType.h"
+#include "tudat/io/trackingData.h"
+#include "tudat/io/trackingSupplementaryData.h"
 
 namespace tudat
 {
@@ -31,24 +36,6 @@ namespace psf
 {
 
 enum class OpticalImageType { star, planet, satellite, rock, end_marker, unknown };
-
-class RawPsfCameraProperties
-{
-public:
-    RawPsfCameraProperties( ) = default;
-
-    std::string cameraId_;
-    double focalLengthMm_ = 0.0;
-
-    Eigen::Vector2d principalPoint_ = Eigen::Vector2d::Zero( );     // [pixel; line]
-    Eigen::Vector4d fieldOfViewBounds_ = Eigen::Vector4d::Zero( );  // [min_p; max_p; min_l; max_l]
-
-    // Per PSF spec: KMAT is 2x3 per camera
-    Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Zero( );
-
-    Eigen::Matrix< double, 6, 1 > distortionCoefficients_ = Eigen::Matrix< double, 6, 1 >::Zero( );
-    Eigen::Vector3d mountingOffsetsDegrees_ = Eigen::Vector3d::Zero( );  // [elev; cross-elev; twist]
-};
 
 class RawPsfMeasurement
 {
@@ -111,36 +98,202 @@ public:
     std::vector< std::string > psfComments_;  // PSFCOM list
 
     // $CAM
-    std::map< std::string, RawPsfCameraProperties > cameraProperties_;  // keyed by CAMID ('A','B',...)
+    std::vector< std::shared_ptr< data::TrackingSupplementaryData > > trackingSupplementaryData_;
 
     // $PIC/$IM
     std::vector< RawPsfFileImageContents > images_;
 };
 
-//! Create a PSF/Jacobson camera projection model from raw PSF camera properties.
-/*!
- *  This conversion only maps the camera calibration properties. Picture-specific pointing data from $PIC blocks must still be handled
- *  separately when constructing a camera or evaluating an observation.
- */
-inline std::shared_ptr< tudat::system_models::PsfCameraProjectionModel > createPsfCameraProjectionModel(
-        const RawPsfCameraProperties& cameraProperties )
+//! Retrieve the camera supplementary data read from a PSF $CAM block.
+std::shared_ptr< const data::CameraInstrumentSupplementaryData > getPsfCameraInstrumentSupplementaryData(
+        const RawPsfFileContents& psfFileContents,
+        const std::string& cameraId );
+
+double getPsfPictureObservationTime( const RawPsfFileImageContents& imageContents, const bool useMidExposureTime = true );
+
+Eigen::Quaterniond getPsfPictureRotationFromInertialToCameraFrame( const RawPsfFileImageContents& imageContents );
+
+RawPsfFileContents readRawPsfFile( const std::string& psfFile );
+
+std::string getTudatBodyNameForPsfMeasurement( const RawPsfMeasurement& measurement,
+                                               const std::map< std::string, std::string >& imageNameToBodyName,
+                                               const bool useRawImageNameAsBodyNameIfUnmapped );
+
+bool shouldConvertPsfMeasurement( const RawPsfMeasurement& measurement,
+                                  const bool includeEndMarkerRecords,
+                                  const bool filterByUseFlag,
+                                  const int requiredUseFlag );
+
+std::vector< std::shared_ptr< data::TrackingSupplementaryData > > getPsfTrackingSupplementaryDataForReceiver(
+        const RawPsfFileContents& psfFileContents,
+        const std::string& receiverBodyName );
+
+inline data::PlainLinkDefinition getPsfLinkEnds( const std::string& targetBodyName,
+                                                 const std::string& receiverBodyName,
+                                                 const std::string& cameraId )
 {
-    return std::make_shared< tudat::system_models::PsfCameraProjectionModel >( cameraProperties.focalLengthMm_,
-                                                                               cameraProperties.principalPoint_,
-                                                                               cameraProperties.kMatrix_,
-                                                                               cameraProperties.distortionCoefficients_,
-                                                                               cameraProperties.mountingOffsetsDegrees_,
-                                                                               cameraProperties.fieldOfViewBounds_ );
+    return data::PlainLinkDefinition( { std::make_pair( std::make_pair( targetBodyName, "" ), "transmitter" ),
+                                        std::make_pair( std::make_pair( receiverBodyName, cameraId ), "receiver" ) } );
 }
 
-//! Read raw camera, picture and image-measurement data from a PSF file.
-/*!
- * Reads the PSF $ID, $CAM, $PIC and $IM namelist blocks into raw data containers. Picture times are
- * retained as UTC strings and no conversion to Tudat observation sets or time scales is performed.
- * \param psfFile Path to the PSF file.
- * \return Parsed raw PSF file contents.
- */
-RawPsfFileContents readPsfFile( const std::string& psfFile );
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
+           std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+convertRawPsfFiles( const std::vector< RawPsfFileContents >& rawPsfDataVector,
+                    const std::string& receiverBodyName = "",
+                    const std::map< std::string, std::string >& imageNameToBodyName = std::map< std::string, std::string >( ),
+                    const bool useRawImageNameAsBodyNameIfUnmapped = true,
+                    const bool useCorrectedPixelLine = true,
+                    const bool useMidExposureTime = true,
+                    const bool includeDeletedPictures = false,
+                    const bool includeEndMarkerRecords = false,
+                    const bool filterByUseFlag = false,
+                    const int requiredUseFlag = 0 )
+{
+    std::map< data::PlainLinkDefinition, std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observationsMap;
+    std::map< data::PlainLinkDefinition, std::vector< TimeType > > observationTimesMap;
+    std::map< data::PlainLinkDefinition, std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > weightsMap;
+
+    std::vector< std::shared_ptr< data::TrackingSupplementaryData > > trackingSupplementaryDataSets;
+    std::set< std::pair< std::string, std::string > > addedSupplementaryData;
+
+    for( const RawPsfFileContents& psfFileContents : rawPsfDataVector )
+    {
+        const std::string currentReceiverBodyName = receiverBodyName.empty( ) ? psfFileContents.spacecraftId_ : receiverBodyName;
+
+        for( const std::shared_ptr< data::TrackingSupplementaryData >& supplementaryData :
+             getPsfTrackingSupplementaryDataForReceiver( psfFileContents, currentReceiverBodyName ) )
+        {
+            const std::pair< std::string, std::string > key =
+                    std::make_pair( supplementaryData->getBodyName( ), supplementaryData->getReferencePointName( ) );
+            if( addedSupplementaryData.insert( key ).second )
+            {
+                trackingSupplementaryDataSets.push_back( supplementaryData );
+            }
+        }
+
+        for( const RawPsfFileImageContents& imageContents : psfFileContents.images_ )
+        {
+            if( !includeDeletedPictures && imageContents.pictureDeletionFlag_ != 0 )
+            {
+                continue;
+            }
+
+            const TimeType observationTime = static_cast< TimeType >( getPsfPictureObservationTime( imageContents, useMidExposureTime ) );
+
+            for( const std::shared_ptr< RawPsfMeasurement >& measurement : imageContents.measurements_ )
+            {
+                if( measurement == nullptr ||
+                    !shouldConvertPsfMeasurement( *measurement, includeEndMarkerRecords, filterByUseFlag, requiredUseFlag ) )
+                {
+                    continue;
+                }
+
+                const std::string targetBodyName =
+                        getTudatBodyNameForPsfMeasurement( *measurement, imageNameToBodyName, useRawImageNameAsBodyNameIfUnmapped );
+                if( targetBodyName.empty( ) )
+                {
+                    continue;
+                }
+
+                const data::PlainLinkDefinition linkEnds =
+                        getPsfLinkEnds( targetBodyName, currentReceiverBodyName, imageContents.cameraId_ );
+                const Eigen::Vector2d pixelLine =
+                        useCorrectedPixelLine ? measurement->getEffectivePixelLine( ) : measurement->observedPixelLine_;
+
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservable( 2 );
+                currentObservable( 0 ) = static_cast< ObservationScalarType >( pixelLine( 0 ) );
+                currentObservable( 1 ) = static_cast< ObservationScalarType >( pixelLine( 1 ) );
+
+                Eigen::Matrix< double, Eigen::Dynamic, 1 > currentWeights( 2 );
+                for( int i = 0; i < 2; ++i )
+                {
+                    const double sigma = measurement->sigmaPixelLine_( i );
+                    currentWeights( i ) = ( sigma > 0.0 ) ? 1.0 / ( sigma * sigma ) : 1.0;
+                }
+
+                observationsMap[ linkEnds ].push_back( currentObservable );
+                observationTimesMap[ linkEnds ].push_back( observationTime );
+                weightsMap[ linkEnds ].push_back( currentWeights );
+            }
+        }
+    }
+
+    std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > > trackingDataSets;
+    for( const auto& observationEntry : observationsMap )
+    {
+        auto trackingData =
+                std::make_shared< data::TrackingData< ObservationScalarType, TimeType > >( "PixelCoordinates",
+                                                                                           observationEntry.first,
+                                                                                           observationEntry.second,
+                                                                                           observationTimesMap.at( observationEntry.first ),
+                                                                                           "receiver",
+                                                                                           "UTC" );
+        trackingData->setObservationWeights( weightsMap.at( observationEntry.first ) );
+        trackingDataSets.push_back( trackingData );
+    }
+
+    return std::make_pair( trackingDataSets, trackingSupplementaryDataSets );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
+           std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+readPsfFiles( const std::vector< std::string >& psfFileNames,
+              const std::string& receiverBodyName = "",
+              const std::map< std::string, std::string >& imageNameToBodyName = std::map< std::string, std::string >( ),
+              const bool useRawImageNameAsBodyNameIfUnmapped = true,
+              const bool useCorrectedPixelLine = true,
+              const bool useMidExposureTime = true,
+              const bool includeDeletedPictures = false,
+              const bool includeEndMarkerRecords = false,
+              const bool filterByUseFlag = false,
+              const int requiredUseFlag = 0 )
+{
+    std::vector< RawPsfFileContents > rawPsfDataVector;
+    rawPsfDataVector.reserve( psfFileNames.size( ) );
+    for( const std::string& psfFileName : psfFileNames )
+    {
+        rawPsfDataVector.push_back( readRawPsfFile( psfFileName ) );
+    }
+
+    return convertRawPsfFiles< ObservationScalarType, TimeType >( rawPsfDataVector,
+                                                                  receiverBodyName,
+                                                                  imageNameToBodyName,
+                                                                  useRawImageNameAsBodyNameIfUnmapped,
+                                                                  useCorrectedPixelLine,
+                                                                  useMidExposureTime,
+                                                                  includeDeletedPictures,
+                                                                  includeEndMarkerRecords,
+                                                                  filterByUseFlag,
+                                                                  requiredUseFlag );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::pair< std::vector< std::shared_ptr< data::TrackingData< ObservationScalarType, TimeType > > >,
+           std::vector< std::shared_ptr< data::TrackingSupplementaryData > > >
+readPsfFile( const std::string& psfFileName,
+             const std::string& receiverBodyName = "",
+             const std::map< std::string, std::string >& imageNameToBodyName = std::map< std::string, std::string >( ),
+             const bool useRawImageNameAsBodyNameIfUnmapped = true,
+             const bool useCorrectedPixelLine = true,
+             const bool useMidExposureTime = true,
+             const bool includeDeletedPictures = false,
+             const bool includeEndMarkerRecords = false,
+             const bool filterByUseFlag = false,
+             const int requiredUseFlag = 0 )
+{
+    return readPsfFiles< ObservationScalarType, TimeType >( std::vector< std::string >( { psfFileName } ),
+                                                            receiverBodyName,
+                                                            imageNameToBodyName,
+                                                            useRawImageNameAsBodyNameIfUnmapped,
+                                                            useCorrectedPixelLine,
+                                                            useMidExposureTime,
+                                                            includeDeletedPictures,
+                                                            includeEndMarkerRecords,
+                                                            filterByUseFlag,
+                                                            requiredUseFlag );
+}
 
 }  // namespace psf
 

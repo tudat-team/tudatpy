@@ -27,11 +27,14 @@ set(io_SOURCES
         "parseSolarActivityData.cpp"
         "extractSolarActivityData.cpp"
         "solarActivityData.cpp"
+        "preProcessFdetsFile.cpp"
+        "preProcessIfmsFile.cpp"
         "multiDimensionalArrayReader.cpp"
         "aerodynamicCoefficientReader.cpp"
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "preProcessOdfFile.cpp"
         "readPsfFile.cpp"
         "readCrdFile.cpp"
         "readSinexFile.cpp"
@@ -80,7 +83,10 @@ set(io_HEADERS
         "readHistoryFromFile.h"
         "tabulatedAtmosphereReader.h"
         "util.h"
+        "preProcessFdetsFile.h"
+        "preProcessIfmsFile.h"
         "readOdfFile.h"
+        "preProcessOdfFile.h"
         "readPsfFile.h"
         "readCrdFile.h"
         "readSinexFile.h"
@@ -91,6 +97,7 @@ set(io_HEADERS
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
         "comaModelInputOutput.h"
+        "trackingData.h"
         )
 
 # Add library.
@@ -100,6 +107,10 @@ TUDAT_ADD_LIBRARY("input_output"
         PUBLIC_LINKS
         tudat_ephemerides
         tudat_interpolators
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )
+
+if (TUDAT_BUILD_WITH_SERIALIZATION)
+    add_subdirectory(serialization)
+endif ()

@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
@@ -17,7 +16,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -26,9 +25,10 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "mroDsnObservationModelTestHelpers.h"
 
 namespace tudat
 {
@@ -288,6 +288,37 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::cout << secondMinimum << " " << secondMaximum << std::endl << std::endl;
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testMroTrk234DsnNWayAveragedDopplerModel )
+{
+    using namespace tudat::unit_tests::mro_dsn_test;
+
+    loadMroSpiceKernels( );
+
+    // The MRO DSN Doppler fixture is generated from mromagr2012_076_0840xmmmv1.tnf over a one-hour
+    // tracking interval, at the Tudat trk234 converter boundary: rows contain the exact values passed
+    // to SingleObservationSet creation before the 60 s Doppler compression applied below.
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+            createObservationCollectionFromTrk234Csv( trk234InputsDirectory + "doppler_single_observation_set_inputs.csv",
+                                                      observation_models::dsn_n_way_averaged_doppler );
+    observedObservationCollection = createCompressedDopplerCollection< long double, Time >( observedObservationCollection, 60, 10 );
+
+    std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
+    SystemOfBodies bodies = createMroSystemOfBodies( timeBounds.first, timeBounds.second );
+    setRampFrequencyInterpolatorsInBodies( bodies );
+    applyMroNotebookObservationCollectionPostProcessing( observedObservationCollection, bodies );
+
+    Eigen::VectorXd residuals = simulateAndGetResiduals( observedObservationCollection, bodies, false );
+    BOOST_CHECK_EQUAL( residuals.rows( ), 59 );
+
+    const double meanResidual = residuals.mean( );
+    const double rmsResidual = std::sqrt( residuals.squaredNorm( ) / static_cast< double >( residuals.rows( ) ) );
+    BOOST_TEST_MESSAGE( "MRO DSN Doppler residual mean: " << meanResidual << " Hz" );
+    BOOST_TEST_MESSAGE( "MRO DSN Doppler residual RMS: " << rmsResidual << " Hz" );
+
+    BOOST_TEST( std::fabs( meanResidual ) < 2.0e-3 );
+    BOOST_TEST( rmsResidual < 3.0e-3 );
 }
 
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerVehicleSystemTransponderDelay )

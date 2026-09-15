@@ -24,12 +24,6 @@
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 
-#include <boost/math/special_functions/ellint_1.hpp>
-#include <boost/math/special_functions/ellint_2.hpp>
-#include <boost/math/special_functions/ellint_d.hpp>
-#include <boost/math/special_functions/ellint_rf.hpp>
-#include <boost/math/special_functions/ellint_rf.hpp>
-
 namespace tudat
 {
 

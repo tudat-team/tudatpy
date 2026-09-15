@@ -8,11 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <memory>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -20,6 +19,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
@@ -46,6 +46,108 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_propagation_radiation_pressure )
+
+BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressurePropagationAndDependentVariables )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double initialTime = 1.0E7;
+    const double finalTime = initialTime + 3600.0;
+    const double vehicleMass = 2800.0;
+    const Eigen::Vector3d coefficients( -48.282, 2.3, -0.7 );
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Sun" }, "Earth", "ECLIPJ2000" );
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->rigidBodyPropertiesSettings = constantRigidBodyPropertiesSettings( vehicleMass );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    addRadiationPressureTargetModel( bodies, "Vehicle", cannonballRadiationPressureTargetModelSettings( 1.0, 1.0 ) );
+
+    SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Vehicle" ][ "Sun" ].push_back( threeCoefficientRadiationPressureAcceleration( coefficients ) );
+    const std::vector< std::string > bodiesToPropagate = { "Vehicle" };
+    const std::vector< std::string > centralBodies = { "Earth" };
+    const AccelerationMap accelerationModels =
+            createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
+    const auto accelerationModel = std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+            accelerationModels.at( "Vehicle" ).at( "Sun" ).front( ) );
+    BOOST_REQUIRE( accelerationModel != nullptr );
+    BOOST_CHECK_EQUAL( accelerationModel->getReferenceBodyName( ), "Earth" );
+
+    Eigen::Vector6d initialState;
+    initialState << 4.2164E7, 2.0E5, -3.0E5, -20.0, 3074.0, 15.0;
+    const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, 300.0 );
+
+    const auto singleAccelerationSettings = singleAccelerationDependentVariable( three_coefficient_radiation_pressure, "Vehicle", "Sun" );
+    const auto totalAccelerationSettings = totalAccelerationDependentVariable( "Vehicle" );
+    const auto vehicleToSunPositionSettings = relativePositionDependentVariable( "Vehicle", "Sun" );
+    const auto earthToSunPositionSettings = relativePositionDependentVariable( "Earth", "Sun" );
+    const auto earthToSunVelocitySettings = relativeVelocityDependentVariable( "Earth", "Sun" );
+    const auto vehicleMassSettings = bodyMassVariable( "Vehicle" );
+    const auto receivedIrradianceSettings = receivedIrradianceDependentVariable( "Vehicle", "Sun" );
+    const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables = {
+        singleAccelerationSettings, totalAccelerationSettings, vehicleToSunPositionSettings, earthToSunPositionSettings,
+        earthToSunVelocitySettings, vehicleMassSettings,       receivedIrradianceSettings
+    };
+
+    const auto propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+            centralBodies,
+            accelerationModels,
+            bodiesToPropagate,
+            initialState,
+            initialTime,
+            integratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalTime ),
+            cowell,
+            dependentVariables );
+
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+    const auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+    BOOST_REQUIRE( !dependentVariableHistory.empty( ) );
+    const auto dependentVariablesInterface =
+            dynamicsSimulator.getSingleArcPropagationResults( )->getSingleArcDependentVariablesInterface( );
+    const auto singleAccelerationIndices = dependentVariablesInterface->getSingleDependentVariableIndices( singleAccelerationSettings );
+    const auto totalAccelerationIndices = dependentVariablesInterface->getSingleDependentVariableIndices( totalAccelerationSettings );
+    const auto vehicleToSunPositionIndices = dependentVariablesInterface->getSingleDependentVariableIndices( vehicleToSunPositionSettings );
+    const auto earthToSunPositionIndices = dependentVariablesInterface->getSingleDependentVariableIndices( earthToSunPositionSettings );
+    const auto earthToSunVelocityIndices = dependentVariablesInterface->getSingleDependentVariableIndices( earthToSunVelocitySettings );
+    const auto vehicleMassIndices = dependentVariablesInterface->getSingleDependentVariableIndices( vehicleMassSettings );
+    const auto receivedIrradianceIndices = dependentVariablesInterface->getSingleDependentVariableIndices( receivedIrradianceSettings );
+
+    const double obliquity = unit_conversions::convertDegreesToRadians( 23.4 );
+    for( const auto& dependentVariableEntry : dependentVariableHistory )
+    {
+        const Eigen::VectorXd& savedVariables = dependentVariableEntry.second;
+        const Eigen::Vector3d singleAcceleration =
+                savedVariables.segment( singleAccelerationIndices.first, singleAccelerationIndices.second );
+        const Eigen::Vector3d totalAcceleration = savedVariables.segment( totalAccelerationIndices.first, totalAccelerationIndices.second );
+        const Eigen::Vector3d sourceToTarget =
+                savedVariables.segment( vehicleToSunPositionIndices.first, vehicleToSunPositionIndices.second );
+        const Eigen::Vector3d sourceToReference =
+                savedVariables.segment( earthToSunPositionIndices.first, earthToSunPositionIndices.second );
+        const Eigen::Vector3d sourceToReferenceVelocity =
+                savedVariables.segment( earthToSunVelocityIndices.first, earthToSunVelocityIndices.second );
+        const double savedMass = savedVariables( vehicleMassIndices.first );
+        const double receivedIrradiance = savedVariables( receivedIrradianceIndices.first );
+
+        BOOST_CHECK_GT( sourceToTarget.norm( ), 0.0 );
+        BOOST_CHECK_GT( receivedIrradiance, 0.0 );
+        BOOST_CHECK_CLOSE_FRACTION( savedMass, vehicleMass, 1.0E-15 );
+
+        const Eigen::Vector3d uDirection = -sourceToReference.normalized( );
+        const Eigen::Vector3d orbitNormal = sourceToReference.cross( sourceToReferenceVelocity ).normalized( );
+        const Eigen::Vector3d wDirection = std::cos( obliquity ) * orbitNormal - std::sin( obliquity ) * orbitNormal.cross( uDirection );
+        const Eigen::Vector3d vDirection = wDirection.cross( uDirection );
+        Eigen::Matrix3d basis;
+        basis.col( 0 ) = uDirection;
+        basis.col( 1 ) = vDirection;
+        basis.col( 2 ) = wDirection;
+        const Eigen::Vector3d expectedAcceleration =
+                receivedIrradiance / ( physical_constants::SPEED_OF_LIGHT * savedMass ) * basis * coefficients;
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( singleAcceleration, expectedAcceleration, 2.0E-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalAcceleration, expectedAcceleration, 2.0E-14 );
+    }
+}
 
 // Test custom state propagation, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )

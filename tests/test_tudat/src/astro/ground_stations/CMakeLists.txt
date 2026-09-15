@@ -16,6 +16,10 @@ TUDAT_ADD_TEST_CASE(PointingAnglesCalculator
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(DefaultGroundStationSettings
+    PRIVATE_LINKS
+    ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(Iers2010DeformationModel
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
@@ -34,3 +38,7 @@ TUDAT_ADD_TEST_CASE(PoleTideDisplacement
  TUDAT_ADD_TEST_CASE(TransmittingFrequencies
      PRIVATE_LINKS
      ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(GroundStationSunVisibility
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES})

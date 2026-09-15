@@ -12,8 +12,6 @@
 #ifndef TUDAT_READ_GENERIC_TXT_FILE_H
 #define TUDAT_READ_GENERIC_TXT_FILE_H
 
-#include <boost/algorithm/string.hpp>
-#include <boost/any.hpp>
 #include <string>
 #include <cstdarg>
 #include <fstream>
@@ -25,10 +23,8 @@
 #include <vector>
 
 #include "tudat/io/fieldType.h"
-#include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/basics/utilities.h"
-#include "tudat/interface/spice/spiceInterface.h"
 
 /*!
  * Tool to read out files that are structured with tracking measurements in rows and data types in columns
@@ -263,6 +259,8 @@ static const std::map< std::string, std::shared_ptr< TrackingFileFieldConverter 
 };
 
 enum TrackingTxtFileReadFilterType { no_tracking_txt_file_filter, ifms_tracking_txt_file_filter };
+
+enum class FdetDateFormat { datetime_string, pair_of_numbers };
 
 /*!
  * Class to extract the raw data from a file with the appropriate conversion to doubles. Data fields that do not have an
@@ -501,18 +499,10 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
     return rawFileContents;
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
-                                                                 const std::vector< std::string >& columnTypes = {
-                                                                         "utc_datetime_string",
-                                                                         "signal_to_noise_ratio",
-                                                                         "normalised_spectral_max",
-                                                                         "doppler_measured_frequency_hz",
-                                                                         "doppler_noise_hz" } )
-{
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t" );
-    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
-    return rawFileContents;
-}
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName,
+                                                          FdetDateFormat dateFormat = FdetDateFormat::datetime_string );
+
+std::shared_ptr< TrackingTxtFileContents > readFdetsFile( const std::string& fileName, const std::vector< std::string >& columnTypes );
 
 }  // namespace input_output
 }  // namespace tudat

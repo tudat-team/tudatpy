@@ -77,7 +77,21 @@ void PiecewiseInterpolatedMeteoData::updateData( const double currentUtc )
     if( !( currentUtc == currentUtc_ ) )
     {
         currentUtc_ = currentUtc;
-        currentInterpolator_ = lookUpScheme_->findNearestLowerNeighbour( currentUtc_ );
+        int nearestIndex = lookUpScheme_->findNearestLowerNeighbour( currentUtc_ );
+
+        // If currentUtc falls in a gap between two segment's data, extrapolate from the segment
+        // that is closer in time, rather than always extrapolating forward from the lower segment.
+        if( currentUtc_ > endTimes_.at( nearestIndex ) && static_cast< unsigned int >( nearestIndex ) + 1 < startTimes_.size( ) )
+        {
+            double distanceToLowerSegment = currentUtc_ - endTimes_.at( nearestIndex );
+            double distanceToUpperSegment = startTimes_.at( nearestIndex + 1 ) - currentUtc_;
+            if( distanceToUpperSegment < distanceToLowerSegment )
+            {
+                nearestIndex += 1;
+            }
+        }
+
+        currentInterpolator_ = nearestIndex;
         try
         {
             currentData_ = meteoDataInterpolators_.at( currentInterpolator_ )->interpolate( currentUtc_ );

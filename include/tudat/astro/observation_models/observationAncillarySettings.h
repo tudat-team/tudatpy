@@ -13,7 +13,10 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -24,6 +27,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -48,6 +53,9 @@ public:
     ObservationAncillarySimulationSettings( ) {}
 
     virtual ~ObservationAncillarySimulationSettings( ) {}
+
+    //! Save ancillary settings to a JSON file
+    TUDAT_DECLARE_FILE_IO( ObservationAncillarySimulationSettings )
 
     void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {
@@ -195,6 +203,30 @@ public:
         return name;
     }
 
+    ObservationAncillarySimulationVariable getAncillaryVariableFromString( const std::string& name )
+    {
+        std::map< std::string, ObservationAncillarySimulationVariable > ancillaryVariableFromStringMap = {
+            { "link ends time delays", link_ends_delays },
+            { "frequency bands", frequency_bands },
+            { "Doppler observable integration time", doppler_integration_time },
+            { "DSN Doppler reference frequency", doppler_reference_frequency },
+            { "DSN reference frequency band at reception", reception_reference_frequency_band },
+            { "DSN sequential range lowest ranging component", sequential_range_lowest_ranging_component },
+            { "DSN range conversion factor from RU to meter", range_conversion_factor }
+        };
+
+        const auto it = ancillaryVariableFromStringMap.find( name );
+        if( it == ancillaryVariableFromStringMap.end( ) )
+        {
+            std::string validAncillaryVariableStrings;
+            for( const auto& entry : ancillaryVariableFromStringMap )
+                validAncillaryVariableStrings += ( validAncillaryVariableStrings.empty( ) ? "" : ", " ) + entry.first;
+            throw std::runtime_error( "Error when converting ancillary setting key " + name +
+                                      ", ancillary variable not recognised. Valid options are: " + validAncillaryVariableStrings + "." );
+        }
+        return it->second;
+    }
+
     void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable& variableType, const double variable )
     {
         switch( variableType )
@@ -248,7 +280,19 @@ public:
 
     bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
+        return equals( rightSettings );
+    }
+
+    bool operator!=( const ObservationAncillarySimulationSettings& rightSettings ) const
+    {
+        return !( *this == rightSettings );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationAncillarySimulationSettings& rhs ) const
+    {
+        return doubleData_ == rhs.doubleData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
+                doubleIntermediateData_ == rhs.doubleIntermediateData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
@@ -266,6 +310,25 @@ protected:
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
 };
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )
@@ -379,7 +442,49 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDefaultAncil
     return ancillarySettings;
 }
 
+inline std::vector< ObservationAncillarySimulationVariable > getListRequiredAncillaryVariables(
+        const observation_models::ObservableType observableType )
+{
+    switch( observableType )
+    {
+        case observation_models::one_way_differenced_range:
+        case observation_models::n_way_differenced_range:
+            return { doppler_integration_time };
+        case observation_models::dsn_n_way_averaged_doppler:
+            return { doppler_integration_time, doppler_reference_frequency, reception_reference_frequency_band, frequency_bands };
+        case observation_models::dsn_n_way_range:
+            return { sequential_range_lowest_ranging_component, frequency_bands };
+        case observation_models::doppler_measured_frequency:
+        case observation_models::one_way_doppler_measured_frequency:
+            return { frequency_bands };
+        default:
+            return {};
+    }
+}
+
+inline void checkTrackingDataAncillarySettings( const observation_models::ObservableType observableType,
+                                                const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    // Extract ancillary data
+    const auto doubleData = ancillarySettings->getDoubleData( );
+    const auto doubleVectorData = ancillarySettings->getDoubleVectorData( );
+
+    std::vector< ObservationAncillarySimulationVariable > requiredAncillaryVariables = getListRequiredAncillaryVariables( observableType );
+
+    for( const ObservationAncillarySimulationVariable requiredAncillary : requiredAncillaryVariables )
+    {
+        bool ancillaryVariableDetected = doubleData.count( requiredAncillary ) > 0 || doubleVectorData.count( requiredAncillary ) > 0;
+        if( !ancillaryVariableDetected )
+        {
+            throw std::runtime_error( "Error when checking ancillary settings consistency: observable '" +
+                                      observation_models::getObservableName( observableType ) + "' requires ancillary setting '" +
+                                      ancillarySettings->getAncillaryDataName( requiredAncillary ) + "', which was not provided." );
+        }
+    }
+}
+
 }  // namespace observation_models
 
 }  // namespace tudat
+
 #endif  // TUDAT_ANCILLARYSETTINGS_H

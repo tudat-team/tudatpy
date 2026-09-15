@@ -21,6 +21,8 @@
 #ifndef TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 #define TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 
+#include <array>
+
 #include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
@@ -180,7 +182,7 @@ public:
 
     void clear( )
     {
-        boost::array< int, 2 > numberOfPointsPerIndependentVariables;
+        std::array< int, 2 > numberOfPointsPerIndependentVariables;
         numberOfPointsPerIndependentVariables[ 0 ] = 0;
         numberOfPointsPerIndependentVariables[ 1 ] = 0;
 

@@ -4,7 +4,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 # Load tudatpy modules
-from tudatpy.interface import spice
+from tudatpy.data_input.environment_data import spice
 from tudatpy.dynamics import environment_setup, propagation_setup, simulator
 from tudatpy.astro import element_conversion
 from tudatpy import constants
@@ -137,6 +137,13 @@ def test_dependent_variable_dictionary():
             propagation_setup.acceleration.radiation_pressure_type, "Delfi-C3", "Sun"
         ),
     ]
+
+    # Value equality must not make settings unusable as dictionary keys.
+    equivalent_total_acceleration = propagation_setup.dependent_variable.total_acceleration(
+        "Delfi-C3"
+    )
+    assert dependent_variables_to_save[0] == equivalent_total_acceleration
+    assert hash(dependent_variables_to_save[0]) == hash(equivalent_total_acceleration)
 
     # Create termination settings
     termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
