@@ -63,7 +63,6 @@ public:
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
-
         resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
     }
 

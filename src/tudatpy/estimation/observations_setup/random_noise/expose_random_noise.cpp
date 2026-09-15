@@ -107,7 +107,7 @@ void expose_random_noise( py::module& m )
                               const std::function< Eigen::VectorXd( const double ) > >(
                    &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
            py::arg( "observation_simulation_settings_list" ),
-           py::arg( "noise_amplitude" ),
+           py::arg( "noise_function" ),
            R"doc(
 
  Function for adding a custom noise function to all existing observation simulation settings.
@@ -125,7 +125,7 @@ void expose_random_noise( py::module& m )
  observation_simulation_settings_list : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : callable[ [:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : callable[[float], numpy.ndarray[numpy.float64[m, 1]]]
      Function providing the observation noise factors as a function of observation time.
 
  Returns
@@ -146,7 +146,7 @@ void expose_random_noise( py::module& m )
                               const std::function< Eigen::VectorXd( const double ) >,
                               const tom::ObservableType >( &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
            py::arg( "observation_simulation_settings_list" ),
-           py::arg( "noise_amplitude" ),
+           py::arg( "noise_function" ),
            py::arg( "observable_type" ),
            R"doc(
 
@@ -161,7 +161,7 @@ void expose_random_noise( py::module& m )
  observation_simulation_settings_list : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : callable[ [:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : callable[[float], numpy.ndarray[numpy.float64[m, 1]]]
      Function providing the observation noise factors as a function of observation time.
 
  observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
@@ -186,7 +186,7 @@ void expose_random_noise( py::module& m )
                               const tom::ObservableType,
                               const tom::LinkDefinition& >( &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
            py::arg( "observation_simulation_settings_list" ),
-           py::arg( "noise_amplitude" ),
+           py::arg( "noise_function" ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
            R"doc(
@@ -199,16 +199,16 @@ void expose_random_noise( py::module& m )
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+ observation_simulation_settings_list : list[:class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings`]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : callable[ [:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : callable[[float], numpy.ndarray[numpy.float64[m, 1]]]
      Function providing the observation noise factors as a function of observation time.
 
  observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
      Identifies the observable type in the observation simulation settings to which the noise is to be added.
 
- link_definition : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+ link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
      Identifies the link definition in the observation simulation settings for which the noise is to be added.
 
  Returns

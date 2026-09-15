@@ -63,7 +63,7 @@ class AtmosphereModel
 {
 public:
     AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
-        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius )
+        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ), requiresClimateModel_( false )
     {}
 
     //! Default destructor.
@@ -116,9 +116,27 @@ public:
      */
     virtual double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time ) = 0;
 
+    //! Get total number density.
+    /*!
+     * Returns the total number density of the atmosphere in m^-3, if supported by the atmosphere model.
+     * \param altitude Altitude, or radius for atmosphere models that use radial distance as input.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Total number density.
+     */
+    virtual double getTotalNumberDensity( const double altitude, const double longitude, const double latitude, const double time )
+    {
+        static_cast< void >( altitude );
+        static_cast< void >( longitude );
+        static_cast< void >( latitude );
+        static_cast< void >( time );
+        throw std::runtime_error( "Error, atmosphere model does not provide total number density." );
+    }
+
     //! Get number density.
     /*!
-     * Returns the number density of a requested species in cm^-1. (if chosen atmospher model has this implemented)
+     * Returns the number density of a requested species in m^-3, if the selected atmosphere model supports it.
      * \param species species (has to be described in the AtmosphericCompositionSpecies enum).
      * \param altitude Altitude.
      * \param longitude Longitude.
@@ -203,6 +221,16 @@ public:
         return useUtc_;
     }
 
+    void setRequiresClimateModel( )
+    {
+        requiresClimateModel_ = true;
+    }
+
+    bool getRequiresClimateModel( ) const
+    {
+        return requiresClimateModel_;
+    }
+
     bool getUseRadius( )
     {
         return useRadius_;
@@ -218,6 +246,8 @@ protected:
 
     bool useRadius_;
 
+    bool requiresClimateModel_;
+
 private:
 };
 
@@ -231,7 +261,7 @@ public:
         isScalingAbsolute_( isScalingAbsolute )
     {}
 
-    double getDensity( const double altitude, const double longitude, const double latitude, const double time )
+    double getDensity( const double altitude, const double longitude, const double latitude, const double time ) override
     {
         if( isScalingAbsolute_ )
         {
@@ -243,19 +273,28 @@ public:
         }
     }
 
-    double getPressure( const double altitude, const double longitude, const double latitude, const double time )
+    double getPressure( const double altitude, const double longitude, const double latitude, const double time ) override
     {
         return baseAtmosphere_->getPressure( altitude, longitude, latitude, time );
     }
 
-    double getTemperature( const double altitude, const double longitude, const double latitude, const double time )
+    double getTemperature( const double altitude, const double longitude, const double latitude, const double time ) override
     {
         return baseAtmosphere_->getTemperature( altitude, longitude, latitude, time );
     }
 
-    double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time )
+    double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time ) override
     {
         return baseAtmosphere_->getSpeedOfSound( altitude, longitude, latitude, time );
+    }
+
+    double getTotalNumberDensity( const double altitude, const double longitude, const double latitude, const double time ) override
+    {
+        if( isScalingAbsolute_ )
+        {
+            throw std::runtime_error( "Error, total number density is not available for an absolute-scaled atmosphere." );
+        }
+        return baseAtmosphere_->getTotalNumberDensity( altitude, longitude, latitude, time ) * densityScalingFunction_( time );
     }
 
 private:

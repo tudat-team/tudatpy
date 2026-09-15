@@ -9,13 +9,12 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -54,7 +53,7 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
     using namespace physical_constants;
 
     // Test for gravitational constant.
-    BOOST_CHECK_CLOSE_FRACTION( GRAVITATIONAL_CONSTANT, 6.67259e-11, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( GRAVITATIONAL_CONSTANT, 6.67430e-11, std::numeric_limits< double >::epsilon( ) );
 
     // Test for speed of light.
     BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT, 299792458.0, std::numeric_limits< double >::epsilon( ) );

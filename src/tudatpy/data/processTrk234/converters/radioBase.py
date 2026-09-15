@@ -113,7 +113,7 @@ class RadioBase(Converter):
 
         Parameters
         ----------
-        link_end_tuple : tuple
+        link_end_tuple : tuple[str, str, str]
             A tuple containing the uplink, spacecraft, and downlink identifiers.
         spacecraftName : str, optional
             The name of the spacecraft to use in the simulation. If not provided, the spacecraft name

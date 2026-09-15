@@ -8,19 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
+
+#include <boost/test/included/unit_test.hpp>
 
 #include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <iterator>
 
-#include <boost/filesystem.hpp>
-
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readCrdFile.h"
 #include "tudat/io/readSinexFile.h"
+#include "tudat/support/testFileUtilities.h"
 
 namespace tudat
 {
@@ -32,9 +32,7 @@ namespace
 
 std::string createTempPath( const std::string& suffix )
 {
-    boost::filesystem::path tempPath =
-            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-ilrs-%%%%%%" + suffix );
-    return tempPath.string( );
+    return createTemporaryFilePath( "tudat-ilrs", suffix );
 }
 
 std::string makeStationInfoLine( const std::string& stationName, const std::string& domesId, const int monumentId )

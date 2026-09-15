@@ -13,9 +13,6 @@
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/aerodynamics/comaWindModel.h"
-#if TUDAT_BUILD_WITH_MCD
-#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
-#endif
 #if TUDAT_BUILD_WITH_NRLMSISE
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
@@ -23,6 +20,10 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+#include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
+#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
+#endif
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -175,10 +176,11 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
-                                                                        const std::string& body,
+                                                                        const std::string& bodyName,
                                                                         const SystemOfBodies& bodies )
 {
     using namespace tudat::aerodynamics;
+    const std::string& body = bodyName;
 
     // Declare return object.
     std::shared_ptr< AtmosphereModel > atmosphereModel;
@@ -193,7 +195,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
 
             if( exponentialAtmosphereSettings == nullptr )
             {
-                throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
+                throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + bodyName );
             }
             else
             {
@@ -222,7 +224,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                     std::dynamic_pointer_cast< CustomConstantTemperatureAtmosphereSettings >( atmosphereSettings );
             if( customConstantTemperatureAtmosphereSettings == nullptr )
             {
-                throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
+                throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + bodyName );
             }
             else
             {
@@ -249,13 +251,30 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
+        case custom_number_density_atmosphere: {
+            std::shared_ptr< CustomNumberDensityAtmosphereSettings > customNumberDensityAtmosphereSettings =
+                    std::dynamic_pointer_cast< CustomNumberDensityAtmosphereSettings >( atmosphereSettings );
+            if( customNumberDensityAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected custom number density atmosphere settings for body " + body );
+            }
+            else
+            {
+                atmosphereModel = std::make_shared< CustomNumberDensityAtmosphere >(
+                        customNumberDensityAtmosphereSettings->getNumberDensityFunction( ),
+                        customNumberDensityAtmosphereSettings->getMolarMass( ),
+                        customNumberDensityAtmosphereSettings->getConstantTemperature( ),
+                        customNumberDensityAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            break;
+        }
         case tabulated_atmosphere: {
             // Check whether settings for atmosphere are consistent with its type
             std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                     std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
             if( tabulatedAtmosphereSettings == nullptr )
             {
-                throw std::runtime_error( "Error, expected tabulated atmosphere settings for body " + body );
+                throw std::runtime_error( "Error, expected tabulated atmosphere settings for body " + bodyName );
             }
             else
             {
@@ -304,28 +323,6 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             atmosphereModel = std::make_shared< aerodynamics::MarsDtmAtmosphereModel >( f107Function );
             break;
         }
-#if TUDAT_BUILD_WITH_MCD
-        case mcd_atmosphere: {
-            std::shared_ptr< McdAtmosphereSettings > mcdAtmosphereSettings =
-                    std::dynamic_pointer_cast< McdAtmosphereSettings >( atmosphereSettings );
-
-            if( mcdAtmosphereSettings == nullptr )
-            {
-                throw std::runtime_error( "Error when creating MCD atmosphere model for body " + body +
-                                          ": model settings are incompatible." );
-            }
-
-            // Create atmosphere model - all parameters are validated in both Settings and Model constructors
-            atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( mcdAtmosphereSettings->getMcdDataPath( ),
-                                                                                    mcdAtmosphereSettings->getDustScenario( ),
-                                                                                    mcdAtmosphereSettings->getPerturbationKey( ),
-                                                                                    mcdAtmosphereSettings->getPerturbationSeed( ),
-                                                                                    mcdAtmosphereSettings->getGravityWaveLength( ),
-                                                                                    mcdAtmosphereSettings->getHighResolutionMode( ) );
-            break;
-        }
-#endif
-
 #if TUDAT_BUILD_WITH_NRLMSISE
         case nrlmsise00: {
             std::string spaceWeatherFilePath;
@@ -374,7 +371,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                     std::dynamic_pointer_cast< ScaledAtmosphereSettings >( atmosphereSettings );
             if( scaledAtmosphereSettings == nullptr )
             {
-                throw std::runtime_error( "Error, expected scaled atmosphere settings for body " + body );
+                throw std::runtime_error( "Error, expected scaled atmosphere settings for body " + bodyName );
             }
             else
             {
@@ -385,6 +382,33 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+        case mcd_atmosphere: {
+            // Check consistency of type and class.
+            std::shared_ptr< McdAtmosphereSettings > mcdAtmosphereSettings =
+                    std::dynamic_pointer_cast< McdAtmosphereSettings >( atmosphereSettings );
+            if( mcdAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected MCD atmosphere settings for body " + bodyName );
+            }
+            else
+            {
+                if( bodyName != "Mars" )
+                {
+                    throw std::runtime_error( "Error, trying to create MCD atmosphere model for a planet that is not Mars" );
+                }
+                std::shared_ptr< Body > bodyObject = bodies.at( bodyName );
+                std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel =
+                        std::dynamic_pointer_cast< mcd_interface::MarsClimateDatabaseClimateModel >( bodyObject->getClimateModel( ) );
+                if( marsClimateDatabaseClimateModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating MCD atmosphere model: Mars has no MCD climate model set." );
+                }
+                atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( marsClimateDatabaseClimateModel );
+            }
+            break;
+        }
+#endif
 
         case coma_model: {
             const std::shared_ptr< ComaSettings > comaSettings = std::dynamic_pointer_cast< ComaSettings >( atmosphereSettings );
@@ -519,7 +543,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
         default:
             throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
                                       std::to_string( atmosphereSettings->getAtmosphereType( ) )
-#if TUDAT_BUILD_WITH_MCD
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
                                       + " (MCD support: enabled)"
 #else
                                       + " (MCD support: disabled)"

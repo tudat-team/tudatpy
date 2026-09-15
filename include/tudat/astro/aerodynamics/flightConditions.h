@@ -493,6 +493,16 @@ public:
         return currentNumberDensities_.at( species );
     }
 
+    //! Function to retrieve the current freestream total number density.
+    double getCurrentTotalNumberDensity( )
+    {
+        updateAtmosphereInput( );
+        return atmosphereModel_->getTotalNumberDensity( getAtmosphereAltitudeInput( ),
+                                                        scalarFlightConditions_.at( longitude_flight_condition ),
+                                                        getAtmosphereLatitudeInput( ),
+                                                        getAtmosphereTimeInput( ) );
+    }
+
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object

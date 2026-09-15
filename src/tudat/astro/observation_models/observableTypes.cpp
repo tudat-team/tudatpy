@@ -461,6 +461,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
         case position_observable:
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
             break;
         case one_way_differenced_range:
         case differenced_time_of_arrival:
@@ -471,6 +472,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
             canHaveDelay = true;
             break;
         case two_way_doppler:
+        case doppler_measured_frequency:
             canHaveDelay = true;
             break;
         case euler_angle_313_observable:
@@ -489,6 +491,8 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
             break;
         case dsn_n_way_averaged_doppler:
             canHaveDelay = true;
+            break;
+        case dsn_one_way_averaged_doppler:
             break;
         default:
             throw std::runtime_error( "Error when determining if observable type can have retransmission delay; observable " +
@@ -1832,6 +1836,66 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
                                   " not recognized." );
     }
     return singleLinkStateEntries;
+}
+
+//! Function to check if an observable type requires residual wrapping.
+bool isResidualWrappingRequired( const ObservableType observableType )
+{
+    bool wrappingRequired = false;
+    switch( observableType )
+    {
+        case angular_position:
+        case relative_angular_position:
+        case azimuth_elevation_angle:
+        case euler_angle_313_observable:
+        case position_angle:
+        case position_angle_and_separation:
+            wrappingRequired = true;
+            break;
+        default:
+            break;
+    }
+    return wrappingRequired;
+}
+
+//! Function to get the wrapping ranges per component for an observable type.
+std::vector< ResidualWrappingRange > getResidualWrappingRanges( const ObservableType observableType )
+{
+    std::vector< ResidualWrappingRange > wrappingRanges;
+    switch( observableType )
+    {
+        case angular_position:
+        case relative_angular_position:
+        case azimuth_elevation_angle: {
+            wrappingRanges.resize( 2 );
+            // Component 0 (RA / azimuth): residual wraps to [-pi, pi]
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            // Component 1 (DEC / elevation) is bounded, but not periodic, and must not be wrapped.
+            break;
+        }
+        case euler_angle_313_observable: {
+            wrappingRanges.resize( 3 );
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            // The middle Euler angle is bounded to [0, pi], but is not periodic.
+            wrappingRanges[ 2 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            break;
+        }
+        case position_angle: {
+            wrappingRanges.resize( 1 );
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            break;
+        }
+        case position_angle_and_separation: {
+            wrappingRanges.resize( 2 );
+            // Component 0 (position angle) is periodic and wraps to [-pi, pi].
+            wrappingRanges[ 0 ] = ResidualWrappingRange( -mathematical_constants::PI, mathematical_constants::PI );
+            // Component 1 (separation distance) is bounded, but not periodic.
+            break;
+        }
+        default:
+            break;
+    }
+    return wrappingRanges;
 }
 
 //! Function retrieving link ends information for all interlinks for a given observable type and link ends

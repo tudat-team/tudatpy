@@ -1,4 +1,0 @@
-{
-  "spaceWeatherFile": "@path(spaceWeatherFile.foo)",
-  "type": "nrlmsise00"
-}

@@ -125,21 +125,21 @@ double TabulatedMediaReferenceCorrectionManager::computeMediaCorrection( double 
 {
     if( correctionVector_.empty( ) )
     {
-        throw std::runtime_error( "Error when computing reference media correction: no correction object provided. " );
+        throw std::runtime_error( "Error when computing reference media correction: no correction object provided." );
     }
 
-    int lowerNearestNeighbour = 0;
-    if( startTimes_.size( ) > 1 )
+    double correction = 0.0;
+    for( unsigned int i = 0; i < correctionVector_.size( ); ++i )
     {
-        if( !isLookupSchemeUpdated_ )
+        // for seasonal corrections, start and end times might be NaN, in which case the correction is always valid
+        bool startOk = std::isnan( startTimes_.at( i ) ) || time >= startTimes_.at( i );
+        bool endOk = std::isnan( endTimes_.at( i ) ) || time <= endTimes_.at( i );
+        if( startOk && endOk )
         {
-            startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
-            isLookupSchemeUpdated_ = true;
+            correction += correctionVector_.at( i )->computeReferenceCorrection( time );
         }
-        lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( time );
     }
-
-    return correctionVector_.at( lowerNearestNeighbour )->computeReferenceCorrection( time );
+    return correction;
 }
 
 double SimplifiedChaoTroposphericMapping::troposphericSimplifiedChaoMapping( const double elevation, const bool dryCorrection )

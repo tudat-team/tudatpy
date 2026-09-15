@@ -25,6 +25,7 @@ namespace observations_setup
 namespace ancillary_settings
 {
 
+void expose_ancillary_settings_types( py::module& m );
 void expose_ancillary_settings( py::module& m );
 
 }  // namespace ancillary_settings

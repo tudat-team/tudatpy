@@ -220,7 +220,7 @@ void expose_mass_rate_setup( py::module& m )
 
  Parameters
  ----------
- mass_rate_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
+ mass_rate_function : callable[[float], float]
      Function of time defining the custom mass rate.
  Returns
  -------

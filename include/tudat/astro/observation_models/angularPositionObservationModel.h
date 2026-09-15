@@ -139,9 +139,16 @@ public:
         return { { std::make_pair( transmitter, receiver ), { this->getSingleLegLightTimeCalculator( ) } } };
     }
 
-    bool getNormalizeRightAscension( )
+    bool getNormalizeRightAscension( ) const
     {
         return normalizeRightAscension_;
+    }
+
+    ResidualWrappingSettings getResidualWrappingSettings( ) const override
+    {
+        ResidualWrappingSettings residualWrappingSettings;
+        residualWrappingSettings.normalizeRightAscension = normalizeRightAscension_;
+        return residualWrappingSettings;
     }
 
 private:

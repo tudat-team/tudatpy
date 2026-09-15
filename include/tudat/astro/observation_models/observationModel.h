@@ -107,6 +107,12 @@ public:
         return linkEnds_;
     }
 
+    //! Function to retrieve model-dependent residual wrapping settings.
+    virtual ResidualWrappingSettings getResidualWrappingSettings( ) const
+    {
+        return ResidualWrappingSettings( );
+    }
+
     virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
     getLegLightTimeCalculators( ) const = 0;
 
@@ -330,6 +336,17 @@ public:
     virtual void setTimeScaleConverter( )
     {
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
+
+    void setDefaultLinkEndDelayFunctions( const std::vector< std::function< double( ) > >& defaultLinkEndDelayFunctions )
+    {
+        for( auto lightTimeCalculator : lightTimeCalculators_ )
+        {
+            if( lightTimeCalculator != nullptr )
+            {
+                lightTimeCalculator->setDefaultLinkEndDelayFunctions( defaultLinkEndDelayFunctions );
+            }
+        }
     }
 
 protected:

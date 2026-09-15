@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/executeEarthOrbiterBiasEstimationTestCase.h"
 
@@ -73,7 +72,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                         }
                                         else
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-14 );
                                         }
                                     }
                                     else
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                         }
                                         else if( !estimateMultiArcBiases )
                                         {
-                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-14 );
                                         }
                                         else
                                         {

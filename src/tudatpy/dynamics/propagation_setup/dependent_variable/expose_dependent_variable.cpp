@@ -36,15 +36,20 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
+#include "tudat/io/serialization/pybind_helpers.h"
+#include "tudat/io/serialization/registrations_propagation.h"
+
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tep = tudat::estimatable_parameters;
 namespace tinterp = tudat::interpolators;
 namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
+namespace tse = tudat::serialization;
 
 namespace tudat
 {
@@ -283,6 +288,18 @@ void expose_dependent_variable_setup( py::module& m )
                     tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state,
                     R"doc(
       )doc" )
+            .value( "total_acceleration_partial_wrt_body_translational_state_type",
+                    tp::PropagationDependentVariables::total_acceleration_partial_wrt_body_translational_state,
+                    R"doc(
+      )doc" )
+            .value( "acceleration_derivative_partial_wrt_parameter_type",
+                    tp::PropagationDependentVariables::acceleration_derivative_partial_wrt_parameter,
+                    R"doc(
+      )doc" )
+            .value( "total_acceleration_derivative_partial_wrt_parameter_type",
+                    tp::PropagationDependentVariables::total_acceleration_derivative_partial_wrt_parameter,
+                    R"doc(
+      )doc" )
             .value( "local_dynamic_pressure_type",
                     tp::PropagationDependentVariables::local_dynamic_pressure_dependent_variable,
                     R"doc(
@@ -344,7 +361,12 @@ void expose_dependent_variable_setup( py::module& m )
 
 
 
-    )doc" );
+    )doc" ) TUDATPY_DEF_EQ_NE( tp::VariableSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( tp::VariableSettings )
+            TUDATPY_DEF_FILE_IO_POLYMORPHIC( tp::VariableSettings );
+
+    auto single_dependent_variable_save_settings = py::class_< tp::SingleDependentVariableSaveSettings,
+                                                               std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
+                                                               tp::VariableSettings >( m, "SingleDependentVariableSaveSettings" );
 
     m.def( "local_wind_velocity",
            &tp::localWindVelocityVariable,
@@ -384,10 +406,7 @@ Variable Size
 
     )doc" );
 
-    py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
-            m,
-            "SingleDependentVariableSaveSettings",
-            R"doc(
+    single_dependent_variable_save_settings.doc( ) = R"doc(
 
          `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
 
@@ -399,7 +418,8 @@ Variable Size
 
 
 
-      )doc" )
+      )doc";
+    single_dependent_variable_save_settings
             .def_property_readonly( "dependent_variable_type",
                                     &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
                                     R"doc(
@@ -442,7 +462,8 @@ Index of the component to be saved.
                                     
 :type: int
 
-                                    )doc" );
+                                    )doc" ) TUDATPY_DEF_EQ_NE( tp::SingleDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleDependentVariableSaveSettings );
     //            .def(py::init<
     //                 const tp::PropagationDependentVariables,
     //                 const std::string &,
@@ -475,9 +496,8 @@ The type of the acceleration that is to be saved.
 
 :type: AvailableAcceleration
 
-)doc" );
-
-    //            .def(py::init<
+)doc" ) TUDATPY_DEF_EQ_NE( tp::SingleAccelerationDependentVariableSaveSettings )
+                    TUDATPY_DEF_PICKLE_POLYMORPHIC_DERIVED( tp::VariableSettings, tp::SingleAccelerationDependentVariableSaveSettings );
     //                 const
     //                 tudat::basic_astrodynamics::AvailableAcceleration,
     //                 const std::string &,
@@ -1140,6 +1160,144 @@ The type of the acceleration that is to be saved.
 
      )doc" );
 
+    m.def(
+            "acceleration_partial_wrt_body_translational_state",
+            []( const tba::AvailableAcceleration accelerationType,
+                const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyExertingAcceleration,
+                const std::string& bodyWrtState ) -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::accelerationPartialWrtBodyTranslationalStateDependentVariable(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, bodyWrtState );
+            },
+            py::arg( "acceleration_type" ),
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_exerting_acceleration" ),
+            py::arg( "body_wrt_state" ),
+            R"doc(
+
+ Function to add the partial derivative of a single acceleration model with respect to a body's translational state to the dependent variables to save.
+
+ Function to add the partial derivative of a single acceleration model acting on a body, exerted by another body, with respect to the Cartesian translational state of a selected body. The returned dependent variable is the flattened 3x6 matrix containing the acceleration partial with respect to position and velocity.
+
+ Parameters
+ ----------
+ acceleration_type : AvailableAcceleration
+     Acceleration type for which the partial is to be saved.
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_exerting_acceleration : str
+     Body exerting acceleration.
+ body_wrt_state : str
+     Body with respect to whose translational state the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 18
+
+
+     )doc" );
+
+    m.def(
+            "total_acceleration_partial_wrt_body_translational_state",
+            []( const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyWrtState ) -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::totalAccelerationPartialWrtBodyTranslationalStateDependentVariable( bodyUndergoingAcceleration, bodyWrtState );
+            },
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_wrt_state" ),
+            R"doc(
+
+ Function to add the partial derivative of the total acceleration with respect to a body's translational state to the dependent variables to save.
+
+ Function to add the partial derivative of the total acceleration acting on a body with respect to the Cartesian translational state of a selected body. The returned dependent variable is the flattened 3x6 matrix containing the total acceleration partial with respect to position and velocity.
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_wrt_state : str
+     Body with respect to whose translational state the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 18
+
+
+     )doc" );
+
+    m.def(
+            "acceleration_derivative_partial_wrt_parameter",
+            []( const tba::AvailableAcceleration accelerationType,
+                const std::string& bodyUndergoingAcceleration,
+                const std::string& bodyExertingAcceleration,
+                const std::shared_ptr< tep::EstimatableParameterSettings > parameterSettings )
+                    -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::accelerationDerivativePartialWrtParameterDependentVariable(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, parameterSettings );
+            },
+            py::arg( "acceleration_type" ),
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "body_exerting_acceleration" ),
+            py::arg( "parameter_settings" ),
+            R"doc(
+
+ Function to add the partial derivative of a single acceleration derivative model with respect to an estimatable parameter to the dependent variables to save.
+
+ Function to add the partial derivative of a single acceleration derivative model acting on a body, exerted by another body, with respect to an estimatable parameter. The parameter must be included in the estimatable parameter set used to create the variational-equation solver. The returned dependent variable is the flattened matrix containing the acceleration partial with respect to the selected parameter.
+
+ Parameters
+ ----------
+ acceleration_type : AvailableAcceleration
+     Acceleration type for which the partial is to be saved.
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ body_exerting_acceleration : str
+     Body exerting acceleration.
+ parameter_settings : EstimatableParameterSettings
+     Settings identifying the estimatable parameter with respect to which the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+
+
+     )doc" );
+
+    m.def(
+            "total_acceleration_derivative_partial_wrt_parameter",
+            []( const std::string& bodyUndergoingAcceleration,
+                const std::shared_ptr< tep::EstimatableParameterSettings > parameterSettings )
+                    -> std::shared_ptr< tp::SingleDependentVariableSaveSettings > {
+                return tp::totalAccelerationDerivativePartialWrtParameterDependentVariable( bodyUndergoingAcceleration, parameterSettings );
+            },
+            py::arg( "body_undergoing_acceleration" ),
+            py::arg( "parameter_settings" ),
+            R"doc(
+
+ Function to add the partial derivative of the total acceleration derivative with respect to an estimatable parameter to the dependent variables to save.
+
+ Function to add the summed partial derivative of all acceleration derivative models acting on a body with respect to an estimatable parameter. The parameter must be included in the estimatable parameter set used to create the variational-equation solver. The returned dependent variable is the flattened matrix containing the total acceleration partial with respect to the selected parameter.
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Body undergoing acceleration.
+ parameter_settings : EstimatableParameterSettings
+     Settings identifying the estimatable parameter with respect to which the partial derivative is taken.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+
+
+     )doc" );
+
     m.def( "single_torque_norm",
            &tp::singleTorqueNormVariable,
            py::arg( "torque_type" ),
@@ -1273,7 +1431,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1322,7 +1480,7 @@ The type of the acceleration that is to be saved.
      Body undergoing acceleration.
  body_exerting_acceleration : str
      Body exerting acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  Returns
  -------
@@ -1792,7 +1950,7 @@ The type of the acceleration that is to be saved.
      Body whose dependent variable should be saved.
  body_exerting_acceleration : str
      Body exerting the acceleration.
- component_indices : list[tuple]
+ component_indices : list[tuple[int, int]]
      Tuples of (degree, order) indicating the terms to save.
  deformation_type : BodyDeformationTypes
      Type of gravity field variation for which the acceleration contribution is to be saved

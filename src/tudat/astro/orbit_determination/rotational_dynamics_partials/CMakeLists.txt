@@ -13,6 +13,8 @@ set(rotational_dynamics_partials_SOURCES
   "constantTorquePartial.cpp"
   "secondDegreeGravitationalTorquePartial.cpp"
   "sphericalHarmonicGravitationalTorquePartial.cpp"
+  "fullTwoBodySphericalHarmonicGravitationalTorquePartial.cpp"
+  "fourthDegreeFullTwoBodyGravitationalTorquePartial.cpp"
 )
 
 # Set the header files.
@@ -23,6 +25,8 @@ set(rotational_dynamics_partials_HEADERS
   "constantTorquePartial.h"
   "secondDegreeGravitationalTorquePartial.h"
   "sphericalHarmonicGravitationalTorquePartial.h"
+  "fullTwoBodySphericalHarmonicGravitationalTorquePartial.h"
+  "fourthDegreeFullTwoBodyGravitationalTorquePartial.h"
 )
 
 
@@ -30,4 +34,3 @@ TUDAT_ADD_LIBRARY("torque_partials"
         "${rotational_dynamics_partials_SOURCES}"
         "${rotational_dynamics_partials_HEADERS}"
    )
-
