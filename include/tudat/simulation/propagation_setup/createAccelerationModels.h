@@ -38,6 +38,7 @@ class AerodynamicAcceleration;
 namespace electromagnetism
 {
 class RadiationPressureAcceleration;
+class ThreeCoefficientRadiationPressureAcceleration;
 class YarkovskyAcceleration;
 }  // namespace electromagnetism
 
@@ -48,6 +49,7 @@ class CentralGravitationalAccelerationModel;
 
 class SphericalHarmonicsGravitationalAccelerationModel;
 class MutualSphericalHarmonicsGravitationalAccelerationModel;
+class FullTwoBodySphericalHarmonicAcceleration;
 class PolyhedronGravitationalAccelerationModel;
 class RingGravitationalAccelerationModel;
 
@@ -417,6 +419,32 @@ createThirdBodyRingGravityAccelerationModel( const std::shared_ptr< Body > bodyU
                                              const std::string& nameOfBodyExertingAcceleration,
                                              const std::string& nameOfCentralBody );
 
+//! Function to create mutual two-body spherical harmonic gravity acceleration model.
+/*!
+ *  Function to create mutual two-body spherical harmonic gravity acceleration model from bodies exerting and
+ *  undergoing acceleration, from algorithm of Dirkx et al. (2018)
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting acceleration.
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with mutual two-body spherical harmonic acceleration).
+ *  \param useCentralBodyFixedFrame Boolean setting whether the central attraction of body
+ *  undergoing acceleration on body exerting acceleration is to be included in acceleration model.
+ *  Should be set to true in case the body undergoing acceleration is a celestial body
+ *  (with gravity field) and integration is performed in the frame centered at the body exerting
+ *  acceleration.
+ *  \return Mutual two-body spherical harmonic gravity acceleration model pointer.
+ */
+std::shared_ptr< gravitation::FullTwoBodySphericalHarmonicAcceleration > createFullTwoBodySphericalHarmonicsGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
+        const bool useCentralBodyFixedFrame,
+        const bool acceleratedBodyIsCentralBody = false );
+
 //! Function to create an aerodynamic acceleration model.
 /*!
  *  Function to create an aerodynamic acceleration model, automatically creates all required
@@ -452,6 +480,17 @@ std::shared_ptr< electromagnetism::RadiationPressureAcceleration > createRadiati
         const std::string& nameOfBodyExertingAcceleration,
         const SystemOfBodies& bodies,
         const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
+
+//! Create a three-coefficient radiation-pressure acceleration model.
+std::shared_ptr< electromagnetism::ThreeCoefficientRadiationPressureAcceleration > createThreeCoefficientRadiationPressureAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< Body > referenceBody,
+        const std::string& referenceBodyName,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a thrust acceleration model.
 /*!

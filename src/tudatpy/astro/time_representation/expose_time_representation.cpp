@@ -23,6 +23,7 @@
 #include <tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h>
 #include <tudat/math/basic/mathematicalConstants.h>
 #include <tudat/basics/deprecationWarnings.h>
+#include <tudat/io/serialization/pybind_helpers.h>
 
 #include "scalarTypes.h"
 
@@ -167,19 +168,12 @@ void expose_time_representation( py::module& m )
      --------
      >>> from tudatpy.kernel import Time
      >>> t = Time(2, 1800.0)  # 2.5 hours after epoch
-     )doc" )
-            .def( py::pickle(
-                    []( const Time& p ) {  // __getstate__
-                        /* Return a tuple that fully encodes the state of the object */
-                        return py::make_tuple( p.getFullPeriods( ), p.getSecondsIntoFullPeriod( ) );
-                    },
-                    []( py::tuple t ) {  // __setstate__
-                        if( t.size( ) != 2 ) throw std::runtime_error( "Invalid state!" );
-
-                        /* Create a new C++ instance */
-                        return Time( t[ 0 ].cast< int >( ), t[ 1 ].cast< long double >( ) );
-
-                    } ) )
+     )doc" ) TUDATPY_DEF_BINARY_IO( tudat::Time )
+            .def( py::pickle( []( const Time& p ) { return py::make_tuple( p.getFullPeriods( ), p.getSecondsIntoFullPeriod( ) ); },
+                              []( py::tuple t ) {
+                                  if( t.size( ) != 2 ) throw std::runtime_error( "Invalid state!" );
+                                  return Time( t[ 0 ].cast< int >( ), t[ 1 ].cast< long double >( ) );
+                              } ) )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
                   R"doc(
@@ -815,17 +809,35 @@ In this example, the calendar date corresponding to when 122 days have passed in
             .def(
                     "to_python_datetime",
                     []( const tba::DateTime& self ) {
-                        const auto sec_int = static_cast< int >( self.getSeconds( ) );
-                        const auto microsecond = static_cast< int >(
-                                std::round( ( self.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
-                        return py::module_::import( "datetime" )
-                                .attr( "datetime" )( self.getYear( ),
-                                                     self.getMonth( ),
-                                                     self.getDay( ),
-                                                     self.getHour( ),
-                                                     self.getMinute( ),
-                                                     sec_int,
-                                                     microsecond );
+                        // Cache the Python datetime class constructor
+                        static py::object py_datetime = py::module_::import( "datetime" ).attr( "datetime" );
+
+                        tba::DateTime normalizedDateTime = self;
+                        auto sec_int = static_cast< int >( normalizedDateTime.getSeconds( ) );
+                        auto microsecond = static_cast< int >(
+                                std::round( ( normalizedDateTime.getSeconds( ) - static_cast< long double >( sec_int ) ) * 1000000.0L ) );
+
+                        if( microsecond == 1000000 )
+                        {
+                            normalizedDateTime = normalizedDateTime.addSecondsToDateTime( 1.0L );
+                            sec_int = static_cast< int >( normalizedDateTime.getSeconds( ) );
+                            microsecond = 0;
+                        }
+
+                        // Python datetime cannot represent leap seconds.
+                        if( sec_int >= 60 )
+                        {
+                            throw py::value_error( "Cannot convert a Tudat DateTime containing a leap second to Python datetime." );
+                        }
+
+                        // Call the cached constructor
+                        return py_datetime( normalizedDateTime.getYear( ),
+                                            normalizedDateTime.getMonth( ),
+                                            normalizedDateTime.getDay( ),
+                                            normalizedDateTime.getHour( ),
+                                            normalizedDateTime.getMinute( ),
+                                            sec_int,
+                                            microsecond );
                     },
                     R"doc(
 
@@ -1309,12 +1321,12 @@ datetime.datetime
 
  Parameters
  ----------
- TCB_time : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TCB time scale.
+ TCB_time : float
+     Floating-point epoch in seconds since J2000, in the TCB time scale.
  Returns
  -------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TDB time scale.
+ epoch : float
+     Floating-point epoch in seconds since J2000, in the TDB time scale.
 
 
 
@@ -1355,12 +1367,12 @@ datetime.datetime
 
  Parameters
  ----------
- TDB_time : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TDB time scale.
+ TDB_time : float
+     Floating-point epoch in seconds since J2000, in the TDB time scale.
  Returns
  -------
- epoch : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TCB time scale.
+ epoch : float
+     Floating-point epoch in seconds since J2000, in the TCB time scale.
 
 
 
@@ -1380,12 +1392,12 @@ datetime.datetime
 
  Parameters
  ----------
- TCG_time : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TCG time scale.
+ TCG_time : float
+     Floating-point epoch in seconds since J2000, in the TCG time scale.
  Returns
  -------
- astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+ float
+     Floating-point epoch in seconds since J2000, in the TT time scale.
 
 
 
@@ -1408,12 +1420,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+ TT_time : float
+     Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TCG time scale.
+ float
+    Floating-point epoch in seconds since J2000, in the TCG time scale.
 
 
 
@@ -1433,12 +1445,12 @@ datetime.datetime
 
  Parameters
  ----------
- TAI_time : astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TAI time scale.
+ TAI_time : float
+    Floating-point epoch in seconds since J2000, in the TAI time scale.
  Returns
  -------
- astro.time_representation.Time
-     Time object representing the epoch as seconds since J2000, in the TT time scale.
+ float
+     Floating-point epoch in seconds since J2000, in the TT time scale.
 
 
 
@@ -1461,12 +1473,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TT time scale.
+ TT_time : float
+    Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TAI time scale.
+ float
+    Floating-point epoch in seconds since J2000, in the TAI time scale.
 
 
 
@@ -1491,12 +1503,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TT time scale.
+ TT_time : float
+    Floating-point epoch in seconds since J2000, in the TT time scale.
  Returns
  -------
- astro.time_representation.Time
-    Time object representing the epoch as seconds since J2000, in the TDB time scale.
+ float
+    Floating-point epoch in seconds since J2000, in the TDB time scale.
 
 
 

@@ -79,14 +79,14 @@ jobs:
           ref: develop
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Install bump2version and run bumpversion
+      - name: Install Bump My Version and bump the version
         run: |
             python3 -m venv venv
             source venv/bin/activate
-            pip install bump2version
+            pip install 'bump-my-version>=1,<2'
             git config --global user.email "actions@github.com"
             git config --global user.name "GitHub Actions"
-            bump2version dev --config-file .bumpversion.cfg --verbose
+            bump-my-version bump dev --config-file .bumpversion.cfg --verbose
       - name: Push tag to tudatpy repository
         run: git push origin --follow-tags
         env:
@@ -114,14 +114,14 @@ jobs:
             token: ${{ steps.app-token.outputs.token }}
             ref: develop
 
-        - name: Install bump2version and run bumpversion
+        - name: Install Bump My Version and bump the version
           run: |
                python3 -m venv venv
                source venv/bin/activate
-               pip install bump2version
+               pip install 'bump-my-version>=1,<2'
                git config --global user.email "actions@github.com"
                git config --global user.name "GitHub Actions"
-               bump2version dev --config-file .bumpversion.cfg --verbose
+               bump-my-version bump dev --config-file .bumpversion.cfg --verbose
         - name: Reset build number in meta.yml to 0
           shell: bash
           run: |

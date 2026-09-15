@@ -463,7 +463,7 @@ class SpaceTrackQuery:
 
         Parameters
         ----------
-        filter_oe_dict : dict
+        filter_oe_dict : dict[str, tuple[float | None, float | None]]
             Mapping of orbital element names to ``(min, max)`` bound tuples.
             Either bound may be ``None`` for a one-sided filter.
         limit : int
@@ -607,11 +607,12 @@ class OMMUtils:
         Parameters
         ----------
         json_data : list[dict] | dict
-            One or more OMM records containing ``TLE_LINE1`` and ``TLE_LINE2``.
+            One or more OMM records. Records without both ``TLE_LINE1`` and
+            ``TLE_LINE2`` are ignored.
 
         Returns
         -------
-        dict[str, tuple[str, str]]
+        defaultdict[str, list[tuple[str, str]]]
             Mapping of NORAD ID (str) → (TLE line 1, TLE line 2).
         """
         if isinstance(json_data, dict):
@@ -620,7 +621,11 @@ class OMMUtils:
         final_dict = defaultdict(list)
 
         for entry in json_data:
-            final_dict[entry["NORAD_CAT_ID"]].append((entry["TLE_LINE1"], entry["TLE_LINE2"]))
+            tle_line_1 = entry.get("TLE_LINE1")
+            tle_line_2 = entry.get("TLE_LINE2")
+            if not tle_line_1 or not tle_line_2:
+                continue
+            final_dict[entry["NORAD_CAT_ID"]].append((tle_line_1, tle_line_2))
 
         return final_dict
 
@@ -668,7 +673,7 @@ class OMMUtils:
         return a, e, i, omega, raan, mean_to_true_anomaly(e, mo)
 
     @staticmethod
-    def tle_to_TleEphemeris_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
+    def tle_to_TleEphemeris_object(tle_line_1: str, tle_line_2: str) -> environment.TleEphemeris:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 
@@ -681,7 +686,7 @@ class OMMUtils:
 
         Returns
         -------
-        environment.Tle
+        environment.TleEphemeris
             Configured TleEphemeris object.
         """
         return environment.TleEphemeris(
@@ -689,7 +694,7 @@ class OMMUtils:
         )
 
     @staticmethod
-    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.TleEphemeris:
+    def tle_to_Tle_object(tle_line_1: str, tle_line_2: str) -> environment.Tle:
         """
         Converts a TLE line pair into a Tudat ``TleEphemeris`` object.
 

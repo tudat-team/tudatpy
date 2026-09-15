@@ -8,6 +8,8 @@ import pytest
 
 spice.load_standard_kernels()
 
+pytestmark = pytest.mark.remote_data
+
 # coverage = 88%
 # TESTS DO NOT CHECK/VALIDATE:
 # positions of observatories.

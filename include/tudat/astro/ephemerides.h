@@ -33,5 +33,6 @@
 #include "ephemerides/tabulatedEphemeris.h"
 #include "ephemerides/tabulatedRotationalEphemeris.h"
 #include "ephemerides/tleEphemeris.h"
+#include "ephemerides/tleFitting.h"
 
 #endif  // TUDAT_EPHEMERIDES_H

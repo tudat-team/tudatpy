@@ -341,6 +341,11 @@ public:
         return "";
     }
 
+    std::shared_ptr< ephemerides::RotationalEphemeris > getRotationModel( ) const
+    {
+        return rotationModel_;
+    }
+
 protected:
     std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel_;
 };

@@ -139,7 +139,8 @@ public:
                             bodies_,
                             orderedDependentVariableSettings_,
                             dynamicsStateDerivative_->getStateDerivativeModels( ),
-                            predefinedStateDerivativeModels.stateDerivativePartials_ );
+                            predefinedStateDerivativeModels.stateDerivativePartials_,
+                            predefinedStateDerivativeModels.parametersToEstimate_ );
             dependentVariablesFunctions_ = dependentVariableData.first;
             dependentVariableIds_ = dependentVariableData.second;
         }
@@ -439,6 +440,10 @@ public:
         {
             try
             {
+                for( auto processorIterator : integratedStateProcessors_ )
+                {
+                    processorIterator.second->setInterpolatorSettings( outputSettings_->getInterpolatorSettings( ) );
+                }
                 // Create and set interpolators for ephemerides
                 resetIntegratedStates( propagationResults_->equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
             }

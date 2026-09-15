@@ -42,6 +42,8 @@ namespace light_time_corrections
 
 void expose_light_time_corrections( py::module& m )
 {
+    py::class_< tom::LightTimeCorrection, std::shared_ptr< tom::LightTimeCorrection > >( m, "LightTimeCorrection" );
+
     py::enum_< tom::LightTimeCorrectionType >( m,
                                                "LightTimeCorrectionType",
                                                R"doc(Enum identifying each type of light-time correction registered on a link.
@@ -373,23 +375,76 @@ Examples
             .value( "vmf3", tom::TroposphericMappingModel::vmf3 );
 
     py::enum_< tom::WaterVaporPartialPressureModel >(
-            m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(No documentation found.)doc" )
-            .value( "tabulated", tom::WaterVaporPartialPressureModel::tabulated )
-            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton );
+            m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(Enumeration for water vapor partial pressure models.)doc" )
+            .value( "tabulated",
+                    tom::WaterVaporPartialPressureModel::tabulated,
+                    R"doc(Use the water vapor partial pressure values directly from the GroundStation's water vapor partial pressure data.)doc" )
+            .value( "bean_and_dutton",
+                    tom::WaterVaporPartialPressureModel::bean_and_dutton,
+                    R"doc(Compute the water vapor partial pressure using the Bean and Dutton (1966) model as given in Eq. 16 of Estefan and Sovers (1994), based on the GroundStation's temperature and relative humidity.)doc" );
 
     m.def( "dsn_tabulated_tropospheric_light_time_correction",
            &tom::tabulatedTroposphericCorrectionSettings,
            py::arg( "file_names" ),
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
-           R"doc(No documentation found.)doc" );
+           py::arg( "seasonal_correction_file_name" ) = "",
+           R"doc(
+
+           Function for creating settings for DSN tabulated tropospheric light-time corrections.
+
+           The tabulated tropospheric correction settings are created based on files according to the TRK-2-23 Media Calibration Interface document.
+           The tropospheric correction files contain time-series coefficients for the dry and wet tropospheric zenit delay, which are then mapped to the slant range using the specified mapping function.
+           The correction is composed of a seasonal correction and an adjustment to that, based on measured data.
+           The tropospheric corrections are spacecraft-independent.
+
+           Parameters
+           ----------
+
+           file_names : list[str]
+               List of paths to the tropospheric correction files. These files should only include the monthly adjustments to the seasonal model as given by the DSN, not the seasonal model.
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the troposphere.
+           mapping_model : TroposphericMappingModel, default = niell
+               Mapping model used to map the zenith delay to the slant range.
+           seasonal_correction_file_name : str, default = ""
+               Path to the CSP file containing the seasonal tropospheric correction model. If empty, the DSN default seasonal model from the `PDS <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-jpl_dsn_mmm/tro/1972_001_2048_001_tro.csp>`_ is used, without the constant terms.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated tropospheric corrections.
+
+           )doc" );
 
     m.def( "saastamoinen_tropospheric_light_time_correction",
            &tom::saastamoinenTroposphericCorrectionSettings,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
            py::arg( "water_vapor_partial_pressure_model" ) = tom::WaterVaporPartialPressureModel::tabulated,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+           
+           Function for creating settings for Saastamoinen tropospheric light-time corrections.
+
+           The Saastamoinen tropospheric correction compute the tropospheric zenith delay based on the local meterological conditions at the ground station.
+           This requires the meteorological data to be set in the :class:`~tudatpy.dynamics.environment.GroundStation` object.
+           The dry delay is computed according to Eq. (12,13) in Estefan and Sovers (1994), while the wet delay is computed according to Eq. (18).
+           The zenith delay is then mapped to the slant range using the specified mapping function.
+           
+           Parameters
+           ----------
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the troposphere.
+           mapping_model : TroposphericMappingModel, default = niell
+               Mapping model used to map the zenith delay to the slant range.
+           water_vapor_partial_pressure_model : WaterVaporPartialPressureModel, default = tabulated
+               Model used to compute the water vapor partial pressure required for the wet delay computation.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for Saastamoinen tropospheric corrections.
+           )doc" );
 
     m.def( "dsn_tabulated_ionospheric_light_time_correction",
            &tom::tabulatedIonosphericCorrectionSettings,
@@ -398,7 +453,33 @@ Examples
            py::arg( "quasar_name_per_id" ) = std::map< int, std::string >( ),
            py::arg( "reference_frequency" ) = 2295e6,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+           
+           Function for creating settings for DSN tabulated ionospheric light-time corrections.
+
+           The tabulated ionospheric correction settings are created based on files according to the TRK-2-23 Media Calibration Interface document.
+           The ionospheric correction files contain time-series coefficients for the delay due to charged particles in the ionosphere at the reference frequency.
+           The ionospheric corrections are spacecraft-specific.
+
+           Parameters
+           ----------
+           file_names : list[str]
+               List of paths to the ionospheric correction files.
+           spacecraft_name_per_id : dict[int, str], default = {}
+               Map with the name of the body associated with each spacecraft ID in the CSP file.
+           quasar_name_per_id : dict[int, str], default = {}
+               Map with the name of the body associated with each quasar ID in the CSP file.
+           reference_frequency : float, default = 2295e6
+               Reference frequency at which the ionospheric correction coefficients are given, in Hz. The correction is scaled to the actual frequency of the signal using the inverse-square law.
+           body_with_atmosphere_name : str, default = "Earth"
+               Name of the body with the ionosphere.
+
+           Returns
+           -------
+           :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+               Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured for DSN tabulated ionospheric corrections.
+           
+           )doc" );
 
     m.def( "jakowski_ionospheric_light_time_correction",
            &tom::jakowskiIonosphericCorrectionSettings,
@@ -700,13 +781,32 @@ float
            py::arg( "bodies" ),
            py::arg( "set_troposphere_data" ) = true,
            py::arg( "set_meteo_data" ) = true,
-           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ),
+           py::arg_v( "interpolator_settings", ti::cubicSplineInterpolation( ), "tudatpy.math.interpolators.cubic_spline_interpolation()" ),
            py::arg( "retrieve_mapping_internally" ) = false,
            R"doc(
 Set VMF/VMF3/VMF3o troposphere (and optional meteo) data in Earth ground stations.
 
 If ``retrieve_mapping_internally`` is ``True``, station-name matching first attempts direct key matching and then
 internally maps ILRS station code <-> DOMES identifiers using the default ILRS SINEX ``SITE/ID`` registry.
+
+Parameters
+----------
+data_files : list[str]
+    Paths to the VMF data files.
+file_has_meteo : bool
+    Whether the files contain meteorological data.
+file_has_gradient : bool
+    Whether the files contain tropospheric gradient data.
+bodies : dynamics.environment.SystemOfBodies
+    Bodies containing the Earth ground stations to update.
+set_troposphere_data : bool, default = True
+    Whether to set the zenith hydrostatic and wet delays in the ground stations.
+set_meteo_data : bool, default = True
+    Whether to set the meteorological data in the ground stations.
+interpolator_settings : math.interpolators.InterpolatorSettings, default = math.interpolators.cubic_spline_interpolation()
+    Settings used to interpolate the VMF data.
+retrieve_mapping_internally : bool, default = False
+    Whether to retrieve the ILRS station-code to DOMES-identifier mapping internally.
            )doc" );
 
     m.def( "set_ionosphere_model_from_ionex",
@@ -737,7 +837,7 @@ data_files : list[str]
     (COD, EMR, ESA, IGS, JPL, UPC) and any temporal resolution (15 min to 2 hours) are supported.
 bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
     System of bodies. The ionosphere model will be set on the ``"Earth"`` body.
-interpolator_settings : InterpolatorSettings, optional
+interpolator_settings : InterpolatorSettings, default = math.interpolators.cubic_spline_interpolation()
     Settings for the 3D multi-linear interpolator. If not provided, defaults to multi-linear
     interpolation with hunting algorithm and boundary value extrapolation.
 station_subset : list[tuple[str, str]], default = []

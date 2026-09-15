@@ -132,6 +132,12 @@ void PiecewiseLinearFrequencyInterpolator::initialize( )
 void PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator(
         const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd )
 {
+    if( rampsToAdd->getGapHandling( ) != gapHandling_ )
+    {
+        std::cerr << "Warning: gap handling of ramp table to add (" << rampsToAdd->getGapHandling( )
+                  << ") differs from base ramp table gap handling (" << gapHandling_ << "). Using base gap handling." << std::endl;
+    }
+
     std::vector< Time > startTimesToAdd = rampsToAdd->getStartTimes( );
     std::vector< Time > endTimesToAdd = rampsToAdd->getEndTimes( );
     std::vector< double > rampRatesToAdd = rampsToAdd->getRampRates( );

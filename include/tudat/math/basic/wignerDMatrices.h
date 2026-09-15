@@ -1,0 +1,182 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References
+ *      Varschalovich, et al. Quantum Theory of Angular Momentum. World Scientific, February 1988
+ *      Boué, (2017) The two rigid body interaction using angular momentum theory formulae, CMDA 128(2-3):261-273
+ *
+ */
+
+#ifndef TUDAT_WIGNER_D_MATRIXRES_H
+#define TUDAT_WIGNER_D_MATRIXRES_H
+
+#include <array>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <cmath>
+#include <complex>
+#include <memory>
+#include <vector>
+
+namespace tudat
+{
+
+namespace basic_mathematics
+{
+
+//! Class to compute Wigner D-Matrices, used to transform spherical harmonic coefficients
+/*!
+ *  Class to compute Wigner D-Matrices, used to transform spherical harmonic coefficients under a rotation of the reference
+ *  frame. The formulation is in terms of Cayley-Klein parameters, and follows the same recursive formulation as Boué (2016)
+ */
+class WignerDMatricesCache
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param maximumDegree Maximum degree for which Wigner-D matrix is to be computed
+     */
+    WignerDMatricesCache( const int maximumDegree );
+
+    //! Destructor
+    ~WignerDMatricesCache( ) {}
+
+    //! Function to update contents of this object to new orientation
+    /*!
+     * Function to update contents of this object to new orientation, defined by Cayley-Klein parameters a and b. For a
+     * quaternion q = (q0, q1, q2, q3), the convention used by Tudat is a = q0 - i q3, b = q2 - i q1. For a valid
+     * rotation, the Cayley-Klein parameters must satisfy |a|^2 + |b|^2 = 1. Calling this function updates the
+     * wignerDMatrices_ member variable
+     * \param cayleyKleinA Cayley-Klein parameters a
+     * \param cayleyKleinB Cayley-Klein parameters b
+     */
+    void updateMatrices( const std::complex< double > cayleyKleinA, const std::complex< double > cayleyKleinB );
+
+    //! Function to retrieve single component of Wigner D-matrix
+    /*!
+     * Function to retrieve single component of Wigner D-matrix
+     * \param degree Degree for which coefficient is to be retrieved (denoted l by Boué)
+     * \param originalOrder Original order for which coefficient is to be retrieved (denoted m by Boué)
+     * \param newOrder New order for which coefficient is to be retrieved (denoted m' by Boué)
+     * \return Single component of Wigner D-matrix
+     */
+    std::complex< double > getWignerDCoefficient( const int degree, const int originalOrder, const int newOrder )
+    {
+        return wignerDMatrices_[ degree ]( originalOrder + degree, newOrder + degree );
+    }
+
+    //! Function to retrieve single Wigner D-matrix
+    /*!
+     * Function to retrieve single Wigner D-matrix
+     * \param degree  Degree for which matrix is to be retrieved (denoted l by Boué)
+     * \return Wigner D-matrix at requested degree
+     */
+    Eigen::MatrixXcd& getWignerDMatrix( const int degree )
+    {
+        return wignerDMatrices_[ degree ];
+    }
+
+    //! Function to retrieve list of Wigner D-matrices
+    /*!
+     *  Function to retrieve list of Wigner D-matrices
+     *  \return List of Wigner D-matrices
+     */
+    std::vector< Eigen::MatrixXcd >& getWignerDMatrices( )
+    {
+        return wignerDMatrices_;
+    }
+
+    //! Function to retrieve \hat{J}D^l_{m,k} in Cartesian basis.
+    Eigen::Vector3cd getAngularMomentumOperatorOnWignerCoefficient( const int degree, const int originalOrder, const int newOrder )
+    {
+        if( std::abs( originalOrder ) > degree || std::abs( newOrder ) > degree )
+        {
+            return Eigen::Vector3cd::Zero( );
+        }
+
+        updateAngularMomentumOperators( );
+
+        Eigen::Vector3cd angularMomentumCoefficient;
+        angularMomentumCoefficient( 0 ) = angularMomentumOperatorsX_[ degree ]( originalOrder + degree, newOrder + degree );
+        angularMomentumCoefficient( 1 ) = angularMomentumOperatorsY_[ degree ]( originalOrder + degree, newOrder + degree );
+        angularMomentumCoefficient( 2 ) = angularMomentumOperatorsZ_[ degree ]( originalOrder + degree, newOrder + degree );
+        return angularMomentumCoefficient;
+    }
+
+private:
+    void updateAngularMomentumOperators( )
+    {
+        if( !areAngularMomentumOperatorsUpdated_ )
+        {
+            computeAngularMomentumOperators( );
+            areAngularMomentumOperatorsUpdated_ = true;
+        }
+    }
+
+    void computeAngularMomentumOperators( );
+
+    //! Function to precompute the coefficients used on the recursive formulation for Wigner D-matrices
+    void computeCoefficients( );
+
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
+    std::vector< Eigen::MatrixXd > coefficientsIndexMinusOne_;
+
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
+    std::vector< Eigen::MatrixXd > coefficientsIndexZero_;
+
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
+    std::vector< Eigen::MatrixXd > coefficientsIndexOne_;
+
+    //! Maximum degree for which Wigner-D matrix is to be computed
+    int maximumDegree_;
+
+    //! List of Wigner D-matrices
+    std::vector< Eigen::MatrixXcd > wignerDMatrices_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsX_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsY_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsZ_;
+
+    //! Cayley-Klein parameter a for current orientation.
+    std::complex< double > currentCayleyKleinA_;
+
+    //! Cayley-Klein parameter b for current orientation.
+    std::complex< double > currentCayleyKleinB_;
+
+    //! Conjugate of Cayley-Klein parameter a for current orientation.
+    std::complex< double > currentCayleyKleinAConjugate_;
+
+    //! Conjugate of Cayley-Klein parameter b for current orientation.
+    std::complex< double > currentCayleyKleinBConjugate_;
+
+    bool areAngularMomentumOperatorsUpdated_;
+};
+
+//! Compute partial derivatives of all Wigner D matrices in a cache w.r.t. quaternion components.
+/*!
+ * Computes derivatives of the Wigner D matrices in \p wignerCache with respect to the quaternion vector
+ * [q0, q1, q2, q3] defining \p rotation. The Cayley-Klein convention is the one used by WignerDMatricesCache:
+ * a = q0 - i q3, b = q2 - i q1. The cache must already be updated to the same rotation.
+ *
+ * \param rotation Quaternion defining the rotation for which derivatives are computed.
+ * \param wignerCache Cache containing Wigner D matrices for \p rotation.
+ * \param derivatives Output array. Entry i contains dD^l/dq_i for all degrees l in the cache.
+ */
+void computeDerivativeOfWignerDMatricesWrtQuaternion( const Eigen::Quaterniond& rotation,
+                                                      const std::shared_ptr< WignerDMatricesCache >& wignerCache,
+                                                      std::array< std::vector< Eigen::MatrixXcd >, 4 >& derivatives );
+
+}  // namespace basic_mathematics
+
+}  // namespace tudat
+
+#endif  // TUDAT_WIGNER_D_MATRIXRES_H

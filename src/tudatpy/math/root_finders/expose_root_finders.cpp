@@ -15,6 +15,7 @@
 #include <pybind11/pybind11.h>
 
 #include "tudat/math/root_finders/createRootFinder.h"
+#include "tudat/io/serialization/pybind_helpers.h"
 
 namespace py = pybind11;
 namespace trf = tudat::root_finders;
@@ -93,7 +94,8 @@ The program will not accept the root at the final iteration, and will throw a :c
 
 
 
-      )doc" );
+      )doc" ) TUDATPY_DEF_EQ_NE( trf::RootFinderSettings ) TUDATPY_DEF_PICKLE_POLYMORPHIC( trf::RootFinderSettings )
+            TUDATPY_DEF_FILE_IO( trf::RootFinderSettings );
 
     m.def( "bisection",
            &trf::bisectionRootFinderSettings,

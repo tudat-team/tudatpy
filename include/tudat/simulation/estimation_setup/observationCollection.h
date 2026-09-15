@@ -13,8 +13,14 @@
 
 #include <Eigen/Core>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <vector>
+
+#include <cereal/access.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
@@ -22,6 +28,7 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -2010,6 +2017,16 @@ public:
                               const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
                                       std::make_shared< ObservationCollectionParser >( ) )
     {
+        std::cerr << "Warning: ObservationCollection.set_transponder_delay(...) is deprecated. This function only modifies the "
+                     "retransmission delay stored in the observation ancillary settings of the selected observation sets. For the "
+                     "new default transponder-delay mechanism, set the delay on the spacecraft VehicleSystems before creating the "
+                     "observation model, for example in Python: "
+                     "`bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay`. In C++, call "
+                     "`bodies.at(spacecraftName)->getVehicleSystems()->setTransponderDelay(transponderDelay)` before creating the "
+                     "observation model. This deprecated ObservationCollection function is kept for backward compatibility only and "
+                     "will be removed in a future major release."
+                  << std::endl;
+
         // Create observation parser with the spacecraft name
         std::shared_ptr< ObservationCollectionParser > spacecraftParser = observationParser( spacecraftName );
 
@@ -2017,7 +2034,7 @@ public:
         std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
                 std::vector< std::shared_ptr< ObservationCollectionParser > >( { spacecraftParser, inputObservationParser } ), true );
 
-        // Set transponder delay
+        // Set transponder delay in ancillary settings, preserving the legacy behavior of this function.
         std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
                 getSingleObservationSets( jointParser );
 
@@ -2027,9 +2044,19 @@ public:
 
             if( ancillarySettings != nullptr )
             {
-                std::vector< double > linkEndsDelays_ = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
-                linkEndsDelays_[ 1 ] = transponderDelay;
-                ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays_ );
+                std::vector< double > linkEndsDelays = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
+                if( linkEndsDelays.size( ) <= 1 )
+                {
+                    throw std::runtime_error(
+                            "Error in deprecated ObservationCollection.set_transponder_delay(...): the selected observation set does "
+                            "not contain an ancillary link_ends_delays vector with a retransmitter delay entry. To use the new "
+                            "VehicleSystems transponder-delay mechanism, set "
+                            "`bodies.get(spacecraft_name).system_models.transponder_delay = transponder_delay` in Python, or "
+                            "`bodies.at(spacecraftName)->getVehicleSystems()->setTransponderDelay(transponderDelay)` in C++, before "
+                            "creating the observation model." );
+                }
+                linkEndsDelays[ 1 ] = transponderDelay;
+                ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
             }
         }
     }
@@ -2613,6 +2640,80 @@ private:
     int totalObservableSize_;
 
     int totalNumberOfObservables_;
+
+public:
+    bool operator==( const ObservationCollection& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const ObservationCollection& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationCollection& rhs ) const
+    {
+        if( observationSetList_.size( ) != rhs.observationSetList_.size( ) )
+        {
+            return false;
+        }
+
+        auto lhsObservable = observationSetList_.cbegin( );
+        auto rhsObservable = rhs.observationSetList_.cbegin( );
+        for( ; lhsObservable != observationSetList_.cend( ); ++lhsObservable, ++rhsObservable )
+        {
+            if( lhsObservable->first != rhsObservable->first || lhsObservable->second.size( ) != rhsObservable->second.size( ) )
+            {
+                return false;
+            }
+
+            auto lhsLinkEnds = lhsObservable->second.cbegin( );
+            auto rhsLinkEnds = rhsObservable->second.cbegin( );
+            for( ; lhsLinkEnds != lhsObservable->second.cend( ); ++lhsLinkEnds, ++rhsLinkEnds )
+            {
+                if( lhsLinkEnds->first != rhsLinkEnds->first || lhsLinkEnds->second.size( ) != rhsLinkEnds->second.size( ) )
+                {
+                    return false;
+                }
+
+                for( std::size_t i = 0; i < lhsLinkEnds->second.size( ); ++i )
+                {
+                    const auto& lhsSet = lhsLinkEnds->second.at( i );
+                    const auto& rhsSet = rhsLinkEnds->second.at( i );
+                    if( static_cast< bool >( lhsSet ) != static_cast< bool >( rhsSet ) || ( lhsSet && *lhsSet != *rhsSet ) )
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    TUDAT_DEFINE_BINARY_IO( ObservationCollection< ObservationScalarType, TimeType > )
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        // Only serialize the core data - all index maps are reconstructed
+        ar( observationSetList_ );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        // Only serialize the core data - all index maps are reconstructed
+        ar( observationSetList_ );
+
+        // Reconstruct all derived data after loading
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
+    }
 };
 
 template< typename ObservationScalarType = double,

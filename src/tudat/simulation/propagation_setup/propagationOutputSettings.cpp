@@ -279,6 +279,12 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case total_acceleration_partial_wrt_body_translational_state:
             variableName = "Total acceleration partial w.r.t. translational state";
             break;
+        case acceleration_derivative_partial_wrt_parameter:
+            variableName = "Acceleration derivative partial w.r.t. parameter";
+            break;
+        case total_acceleration_derivative_partial_wrt_parameter:
+            variableName = "Total acceleration derivative partial w.r.t. parameter";
+            break;
         case minimum_constellation_distance:
             variableName = "Minimum instantaneous constellation distance";
             break;
@@ -473,6 +479,32 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
         else
         {
             variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
+        }
+    }
+    if( ( dependentVariableSettings->dependentVariableType_ == acceleration_derivative_partial_wrt_parameter ) ||
+        ( dependentVariableSettings->dependentVariableType_ == total_acceleration_derivative_partial_wrt_parameter ) )
+    {
+        std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialDependentVariableSettings =
+                std::dynamic_pointer_cast< AccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+        std::shared_ptr< TotalAccelerationDerivativePartialWrtParameterSaveSettings > totalPartialDependentVariableSettings =
+                std::dynamic_pointer_cast< TotalAccelerationDerivativePartialWrtParameterSaveSettings >( dependentVariableSettings );
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings =
+                ( partialDependentVariableSettings != nullptr )
+                ? partialDependentVariableSettings->parameterSettings_
+                : ( totalPartialDependentVariableSettings != nullptr ? totalPartialDependentVariableSettings->parameterSettings_
+                                                                     : nullptr );
+        if( parameterSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable type full string, expected parameter partial type" );
+        }
+        else
+        {
+            variableId += " w.r.t. parameter " + estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) +
+                    " of " + parameterSettings->parameterType_.second.first;
+            if( parameterSettings->parameterType_.second.second != "" )
+            {
+                variableId += ", " + parameterSettings->parameterType_.second.second;
+            }
         }
     }
     if( dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction )

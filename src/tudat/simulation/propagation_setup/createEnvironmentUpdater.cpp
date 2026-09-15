@@ -13,7 +13,9 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/electromagnetism/threeCoefficientRadiationPressureAcceleration.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/relativisticEquationsOfMotion.h"
@@ -174,6 +176,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         }
                         break;
                     }
+                    case climate_model_update: {
+                        std::shared_ptr< environment::ClimateModel > climateModel =
+                                bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
+                        if( climateModel == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when making environment model update settings, could not find climate model of body " +
+                                    updateIterator->second.at( i ) );
+                        }
+                        break;
+                    }
                     case space_time_metric_update: {
                         break;
                     }
@@ -296,6 +309,24 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
                         singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
                         singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
+                        break;
+                    case full_two_body_spherical_harmonic_gravitational_torque:
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( acceleratedBodyIterator->first );
+                        break;
+                    case fourth_degree_full_two_body_gravitational_torque:
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_translational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( torqueModelIterator->first );
+                        singleTorqueUpdateNeeds[ body_mass_distribution_update ].push_back( acceleratedBodyIterator->first );
                         break;
                     case radiation_pressure_torque:
                         throw std::runtime_error( "Error, environment updates for radiation pressure torque not yet implemented" );
@@ -559,6 +590,35 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         }
                         break;
                     }
+                    case three_coefficient_radiation_pressure: {
+                        const auto threeCoefficientAcceleration =
+                                std::dynamic_pointer_cast< electromagnetism::ThreeCoefficientRadiationPressureAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( threeCoefficientAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating environment updates for three-coefficient radiation pressure: model type is "
+                                    "inconsistent." );
+                        }
+
+                        const std::string& sourceName = accelerationModelIterator->first;
+                        const std::string& targetName = acceleratedBodyIterator->first;
+                        singleAccelerationUpdateNeeds[ body_mass_update ].push_back( targetName );
+                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back( sourceName );
+                        singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back( targetName );
+
+                        if( translationalAccelerationModels.count( threeCoefficientAcceleration->getReferenceBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    threeCoefficientAcceleration->getReferenceBodyName( ) );
+                        }
+                        for( const std::string& occultingBody :
+                             threeCoefficientAcceleration->getSourceToTargetOccultationModel( )->getOccultingBodyNames( ) )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( occultingBody );
+                        }
+                        break;
+                    }
                     case radiation_pressure: {
                         const auto sourceName = accelerationModelIterator->first;
                         const auto targetName = acceleratedBodyIterator->first;
@@ -659,6 +719,14 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
                         break;
+                    case full_two_body_spherical_harmonic_gravity:
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+                        break;
                     case polyhedron_gravity:
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
                         break;
@@ -714,6 +782,37 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         {
                             throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
+                                    std::string( "AccelerationModel) to createTranslationalEquationsOfMotion " ) +
+                                    std::string( "EnvironmentUpdaterSettings" ) );
+                        }
+                        break;
+                    }
+                    case third_body_full_two_body_spherical_harmonic_gravity: {
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( acceleratedBodyIterator->first );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+
+                        std::shared_ptr< gravitation::ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >
+                                thirdBodyAcceleration = std::dynamic_pointer_cast<
+                                        gravitation::ThirdBodyFullTwoBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                        accelerationModelIterator->second.at( i ) );
+                        if( thirdBodyAcceleration != nullptr &&
+                            translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                            singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                            singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        }
+                        else if( thirdBodyAcceleration == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyFullTwoBodySphericalHarmonicsGravitational" ) +
                                     std::string( "AccelerationModel) to createTranslationalEquationsOfMotion " ) +
                                     std::string( "EnvironmentUpdaterSettings" ) );
                         }
@@ -1238,6 +1337,10 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case acceleration_partial_wrt_body_translational_state:
             break;
         case total_acceleration_partial_wrt_body_translational_state:
+            break;
+        case acceleration_derivative_partial_wrt_parameter:
+            break;
+        case total_acceleration_derivative_partial_wrt_parameter:
             break;
         case total_spherical_harmonic_cosine_coefficient_variation:
             variablesToUpdate[ spherical_harmonic_gravity_field_update ].push_back( dependentVariableSaveSettings->associatedBody_ );

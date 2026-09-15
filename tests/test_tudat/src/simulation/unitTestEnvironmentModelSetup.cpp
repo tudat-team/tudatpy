@@ -8,12 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -582,7 +581,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
     const double l = 20.0;  // length
 
     // Define parameters
-    const double gravitationalConstant = 6.67259e-11;
+    const double gravitationalConstant = 6.67430e-11;
     const double density = 2670;
     const double volume = w * h * l;
     const double gravitationalParameter = gravitationalConstant * density * volume;

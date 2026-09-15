@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <vector>
@@ -16,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/random.hpp>
 
 #include "tudat/basics/testMacros.h"
