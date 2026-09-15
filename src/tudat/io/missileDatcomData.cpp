@@ -24,7 +24,6 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 
-#include <boost/algorithm/string.hpp>
 #include <cmath>
 
 namespace tudat

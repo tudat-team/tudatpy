@@ -24,6 +24,7 @@
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
@@ -90,6 +91,8 @@ struct BodySettings {
     std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
+    std::shared_ptr< ClimateModelSettings > climateModelSettings;
 
     std::vector< std::shared_ptr< CameraSettings > > cameraSettings;
 };

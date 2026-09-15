@@ -12,6 +12,7 @@
 #define TUDAT_CREATEOBSERVATIONVIABILITY_H
 
 #include "tudat/astro/observation_models/observationSimulator.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModelSettings.h"
 
@@ -117,6 +118,25 @@ private:
     std::vector< std::pair< double, double > > boundaries_;
 };
 
+class BodyInSunlightViabilitySettings : public ObservationViabilitySettings
+{
+public:
+    BodyInSunlightViabilitySettings( const std::pair< std::string, std::string > associatedLinkEnd,
+                                     const std::vector< std::string > occultingBodies,
+                                     const double minimumShadowFunctionValue = 1.0 ):
+        ObservationViabilitySettings( body_in_sunlight, associatedLinkEnd, "", minimumShadowFunctionValue ),
+        occultingBodies_( occultingBodies )
+    {}
+
+    const std::vector< std::string >& getOccultingBodies( ) const
+    {
+        return occultingBodies_;
+    }
+
+private:
+    std::vector< std::string > occultingBodies_;
+};
+
 inline std::shared_ptr< ObservationViabilitySettings > observationBoundariesViabilitySettings(
         const std::pair< std::string, std::string > associatedLinkEnd,
         const std::vector< std::pair< double, double > > boundaries )
@@ -155,6 +175,13 @@ inline std::shared_ptr< ObservationViabilitySettings > elevationAngleViabilitySe
         const double elevationAngle )
 {
     return std::make_shared< ObservationViabilitySettings >( minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
+}
+
+inline std::shared_ptr< ObservationViabilitySettings > groundStationDarknessViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const double maximumSunElevationAngle = -12.0 * mathematical_constants::PI / 180.0 )
+{
+    return std::make_shared< ObservationViabilitySettings >( ground_station_darkness, associatedLinkEnd, "", maximumSunElevationAngle );
 }
 
 inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyAvoidanceAngleViabilitySettings(
@@ -197,6 +224,14 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilityS
         const std::string occultingBody )
 {
     return std::make_shared< ObservationViabilitySettings >( body_occultation, associatedLinkEnd, occultingBody );
+}
+
+inline std::shared_ptr< ObservationViabilitySettings > bodyInSunlightViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const std::vector< std::string > occultingBodies,
+        const double minimumShadowFunctionValue = 1.0 )
+{
+    return std::make_shared< BodyInSunlightViabilitySettings >( associatedLinkEnd, occultingBodies, minimumShadowFunctionValue );
 }
 
 //! Typedef for vector of ObservationViabilitySettings pointers
@@ -247,6 +282,13 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
         const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
         const std::string& stationName );
 
+std::shared_ptr< GroundStationDarknessCalculator > createGroundStationDarknessCalculator(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName );
+
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 /*!
  * Function to create an object to check if a body avoidance angle condition is met for an observation
@@ -278,6 +320,24 @@ std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculat
  * \return Object to check if a body occultation condition is met for an observation
  */
 std::shared_ptr< OccultationCalculator > createOccultationCalculator(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+
+//! Function to create an object to check if a link-end body is illuminated by the Sun
+/*!
+ * Function to create an object to check if a link-end body is illuminated by the Sun. The Sun's radius is retrieved
+ * automatically from its shape model, and the minimum shadow function value for which the observation is deemed viable is
+ * retrieved from observationViabilitySettings (settings must be of type BodyInSunlightViabilitySettings).
+ * \param bodies Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
+ * (settings must be compatible with body-in-sunlight check).
+ * \return Object to check if a link-end body is illuminated by the Sun
+ */
+std::shared_ptr< BodyInSunlightCalculator > createBodyInSunlightCalculator(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds linkEnds,
         const ObservableType observationType,

@@ -352,6 +352,7 @@ public:
         {
             case dsn_n_way_averaged_doppler: {
                 ancillarySettings->setAncillaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
+                break;
             }
             default:
                 break;
@@ -844,6 +845,7 @@ void setTrackingDataInformationInBodies(
     {
         case dsn_n_way_averaged_doppler: {
             setStationFrequenciesFromTrackingData( processedTrackingTxtFileContents, bodies );
+            break;
         }
         default:
             break;
@@ -926,19 +928,16 @@ createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
-createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
-                                                  const double& baseFrequency,
-                                                  const std::vector< std::string >& columnTypes,
-                                                  const std::string& targetName,
-                                                  const std::string& transmittingStationName,
-                                                  const std::string& receivingStationName,
-                                                  const FrequencyBands& receptionBand,
-                                                  const FrequencyBands& transmissionBand,
-                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+createFdetsObservedObservationCollectionFromRawContents( const std::shared_ptr< input_output::TrackingTxtFileContents > fdetsFileContents,
+                                                         const double& baseFrequency,
+                                                         const std::string& targetName,
+                                                         const std::string& transmittingStationName,
+                                                         const std::string& receivingStationName,
+                                                         const FrequencyBands& receptionBand,
+                                                         const FrequencyBands& transmissionBand,
+                                                         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions )
 {
     using namespace input_output;
-    std::shared_ptr< TrackingTxtFileContents > fdetsFileContents = readFdetsFile( fdetsFileName, columnTypes );
     fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, receivingStationName );
     fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, transmittingStationName );
     fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, baseFrequency );
@@ -955,6 +954,54 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
             processedFdetsFiles, std::vector< ObservableType >( ), ancillarySettings );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
+                                                  const double& baseFrequency,
+                                                  input_output::FdetDateFormat dateFormat,
+                                                  const std::string& targetName,
+                                                  const std::string& transmittingStationName,
+                                                  const std::string& receivingStationName,
+                                                  const FrequencyBands& receptionBand,
+                                                  const FrequencyBands& transmissionBand,
+                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createFdetsObservedObservationCollectionFromRawContents< ObservationScalarType, TimeType >(
+            input_output::readFdetsFile( fdetsFileName, dateFormat ),
+            baseFrequency,
+            targetName,
+            transmittingStationName,
+            receivingStationName,
+            receptionBand,
+            transmissionBand,
+            earthFixedGroundStationPositions );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileName,
+                                                  const double& baseFrequency,
+                                                  const std::vector< std::string >& columnTypes,
+                                                  const std::string& targetName,
+                                                  const std::string& transmittingStationName,
+                                                  const std::string& receivingStationName,
+                                                  const FrequencyBands& receptionBand,
+                                                  const FrequencyBands& transmissionBand,
+                                                  const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    return createFdetsObservedObservationCollectionFromRawContents< ObservationScalarType, TimeType >(
+            input_output::readFdetsFile( fdetsFileName, columnTypes ),
+            baseFrequency,
+            targetName,
+            transmittingStationName,
+            receivingStationName,
+            receptionBand,
+            transmissionBand,
+            earthFixedGroundStationPositions );
 }
 
 }  // namespace observation_models

@@ -48,6 +48,16 @@ class SBDBquery:
         return self.query["object"]["spkid"]
 
     @property
+    def moid(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with the Earth [m], if available"""
+        return self.query["orbit"]["moid"].to(u.meter).value
+
+    @property
+    def moid_jup(self):
+        """Returns the Small-Body's Minimum Orbital Intersection Distance with Jupiter [m], if available"""
+        return self.query["orbit"]["moid_jup"].to(u.meter).value
+
+    @property
     def codes_300_spkid(self):
         """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
 
@@ -98,7 +108,7 @@ class SBDBquery:
         except Exception as _:
             raise ValueError(f"Gravitational parameter is not available for object {self.name}")
 
-    def estimated_spherical_mass(self, density: float):
+    def estimated_spherical_mass(self, density: float) -> float:
         """Calculate a very simple mass by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
@@ -116,7 +126,7 @@ class SBDBquery:
         mass = volume * density
         return mass
 
-    def estimated_spherical_gravitational_parameter(self, density: float):
+    def estimated_spherical_gravitational_parameter(self, density: float) -> float:
         """Calculate a very simple gravitational parameter by estimating the object's mass using a given density.
         Will raise an error if the body's diameter is not available on SBDB.
 
