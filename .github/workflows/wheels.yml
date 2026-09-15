@@ -1,0 +1,131 @@
+name: Wheels
+
+# Publishes pip/uv wheels by *repacking* the official conda tudatpy builds.
+# Does not compile C++.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      only-os:
+        description: "If set, only this runner (ubuntu-latest, macos-14, macos-15-intel, windows-latest)"
+        required: false
+        default: ""
+      only-python:
+        description: "If set, only this Python (3.10, 3.11, 3.12)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      os: ${{ steps.set.outputs.os }}
+      python: ${{ steps.set.outputs.python }}
+    steps:
+      - id: set
+        env:
+          ONLY_OS: ${{ inputs.only-os }}
+          ONLY_PYTHON: ${{ inputs.only-python }}
+        run: |
+          if [ -n "$ONLY_OS" ]; then
+            echo "os=[\"$ONLY_OS\"]" >> "$GITHUB_OUTPUT"
+          else
+            echo 'os=["ubuntu-latest","macos-14","macos-15-intel","windows-latest"]' >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "$ONLY_PYTHON" ]; then
+            echo "python=[\"$ONLY_PYTHON\"]" >> "$GITHUB_OUTPUT"
+          else
+            echo 'python=["3.10","3.11","3.12"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: ${{ matrix.os }} py${{ matrix.python }}
+    needs: matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(needs.matrix.outputs.os) }}
+        python: ${{ fromJSON(needs.matrix.outputs.python) }}
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: mamba-org/setup-micromamba@v3
+        with:
+          environment-name: pack
+          create-args: python=${{ matrix.python }} tudatpy=1.0.0
+          condarc: |
+            channels:
+              - conda-forge
+              - tudat-team
+            channel_priority: flexible
+          cache-environment: true
+
+      - name: Linux patchelf
+        if: runner.os == 'Linux'
+        run: micromamba install -y patchelf
+
+      - name: Extra Windows unpack helper
+        if: runner.os == 'Windows'
+        run: python -m pip install pefile
+
+      - name: Pack wheel
+        run: python tools/pack_conda_wheel.py -o wheels
+
+      - name: Smoke import in a clean venv
+        run: |
+          python -m venv "${RUNNER_TEMP}/smoke"
+          if [ -x "${RUNNER_TEMP}/smoke/Scripts/python.exe" ]; then
+            PY="${RUNNER_TEMP}/smoke/Scripts/python.exe"
+          else
+            PY="${RUNNER_TEMP}/smoke/bin/python"
+          fi
+          "$PY" -m pip install --upgrade pip
+          "$PY" -m pip install ./wheels/*.whl
+          "$PY" -c "import tudatpy; print(tudatpy.__version__, tudatpy.__file__)"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheels-${{ matrix.os }}-py${{ matrix.python }}
+          path: wheels/*.whl
+          if-no-files-found: error
+
+  publish:
+    needs: [matrix, build]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Collect wheels and index
+        run: |
+          mkdir -p dist
+          find artifacts -name '*.whl' -exec cp {} dist/ \;
+          ls -lh dist
+          python tools/pack_conda_wheel.py --help >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, "tools")
+          from pack_conda_wheel import write_index
+          write_index(Path("dist"))
+          PY
+      - name: Upload to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*
+          tag_name: ${{ github.event.release.tag_name }}
+          fail_on_unmatched_files: true
