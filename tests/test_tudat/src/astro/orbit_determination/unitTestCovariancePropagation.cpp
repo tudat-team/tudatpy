@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
                 getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, observed_body );
 
         // Simulate observations
-        std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+        std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Define estimation input
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
                     getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, observed_body );
 
             // Simulate observations
-            std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
                     measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
             // Define estimation input

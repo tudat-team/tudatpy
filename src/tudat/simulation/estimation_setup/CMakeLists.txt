@@ -63,10 +63,25 @@ set(estimation_HEADERS
         processPsfFile.h
         processTrackingTxtFile.h
         trackingDataWeighting.h
+        createObservationDataset.h
         createObservationCollection.h
         interArcStateContinuityConstraintSettings.h
         interArcContinuityConstraint.h
-        compressDopplerObservationCollection.h
+        compressDopplerObservationDataset.h
+        observationVectorData.h
+        observationCondition.h
+        observationDataset.h
+        observationDatasetAccessorsImplementation.h
+        observationDatasetVectorDataImplementation.h
+        observationDatasetMutationImplementation.h
+        observationDatasetPrivateImplementation.h
+        observationDatasetRows.h
+        observationDatasetSelectionImplementation.h
+        observationDatasetInspectionImplementation.h
+        observationDatasetWeightsImplementation.h
+        observationLegacyParserAdapter.h
+        observationWeights.h
+        simulateObservationsLegacy.h
         )
 
 # Add header files.
@@ -86,6 +101,7 @@ set(estimation_SOURCES
         createNumericalSimulator.cpp
         createAccelerationPartials.cpp
         createObservationModel.cpp
+        createObservationDataset.cpp
         createObservationCollection.cpp
         trackingDataWeighting.cpp
         createInverseAprioriCovariance.cpp

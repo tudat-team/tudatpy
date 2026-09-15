@@ -1,7 +1,8 @@
+from importlib import import_module
+
 from tudatpy.kernel.estimation import *
 
-# Select the Python package so fresh parent imports retain its legacy wrapper.
-from importlib import import_module as _import_module
-
-observations_setup = _import_module("tudatpy.estimation.observations_setup")
-del _import_module
+# Select the Python packages so fresh parent imports retain their compatibility
+# bridges instead of exposing the raw kernel modules.
+observations = import_module(__name__ + ".observations")
+observations_setup = import_module(__name__ + ".observations_setup")
