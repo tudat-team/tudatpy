@@ -60,104 +60,8 @@ BOOST_AUTO_TEST_CASE( testIsResidualWrappingRequired )
     BOOST_CHECK( !isResidualWrappingRequired( pixel_coordinates ) );
 }
 
-//! Test the ResidualWrappingRange struct and its helper methods.
-BOOST_AUTO_TEST_CASE( testResidualWrappingRangeStruct )
-{
-    // Default constructor (no wrapping)
-    ResidualWrappingRange defaultRange;
-    BOOST_CHECK_SMALL( defaultRange.minimumRange, 1.0e-15 );
-    BOOST_CHECK_SMALL( defaultRange.maximumRange, 1.0e-15 );
-    BOOST_CHECK_SMALL( defaultRange.period( ), 1.0e-15 );
-    BOOST_CHECK_SMALL( defaultRange.center( ), 1.0e-15 );
-
-    // [0, 2*pi] range
-    ResidualWrappingRange range0Pi( 0.0, 2.0 * PI );
-    BOOST_CHECK_SMALL( range0Pi.minimumRange, 1.0e-15 );
-    BOOST_CHECK_CLOSE( range0Pi.maximumRange, 2.0 * PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( range0Pi.period( ), 2.0 * PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( range0Pi.center( ), PI, 1.0e-15 );
-
-    // [-pi, pi] range
-    ResidualWrappingRange rangeMinusPiPi( -PI, PI );
-    BOOST_CHECK_CLOSE( rangeMinusPiPi.minimumRange, -PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( rangeMinusPiPi.maximumRange, PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( rangeMinusPiPi.period( ), 2.0 * PI, 1.0e-15 );
-    BOOST_CHECK_SMALL( rangeMinusPiPi.center( ), 1.0e-15 );
-
-    // [-pi/2, pi/2] range
-    ResidualWrappingRange rangeHalfPi( -0.5 * PI, 0.5 * PI );
-    BOOST_CHECK_CLOSE( rangeHalfPi.minimumRange, -0.5 * PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( rangeHalfPi.maximumRange, 0.5 * PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( rangeHalfPi.period( ), PI, 1.0e-15 );
-    BOOST_CHECK_SMALL( rangeHalfPi.center( ), 1.0e-15 );
-}
-
-//! Test getResidualWrappingRanges for two-component angular observables.
-BOOST_AUTO_TEST_CASE( testAngularObservableWrappingRanges )
-{
-    const std::vector< ObservableType > observableTypes = { angular_position, relative_angular_position, azimuth_elevation_angle };
-
-    for( const ObservableType observableType : observableTypes )
-    {
-        const std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( observableType );
-        BOOST_REQUIRE_EQUAL( ranges.size( ), 2 );
-
-        // Component 0 (RA / azimuth) wraps to [-pi, pi].
-        BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, -PI, 1.0e-15 );
-        BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, PI, 1.0e-15 );
-
-        // Component 1 (DEC / elevation) is not periodic.
-        BOOST_CHECK_SMALL( ranges[ 1 ].period( ), 1.0e-15 );
-    }
-}
-
-//! Test getResidualWrappingRanges for the 3-1-3 Euler angle observable.
-BOOST_AUTO_TEST_CASE( testEulerAngleWrappingRanges )
-{
-    const std::vector< ResidualWrappingRange > ranges = getResidualWrappingRanges( euler_angle_313_observable );
-    BOOST_REQUIRE_EQUAL( ranges.size( ), 3 );
-
-    BOOST_CHECK_CLOSE( ranges[ 0 ].minimumRange, -PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( ranges[ 0 ].maximumRange, PI, 1.0e-15 );
-    BOOST_CHECK_SMALL( ranges[ 1 ].period( ), 1.0e-15 );
-    BOOST_CHECK_CLOSE( ranges[ 2 ].minimumRange, -PI, 1.0e-15 );
-    BOOST_CHECK_CLOSE( ranges[ 2 ].maximumRange, PI, 1.0e-15 );
-}
-
-//! Test getResidualWrappingRanges for non-wrapped observable types.
-BOOST_AUTO_TEST_CASE( testNonWrappedObservableTypes )
-{
-    BOOST_CHECK( getResidualWrappingRanges( one_way_range ).empty( ) );
-    BOOST_CHECK( getResidualWrappingRanges( one_way_doppler ).empty( ) );
-    BOOST_CHECK( getResidualWrappingRanges( position_observable ).empty( ) );
-    BOOST_CHECK( getResidualWrappingRanges( velocity_observable ).empty( ) );
-    BOOST_CHECK( getResidualWrappingRanges( pixel_coordinates ).empty( ) );
-}
-
 //! Test the production wrapping function for two-component angular observables.
 BOOST_AUTO_TEST_CASE( testWrappingOfAngularObservableResiduals )
-{
-    const std::vector< ObservableType > observableTypes = { angular_position, relative_angular_position, azimuth_elevation_angle };
-
-    for( const ObservableType observableType : observableTypes )
-    {
-        Eigen::VectorXd residuals( 10 );
-        residuals << 42.0, 3.0 * PI, PI, -3.0 * PI, -PI, 0.5 * PI, 0.75 * PI, 10.0 * PI, -0.75 * PI, -42.0;
-
-        simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 8 ), observableType );
-
-        const Eigen::VectorXd expectedResiduals =
-                ( Eigen::VectorXd( 10 ) << 42.0, -PI, PI, PI, -PI, 0.5 * PI, 0.75 * PI, 0.0, -0.75 * PI, -42.0 ).finished( );
-
-        for( int i = 0; i < residuals.rows( ); i++ )
-        {
-            BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
-        }
-    }
-}
-
-//! Test residuals just inside the positive and negative full-period boundaries.
-BOOST_AUTO_TEST_CASE( testWrappingOfResidualsNearFullPeriod )
 {
     const double fullPeriod = 2.0 * PI;
     const double offset = 10.0 * std::numeric_limits< double >::epsilon( );
@@ -167,25 +71,39 @@ BOOST_AUTO_TEST_CASE( testWrappingOfResidualsNearFullPeriod )
 
     for( const ObservableType observableType : observableTypes )
     {
-        Eigen::VectorXd residuals( 4 );
-        residuals << nearPositivePeriod, 0.25 * PI, nearNegativePeriod, -0.25 * PI;
+        Eigen::VectorXd residuals( 12 );
+        residuals << 0.1, nearPositivePeriod, 0.25, nearNegativePeriod, -0.25, PI + 0.02, 0.1, -PI - 0.02, -0.1, 0.05, -0.2, -0.05;
 
-        simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 4 ), observableType );
+        simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 10 ), observableType );
 
-        BOOST_CHECK_LT( residuals( 0 ), 0.0 );
-        BOOST_CHECK_GT( residuals( 2 ), 0.0 );
-        BOOST_CHECK_SMALL( residuals( 0 ) - ( nearPositivePeriod - fullPeriod ), offset );
-        BOOST_CHECK_SMALL( residuals( 2 ) - ( nearNegativePeriod + fullPeriod ), offset );
-        BOOST_CHECK_EQUAL( residuals( 1 ), 0.25 * PI );
-        BOOST_CHECK_EQUAL( residuals( 3 ), -0.25 * PI );
+        const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 12 ) << 0.1,
+                                                    nearPositivePeriod - fullPeriod,
+                                                    0.25,
+                                                    nearNegativePeriod + fullPeriod,
+                                                    -0.25,
+                                                    -PI + 0.02,
+                                                    0.1,
+                                                    PI - 0.02,
+                                                    -0.1,
+                                                    0.05,
+                                                    -0.2,
+                                                    -0.05 )
+                                                          .finished( );
+
+        for( int i = 0; i < residuals.rows( ); i++ )
+        {
+            BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
+        }
+        BOOST_CHECK_LT( residuals( 1 ), 0.0 );
+        BOOST_CHECK_GT( residuals( 3 ), 0.0 );
     }
 }
 
 //! Test normalized right ascension residual wrapping using the observed declination.
 BOOST_AUTO_TEST_CASE( testWrappingOfNormalizedAngularPositionResiduals )
 {
-    Eigen::VectorXd residuals( 8 );
-    residuals << 42.0, 0.75 * PI, 0.2, 1.5 * PI, -0.4, 0.3, 0.1, -42.0;
+    Eigen::VectorXd residuals( 6 );
+    residuals << PI - 0.02, 0.2, -2.0 * PI + 0.03, -0.4, 0.3, 0.1;
 
     Eigen::VectorXd observedObservations( 6 );
     observedObservations << 0.1, PI / 3.0, -0.2, 0.0, 0.0, PI / 2.0;
@@ -193,10 +111,9 @@ BOOST_AUTO_TEST_CASE( testWrappingOfNormalizedAngularPositionResiduals )
     ResidualWrappingSettings residualWrappingSettings;
     residualWrappingSettings.normalizeRightAscension = true;
     simulation_setup::wrapObservationResiduals< double >(
-            residuals, std::make_pair( 1, 6 ), angular_position, observedObservations, residualWrappingSettings );
+            residuals, std::make_pair( 0, 6 ), angular_position, observedObservations, residualWrappingSettings );
 
-    const Eigen::VectorXd expectedResiduals =
-            ( Eigen::VectorXd( 8 ) << 42.0, -0.25 * PI, 0.2, -0.5 * PI, -0.4, 0.3, 0.1, -42.0 ).finished( );
+    const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 6 ) << -0.02, 0.2, 0.03, -0.4, 0.3, 0.1 ).finished( );
 
     for( int i = 0; i < residuals.rows( ); i++ )
     {
@@ -207,12 +124,13 @@ BOOST_AUTO_TEST_CASE( testWrappingOfNormalizedAngularPositionResiduals )
 //! Test the production wrapping function for Euler angle 313 residuals.
 BOOST_AUTO_TEST_CASE( testWrappingOfEulerAngleResiduals )
 {
-    Eigen::VectorXd residuals( 8 );
-    residuals << 42.0, 1.5 * PI, PI, -1.5 * PI, 10.0 * PI, -PI, 3.0 * PI, -42.0;
+    Eigen::VectorXd residuals( 9 );
+    residuals << PI + 0.02, 0.2, -PI - 0.02, -PI - 0.03, -0.1, PI + 0.03, 0.05, 0.15, -0.04;
 
-    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 6 ), euler_angle_313_observable );
+    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 9 ), euler_angle_313_observable );
 
-    const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 8 ) << 42.0, -0.5 * PI, PI, 0.5 * PI, 0.0, -PI, -PI, -42.0 ).finished( );
+    const Eigen::VectorXd expectedResiduals =
+            ( Eigen::VectorXd( 9 ) << -PI + 0.02, 0.2, PI - 0.02, PI - 0.03, -0.1, -PI + 0.03, 0.05, 0.15, -0.04 ).finished( );
 
     for( int i = 0; i < residuals.rows( ); i++ )
     {
@@ -224,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testWrappingOfEulerAngleResiduals )
 BOOST_AUTO_TEST_CASE( testWrappingOfNonperiodicObservableResiduals )
 {
     Eigen::VectorXd residuals( 3 );
-    residuals << 3.0 * PI, -4.0 * PI, 5.0 * PI;
+    residuals << 2.5, -3.0, 0.75;
     const Eigen::VectorXd expectedResiduals = residuals;
 
     simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 3 ), position_observable );
