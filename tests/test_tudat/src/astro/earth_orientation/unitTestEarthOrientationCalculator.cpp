@@ -271,6 +271,9 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::tt_scale, historicalEpoch );
     const double universalTime1 =
             timeScaleConverter->getCurrentTime( basic_astrodynamics::tdb_scale, basic_astrodynamics::ut1_scale, historicalEpoch );
+    const std::pair< Eigen::Vector5d, double > historicalAnglesFromUt1 =
+            earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >( universalTime1, basic_astrodynamics::ut1_scale );
+    BOOST_CHECK_EQUAL( historicalAnglesFromUt1.second, universalTime1 );
     const Eigen::Vector6d historicalFundamentalArguments =
             sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( barycentricDynamicalTime, terrestrialTime, universalTime1 );
     const Eigen::Vector2d expectedPolarMotion = earthOrientationCalculator->getPolarMotionCalculator( )
