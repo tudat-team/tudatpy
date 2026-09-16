@@ -246,6 +246,8 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
 
     double squaredSeparationResidualSum = 0.0;
     double squaredTransversePositionAngleResidualSum = 0.0;
+    double separationResidualSum = 0.0;
+    double transversePositionAngleResidualSum = 0.0;
     for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
     {
         std::ostringstream utcJulianDate;
@@ -266,17 +268,27 @@ BOOST_AUTO_TEST_CASE( testPlutoCharonHstPrefitResiduals )
 
         squaredSeparationResidualSum += separationResidual * separationResidual;
         squaredTransversePositionAngleResidualSum += transversePositionAngleResidual * transversePositionAngleResidual;
+        separationResidualSum += separationResidual;
+        transversePositionAngleResidualSum += transversePositionAngleResidual;
     }
 
     const double radiansToMilliarcseconds = 180.0 / mathematical_constants::PI * 3600.0 * 1000.0;
-    const double separationResidualRms =
-            std::sqrt( squaredSeparationResidualSum / static_cast< double >( observations.rows( ) ) ) * radiansToMilliarcseconds;
+    const double numberOfObservations = static_cast< double >( observations.rows( ) );
+    const double separationResidualMean = separationResidualSum / numberOfObservations * radiansToMilliarcseconds;
+    const double transversePositionAngleResidualMean = transversePositionAngleResidualSum / numberOfObservations * radiansToMilliarcseconds;
+    const double separationResidualRms = std::sqrt( squaredSeparationResidualSum / numberOfObservations ) * radiansToMilliarcseconds;
     const double transversePositionAngleResidualRms =
-            std::sqrt( squaredTransversePositionAngleResidualSum / static_cast< double >( observations.rows( ) ) ) *
-            radiansToMilliarcseconds;
+            std::sqrt( squaredTransversePositionAngleResidualSum / numberOfObservations ) * radiansToMilliarcseconds;
+
+    BOOST_TEST_MESSAGE( "pm0001 separation mean [mas]: " << std::setprecision( 15 ) << separationResidualMean );
+    BOOST_TEST_MESSAGE( "pm0001 separation RMS [mas]: " << separationResidualRms );
+    BOOST_TEST_MESSAGE( "pm0001 transverse PA mean [mas]: " << transversePositionAngleResidualMean );
+    BOOST_TEST_MESSAGE( "pm0001 transverse PA RMS [mas]: " << transversePositionAngleResidualRms );
 
     // PLU060 gives milliarcsecond-level pre-fit residuals comparable to the 1997 fitted-orbit
     // residuals (2.93 mas radial and 2.70 mas transverse) stored in the source data file.
+    BOOST_CHECK_SMALL( separationResidualMean - 0.536985735932, 1.0e-6 );
+    BOOST_CHECK_SMALL( transversePositionAngleResidualMean - 2.048031367849, 1.0e-6 );
     BOOST_CHECK_SMALL( separationResidualRms - 4.2227973382, 1.0e-6 );
     BOOST_CHECK_SMALL( transversePositionAngleResidualRms - 4.4095016757, 1.0e-6 );
 }
@@ -335,6 +347,9 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
     double squaredSeparationResidualSum = 0.0;
     double squaredJ2000TransversePositionAngleResidualSum = 0.0;
     double squaredTrueOfDateTransversePositionAngleResidualSum = 0.0;
+    double separationResidualSum = 0.0;
+    double j2000TransversePositionAngleResidualSum = 0.0;
+    double trueOfDateTransversePositionAngleResidualSum = 0.0;
     double maximumSeparationModelDifference = 0.0;
     for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
     {
@@ -380,6 +395,9 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
         squaredSeparationResidualSum += separationResidual * separationResidual;
         squaredJ2000TransversePositionAngleResidualSum += std::pow( observedSeparation * j2000PositionAngleResidual, 2 );
         squaredTrueOfDateTransversePositionAngleResidualSum += std::pow( observedSeparation * trueOfDatePositionAngleResidual, 2 );
+        separationResidualSum += separationResidual;
+        j2000TransversePositionAngleResidualSum += observedSeparation * j2000PositionAngleResidual;
+        trueOfDateTransversePositionAngleResidualSum += observedSeparation * trueOfDatePositionAngleResidual;
         maximumSeparationModelDifference = std::max( maximumSeparationModelDifference,
                                                      std::abs( j2000ComputedObservation( 1 ) - trueOfDateComputedObservation( 1 ) ) );
     }
@@ -391,9 +409,17 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
             std::sqrt( squaredJ2000TransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
     const double trueOfDateTransversePositionAngleResidualRms =
             std::sqrt( squaredTrueOfDateTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double separationResidualMean = separationResidualSum / numberOfObservations * radiansToArcseconds;
+    const double j2000TransversePositionAngleResidualMean =
+            j2000TransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
+    const double trueOfDateTransversePositionAngleResidualMean =
+            trueOfDateTransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
 
-    BOOST_TEST_MESSAGE( "mm0012 separation RMS [arcsec]: " << std::setprecision( 12 ) << separationResidualRms );
+    BOOST_TEST_MESSAGE( "mm0012 separation mean [arcsec]: " << std::setprecision( 15 ) << separationResidualMean );
+    BOOST_TEST_MESSAGE( "mm0012 separation RMS [arcsec]: " << separationResidualRms );
+    BOOST_TEST_MESSAGE( "mm0012 J2000 transverse PA mean [arcsec]: " << j2000TransversePositionAngleResidualMean );
     BOOST_TEST_MESSAGE( "mm0012 J2000 transverse PA RMS [arcsec]: " << j2000TransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "mm0012 true-of-date transverse PA mean [arcsec]: " << trueOfDateTransversePositionAngleResidualMean );
     BOOST_TEST_MESSAGE( "mm0012 true-of-date transverse PA RMS [arcsec]: " << trueOfDateTransversePositionAngleResidualRms );
     BOOST_CHECK_SMALL( maximumSeparationModelDifference, 5.0 * std::numeric_limits< double >::epsilon( ) );
 
@@ -401,6 +427,9 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
     // smaller than the 0.2-arcsec measurement noise.  It therefore need not reduce
     // the unweighted RMS.  These values were independently reproduced with ERFA's
     // pnm80 matrix, SPICE light-time iteration, and the compact JPL ephemeris.
+    BOOST_CHECK_SMALL( separationResidualMean + 0.020221890154, 1.0e-6 );
+    BOOST_CHECK_SMALL( j2000TransversePositionAngleResidualMean - 0.041777593644, 1.0e-6 );
+    BOOST_CHECK_SMALL( trueOfDateTransversePositionAngleResidualMean - 0.047758030487, 1.0e-6 );
     BOOST_CHECK_SMALL( separationResidualRms - 0.183369789212, 1.0e-6 );
     BOOST_CHECK_SMALL( j2000TransversePositionAngleResidualRms - 0.150921157572, 1.0e-6 );
     BOOST_CHECK_SMALL( trueOfDateTransversePositionAngleResidualRms - 0.152725650254, 1.0e-6 );
@@ -457,6 +486,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     double squaredAberratedSeparationResidualSum = 0.0;
     double squaredAstrometricTransversePositionAngleResidualSum = 0.0;
     double squaredAberratedTransversePositionAngleResidualSum = 0.0;
+    double astrometricSeparationResidualSum = 0.0;
+    double aberratedSeparationResidualSum = 0.0;
+    double astrometricTransversePositionAngleResidualSum = 0.0;
+    double aberratedTransversePositionAngleResidualSum = 0.0;
     double maximumSeparationAberrationCorrection = 0.0;
     double maximumTransversePositionAngleAberrationCorrection = 0.0;
     for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
@@ -490,6 +523,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
         squaredAberratedSeparationResidualSum += std::pow( observedSeparation - aberratedComputedObservation( 1 ), 2 );
         squaredAstrometricTransversePositionAngleResidualSum += std::pow( observedSeparation * astrometricPositionAngleResidual, 2 );
         squaredAberratedTransversePositionAngleResidualSum += std::pow( observedSeparation * aberratedPositionAngleResidual, 2 );
+        astrometricSeparationResidualSum += observedSeparation - astrometricComputedObservation( 1 );
+        aberratedSeparationResidualSum += observedSeparation - aberratedComputedObservation( 1 );
+        astrometricTransversePositionAngleResidualSum += observedSeparation * astrometricPositionAngleResidual;
+        aberratedTransversePositionAngleResidualSum += observedSeparation * aberratedPositionAngleResidual;
         maximumSeparationAberrationCorrection =
                 std::max( maximumSeparationAberrationCorrection,
                           std::abs( aberratedComputedObservation( 1 ) - astrometricComputedObservation( 1 ) ) );
@@ -510,10 +547,21 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
             std::sqrt( squaredAstrometricTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
     const double aberratedTransversePositionAngleResidualRms =
             std::sqrt( squaredAberratedTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double astrometricSeparationResidualMean = astrometricSeparationResidualSum / numberOfObservations * radiansToArcseconds;
+    const double aberratedSeparationResidualMean = aberratedSeparationResidualSum / numberOfObservations * radiansToArcseconds;
+    const double astrometricTransversePositionAngleResidualMean =
+            astrometricTransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
+    const double aberratedTransversePositionAngleResidualMean =
+            aberratedTransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
 
-    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric separation RMS [arcsec]: " << std::setprecision( 15 ) << astrometricSeparationResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric separation mean [arcsec]: " << std::setprecision( 15 )
+                                                                           << astrometricSeparationResidualMean );
+    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric separation RMS [arcsec]: " << astrometricSeparationResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 aberrated separation mean [arcsec]: " << aberratedSeparationResidualMean );
     BOOST_TEST_MESSAGE( "Qiao 1999 aberrated separation RMS [arcsec]: " << aberratedSeparationResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric transverse PA mean [arcsec]: " << astrometricTransversePositionAngleResidualMean );
     BOOST_TEST_MESSAGE( "Qiao 1999 astrometric transverse PA RMS [arcsec]: " << astrometricTransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 aberrated transverse PA mean [arcsec]: " << aberratedTransversePositionAngleResidualMean );
     BOOST_TEST_MESSAGE( "Qiao 1999 aberrated transverse PA RMS [arcsec]: " << aberratedTransversePositionAngleResidualRms );
     BOOST_TEST_MESSAGE( "Maximum separation aberration correction [arcsec]: " << maximumSeparationAberrationCorrection *
                                 radiansToArcseconds );
@@ -524,6 +572,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     // Earth-centre receiver, reproduces the correction to within 0.12 mas. The exact
     // values below include Sheshan's position and diurnal velocity through Tudat's
     // IAU-2006 GCRS/ITRS rotation. The correction need not reduce noisy pre-fit RMS.
+    BOOST_CHECK_SMALL( astrometricSeparationResidualMean + 0.094469477996, 1.0e-6 );
+    BOOST_CHECK_SMALL( aberratedSeparationResidualMean + 0.100783261149, 1.0e-6 );
+    BOOST_CHECK_SMALL( astrometricTransversePositionAngleResidualMean - 0.031546102027, 1.0e-6 );
+    BOOST_CHECK_SMALL( aberratedTransversePositionAngleResidualMean - 0.031869600441, 1.0e-6 );
     BOOST_CHECK_SMALL( astrometricSeparationResidualRms - 0.211648598253, 1.0e-6 );
     BOOST_CHECK_SMALL( aberratedSeparationResidualRms - 0.214326363119, 1.0e-6 );
     BOOST_CHECK_SMALL( astrometricTransversePositionAngleResidualRms - 0.079196664469, 1.0e-6 );

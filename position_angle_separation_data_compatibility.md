@@ -10,8 +10,8 @@ This is an implementation conclusion from the papers reviewed below, not an exha
 
 - The Tudat Python kernel build completed and the new observation model was successfully exercised through `tudatpy.kernel`.
 - A focused C++ test now evaluates all 60 `pm0001` observations through `PositionAngleAndSeparationObservationModel` using independent light-time solutions for Pluto and Charon.
-- On 15 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all three test cases with no errors.
-- The verified Tudat C++ pre-fit RMS is **4.222797 mas in separation** and **4.409502 mas in the transverse position-angle direction**.
+- On 16 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all five test cases with no errors; the real-data tests print and assert both signed means and RMS values.
+- The verified Tudat C++ pre-fit residuals are **+0.536986 mas mean / 4.222797 mas RMS in separation** and **+2.048031 mas mean / 4.409502 mas RMS in the transverse position-angle direction**.
 - The selectable reference-pole/frame adaptation is now implemented locally. Its focused C++ target compiles and all four tests pass, including the original J2000 Pluto--Charon regression and the new true-of-date Mars-satellite test. The Python kernel also builds and all new enum values and ancillary factories import successfully.
 - The stellar-aberration adaptation is implemented locally and the focused real-data test passes. The shared correction is compiled in a `.cpp` file and is used by both the pre-existing pixel observable and the P/S observable. The P/S ancillary settings now select astrometric or aberrated directions independently of the reference pole, with astrometric retained as the default.
 
@@ -35,8 +35,8 @@ The compact SHF headers provide geocentric J2000 `POSTNST*` and `VELOCST*` HST s
 
 The Tudat C++ calculation uses JPL PLU060, separate converged one-way light times, and J2000 astrometric directions. Over all 60 records it gives:
 
-- 4.222797 milliarcseconds RMS in separation.
-- 4.409502 milliarcseconds RMS in the transverse position-angle direction, expressed as `rho * wrapped_delta(P)`.
+- Separation: **+0.536986 milliarcseconds mean**, **4.222797 milliarcseconds RMS**.
+- Transverse position angle: **+2.048031 milliarcseconds mean**, **4.409502 milliarcseconds RMS**, expressed as `rho * wrapped_delta(P)`.
 - The residuals from the 1997 fitted orbit stored in the IMCCE file have RMS values of 2.93 and 2.70 milliarcseconds, respectively.
 - Omitting light time degrades the separation RMS to about 82 milliarcseconds and severely degrades position angle.
 
@@ -69,11 +69,11 @@ The receiver uses the Jacobus Kapteyn Telescope coordinates published by the Isa
 
 The validation uses a compact 824-KiB Type-9 SPK made from JPL Horizons geometric ICRF vectors over 1988-09-19 through 1988-10-02. Horizons identifies DE441 for Earth and MAR099 for Mars, Phobos, and Deimos. The state vectors are sampled every five minutes and interpolated at degree 15. Against fresh Horizons vectors at 288 independent half-grid epochs per body, the largest position difference is 1.19 m. The kernel SHA-256 is `a504982dfa91452a20e0babdf2f81245f0a8968d9715384a1b7115acc3d85c07`.
 
-All 166 accepted records are evaluated with their documented body ordering, UTC-to-TDB conversion, separate converged light times, and the JKT receiver. Current pre-fit RMS values are:
+All 166 accepted records are evaluated with their documented body ordering, UTC-to-TDB conversion, separate converged light times, and the JKT receiver. Current pre-fit residual values are:
 
-- Separation: **0.183369789 arcsec**.
-- Transverse position angle with a deliberately incorrect J2000 pole: **0.150921158 arcsec**.
-- Transverse position angle with the documented IAU-1976/1980 true-of-date pole: **0.152725650 arcsec**.
+- Separation: **-0.020221890 arcsec mean**, **0.183369789 arcsec RMS**.
+- Transverse position angle with a deliberately incorrect J2000 pole: **+0.041777594 arcsec mean**, **0.150921158 arcsec RMS**.
+- Transverse position angle with the documented IAU-1976/1980 true-of-date pole: **+0.047758030 arcsec mean**, **0.152725650 arcsec RMS**.
 
 The true-of-date frame correction itself is about 6 milliarcseconds transverse, far below the individual 0.2-arcsecond uncertainties. It does not reduce this unweighted RMS because the series has a larger positive position-angle bias and its differential-refraction status is unknown. The test therefore compares against independently reproduced numerical results; it does **not** use "RMS becomes smaller" as a validity criterion. An independent Python calculation using ERFA `pnm80`, direct SPICE light-time iteration, and the same JPL vectors reproduced the sign and magnitude (Earth-centre approximation: 0.152827 arcsec true-of-date RMS and a -0.005981-arcsec mean transverse true-of-date-minus-J2000 correction).
 
@@ -105,10 +105,10 @@ The test uses all 41 published rows and a compact 288-KiB Type-9 SPK generated f
 
 The resulting Tudat pre-fit values are:
 
-- Astrometric separation RMS: **0.211648598 arcsec**.
-- Aberrated/apparent separation RMS: **0.214326363 arcsec**.
-- Astrometric transverse position-angle RMS: **0.079196664 arcsec**.
-- Aberrated/apparent transverse position-angle RMS: **0.079340229 arcsec**.
+- Astrometric separation: **-0.094469478 arcsec mean**, **0.211648598 arcsec RMS**.
+- Aberrated/apparent separation: **-0.100783261 arcsec mean**, **0.214326363 arcsec RMS**.
+- Astrometric transverse position angle: **+0.031546102 arcsec mean**, **0.079196664 arcsec RMS**.
+- Aberrated/apparent transverse position angle: **+0.031869600 arcsec mean**, **0.079340229 arcsec RMS**.
 - Maximum differential stellar-aberration correction: **0.007612263 arcsec** in separation and **0.000386417 arcsec** transverse in position angle.
 
 The roughly 0.079-arcsecond transverse residual is consistent with the paper's reported approximately 0.08-arcsecond precision. The larger separation RMS contains systematic pre-fit offsets. Aberration is only several milliarcseconds in this close-pair observable and therefore does not have to reduce the unweighted RMS. The regression checks reproduced values and the correction magnitude rather than using an unjustified “RMS improves” criterion.
