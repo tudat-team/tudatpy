@@ -11,7 +11,8 @@ from tudatpy.constants import GRAVITATIONAL_CONSTANT
 class SBDBbatch:
     """Access the JPL Small-Body Database catalogue as a table.
 
-    Download the catalogue in pages or load it from a CSV file. Use :meth:`get`
+    Load a saved CSV file, or fetch all catalogue rows from JPL through
+    requests of at most ``page_size`` rows each. Use :meth:`get`
     to select rows by primary MPC designation (the ``pdes`` field).
 
     Parameters
@@ -24,7 +25,7 @@ class SBDBbatch:
         advertised by the API are requested. Include ``"pdes"`` to use
         :meth:`get`.
     page_size : int, optional
-        Maximum number of rows requested per API page. Default is 100,000.
+        Maximum number of rows requested per JPL request. Default is 100,000.
     timeout : float, optional
         HTTP timeout in seconds for each request. Default is 120.
 
@@ -54,14 +55,14 @@ class SBDBbatch:
     def _download(
         cls, fields: Optional[Iterable[str]], page_size: int, timeout: float
     ) -> pd.DataFrame:
-        """Download the requested catalogue fields in pages.
+        """Fetch all catalogue rows through successive API requests.
 
         Parameters
         ----------
         fields : iterable of str or None
             SBDB field names. If None, request all fields advertised by the API.
         page_size : int
-            Maximum number of rows requested per page.
+            Maximum number of rows requested per API call.
         timeout : float
             HTTP timeout in seconds for each request.
 
