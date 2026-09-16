@@ -238,10 +238,11 @@ public:
         }
 
         const Eigen::Matrix< ObservationScalarType, 2, 1 > positionAngleAndSeparation =
-                calculatePositionAngleAndSeparation( relativePositionFirstTransmitter,
-                                                     relativePositionSecondTransmitter,
-                                                     positionAngleReferencePoleDirection.template cast< ObservationScalarType >( ),
-                                                     calculatePositionAngle_ );
+                calculatePositionAngleAndSeparation< ObservationScalarType >(
+                        relativePositionFirstTransmitter,
+                        relativePositionSecondTransmitter,
+                        positionAngleReferencePoleDirection.template cast< ObservationScalarType >( ),
+                        calculatePositionAngle_ );
 
         // Set link end times and states.
         linkEndTimes.clear( );
