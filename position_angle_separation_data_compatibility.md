@@ -10,7 +10,8 @@ This is an implementation conclusion from the papers reviewed below, not an exha
 
 - The Tudat Python kernel build completed and the new observation model was successfully exercised through `tudatpy.kernel`.
 - A focused C++ test now evaluates all 60 `pm0001` observations through `PositionAngleAndSeparationObservationModel` using independent light-time solutions for Pluto and Charon.
-- On 16 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all five test cases with no errors; the real-data tests print and assert both signed means and RMS values.
+- On 16 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all seven test cases with no errors; five real-data cases print both signed means and RMS values.
+- Exact self-generated residual regressions were removed. The tests now use broad `1/2/5 x 10^n`-style bounds grounded in published residual/uncertainty scales, plus separate checks on the expected scale of each frame or aberration correction. The reported numerical values remain available for diagnosis but are not treated as reference truth.
 - The verified Tudat C++ pre-fit residuals are **+0.536986 mas mean / 4.222797 mas RMS in separation** and **+2.048031 mas mean / 4.409502 mas RMS in the transverse position-angle direction**.
 - The selectable reference-pole/frame adaptation is now implemented locally. Its focused C++ target compiles and all four tests pass, including the original J2000 Pluto--Charon regression and the new true-of-date Mars-satellite test. The Python kernel also builds and all new enum values and ancillary factories import successfully.
 - The stellar-aberration adaptation is implemented locally and the focused real-data test passes. The shared correction is compiled in a `.cpp` file and is used by both the pre-existing pixel observable and the P/S observable. The P/S ancillary settings now select astrometric or aberrated directions independently of the reference pole, with astrometric retained as the default.
@@ -49,7 +50,7 @@ To keep the test fixture small, a 604-KiB Type-9 SPK was sampled from PLU060 eve
 - Test data added inside `tests/test_tudat/data.zip`: the original `pm0001.txt`, a provenance README, and `plu060_pm0001_subset.bsp`.
 - Focused build command: `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6`.
 - Test command: `build/tests/test_observation_models_PositionAngleAndSeparationObservationModel --log_level=test_suite`.
-- Result: three test cases passed; the real-data case evaluated 60 records and matched the independently reproduced RMS values to 0.000001 mas.
+- Result: the real-data case evaluates 60 records and lies within the independently expected 1--10 mas pre-fit scale.
 - Residual definitions: `separation_observed - separation_computed`; wrapped position-angle difference via `atan2(sin(delta), cos(delta))`; transverse residual `separation_observed * wrapped_delta_position_angle`.
 - No propagation, estimation, observation partials, relativistic angular deflection, photocentre correction, or catalogue reduction is used.
 
@@ -77,7 +78,7 @@ All 166 accepted records are evaluated with their documented body ordering, UTC-
 
 The true-of-date frame correction itself is about 6 milliarcseconds transverse, far below the individual 0.2-arcsecond uncertainties. It does not reduce this unweighted RMS because the series has a larger positive position-angle bias and its differential-refraction status is unknown. The test therefore compares against independently reproduced numerical results; it does **not** use "RMS becomes smaller" as a validity criterion. An independent Python calculation using ERFA `pnm80`, direct SPICE light-time iteration, and the same JPL vectors reproduced the sign and magnitude (Earth-centre approximation: 0.152827 arcsec true-of-date RMS and a -0.005981-arcsec mean transverse true-of-date-minus-J2000 correction).
 
-The frame is unambiguous in the NSDB metadata, but this is not yet a clean atmospheric-reduction benchmark. The original short paper describes calibration using star trails and a double star, but leaves a fuller reduction analysis to later work. Its text does not establish whether differential refraction was removed. [Jones, Sinclair & Williams (1989), original paper](https://articles.adsabs.harvard.edu/pdf/1989MNRAS.237P..15J).
+The frame is unambiguous in the NSDB metadata, but this is not an atmospheric-reduction benchmark. The original short paper describes calibration using star trails and a double star, but leaves a fuller reduction analysis to later work. Its text does not establish whether differential refraction was removed. Atmospheric refraction is intentionally ignored in the present work. [Jones, Sinclair & Williams (1989), original paper](https://articles.adsabs.harvard.edu/pdf/1989MNRAS.237P..15J).
 
 #### True-of-date implementation log
 
@@ -89,7 +90,51 @@ The frame is unambiguous in the NSDB metadata, but this is not yet a clean atmos
 - Focused build command: `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6`.
 - Focused test command: `build/tests/test_observation_models_PositionAngleAndSeparationObservationModel --log_level=test_suite`.
 - Python build command: `cmake --build build --target kernel -j6`; result: `kernel.so` linked successfully. A direct import check created every predefined-frame setting and a custom-pole setting.
-- The first build of the new test exposed two `std::make_pair` values inferred with `const char*`; they were changed to explicit `std::string` station names. The next build completed. The first test run rejected an invalid assumption that the correct frame must lower noisy pre-fit RMS; the independent calculation confirmed the implementation and the regression now checks the reproduced physical values instead.
+- The first build of the new test exposed two `std::make_pair` values inferred with `const char*`; they were changed to explicit `std::string` station names. The next build completed. The first test run rejected an invalid assumption that the correct frame must lower noisy pre-fit RMS; the independent calculation confirmed the implementation. The regression now checks the published residual scale and the independently expected frame-correction scale rather than exact current outputs.
+
+### Older native P/S B1950 extension: IMCCE `um0027`
+
+- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.txt>
+- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html>
+- Reference: Tomita & Soma, *Astrometric observations of satellites of Uranus*, Tokyo Astronomical Bulletin 261, 2977--2981 (1979).
+- Contents: 156 Ariel, Umbriel, Titania, and Oberon observations made at Tokyo-Okayama during 16 observing nights in 1964--1977.
+- Coordinates: native separation in arcseconds and position angle in degrees; no differential-coordinate conversion is used.
+- Convention: topocentric, astrometric, B1950, and ET.
+
+The receiver uses MPC code 371's parallax constants (longitude 133.5965 deg, `rho cos(phi') = 0.82433`, `rho sin(phi') = 0.56431`) with Tudat's IAU-2006 terrestrial rotation. The recorded calendar fields are interpreted directly on the uniform ephemeris-time axis. An independent screen also tried UTC and plus/minus half the listed exposure time. All alternatives change the roughly 0.8-arcsec RMS by only a few milliarcseconds, so there is no empirical basis for overriding the explicit ET metadata. TT/TDB realization differences are negligible at this precision.
+
+The test uses a compact Type-9 SPK generated from DE441/URA184 Horizons vectors on the 11 observing runs. It contains Earth, Uranus, Ariel, Umbriel, Titania, and Oberon relative to the solar-system barycentre. Independent hourly queries offset by two minutes from the five-minute source nodes agree within 0.113 km in position for every body.
+
+Tudat gives, over all 156 unfiltered NSDB records:
+
+- B1950 separation: **+0.014635 arcsec mean**, **0.862829 arcsec RMS**.
+- B1950 transverse position angle: **+0.040378 arcsec mean**, **0.806630 arcsec RMS**.
+- Deliberately incorrect J2000 transverse position angle: **0.819636 arcsec RMS**.
+- B1950-minus-J2000 transverse frame correction: **0.052010 arcsec RMS**, **0.119232 arcsec maximum**.
+
+Jacobson (2014), Table 3 reports post-fit RMS values of **0.443 arcsec in separation** for 123 retained observations and **0.363 arcsec transverse in position angle** for 95 retained observations from Tomita & Soma. The test intentionally runs all 156 NSDB rows without reproducing Jacobson's orbit fit or data rejection, so its larger pre-fit RMS is not unexpected; it remains in the same sub-arcsecond-to-arcsecond regime. [Jacobson (2014), official article PDF](https://iopscience.iop.org/article/10.1088/0004-6256/148/5/76/pdf).
+
+This is the primary old-data B1950 regression because it consists of actual published P/S. Its frame signal is real but smaller than the measurement RMS, so it is complemented—not replaced—by the high-signal converted-coordinate case below.
+
+### High-signal B1950 frame discriminator: IMCCE `nm1007`
+
+- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.txt>
+- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.html>
+- References: Veillet (1982) and Veillet & Bois (1988).
+- Contents: 17 Nereid positions relative to Neptune from Mauna Kea, McDonald, and La Silla in 1977--1984.
+- Coordinates: astrometric tangent-plane X/Y converted to spherical P/S in the test.
+- Convention: topocentric, B1950, UTC.
+
+This conversion is retained only as a secondary frame discriminator. I screened all 140 NSDB collection pages whose metadata mention separation, position angle, or distance. No native B1950 P/S series combines a comparable angular separation with sufficiently small scatter for the frame signal to exceed the residual RMS. The primary `um0027` test above remains native P/S.
+
+Using the MPC parallax constants for all three sites, Tudat gives:
+
+- B1950 separation: **-0.045967 arcsec mean**, **0.142511 arcsec RMS**.
+- B1950 transverse position angle: **+0.080069 arcsec mean**, **0.236574 arcsec RMS**.
+- Incorrect J2000 transverse position angle: **0.480950 arcsec RMS**.
+- B1950-minus-J2000 transverse frame correction: **0.336003 arcsec RMS**, **0.785556 arcsec maximum**.
+
+The correction is larger than the correctly framed residual RMS and changes only position angle, while separation agrees to floating-point precision. Modern orbit work reports approximately 0.17--0.22 arcsec coordinate RMS for the two contributing series, consistent with the 0.14--0.24 arcsec Tudat P/S residual scale. [Yuan et al. (2021), A&A paper](https://www.aanda.org/articles/aa/pdf/2021/10/aa40739-21.pdf).
 
 ### Apparent-direction extension set: Qiao et al. (1999), Table 4
 
@@ -111,7 +156,7 @@ The resulting Tudat pre-fit values are:
 - Aberrated/apparent transverse position angle: **+0.031869600 arcsec mean**, **0.079340229 arcsec RMS**.
 - Maximum differential stellar-aberration correction: **0.007612263 arcsec** in separation and **0.000386417 arcsec** transverse in position angle.
 
-The roughly 0.079-arcsecond transverse residual is consistent with the paper's reported approximately 0.08-arcsecond precision. The larger separation RMS contains systematic pre-fit offsets. Aberration is only several milliarcseconds in this close-pair observable and therefore does not have to reduce the unweighted RMS. The regression checks reproduced values and the correction magnitude rather than using an unjustified “RMS improves” criterion.
+The roughly 0.079-arcsecond transverse residual is consistent with the paper's reported approximately 0.08-arcsecond precision. The larger separation RMS contains systematic pre-fit offsets. Aberration is only several milliarcseconds in this close-pair observable and therefore does not have to reduce the unweighted RMS. The regression uses broad published-residual bounds and an independently calculated 5--20 mas separation-correction range rather than either exact current outputs or an unjustified “RMS improves” criterion.
 
 An independent SpiceyPy/ERFA calculation used direct iteration of each Titan/satellite light time, DE441/SAT441L state vectors, the IAU-1976/1980 `pnm80` pole, and the exact Lorentz aberration formula. With Earth's centre as the receiver it obtained maximum corrections of 0.007498 arcsec in separation and 0.000381 arcsec transverse in position angle, within 0.12 mas of the full Sheshan result. The remaining difference is consistent with the station position and diurnal velocity omitted from that independent calculation.
 
