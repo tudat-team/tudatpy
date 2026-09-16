@@ -164,5 +164,35 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000( const double observationTi
     }
 }
 
+PositionAngleDirectionType getPositionAngleDirectionType(
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
+{
+    PositionAngleDirectionType directionType = astrometric_position_angle_direction;
+    if( ancillarySettings != nullptr )
+    {
+        const double directionTypeValue = ancillarySettings->getAncillaryDoubleData( position_angle_direction_type, false );
+        if( !std::isnan( directionTypeValue ) )
+        {
+            const double roundedDirectionTypeValue = std::round( directionTypeValue );
+            if( !std::isfinite( directionTypeValue ) ||
+                std::abs( directionTypeValue - roundedDirectionTypeValue ) > 10.0 * std::numeric_limits< double >::epsilon( ) )
+            {
+                throw std::runtime_error( "Position-angle direction-type ancillary setting must contain an integer enum value." );
+            }
+            directionType = static_cast< PositionAngleDirectionType >( static_cast< int >( roundedDirectionTypeValue ) );
+        }
+    }
+
+    switch( directionType )
+    {
+        case astrometric_position_angle_direction:
+        case aberrated_position_angle_direction:
+            return directionType;
+        default:
+            throw std::runtime_error( "Position-angle direction-type ancillary setting contains an unsupported enum value: " +
+                                      std::to_string( static_cast< int >( directionType ) ) + "." );
+    }
+}
+
 }  // namespace observation_models
 }  // namespace tudat

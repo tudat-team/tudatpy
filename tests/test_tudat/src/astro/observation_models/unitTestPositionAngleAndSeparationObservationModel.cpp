@@ -406,6 +406,132 @@ BOOST_AUTO_TEST_CASE( testMarsSatelliteTrueOfDatePrefitResiduals )
     BOOST_CHECK_SMALL( trueOfDateTransversePositionAngleResidualRms - 0.152725650254, 1.0e-6 );
 }
 
+BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
+{
+    const std::string validationDataDirectory = paths::getTudatTestDataPath( ) + "position_angle_and_separation/";
+    spice_interface::loadStandardSpiceKernels( { validationDataDirectory + "sat441_de441_qiao1999_subset.bsp" } );
+
+    BodyListSettings bodySettings( "SSB", "J2000" );
+    const std::vector< std::string > bodiesToCreate = { "Earth", "Enceladus", "Tethys", "Dione", "Rhea", "Titan" };
+    for( const std::string& bodyName : bodiesToCreate )
+    {
+        bodySettings.addSettings( bodyName );
+        bodySettings.at( bodyName )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "J2000", bodyName );
+    }
+    bodySettings.at( "Earth" )->shapeModelSettings = oblateSphericalBodyShapeSettings( 6378137.0, 1.0 / 298.257223563 );
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, "J2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Qiao et al. (1999) give the Sheshan observing-site coordinates. Longitude is positive east.
+    const Eigen::Vector3d sheshanGeodeticPosition( 97.0,
+                                                   unit_conversions::convertDegreesToRadians( 31.0 + 5.0 / 60.0 + 46.1 / 3600.0 ),
+                                                   unit_conversions::convertDegreesToRadians( 121.0 + 11.0 / 60.0 + 3.3 / 3600.0 ) );
+    createGroundStation( bodies.at( "Earth" ), "Sheshan", sheshanGeodeticPosition, coordinate_conversions::geodetic_position );
+
+    const std::map< int, std::string > observedSatellites = { { 602, "Enceladus" }, { 603, "Tethys" }, { 604, "Dione" }, { 605, "Rhea" } };
+    std::map< int, std::shared_ptr< ObservationModel< 2 > > > positionAngleAndSeparationModels;
+    for( const auto& observedSatellite : observedSatellites )
+    {
+        LinkDefinition linkEnds;
+        linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "Sheshan" );
+        linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Titan", "" );
+        linkEnds[ transmitter2 ] = std::make_pair( observedSatellite.second, std::string( "" ) );
+        positionAngleAndSeparationModels[ observedSatellite.first ] = ObservationModelCreator< 2, double, double >::createObservationModel(
+                std::make_shared< PositionAngleAndSeparationObservationModelSettings >( linkEnds ), bodies );
+    }
+
+    const std::shared_ptr< ObservationAncillarySimulationSettings > astrometricDirectionAncillarySettings =
+            getPositionAngleAncillarySettings(
+                    true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, astrometric_position_angle_direction );
+    const std::shared_ptr< ObservationAncillarySimulationSettings > aberratedDirectionAncillarySettings = getPositionAngleAncillarySettings(
+            true_of_date_iau_1976_1980_position_angle_reference_frame, TUDAT_NAN, aberrated_position_angle_direction );
+
+    // Qiao et al. (1999), Table 4. The paper labels these values apparent and topocentric,
+    // with differential refraction removed but stellar aberration and parallax retained.
+    // Columns are UTC Julian date, measured-satellite NAIF ID, position angle [deg], and separation [arcsec].
+    const Eigen::MatrixXd observations = input_output::readMatrixFromFile( validationDataDirectory + "qiao1999_table4.txt", " \t" );
+    BOOST_REQUIRE_EQUAL( observations.rows( ), 41 );
+    BOOST_REQUIRE_EQUAL( observations.cols( ), 4 );
+
+    double squaredAstrometricSeparationResidualSum = 0.0;
+    double squaredAberratedSeparationResidualSum = 0.0;
+    double squaredAstrometricTransversePositionAngleResidualSum = 0.0;
+    double squaredAberratedTransversePositionAngleResidualSum = 0.0;
+    double maximumSeparationAberrationCorrection = 0.0;
+    double maximumTransversePositionAngleAberrationCorrection = 0.0;
+    for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
+    {
+        std::ostringstream utcJulianDate;
+        utcJulianDate << "JD " << std::setprecision( 16 ) << observations( observationIndex, 0 ) << " UTC";
+        const double receiverObservationTime = spice_interface::convertDateStringToEphemerisTime( utcJulianDate.str( ) );
+        const int observedSatelliteNaifId = static_cast< int >( observations( observationIndex, 1 ) );
+        BOOST_REQUIRE( positionAngleAndSeparationModels.count( observedSatelliteNaifId ) == 1 );
+
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Vector6d > linkEndStates;
+        const Eigen::Vector2d astrometricComputedObservation =
+                positionAngleAndSeparationModels.at( observedSatelliteNaifId )
+                        ->computeObservationsWithLinkEndData(
+                                receiverObservationTime, receiver, linkEndTimes, linkEndStates, astrometricDirectionAncillarySettings );
+        const Eigen::Vector2d aberratedComputedObservation =
+                positionAngleAndSeparationModels.at( observedSatelliteNaifId )
+                        ->computeObservationsWithLinkEndData(
+                                receiverObservationTime, receiver, linkEndTimes, linkEndStates, aberratedDirectionAncillarySettings );
+
+        const double observedPositionAngle = unit_conversions::convertDegreesToRadians( observations( observationIndex, 2 ) );
+        const double observedSeparation = unit_conversions::convertDegreesToRadians( observations( observationIndex, 3 ) / 3600.0 );
+        const double astrometricPositionAngleResidual =
+                std::atan2( std::sin( observedPositionAngle - astrometricComputedObservation( 0 ) ),
+                            std::cos( observedPositionAngle - astrometricComputedObservation( 0 ) ) );
+        const double aberratedPositionAngleResidual = std::atan2( std::sin( observedPositionAngle - aberratedComputedObservation( 0 ) ),
+                                                                  std::cos( observedPositionAngle - aberratedComputedObservation( 0 ) ) );
+
+        squaredAstrometricSeparationResidualSum += std::pow( observedSeparation - astrometricComputedObservation( 1 ), 2 );
+        squaredAberratedSeparationResidualSum += std::pow( observedSeparation - aberratedComputedObservation( 1 ), 2 );
+        squaredAstrometricTransversePositionAngleResidualSum += std::pow( observedSeparation * astrometricPositionAngleResidual, 2 );
+        squaredAberratedTransversePositionAngleResidualSum += std::pow( observedSeparation * aberratedPositionAngleResidual, 2 );
+        maximumSeparationAberrationCorrection =
+                std::max( maximumSeparationAberrationCorrection,
+                          std::abs( aberratedComputedObservation( 1 ) - astrometricComputedObservation( 1 ) ) );
+        const double positionAngleAberrationCorrection =
+                std::atan2( std::sin( aberratedComputedObservation( 0 ) - astrometricComputedObservation( 0 ) ),
+                            std::cos( aberratedComputedObservation( 0 ) - astrometricComputedObservation( 0 ) ) );
+        maximumTransversePositionAngleAberrationCorrection = std::max( maximumTransversePositionAngleAberrationCorrection,
+                                                                       std::abs( observedSeparation * positionAngleAberrationCorrection ) );
+    }
+
+    const double radiansToArcseconds = 180.0 / mathematical_constants::PI * 3600.0;
+    const double numberOfObservations = static_cast< double >( observations.rows( ) );
+    const double astrometricSeparationResidualRms =
+            std::sqrt( squaredAstrometricSeparationResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double aberratedSeparationResidualRms =
+            std::sqrt( squaredAberratedSeparationResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double astrometricTransversePositionAngleResidualRms =
+            std::sqrt( squaredAstrometricTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+    const double aberratedTransversePositionAngleResidualRms =
+            std::sqrt( squaredAberratedTransversePositionAngleResidualSum / numberOfObservations ) * radiansToArcseconds;
+
+    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric separation RMS [arcsec]: " << std::setprecision( 15 ) << astrometricSeparationResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 aberrated separation RMS [arcsec]: " << aberratedSeparationResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 astrometric transverse PA RMS [arcsec]: " << astrometricTransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "Qiao 1999 aberrated transverse PA RMS [arcsec]: " << aberratedTransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "Maximum separation aberration correction [arcsec]: " << maximumSeparationAberrationCorrection *
+                                radiansToArcseconds );
+    BOOST_TEST_MESSAGE( "Maximum transverse PA aberration correction [arcsec]: " << maximumTransversePositionAngleAberrationCorrection *
+                                radiansToArcseconds );
+
+    // A separate SpiceyPy/ERFA calculation, using direct light-time iteration and an
+    // Earth-centre receiver, reproduces the correction to within 0.12 mas. The exact
+    // values below include Sheshan's position and diurnal velocity through Tudat's
+    // IAU-2006 GCRS/ITRS rotation. The correction need not reduce noisy pre-fit RMS.
+    BOOST_CHECK_SMALL( astrometricSeparationResidualRms - 0.211648598253, 1.0e-6 );
+    BOOST_CHECK_SMALL( aberratedSeparationResidualRms - 0.214326363119, 1.0e-6 );
+    BOOST_CHECK_SMALL( astrometricTransversePositionAngleResidualRms - 0.079196664469, 1.0e-6 );
+    BOOST_CHECK_SMALL( aberratedTransversePositionAngleResidualRms - 0.079340228939, 1.0e-6 );
+    BOOST_CHECK_SMALL( maximumSeparationAberrationCorrection * radiansToArcseconds - 0.007612263011, 1.0e-6 );
+    BOOST_CHECK_SMALL( maximumTransversePositionAngleAberrationCorrection * radiansToArcseconds - 0.000386416656, 1.0e-6 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

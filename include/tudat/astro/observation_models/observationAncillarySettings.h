@@ -45,6 +45,7 @@ enum ObservationAncillarySimulationVariable {
     position_angle_reference_frame,
     position_angle_reference_epoch,
     position_angle_reference_pole,
+    position_angle_direction_type,
 };
 
 //! Celestial reference frame whose north pole defines a position-angle observable.
@@ -57,6 +58,9 @@ enum PositionAngleReferenceFrame {
     true_of_date_iau_2006_2000a_position_angle_reference_frame = 5,
     custom_position_angle_reference_pole = 6
 };
+
+//! Direction convention used to calculate position-angle and angular-separation observables.
+enum PositionAngleDirectionType { astrometric_position_angle_direction = 0, aberrated_position_angle_direction = 1 };
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
 
@@ -80,6 +84,7 @@ public:
             case range_conversion_factor:
             case position_angle_reference_frame:
             case position_angle_reference_epoch:
+            case position_angle_direction_type:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -121,6 +126,7 @@ public:
                 case range_conversion_factor:
                 case position_angle_reference_frame:
                 case position_angle_reference_epoch:
+                case position_angle_direction_type:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -219,6 +225,9 @@ public:
                 break;
             case position_angle_reference_pole:
                 name = "custom position-angle reference pole";
+                break;
+            case position_angle_direction_type:
+                name = "position-angle direction convention";
                 break;
             default:
                 throw std::runtime_error(
@@ -342,14 +351,16 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopp
     return ancillarySettings;
 }
 
-//! Create ancillary settings selecting the celestial pole used for position angle.
+//! Create ancillary settings selecting the celestial pole and astrometric or aberrated direction convention used for P/S.
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getPositionAngleAncillarySettings(
         const PositionAngleReferenceFrame referenceFrame = j2000_position_angle_reference_frame,
-        const double referenceEpoch = TUDAT_NAN )
+        const double referenceEpoch = TUDAT_NAN,
+        const PositionAngleDirectionType directionType = astrometric_position_angle_direction )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
     ancillarySettings->setAncillaryDoubleData( position_angle_reference_frame, static_cast< double >( referenceFrame ) );
+    ancillarySettings->setAncillaryDoubleData( position_angle_direction_type, static_cast< double >( directionType ) );
     if( !std::isnan( referenceEpoch ) )
     {
         ancillarySettings->setAncillaryDoubleData( position_angle_reference_epoch, referenceEpoch );
@@ -359,10 +370,11 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getPositionAngl
 
 //! Create ancillary settings defining a custom position-angle reference pole in ICRF/J2000 coordinates.
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositionAngleAncillarySettings(
-        const Eigen::Vector3d& referencePole )
+        const Eigen::Vector3d& referencePole,
+        const PositionAngleDirectionType directionType = astrometric_position_angle_direction )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
-            getPositionAngleAncillarySettings( custom_position_angle_reference_pole );
+            getPositionAngleAncillarySettings( custom_position_angle_reference_pole, TUDAT_NAN, directionType );
     ancillarySettings->setAncillaryDoubleVectorData( position_angle_reference_pole,
                                                      { referencePole.x( ), referencePole.y( ), referencePole.z( ) } );
     return ancillarySettings;

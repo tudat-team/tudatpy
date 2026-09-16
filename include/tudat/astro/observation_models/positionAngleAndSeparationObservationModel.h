@@ -20,6 +20,7 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
 #include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/stellarAberrationCorrection.h"
 
 namespace tudat
 {
@@ -36,6 +37,10 @@ namespace observation_models
  */
 Eigen::Vector3d getPositionAngleReferencePoleInJ2000(
         const double observationTime,
+        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
+
+//! Return the astrometric or stellar-aberrated direction convention selected by ancillary settings.
+PositionAngleDirectionType getPositionAngleDirectionType(
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr );
 
 template< typename ScalarType >
@@ -95,6 +100,8 @@ Eigen::Matrix< ScalarType, 2, 1 > calculatePositionAngleAndSeparation(
  *  Returns a size-2 observable: [position_angle; angular_separation].
  *  Position angle is measured from the celestial north pole selected in the observation ancillary settings through east and returned
  *  in [-pi, pi], matching the unnormalised right-ascension convention. ICRF/J2000 is used when no reference-frame setting is supplied.
+ *  The ancillary settings also select whether the independently retarded lines of sight remain astrometric or are transformed to
+ *  apparent directions using stellar aberration and the receiver's inertial velocity.
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -207,10 +214,21 @@ public:
                 secondLinkEndStates.at( 0 ).template cast< ObservationScalarType >( );
 
         // Compute relative position vectors
-        Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter1 =
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePositionFirstTransmitter =
                 firstTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
-        Eigen::Matrix< ObservationScalarType, 3, 1 > relativeStateTransmitter2 =
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePositionSecondTransmitter =
                 secondTransmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
+
+        if( getPositionAngleDirectionType( ancillarySettingsInput ) == aberrated_position_angle_direction )
+        {
+            const Eigen::Vector3d receiverVelocity = receiverState.segment( 3, 3 ).template cast< double >( );
+            relativePositionFirstTransmitter = calculateApparentDirectionWithStellarAberration(
+                                                       relativePositionFirstTransmitter.template cast< double >( ), receiverVelocity )
+                                                       .template cast< ObservationScalarType >( );
+            relativePositionSecondTransmitter = calculateApparentDirectionWithStellarAberration(
+                                                        relativePositionSecondTransmitter.template cast< double >( ), receiverVelocity )
+                                                        .template cast< ObservationScalarType >( );
+        }
 
         Eigen::Vector3d positionAngleReferencePoleDirection = j2000ToGlobalFrameTransformation_ * Eigen::Vector3d::UnitZ( );
         if( calculatePositionAngle_ )
@@ -220,8 +238,8 @@ public:
         }
 
         const Eigen::Matrix< ObservationScalarType, 2, 1 > positionAngleAndSeparation =
-                calculatePositionAngleAndSeparation( relativeStateTransmitter1,
-                                                     relativeStateTransmitter2,
+                calculatePositionAngleAndSeparation( relativePositionFirstTransmitter,
+                                                     relativePositionSecondTransmitter,
                                                      positionAngleReferencePoleDirection.template cast< ObservationScalarType >( ),
                                                      calculatePositionAngle_ );
 

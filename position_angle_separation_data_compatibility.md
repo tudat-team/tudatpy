@@ -13,6 +13,7 @@ This is an implementation conclusion from the papers reviewed below, not an exha
 - On 15 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all three test cases with no errors.
 - The verified Tudat C++ pre-fit RMS is **4.222797 mas in separation** and **4.409502 mas in the transverse position-angle direction**.
 - The selectable reference-pole/frame adaptation is now implemented locally. Its focused C++ target compiles and all four tests pass, including the original J2000 Pluto--Charon regression and the new true-of-date Mars-satellite test. The Python kernel also builds and all new enum values and ancillary factories import successfully.
+- The stellar-aberration adaptation is implemented locally and the focused real-data test passes. The shared correction is compiled in a `.cpp` file and is used by both the pre-existing pixel observable and the P/S observable. The P/S ancillary settings now select astrometric or aberrated directions independently of the reference pole, with astrometric retained as the default.
 
 ## Current validation datasets
 
@@ -90,6 +91,39 @@ The frame is unambiguous in the NSDB metadata, but this is not yet a clean atmos
 - Python build command: `cmake --build build --target kernel -j6`; result: `kernel.so` linked successfully. A direct import check created every predefined-frame setting and a custom-pole setting.
 - The first build of the new test exposed two `std::make_pair` values inferred with `const char*`; they were changed to explicit `std::string` station names. The next build completed. The first test run rejected an invalid assumption that the correct frame must lower noisy pre-fit RMS; the independent calculation confirmed the implementation and the regression now checks the reproduced physical values instead.
 
+### Apparent-direction extension set: Qiao et al. (1999), Table 4
+
+- Paper and data table: <https://aas.aanda.org/articles/aas/pdf/1999/10/ds7914.pdf>
+- Reference: Qiao, Shen, Liu, and Harper, *1994-1996 CCD astrometric observations of Saturn's satellites and comparison with theories*, A&AS 137, 1-5 (1999), DOI 10.1051/aas:1999238.
+- Contents: 41 Enceladus/Tethys/Dione/Rhea positions relative to Titan on UTC JD 2450376, observed at Sheshan.
+- Convention: apparent topocentric polar coordinates. The paper explicitly says that differential refraction was removed and that stellar aberration and parallax were not removed.
+- Receiver: Sheshan at 31 deg 05 min 46.1 sec N, 121 deg 11 min 03.3 sec E, altitude 97 m, on WGS84 with Tudat's IAU-2006 GCRS/ITRS rotation.
+
+This is the unambiguous switch combination needed to validate the next adaptation: true-equator/equinox-of-date north, stellar aberration enabled, no forward optical-refraction correction, and a terrestrial topocentre. Titan is the first/reference line of sight and each listed satellite is the second line of sight, so the model position angle is that of the satellite relative to Titan.
+
+The test uses all 41 published rows and a compact 288-KiB Type-9 SPK generated from five-minute JPL Horizons vectors over 1996-10-18 through 1996-10-21. Horizons identifies DE441 for Earth and SAT441L for Enceladus, Tethys, Dione, Rhea, and Titan. Fresh off-grid Horizons states on the observing night agree at the sub-metre level. The kernel SHA-256 is `bac178e2dc038637e286a4c0f3f548dd34cf8992fee73352c604a24ffbc6c102`.
+
+The resulting Tudat pre-fit values are:
+
+- Astrometric separation RMS: **0.211648598 arcsec**.
+- Aberrated/apparent separation RMS: **0.214326363 arcsec**.
+- Astrometric transverse position-angle RMS: **0.079196664 arcsec**.
+- Aberrated/apparent transverse position-angle RMS: **0.079340229 arcsec**.
+- Maximum differential stellar-aberration correction: **0.007612263 arcsec** in separation and **0.000386417 arcsec** transverse in position angle.
+
+The roughly 0.079-arcsecond transverse residual is consistent with the paper's reported approximately 0.08-arcsecond precision. The larger separation RMS contains systematic pre-fit offsets. Aberration is only several milliarcseconds in this close-pair observable and therefore does not have to reduce the unweighted RMS. The regression checks reproduced values and the correction magnitude rather than using an unjustified “RMS improves” criterion.
+
+An independent SpiceyPy/ERFA calculation used direct iteration of each Titan/satellite light time, DE441/SAT441L state vectors, the IAU-1976/1980 `pnm80` pole, and the exact Lorentz aberration formula. With Earth's centre as the receiver it obtained maximum corrections of 0.007498 arcsec in separation and 0.000381 arcsec transverse in position angle, within 0.12 mas of the full Sheshan result. The remaining difference is consistent with the station position and diurnal velocity omitted from that independent calculation.
+
+#### Stellar-aberration implementation log
+
+- Added `PositionAngleDirectionType` with explicit `astrometric` and `aberrated` ancillary choices; existing callers remain astrometric by default.
+- Moved the pixel observable's existing aberration formula into the shared non-templated `stellarAberrationCorrection.cpp` implementation and reused it in P/S.
+- Applied the correction separately to both independently retarded lines of sight using the common receiver inertial velocity at reception, including annual and diurnal velocity for a ground station.
+- Added equivalent Python enum and ancillary-factory arguments.
+- Added `qiao1999_table4.txt`, provenance documentation, and `sat441_de441_qiao1999_subset.bsp` to `tests/test_tudat/data.zip`.
+- No propagation, estimation, observation partials, relativistic angular deflection, photocentre correction, catalogue reduction, weighting, or atmospheric refraction is used.
+
 ### Large but heterogeneous set: IMCCE `sm0034`
 
 - Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/S/sm0034.txt>
@@ -106,12 +140,6 @@ The list below contains only physical or reference-convention capabilities that 
 Relativistic angular light deflection, phase/photocentre correction, and star-catalogue astrometric reduction are implemented on other branches. They are therefore not additions to make here and cannot be enabled in the present baseline validation test. Their absence must still be respected when selecting data and interpreting residuals.
 
 Line counts below are rough engineering estimates, not measured patches. They cover the named model option and integration/tests, not a general historical re-reduction package or a complete extension of all analytical partials.
-
-- **Stellar aberration / astrometric versus aberrated direction**
-  - **Confidence:** High for the required architecture and aberration physics; medium for classifying individual historical datasets whose use of `apparent` is underspecified.
-  - **Current Tudat support:** Partial. The retarded astrometric geometry is present. Stellar-aberration code exists for the pixel-coordinate observable but is not a shared correction available to `P/S`.
-  - **Estimated size:** 150–300 production lines plus 150–250 binding and test lines if the existing implementation is factored into a shared utility.
-  - **Physical model:** Transform each retarded sight line using receiver velocity, including annual and diurnal contributions for a ground receiver. This must act on both directions before calculating `P/S`: differential aberration does not vanish merely because the pair is close. Make it an independent ancillary choice, not a switch that also forces refraction or true-of-date north. The existing pixel implementation uses the inverse of Jacobson's stellar-aberration correction; verify its accuracy against the selected standard before treating it as a general high-accuracy implementation. This is angular aberration, not another light-time solver or angular gravitational-deflection model.
 
 - **Differential optical atmospheric refraction**
   - **Confidence:** High about the physics; medium or low for applying it to an individual archived series because wavelength and meteorology are often absent.
@@ -158,8 +186,8 @@ These are direction transformations and an output-frame/geometry choice, not new
 
 1. **Completed:** run `pm0001` through Tudat itself as an astrometric J2000 geometry benchmark, retaining the photocentre caveat and quantifying the HST-receiver approximation.
 2. **Completed:** add explicit ancillary settings for the celestial reference frame, retaining astrometric J2000 as the default, and validate true-equator/equinox-of-date against all 166 `mm0012` observations from the high-accuracy JKT receiver.
-3. **Next:** factor stellar aberration into a shared angular-direction correction and add an explicit astrometric/aberrated-direction option.
-4. Add optical refraction only where the observation metadata provide enough information.
+3. **Completed locally:** factor stellar aberration into a shared angular-direction correction, add an explicit astrometric/aberrated-direction option, and validate it against all 41 documented apparent topocentric measurements in Qiao et al. (1999), Table 4.
+4. **Next, lowest priority:** add optical refraction only where the observation metadata provide enough information.
 
 Integration of the separately implemented angular light-deflection, photocentre, and star-catalogue-reduction capabilities is explicitly outside this branch and baseline test. Assess projected-polar support against a specifically documented dataset before implementing it.
 
@@ -173,11 +201,11 @@ The aim can be full support for all sufficiently documented observations, but no
 - **Branch:** `feature/position-angle-and-separation-observation-model-and-partials`
 - **Baseline before this validation:** `f76b40736` — `Checkpoint before natural-satellite observation validation`.
 - **Earlier work:** `40af0d1c3` consolidated the models; `3b0daf3bb` merged PR #857 residual wrapping into PR #860's branch.
-- **Local milestone content:** the selectable-frame implementation and bindings, both real-data C++ tests, the five archived files in `tests/test_tudat/data.zip`, and this report. Preserve the unrelated dirty `examples/tudatpy` submodule and other pre-existing untracked files. Nothing has been pushed.
-- **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp`; `include/tudat/simulation/estimation_setup/createObservationModelFactory.h`; `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h` (existing aberration utility).
-- **Build:** No build remains active. The focused C++ target and Python kernel built successfully with `-j6`; all four focused C++ test cases and the Python import check passed. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
-- **Temporary research inputs:** `/tmp/ps-literature/` contains downloaded papers and extracted text; `/tmp/tudatpy-hst-validation/` contains retrieved HST header products; `/tmp/tudatpy-pm0001-subset-20260915-a/` contains the generated compact SPK. Temporary paths may disappear after reboot; permanent sources and the required regression fixtures are recorded in the repository data archive.
-- **Outstanding work:** implement stellar aberration/astrometric-versus-aberrated directions against one explicitly documented apparent dataset. Optical atmospheric refraction remains lowest priority.
+- **Local milestone content:** the selectable-frame and stellar-aberration implementations and bindings, three real-data C++ validation cases, the seven archived files in `tests/test_tudat/data.zip`, and this report. Preserve the unrelated dirty `examples/tudatpy` submodule and other pre-existing untracked files. Nothing has been pushed.
+- **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp`; `include/tudat/astro/observation_models/stellarAberrationCorrection.h`; `src/tudat/astro/observation_models/stellarAberrationCorrection.cpp`; `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h`; and `src/tudatpy/estimation/observations_setup/ancillary_settings/expose_ancillary_settings.cpp`.
+- **Build:** No build remains active. The focused P/S target and Python kernel built successfully with `-j6`; all five P/S test cases pass. The existing pixel-coordinate and PSF/pixel stellar-aberration tests also pass after the shared-code refactor. The Python import check verified the astrometric default and both aberrated factory paths. The formatter hook, `git diff --check`, and complete `unzip -t tests/test_tudat/data.zip` check pass. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
+- **Temporary research inputs:** `/tmp/ps-literature/` contains downloaded papers and extracted text; `/tmp/tudatpy-hst-validation/` contains retrieved HST header products; `/tmp/tudatpy-pm0001-subset-20260915-a/` contains the Pluto compact-SPK inputs; `/tmp/tudatpy-saturn-aberration/` contains the Qiao/SAT441L generation and independent-validation scripts. Temporary paths may disappear after reboot; permanent sources and the required regression fixtures are recorded in the repository data archive.
+- **Outstanding work:** optical atmospheric refraction remains the lowest-priority adaptation and should only be implemented against an unambiguous dataset. No stellar-aberration implementation or validation work remains for this milestone.
 
 The command below resumes this specific saved conversation and supplies this worktree as its working directory. Its syntax was checked using the OpenAI Docs skill against the [official CLI command documentation](https://learn.chatgpt.com/docs/developer-commands?surface=cli) and the installed `codex resume --help`. It does not build, commit or push anything by itself. Run it later, after leaving the current session:
 

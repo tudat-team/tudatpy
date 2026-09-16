@@ -80,6 +80,18 @@ void expose_ancillary_settings_types( py::module& m )
                     tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
             .export_values( );
 
+    py::enum_< tom::PositionAngleDirectionType >( m,
+                                                  "PositionAngleDirectionType",
+                                                  R"doc(
+        Direction convention for position-angle and angular-separation observations.
+
+        The astrometric convention uses the independently light-time-corrected geometric directions. The aberrated convention applies
+        stellar aberration using the receiver's inertial velocity at reception.
+        )doc" )
+            .value( "astrometric", tom::PositionAngleDirectionType::astrometric_position_angle_direction )
+            .value( "aberrated", tom::PositionAngleDirectionType::aberrated_position_angle_direction )
+            .export_values( );
+
     py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
         Enumeration of frequency bands.
 
@@ -199,6 +211,11 @@ void expose_ancillary_settings_types( py::module& m )
                     tom::ObservationAncillarySimulationVariable::position_angle_reference_pole,
                     R"doc(
                     Custom position-angle north-pole vector expressed in ICRF/J2000 coordinates.
+                    )doc" )
+            .value( "position_angle_direction_type",
+                    tom::ObservationAncillarySimulationVariable::position_angle_direction_type,
+                    R"doc(
+                    Astrometric or stellar-aberrated direction convention used for position-angle and angular-separation observations.
                     )doc" )
             .export_values( );
 
@@ -349,6 +366,7 @@ void expose_ancillary_settings( py::module& m )
            &tom::getPositionAngleAncillarySettings,
            py::arg( "reference_frame" ) = tom::j2000_position_angle_reference_frame,
            py::arg( "reference_epoch" ) = TUDAT_NAN,
+           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
            R"doc(
 
  Create ancillary settings selecting the celestial north pole used for position-angle observations.
@@ -359,6 +377,8 @@ void expose_ancillary_settings( py::module& m )
      Celestial reference-frame convention for the position angle.
  reference_epoch : float, optional
      TDB seconds since J2000 at which to evaluate a mean- or true-of-date frame. If omitted, each observation's reception epoch is used.
+ direction_type : PositionAngleDirectionType, default = astrometric
+     Selects astrometric directions or apparent directions including stellar aberration from the receiver's inertial velocity.
 
  Returns
  -------
@@ -370,6 +390,7 @@ void expose_ancillary_settings( py::module& m )
     m.def( "custom_position_angle_ancillary_settings",
            &tom::getCustomPositionAngleAncillarySettings,
            py::arg( "reference_pole" ),
+           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
            R"doc(
 
  Create ancillary settings using a custom celestial north-pole direction for position angle.
@@ -378,6 +399,8 @@ void expose_ancillary_settings( py::module& m )
  ----------
  reference_pole : numpy.ndarray
      Non-zero three-vector expressed in ICRF/J2000 coordinates.
+ direction_type : PositionAngleDirectionType, default = astrometric
+     Selects astrometric directions or apparent directions including stellar aberration from the receiver's inertial velocity.
 
  Returns
  -------
