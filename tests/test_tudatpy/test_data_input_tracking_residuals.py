@@ -585,14 +585,14 @@ def test_odf_grail_short_arc_residuals_are_millihertz_level():
 
 
 def test_tnf_mro_short_arc_residuals_are_low_after_compression():
+    """Read one hour of MRO radio data and verify the calculated frequencies match closely."""
     test_data_path = _test_data_path()
     mro_data_path = test_data_path / "mro_dsn_observation_model"
     mro_kernel_path = mro_data_path / "kernel_download"
-    tnf_file = _download_file(
-        "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/"
-        "mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf",
-        mro_data_path / "tnf_download",
-    )
+    # This smaller test file contains complete records from the following public source,
+    # including all earlier transmitter-frequency changes needed for this one-hour interval:
+    # https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/tnf/mromagr2012_076_0840xmmmv1.tnf
+    tnf_file = Path(__file__).parent / "fixtures" / "mro_short_arc_2012_077.tnf"
     for url in (
         "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/"
         "mrosp_1000/data/ck/mro_sc_psp_120313_120319.bc",
@@ -614,13 +614,27 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
     bodies = _create_mro_bodies(mro_kernel_path, interval_start - 3600.0, interval_end + 3600.0)
     tracking_data, supplementary_data = read_tnf_data([str(tnf_file)], ["doppler"], "MRO")
     tracking_data = _keep_observations_in_time_window(tracking_data, interval_start, interval_end)
+    # Change only MRO's 1.4149-microsecond response delay and remember both station delays.
+    expected_link_delays = set()
+    for data_set in tracking_data:
+        link_delays = data_set.get_ancillary_settings_double_vector()["link ends time delays"]
+        expected_link_delays.add((link_delays[0], 1.4149e-6, link_delays[2]))
+        link_delays[1] = 1.4149e-6
+        data_set.add_double_vector_ancillary_setting("link ends time delays", link_delays)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     uncompressed_observations = create_observation_collection_from_tracking_data(
         tracking_data, bodies
     )
     observed_observations = create_compressed_doppler_collection(uncompressed_observations, 60, 10)
-    observed_observations.set_transponder_delay("MRO", 1.4149e-6)
 
+    # Every final observation must retain the two station delays and use MRO's new delay.
+    for observation_set in observed_observations.get_single_observation_sets():
+        actual_delays = observation_set.ancillary_settings.get_float_list_settings(
+            ancillary_settings.link_ends_delays
+        )
+        assert tuple(actual_delays) in expected_link_delays
+
+    # Calculate the expected frequencies using MRO's antenna position and atmospheric effects.
     mro_center_of_mass_position = np.array([0.0, -1.11, 0.0])
     antenna_position_history = {}
     for observation_times in observed_observations.get_observation_times_objects():
@@ -672,6 +686,7 @@ def test_tnf_mro_short_arc_residuals_are_low_after_compression():
         observed_observations.concatenated_observations
     )
 
+    # The one-hour interval must contain 59 averaged values whose errors stay below 3 millihertz.
     assert residuals.size == 59
     assert abs(np.mean(residuals)) < 1.5e-3
     assert np.sqrt(np.mean(residuals**2)) < 3.0e-3

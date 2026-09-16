@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include <cereal/access.hpp>
@@ -650,14 +651,14 @@ public:
     void setWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights )
     {
         // Check size consistency
-        if( weights.size( ) != static_cast< int >( singleObservationSize_ * observations_.size( ) ) )
+        if( weights.size( ) != observations_.size( ) )
         {
             throw std::runtime_error(
                     "Error when settings weights in single observation set, numbers of weights and observations are inconsistent." );
         }
 
-        // Set each weight entry
-        for( unsigned int k = 0; k < weights_.size( ); k++ )
+        // Validate the complete replacement before changing any existing weight.
+        for( unsigned int k = 0; k < weights.size( ); k++ )
         {
             // Check size consistent for each weight entry
             if( weights[ k ].size( ) != singleObservationSize_ )
@@ -666,8 +667,8 @@ public:
                         "Error when settings weights in single observation set, size of single weight entry is inconsistent with single "
                         "observation size." );
             }
-            weights_.at( k ) = weights[ k ];
         }
+        weights_ = weights;
     }
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
@@ -752,12 +753,58 @@ public:
 
     void removeObservations( const std::vector< unsigned int >& indicesToRemove )
     {
-        unsigned int counter = 0;
-        for( auto ind : indicesToRemove )
+        if( indicesToRemove.empty( ) )
         {
-            removeSingleObservation( ind - counter );  // observations are already filtered and sorted
-            counter += 1;
+            return;
         }
+
+        // Indices refer to the original rows and must be unique and increasing.
+        // Validate before modifying any vector so invalid input leaves the set intact.
+        for( std::size_t i = 0; i < indicesToRemove.size( ); ++i )
+        {
+            if( indicesToRemove[ i ] >= numberOfObservations_ || ( i > 0 && indicesToRemove[ i ] <= indicesToRemove[ i - 1 ] ) )
+            {
+                throw std::runtime_error(
+                        "Error when removing observations from SingleObservationSet, indices must be "
+                        "strictly increasing and within the original observation count." );
+            }
+        }
+
+        // Compact every row-aligned vector in one pass. Repeated erases and time-bound
+        // scans make filtering large tracking files quadratic in the observation count.
+        std::size_t nextRemoval = 0;
+        std::size_t destination = 0;
+        const bool hasDependentVariables = !observationsDependentVariables_.empty( );
+        for( std::size_t source = 0; source < observations_.size( ); ++source )
+        {
+            if( nextRemoval < indicesToRemove.size( ) && source == indicesToRemove[ nextRemoval ] )
+            {
+                ++nextRemoval;
+                continue;
+            }
+            if( destination != source )
+            {
+                observations_[ destination ] = std::move( observations_[ source ] );
+                observationTimes_[ destination ] = std::move( observationTimes_[ source ] );
+                weights_[ destination ] = std::move( weights_[ source ] );
+                residuals_[ destination ] = std::move( residuals_[ source ] );
+                if( hasDependentVariables )
+                {
+                    observationsDependentVariables_[ destination ] = std::move( observationsDependentVariables_[ source ] );
+                }
+            }
+            ++destination;
+        }
+        observations_.resize( destination );
+        observationTimes_.resize( destination );
+        weights_.resize( destination );
+        residuals_.resize( destination );
+        if( hasDependentVariables )
+        {
+            observationsDependentVariables_.resize( destination );
+        }
+        numberOfObservations_ = observations_.size( );
+        updateTimeBounds( );
     }
 
     void eraseDuplicateObservations( )
@@ -1550,8 +1597,8 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         observationSet->getDependentVariableBookkeeping( ),
                         observationSet->getAncillarySettings( ) );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector = weightsVector.segment(
+                startIndex * observationSet->getSingleObservableSize( ), sizeCurrentSet * observationSet->getSingleObservableSize( ) );
         newSet->setTabulatedWeights( newWeightsVector );
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =

@@ -2,6 +2,7 @@
 #include "tudat/simulation/environment_setup/createCameras.h"
 
 #include <cmath>
+#include <iterator>
 
 namespace tudat
 {
@@ -71,7 +72,7 @@ void checkTrackingDataLinkEnds( const observation_models::ObservableType observa
 
 bool shouldSkipObservationCollectionAncillarySetting( const std::string& ancillarySetting )
 {
-    return ancillarySetting == "Doppler base frequency" || ancillarySetting == "note2" || ancillarySetting == "catalog";
+    return ancillarySetting == "Doppler base frequency" || data::isOpticalObservationMetadata( ancillarySetting );
 }
 
 std::function< Eigen::Quaterniond( const double ) > createNearestCameraPointingFunction(
@@ -422,7 +423,7 @@ void setFrequencySupplementaryDataInBodies(
         }
 
         std::vector< data::RampedFrequencySupplementaryData::FrequencyRamp > frequencyRamps;
-        std::vector< std::map< double, double > > piecewiseConstantFrequencyHistories;
+        std::map< double, double > piecewiseConstantFrequencyHistory;
 
         for( unsigned int i = 0; i < it->second.size( ); ++i )
         {
@@ -463,16 +464,34 @@ void setFrequencySupplementaryDataInBodies(
                                               referencePointName +
                                               ": frequency data type is piecewise constant, but derived object type is inconsistent." );
                 }
-                piecewiseConstantFrequencyHistories.push_back( piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) );
+                for( const auto& entry : piecewiseConstantFrequencySupplementaryData->getFrequencyHistory( ) )
+                {
+                    // Match ramp-table merging: later entries replace earlier values at the same epoch.
+                    piecewiseConstantFrequencyHistory[ entry.first ] = entry.second;
+                }
             }
         }
 
-        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" )
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
+        {
+            for( auto entry = piecewiseConstantFrequencyHistory.begin( ); entry != piecewiseConstantFrequencyHistory.end( ); ++entry )
+            {
+                const auto nextEntry = std::next( entry );
+                const Time startTime( entry->first );
+                // The final ramp needs a positive nominal duration. The existing
+                // interpolator extrapolates it beyond this end time at zero rate.
+                const Time endTime = nextEntry != piecewiseConstantFrequencyHistory.end( ) ? Time( nextEntry->first ) : startTime + 1.0;
+                frequencyRamps.emplace_back( startTime, endTime, entry->second, 0.0 );
+            }
+        }
+
+        if( it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "ramped_frequency" ||
+            it->second.at( 0 )->getFrequencySupplementaryDataKind( ) == "piecewise_constant_frequency" )
         {
             if( frequencyRamps.empty( ) )
             {
-                throw std::runtime_error( "Error when setting ramped frequency supplementary data in body " + bodyName +
-                                          ", reference point " + referencePointName + ": no frequency ramps were found." );
+                throw std::runtime_error( "Error when setting frequency supplementary data in body " + bodyName + ", reference point " +
+                                          referencePointName + ": no frequency entries were found." );
             }
 
             std::vector< Time > startTimes;

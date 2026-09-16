@@ -1082,6 +1082,95 @@ BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMe
     }
 }
 
+// Remove two non-adjacent angle measurements and verify that their times, values,
+// weights, errors, and calculated distances all disappear together.
+BOOST_AUTO_TEST_CASE( testBulkObservationRemovalPreservesMetadata )
+{
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    std::vector< Eigen::VectorXd > values, weights, residuals, dependentVariables;
+    std::vector< double > times;
+    auto bookkeeping = std::make_shared< ObservationDependentVariableBookkeeping >( angular_position, links );
+    bookkeeping->addDependentVariable( targetRangeBetweenLinkEndsDependentVariable( transmitter, receiver ) );
+    for( unsigned int i = 0; i < 6; ++i )
+    {
+        times.push_back( 10.0 * i );
+        values.push_back( Eigen::Vector2d( i, 100.0 + i ) );
+        weights.push_back( Eigen::Vector2d( 10.0 + i, 20.0 + i ) );
+        residuals.push_back( Eigen::Vector2d( -static_cast< double >( i ), -100.0 - i ) );
+        dependentVariables.push_back( Eigen::VectorXd::Constant( 1, 5.0 * i ) );
+    }
+    SingleObservationSet<> set(
+            angular_position, links, values, times, receiver, dependentVariables, bookkeeping, nullptr, weights, residuals );
+    set.removeObservations( { 1, 4 } );
+
+    // Rows 0, 2, 3, and 5 must remain in order, with every related value still matched to its time.
+    const std::vector< unsigned int > expectedRows = { 0, 2, 3, 5 };
+    BOOST_REQUIRE_EQUAL( set.getNumberOfObservables( ), expectedRows.size( ) );
+    for( unsigned int retained = 0; retained < expectedRows.size( ); ++retained )
+    {
+        const unsigned int original = expectedRows.at( retained );
+        BOOST_CHECK_EQUAL( set.getObservationTime( retained ), times.at( original ) );
+        BOOST_CHECK_SMALL( ( set.getObservation( retained ) - values.at( original ) ).norm( ), 1.0e-15 );
+        BOOST_CHECK_SMALL( ( set.getWeights( ).at( retained ) - weights.at( original ) ).norm( ), 1.0e-15 );
+        BOOST_CHECK_SMALL( ( set.getResidual( retained ) - residuals.at( original ) ).norm( ), 1.0e-15 );
+        BOOST_CHECK_SMALL( ( set.getDependentVariablesForSingleObservation( retained ) - dependentVariables.at( original ) ).norm( ),
+                           1.0e-15 );
+    }
+    // The reported time range must now run from the first to the last remaining observation.
+    BOOST_CHECK_EQUAL( set.getTimeBounds( ).first, 0.0 );
+    BOOST_CHECK_EQUAL( set.getTimeBounds( ).second, 50.0 );
+
+    // Removing every row must empty all related values and leave no time range to report.
+    set.removeObservations( { 0, 1, 2, 3 } );
+    BOOST_CHECK_EQUAL( set.getNumberOfObservables( ), 0 );
+    BOOST_CHECK( set.getWeights( ).empty( ) );
+    BOOST_CHECK( set.getResiduals( ).empty( ) );
+    BOOST_CHECK( set.getObservationsDependentVariables( ).empty( ) );
+    BOOST_CHECK_THROW( set.getTimeBounds( ), std::runtime_error );
+
+    // Invalid row lists must be rejected before any observations are removed.
+    for( const auto& invalid : std::vector< std::vector< unsigned int > >{ { 6 }, { 3, 2 } } )
+    {
+        SingleObservationSet<> unchanged(
+                angular_position, links, values, times, receiver, dependentVariables, bookkeeping, nullptr, weights, residuals );
+        BOOST_CHECK_THROW( unchanged.removeObservations( invalid ), std::runtime_error );
+        const auto retainedTimes = unchanged.getObservationTimes( );
+        BOOST_CHECK_EQUAL_COLLECTIONS( retainedTimes.begin( ), retainedTimes.end( ), times.begin( ), times.end( ) );
+    }
+}
+
+// Split six two-angle observations into three pairs and verify that both weights
+// from every original observation remain attached to the correct pair.
+BOOST_AUTO_TEST_CASE( testAngularObservationSplittingPreservesComponentWeights )
+{
+    const LinkDefinition links( LinkEnds{ { transmitter, LinkEndId( "Target" ) }, { receiver, LinkEndId( "Earth", "Station" ) } } );
+    std::vector< Eigen::VectorXd > values, weights;
+    const std::vector< double > times = { 0.0, 1.0, 10.0, 11.0, 20.0, 21.0 };
+    for( unsigned int i = 0; i < times.size( ); ++i )
+    {
+        values.push_back( Eigen::Vector2d( i, 100.0 + i ) );
+        weights.push_back( Eigen::Vector2d( 10.0 + i, 1000.0 + i ) );
+    }
+    auto original = std::make_shared< SingleObservationSet<> >( angular_position, links, values, times, receiver );
+    original->setWeights( weights );
+
+    const auto parts = splitObservationSet( original, observationSetSplitter( nb_observations_splitter, 2, 1 ) );
+
+    // Each pair must contain the same times, angles, and two weights as its source rows.
+    BOOST_REQUIRE_EQUAL( parts.size( ), 3 );
+    for( unsigned int part = 0; part < parts.size( ); ++part )
+    {
+        BOOST_REQUIRE_EQUAL( parts[ part ]->getNumberOfObservables( ), 2 );
+        for( unsigned int row = 0; row < 2; ++row )
+        {
+            const unsigned int source = part * 2 + row;
+            BOOST_CHECK_EQUAL( parts[ part ]->getObservationTime( row ), times[ source ] );
+            BOOST_CHECK_SMALL( ( parts[ part ]->getObservation( row ) - values[ source ] ).norm( ), 1.0e-15 );
+            BOOST_CHECK_SMALL( ( parts[ part ]->getWeights( ).at( row ) - weights[ source ] ).norm( ), 1.0e-15 );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
