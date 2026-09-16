@@ -44,7 +44,7 @@ enum ObservationAncillarySimulationVariable {
     range_conversion_factor,
     position_angle_reference_frame,
     position_angle_reference_epoch,
-    position_angle_reference_pole,
+    position_angle_custom_reference_pole,
     position_angle_direction_type,
 };
 
@@ -101,7 +101,7 @@ public:
         {
             case link_ends_delays:
             case frequency_bands:
-            case position_angle_reference_pole:
+            case position_angle_custom_reference_pole:
                 doubleVectorData_[ variableType ] = variable;
                 break;
             default:
@@ -163,7 +163,7 @@ public:
             {
                 case link_ends_delays:
                 case frequency_bands:
-                case position_angle_reference_pole:
+                case position_angle_custom_reference_pole:
                     returnVariable = doubleVectorData_.at( variableType );
                     break;
                 default:
@@ -223,7 +223,7 @@ public:
             case position_angle_reference_epoch:
                 name = "position-angle celestial reference epoch";
                 break;
-            case position_angle_reference_pole:
+            case position_angle_custom_reference_pole:
                 name = "custom position-angle reference pole";
                 break;
             case position_angle_direction_type:
@@ -375,7 +375,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getCustomPositi
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             getPositionAngleAncillarySettings( custom_position_angle_reference_pole, TUDAT_NAN, directionType );
-    ancillarySettings->setAncillaryDoubleVectorData( position_angle_reference_pole,
+    ancillarySettings->setAncillaryDoubleVectorData( position_angle_custom_reference_pole,
                                                      { referencePole.x( ), referencePole.y( ), referencePole.z( ) } );
     return ancillarySettings;
 }

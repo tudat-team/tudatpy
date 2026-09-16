@@ -146,7 +146,7 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000( const double observationTi
                 throw std::runtime_error( "Custom position-angle reference pole selected without ancillary settings." );
             }
             const std::vector< double > referencePoleValues =
-                    ancillarySettings->getAncillaryDoubleVectorData( position_angle_reference_pole );
+                    ancillarySettings->getAncillaryDoubleVectorData( position_angle_custom_reference_pole );
             if( referencePoleValues.size( ) != 3 )
             {
                 throw std::runtime_error( "Custom position-angle reference pole must contain exactly three values." );

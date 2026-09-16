@@ -207,8 +207,8 @@ void expose_ancillary_settings_types( py::module& m )
                     Optional TDB epoch, in seconds since J2000, at which a time-dependent position-angle reference frame is evaluated.
                     If omitted, the observation's reception epoch is used.
                     )doc" )
-            .value( "position_angle_reference_pole",
-                    tom::ObservationAncillarySimulationVariable::position_angle_reference_pole,
+            .value( "position_angle_custom_reference_pole",
+                    tom::ObservationAncillarySimulationVariable::position_angle_custom_reference_pole,
                     R"doc(
                     Custom position-angle north-pole vector expressed in ICRF/J2000 coordinates.
                     )doc" )
