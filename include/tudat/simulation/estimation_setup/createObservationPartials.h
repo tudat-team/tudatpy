@@ -884,7 +884,7 @@ createPositionAngleAndSeparationPartials(
     LinkEnds secondLinkEnds;
     std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > firstLightTimeCalculator;
     std::shared_ptr< LightTimeCalculator< ParameterType, TimeType > > secondLightTimeCalculator;
-    Eigen::Vector3d j2000NorthPoleDirection;
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation = Eigen::Matrix3d::Identity( );
     int componentIndex = -1;
 
     switch( observationModel->getObservableType( ) )
@@ -900,7 +900,7 @@ createPositionAngleAndSeparationPartials(
             secondLinkEnds = typedModel->getSecondLinkEnds( );
             firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
             secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            j2000NorthPoleDirection = typedModel->getJ2000NorthPoleDirection( );
+            j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
             componentIndex = 0;
             break;
         }
@@ -914,7 +914,6 @@ createPositionAngleAndSeparationPartials(
             secondLinkEnds = typedModel->getSecondLinkEnds( );
             firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
             secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            j2000NorthPoleDirection = Eigen::Vector3d::UnitZ( );
             componentIndex = 1;
             break;
         }
@@ -930,7 +929,7 @@ createPositionAngleAndSeparationPartials(
             secondLinkEnds = typedModel->getSecondLinkEnds( );
             firstLightTimeCalculator = typedModel->getLightTimeCalculatorFirstTransmitter( );
             secondLightTimeCalculator = typedModel->getLightTimeCalculatorSecondTransmitter( );
-            j2000NorthPoleDirection = typedModel->getJ2000NorthPoleDirection( );
+            j2000ToGlobalFrameTransformation = typedModel->getJ2000ToGlobalFrameTransformation( );
             break;
         }
         default:
@@ -954,7 +953,7 @@ createPositionAngleAndSeparationPartials(
     for( const auto& partial : mergedAngularPartials )
     {
         partials[ partial.first ] = std::make_shared< PositionAngleAndSeparationPartial< ObservationSize > >(
-                partial.second.first, partial.second.second, j2000NorthPoleDirection, componentIndex );
+                partial.second.first, partial.second.second, j2000ToGlobalFrameTransformation, componentIndex );
     }
 
     // Biases acting on the final observable are not part of either angular-position leg.

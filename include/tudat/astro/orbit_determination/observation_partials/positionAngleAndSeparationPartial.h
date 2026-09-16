@@ -149,11 +149,11 @@ class PositionAngleAndSeparationPartial : public ObservationPartial< Observation
 public:
     PositionAngleAndSeparationPartial( const std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial,
                                        const std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial,
-                                       const Eigen::Vector3d& j2000NorthPoleDirection,
+                                       const Eigen::Matrix3d& j2000ToGlobalFrameTransformation,
                                        const int componentIndex ):
         ObservationPartial< ObservationSize >( getParameterIdentifier( firstAngularPositionPartial, secondAngularPositionPartial ) ),
         firstAngularPositionPartial_( firstAngularPositionPartial ), secondAngularPositionPartial_( secondAngularPositionPartial ),
-        j2000NorthPoleDirection_( j2000NorthPoleDirection ), componentIndex_( componentIndex )
+        j2000ToGlobalFrameTransformation_( j2000ToGlobalFrameTransformation ), componentIndex_( componentIndex )
     {
         if( ( ObservationSize == 2 && componentIndex_ != -1 ) || ( ObservationSize == 1 && componentIndex_ != 0 && componentIndex_ != 1 ) )
         {
@@ -178,8 +178,16 @@ public:
             throw std::runtime_error( "Position-angle and separation partials require three link-end states and times." );
         }
 
+        // Match the observation model's frame convention at the receiver epoch.
+        // The epoch is held fixed with respect to the estimated parameters here.
+        Eigen::Vector3d referencePoleDirection = Eigen::Vector3d::UnitZ( );
+        if( componentIndex_ != 1 )
+        {
+            referencePoleDirection = j2000ToGlobalFrameTransformation_ *
+                    observation_models::getPositionAngleReferencePoleInJ2000( times.at( 2 ), ancillarySettings );
+        }
         const auto angularPositionJacobians =
-                calculatePositionAngleAndSeparationPartialWrtAngularPositions( states, j2000NorthPoleDirection_, componentIndex_ != 1 );
+                calculatePositionAngleAndSeparationPartialWrtAngularPositions( states, referencePoleDirection, componentIndex_ != 1 );
         const int firstOutputRow = componentIndex_ < 0 ? 0 : componentIndex_;
         const Eigen::Matrix< double, ObservationSize, 2 > firstTransformation =
                 angularPositionJacobians.first.block( firstOutputRow, 0, ObservationSize, 2 );
@@ -240,7 +248,7 @@ private:
 
     std::shared_ptr< ObservationPartial< 2 > > firstAngularPositionPartial_;
     std::shared_ptr< ObservationPartial< 2 > > secondAngularPositionPartial_;
-    Eigen::Vector3d j2000NorthPoleDirection_;
+    Eigen::Matrix3d j2000ToGlobalFrameTransformation_;
     int componentIndex_;
 };
 

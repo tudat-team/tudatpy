@@ -54,135 +54,202 @@ BOOST_AUTO_TEST_CASE( testPositionAngleAndSeparationPartials )
     std::vector< std::string > perturbingBodies;
     perturbingBodies.push_back( "Earth" );
 
-    // Test partials with constant ephemerides (allows test of position partials)
+    // Exercise the same numerical-partial comparisons for each celestial pole.
+    // The custom pole is intentionally tilted by more than 50 degrees from J2000 north.
+    const std::vector< std::pair< std::string, std::shared_ptr< ObservationAncillarySimulationSettings > > > referencePoleCases = {
+        { "default J2000", nullptr },
+        { "B1950", getPositionAngleAncillarySettings( b1950_position_angle_reference_frame ) },
+        { "true of date", getPositionAngleAncillarySettings( true_of_date_iau_1976_1980_position_angle_reference_frame ) },
+        { "custom", getCustomPositionAngleAncillarySettings( Eigen::Vector3d( 0.4, -0.7, 0.6 ).normalized( ) ) }
+    };
+    for( const auto& referencePoleCase : referencePoleCases )
     {
-        // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        BOOST_TEST_MESSAGE( "Testing P/S partials with " << referencePoleCase.first << " reference pole" );
 
-        // Set link ends for observation model
-        LinkDefinition linkEnds;
-        linkEnds[ receiver ] = groundStations[ 0 ];
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ transmitter2 ] = groundStations[ 2 ];
-
-        // Test position angle partials
+        // Test partials with constant ephemerides (allows test of position partials)
         {
-            std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
-                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::PositionAngleObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
+            // Create environment
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+            // Set link ends for observation model
+            LinkDefinition linkEnds;
+            linkEnds[ receiver ] = groundStations[ 0 ];
+            linkEnds[ transmitter ] = groundStations[ 1 ];
+            linkEnds[ transmitter2 ] = groundStations[ 2 ];
 
-            testObservationPartials< 1 >(
-                    positionAngleModel, bodies, fullEstimatableParameterSet, linkEnds, position_angle, 1.0E-4, true, true );
+            // Test position angle partials
+            {
+                std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< observation_models::PositionAngleObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
+
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
+
+                testObservationPartials< 1 >( positionAngleModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              position_angle,
+                                              1.0E-4,
+                                              true,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
+
+            // Test separation distance partials
+            {
+                std::shared_ptr< ObservationModel< 1 > > separationModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< observation_models::SeparationObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
+
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
+
+                testObservationPartials< 1 >( separationModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              separation_distance,
+                                              1.0E-4,
+                                              true,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
+
+            // Test combined position angle and separation distance partials
+            {
+                std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
+                        observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
+                                std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
+
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
+
+                testObservationPartials< 2 >( positionAngleAndSeparationModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              position_angle_and_separation,
+                                              1.0E-4,
+                                              true,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
         }
 
-        // Test separation distance partials
+        // Test partials with real ephemerides (without test of position partials)
         {
-            std::shared_ptr< ObservationModel< 1 > > separationModel =
-                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::SeparationObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
+            // Create environment
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+            // Set link ends for observation model
+            LinkDefinition linkEnds;
+            linkEnds[ receiver ] = groundStations[ 0 ];
+            linkEnds[ transmitter ] = groundStations[ 1 ];
+            linkEnds[ transmitter2 ] = groundStations[ 2 ];
 
-            testObservationPartials< 1 >(
-                    separationModel, bodies, fullEstimatableParameterSet, linkEnds, separation_distance, 1.0E-4, true, true );
-        }
+            // Test position angle partials
+            {
+                std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< observation_models::PositionAngleObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
 
-        // Test combined position angle and separation distance partials
-        {
-            std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
-                    observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                            std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
 
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+                testObservationPartials< 1 >( positionAngleModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              position_angle,
+                                              1.0E-4,
+                                              false,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
 
-            testObservationPartials< 2 >( positionAngleAndSeparationModel,
-                                          bodies,
-                                          fullEstimatableParameterSet,
-                                          linkEnds,
-                                          position_angle_and_separation,
-                                          1.0E-4,
-                                          true,
-                                          true );
-        }
-    }
+            // Test separation distance partials
+            {
+                std::shared_ptr< ObservationModel< 1 > > separationModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< observation_models::SeparationObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
 
-    // Test partials with real ephemerides (without test of position partials)
-    {
-        // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
 
-        // Set link ends for observation model
-        LinkDefinition linkEnds;
-        linkEnds[ receiver ] = groundStations[ 0 ];
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ transmitter2 ] = groundStations[ 2 ];
+                testObservationPartials< 1 >( separationModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              separation_distance,
+                                              1.0E-4,
+                                              false,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
 
-        // Test position angle partials
-        {
-            std::shared_ptr< ObservationModel< 1 > > positionAngleModel =
-                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::PositionAngleObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
+            // Test combined position angle and separation distance partials
+            {
+                std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
+                        observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
+                                std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
+                                        linkEnds,
+                                        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
+                                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                        perturbingBodies ) } ),
+                                bodies );
 
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                        createEstimatableParameters( bodies, 1.1E7 );
 
-            testObservationPartials< 1 >(
-                    positionAngleModel, bodies, fullEstimatableParameterSet, linkEnds, position_angle, 1.0E-4, false, true );
-        }
-
-        // Test separation distance partials
-        {
-            std::shared_ptr< ObservationModel< 1 > > separationModel =
-                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::SeparationObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
-
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
-
-            testObservationPartials< 1 >(
-                    separationModel, bodies, fullEstimatableParameterSet, linkEnds, separation_distance, 1.0E-4, false, true );
-        }
-
-        // Test combined position angle and separation distance partials
-        {
-            std::shared_ptr< ObservationModel< 2 > > positionAngleAndSeparationModel =
-                    observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                            std::make_shared< observation_models::PositionAngleAndSeparationObservationModelSettings >(
-                                    linkEnds,
-                                    std::vector< std::shared_ptr< LightTimeCorrectionSettings > >{
-                                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
-                            bodies );
-
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
-
-            testObservationPartials< 2 >( positionAngleAndSeparationModel,
-                                          bodies,
-                                          fullEstimatableParameterSet,
-                                          linkEnds,
-                                          position_angle_and_separation,
-                                          1.0E-4,
-                                          false,
-                                          true );
+                testObservationPartials< 2 >( positionAngleAndSeparationModel,
+                                              bodies,
+                                              fullEstimatableParameterSet,
+                                              linkEnds,
+                                              position_angle_and_separation,
+                                              1.0E-4,
+                                              false,
+                                              true,
+                                              1.0,
+                                              Eigen::VectorXd::Constant( 4, 1.0 ),
+                                              referencePoleCase.second );
+            }
         }
     }
 }

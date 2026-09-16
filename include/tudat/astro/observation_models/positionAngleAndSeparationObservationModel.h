@@ -292,6 +292,12 @@ public:
         return j2000ToGlobalFrameTransformation_ * Eigen::Vector3d::UnitZ( );
     }
 
+    //! Rotation used to express the selected J2000 reference pole in the global state frame.
+    Eigen::Matrix3d getJ2000ToGlobalFrameTransformation( ) const
+    {
+        return j2000ToGlobalFrameTransformation_;
+    }
+
     std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
     getLegLightTimeCalculators( ) const override
     {
@@ -433,6 +439,12 @@ public:
     Eigen::Vector3d getJ2000NorthPoleDirection( ) const
     {
         return positionAngleAndSeparationModel_->getJ2000NorthPoleDirection( );
+    }
+
+    //! Rotation used by the internal combined model for position-angle reference poles.
+    Eigen::Matrix3d getJ2000ToGlobalFrameTransformation( ) const
+    {
+        return positionAngleAndSeparationModel_->getJ2000ToGlobalFrameTransformation( );
     }
 
     std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
