@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
 
     // And indeed observe a new density is calculated and is not equal
     // anymore to the old one.
-    BOOST_CHECK_PREDICATE( std::not_equal_to< double >( ), (density1)( density3 ) );
+    BOOST_CHECK( density1 != density3 );
 
     // Recalculate density1, to "reset" the internal state of the
     // model , for the next demo
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
     // the density using method (B) is exactly equal to the density
     // obtained using solution (A), this shows that both are equal in
     // triggering recalculations.
-    BOOST_CHECK_PREDICATE( std::not_equal_to< double >( ), (density1)( density4 ) );
+    BOOST_CHECK( density1 != density4 );
     BOOST_CHECK_EQUAL( density3, density4 );
 }
 
