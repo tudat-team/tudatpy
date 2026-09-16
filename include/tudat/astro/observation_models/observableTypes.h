@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVABLETYPES_H
 
 #include <string>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -249,6 +250,9 @@ bool isResidualWrappingRequired( const ObservableType observableType );
  * \return Vector of wrapping ranges, one per component.
  */
 std::vector< ResidualWrappingRange > getResidualWrappingRanges( const ObservableType observableType );
+
+//! Return the fixed periodic component indices for an observable type.
+const std::vector< int >& getResidualWrappingComponentIndices( const ObservableType observableType );
 
 }  // namespace observation_models
 
