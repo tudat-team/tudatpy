@@ -61,6 +61,14 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
+    //! Function to retrieve residual wrapping settings for the model with the specified link ends.
+    /*!
+     * Function to retrieve residual wrapping settings for the model with the specified link ends.
+     * \param linkEnds Link ends identifying the observation model.
+     * \return Residual wrapping settings for the observation model.
+     */
+    virtual ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) = 0;
+
     virtual void computeObservations( const std::vector< TimeType >& times,
                                       const LinkEnds linkEnds,
                                       const LinkEndType linkEndAssociatedWithTime,
@@ -102,6 +110,11 @@ public:
     int getObservationSize( )
     {
         return observationModels_.begin( )->second->getObservationSize( );
+    }
+
+    ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) override
+    {
+        return getObservationModel( linkEnds )->getResidualWrappingSettings( );
     }
 
     //! Function to get the observation model for a given set of link ends
