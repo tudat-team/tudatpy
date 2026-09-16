@@ -38,7 +38,9 @@ std::shared_ptr< ObservationPartial< ObservationSize > > getPartialWrtBodyTransl
     for( auto it : observationPartials )
     {
         estimatable_parameters::EstimatebleParameterIdentifier currentParameter = it.second->getParameterIdentifier( );
-        if( currentParameter.first == estimatable_parameters::initial_body_state && currentParameter.second.second == bodyName )
+        if( ( currentParameter.first == estimatable_parameters::initial_body_state ||
+              currentParameter.first == estimatable_parameters::constrained_initial_body_state ) &&
+            currentParameter.second.second == bodyName )
         {
             if( selectedObservationPartial != nullptr )
             {

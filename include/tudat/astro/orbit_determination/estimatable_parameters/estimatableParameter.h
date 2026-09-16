@@ -38,6 +38,7 @@ namespace estimatable_parameters
 enum EstimatebleParametersEnum {
     arc_wise_initial_body_state,
     initial_body_state,
+    constrained_initial_body_state,
     initial_rotational_body_state,
     initial_mass_state,
     gravitational_parameter,
@@ -740,6 +741,10 @@ bool isDynamicalParameterSingleArc(
             break;
         }
         case initial_body_state: {
+            flag = true;
+            break;
+        }
+        case constrained_initial_body_state: {
             flag = true;
             break;
         }

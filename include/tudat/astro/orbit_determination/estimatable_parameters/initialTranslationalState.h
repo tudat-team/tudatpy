@@ -31,12 +31,15 @@ public:
      * \param initialTranslationalState Current value of initial state (w.r.t. centralBody)
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
      * \param frameOrientation Orientation of the frame in which the state is defined.
+     * \param parameterType Enum identifying the type of this parameter, used by derived classes to identify themselves as a
+     * distinct parameter type (e.g. ConstrainedTranslationalStateParameter) while reusing this constructor.
      */
     InitialTranslationalStateParameter( const std::string& associatedBody,
                                         const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialTranslationalState,
                                         const std::string& centralBody = "SSB",
-                                        const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_body_state, associatedBody ),
+                                        const std::string& frameOrientation = "ECLIPJ2000",
+                                        const EstimatebleParametersEnum parameterType = initial_body_state ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( parameterType, associatedBody ),
         initialTranslationalState_( initialTranslationalState ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
     {}
 

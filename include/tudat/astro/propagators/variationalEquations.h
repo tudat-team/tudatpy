@@ -458,7 +458,9 @@ private:
         // Retrieve propagated bodies and central bodies of estimation.
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
-            if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+            if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
+                  estimatable_parameters::constrained_initial_body_state ) )
             {
                 propagatedBodies.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
                 centralBodies.push_back(

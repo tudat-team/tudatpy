@@ -244,6 +244,7 @@ createSingleLinkObservationPartials(
     {
         std::string acceleratedBody;
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+            initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::constrained_initial_body_state ||
             initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
