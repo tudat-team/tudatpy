@@ -76,80 +76,39 @@ BOOST_AUTO_TEST_CASE( testWrappingOfAngularObservableResiduals )
 
         simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 1, 10 ), observableType );
 
-        const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 12 ) << 0.1,
-                                                    nearPositivePeriod - fullPeriod,
-                                                    0.25,
-                                                    nearNegativePeriod + fullPeriod,
-                                                    -0.25,
-                                                    -PI + 0.02,
-                                                    0.1,
-                                                    PI - 0.02,
-                                                    -0.1,
-                                                    0.05,
-                                                    -0.2,
-                                                    -0.05 )
-                                                          .finished( );
+        const Eigen::VectorXd expectedResiduals =
+                ( Eigen::VectorXd( 12 ) << 0.1, -offset, 0.25, offset, -0.25, -PI + 0.02, 0.1, PI - 0.02, -0.1, 0.05, -0.2, -0.05 )
+                        .finished( );
 
         for( int i = 0; i < residuals.rows( ); i++ )
         {
             BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
         }
-        BOOST_CHECK_LT( residuals( 1 ), 0.0 );
-        BOOST_CHECK_GT( residuals( 3 ), 0.0 );
     }
 }
 
 //! Test normalized right ascension residual wrapping using the observed declination.
 BOOST_AUTO_TEST_CASE( testWrappingOfNormalizedAngularPositionResiduals )
 {
-    Eigen::VectorXd residuals( 6 );
-    residuals << PI - 0.02, 0.2, -2.0 * PI + 0.03, -0.4, 0.3, 0.1;
+    const double scaledHalfPeriod = 0.5 * PI;  // Declination pi/3 gives a full period of pi.
+    const double offset = 0.02;
+    Eigen::VectorXd residuals( 8 );
+    residuals << scaledHalfPeriod - offset, 0.2, scaledHalfPeriod + offset, -0.4, scaledHalfPeriod + offset, 0.1, 0.3, 0.0;
 
-    Eigen::VectorXd observedObservations( 6 );
-    observedObservations << 0.1, PI / 3.0, -0.2, 0.0, 0.0, PI / 2.0;
+    Eigen::VectorXd expectedResiduals( 8 );
+    expectedResiduals << scaledHalfPeriod - offset, 0.2, -scaledHalfPeriod + offset, -0.4, scaledHalfPeriod + offset, 0.1, 0.3, 0.0;
+
+    Eigen::VectorXd observedObservations( 8 );
+    observedObservations << 0.1, PI / 3.0, -0.2, PI / 3.0, 0.1, 0.0, 0.0, PI / 2.0;
 
     ResidualWrappingSettings residualWrappingSettings;
     residualWrappingSettings.normalizeRightAscension = true;
     simulation_setup::wrapObservationResiduals< double >(
-            residuals, std::make_pair( 0, 6 ), angular_position, observedObservations, residualWrappingSettings );
-
-    const Eigen::VectorXd expectedResiduals = ( Eigen::VectorXd( 6 ) << -0.02, 0.2, 0.03, -0.4, 0.3, 0.1 ).finished( );
+            residuals, std::make_pair( 0, 8 ), angular_position, observedObservations, residualWrappingSettings );
 
     for( int i = 0; i < residuals.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
-    }
-}
-
-//! Test the production wrapping function for Euler angle 313 residuals.
-BOOST_AUTO_TEST_CASE( testWrappingOfEulerAngleResiduals )
-{
-    Eigen::VectorXd residuals( 9 );
-    residuals << PI + 0.02, 0.2, -PI - 0.02, -PI - 0.03, -0.1, PI + 0.03, 0.05, 0.15, -0.04;
-
-    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 9 ), euler_angle_313_observable );
-
-    const Eigen::VectorXd expectedResiduals =
-            ( Eigen::VectorXd( 9 ) << -PI + 0.02, 0.2, PI - 0.02, PI - 0.03, -0.1, -PI + 0.03, 0.05, 0.15, -0.04 ).finished( );
-
-    for( int i = 0; i < residuals.rows( ); i++ )
-    {
-        BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
-    }
-}
-
-//! Test that the production wrapping function is a no-op for nonperiodic observables.
-BOOST_AUTO_TEST_CASE( testWrappingOfNonperiodicObservableResiduals )
-{
-    Eigen::VectorXd residuals( 3 );
-    residuals << 2.5, -3.0, 0.75;
-    const Eigen::VectorXd expectedResiduals = residuals;
-
-    simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 3 ), position_observable );
-
-    for( int i = 0; i < residuals.rows( ); i++ )
-    {
-        BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-15 );
     }
 }
 

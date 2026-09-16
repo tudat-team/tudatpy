@@ -1791,6 +1791,25 @@ std::vector< ResidualWrappingRange > getResidualWrappingRanges( const Observable
     return wrappingRanges;
 }
 
+const std::vector< int >& getResidualWrappingComponentIndices( const ObservableType observableType )
+{
+    static const std::vector< int > angularComponentIndices = { 0 };
+    static const std::vector< int > euler313ComponentIndices = { 0, 2 };
+    static const std::vector< int > noComponentIndices;
+
+    switch( observableType )
+    {
+        case angular_position:
+        case relative_angular_position:
+        case azimuth_elevation_angle:
+            return angularComponentIndices;
+        case euler_angle_313_observable:
+            return euler313ComponentIndices;
+        default:
+            return noComponentIndices;
+    }
+}
+
 //! Function retrieving link ends information for all interlinks for a given observable type and link ends
 std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks(
         const ObservableType observableType,

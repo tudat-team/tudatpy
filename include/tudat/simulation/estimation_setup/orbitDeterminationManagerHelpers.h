@@ -94,28 +94,14 @@ void wrapObservationResiduals(
     const int singleObservationSize = observation_models::getObservableSize( observableType );
     const int numberOfObservations = residualBlockSize / singleObservationSize;
 
-    // Determine which components are periodic and their wrapping ranges
-    // based on the observable type
-    std::vector< observation_models::ResidualWrappingRange > wrappingRanges;
-    if( observation_models::isResidualWrappingRequired( observableType ) )
-    {
-        wrappingRanges = observation_models::getResidualWrappingRanges( observableType );
-    }
-
-    std::vector< int > wrappedComponentIndices;
-    wrappedComponentIndices.reserve( wrappingRanges.size( ) );
-    for( int componentIndex = 0; componentIndex < singleObservationSize && componentIndex < static_cast< int >( wrappingRanges.size( ) );
-         componentIndex++ )
-    {
-        if( wrappingRanges[ componentIndex ].period( ) > 0.0 )
-        {
-            wrappedComponentIndices.push_back( componentIndex );
-        }
-    }
+    const std::vector< int >& wrappedComponentIndices = observation_models::getResidualWrappingComponentIndices( observableType );
     if( wrappedComponentIndices.empty( ) )
     {
         return;
     }
+
+    const std::vector< observation_models::ResidualWrappingRange > wrappingRanges =
+            observation_models::getResidualWrappingRanges( observableType );
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentResidualBlock =
             residuals.block( observableResidualStartAndSize.first, 0, residualBlockSize, 1 );
