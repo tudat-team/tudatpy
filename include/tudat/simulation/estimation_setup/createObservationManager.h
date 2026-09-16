@@ -453,6 +453,13 @@ void performTimeBiasPartialClosure(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > timeBiasPartial,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface )
 {
+    if( dependentVariablesInterface == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when setting time bias parameter closure: time-observation-bias partials require propagated "
+                "dependent-variable acceleration data and are not supported in observation-only estimation." );
+    }
+
     std::string bodyName = timeBiasPartial->getParameterName( ).second.first;
     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable =
             std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable,
