@@ -1,327 +1,79 @@
-# Position-Angle and Separation Observation Data Compatibility
-
-## Intermediate conclusion — 16 September 2026
-
-The literature supports the two additions implemented on this branch: a selectable celestial reference pole/frame and stellar aberration applied to each sight line. These must be independently selectable: an archived observation called **apparent** does not uniquely specify which reductions remain. A conditional future extension is a tangent-plane/projected-polar output convention for data that have not been reduced to spherical `P/S`. Atmospheric refraction is explicitly outside the present task and is ignored in the implementation and tests.
-
-This is an implementation conclusion from the papers reviewed below, not an exhaustive census of every NSDB record. I am confident that these cover the principal remaining direction/convention requirements in those papers. I am not claiming that implementing them makes every historical record uniquely interpretable. Missing reduction metadata remain a real limitation. Weighting and estimation strategy are outside this review.
-
-### Compilation and validation status
-
-- The Tudat Python kernel build completed and the new observation model was successfully exercised through `tudatpy.kernel`.
-- A focused C++ test now evaluates all 60 `pm0001` observations through `PositionAngleAndSeparationObservationModel` using independent light-time solutions for Pluto and Charon.
-- On 16 September 2026, `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6` completed successfully. Running the resulting executable completed all seven test cases with no errors; five real-data cases print both signed means and RMS values.
-- Exact self-generated residual regressions were removed. The tests now use broad `1/2/5 x 10^n`-style bounds grounded in published residual/uncertainty scales, plus separate checks on the expected scale of each frame or aberration correction. The reported numerical values remain available for diagnosis but are not treated as reference truth.
-- The verified Tudat C++ pre-fit residuals are **+0.536986 mas mean / 4.222797 mas RMS in separation** and **+2.048031 mas mean / 4.409502 mas RMS in the transverse position-angle direction**.
-- The selectable reference-pole/frame adaptation is now implemented locally. Its focused C++ target compiles and all four tests pass, including the original J2000 Pluto--Charon regression and the new true-of-date Mars-satellite test. The Python kernel also builds and all new enum values and ancillary factories import successfully.
-- The stellar-aberration adaptation is implemented locally and the focused real-data test passes. The shared correction is compiled in a `.cpp` file and is used by both the pre-existing pixel observable and the P/S observable. The P/S ancillary settings now select astrometric or aberrated directions independently of the reference pole, with astrometric retained as the default.
-
-## Current validation datasets
-
-The table distinguishes Tudat **pre-fit** residuals against a modern JPL
-ephemeris from literature values that are often **post-fit** and may use a
-selected subset.  `P` residuals are reported in the transverse angular form
-`rho * wrapped_delta(P)`, so they have the same angular units as separation.
-
-| Source | Published observable and Tudat model | Tudat separation mean / RMS | Tudat transverse P mean / RMS | Literature RMS or expected scale |
-|---|---|---:|---:|---|
-| [`pm0001`](https://nsdb.imcce.fr/obspos/OBS_COLL/P/pm0001.html), Tholen & Buie (1997), 60 HST Pluto--Charon observations | Native P/S; astrometric J2000; UTC inferred from MAST exposure times; Earth centre with verified <0.002 mas HST approximation | +0.537 / 4.223 mas | +2.048 / 4.410 mas | Source-file fitted residuals: 2.93 mas S, 2.70 mas P; later re-fit characterizes the old data at roughly 5 mas mean and 11 mas maximum. Expected pre-fit scale: 1--10 mas. |
-| [`mm0012`](https://nsdb.imcce.fr/obspos/OBS_COLL/M/mm0012.html), Jones et al. (1989), 166 Mars-satellite observations | Native P/S; astrometric IAU-1976/1980 true-of-date; JKT topocentre; UTC/UT1 | -0.0202 / 0.1834 arcsec | +0.0478 / 0.1527 arcsec | Paper states about 0.15 arcsec average accuracy; NSDB assigns 0.2 arcsec to both coordinates. |
-| [`um0027`](https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html), Tomita & Soma (1979), 156 Uranian-satellite observations | **Native P/S**; astrometric B1950; Tokyo-Okayama topocentre; ET | +0.0146 / 0.8628 arcsec | +0.0404 / 0.8066 arcsec | Jacobson (2014) post-fit retained subset: 0.443 arcsec S and 0.363 arcsec P. All-row pre-fit expectation: sub-arcsecond to about 1 arcsec. |
-| [`nm1007`](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.html), Veillet (1982) and Veillet & Bois (1988), 17 Nereid observations | Converted X/Y fallback; astrometric B1950; three terrestrial topocentres; UTC | -0.0460 / 0.1425 arcsec | +0.0801 / 0.2366 arcsec | Modern re-reduction coordinate RMS: 0.165--0.185 arcsec in X and 0.204--0.218 arcsec in Y. Expected P/S scale: about 0.1--0.3 arcsec. |
-| [Qiao et al. (1999), Table 4](https://aas.aanda.org/articles/aas/pdf/1999/10/ds7914.pdf), 41 Saturn-satellite observations | Native P/S; apparent/stellar-aberrated true-of-date; Sheshan topocentre; UTC; differential refraction already removed | -0.1008 / 0.2143 arcsec | +0.0319 / 0.0793 arcsec | Paper's satellite-dependent RMS is approximately 0.08--0.20 arcsec in separation and 0.069--0.105 arcsec in P. Expected combined pre-fit scale: about 0.05--0.25 arcsec. |
-
-All assertions use broad scale intervals derived from the final column.  The
-tests never assert the displayed current-output digits.
-
-### Simple J2000 geometry benchmark, with a photocentre caveat: IMCCE `pm0001`
-
-- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/P/pm0001.txt>
-- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/P/pm0001.html>
-- Reference: D. J. Tholen and M. W. Buie, *The Orbit of Charon. I. New Hubble Space Telescope Observations*, Icarus 125, 245–260 (1997).
-- Contents: 60 HST Pluto–Charon observations from 1992–1993.
-- Coordinates: directly observed separation and position angle.
-- Convention: astrometric, J2000, topocentric to HST. Although historical metadata describe a dynamical time convention, the numerical Julian dates in the distributed file match the archived HST exposure midpoints when interpreted as **UTC**, not TT/TDT.
-- The data file includes the fitted-orbit residuals published with the observations.
-
-This is a simple match to the current geometry, but calling it a proven **clean** validation set was too strong. The original paper specifies FK5 J2000 mean-equator orientation and centre-of-light image measurements; it discusses albedo-related centre offsets separately. I have not established that the archived values are fully centre-of-body corrected. The photocentre implementation on the other branch cannot be used here, so this limitation must remain explicit. See the original paper, especially pp. 248–249 and its Appendix, pp. 258–259. [Tholen & Buie (1997), author-hosted full paper](https://www.boulder.swri.edu/~buie/biblio/pub024.pdf).
-
-All 60 numerical epochs were matched one-to-one to 60 unique MAST HST exposures from proposals 3848 and 5020. The largest difference between an NSDB epoch and the corresponding exposure midpoint was 5.658 ms. Interpreting the NSDB value as TT instead would shift the 1992 epochs by 58.184 s and is therefore inconsistent with the exposure records.
-
-The compact SHF headers provide geocentric J2000 `POSTNST*` and `VELOCST*` HST states at their scheduled state epoch. Propagating those states linearly to the exposure midpoint and repeating the calculation showed that substituting Earth's centre changes the predicted separation by at most 0.001626 mas and the transverse position-angle component by at most 0.001043 mas. The RMS changes are 0.001016 mas and 0.000425 mas, respectively. Consequently, the C++ regression test deliberately uses Earth's centre and documents a conservative sub-0.002-mas approximation instead of embedding uncertain historical spacecraft states.
-
-The Tudat C++ calculation uses JPL PLU060, separate converged one-way light times, and J2000 astrometric directions. Over all 60 records it gives:
-
-- Separation: **+0.536986 milliarcseconds mean**, **4.222797 milliarcseconds RMS**.
-- Transverse position angle: **+2.048031 milliarcseconds mean**, **4.409502 milliarcseconds RMS**, expressed as `rho * wrapped_delta(P)`.
-- The residuals from the 1997 fitted orbit stored in the IMCCE file have RMS values of 2.93 and 2.70 milliarcseconds, respectively.
-- Omitting light time degrades the separation RMS to about 82 milliarcseconds and severely degrades position angle.
-
-The earlier 4.43/4.49-mas result was produced by incorrectly treating the NSDB Julian dates as TT. It is superseded by the UTC result above. The C++ test performs UTC-to-TDB conversion with SPICE's date-string conversion rather than applying uniform Julian-date arithmetic.
-
-To keep the test fixture small, a 604-KiB Type-9 SPK was sampled from PLU060 every three hours over the validation interval. At every receive epoch and both iterated transmit epochs in this dataset, it agrees with full PLU060 to better than 0.000082 m for Earth, 0.002571 m for Pluto, and 0.002388 m for Charon. Its SHA-256 digest is `846362f034e547fc9a7217929f985d1db045013e15a5bdc8a5e6646473642c16`.
-
-### Validation progress log
-
-- Test data added inside `tests/test_tudat/data.zip`: the original `pm0001.txt`, a provenance README, and `plu060_pm0001_subset.bsp`.
-- Focused build command: `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6`.
-- Test command: `build/tests/test_observation_models_PositionAngleAndSeparationObservationModel --log_level=test_suite`.
-- Result: the real-data case evaluates 60 records and lies within the independently expected 1--10 mas pre-fit scale.
-- Residual definitions: `separation_observed - separation_computed`; wrapped position-angle difference via `atan2(sin(delta), cos(delta))`; transverse residual `separation_observed * wrapped_delta_position_angle`.
-- No propagation, estimation, observation partials, relativistic angular deflection, photocentre correction, or catalogue reduction is used.
-
-### Ground-based extension set: IMCCE `mm0012`
-
-- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/M/mm0012.txt>
-- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/M/mm0012.html>
-- Reference: D. H. P. Jones, A. T. Sinclair, and I. P. Williams, *Secular acceleration of Phobos confirmed from positions obtained on La Palma*, MNRAS 237, 15P–19P (1989).
-- Contents: 166 Phobos/Deimos observations from the Jacobus Kapteyn Telescope on La Palma in 1988.
-- Coordinates: separation and position angle, with 0.2-arcsecond quoted noise.
-- Convention: astrometric, topocentric, true equator and equinox of date, UTC/UT1.
-- Reduction: marked as corrected for phase.
-
-This dataset exercises the new date-dependent position-angle pole. A pure frame rotation does not change separation; position angle requires a date-dependent pole or conversion of the observation into J2000. The implementation uses the observation reception epoch unless an explicit reference epoch is supplied and evaluates the IAU 1976/1980 precession-nutation matrix in TT. Only the pole is required: changing the equinox origin rotates axes about that pole and does not alter local celestial north/east.
-
-The receiver uses the Jacobus Kapteyn Telescope coordinates published by the Isaac Newton Group (28 deg 45 min 40.1 sec N, 17 deg 52 min 41.2 sec W, 2364 m) and Tudat's IAU-2006 GCRS/ITRS rotation with Earth-orientation data. The station position is formed on a WGS84 ellipsoid. At the roughly 0.2-arcsecond precision of these observations, uncertainty in the historical site realization is negligible.
-
-The validation uses a compact 824-KiB Type-9 SPK made from JPL Horizons geometric ICRF vectors over 1988-09-19 through 1988-10-02. Horizons identifies DE441 for Earth and MAR099 for Mars, Phobos, and Deimos. The state vectors are sampled every five minutes and interpolated at degree 15. Against fresh Horizons vectors at 288 independent half-grid epochs per body, the largest position difference is 1.19 m. The kernel SHA-256 is `a504982dfa91452a20e0babdf2f81245f0a8968d9715384a1b7115acc3d85c07`.
-
-All 166 accepted records are evaluated with their documented body ordering, UTC-to-TDB conversion, separate converged light times, and the JKT receiver. Current pre-fit residual values are:
-
-- Separation: **-0.020221890 arcsec mean**, **0.183369789 arcsec RMS**.
-- Transverse position angle with a deliberately incorrect J2000 pole: **+0.041777594 arcsec mean**, **0.150921158 arcsec RMS**.
-- Transverse position angle with the documented IAU-1976/1980 true-of-date pole: **+0.047758030 arcsec mean**, **0.152725650 arcsec RMS**.
-
-The true-of-date frame correction itself is about 6 milliarcseconds transverse, far below the individual 0.2-arcsecond uncertainties. It does not reduce this unweighted RMS because the series has a larger positive position-angle bias and its differential-refraction status is unknown. The test therefore compares against independently reproduced numerical results; it does **not** use "RMS becomes smaller" as a validity criterion. An independent Python calculation using ERFA `pnm80`, direct SPICE light-time iteration, and the same JPL vectors reproduced the sign and magnitude (Earth-centre approximation: 0.152827 arcsec true-of-date RMS and a -0.005981-arcsec mean transverse true-of-date-minus-J2000 correction).
-
-The frame is unambiguous in the NSDB metadata, but this is not an atmospheric-reduction benchmark. The original short paper describes calibration using star trails and a double star, but leaves a fuller reduction analysis to later work. Its text does not establish whether differential refraction was removed. Atmospheric refraction is intentionally ignored in the present work. [Jones, Sinclair & Williams (1989), original paper](https://articles.adsabs.harvard.edu/pdf/1989MNRAS.237P..15J).
-
-#### True-of-date implementation log
-
-- Added ancillary selectors for J2000, B1950, IAU-1976 mean-of-date, IAU-1976/1980 true-of-date, IAU-2006 mean-of-date, IAU-2006/2000A true-of-date, and a custom ICRF/J2000 pole.
-- Moved non-templated reference-pole evaluation into `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp` so future changes do not require recompiling every template consumer.
-- Preserved J2000 as the default and separation invariance under every pole choice.
-- Added equivalent Python enum and ancillary-settings factories.
-- Added `mm0012.txt`, its provenance documentation, and `mar099_de441_mm0012_subset.bsp` to `tests/test_tudat/data.zip`; archive integrity passes `unzip -t`.
-- Focused build command: `cmake --build build --target test_observation_models_PositionAngleAndSeparationObservationModel -j6`.
-- Focused test command: `build/tests/test_observation_models_PositionAngleAndSeparationObservationModel --log_level=test_suite`.
-- Python build command: `cmake --build build --target kernel -j6`; result: `kernel.so` linked successfully. A direct import check created every predefined-frame setting and a custom-pole setting.
-- The first build of the new test exposed two `std::make_pair` values inferred with `const char*`; they were changed to explicit `std::string` station names. The next build completed. The first test run rejected an invalid assumption that the correct frame must lower noisy pre-fit RMS; the independent calculation confirmed the implementation. The regression now checks the published residual scale and the independently expected frame-correction scale rather than exact current outputs.
-
-### Older native P/S B1950 extension: IMCCE `um0027`
-
-- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.txt>
-- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html>
-- Reference: Tomita & Soma, *Astrometric observations of satellites of Uranus*, Tokyo Astronomical Bulletin 261, 2977--2981 (1979).
-- Contents: 156 Ariel, Umbriel, Titania, and Oberon observations made at Tokyo-Okayama during 16 observing nights in 1964--1977.
-- Coordinates: native separation in arcseconds and position angle in degrees; no differential-coordinate conversion is used.
-- Convention: topocentric, astrometric, B1950, and ET.
-
-The receiver uses MPC code 371's parallax constants (longitude 133.5965 deg, `rho cos(phi') = 0.82433`, `rho sin(phi') = 0.56431`) with Tudat's IAU-2006 terrestrial rotation. The recorded calendar fields are interpreted directly on the uniform ephemeris-time axis. An independent screen also tried UTC and plus/minus half the listed exposure time. All alternatives change the roughly 0.8-arcsec RMS by only a few milliarcseconds, so there is no empirical basis for overriding the explicit ET metadata. TT/TDB realization differences are negligible at this precision.
-
-The test uses a compact Type-9 SPK generated from DE441/URA184 Horizons vectors on the 11 observing runs. It contains Earth, Uranus, Ariel, Umbriel, Titania, and Oberon relative to the solar-system barycentre. Independent hourly queries offset by two minutes from the five-minute source nodes agree within 0.113 km in position for every body.
-
-Tudat gives, over all 156 unfiltered NSDB records:
-
-- B1950 separation: **+0.014635 arcsec mean**, **0.862829 arcsec RMS**.
-- B1950 transverse position angle: **+0.040378 arcsec mean**, **0.806630 arcsec RMS**.
-- Deliberately incorrect J2000 transverse position angle: **0.819636 arcsec RMS**.
-- B1950-minus-J2000 transverse frame correction: **0.052010 arcsec RMS**, **0.119232 arcsec maximum**.
-
-Jacobson (2014), Table 3 reports post-fit RMS values of **0.443 arcsec in separation** for 123 retained observations and **0.363 arcsec transverse in position angle** for 95 retained observations from Tomita & Soma. The test intentionally runs all 156 NSDB rows without reproducing Jacobson's orbit fit or data rejection, so its larger pre-fit RMS is not unexpected; it remains in the same sub-arcsecond-to-arcsecond regime. [Jacobson (2014), official article PDF](https://iopscience.iop.org/article/10.1088/0004-6256/148/5/76/pdf).
-
-This is the primary old-data B1950 regression because it consists of actual published P/S. Its frame signal is real but smaller than the measurement RMS, so it is complemented—not replaced—by the high-signal converted-coordinate case below.
-
-### High-signal B1950 frame discriminator: IMCCE `nm1007`
-
-- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.txt>
-- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.html>
-- References: Veillet (1982) and Veillet & Bois (1988).
-- Contents: 17 Nereid positions relative to Neptune from Mauna Kea, McDonald, and La Silla in 1977--1984.
-- Coordinates: astrometric tangent-plane X/Y converted to spherical P/S in the test.
-- Convention: topocentric, B1950, UTC.
-
-This conversion is retained only as a secondary frame discriminator. I screened all 140 NSDB collection pages whose metadata mention separation, position angle, or distance. No native B1950 P/S series combines a comparable angular separation with sufficiently small scatter for the frame signal to exceed the residual RMS. The primary `um0027` test above remains native P/S.
-
-Using the MPC parallax constants for all three sites, Tudat gives:
-
-- B1950 separation: **-0.045967 arcsec mean**, **0.142511 arcsec RMS**.
-- B1950 transverse position angle: **+0.080069 arcsec mean**, **0.236574 arcsec RMS**.
-- Incorrect J2000 transverse position angle: **0.480950 arcsec RMS**.
-- B1950-minus-J2000 transverse frame correction: **0.336003 arcsec RMS**, **0.785556 arcsec maximum**.
-
-The correction is larger than the correctly framed residual RMS and changes only position angle, while separation agrees to floating-point precision. Modern orbit work reports approximately 0.17--0.22 arcsec coordinate RMS for the two contributing series, consistent with the 0.14--0.24 arcsec Tudat P/S residual scale. [Yuan et al. (2021), A&A paper](https://www.aanda.org/articles/aa/pdf/2021/10/aa40739-21.pdf).
-
-### Apparent-direction extension set: Qiao et al. (1999), Table 4
-
-- Paper and data table: <https://aas.aanda.org/articles/aas/pdf/1999/10/ds7914.pdf>
-- Reference: Qiao, Shen, Liu, and Harper, *1994-1996 CCD astrometric observations of Saturn's satellites and comparison with theories*, A&AS 137, 1-5 (1999), DOI 10.1051/aas:1999238.
-- Contents: 41 Enceladus/Tethys/Dione/Rhea positions relative to Titan on UTC JD 2450376, observed at Sheshan.
-- Convention: apparent topocentric polar coordinates. The paper explicitly says that differential refraction was removed and that stellar aberration and parallax were not removed.
-- Receiver: Sheshan at 31 deg 05 min 46.1 sec N, 121 deg 11 min 03.3 sec E, altitude 97 m, on WGS84 with Tudat's IAU-2006 GCRS/ITRS rotation.
-
-This is the unambiguous switch combination needed to validate the next adaptation: true-equator/equinox-of-date north, stellar aberration enabled, no forward optical-refraction correction, and a terrestrial topocentre. Titan is the first/reference line of sight and each listed satellite is the second line of sight, so the model position angle is that of the satellite relative to Titan.
-
-The test uses all 41 published rows and a compact 288-KiB Type-9 SPK generated from five-minute JPL Horizons vectors over 1996-10-18 through 1996-10-21. Horizons identifies DE441 for Earth and SAT441L for Enceladus, Tethys, Dione, Rhea, and Titan. Fresh off-grid Horizons states on the observing night agree at the sub-metre level. The kernel SHA-256 is `bac178e2dc038637e286a4c0f3f548dd34cf8992fee73352c604a24ffbc6c102`.
-
-The resulting Tudat pre-fit values are:
-
-- Astrometric separation: **-0.094469478 arcsec mean**, **0.211648598 arcsec RMS**.
-- Aberrated/apparent separation: **-0.100783261 arcsec mean**, **0.214326363 arcsec RMS**.
-- Astrometric transverse position angle: **+0.031546102 arcsec mean**, **0.079196664 arcsec RMS**.
-- Aberrated/apparent transverse position angle: **+0.031869600 arcsec mean**, **0.079340229 arcsec RMS**.
-- Differential stellar-aberration correction RMS: **0.006360342 arcsec** in separation and **0.000325864 arcsec** transverse in position angle; the corresponding maxima are **0.007612263 arcsec** and **0.000386417 arcsec**.
-
-The roughly 0.079-arcsecond transverse residual is consistent with the paper's reported approximately 0.08-arcsecond precision. The larger separation RMS contains systematic pre-fit offsets. Aberration is only several milliarcseconds in this close-pair observable and therefore does not have to reduce the unweighted RMS. The regression uses broad published-residual bounds and an independently calculated 5--20 mas separation-correction range rather than either exact current outputs or an unjustified “RMS improves” criterion.
-
-An independent SpiceyPy/ERFA calculation used direct iteration of each Titan/satellite light time, DE441/SAT441L state vectors, the IAU-1976/1980 `pnm80` pole, and the exact Lorentz aberration formula. With Earth's centre as the receiver it obtained maximum corrections of 0.007498 arcsec in separation and 0.000381 arcsec transverse in position angle, within 0.12 mas of the full Sheshan result. The remaining difference is consistent with the station position and diurnal velocity omitted from that independent calculation.
-
-#### Stellar-aberration implementation log
-
-- Added `PositionAngleDirectionType` with explicit `astrometric` and `aberrated` ancillary choices; existing callers remain astrometric by default.
-- Moved the pixel observable's existing aberration formula into the shared non-templated `stellarAberrationCorrection.cpp` implementation and reused it in P/S.
-- Applied the correction separately to both independently retarded lines of sight using the common receiver barycentric inertial velocity at reception. The validation environments use the required SSB global origin, so this includes annual and, for a ground station, diurnal velocity.
-- Added equivalent Python enum and ancillary-factory arguments.
-- Added `qiao1999_table4.txt`, provenance documentation, and `sat441_de441_qiao1999_subset.bsp` to `tests/test_tudat/data.zip`.
-- No propagation, estimation, observation partials, relativistic angular deflection, photocentre correction, catalogue reduction, weighting, or atmospheric refraction is used.
-
-### Refraction-on dataset audit: deferred for lack of a clean P/S regression
-
-After completing the aberration milestone, I rechecked the downloaded NSDB P/S metadata specifically for records marked as retaining differential refraction. NSDB distinguishes `Done`, `None`, and `Unknown` for differential-refraction correction in its current schema. The result is restrictive:
-
-- Every P/S collection explicitly labelled “not corrected” or “not excluded” is a visual/micrometer series from **1866–1922**. Examples include [`nm0028`](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm0028.html) (Triton, Halsted, 1883–1888), [`nm0034`](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm0034.html) (Triton, Lick, 1898–1902), and the Uranian series [`um0055`](https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0055.html) through `um0066` from Washington/Yerkes. Their metadata provides the site, telescope, apparent topocentric/date-frame convention, and observation time, but not observing wavelength or contemporaneous pressure, temperature, and humidity.
-- `mm0001` says “not corrected or no information”, which is explicitly ambiguous and therefore unusable for this validation gate.
-- The modern [Shen et al. (2002) Sheshan Uranus work](https://doi.org/10.1051/0004-6361:20020872) is physically informative but not a P/S validation dataset. It specifies a 900 nm filter and applies rigorous Woolard--Clemence refraction corrections (up to about 0.03 arcsec) during reduction, then deliberately publishes **raw pixel coordinates** so readers can redo the calibration. Testing those data would require the camera/plate calibration path that this task excludes.
-- Qiao et al. (1999), used for the aberration test above, explicitly removed differential refraction from its published P/S. It is a clean refraction-**off** case, not evidence for a forward refraction implementation.
-
-Consequently, atmospheric refraction is not implemented in this milestone. A standard-atmosphere assumption could produce a plausible correction for the historical data, but it would not be an unambiguous reproduction of the physical conditions under which the observations were made. Adding such a model and fixing its output as a regression value would test our assumption rather than the archived data. This deferral follows the agreed rule that each adaptation must first have a real P/S dataset whose convention and required model are explicitly documented.
-
-A suitable future case needs, at minimum, retained-refraction P/S, a known terrestrial site and time, wavelength or passband, and either measured meteorology or an explicit published standard-atmosphere prescription. If such a reference is supplied, the next implementation should bend both independently retarded apparent directions toward the local zenith before forming P/S; it must remain independent of the aberration and celestial-pole choices.
-
-### Large but heterogeneous set: IMCCE `sm0034`
-
-- Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/S/sm0034.txt>
-- Metadata: <https://nsdb.imcce.fr/obspos/OBS_COLL/S/sm0034.html>
-- Contents: 17,297 explicitly encoded astrometric position-angle/separation records within a much larger Saturn-satellite catalogue.
-- Limitations: the position-angle records are predominantly from 1874–1973, use equator/equinox of date, span many observatories, and include missing or unknown station information.
-
-This is useful as a later robustness set, not as the first implementation validation.
-
-## Forward-model audit against the literature and standards
-
-- **Spherical P/S geometry:** Tudat normalizes the two independently retarded
-  sight lines, evaluates separation with `atan2(|u1 x u2|, u1 dot u2)`, and
-  evaluates position angle with `atan2(u2 dot east, u2 dot north)`. This is the
-  exact great-circle geometry. It has the same north-through-east sign
-  convention used in the source papers and avoids the small-angle/tangent-plane
-  approximation unless a future dataset explicitly requires projected-polar
-  coordinates.
-- **Selectable celestial north:** For J2000 and B1950, the model expresses the
-  requested positive pole in J2000 and constructs local north/east at the first
-  sight line. For date-dependent frames it uses SOFA's IAU-1976/1980 or
-  IAU-2006/2000A precession-nutation matrix at the requested TT epoch. Only the
-  pole is needed for celestial position angle: changing the equinox origin is a
-  rotation about that pole and does not change local north. The old-data tests
-  independently verify that changing the pole leaves separation invariant.
-- **B1950 limitation and scale:** NAIF's built-in B1950-to-J2000 rotation supplies
-  the B1950 pole. A complete FK4-to-ICRS catalogue-coordinate transformation
-  also handles FK4 E-terms and is not a pure rotation. For a differential pair,
-  the position-dependent E-term gradient scales with the small angular
-  separation and is well below a milliarcsecond for the `um0027`/`nm1007`
-  geometries; it cannot explain their 0.1--1 arcsec residuals. The current pole
-  treatment is therefore appropriate for these P/S validations, but should not
-  be advertised as a general absolute FK4 catalogue transformation. [NAIF Frames Required Reading](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html).
-- **Stellar aberration:** The implementation applies the exact special-
-  relativistic aberration transform separately to each astrometric sight line,
-  using the common receiver barycentric inertial velocity at reception. The
-  tests use an SSB-centred global frame, so this includes annual velocity and,
-  for a terrestrial station, diurnal velocity.
-  Its sign and differential magnitude were reproduced independently with
-  SpiceyPy/ERFA. Qiao et al. explicitly state that their apparent topocentric
-  P/S retain stellar aberration while differential refraction was removed, so
-  their Table 4 is a direct real-data test of this switch.
-- **Timing and light time:** Both objects retain independent converged emission
-  times. The tests convert explicit UTC data through Tudat/SPICE and use direct
-  uniform ET for `um0027`. Testing UTC and plus/minus half-exposure alternatives
-  for `um0027` does not materially improve the result, so the implementation
-  follows the published ET convention instead of selecting a time scale by
-  residual minimization.
-- **Excluded physics:** Relativistic angular light deflection, photocentre/phase
-  correction, and star-catalogue reduction remain disabled here as required.
-  Atmospheric refraction is also fully excluded from this implementation and
-  test milestone. Datasets with unknown refraction reduction are used only when
-  the tested frame effect is separation-invariant or demonstrably much larger
-  than any plausible differential refraction contribution.
-
-## Conditional compatibility note
-
-Independent light times, arbitrary receiver link ends, high-accuracy terrestrial stations and Earth rotation, time-scale conversion, subject/reference ordering, units and component ordering, optional components, and residual wrapping are already available or are ingestion bookkeeping rather than new observation models.
-
-Relativistic angular light deflection, phase/photocentre correction, and star-catalogue astrometric reduction are implemented on other branches. They are therefore not additions to make here and cannot be enabled in the present baseline validation test. Their absence must still be respected when selecting data and interpreting residuals.
-
-Atmospheric refraction is not a remaining action for this work: it is fully excluded by instruction. The older datasets with unknown reduction status are not used to infer or validate a refraction model.
-
-### Conditional extension: projected-polar observation geometry
-
-- **When needed:** Only when published `P/S` still represents calibrated focal-plane distances/orientations rather than great-circle separation and celestial position angle. The fact that an observation originated on a CCD is not sufficient evidence that this option is needed.
-- **Confidence:** High that the geometries differ; medium that this is necessary for any particular archived polar series until its reduction is checked.
-- **Current Tudat support:** The existing `P/S` helper already computes exact spherical geometry. Tudat also has pixel-coordinate projection machinery, but there is no selectable projected-polar representation in this `P/S` model.
-- **Estimated size:** Approximately 100–250 production lines plus 100–200 integration/test lines if existing projection utilities are reusable. Instrument-specific distortion/re-reduction is excluded.
-- **Geometric model:** Project both directions onto a specified tangent plane, then form their plane-coordinate difference and its angle/length using the documented calibration convention. This needs the optical centre and orientation. It is not an extra spherical-curvature correction to the current exact `P/S` formula. Undocumented plate geometry cannot be reconstructed uniquely.
-
-## Literature: what the forward models actually use
-
-- **Desmars, Vienne & Arlot (2009), COSS08, A&A 493, 1183–1195, Sections 3.3–3.7.** Their Saturn catalogue treats refraction and aberration separately and documents whether each is removed, retained, or only presumed corrected. For unremoved optical refraction they use a Laplace model with atmosphere- and wavelength-dependent coefficients, noting loss of accuracy at large zenith distance. They also warn that some published differential coordinates are actually tangent-plane coordinates and that the optical centre is often unavailable. Their historical default assumptions about missing correction information are not definitive evidence of how an individual series was reduced. **Implication:** independent correction options and explicit unknown metadata are necessary; a generic `apparent` label is insufficient. [Full paper, HAL](https://hal.science/hal-00588233/document). The catalogue schema also records B1950, true-of-date, J2000, and historical year-start mean frames. [CDS COSS08 format](https://cdsarc.cds.unistra.fr/viz-bin/ReadMe/J/A%2BA/493/1183?format=html&tex=true).
-
-- **Yuan et al. (2021), Neptunian-satellite catalogue, A&A 645, A48, Sections 3.3.2, 3.5.1 and 3.6.** They explicitly convert observed position angles between celestial reference systems using the angle between the two local north directions; separation is unchanged under this frame rotation. Their catalogue independently records whether aberration and refraction are included. True-of-date conversion uses precession, nutation and frame bias. Their discussion of FK4 absolute coordinates is more involved than a pole rotation and should not be indiscriminately transferred to every historical position angle. **Implication:** a selectable north/frame has direct precedent in processing archived `P/S`; it is not merely a hypothetical feature. [Full original paper, author-uploaded copy](https://www.researchgate.net/publication/348331406_New_precise_positions_in_2013-2019_and_a_catalog_of_ground-based_astrometric_observations_of_11_Neptunian_satellites_1847-2019_based_on_Gaia-DR2).
-
-- **Qiao, Shen, Liu & Harper (1999), 1994–1996 Saturn CCD observations, A&AS 137, 1–5, Sections 3.3–4.** They form polar coordinates from measured image-coordinate differences using a calibrated scale and orientation. Crucially, their published `P/S` are **apparent topocentric coordinates with differential refraction removed, but stellar aberration retained**. Their computed positions include aberration. The refraction contribution is reported as at most about 20 mas for their observing geometry. **Implication:** there are real polar datasets requiring aberration on and refraction off. Their image-plane definition also motivates checking projected versus spherical polar geometry before assuming an exact match. [Full original paper, author-uploaded copy](https://www.researchgate.net/publication/45678823_1994-1996_CCD_astrometric_observations_of_Saturn%27s_satellites_and_comparison_with_theories).
-
-- **Shen et al. (2002), 1995–1997 Uranian-satellite astrometry, A&A 391, 775–779, Section 3 and appendix.** Their calibration comparison includes aberration and differential refraction in both separation and position angle, with refraction effects reaching approximately 30 mas. They neglect projection nonlinearity after estimating it below approximately 5 mas for their small field. They also publish uncorrected raw pixel positions, which must not be confused with the corrected quantities used during calibration. **Implication:** optical bending affects both polar components, and the published representation—not just the corrections mentioned in a paper—determines the required forward model. [Full original paper, author-uploaded copy](https://www.researchgate.net/publication/252987841_Astrometry_of_five_major_Uranian_satellites_in_1995-1997).
-
-- **Morgado et al. (2016), Galilean mutual approximations, MNRAS 460, 4086–4097, Sections 3–4.** Their detector-distance prediction uses corrected directions and gnomonic projection, including optical refraction and aberration. This is related separation-based astrometry, **not a direct fit of the archived `P/S` observable**, so it supports the direction/projection pipeline but does not justify adding a new timing observable to this task. [Full paper, arXiv](https://arxiv.org/abs/1605.06573).
-
-- **Tholen & Buie (1997), Pluto–Charon HST observations, Appendix.** They predict a retarded relative orbit projected into a north/east sky plane with J2000 orientation. The historical calculation uses a common barycentric light-time epoch and small-angle projection; our independent two-ray calculation uses more exact geometry. These are not grounds for removing Tudat's existing independent light times. More importantly, the image extraction measures centres of light, which is why `pm0001` is not yet certified as a clean centre-of-body test. [Original paper](https://www.boulder.swri.edu/~buie/biblio/pub024.pdf).
-
-### Synthesis for implementation
-
-The recurring practice is to predict the same angular quantity that the observer published, applying only effects still present in those data. There is no universal combination of date frame and aberration state that represents all natural-satellite `P/S`.
-
-My proposed structure is:
-
-1. Retain the existing two independent retarded sight lines and receiver state.
-2. Apply the selected stellar-aberration transform separately to both sight lines.
-3. Define north/east in the requested celestial frame and compute spherical `P/S`; alternatively, use explicitly documented projected-polar geometry.
-
-These are direction transformations and an output-frame/geometry choice, not new receiver, station, time-scale or light-time models. Analytical partials must eventually follow the same transformations. The implemented tests check frame invariance of separation, the sign and scale of the position-angle frame change, and aberration against an independent calculation.
-
-## Recommended implementation order
-
-1. **Completed:** run `pm0001` through Tudat itself as an astrometric J2000 geometry benchmark, retaining the photocentre caveat and quantifying the HST-receiver approximation.
-2. **Completed:** add explicit ancillary settings for the celestial reference frame, retaining astrometric J2000 as the default, and validate true-equator/equinox-of-date against all 166 `mm0012` observations from the high-accuracy JKT receiver.
-3. **Completed in `66049da80`:** factor stellar aberration into a shared angular-direction correction, add an explicit astrometric/aberrated-direction option, and validate it against all 41 documented apparent topocentric measurements in Qiao et al. (1999), Table 4.
-4. **Completed in `6c7c97ddc`:** replace exact-output assertions with literature-scale bounds and extend B1950 validation to the native `um0027` P/S series plus the high-signal `nm1007` frame discriminator.
-
-Integration of the separately implemented angular light-deflection, photocentre, and star-catalogue-reduction capabilities is explicitly outside this branch and baseline test. Assess projected-polar support against a specifically documented dataset before implementing it.
-
-## Important limitation
-
-The aim can be full support for all sufficiently documented observations, but not automatic faithful processing of every record in the archive. Records with unknown stations, ambiguous time scales, arbitrary plate origins, or undocumented apparent-place reductions do not contain enough information for a unique modern observation model.
-
-## Local handoff and continuation
-
-- **Worktree:** `/home/dominic/Tudat/tudat-monorepo/tudatpy`
-- **Branch:** `feature/position-angle-and-separation-observation-model-and-partials`
-- **Baseline before this validation:** `f76b40736` — `Checkpoint before natural-satellite observation validation`.
-- **Earlier work:** `40af0d1c3` consolidated the models; `3b0daf3bb` merged PR #857 residual wrapping into PR #860's branch.
-- **Local milestone content:** the selectable-frame and stellar-aberration implementations and bindings, five real-data C++ validation cases, the 13 files in the P/S section of `tests/test_tudat/data.zip`, and this report. Preserve the unrelated dirty `examples/tudatpy` submodule and other pre-existing untracked files. Nothing has been pushed.
-- **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp`; `include/tudat/astro/observation_models/stellarAberrationCorrection.h`; `src/tudat/astro/observation_models/stellarAberrationCorrection.cpp`; `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h`; and `src/tudatpy/estimation/observations_setup/ancillary_settings/expose_ancillary_settings.cpp`.
-- **Build:** No build remains active. The focused P/S target and Python kernel built successfully with `-j6`; all seven focused test cases pass. The existing pixel-coordinate and PSF/pixel stellar-aberration tests also pass after the shared-code refactor. The Python import check verified the astrometric default and both aberrated factory paths. The formatter hook, `git diff --check`, and complete `unzip -t tests/test_tudat/data.zip` check pass. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
-- **Temporary research inputs:** `/tmp/ps-literature/` contains downloaded papers and extracted text; `/tmp/tudatpy-hst-validation/` contains retrieved HST header products; `/tmp/tudatpy-pm0001-subset-20260915-a/` contains the Pluto compact-SPK inputs; `/tmp/tudatpy-saturn-aberration/` contains the Qiao/SAT441L generation and independent-validation scripts; `/tmp/tudatpy-position-angle-validation/` contains the NSDB census, compact-kernel generation, time-scale screening, and independent residual scripts for `um0027` and `nm1007`. Temporary paths may disappear after reboot; permanent sources and the required regression fixtures are recorded in the repository data archive.
-- **Outstanding work:** none for the clean frame and aberration adaptations that can currently be validated. Atmospheric refraction is intentionally excluded, not deferred as part of this task. No stellar-aberration implementation or validation work remains for this milestone.
-
-The command below resumes this specific saved conversation and supplies this worktree as its working directory. Its syntax was checked using the OpenAI Docs skill against the [official CLI command documentation](https://learn.chatgpt.com/docs/developer-commands?surface=cli) and the installed `codex resume --help`. It does not build, commit or push anything by itself. Run it later, after leaving the current session:
-
-```bash
-codex resume -C /home/dominic/Tudat/tudat-monorepo/tudatpy 01a0a586-412e-78c1-91a9-c499b297bc91
-```
+# Position-angle and separation: information to retain
+
+This note identifies the documentation, validation references, and future work
+to retain from the position-angle and angular-separation development work.
+
+## Documentation with literature references
+
+The [P/S model docstring](src/tudatpy/estimation/observable_models_setup/model_settings/expose_model_settings.cpp)
+already defines the spherical observables, separate light-time solutions, reference
+pole, and astrometric or stellar-aberrated directions. Add a short explanation
+of why frame, aberration, and refraction conventions must be considered
+separately: an archived observation labelled *apparent* does not uniquely state
+which reductions remain. [Desmars et al. (2009)](https://doi.org/10.1051/0004-6361:200810203)
+discuss the separate reduction metadata; [Qiao et al. (1999)](https://doi.org/10.1051/aas:1999238)
+publish apparent P/S with differential refraction removed but stellar
+aberration retained.
+
+Cite [Yuan et al. (2021)](https://doi.org/10.1051/0004-6361/202038776)
+for converting position angle between celestial reference systems by changing
+local north while leaving angular separation unchanged. State that Tudat's
+`aberrated` option applies stellar aberration, not every possible apparent-place
+reduction. The current P/S formula gives spherical separation and position
+angle; calibrated image-plane polar coordinates may require a different
+projection. The B1950 pole choice should not be presented as a complete FK4
+catalogue-coordinate transformation; see the [NAIF Frames Required Reading](https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html).
+
+The explicit API lists in
+[`model_settings.rst`](docs/tudatpy/source/estimation/observable_models_setup/model_settings.rst)
+and [`ancillary_settings.rst`](docs/tudatpy/source/estimation/observations_setup/ancillary_settings.rst)
+still need the P/S functions and ancillary choices, respectively.
+
+## Publication references in validation tests
+
+Keep each publication and the specific observation convention beside the
+corresponding decoding or assertion in
+[`unitTestPositionAngleAndSeparationObservationModel.cpp`](tests/test_tudat/src/astro/observation_models/unitTestPositionAngleAndSeparationObservationModel.cpp).
+The fixture README inside `tests/test_tudat/data.zip` records source files,
+compact-kernel provenance, and receiver approximations. Published post-fit
+residuals supply broad comparison scales; they are not exact targets for
+Tudat's unfit, unfiltered pre-fit residuals.
+
+| Dataset | References and facts to retain |
+| --- | --- |
+| `pm0001` | [Tholen & Buie (1997)](https://www.boulder.swri.edu/~buie/biblio/pub024.pdf) and the [NSDB record](https://nsdb.imcce.fr/obspos/OBS_COLL/P/pm0001.html): J2000 P/S, the centre-of-light caveat, the UTC interpretation checked against MAST exposure midpoints, and the quantified Earth-centre approximation. |
+| `mm0012` | [Jones et al. (1989)](https://doi.org/10.1093/mnras/237.1.15P) and [NSDB](https://nsdb.imcce.fr/obspos/OBS_COLL/M/mm0012.html): true-of-date convention and published accuracy; differential-refraction reduction remains undocumented. |
+| `um0027` | Tomita & Soma (1979), [NSDB](https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0027.html), and [Jacobson (2014), Table 3](https://doi.org/10.1088/0004-6256/148/5/76): native B1950 P/S and ET; Jacobson's selected post-fit sample supplies a scale, not the expected pre-fit residuals for all rows. |
+| `nm1007` | Veillet (1982), Veillet & Bois (1988), [NSDB](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm1007.html), and [Yuan et al. (2021)](https://doi.org/10.1051/0004-6361/202038776): X/Y converted to P/S as a secondary B1950 frame check, with unknown atmospheric-reduction status. |
+| Qiao Table 4 | [Qiao et al. (1999)](https://doi.org/10.1051/aas:1999238): identify the table, Titan as the reference, retained stellar aberration, removed differential refraction, and the published residual scale. |
+
+The test comments already include many author-year references. Add stable
+publication links or DOIs and keep the distinction between published post-fit
+results and Tudat pre-fit checks explicit.
+
+## Open points for a future issue
+
+1. **Aberrated P/S estimation partials.** The current
+   [`positionAngleAndSeparationPartial.h`](include/tudat/astro/orbit_determination/observation_partials/positionAngleAndSeparationPartial.h)
+   forms Jacobians from geometric sight lines without differentiating the
+   stellar-aberration transformation. Add the required derivatives and numerical
+   partial checks before relying on aberrated P/S for estimation.
+2. **RA/Dec conventions.** Extend angular and relative angular position
+   observables to selectable date frames and astrometric or aberrated directions.
+   A custom RA/Dec frame needs both a pole and an RA origin.
+3. **Projected P/S, conditionally.** Support calibrated tangent-plane polar
+   measurements when a dataset documents its optical centre, orientation, and
+   published coordinate definition. Keep spherical P/S as the default.
+4. **Composition with other reductions.** Assess existing light-deflection,
+   photocentre/phase, and star-catalogue correction work together with P/S,
+   including which effects remain in each dataset.
+5. **Atmospheric refraction, conditionally.** This is outside the present PR.
+   Revisit it only with retained-refraction P/S, a known site and time, a
+   passband, and measured meteorology or a published atmosphere prescription.
+6. **Heterogeneous archival records.** Later use collections such as `sm0034`
+   to check handling of missing stations, ambiguous timescales, and unknown
+   reductions. Such records cannot always be modelled uniquely.
+
+Build history, temporary paths, commit IDs, handoff instructions, and exact
+current pre-fit digits do not need to be retained. Validation assertions should
+continue to use independently justified ranges.

@@ -107,8 +107,10 @@ void expose_ancillary_settings_types( py::module& m )
                                                    R"doc(
         Enumeration of celestial reference frames whose north pole can define a position-angle observable.
 
-        The mean- and true-of-date choices are explicit about their IAU precession/nutation convention. A reference epoch supplied to
-        :func:`position_angle_ancillary_settings` overrides the observation epoch for these time-dependent frames.
+        The mean- and true-of-date choices specify the IAU precession/nutation convention.
+        For these choices, ``reference_epoch`` in :func:`position_angle_ancillary_settings`
+        fixes the pole at that date; otherwise the pole uses each observation's reception epoch.
+        The observation epochs are unchanged.
         )doc" )
             .value( "j2000", tom::PositionAngleReferenceFrame::j2000_position_angle_reference_frame )
             .value( "b1950", tom::PositionAngleReferenceFrame::b1950_position_angle_reference_frame )
@@ -408,7 +410,8 @@ void expose_ancillary_settings( py::module& m )
  reference_frame : PositionAngleReferenceFrame, default = j2000
      Celestial reference-frame convention for the position angle.
  reference_epoch : float, optional
-     TDB seconds since J2000 at which to evaluate a mean- or true-of-date frame. If omitted, each observation's reception epoch is used.
+     TDB seconds since J2000 used to fix a mean- or true-of-date pole at one date.
+     If omitted, the pole uses each observation's reception epoch. Ignored for fixed frames.
  direction_type : PositionAngleDirectionType, default = astrometric
      Selects astrometric directions or apparent directions including stellar aberration from the receiver's inertial velocity.
 
