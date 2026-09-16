@@ -64,14 +64,10 @@ public:
     //! Function to retrieve residual wrapping settings for the model with the specified link ends.
     /*!
      * Function to retrieve residual wrapping settings for the model with the specified link ends.
-     * The base implementation returns the default settings.
      * \param linkEnds Link ends identifying the observation model.
      * \return Residual wrapping settings for the observation model.
      */
-    virtual ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& )
-    {
-        return ResidualWrappingSettings( );
-    }
+    virtual ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& linkEnds ) = 0;
 
     virtual void computeObservations( const std::vector< TimeType >& times,
                                       const LinkEnds linkEnds,

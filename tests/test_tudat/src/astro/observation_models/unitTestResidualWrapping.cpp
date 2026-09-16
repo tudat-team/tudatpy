@@ -10,6 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -152,6 +153,31 @@ BOOST_AUTO_TEST_CASE( testWrappingOfAngularObservableResiduals )
         {
             BOOST_CHECK_SMALL( residuals( i ) - expectedResiduals( i ), 1.0e-14 );
         }
+    }
+}
+
+//! Test residuals just inside the positive and negative full-period boundaries.
+BOOST_AUTO_TEST_CASE( testWrappingOfResidualsNearFullPeriod )
+{
+    const double fullPeriod = 2.0 * PI;
+    const double offset = 10.0 * std::numeric_limits< double >::epsilon( );
+    const double nearPositivePeriod = fullPeriod - offset;
+    const double nearNegativePeriod = -fullPeriod + offset;
+    const std::vector< ObservableType > observableTypes = { angular_position, relative_angular_position, azimuth_elevation_angle };
+
+    for( const ObservableType observableType : observableTypes )
+    {
+        Eigen::VectorXd residuals( 4 );
+        residuals << nearPositivePeriod, 0.25 * PI, nearNegativePeriod, -0.25 * PI;
+
+        simulation_setup::wrapObservationResiduals< double >( residuals, std::make_pair( 0, 4 ), observableType );
+
+        BOOST_CHECK_LT( residuals( 0 ), 0.0 );
+        BOOST_CHECK_GT( residuals( 2 ), 0.0 );
+        BOOST_CHECK_SMALL( residuals( 0 ) - ( nearPositivePeriod - fullPeriod ), offset );
+        BOOST_CHECK_SMALL( residuals( 2 ) - ( nearNegativePeriod + fullPeriod ), offset );
+        BOOST_CHECK_EQUAL( residuals( 1 ), 0.25 * PI );
+        BOOST_CHECK_EQUAL( residuals( 3 ), -0.25 * PI );
     }
 }
 

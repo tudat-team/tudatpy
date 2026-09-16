@@ -756,6 +756,11 @@ void computeResidualsAndDependentVariables(
     // Wrap periodic observable residuals for each observation set.
     for( auto observableIt : observationCollection->getObservationsSets( ) )
     {
+        if( !observation_models::isResidualWrappingRequired( observableIt.first ) )
+        {
+            continue;
+        }
+
         for( auto linkEndsIt : observableIt.second )
         {
             const observation_models::ResidualWrappingSettings residualWrappingSettings =
