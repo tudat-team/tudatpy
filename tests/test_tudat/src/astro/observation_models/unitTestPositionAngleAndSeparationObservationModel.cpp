@@ -823,6 +823,8 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     double aberratedSeparationResidualSum = 0.0;
     double astrometricTransversePositionAngleResidualSum = 0.0;
     double aberratedTransversePositionAngleResidualSum = 0.0;
+    double squaredSeparationAberrationCorrectionSum = 0.0;
+    double squaredTransversePositionAngleAberrationCorrectionSum = 0.0;
     double maximumSeparationAberrationCorrection = 0.0;
     double maximumTransversePositionAngleAberrationCorrection = 0.0;
     for( Eigen::Index observationIndex = 0; observationIndex < observations.rows( ); observationIndex++ )
@@ -860,14 +862,18 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
         aberratedSeparationResidualSum += observedSeparation - aberratedComputedObservation( 1 );
         astrometricTransversePositionAngleResidualSum += observedSeparation * astrometricPositionAngleResidual;
         aberratedTransversePositionAngleResidualSum += observedSeparation * aberratedPositionAngleResidual;
+        const double separationAberrationCorrection = aberratedComputedObservation( 1 ) - astrometricComputedObservation( 1 );
+        squaredSeparationAberrationCorrectionSum += separationAberrationCorrection * separationAberrationCorrection;
         maximumSeparationAberrationCorrection =
-                std::max( maximumSeparationAberrationCorrection,
-                          std::abs( aberratedComputedObservation( 1 ) - astrometricComputedObservation( 1 ) ) );
+                std::max( maximumSeparationAberrationCorrection, std::abs( separationAberrationCorrection ) );
         const double positionAngleAberrationCorrection =
                 std::atan2( std::sin( aberratedComputedObservation( 0 ) - astrometricComputedObservation( 0 ) ),
                             std::cos( aberratedComputedObservation( 0 ) - astrometricComputedObservation( 0 ) ) );
-        maximumTransversePositionAngleAberrationCorrection = std::max( maximumTransversePositionAngleAberrationCorrection,
-                                                                       std::abs( observedSeparation * positionAngleAberrationCorrection ) );
+        const double transversePositionAngleAberrationCorrection = observedSeparation * positionAngleAberrationCorrection;
+        squaredTransversePositionAngleAberrationCorrectionSum +=
+                transversePositionAngleAberrationCorrection * transversePositionAngleAberrationCorrection;
+        maximumTransversePositionAngleAberrationCorrection =
+                std::max( maximumTransversePositionAngleAberrationCorrection, std::abs( transversePositionAngleAberrationCorrection ) );
     }
 
     const double radiansToArcseconds = 180.0 / mathematical_constants::PI * 3600.0;
@@ -886,6 +892,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
             astrometricTransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
     const double aberratedTransversePositionAngleResidualMean =
             aberratedTransversePositionAngleResidualSum / numberOfObservations * radiansToArcseconds;
+    const double separationAberrationCorrectionRms =
+            std::sqrt( squaredSeparationAberrationCorrectionSum / numberOfObservations ) * radiansToArcseconds;
+    const double transversePositionAngleAberrationCorrectionRms =
+            std::sqrt( squaredTransversePositionAngleAberrationCorrectionSum / numberOfObservations ) * radiansToArcseconds;
 
     BOOST_TEST_MESSAGE( "Qiao 1999 astrometric separation mean [arcsec]: " << std::setprecision( 15 )
                                                                            << astrometricSeparationResidualMean );
@@ -896,6 +906,8 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     BOOST_TEST_MESSAGE( "Qiao 1999 astrometric transverse PA RMS [arcsec]: " << astrometricTransversePositionAngleResidualRms );
     BOOST_TEST_MESSAGE( "Qiao 1999 aberrated transverse PA mean [arcsec]: " << aberratedTransversePositionAngleResidualMean );
     BOOST_TEST_MESSAGE( "Qiao 1999 aberrated transverse PA RMS [arcsec]: " << aberratedTransversePositionAngleResidualRms );
+    BOOST_TEST_MESSAGE( "Separation aberration correction RMS [arcsec]: " << separationAberrationCorrectionRms );
+    BOOST_TEST_MESSAGE( "Transverse PA aberration correction RMS [arcsec]: " << transversePositionAngleAberrationCorrectionRms );
     BOOST_TEST_MESSAGE( "Maximum separation aberration correction [arcsec]: " << maximumSeparationAberrationCorrection *
                                 radiansToArcseconds );
     BOOST_TEST_MESSAGE( "Maximum transverse PA aberration correction [arcsec]: " << maximumTransversePositionAngleAberrationCorrection *
@@ -911,6 +923,10 @@ BOOST_AUTO_TEST_CASE( testSaturnSatelliteApparentDirectionPrefitResiduals )
     BOOST_CHECK_LT( aberratedSeparationResidualRms, 5.0e-1 );
     BOOST_CHECK_GT( aberratedTransversePositionAngleResidualRms, 5.0e-2 );
     BOOST_CHECK_LT( aberratedTransversePositionAngleResidualRms, 2.0e-1 );
+    BOOST_CHECK_GT( separationAberrationCorrectionRms, 2.0e-3 );
+    BOOST_CHECK_LT( separationAberrationCorrectionRms, 1.0e-2 );
+    BOOST_CHECK_GT( transversePositionAngleAberrationCorrectionRms, 1.0e-4 );
+    BOOST_CHECK_LT( transversePositionAngleAberrationCorrectionRms, 1.0e-3 );
     BOOST_CHECK_GT( maximumSeparationAberrationCorrection * radiansToArcseconds, 5.0e-3 );
     BOOST_CHECK_LT( maximumSeparationAberrationCorrection * radiansToArcseconds, 2.0e-2 );
     BOOST_CHECK_GT( maximumTransversePositionAngleAberrationCorrection * radiansToArcseconds, 1.0e-4 );
