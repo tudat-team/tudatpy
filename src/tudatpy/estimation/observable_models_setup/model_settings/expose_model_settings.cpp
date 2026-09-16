@@ -1732,13 +1732,8 @@ Returns
 Function for creating settings for a position angle observable.
 
 Function for creating observation model settings of position angle type observables.
-It returns the position-angle component :math:`\theta` of
+It models the position-angle component :math:`\theta` of
 :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`.
-That function defines the light-time-corrected geometry, mathematical formula, singularities, and ancillary settings.
-The angle is measured from the selected celestial north pole through east at the first transmitter's line of sight,
-towards the second transmitter, with principal value in :math:`[-\pi,\pi]`.
-The ancillary reference frame (and optional custom pole or reference epoch) changes this north direction and therefore
-changes :math:`\theta`; the direction type selects astrometric or stellar-aberrated lines of sight.
 
 Parameters
 ----------
@@ -1775,9 +1770,7 @@ Function for creating settings for an angular separation-distance observable.
 Function for creating observation model settings of angular separation-distance type observables.
 It returns the angular-separation component :math:`\rho` of
 :func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`.
-That function defines the light-time-corrected geometry, mathematical formula, singularities, and ancillary settings.
-Changing the position-angle reference frame, pole, or reference epoch does not change :math:`\rho`;
-selecting stellar-aberrated rather than astrometric directions can change it.
+Note that changing the position-angle reference frame, pole, or reference epoch does not change :math:`\rho`.
 
 Parameters
 ----------
@@ -1823,9 +1816,19 @@ evaluated at those respective epochs, define
     \mathbf{q}_i &= \mathbf{r}_i(t_i)-\mathbf{r}_R(t_R), \\
     \mathbf{u}_i &= \mathbf{q}_i/\|\mathbf{q}_i\|, \qquad i\in\{1,2\}.
 
-By default these are astrometric directions. If stellar aberration is selected, each :math:`\mathbf{u}_i` is first
-transformed using the inertial velocity of the receiver at :math:`t_R`; the equations below then use those apparent
-unit directions. Let :math:`\mathbf{n}` be the selected unit celestial north pole in the same frame as the states,
+By default these are astrometric directions. If stellar aberration is selected (through ancillary settings, see below), each :math:`\mathbf{u}_i` is first
+transformed using the inertial velocity of the receiver at :math:`t_R`as follows.
+Writing :math:`\boldsymbol{\beta}_R=\mathbf{v}_R(t_R)/c`, with :math:`c` the speed of light:
+
+.. math::
+    a_i &= -\mathbf{u}_i\cdot\boldsymbol{\beta}_R
+           +\sqrt{1-\|\boldsymbol{\beta}_R\|^2
+                  +(\mathbf{u}_i\cdot\boldsymbol{\beta}_R)^2}, \\
+    \mathbf{u}_i &\longrightarrow
+        \frac{a_i\mathbf{u}_i+\boldsymbol{\beta}_R}
+             {\|a_i\mathbf{u}_i+\boldsymbol{\beta}_R\|}.
+
+Let :math:`\mathbf{n}` be the selected unit celestial north pole (default ICRF, can be modified through ancillary settings, see below) in the same frame as the states,
 and define local east and north at the first transmitter's line of sight by
 
 .. math::
@@ -1833,7 +1836,7 @@ and define local east and north at the first transmitter's line of sight by
     \mathbf{e} &= \frac{\mathbf{n}\times\mathbf{u}_1}{\|\mathbf{n}\times\mathbf{u}_1\|}, \\
     \mathbf{m} &= \mathbf{u}_1\times\mathbf{e}.
 
-The unbiased observables, in radians, are
+The unbiased observables, in radians, are then:
 
 .. math::
 
@@ -1841,12 +1844,10 @@ The unbiased observables, in radians, are
     \rho &= \operatorname{atan2}(\|\mathbf{u}_1\times\mathbf{u}_2\|,\mathbf{u}_1\cdot\mathbf{u}_2).
 
 :math:`\theta` is measured from north through east and has principal value :math:`[-\pi,\pi]`;
-:math:`\rho` lies in :math:`[0,\pi]`. The model rejects coincident or antipodal directions (undefined position angle
-and singular separation partials), and rejects a first line of sight parallel to the selected north pole when
-position angle is requested.
+:math:`\rho` lies in :math:`[0,\pi]`.
 
 The frame and direction convention are chosen **per observation** through
-:class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings`, usually
+:class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` (when simulating or loading observations), usually
 created by :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`.
 ``position_angle_reference_frame`` selects the pole: J2000 (default), B1950, IAU 1976/2006 mean-of-date,
 IAU 1976/1980 or IAU 2006/2000A true-of-date, or a custom pole.
@@ -1855,8 +1856,7 @@ For the custom choice, ``position_angle_custom_reference_pole`` supplies the pol
 the reception epoch is used. It does not change the observation time tag or light-time solution.
 These pole settings affect :math:`\theta` but not :math:`\rho`.
 ``position_angle_direction_type`` selects astrometric (default) or receiver-velocity-aberrated directions and can
-affect both components. The frame and direction enum settings are integer ancillary values, the epoch is a floating-point
-value, and the custom pole is a three-component floating-point vector.
+affect both components.
 
 Parameters
 ----------
