@@ -1,1 +1,1 @@
-from .sbdb import SBDBquery
+from .sbdb import SBDBbatch, SBDBquery
