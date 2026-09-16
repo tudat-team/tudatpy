@@ -200,6 +200,7 @@ void expose_ancillary_settings_types( py::module& m )
                     tom::ObservationAncillarySimulationVariable::position_angle_reference_frame,
                     R"doc(
                     Celestial reference-frame enum value defining the north pole used by a position-angle observable.
+                    Set and retrieve with ``set_int_settings`` and ``get_int_settings``.
                     )doc" )
             .value( "position_angle_reference_epoch",
                     tom::ObservationAncillarySimulationVariable::position_angle_reference_epoch,
@@ -216,6 +217,7 @@ void expose_ancillary_settings_types( py::module& m )
                     tom::ObservationAncillarySimulationVariable::position_angle_direction_type,
                     R"doc(
                     Astrometric or stellar-aberrated direction convention used for position-angle and angular-separation observations.
+                    Set and retrieve with ``set_int_settings`` and ``get_int_settings``.
                     )doc" )
             .export_values( );
 
@@ -226,7 +228,7 @@ void expose_ancillary_settings_types( py::module& m )
 
     Class for holding ancillary settings for observation simulation (see module level documentation for typical usage and creation).
 
-    This class holds both single-valued (float) and multi-valued (list of floats) ancillary settings
+    This class holds integer, floating-point, and list-of-floating-point ancillary settings.
 
       )doc" )
             .def( py::init<>( ),
@@ -245,7 +247,7 @@ void expose_ancillary_settings_types( py::module& m )
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a multi-valued ancillary setting in this object
+                Function to set a single-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -256,13 +258,27 @@ void expose_ancillary_settings_types( py::module& m )
                    Value for the setting
 
                 )doc" )
+            .def( "set_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::setAncillaryIntData,
+                  py::arg( "variable" ),
+                  py::arg( "value" ),
+                  R"doc(
+                Set an integer-valued ancillary setting, such as the position-angle reference frame or direction type.
+
+                Parameters
+                ----------
+                variable : ObservationAncillarySimulationVariable
+                    Type of integer ancillary setting to set.
+                value : int
+                    Integer value of the selected setting.
+                )doc" )
             .def( "set_float_list_settings",
                   &tudat::observation_models::ObservationAncillarySimulationSettings::setAncillaryDoubleVectorData,
                   py::arg( "variable" ),
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a single-valued ancillary setting value in this object
+                Function to set a list-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -299,6 +315,22 @@ void expose_ancillary_settings_types( py::module& m )
              Value of the requested ancillary variable (or NaN if it does not exist and ``throw_exception`` is ``false``)
 
      )doc" )
+            .def( "get_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::getAncillaryIntData,
+                  py::arg( "setting_type" ),
+                  R"doc(
+                Return an integer-valued ancillary setting; raise an exception if it is absent or is not integer-valued.
+
+                Parameters
+                ----------
+                setting_type : ObservationAncillarySimulationVariable
+                    Type of integer ancillary setting to retrieve.
+
+                Returns
+                -------
+                int
+                    Value of the requested setting.
+                )doc" )
             .def( "get_float_list_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleVectorData,
                   py::arg( "setting_type" ),

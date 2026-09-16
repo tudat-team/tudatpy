@@ -14,7 +14,6 @@
 #include <limits>
 #include <stdexcept>
 
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 
@@ -24,19 +23,6 @@ namespace observation_models
 {
 namespace
 {
-
-Eigen::Matrix3d convertSofaRotationMatrix( const double sofaRotationMatrix[ 3 ][ 3 ] )
-{
-    Eigen::Matrix3d rotationMatrix;
-    for( int row = 0; row < 3; row++ )
-    {
-        for( int column = 0; column < 3; column++ )
-        {
-            rotationMatrix( row, column ) = sofaRotationMatrix[ row ][ column ];
-        }
-    }
-    return rotationMatrix;
-}
 
 double getPositionAngleReferenceEpoch( const double observationTime,
                                        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
@@ -60,36 +46,17 @@ double getPositionAngleReferenceEpoch( const double observationTime,
 
 Eigen::Vector3d getMeanOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006Precession )
 {
-    double j2000ToMeanOfDateArray[ 3 ][ 3 ];
-    const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000;
-    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
-    if( useIau2006Precession )
-    {
-        iauPmat06( referenceJulianDay, elapsedJulianDays, j2000ToMeanOfDateArray );
-    }
-    else
-    {
-        iauPmat76( referenceJulianDay, elapsedJulianDays, j2000ToMeanOfDateArray );
-    }
-
-    return convertSofaRotationMatrix( j2000ToMeanOfDateArray ).transpose( ) * Eigen::Vector3d::UnitZ( );
+    const sofa_interface::PrecessionNutationModel model = useIau2006Precession ? sofa_interface::PrecessionNutationModel::iau_2006_2000a
+                                                                               : sofa_interface::PrecessionNutationModel::iau_1976_1980;
+    return sofa_interface::getPrecessionMatrix( terrestrialTime, model ).transpose( ) * Eigen::Vector3d::UnitZ( );
 }
 
 Eigen::Vector3d getTrueOfDatePoleInJ2000( const double terrestrialTime, const bool useIau2006PrecessionNutation )
 {
-    double j2000ToTrueOfDateArray[ 3 ][ 3 ];
-    const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000;
-    const double elapsedJulianDays = terrestrialTime / physical_constants::JULIAN_DAY;
-    if( useIau2006PrecessionNutation )
-    {
-        iauPnm06a( referenceJulianDay, elapsedJulianDays, j2000ToTrueOfDateArray );
-    }
-    else
-    {
-        iauPnm80( referenceJulianDay, elapsedJulianDays, j2000ToTrueOfDateArray );
-    }
-
-    return convertSofaRotationMatrix( j2000ToTrueOfDateArray ).transpose( ) * Eigen::Vector3d::UnitZ( );
+    const sofa_interface::PrecessionNutationModel model = useIau2006PrecessionNutation
+            ? sofa_interface::PrecessionNutationModel::iau_2006_2000a
+            : sofa_interface::PrecessionNutationModel::iau_1976_1980;
+    return sofa_interface::getPrecessionNutationMatrix( terrestrialTime, model ).transpose( ) * Eigen::Vector3d::UnitZ( );
 }
 
 }  // namespace
@@ -98,19 +65,15 @@ Eigen::Vector3d getPositionAngleReferencePoleInJ2000( const double observationTi
                                                       const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
 {
     PositionAngleReferenceFrame referenceFrame = j2000_position_angle_reference_frame;
-    if( ancillarySettings != nullptr )
+    if( ancillarySettings != nullptr && ancillarySettings->hasAncillaryIntData( position_angle_reference_frame ) )
     {
-        const double referenceFrameValue = ancillarySettings->getAncillaryDoubleData( position_angle_reference_frame, false );
-        if( !std::isnan( referenceFrameValue ) )
+        const int referenceFrameValue = ancillarySettings->getAncillaryIntData( position_angle_reference_frame );
+        if( referenceFrameValue < j2000_position_angle_reference_frame || referenceFrameValue > custom_position_angle_reference_pole )
         {
-            const double roundedReferenceFrameValue = std::round( referenceFrameValue );
-            if( !std::isfinite( referenceFrameValue ) ||
-                std::abs( referenceFrameValue - roundedReferenceFrameValue ) > 10.0 * std::numeric_limits< double >::epsilon( ) )
-            {
-                throw std::runtime_error( "Position-angle reference-frame ancillary setting must contain an integer enum value." );
-            }
-            referenceFrame = static_cast< PositionAngleReferenceFrame >( static_cast< int >( roundedReferenceFrameValue ) );
+            throw std::runtime_error( "Position-angle reference-frame ancillary setting contains an unsupported enum value: " +
+                                      std::to_string( referenceFrameValue ) + "." );
         }
+        referenceFrame = static_cast< PositionAngleReferenceFrame >( referenceFrameValue );
     }
 
     switch( referenceFrame )
@@ -168,19 +131,15 @@ PositionAngleDirectionType getPositionAngleDirectionType(
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings )
 {
     PositionAngleDirectionType directionType = astrometric_position_angle_direction;
-    if( ancillarySettings != nullptr )
+    if( ancillarySettings != nullptr && ancillarySettings->hasAncillaryIntData( position_angle_direction_type ) )
     {
-        const double directionTypeValue = ancillarySettings->getAncillaryDoubleData( position_angle_direction_type, false );
-        if( !std::isnan( directionTypeValue ) )
+        const int directionTypeValue = ancillarySettings->getAncillaryIntData( position_angle_direction_type );
+        if( directionTypeValue < astrometric_position_angle_direction || directionTypeValue > aberrated_position_angle_direction )
         {
-            const double roundedDirectionTypeValue = std::round( directionTypeValue );
-            if( !std::isfinite( directionTypeValue ) ||
-                std::abs( directionTypeValue - roundedDirectionTypeValue ) > 10.0 * std::numeric_limits< double >::epsilon( ) )
-            {
-                throw std::runtime_error( "Position-angle direction-type ancillary setting must contain an integer enum value." );
-            }
-            directionType = static_cast< PositionAngleDirectionType >( static_cast< int >( roundedDirectionTypeValue ) );
+            throw std::runtime_error( "Position-angle direction-type ancillary setting contains an unsupported enum value: " +
+                                      std::to_string( directionTypeValue ) + "." );
         }
+        directionType = static_cast< PositionAngleDirectionType >( directionTypeValue );
     }
 
     switch( directionType )

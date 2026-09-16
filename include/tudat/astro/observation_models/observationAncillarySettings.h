@@ -14,7 +14,9 @@
 #include <cmath>
 #include <Eigen/Core>
 #include <functional>
+#include <map>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -82,9 +84,7 @@ public:
             case reception_reference_frequency_band:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
-            case position_angle_reference_frame:
             case position_angle_reference_epoch:
-            case position_angle_direction_type:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -93,6 +93,47 @@ public:
                         "data; could not set type " +
                         getAncillaryDataName( variableType ) );
         }
+    }
+
+    //! Store an integer-valued ancillary option (currently the P/S reference frame or direction type).
+    void setAncillaryIntData( const ObservationAncillarySimulationVariable& variableType, const int variable )
+    {
+        switch( variableType )
+        {
+            case position_angle_reference_frame:
+            case position_angle_direction_type:
+                intData_[ variableType ] = variable;
+                break;
+            default:
+                throw std::runtime_error( "Error when setting integer ancillary observation data; could not set type " +
+                                          getAncillaryDataName( variableType ) );
+        }
+    }
+
+    //! Check whether an integer-valued ancillary option was explicitly set.
+    bool hasAncillaryIntData( const ObservationAncillarySimulationVariable& variableType ) const
+    {
+        return intData_.count( variableType ) != 0;
+    }
+
+    //! Retrieve an integer-valued ancillary option, throwing if its type is invalid or its value is absent.
+    int getAncillaryIntData( const ObservationAncillarySimulationVariable& variableType ) const
+    {
+        switch( variableType )
+        {
+            case position_angle_reference_frame:
+            case position_angle_direction_type:
+                break;
+            default:
+                throw std::runtime_error( "Error when getting integer ancillary observation data; could not retrieve type " +
+                                          getAncillaryDataName( variableType ) );
+        }
+        const auto setting = intData_.find( variableType );
+        if( setting == intData_.end( ) )
+        {
+            throw std::runtime_error( "Integer ancillary observation data not set for " + getAncillaryDataName( variableType ) );
+        }
+        return setting->second;
     }
 
     void setAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable& variableType, const std::vector< double >& variable )
@@ -124,9 +165,7 @@ public:
                 case reception_reference_frequency_band:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
-                case position_angle_reference_frame:
                 case position_angle_reference_epoch:
-                case position_angle_direction_type:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -190,7 +229,7 @@ public:
         return returnVariable;
     }
 
-    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable& variableType )
+    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable& variableType ) const
     {
         std::string name;
 
@@ -303,13 +342,18 @@ public:
     //! Equality comparison via equals method
     bool equals( const ObservationAncillarySimulationSettings& rhs ) const
     {
-        return doubleData_ == rhs.doubleData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
+        return doubleData_ == rhs.doubleData_ && intData_ == rhs.intData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
                 doubleIntermediateData_ == rhs.doubleIntermediateData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
     {
         return doubleData_;
+    }
+
+    std::map< ObservationAncillarySimulationVariable, int > getIntData( ) const
+    {
+        return intData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
@@ -319,6 +363,7 @@ public:
 
 protected:
     std::map< ObservationAncillarySimulationVariable, double > doubleData_;
+    std::map< ObservationAncillarySimulationVariable, int > intData_;
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
@@ -330,6 +375,7 @@ private:
     void save( Archive& ar ) const
     {
         ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( intData_ ) );
         ar( CEREAL_NVP( doubleVectorData_ ) );
         ar( CEREAL_NVP( doubleIntermediateData_ ) );
     }
@@ -338,6 +384,7 @@ private:
     void load( Archive& ar )
     {
         ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( intData_ ) );
         ar( CEREAL_NVP( doubleVectorData_ ) );
         ar( CEREAL_NVP( doubleIntermediateData_ ) );
     }
@@ -359,8 +406,8 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getPositionAngl
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
-    ancillarySettings->setAncillaryDoubleData( position_angle_reference_frame, static_cast< double >( referenceFrame ) );
-    ancillarySettings->setAncillaryDoubleData( position_angle_direction_type, static_cast< double >( directionType ) );
+    ancillarySettings->setAncillaryIntData( position_angle_reference_frame, static_cast< int >( referenceFrame ) );
+    ancillarySettings->setAncillaryIntData( position_angle_direction_type, static_cast< int >( directionType ) );
     if( !std::isnan( referenceEpoch ) )
     {
         ancillarySettings->setAncillaryDoubleData( position_angle_reference_epoch, referenceEpoch );
