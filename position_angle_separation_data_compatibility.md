@@ -124,6 +124,19 @@ An independent SpiceyPy/ERFA calculation used direct iteration of each Titan/sat
 - Added `qiao1999_table4.txt`, provenance documentation, and `sat441_de441_qiao1999_subset.bsp` to `tests/test_tudat/data.zip`.
 - No propagation, estimation, observation partials, relativistic angular deflection, photocentre correction, catalogue reduction, weighting, or atmospheric refraction is used.
 
+### Refraction-on dataset audit: deferred for lack of a clean P/S regression
+
+After completing the aberration milestone, I rechecked the downloaded NSDB P/S metadata specifically for records marked as retaining differential refraction. NSDB distinguishes `Done`, `None`, and `Unknown` for differential-refraction correction in its current schema. The result is restrictive:
+
+- Every P/S collection explicitly labelled “not corrected” or “not excluded” is a visual/micrometer series from **1866–1922**. Examples include [`nm0028`](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm0028.html) (Triton, Halsted, 1883–1888), [`nm0034`](https://nsdb.imcce.fr/obspos/OBS_COLL/N/nm0034.html) (Triton, Lick, 1898–1902), and the Uranian series [`um0055`](https://nsdb.imcce.fr/obspos/OBS_COLL/U/um0055.html) through `um0066` from Washington/Yerkes. Their metadata provides the site, telescope, apparent topocentric/date-frame convention, and observation time, but not observing wavelength or contemporaneous pressure, temperature, and humidity.
+- `mm0001` says “not corrected or no information”, which is explicitly ambiguous and therefore unusable for this validation gate.
+- The modern [Shen et al. (2002) Sheshan Uranus work](https://doi.org/10.1051/0004-6361:20020872) is physically informative but not a P/S validation dataset. It specifies a 900 nm filter and applies rigorous Woolard--Clemence refraction corrections (up to about 0.03 arcsec) during reduction, then deliberately publishes **raw pixel coordinates** so readers can redo the calibration. Testing those data would require the camera/plate calibration path that this task excludes.
+- Qiao et al. (1999), used for the aberration test above, explicitly removed differential refraction from its published P/S. It is a clean refraction-**off** case, not evidence for a forward refraction implementation.
+
+Consequently, atmospheric refraction is not implemented in this milestone. A standard-atmosphere assumption could produce a plausible correction for the historical data, but it would not be an unambiguous reproduction of the physical conditions under which the observations were made. Adding such a model and fixing its output as a regression value would test our assumption rather than the archived data. This deferral follows the agreed rule that each adaptation must first have a real P/S dataset whose convention and required model are explicitly documented.
+
+A suitable future case needs, at minimum, retained-refraction P/S, a known terrestrial site and time, wavelength or passband, and either measured meteorology or an explicit published standard-atmosphere prescription. If such a reference is supplied, the next implementation should bend both independently retarded apparent directions toward the local zenith before forming P/S; it must remain independent of the aberration and celestial-pole choices.
+
 ### Large but heterogeneous set: IMCCE `sm0034`
 
 - Data: <https://nsdb.imcce.fr/obspos/OBS_COLL/S/sm0034.txt>
@@ -186,8 +199,8 @@ These are direction transformations and an output-frame/geometry choice, not new
 
 1. **Completed:** run `pm0001` through Tudat itself as an astrometric J2000 geometry benchmark, retaining the photocentre caveat and quantifying the HST-receiver approximation.
 2. **Completed:** add explicit ancillary settings for the celestial reference frame, retaining astrometric J2000 as the default, and validate true-equator/equinox-of-date against all 166 `mm0012` observations from the high-accuracy JKT receiver.
-3. **Completed locally:** factor stellar aberration into a shared angular-direction correction, add an explicit astrometric/aberrated-direction option, and validate it against all 41 documented apparent topocentric measurements in Qiao et al. (1999), Table 4.
-4. **Next, lowest priority:** add optical refraction only where the observation metadata provide enough information.
+3. **Completed in `66049da80`:** factor stellar aberration into a shared angular-direction correction, add an explicit astrometric/aberrated-direction option, and validate it against all 41 documented apparent topocentric measurements in Qiao et al. (1999), Table 4.
+4. **Deferred after dataset audit:** optical refraction remains the lowest priority. The available refraction-on P/S records lack the atmospheric/passband metadata needed for an unambiguous real-data regression; do not implement it until a suitable reference supplies those assumptions.
 
 Integration of the separately implemented angular light-deflection, photocentre, and star-catalogue-reduction capabilities is explicitly outside this branch and baseline test. Assess projected-polar support against a specifically documented dataset before implementing it.
 
@@ -205,7 +218,7 @@ The aim can be full support for all sufficiently documented observations, but no
 - **Relevant code:** `include/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.h`; `src/tudat/astro/observation_models/positionAngleAndSeparationObservationModel.cpp`; `include/tudat/astro/observation_models/stellarAberrationCorrection.h`; `src/tudat/astro/observation_models/stellarAberrationCorrection.cpp`; `include/tudat/astro/observation_models/pixelCoordinatesObservationModel.h`; and `src/tudatpy/estimation/observations_setup/ancillary_settings/expose_ancillary_settings.cpp`.
 - **Build:** No build remains active. The focused P/S target and Python kernel built successfully with `-j6`; all five P/S test cases pass. The existing pixel-coordinate and PSF/pixel stellar-aberration tests also pass after the shared-code refactor. The Python import check verified the astrometric default and both aberrated factory paths. The formatter hook, `git diff --check`, and complete `unzip -t tests/test_tudat/data.zip` check pass. Python environment: `/home/dominic/miniconda3/envs/tudatpy-dev`.
 - **Temporary research inputs:** `/tmp/ps-literature/` contains downloaded papers and extracted text; `/tmp/tudatpy-hst-validation/` contains retrieved HST header products; `/tmp/tudatpy-pm0001-subset-20260915-a/` contains the Pluto compact-SPK inputs; `/tmp/tudatpy-saturn-aberration/` contains the Qiao/SAT441L generation and independent-validation scripts. Temporary paths may disappear after reboot; permanent sources and the required regression fixtures are recorded in the repository data archive.
-- **Outstanding work:** optical atmospheric refraction remains the lowest-priority adaptation and should only be implemented against an unambiguous dataset. No stellar-aberration implementation or validation work remains for this milestone.
+- **Outstanding work:** none for the clean model adaptations that can currently be validated. Optical atmospheric refraction is explicitly deferred until an unambiguous retained-refraction P/S dataset or publication supplies the passband and atmosphere assumptions. No stellar-aberration implementation or validation work remains for this milestone.
 
 The command below resumes this specific saved conversation and supplies this worktree as its working directory. Its syntax was checked using the OpenAI Docs skill against the [official CLI command documentation](https://learn.chatgpt.com/docs/developer-commands?surface=cli) and the installed `codex resume --help`. It does not build, commit or push anything by itself. Run it later, after leaving the current session:
 
