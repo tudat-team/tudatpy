@@ -61,6 +61,12 @@ TUDAT_ADD_TEST_CASE(PixelCoordinatesPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(PixelLandmarkEstimation
+        PRIVATE_LINKS
+        tudat_test_support
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 TUDAT_ADD_TEST_CASE(PositionPartials
         PRIVATE_LINKS
         tudat_test_support

@@ -243,6 +243,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case arc_wise_exponential_atmosphere_scale_height:
             parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
+        case camera_pointing_correction:
+            parameterDescription = "camera pointing correction ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -485,6 +488,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = false;
             break;
         case arc_wise_exponential_atmosphere_scale_height:
+            isDoubleParameter = false;
+            break;
+        case camera_pointing_correction:
             isDoubleParameter = false;
             break;
         default:

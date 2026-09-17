@@ -16,6 +16,7 @@ namespace observations_wrapper
 
 void expose_observations_wrapper_io_bindings( py::module& m );
 void expose_observations_wrapper_simulation_bindings( py::module& m );
+void expose_observations_wrapper_sum_lmk_bindings( py::module& m );
 
 }  // namespace observations_wrapper
 }  // namespace observations_setup
