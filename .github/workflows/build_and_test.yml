@@ -205,7 +205,8 @@ jobs:
           -DTUDAT_BUILD_WITH_PCH=ON \
           -DTUDAT_BUILD_WITH_MCD_INTERFACE=${BUILD_WITH_MCD} \
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
-          -DCMAKE_UNITY_BUILD=ON
+          -DCMAKE_UNITY_BUILD=ON \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON
 
     - name: Configure CMake
       if: runner.os == 'Windows'
@@ -242,7 +243,8 @@ jobs:
           -DTUDAT_BUILD_WITH_PCH=ON ^
           -DTUDAT_BUILD_WITH_MCD_INTERFACE=%BUILD_WITH_MCD% ^
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
-          -DCMAKE_UNITY_BUILD=ON
+          -DCMAKE_UNITY_BUILD=ON ^
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON
 
     - name: Build C++ kernel
       id: build_kernel_non_windows
