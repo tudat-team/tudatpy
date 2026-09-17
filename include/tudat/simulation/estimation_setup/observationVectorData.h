@@ -140,6 +140,20 @@ public:
         return row->second.first + componentIndex;
     }
 
+    //! Return the first scalar row of an observation, or -1 when absent from this snapshot.
+    int getFirstVectorRowForObservation( const unsigned int observationId ) const
+    {
+        const auto row = rowMapping_.find( observationId );
+        return row == rowMapping_.end( ) ? -1 : static_cast< int >( row->second.first );
+    }
+
+    //! Return the number of scalar rows for an observation, or zero when absent.
+    unsigned int getScalarSizeForObservation( const unsigned int observationId ) const
+    {
+        const auto row = rowMapping_.find( observationId );
+        return row == rowMapping_.end( ) ? 0 : row->second.second;
+    }
+
     //! Return set identities in their first-appearance order in this snapshot.
     const std::vector< unsigned int >& getSetIdsInRowOrder( ) const
     {

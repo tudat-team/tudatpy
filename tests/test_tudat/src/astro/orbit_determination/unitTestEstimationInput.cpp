@@ -695,17 +695,26 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< EstimationOutput< double, double > > rejectedEstimationOutput =
             orbitDeterminationManager.estimateParameters( rejectedEstimationInput );
 
-    // Differential correction must use only active rows in its residual history and saved design matrix.
+    // Residual history must retain all rows, while the final residuals and saved design matrix remain active-only.
     BOOST_REQUIRE_EQUAL( rejectedEstimationOutput->residualHistory_.size( ), 1 );
-    BOOST_CHECK_EQUAL( rejectedEstimationOutput->residualHistory_.at( 0 ).size( ), activeData.getObservationVector( ).size( ) );
+    BOOST_CHECK_EQUAL( rejectedEstimationOutput->residualHistory_.at( 0 ).size( ), weightData.getObservationVector( ).size( ) );
+    BOOST_CHECK_EQUAL( rejectedEstimationOutput->residuals_.size( ), activeData.getObservationVector( ).size( ) );
     BOOST_CHECK_EQUAL( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
+
+    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedEstimationOutput->getActiveFlagsPerIterationMatrix( );
+    BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedEstimationOutput->residualHistory_.at( 0 ).rows( ) );
+    BOOST_REQUIRE_EQUAL( activeFlags.cols( ), 1 );
+    for( int row = 0; row < activeFlags.rows( ); row++ )
+    {
+        BOOST_CHECK_EQUAL( activeFlags( row, 0 ), weightData.getObservationIds( ).at( row ) != rejectedObservationId );
+    }
 
     // The rejected observation remains stored and must still receive an updated residual during estimation.
     BOOST_CHECK( !simulatedObservations->getObservationRow( rejectedObservationId ).isActive_ );
     BOOST_CHECK_GT( std::fabs( simulatedObservations->getResidualValue( rejectedObservationId )( 0 ) + 12345.0 ), 1.0 );
 
     const Eigen::MatrixXd rejectedSingleStepDesignMatrix = rejectedEstimationOutput->getNormalizedDesignMatrix( );
-    const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residualHistory_.at( 0 );
+    const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residuals_;
     // Independently remove the rejected event's scalar range from the hand-built matrix.
     const int rejectedStart = getOrderedObservationVectorIndex( rejectedObservationId, 0 );
     std::vector< int > retainedScalars;
