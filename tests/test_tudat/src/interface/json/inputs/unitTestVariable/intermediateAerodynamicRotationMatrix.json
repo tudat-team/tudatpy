@@ -1,7 +1,0 @@
-{
-  "body": "vehicle",
-  "dependentVariableType": "intermediateAerodynamicRotationMatrix",
-  "baseFrame": "body",
-  "targetFrame": "intertial",
-  "componentIndex": 8
-}

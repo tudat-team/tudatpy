@@ -27,6 +27,8 @@
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/core.h"
+#include "tudat/io/serialization/file_io_declarations.h"
 
 namespace tudat
 {
@@ -51,6 +53,9 @@ public:
     ObservationAncillarySimulationSettings( ) {}
 
     virtual ~ObservationAncillarySimulationSettings( ) {}
+
+    //! Save ancillary settings to a JSON file
+    TUDAT_DECLARE_FILE_IO( ObservationAncillarySimulationSettings )
 
     void setAncillaryDoubleData( const ObservationAncillarySimulationVariable& variableType, const double variable )
     {
@@ -275,7 +280,19 @@ public:
 
     bool operator==( const ObservationAncillarySimulationSettings& rightSettings ) const
     {
-        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
+        return equals( rightSettings );
+    }
+
+    bool operator!=( const ObservationAncillarySimulationSettings& rightSettings ) const
+    {
+        return !( *this == rightSettings );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const ObservationAncillarySimulationSettings& rhs ) const
+    {
+        return doubleData_ == rhs.doubleData_ && doubleVectorData_ == rhs.doubleVectorData_ &&
+                doubleIntermediateData_ == rhs.doubleIntermediateData_;
     }
 
     std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
@@ -293,6 +310,25 @@ protected:
     std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
+private:
+    friend class cereal::access;
+
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( doubleData_ ) );
+        ar( CEREAL_NVP( doubleVectorData_ ) );
+        ar( CEREAL_NVP( doubleIntermediateData_ ) );
+    }
 };
 
 inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )
@@ -450,4 +486,5 @@ inline void checkTrackingDataAncillarySettings( const observation_models::Observ
 }  // namespace observation_models
 
 }  // namespace tudat
+
 #endif  // TUDAT_ANCILLARYSETTINGS_H

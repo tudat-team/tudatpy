@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -26,9 +25,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
-#include "tudat/simulation/estimation_setup/compressDopplerObservationCollection.h"
-
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include "tudat/simulation/estimation_setup/compressDopplerObservationDataset.h"
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 
@@ -118,8 +115,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 "Earth",
                 true,
                 true,
-                std::vector< double >( { convertFrequencyBandToDouble( x_band ), convertFrequencyBandToDouble( currentReceptionBand ) } ),
-                convertFrequencyBandToDouble( currentReceptionBand ),
+                std::vector< std::string >( { getFrequencyBandString( x_band ), getFrequencyBandString( currentReceptionBand ) } ),
+                getFrequencyBandString( currentReceptionBand ),
                 0.0 );
 
         setTrackingSupplementaryDataInBodies( bodies, trackingDataAndSupplementaryData.second );
@@ -166,8 +163,8 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector =
-                observedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( ) -
-                computedObservationDataset->createEstimationFlattenedObservationData( ).getObservationVector( );
+                observedObservationDataset->createObservationVectorData( ).getObservationVector( ) -
+                computedObservationDataset->createObservationVectorData( ).getObservationVector( );
         double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
         double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 

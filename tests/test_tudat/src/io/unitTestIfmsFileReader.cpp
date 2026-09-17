@@ -12,8 +12,9 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
+
+#include <boost/test/included/unit_test.hpp>
 
 #include <iostream>
 #include <utility>
@@ -103,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
             bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
             simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
             auto observationDataset = observation_models::createObservationDatasetFromTrackingData< double, Time >( trackingData, bodies );
-            std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedFlattenedObservationData( ).getTimes( );
+            std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedObservationVectorData( ).getTimes( );
             const Eigen::Vector3d earthFixedPosition =
                     bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" )->getNominalStationState( )->getNominalCartesianPosition( );
             Time tdbTimeTest = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(

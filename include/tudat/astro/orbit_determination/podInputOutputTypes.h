@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -23,9 +23,16 @@
 #include <Eigen/SparseCholesky>
 #include <Eigen/SparseCore>
 
+#include <cereal/access.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/interArcStateContinuityConstraintSettings.h"
 #include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/outlierRejectionSettings.h"
 #include "tudat/simulation/propagation_setup/propagationResults.h"
@@ -40,26 +47,35 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 class CovarianceAnalysisInput
 {
 private:
-    static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > checkObservationDatasetInput(
-            const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset )
+    //! Return the legacy observation source, reporting a missing source when data are required.
+    observation_models::ObservationCollection< ObservationScalarType, TimeType >& legacyObservationSource( ) const
     {
-        if( observationDataset == nullptr )
+        if( !observationCollection_ )
         {
-            throw std::runtime_error( "Error when creating covariance/estimation input, observation dataset is null." );
+            throw std::runtime_error( "Cannot access observations: no observation source was supplied." );
         }
-        return observationDataset;
+        return *observationCollection_;
     }
 
-    static std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >
-    getObservationDatasetFromCollectionInput(
-            const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection )
+    //! Apply a weight-setting operation to either the dataset or legacy collection source.
+    template< typename Action >
+    void applyToObservationSource( Action action )
     {
-        if( observationCollection == nullptr )
+        if( observationDataset_ )
         {
-            throw std::runtime_error( "Error when creating covariance/estimation input, observation collection is null." );
+            action( *observationDataset_ );
         }
+        else
+        {
+            action( legacyObservationSource( ) );
+        }
+    }
 
-        return checkObservationDatasetInput( observationCollection->getObservationDataset( ) );
+    //! Emit the retained warning for a legacy input-level weight setter.
+    static void warnDeprecatedWeightSetter( const std::string& functionName )
+    {
+        std::cerr << "Warning, function " << functionName
+                  << " is deprecated, weights should preferably be defined at the observation dataset level." << std::endl;
     }
 
 public:
@@ -67,12 +83,13 @@ public:
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( observationCollection ),
-        observationDataset_( getObservationDatasetFromCollectionInput( observationCollection ) ),
+        observationCollection_( observationCollection ), observationDataset_( nullptr ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )
     {
+        // The base API permits a null collection for configuring input settings.
+        // Operations that need observations validate the source when it is used.
         considerParametersIncluded_ = false;
         if( considerCovariance.size( ) > 0 )
         {
@@ -80,15 +97,21 @@ public:
         }
     }
 
+    //! Create covariance input backed directly by an observation dataset.
     CovarianceAnalysisInput(
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
-        observationCollection_( nullptr ), observationDataset_( checkObservationDatasetInput( observationDataset ) ),
+        observationCollection_( nullptr ), observationDataset_( observationDataset ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ), considerCovariance_( considerCovariance ),
         limitConditionNumberForWarning_( 1.0E8 ), reintegrateEquationsOnFirstIteration_( true ), reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ), printOutput_( true )
     {
+        if( observationDataset_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating covariance/estimation input, observation dataset is null." );
+        }
+
         //        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
         //        setConstantWeightsMatrix( 1.0 );
 
@@ -118,55 +141,22 @@ public:
      */
     void setConstantWeightsMatrix( const double constantWeight = 1.0 )
     {
-        observationDataset_->setConstantSingleObservationScalarWeight(
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::all( ), constantWeight );
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( constantWeight ); } );
     }
 
     //! Set constant scalar weight for all observables of given type
     void setConstantSingleObservableWeights( const observation_models::ObservableType currentObservable, const double weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
-        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
-        {
-            std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
-                      << " No data of given type found." << std::endl;
-        }
-        else
-        {
-            observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
-        }
+        warnDeprecatedWeightSetter( "setConstantSingleObservableWeights" );
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( weight, observationParser( currentObservable ) ); } );
     }
 
     //! Set constant vector weight for all observables of given type
     void setConstantSingleObservableVectorWeights( const observation_models::ObservableType currentObservable,
                                                    const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable );
-        if( observationDataset_->getObservationIdsMatchingCondition( selectedRows ).empty( ) )
-        {
-            std::cerr << "Warning when setting weights for data type " << std::to_string( currentObservable ) << ". "
-                      << " No data of given type found." << std::endl;
-        }
-        else
-        {
-            observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
-        }
+        warnDeprecatedWeightSetter( "setConstantSingleObservableVectorWeights" );
+        applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( weight, observationParser( currentObservable ) ); } );
     }
 
     //! Set constant scalar weight for all observables of given type and link ends
@@ -174,17 +164,12 @@ public:
                                                         const observation_models::LinkEnds currentLinkEnds,
                                                         const double weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                        observation_models::LinkDefinition( currentLinkEnds ) );
-        observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, weight );
+        warnDeprecatedWeightSetter( "setConstantSingleObservableAndLinkEndsWeights" );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setConstantWeight( weight,
+                                      observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                                              observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -192,17 +177,12 @@ public:
                                                               const observation_models::LinkEnds currentLinkEnds,
                                                               const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType( currentObservable ) &&
-                observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                        observation_models::LinkDefinition( currentLinkEnds ) );
-        observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, weight );
+        warnDeprecatedWeightSetter( "setConstantSingleObservableAndLinkEndsVectorWeights" );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setConstantWeight( weight,
+                                      observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                                              observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -210,16 +190,13 @@ public:
                                                          const observation_models::LinkEnds currentLinkEnds,
                                                          const Eigen::VectorXd weight )
     {
-        std::cerr << "Warning, function setTabulatedSingleObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level. "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        observationDataset_->setTabulatedWeights(
-                weight,
-                observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ) );
+        warnDeprecatedWeightSetter( "setTabulatedSingleObservableAndLinkEndsWeights" );
+        applyToObservationSource( [ & ]( auto& source ) {
+            source.setTabulatedWeights(
+                    weight,
+                    observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                            observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        } );
     }
 
     //! Function to set a values for observation weights, constant per observable type
@@ -229,37 +206,22 @@ public:
      */
     void setConstantPerObservableWeightsMatrix( const std::map< observation_models::ObservableType, double > weightPerObservable )
     {
-        std::cerr << "Warning, function setConstantPerObservableWeightsMatrix is deprecated, "
-                     "weights should preferably be defined at the observation collection level "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-
-        for( auto observableIt : weightPerObservable )
+        warnDeprecatedWeightSetter( "setConstantPerObservableWeightsMatrix" );
+        for( const auto& entry : weightPerObservable )
         {
-            observationDataset_->setConstantSingleObservationScalarWeight(
-                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                            observableIt.first ),
-                    observableIt.second );
+            applyToObservationSource(
+                    [ & ]( auto& source ) { source.setConstantWeight( entry.second, observationParser( entry.first ) ); } );
         }
     }
 
     void setConstantPerObservableVectorWeightsMatrix(
             const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
     {
-        std::cerr << "Warning, function setConstantPerObservableVectorWeightsMatrix is deprecated, "
-                     "weights should be defined at the observation collection level "
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservable )
+        warnDeprecatedWeightSetter( "setConstantPerObservableVectorWeightsMatrix" );
+        for( const auto& entry : weightPerObservable )
         {
-            observationDataset_->setConstantSingleObservationDiagonalWeight(
-                    observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                            observableIt.first ),
-                    observableIt.second );
+            applyToObservationSource(
+                    [ & ]( auto& source ) { source.setConstantWeight( entry.second, observationParser( entry.first ) ); } );
         }
     }
 
@@ -272,22 +234,14 @@ public:
             const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > >
                     weightPerObservableAndLinkEnds )
     {
-        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level."
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservableAndLinkEnds )
+        warnDeprecatedWeightSetter( "setConstantPerObservableAndLinkEndsWeights" );
+        for( const auto& observable : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt : observableIt.second )
+            for( const auto& link : observable.second )
             {
-                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                                observableIt.first ) &&
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                                observation_models::LinkDefinition( linkEndsIt.first ) );
-                observationDataset_->setConstantSingleObservationScalarWeight( selectedRows, linkEndsIt.second );
+                const auto parser = observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                        observationParser( observable.first ), observationParser( link.first ) } );
+                applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( link.second, parser ); } );
             }
         }
     }
@@ -296,22 +250,14 @@ public:
             const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
                     weightPerObservableAndLinkEnds )
     {
-        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
-                     "weights should preferably be defined at the observation collection level."
-                     "(see "
-                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
-                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
-                  << std::endl;
-        for( auto observableIt : weightPerObservableAndLinkEnds )
+        warnDeprecatedWeightSetter( "setConstantPerObservableAndLinkEndsVectorWeights" );
+        for( const auto& observable : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt : observableIt.second )
+            for( const auto& link : observable.second )
             {
-                const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRows =
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::observableType(
-                                observableIt.first ) &&
-                        observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType >::linkDefinition(
-                                observation_models::LinkDefinition( linkEndsIt.first ) );
-                observationDataset_->setConstantSingleObservationDiagonalWeight( selectedRows, linkEndsIt.second );
+                const auto parser = observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >{
+                        observationParser( observable.first ), observationParser( link.first ) } );
+                applyToObservationSource( [ & ]( auto& source ) { source.setConstantWeight( link.second, parser ); } );
             }
         }
     }
@@ -374,7 +320,7 @@ public:
                         linkEndsIt.second;
             }
         }
-        observationDataset_->setTabulatedWeights( weightPerObservableParser );
+        applyToObservationSource( [ & ]( auto& source ) { source.setTabulatedWeights( weightPerObservableParser ); } );
     }
 
     void setTabulatedPerObservableAndLinkEndsWeights( const observation_models::ObservableType observableType,
@@ -403,7 +349,7 @@ public:
      */
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
-        if( observationCollection_ == nullptr )
+        if( observationCollection_ == nullptr && observationDataset_ != nullptr )
         {
             observationCollection_ =
                     observation_models::createObservationCollection< ObservationScalarType, TimeType >( observationDataset_ );
@@ -411,9 +357,48 @@ public:
         return observationCollection_;
     }
 
+    //! Return the dataset source, converting a legacy collection when required.
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( )
     {
-        return observationDataset_;
+        return observationDataset_ ? observationDataset_ : legacyObservationSource( ).getObservationDataset( );
+    }
+
+    //! Return fitted residuals to a legacy source after computing against its independent snapshot.
+    void synchronizeLegacyResiduals( const observation_models::ObservationDataset< ObservationScalarType, TimeType >& prepared )
+    {
+        if( observationDataset_ )
+        {
+            return;
+        }
+        auto& source = legacyObservationSource( );
+        const auto projection = prepared.createOrderedObservationVectorData( true );
+        const auto currentObservations = source.getObservationVector( );
+        if( currentObservations.size( ) != projection.getObservationVector( ).size( ) ||
+            currentObservations != projection.getObservationVector( ) || source.getConcatenatedTimeVector( ) != projection.getTimes( ) )
+        {
+            throw std::runtime_error( "Legacy observation data changed during estimation; residuals were not written back." );
+        }
+        const auto sets = source.getSingleObservationSets( );
+        const auto setIds = prepared.getSetIdsInObservationVectorOrder( );
+        if( sets.size( ) != setIds.size( ) )
+        {
+            throw std::runtime_error( "Legacy observation grouping changed during estimation." );
+        }
+        for( std::size_t i = 0; i < sets.size( ); ++i )
+        {
+            const auto& metadata = prepared.getObservationSetMetadata( setIds.at( i ) );
+            const auto oldAncillary = prepared.getAncillarySettings( metadata.ancillarySettingsId_ );
+            const auto currentAncillary = sets.at( i )->getAncillarySettings( );
+            if( sets.at( i )->getObservableType( ) != metadata.observableType_ ||
+                sets.at( i )->getReferenceLinkEnd( ) != metadata.referenceLinkEnd_ ||
+                !( sets.at( i )->getLinkEnds( ) == prepared.getLinkDefinition( metadata.linkDefinitionId_ ) ) ||
+                static_cast< bool >( oldAncillary ) != static_cast< bool >( currentAncillary ) ||
+                ( oldAncillary && !( *oldAncillary == *currentAncillary ) ) )
+            {
+                throw std::runtime_error( "Legacy observation metadata changed during estimation; residuals were not written back." );
+            }
+        }
+        source.setResiduals( projection.getResidualVector( ) );
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -476,15 +461,14 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return observationDataset_->createOrderedFlattenedObservationData( ).getWeightVector( );
+        return observationDataset_ ? observationDataset_->createOrderedObservationVectorData( ).getWeightVector( )
+                                   : observationCollection_->getConcatenatedWeights( );
     }
 
     void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
     {
-        std::cerr << "Warning, function setWeightsMatrixDiagonals is deprecated, "
-                     "weights should preferably be defined at the observation collection level.";
-        observationDataset_->setTabulatedWeights( weightsMatrixDiagonals );
-        //        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
+        warnDeprecatedWeightSetter( "setWeightsMatrixDiagonals" );
+        applyToObservationSource( [ & ]( auto& source ) { source.setTabulatedWeights( weightsMatrixDiagonals ); } );
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
@@ -546,6 +530,26 @@ public:
         return considerParametersIncluded_;
     }
 
+    //! Configure soft inter-arc translational state continuity priors.
+    /*!
+     * Configure soft inter-arc translational state continuity priors for covariance analysis and estimation.
+     * These priors add a normal-equation contribution of the form D_norm^T W_d D_norm (and, for estimation only,
+     * -D_norm^T W_d d to the right-hand side), where D_norm is the right-minus-left STM/sensitivity block after
+     * applying the estimator's column normalization. The feature currently supports pure multi-arc translational
+     * estimations only; hybrid-arc estimations are rejected when the prior is assembled.
+     * \param constraints Continuity-prior settings. Passing an empty vector disables the feature.
+     */
+    void setInterArcContinuityConstraints( const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& constraints )
+    {
+        interArcContinuityConstraints_ = constraints;
+    }
+
+    //! Get the configured soft inter-arc continuity priors.
+    const std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > >& getInterArcContinuityConstraints( ) const
+    {
+        return interArcContinuityConstraints_;
+    }
+
 protected:
     //! Legacy collection facade retained only to preserve ObservationCollection constructor/getter identity.
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
@@ -578,6 +582,9 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the covariance analysis
     bool considerParametersIncluded_;
+
+    //! Soft inter-arc translational state continuity priors. Empty by default (feature off).
+    std::vector< std::shared_ptr< InterArcStateContinuityConstraintSettings > > interArcContinuityConstraints_;
 };
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
@@ -702,6 +709,7 @@ public:
         }
     }
 
+    //! Create estimation input backed directly by an observation dataset.
     EstimationInput(
             const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > >& observationDataset,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
@@ -858,6 +866,9 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix( Eigen::MatrixXd& in
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 struct CovarianceAnalysisOutput {
+    virtual ~CovarianceAnalysisOutput( ) = default;
+
+    //! Construct covariance output with an optional full sparse observation weight matrix.
     CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
                               const Eigen::VectorXd& weightsMatrixDiagonal,
                               const Eigen::VectorXd& designMatrixTransformationDiagonal,
@@ -867,12 +878,15 @@ struct CovarianceAnalysisOutput {
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                               const bool exceptionDuringPropagation = false,
-                              const Eigen::SparseMatrix< double >& weightsMatrix = Eigen::SparseMatrix< double >( ) ):
+                              const Eigen::SparseMatrix< double >& weightsMatrix = Eigen::SparseMatrix< double >( ),
+                              const double interArcContinuityCost = 0.0,
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
         normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ), weightsMatrix_( weightsMatrix ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( normalizedDesignMatrixConsiderParameters ),
         considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
+        interArcContinuityCost_( interArcContinuityCost ), interArcContinuityDiscrepancies_( interArcContinuityDiscrepancies ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
         if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
@@ -922,11 +936,39 @@ struct CovarianceAnalysisOutput {
         }
     }
 
+    //! Construct compatibility output without a full sparse weight matrix.
+    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+                              const Eigen::VectorXd& weightsMatrixDiagonal,
+                              const Eigen::VectorXd& designMatrixTransformationDiagonal,
+                              const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                              const Eigen::MatrixXd& normalizedDesignMatrixConsiderParameters,
+                              const Eigen::VectorXd& considerNormalizationFactors,
+                              const Eigen::MatrixXd& considerCovarianceContribution,
+                              const Eigen::MatrixXd& considerCovariance,
+                              const bool exceptionDuringPropagation,
+                              const double interArcContinuityCost,
+                              const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ) ):
+        CovarianceAnalysisOutput( normalizedDesignMatrix,
+                                  weightsMatrixDiagonal,
+                                  designMatrixTransformationDiagonal,
+                                  inverseNormalizedCovarianceMatrix,
+                                  normalizedDesignMatrixConsiderParameters,
+                                  considerNormalizationFactors,
+                                  considerCovarianceContribution,
+                                  considerCovariance,
+                                  exceptionDuringPropagation,
+                                  Eigen::SparseMatrix< double >( ),
+                                  interArcContinuityCost,
+                                  interArcContinuityDiscrepancies )
+    {}
+
+    //! Return whether this output stores a full sparse observation weight matrix.
     bool hasFullWeightMatrix( ) const
     {
         return weightsMatrix_.rows( ) > 0;
     }
 
+    //! Return the full weight matrix, materializing diagonal-only weights when needed.
     Eigen::SparseMatrix< double > getWeightsMatrix( ) const
     {
         if( hasFullWeightMatrix( ) )
@@ -1116,6 +1158,16 @@ struct CovarianceAnalysisOutput {
         return considerCovariance_;
     }
 
+    double getInterArcContinuityCost( ) const
+    {
+        return interArcContinuityCost_;
+    }
+
+    const std::vector< Eigen::VectorXd >& getInterArcContinuityDiscrepancies( ) const
+    {
+        return interArcContinuityDiscrepancies_;
+    }
+
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
         if( designMatrixSaved_ )
@@ -1145,6 +1197,7 @@ struct CovarianceAnalysisOutput {
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
 
+    //! Premultiply a design matrix by the square-root factor of the full weight matrix.
     Eigen::MatrixXd getSquareRootWeightedDesignMatrix( const Eigen::MatrixXd& designMatrix ) const
     {
         if( weightsMatrix_.rows( ) != designMatrix.rows( ) || weightsMatrix_.cols( ) != designMatrix.rows( ) )
@@ -1153,33 +1206,39 @@ struct CovarianceAnalysisOutput {
         }
 
         updateSparseWeightCholeskyFactorIfNeeded( );
-        return sparseWeightCholeskyFactor_.matrixL( ).transpose( ) * designMatrix;
+        return sparseWeightCholeskyFactor_->matrixL( ).transpose( ) * designMatrix;
     }
 
+    //! Refresh the cached sparse Cholesky factor when its source matrix has changed.
     void updateSparseWeightCholeskyFactorIfNeeded( ) const
     {
         if( isSparseWeightCholeskyFactorStale( ) )
         {
-            sparseWeightCholeskyFactor_.compute( weightsMatrix_ );
-            if( sparseWeightCholeskyFactor_.info( ) != Eigen::Success )
+            auto factor = std::make_shared<
+                    Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >( );
+            factor->compute( weightsMatrix_ );
+            if( factor->info( ) != Eigen::Success )
             {
                 throw std::runtime_error( "Error when retrieving weighted design matrix, full weight matrix is not positive definite." );
             }
+            sparseWeightCholeskyFactor_ = factor;
             factorizedWeightsMatrix_ = weightsMatrix_;
             isSparseWeightCholeskyFactorCurrent_ = true;
         }
     }
 
+    //! Return whether the cached sparse Cholesky factor matches the current weights.
     bool isSparseWeightCholeskyFactorCurrent( ) const
     {
         return !isSparseWeightCholeskyFactorStale( );
     }
 
 private:
+    //! Return whether the cached sparse Cholesky factor must be recomputed.
     bool isSparseWeightCholeskyFactorStale( ) const
     {
-        return !isSparseWeightCholeskyFactorCurrent_ || weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) ||
-                weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
+        return !isSparseWeightCholeskyFactorCurrent_ || !sparseWeightCholeskyFactor_ ||
+                weightsMatrix_.rows( ) != factorizedWeightsMatrix_.rows( ) || weightsMatrix_.cols( ) != factorizedWeightsMatrix_.cols( ) ||
                 weightsMatrix_.nonZeros( ) != factorizedWeightsMatrix_.nonZeros( ) ||
                 !weightsMatrix_.isApprox( factorizedWeightsMatrix_, 0.0 );
     }
@@ -1194,8 +1253,9 @@ public:
     //! Full sparse weights matrix used in the estimation when off-diagonal weights are present.
     Eigen::SparseMatrix< double > weightsMatrix_;
 
-    //! Cached sparse Cholesky factor for full weight matrix accessors.
-    mutable Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > sparseWeightCholeskyFactor_;
+    //! Immutable cached factor so output objects remain copyable for serialization.
+    mutable std::shared_ptr< const Eigen::SimplicialLLT< Eigen::SparseMatrix< double >, Eigen::Lower, Eigen::NaturalOrdering< int > > >
+            sparseWeightCholeskyFactor_;
 
     //! Sparse snapshot of the matrix represented by sparseWeightCholeskyFactor_.
     mutable Eigen::SparseMatrix< double > factorizedWeightsMatrix_;
@@ -1235,13 +1295,129 @@ public:
 
     Eigen::MatrixXd considerCovariance_;
 
+    //! Boolean denoting whether the design matrix was saved
+    bool designMatrixSaved_;
+
+    //! Total soft inter-arc continuity-prior cost at the covariance-analysis linearization point.
+    double interArcContinuityCost_;
+
+    //! Per-pair inter-arc state discrepancies used to assemble the covariance-analysis continuity prior.
+    std::vector< Eigen::VectorXd > interArcContinuityDiscrepancies_;
+
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 
     //! Boolean denoting whether consider parameters are included
     bool considerParametersIncluded_;
 
-    bool designMatrixSaved_;
+public:
+    //! Default constructor for deserialization only — not for general use
+    CovarianceAnalysisOutput( ):
+        designMatrixSaved_( false ), interArcContinuityCost_( 0.0 ), exceptionDuringPropagation_( false ),
+        considerParametersIncluded_( false )
+    {}
+
+    // Used for serialization testing
+    bool operator==( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return !equals( rhs );
+    }
+
+    //! Save covariance analysis output to a binary file
+    TUDAT_DEFINE_BINARY_IO( CovarianceAnalysisOutput< ObservationScalarType, TimeType > )
+
+protected:
+    bool equals( const CovarianceAnalysisOutput& rhs ) const
+    {
+        return ( designMatrixSaved_ == rhs.designMatrixSaved_ ) && ( exceptionDuringPropagation_ == rhs.exceptionDuringPropagation_ ) &&
+                ( considerParametersIncluded_ == rhs.considerParametersIncluded_ ) &&
+                ( normalizedDesignMatrix_ == rhs.normalizedDesignMatrix_ ) && ( weightsMatrixDiagonal_ == rhs.weightsMatrixDiagonal_ ) &&
+                ( weightsMatrix_.rows( ) == rhs.weightsMatrix_.rows( ) ) && ( weightsMatrix_.cols( ) == rhs.weightsMatrix_.cols( ) ) &&
+                weightsMatrix_.isApprox( rhs.weightsMatrix_, 0.0 ) &&
+                ( designMatrixTransformationDiagonal_ == rhs.designMatrixTransformationDiagonal_ ) &&
+                ( inverseNormalizedCovarianceMatrix_ == rhs.inverseNormalizedCovarianceMatrix_ ) &&
+                ( inverseUnnormalizedCovarianceMatrix_ == rhs.inverseUnnormalizedCovarianceMatrix_ ) &&
+                ( normalizedCovarianceMatrix_ == rhs.normalizedCovarianceMatrix_ ) &&
+                ( unnormalizedCovarianceMatrix_ == rhs.unnormalizedCovarianceMatrix_ ) &&
+                ( considerCovarianceContribution_ == rhs.considerCovarianceContribution_ ) &&
+                ( normalizedCovarianceWithConsiderParameters_ == rhs.normalizedCovarianceWithConsiderParameters_ ) &&
+                ( unnormalizedCovarianceWithConsiderParameters_ == rhs.unnormalizedCovarianceWithConsiderParameters_ ) &&
+                ( normalizedDesignMatrixConsiderParameters_ == rhs.normalizedDesignMatrixConsiderParameters_ ) &&
+                ( considerNormalizationFactors_ == rhs.considerNormalizationFactors_ ) &&
+                ( considerCovariance_ == rhs.considerCovariance_ ) && ( interArcContinuityCost_ == rhs.interArcContinuityCost_ ) &&
+                ( interArcContinuityDiscrepancies_ == rhs.interArcContinuityDiscrepancies_ );
+    }
+
+private:
+    friend class cereal::access;
+
+    //! Serialize covariance output, including its optional full weight matrix.
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        ar( CEREAL_NVP( weightsMatrix_ ) );
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( interArcContinuityCost_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancies_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
+    }
+
+    //! Deserialize covariance output while retaining compatibility with version-zero archives.
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        if( version > 1 )
+        {
+            throw std::runtime_error( "Unsupported covariance output archive version." );
+        }
+        ar( CEREAL_NVP( normalizedDesignMatrix_ ) );
+        ar( CEREAL_NVP( weightsMatrixDiagonal_ ) );
+        if( version >= 1 )
+        {
+            ar( CEREAL_NVP( weightsMatrix_ ) );
+        }
+        else
+        {
+            // The base-branch format stored only diagonal weights.
+            weightsMatrix_.resize( 0, 0 );
+        }
+        ar( CEREAL_NVP( designMatrixTransformationDiagonal_ ) );
+        ar( CEREAL_NVP( inverseNormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( inverseUnnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceMatrix_ ) );
+        ar( CEREAL_NVP( considerCovarianceContribution_ ) );
+        ar( CEREAL_NVP( normalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( unnormalizedCovarianceWithConsiderParameters_ ) );
+        ar( CEREAL_NVP( normalizedDesignMatrixConsiderParameters_ ) );
+        ar( CEREAL_NVP( considerNormalizationFactors_ ) );
+        ar( CEREAL_NVP( considerCovariance_ ) );
+        ar( CEREAL_NVP( designMatrixSaved_ ) );
+        ar( CEREAL_NVP( interArcContinuityCost_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancies_ ) );
+        ar( CEREAL_NVP( exceptionDuringPropagation_ ) );
+        ar( CEREAL_NVP( considerParametersIncluded_ ) );
+    }
 };
 
 //! Data structure through which the output of the orbit determination is communicated
@@ -1268,6 +1444,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
      * motion (and variational equations).
      * \param activeFlagsPerIteration Vector of active-observation flags per iteration, in the same scalar-row order as
      * residualHistory. A true entry denotes a residual that was included in the corresponding estimation iteration.
+     * \param interArcContinuityCost Soft inter-arc continuity-prior cost at the selected best iteration.
+     * \param interArcContinuityDiscrepancies Inter-arc continuity-prior state discrepancies at the selected best iteration.
      */
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
@@ -1287,6 +1465,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
                       const bool exceptionDuringPropagation = false,
+                      const double interArcContinuityCost = 0.0,
+                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
                       const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
                                                                      weightsMatrixDiagonal,
@@ -1297,13 +1477,16 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      covarianceConsiderContribution,
                                                                      considerCovariance,
                                                                      exceptionDuringPropagation,
-                                                                     weightsMatrix ),
+                                                                     weightsMatrix,
+                                                                     interArcContinuityCost,
+                                                                     interArcContinuityDiscrepancies ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
         activeFlagsPerIteration_( activeFlagsPerIteration ), exceptionDuringInversion_( exceptionDuringInversion ),
         numberOfParameters_( normalizedDesignMatrix.cols( ) )
     {}
 
+    //! Construct compatibility estimation output without a full sparse weight matrix.
     EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                       const Eigen::VectorXd& residuals,
                       const Eigen::MatrixXd& normalizedDesignMatrix,
@@ -1321,6 +1504,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
                       const bool exceptionDuringPropagation = false,
+                      const double interArcContinuityCost = 0.0,
+                      const std::vector< Eigen::VectorXd >& interArcContinuityDiscrepancies = std::vector< Eigen::VectorXd >( ),
                       const std::vector< ActiveFlagsVector >& activeFlagsPerIteration = std::vector< ActiveFlagsVector >( ) ):
         EstimationOutput( parameterEstimate,
                           residuals,
@@ -1339,6 +1524,8 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                           considerCovariance,
                           exceptionDuringInversion,
                           exceptionDuringPropagation,
+                          interArcContinuityCost,
+                          interArcContinuityDiscrepancies,
                           activeFlagsPerIteration )
     {}
 
@@ -1466,6 +1653,26 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         return simulationResultsPerIteration_;
     }
 
+    void setInterArcContinuityCostHistory( const std::vector< double >& history )
+    {
+        interArcContinuityCostHistory_ = history;
+    }
+
+    const std::vector< double >& getInterArcContinuityCostHistory( ) const
+    {
+        return interArcContinuityCostHistory_;
+    }
+
+    void setInterArcContinuityDiscrepancyHistory( const std::vector< std::vector< Eigen::VectorXd > >& history )
+    {
+        interArcContinuityDiscrepancyHistory_ = history;
+    }
+
+    const std::vector< std::vector< Eigen::VectorXd > >& getInterArcContinuityDiscrepancyHistory( ) const
+    {
+        return interArcContinuityDiscrepancyHistory_;
+    }
+
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
     {
         return simulationResultsPerIteration_.at( bestIteration_ );
@@ -1498,12 +1705,89 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration_;
 
+    //! Total inter-arc continuity-prior cost contribution per iteration (sum across all configured pairs). Empty if
+    //! no inter-arc continuity priors were attached. Populated via setInterArcContinuityCostHistory rather
+    //! than through the constructor (the ctor already takes 14+ positional args; extending it would be unwieldy
+    //! for an opt-in feature).
+    std::vector< double > interArcContinuityCostHistory_;
+
+    //! Per-iteration list of per-pair state discrepancies at every constrained boundary. Outer index is iteration,
+    //! inner index is pair index in the assembly order.
+    //! Populated via setInterArcContinuityDiscrepancyHistory; see comment above for rationale.
+    std::vector< std::vector< Eigen::VectorXd > > interArcContinuityDiscrepancyHistory_;
+
     //    //! List of numerical solutions of dynamics (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
     //    dynamicsHistoryPerIteration_;
 
     //    //! List of numerical solutions of dependent variables (per iteration, per arc)
     //    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+
+public:
+    //! Default constructor for deserialization only — not for general use
+    EstimationOutput( ):
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( ), bestIteration_( 0 ), residualStandardDeviation_( 0.0 ),
+        exceptionDuringInversion_( false ), numberOfParameters_( 0 )
+    {}
+
+    //! Save estimation output to a binary file
+    TUDAT_DEFINE_BINARY_IO( EstimationOutput< ObservationScalarType, TimeType > )
+
+protected:
+    bool equals( const EstimationOutput& rhs ) const
+    {
+        // for (auto result: simulationResultsPerIteration_) { @todo: finish checking all results for each iteraiton
+        //     if
+        // }
+        return CovarianceAnalysisOutput< ObservationScalarType, TimeType >::equals( rhs ) &&
+                ( parameterEstimate_ == rhs.parameterEstimate_ ) && ( residuals_ == rhs.residuals_ ) &&
+                ( bestIteration_ == rhs.bestIteration_ ) && ( residualStandardDeviation_ == rhs.residualStandardDeviation_ ) &&
+                ( residualHistory_ == rhs.residualHistory_ ) && ( parameterHistory_ == rhs.parameterHistory_ ) &&
+                ( exceptionDuringInversion_ == rhs.exceptionDuringInversion_ ) && ( numberOfParameters_ == rhs.numberOfParameters_ ) &&
+                ( interArcContinuityCostHistory_ == rhs.interArcContinuityCostHistory_ ) &&
+                ( interArcContinuityDiscrepancyHistory_ == rhs.interArcContinuityDiscrepancyHistory_ );
+    }
+
+private:
+    friend class cereal::access;
+
+    //! Serialize estimation output fields added by the observation-dataset redesign.
+    template< class Archive >
+    void save( Archive& ar, const std::uint32_t version ) const
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
+        ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+    }
+
+    //! Deserialize estimation output fields for the requested archive version.
+    template< class Archive >
+    void load( Archive& ar, const std::uint32_t version )
+    {
+        static_cast< void >( version );
+        ar( cereal::base_class< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >( this ) );
+        ar( CEREAL_NVP( parameterEstimate_ ) );
+        ar( CEREAL_NVP( residuals_ ) );
+        ar( CEREAL_NVP( bestIteration_ ) );
+        ar( CEREAL_NVP( residualStandardDeviation_ ) );
+        ar( CEREAL_NVP( residualHistory_ ) );
+        ar( CEREAL_NVP( parameterHistory_ ) );
+        ar( CEREAL_NVP( exceptionDuringInversion_ ) );
+        ar( CEREAL_NVP( numberOfParameters_ ) );
+        ar( CEREAL_NVP( simulationResultsPerIteration_ ) );
+        ar( CEREAL_NVP( interArcContinuityCostHistory_ ) );
+        ar( CEREAL_NVP( interArcContinuityDiscrepancyHistory_ ) );
+    }
 };
 
 // extern template class CovarianceAnalysisInput< double, double >;
@@ -1512,8 +1796,31 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
 // extern template class EstimationInput< double, double >;
 // extern template struct EstimationOutput< double >;
 
+// Type aliases for CEREAL_REGISTER_TYPE registration
+using CovarianceAnalysisOutputDD = CovarianceAnalysisOutput< double, double >;
+using EstimationOutputDD = EstimationOutput< double, double >;
+
+// Type aliases for <double, Time> instantiations (used in Python bindings)
+using CovarianceAnalysisOutputDT = CovarianceAnalysisOutput< double, Time >;
+using EstimationOutputDT = EstimationOutput< double, Time >;
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+// The existing version-zero layout predates sparse observation weights. Apply
+// the new version to every scalar/time specialization, including base subobjects
+// serialized as part of EstimationOutput.
+namespace cereal
+{
+namespace detail
+{
+//! Cereal version marker for covariance outputs containing sparse weights.
+template< typename ObservationScalarType, typename TimeType >
+struct Version< tudat::simulation_setup::CovarianceAnalysisOutput< ObservationScalarType, TimeType > > {
+    static constexpr std::uint32_t version = 1;
+};
+}  // namespace detail
+}  // namespace cereal
 
 #endif  // TUDAT_PODINPUTOUTPUTTYPES_H

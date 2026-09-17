@@ -8,10 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+#include <limits>
+#include <Eigen/Cholesky>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -22,6 +24,7 @@
 #include "tudat/simulation/estimation_setup/executePlanetaryParameterEstimationTestCase.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -49,7 +52,198 @@ Eigen::MatrixXd createStrictlyDominantWeightMatrix( const int size, const double
     return matrix;
 }
 
+Eigen::VectorXd solveDenseWeightedReference( const Eigen::MatrixXd& designMatrix,
+                                             const Eigen::MatrixXd& weights,
+                                             const Eigen::VectorXd& residuals,
+                                             const Eigen::VectorXd& normalization )
+{
+    const Eigen::MatrixXd normalMatrix = designMatrix.transpose( ) * weights * designMatrix;
+    // This fixture compares different factorizations at a tight tolerance. Keep
+    // the system well-conditioned, including after removing a range observation.
+    const double conditionNumber = linear_algebra::getConditionNumberOfDesignMatrix( normalMatrix );
+    BOOST_TEST_MESSAGE( "Dense reference normal-matrix condition number: " << conditionNumber );
+    BOOST_REQUIRE_LT( conditionNumber, 1.0E4 );
+    return normalMatrix.ldlt( ).solve( designMatrix.transpose( ) * weights * residuals ).cwiseQuotient( normalization );
+}
+
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
+
+//! Initial translational state with a user-defined hard linear constraint on each estimated correction.
+class LinearlyConstrainedInitialTranslationalStateParameter : public estimatable_parameters::InitialTranslationalStateParameter< double >
+{
+public:
+    LinearlyConstrainedInitialTranslationalStateParameter( const std::string& associatedBody,
+                                                           const Eigen::Vector6d& initialState,
+                                                           const std::string& centralBody ):
+        InitialTranslationalStateParameter< double >( associatedBody, initialState, centralBody )
+    {}
+
+    int getConstraintSize( ) override
+    {
+        return 1;
+    }
+
+    Eigen::MatrixXd getConstraintStateMultipler( ) override
+    {
+        Eigen::MatrixXd constraintMultiplier = Eigen::MatrixXd::Zero( 1, 6 );
+        constraintMultiplier( 0, 0 ) = 1.0;
+        constraintMultiplier( 0, 4 ) = 1000.0;
+        return constraintMultiplier;
+    }
+
+    Eigen::VectorXd getConstraintRightHandSide( ) override
+    {
+        return Eigen::VectorXd::Zero( 1 );
+    }
+};
+
+//! Test that a physical-space constraint remains valid when design-matrix columns have mixed scales.
+BOOST_AUTO_TEST_CASE( test_NormalizedLinearConstraints )
+{
+    Eigen::MatrixXd normalizedDesignMatrix( 3, 2 );
+    normalizedDesignMatrix << 1.0, 0.0, 0.0, 1.0, 1.0, 1.0;
+    const Eigen::VectorXd designMatrixNormalization = ( Eigen::Vector2d( ) << 1.0E6, 1.0E-3 ).finished( );
+    const Eigen::VectorXd residuals = ( Eigen::Vector3d( ) << 0.25, -0.5, 0.1 ).finished( );
+    const Eigen::VectorXd weights = Eigen::Vector3d::Ones( );
+
+    Eigen::MatrixXd physicalConstraint( 1, 2 );
+    physicalConstraint << 1.0, 1.0;
+    const Eigen::VectorXd physicalConstraintRightHandSide = Eigen::VectorXd::Constant( 1, 1.0 );
+
+    Eigen::MatrixXd normalizedConstraint = physicalConstraint;
+    Eigen::VectorXd normalizedConstraintRightHandSide = physicalConstraintRightHandSide;
+    simulation_setup::normalizeLinearConstraints( normalizedConstraint, normalizedConstraintRightHandSide, designMatrixNormalization );
+
+    const auto leastSquaresOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( normalizedDesignMatrix,
+                                                                           residuals,
+                                                                           weights,
+                                                                           Eigen::Matrix2d::Zero( ),
+                                                                           std::numeric_limits< double >::quiet_NaN( ),
+                                                                           normalizedConstraint,
+                                                                           normalizedConstraintRightHandSide );
+    const Eigen::Vector2d physicalCorrection = leastSquaresOutput.first.head( 2 ).cwiseQuotient( designMatrixNormalization );
+
+    BOOST_CHECK_SMALL( std::fabs( ( physicalConstraint * physicalCorrection - physicalConstraintRightHandSide )( 0 ) ), 1.0E-12 );
+    BOOST_CHECK_CLOSE_FRACTION( normalizedConstraint.cwiseAbs( ).maxCoeff( ), 1.0, 1.0E-15 );
+}
+
+//! Test a constrained least-squares orbit estimation with position and velocity corrections at different scales.
+BOOST_AUTO_TEST_CASE( test_LinearConstraintInEarthSatelliteEstimation )
+{
+    using namespace observation_models;
+    using namespace orbital_element_conversions;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double initialTime = 1.0E7;
+    const double finalTime = initialTime + 3.0 * 3600.0;
+
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Sun", "Moon" }, "Earth", "ECLIPJ2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Satellite" );
+    bodies.at( "Satellite" )->setConstantBodyMass( 400.0 );
+
+    // Use a modestly perturbed Earth-orbit model: Earth degree/order 2 gravity and point-mass Sun/Moon gravity.
+    SelectedAccelerationMap accelerationSettings;
+    accelerationSettings[ "Satellite" ][ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+    accelerationSettings[ "Satellite" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationSettings[ "Satellite" ][ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+
+    const std::vector< std::string > bodiesToPropagate = { "Satellite" };
+    const std::vector< std::string > centralBodies = { "Earth" };
+    const AccelerationMap accelerationModels =
+            createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
+
+    Eigen::Vector6d initialKeplerianState;
+    initialKeplerianState << 7200.0E3, 0.01, unit_conversions::convertDegreesToRadians( 55.0 ),
+            unit_conversions::convertDegreesToRadians( 40.0 ), unit_conversions::convertDegreesToRadians( 20.0 ),
+            unit_conversions::convertDegreesToRadians( 10.0 );
+    const Eigen::Vector6d trueInitialState = convertKeplerianToCartesianElements(
+            initialKeplerianState, bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+
+    const std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            rungeKuttaFixedStepSettings( 60.0, CoefficientSets::rungeKuttaFehlberg78 );
+    const std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >( centralBodies,
+                                                                                        accelerationModels,
+                                                                                        bodiesToPropagate,
+                                                                                        trueInitialState,
+                                                                                        initialTime,
+                                                                                        integratorSettings,
+                                                                                        propagationTimeTerminationSettings( finalTime ),
+                                                                                        cowell );
+
+    const std::shared_ptr< LinearlyConstrainedInitialTranslationalStateParameter > constrainedInitialState =
+            std::make_shared< LinearlyConstrainedInitialTranslationalStateParameter >( "Satellite", trueInitialState, "Earth" );
+    constrainedInitialState->addStateClosureFunctions(
+            [ propagatorSettings ]( ) { return propagatorSettings->getStateOfBody( 0 ); },
+            [ propagatorSettings ]( const Eigen::VectorXd& state ) { propagatorSettings->setStateOfBody( 0, state ); } );
+
+    const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > scalarParameters;
+    const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters;
+    const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > initialStateParameters = {
+        constrainedInitialState
+    };
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            std::make_shared< estimatable_parameters::EstimatableParameterSet< double > >(
+                    scalarParameters, vectorParameters, initialStateParameters );
+
+    LinkEnds linkEnds;
+    linkEnds[ observed_body ] = LinkEndId( "Satellite", "" );
+    const std::vector< std::shared_ptr< ObservationModelSettings > > observationModelSettings = {
+        std::make_shared< ObservationModelSettings >( position_observable, linkEnds )
+    };
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, observationModelSettings, propagatorSettings );
+
+    std::vector< double > observationTimes;
+    for( double observationTime = initialTime; observationTime <= finalTime; observationTime += 300.0 )
+    {
+        observationTimes.push_back( observationTime );
+    }
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings = {
+        std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                position_observable, linkEnds, observationTimes, observed_body )
+    };
+    const std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+    Eigen::Vector6d initialStatePerturbation;
+    initialStatePerturbation << 1.0E3, 1.0E3, 1.0E3, 1.0, 1.0, 1.0;
+    const Eigen::Vector6d perturbedInitialState = trueInitialState + initialStatePerturbation;
+    orbitDeterminationManager.resetParameterEstimate( perturbedInitialState, true );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+            simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), estimationConvergenceChecker( 4, 0.0, 0.0, 100 ) );
+    estimationInput->defineEstimationSettings( true, true, true, true, true );
+
+    const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringPropagation_ );
+
+    const Eigen::MatrixXd initialStateHistory = estimationOutput->getParameterHistoryMatrix( );
+    BOOST_REQUIRE_EQUAL( initialStateHistory.rows( ), 6 );
+    BOOST_REQUIRE_GE( initialStateHistory.cols( ), 2 );
+    for( int stateIndex = 0; stateIndex < 6; stateIndex++ )
+    {
+        BOOST_CHECK_SMALL( initialStateHistory( stateIndex, 0 ) - perturbedInitialState( stateIndex ), 1.0E-12 );
+    }
+
+    for( int iteration = 1; iteration < initialStateHistory.cols( ); iteration++ )
+    {
+        const Eigen::Vector6d stateCorrection = initialStateHistory.col( iteration ) - initialStateHistory.col( iteration - 1 );
+        const double constraintResidual = stateCorrection( 0 ) + 1000.0 * stateCorrection( 4 );
+        const double constraintScale =
+                std::max( 1.0, std::max( std::fabs( stateCorrection( 0 ) ), std::fabs( 1000.0 * stateCorrection( 4 ) ) ) );
+        BOOST_CHECK_SMALL( constraintResidual, 1.0E-9 * constraintScale );
+    }
+
+    const Eigen::Vector6d totalStateCorrection = initialStateHistory.col( initialStateHistory.cols( ) - 1 ) - initialStateHistory.col( 0 );
+    BOOST_CHECK_SMALL( totalStateCorrection( 0 ) + 1000.0 * totalStateCorrection( 4 ), 1.0E-7 );
+}
 
 //! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
 //! correctly handed
@@ -171,6 +365,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
  * parameter update, final estimation inverse covariance and covariance-analysis
  * inverse covariance.
  */
+//! Verify estimation and covariance analysis preserve off-diagonal observation weights.
 BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 {
     using namespace observation_models;
@@ -295,12 +490,16 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< ObservationDataset< double, double > > simulatedObservations = simulateObservationDataset< double, double >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-    const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInOrderedFlattenedDataOrder( );
+    const std::vector< unsigned int > orderedSetIds = simulatedObservations->getSetIdsInObservationVectorOrder( );
 
     // The simulated dataset is intentionally inserted out of observable/link-end order.
     BOOST_REQUIRE_EQUAL( orderedSetIds.size( ), simulatedObservations->getNumberOfObservationSets( ) );
     BOOST_CHECK( orderedSetIds.front( ) != 0 );
 
+    // Range residuals are in metres and angular residuals in radians. Use
+    // microradian-scale angular uncertainty so both constrain the state; equal
+    // numeric weights make the mixed system nearly singular after rejection.
+    const double angularWeightScale = 1.0E12;
     std::map< unsigned int, Eigen::MatrixXd > expectedSetWeightMatrices;
     int numberOfObservationBlockSets = 0;
     int numberOfSetBlockSets = 0;
@@ -321,6 +520,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
                 Eigen::Matrix2d currentBlock;
                 currentBlock << 8.0 + stationOffset + 0.2 * static_cast< double >( i ), 0.2 + 0.02 * static_cast< double >( i ),
                         0.2 + 0.02 * static_cast< double >( i ), 6.0 + stationOffset + 0.15 * static_cast< double >( i );
+                currentBlock *= angularWeightScale;
                 simulatedObservations->setWeightMatrixForObservation( observationIds.at( i ), currentBlock );
                 expectedSetMatrix.block( 2 * static_cast< int >( i ), 2 * static_cast< int >( i ), 2, 2 ) = currentBlock;
             }
@@ -331,7 +531,9 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         {
             const double baseDiagonal = metadata.observableType_ == one_way_range ? 4.0 : 7.0;
             const double couplingScale = metadata.observableType_ == one_way_range ? 0.02 : 0.01;
-            const Eigen::MatrixXd setWeightMatrix = createStrictlyDominantWeightMatrix( setSize, baseDiagonal, couplingScale );
+            const double weightScale = metadata.observableType_ == angular_position ? angularWeightScale : 1.0;
+            const Eigen::MatrixXd setWeightMatrix =
+                    weightScale * createStrictlyDominantWeightMatrix( setSize, baseDiagonal, couplingScale );
             simulatedObservations->setWeightMatrixForSet( setId, setWeightMatrix );
             expectedSetWeightMatrices[ setId ] = setWeightMatrix;
             ++numberOfSetBlockSets;
@@ -355,7 +557,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
         currentStartIndex += currentSetSize;
     }
 
-    // The reference dense matrix must span the complete ordered flattened data vector.
+    // The reference dense matrix must span the complete ordered observation vector.
     BOOST_CHECK_EQUAL( currentStartIndex, totalObservationSize );
 
     std::vector< unsigned int > rangeSetIds;
@@ -381,8 +583,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     crossSetWeightBlock << 0.35, 0.04, 0.06, 0.31;
     simulatedObservations->setWeightBlock( rowBlockObservationIds, columnBlockObservationIds, crossSetWeightBlock );
 
-    auto getOrderedFlattenedDataIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
-                                                                                           const unsigned int componentIndex ) {
+    auto getOrderedObservationVectorIndex = [ &simulatedObservations, &orderedSetStartIndex ]( const unsigned int observationId,
+                                                                                               const unsigned int componentIndex ) {
         const ObservationDatasetRow< double >& row = simulatedObservations->getObservationRow( observationId );
         return orderedSetStartIndex.at( row.setId_ ) + static_cast< int >( row.indexInSet_ * row.scalarSize_ + componentIndex );
     };
@@ -390,16 +592,16 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     {
         for( unsigned int j = 0; j < columnBlockObservationIds.size( ); ++j )
         {
-            const int rowIndex = getOrderedFlattenedDataIndex( rowBlockObservationIds.at( i ), 0 );
-            const int columnIndex = getOrderedFlattenedDataIndex( columnBlockObservationIds.at( j ), 0 );
+            const int rowIndex = getOrderedObservationVectorIndex( rowBlockObservationIds.at( i ), 0 );
+            const int columnIndex = getOrderedObservationVectorIndex( columnBlockObservationIds.at( j ), 0 );
             expectedFullWeightsMatrix( rowIndex, columnIndex ) = crossSetWeightBlock( i, j );
             expectedFullWeightsMatrix( columnIndex, rowIndex ) = crossSetWeightBlock( i, j );
         }
     }
 
-    const FlattenedObservationData< double, double > weightData = simulatedObservations->createOrderedFlattenedObservationData( );
+    const ObservationVectorData< double, double > weightData = simulatedObservations->createOrderedObservationVectorData( );
 
-    // Dataset flattened data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
+    // Dataset observation vector data must contain the exact sparse off-diagonal matrix and expose its diagonal as the compact vector.
     BOOST_CHECK( weightData.hasOffDiagonalWeights( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( weightData.getWeightVector( ), expectedFullWeightsMatrix.diagonal( ), 1.0E-15 );
@@ -423,10 +625,8 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_REQUIRE_EQUAL( singleStepEstimationOutput->residualHistory_.size( ), 1 );
     const Eigen::MatrixXd singleStepDesignMatrix = singleStepEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd singleStepResiduals = singleStepEstimationOutput->residualHistory_.at( 0 );
-    const Eigen::VectorXd expectedSingleStepParameterUpdate =
-            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    singleStepDesignMatrix, singleStepResiduals, weightData.getSparseWeightMatrix( ) )
-                    .first.cwiseQuotient( singleStepEstimationOutput->getNormalizationTerms( ) );
+    const Eigen::VectorXd expectedSingleStepParameterUpdate = solveDenseWeightedReference(
+            singleStepDesignMatrix, expectedFullWeightsMatrix, singleStepResiduals, singleStepEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualSingleStepParameterUpdate =
             singleStepEstimationOutput->parameterHistory_.at( 1 ) - singleStepEstimationOutput->parameterHistory_.at( 0 );
 
@@ -482,9 +682,9 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     simulatedObservations->rejectObservations( rejectedObservationSelectionCondition, "excluded from estimation system" );
     simulatedObservations->setResidualVector(
             Eigen::VectorXd::Constant( static_cast< int >( simulatedObservations->getTotalScalarSize( ) ), -12345.0 ) );
-    const FlattenedObservationData< double, double > activeData = simulatedObservations->createOrderedFlattenedObservationData( false );
+    const ObservationVectorData< double, double > activeData = simulatedObservations->createOrderedObservationVectorData( false );
 
-    // Rejecting one observation must remove only its scalar rows from the estimator-facing flattened data.
+    // Rejecting one observation must remove only its scalar rows from the estimator-facing observation vector data.
     BOOST_CHECK_EQUAL( activeData.getObservationVector( ).size( ), totalObservationSize - rejectedObservationSize );
 
     parametersToEstimate->resetParameterValues( perturbedState );
@@ -501,8 +701,7 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     BOOST_CHECK_EQUAL( rejectedEstimationOutput->residuals_.size( ), activeData.getObservationVector( ).size( ) );
     BOOST_CHECK_EQUAL( rejectedEstimationOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
 
-    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags =
-            rejectedEstimationOutput->getActiveFlagsPerIterationMatrix( );
+    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedEstimationOutput->getActiveFlagsPerIterationMatrix( );
     BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedEstimationOutput->residualHistory_.at( 0 ).rows( ) );
     BOOST_REQUIRE_EQUAL( activeFlags.cols( ), 1 );
     for( int row = 0; row < activeFlags.rows( ); row++ )
@@ -516,10 +715,30 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
 
     const Eigen::MatrixXd rejectedSingleStepDesignMatrix = rejectedEstimationOutput->getNormalizedDesignMatrix( );
     const Eigen::VectorXd rejectedSingleStepResiduals = rejectedEstimationOutput->residuals_;
+    // Independently remove the rejected event's scalar range from the hand-built matrix.
+    const int rejectedStart = getOrderedObservationVectorIndex( rejectedObservationId, 0 );
+    std::vector< int > retainedScalars;
+    for( int i = 0; i < expectedFullWeightsMatrix.rows( ); ++i )
+    {
+        if( i < rejectedStart || i >= rejectedStart + static_cast< int >( rejectedObservationSize ) )
+        {
+            retainedScalars.push_back( i );
+        }
+    }
+    Eigen::MatrixXd expectedActiveWeights( retainedScalars.size( ), retainedScalars.size( ) );
+    for( std::size_t i = 0; i < retainedScalars.size( ); ++i )
+    {
+        for( std::size_t j = 0; j < retainedScalars.size( ); ++j )
+        {
+            expectedActiveWeights( i, j ) = expectedFullWeightsMatrix( retainedScalars.at( i ), retainedScalars.at( j ) );
+        }
+    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( activeData.getSparseWeightMatrix( ).toDense( ), expectedActiveWeights, 1.0E-15 );
     const Eigen::VectorXd expectedRejectedStepParameterUpdate =
-            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                    rejectedSingleStepDesignMatrix, rejectedSingleStepResiduals, activeData.getSparseWeightMatrix( ) )
-                    .first.cwiseQuotient( rejectedEstimationOutput->getNormalizationTerms( ) );
+            solveDenseWeightedReference( rejectedSingleStepDesignMatrix,
+                                         expectedActiveWeights,
+                                         rejectedSingleStepResiduals,
+                                         rejectedEstimationOutput->getNormalizationTerms( ) );
     const Eigen::VectorXd actualRejectedStepParameterUpdate =
             rejectedEstimationOutput->parameterHistory_.at( 1 ) - rejectedEstimationOutput->parameterHistory_.at( 0 );
 
@@ -533,12 +752,48 @@ BOOST_AUTO_TEST_CASE( test_OffDiagonalWeightsInEstimationAndCovariance )
     std::shared_ptr< CovarianceAnalysisOutput< double, double > > rejectedCovarianceOutput =
             orbitDeterminationManager.computeCovariance( rejectedCovarianceInput );
 
-    // Covariance analysis must use the same active-only flattened data as differential correction.
+    // Covariance analysis must use the same active-only observation vector data as differential correction.
     BOOST_CHECK_EQUAL( rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).rows( ), activeData.getObservationVector( ).size( ) );
     const Eigen::MatrixXd expectedRejectedInverseCovariance = rejectedCovarianceOutput->getUnnormalizedDesignMatrix( ).transpose( ) *
-            activeData.getSparseWeightMatrix( ).toDense( ) * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
+            expectedActiveWeights * rejectedCovarianceOutput->getUnnormalizedDesignMatrix( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             rejectedCovarianceOutput->getUnnormalizedInverseCovarianceMatrix( ), expectedRejectedInverseCovariance, 1.0E-13 );
+
+    simulatedObservations->restoreObservations( rejectedObservationSelectionCondition );
+    const auto restoredVectorData = simulatedObservations->createObservationVectorData( );
+    BOOST_CHECK( restoredVectorData.getObservationIds( ) == weightData.getObservationIds( ) );
+    BOOST_CHECK( restoredVectorData.getTimes( ) == weightData.getTimes( ) );
+    BOOST_CHECK_EQUAL( simulatedObservations->getObservationRow( rejectedObservationId ).rejectionReason_,
+                       "excluded from estimation system" );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( restoredVectorData.getSparseWeightMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+
+    // The base API accepts collections of shared legacy sets. Exercise its fresh
+    // preparation and residual writeback through the actual estimation manager.
+    std::vector< std::shared_ptr< SingleObservationSet<> > > legacySets;
+    for( unsigned int setId = 0; setId < simulatedObservations->getNumberOfObservationSets( ); ++setId )
+    {
+        legacySets.push_back( std::make_shared< SingleObservationSet<> >( simulatedObservations, setId ) );
+    }
+    auto legacyCollection = std::make_shared< ObservationCollection<> >( legacySets );
+    auto legacyInput = std::make_shared< EstimationInput<> >( legacyCollection );
+    legacyInput->defineEstimationSettings( true, true, true, false, true, false );
+    legacyInput->setConvergenceChecker( estimationConvergenceChecker( 1, 0.0, 1.0E-20, 4 ) );
+    simulatedObservations->setResidualVector( Eigen::VectorXd::Constant( totalObservationSize, -12345.0 ) );
+    parametersToEstimate->resetParameterValues( perturbedState );
+    const auto legacyOutput = orbitDeterminationManager.estimateParameters( legacyInput );
+    BOOST_CHECK( legacyInput->getObservationCollection( ) == legacyCollection );
+    BOOST_CHECK( legacySets.front( )->getObservationDataset( ) == simulatedObservations );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyOutput->getWeightsMatrix( ).toDense( ), expectedFullWeightsMatrix, 1.0E-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            simulatedObservations->createObservationVectorData( ).getResidualVector( ), legacyOutput->residualHistory_.front( ), 1.0E-13 );
+
+    simulatedObservations->rejectObservations( ObservationSelectionCondition<>::all( ) );
+    const auto reportsEmptySelection = []( const std::runtime_error& error ) {
+        return std::string( error.what( ) ).find( "without active observations" ) != std::string::npos;
+    };
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( legacyInput ), std::runtime_error, reportsEmptySelection );
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.estimateParameters( estimationInput ), std::runtime_error, reportsEmptySelection );
+    BOOST_CHECK_EXCEPTION( orbitDeterminationManager.computeCovariance( covarianceInput ), std::runtime_error, reportsEmptySelection );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -715,7 +714,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerVehicleSystemTransponderDelay )
 
     observationModel->computeIdealObservationsWithLinkEndData(
             observationTime, receiver, linkEndTimes, linkEndStates, getNWayRangeAncillarySettings( { ancillaryDelay } ) );
-    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - ancillaryDelay ),
+    // Mars's stored response delay must be used even when this observation supplies a different delay.
+    BOOST_CHECK_SMALL( std::fabs( linkEndTimes.at( 2 ) - linkEndTimes.at( 1 ) - vehicleSystemDelay ),
                        observationTime * std::numeric_limits< double >::epsilon( ) );
 }
 

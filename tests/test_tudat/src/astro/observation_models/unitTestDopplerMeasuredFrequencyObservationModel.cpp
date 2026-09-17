@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 
@@ -151,9 +150,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
         std::shared_ptr< observation_models::ObservationDataset< double, Time > > observationDataset =
                 createObservationDatasetFromTrackingData< double, Time >( trackingDataAndSupplementaryData.first, bodies );
 
-        auto flattenedData = observationDataset->createEstimationFlattenedObservationData( );
-        auto observationTimes = flattenedData.getTimes( );
-        auto observations = flattenedData.getObservationVector( );
+        auto observationVectorData = observationDataset->createObservationVectorData( );
+        auto observationTimes = observationVectorData.getTimes( );
+        auto observations = observationVectorData.getObservationVector( );
 
         // Compute observables
         std::vector< double > linkEndTimes;

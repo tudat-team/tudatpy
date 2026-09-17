@@ -22,134 +22,6 @@ namespace observation_models
 namespace observation_dataset_detail
 {
 
-template< typename ObservationScalarType, typename TimeType >
-int getTotalScalarSizeForNewObservationSet( const ObservableType observableType,
-                                            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations )
-{
-    if( observations.empty( ) )
-    {
-        return 0;
-    }
-
-    const int observableSize = observations.front( ).size( );
-    if( observableSize != getObservableSize( observableType ) )
-    {
-        throw std::runtime_error( "Error when adding observation set with weight block, observable size is inconsistent." );
-    }
-
-    for( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observation : observations )
-    {
-        if( observation.size( ) != observableSize )
-        {
-            throw std::runtime_error( "Error when adding observation set with weight block, scalar component size is inconsistent." );
-        }
-    }
-    return static_cast< int >( observations.size( ) ) * observableSize;
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void validateObservationWeightBlock( const ObservableType observableType,
-                                     const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-                                     const Eigen::MatrixXd& weightBlock )
-{
-    const int observableSize = observations.empty( ) ? getObservableSize( observableType ) : observations.front( ).size( );
-    getTotalScalarSizeForNewObservationSet< ObservationScalarType, TimeType >( observableType, observations );
-    if( weightBlock.rows( ) != observableSize || weightBlock.cols( ) != observableSize )
-    {
-        throw std::runtime_error( "Error when adding observation set with weight block, matrix size is inconsistent." );
-    }
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void validateObservationWeightBlocks( const ObservableType observableType,
-                                      const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-                                      const std::vector< Eigen::MatrixXd >& weightBlocks )
-{
-    if( weightBlocks.size( ) != observations.size( ) )
-    {
-        throw std::runtime_error( "Error when adding observation set with weight blocks, weight count is inconsistent." );
-    }
-    getTotalScalarSizeForNewObservationSet< ObservationScalarType, TimeType >( observableType, observations );
-    for( std::size_t i = 0; i < observations.size( ); ++i )
-    {
-        if( weightBlocks.at( i ).rows( ) != observations.at( i ).size( ) || weightBlocks.at( i ).cols( ) != observations.at( i ).size( ) )
-        {
-            throw std::runtime_error( "Error when adding observation set with weight blocks, matrix size is inconsistent." );
-        }
-    }
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void validateSetWeightBlock( const ObservableType observableType,
-                             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-                             const Eigen::MatrixXd& setWeightBlock )
-{
-    const int totalScalarSize = getTotalScalarSizeForNewObservationSet< ObservationScalarType, TimeType >( observableType, observations );
-    if( setWeightBlock.rows( ) != totalScalarSize || setWeightBlock.cols( ) != totalScalarSize )
-    {
-        throw std::runtime_error( "Error when adding observation set with set weight block, matrix size is inconsistent." );
-    }
-}
-
-template< typename ObservationScalarType, typename TimeType >
-void validateObservationWeightSettings( const ObservableType observableType,
-                                        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-                                        const ObservationWeightSettings& weightSettings )
-{
-    switch( weightSettings.type_ )
-    {
-        case ObservationWeightSettings::Type::default_weights:
-        case ObservationWeightSettings::Type::constant_scalar:
-            return;
-        case ObservationWeightSettings::Type::scalar_per_observation:
-            if( weightSettings.scalarWeights_.size( ) != observations.size( ) )
-            {
-                throw std::runtime_error( "Error when adding observation set with scalar weights, weight count is inconsistent." );
-            }
-            return;
-        case ObservationWeightSettings::Type::constant_block:
-            validateObservationWeightBlock< ObservationScalarType, TimeType >( observableType, observations, weightSettings.weightBlock_ );
-            return;
-        case ObservationWeightSettings::Type::block_per_observation:
-            validateObservationWeightBlocks< ObservationScalarType, TimeType >(
-                    observableType, observations, weightSettings.weightBlocks_ );
-            return;
-        case ObservationWeightSettings::Type::set_block:
-            validateSetWeightBlock< ObservationScalarType, TimeType >( observableType, observations, weightSettings.weightBlock_ );
-            return;
-        default:
-            throw std::runtime_error( "Error when adding observation set with weights, weight settings type is invalid." );
-    }
-}
-
-template< typename DatasetType, typename ObservationScalarType, typename TimeType, typename ApplyWeightsFunction >
-int addObservationSetAndApplyWeights(
-        DatasetType& dataset,
-        const ObservableType observableType,
-        const LinkDefinition& linkDefinition,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-        const std::vector< TimeType >& times,
-        const LinkEndType referenceLinkEnd,
-        const std::vector< Eigen::VectorXd >& dependentVariables,
-        const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping,
-        const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
-        ApplyWeightsFunction applyWeights )
-{
-    const unsigned int setId = dataset.addObservationSet( observableType,
-                                                          linkDefinition,
-                                                          observations,
-                                                          times,
-                                                          referenceLinkEnd,
-                                                          dependentVariables,
-                                                          dependentVariableBookkeeping,
-                                                          ancillarySettings,
-                                                          std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >( ),
-                                                          residuals );
-    applyWeights( setId );
-    return setId;
-}
-
 template< typename ObservationScalarType >
 Eigen::VectorXd accumulateResidualStatistic( const unsigned int observableSize,
                                              const std::size_t numberOfObservations,
@@ -198,12 +70,12 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > preparedWeights = weights;
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > preparedResiduals = residuals;
 
-    const unsigned int observableSize = preparedObservations.empty( ) ? static_cast< unsigned int >( getObservableSize( observableType ) )
-                                                                      : preparedObservations.at( 0 ).size( );
-    if( observableSize == 0 )
+    const int declaredObservableSize = getObservableSize( observableType );
+    if( declaredObservableSize <= 0 )
     {
-        throw std::runtime_error( "Error when adding observation set to dataset, observable size is zero." );
+        throw std::runtime_error( "Error when adding observation set to dataset, observable size is invalid." );
     }
+    const unsigned int observableSize = static_cast< unsigned int >( declaredObservableSize );
 
     if( preparedObservations.size( ) != preparedTimes.size( ) )
     {
@@ -222,11 +94,28 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         throw std::runtime_error( "Error when adding observation set to dataset, dependent variable size is inconsistent." );
     }
 
+    int dependentVariableSize = -1;
+    if( dependentVariableBookkeeping != nullptr )
+    {
+        if( dependentVariableBookkeeping->getObservableType( ) != observableType ||
+            !( dependentVariableBookkeeping->getLinkEnds( ) == linkDefinition ) )
+        {
+            throw std::runtime_error(
+                    "Error when adding observation set to dataset, dependent-variable bookkeeping is incompatible with the set." );
+        }
+        dependentVariableSize = dependentVariableBookkeeping->getTotalDependentVariableSize( );
+    }
+    else if( !preparedDependentVariables.empty( ) )
+    {
+        dependentVariableSize = preparedDependentVariables.front( ).size( );
+    }
+
     for( std::size_t i = 0; i < preparedObservations.size( ); ++i )
     {
         if( preparedObservations.at( i ).size( ) != static_cast< int >( observableSize ) ||
             ( !preparedResiduals.empty( ) && preparedResiduals.at( i ).size( ) != static_cast< int >( observableSize ) ) ||
-            ( !preparedWeights.empty( ) && preparedWeights.at( i ).size( ) != static_cast< int >( observableSize ) ) )
+            ( !preparedWeights.empty( ) && preparedWeights.at( i ).size( ) != static_cast< int >( observableSize ) ) ||
+            ( !preparedDependentVariables.empty( ) && preparedDependentVariables.at( i ).size( ) != dependentVariableSize ) )
         {
             throw std::runtime_error( "Error when adding observation set to dataset, scalar component size is inconsistent." );
         }
@@ -253,10 +142,11 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
 
     if( eraseDuplicateObservations && preparedTimes.size( ) > 1 )
     {
+        std::set< TimeType > retainedTimes;
         std::vector< unsigned int > indicesToRemove;
-        for( unsigned int i = 1; i < preparedTimes.size( ); ++i )
+        for( unsigned int i = 0; i < preparedTimes.size( ); ++i )
         {
-            if( preparedTimes.at( i ) == preparedTimes.at( i - 1 ) )
+            if( !retainedTimes.insert( preparedTimes.at( i ) ).second )
             {
                 indicesToRemove.push_back( i );
             }
@@ -284,6 +174,11 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         }
     }
 
+    for( const auto& weight : weights )
+    {
+        ObservationWeights::validateDiagonal( weight );
+    }
+
     const unsigned int linkDefinitionId = registerLinkDefinition( linkDefinition );
     const unsigned int ancillarySettingsId = registerAncillarySettings( ancillarySettings );
     const unsigned int dependentVariableLayoutId = registerDependentVariableLayout( dependentVariableBookkeeping );
@@ -295,41 +190,8 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
     observationIdsBySet_.push_back( std::vector< unsigned int >( ) );
     observationIdsBySet_.back( ).reserve( preparedObservations.size( ) );
 
-    for( std::size_t i = 0; i < preparedObservations.size( ); ++i )
-    {
-        const unsigned int observationId = observationRows_.size( );
-        const unsigned int firstScalarComponent = scalarComponentRows_.size( );
-        const Eigen::VectorXd dependentVariablesForObservation =
-                preparedDependentVariables.empty( ) ? Eigen::VectorXd( ) : preparedDependentVariables.at( i );
-
-        observationRows_.push_back( { preparedTimes.at( i ),
-                                      setId,
-                                      firstScalarComponent,
-                                      observableSize,
-                                      static_cast< unsigned int >( i ),
-                                      dependentVariablesForObservation,
-                                      true,
-                                      "" } );
-        observationIdsBySet_.back( ).push_back( observationId );
-
-        for( unsigned int componentIndex = 0; componentIndex < observableSize; ++componentIndex )
-        {
-            scalarComponentRows_.push_back( { observationId, componentIndex } );
-            observedValues_.push_back( preparedObservations.at( i )( componentIndex ) );
-            residualValues_.push_back( preparedResiduals.empty( ) ? ObservationScalarType( 0 )
-                                                                  : preparedResiduals.at( i )( componentIndex ) );
-        }
-
-        if( preparedWeights.empty( ) )
-        {
-            observationWeights_.appendScalarWeight( 1.0, false );
-        }
-        else
-        {
-            observationWeights_.appendDiagonalWeightVector( preparedWeights.at( i ), true );
-        }
-    }
-
+    addObservationsToSet(
+            setId, preparedObservations, preparedTimes, preparedDependentVariables, preparedWeights, preparedResiduals, false );
     ++structuralVersion_;
     return setId;
 }
@@ -341,43 +203,46 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const ObservationDataset< ObservationScalarType, TimeType >& sourceDataset,
         const unsigned int sourceSetId )
 {
+    if( &sourceDataset == this )
+    {
+        const ObservationDataset< ObservationScalarType, TimeType > sourceSnapshot( sourceDataset );
+        return addObservationSetFromDataset( sourceSnapshot, sourceSetId );
+    }
+
     const ObservationSetMetadata< ObservationScalarType, TimeType >& sourceMetadata =
             sourceDataset.getObservationSetMetadata( sourceSetId );
-    const unsigned int newSetId =
-            addObservationSet( sourceMetadata.observableType_,
-                               sourceDataset.getLinkDefinition( sourceMetadata.linkDefinitionId_ ),
-                               sourceDataset.getObservationsForSet( sourceSetId ),
-                               sourceDataset.getObservationTimesForSet( sourceSetId ),
-                               sourceMetadata.referenceLinkEnd_,
-                               sourceDataset.getDependentVariablesForSet( sourceSetId ),
-                               sourceDataset.getDependentVariableBookkeeping( sourceMetadata.dependentVariableLayoutId_ ),
-                               sourceDataset.getAncillarySettings( sourceMetadata.ancillarySettingsId_ ),
-                               sourceDataset.getWeightsForSet( sourceSetId ),
-                               sourceDataset.getResidualsForSet( sourceSetId ) );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& sourceBookkeeping =
+            sourceDataset.getDependentVariableBookkeeping( sourceMetadata.dependentVariableLayoutId_ );
+    const std::shared_ptr< ObservationAncillarySimulationSettings >& sourceAncillarySettings =
+            sourceDataset.getAncillarySettings( sourceMetadata.ancillarySettingsId_ );
+    const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > copiedBookkeeping =
+            sourceBookkeeping == nullptr ? nullptr : sourceBookkeeping->clone( );
+    const std::shared_ptr< ObservationAncillarySimulationSettings > copiedAncillarySettings = sourceAncillarySettings == nullptr
+            ? nullptr
+            : std::make_shared< ObservationAncillarySimulationSettings >( *sourceAncillarySettings );
+    const unsigned int newSetId = addObservationSet( sourceMetadata.observableType_,
+                                                     sourceDataset.getLinkDefinition( sourceMetadata.linkDefinitionId_ ),
+                                                     sourceDataset.getObservationsForSet( sourceSetId ),
+                                                     sourceDataset.getObservationTimesForSet( sourceSetId ),
+                                                     sourceMetadata.referenceLinkEnd_,
+                                                     sourceDataset.getDependentVariablesForSet( sourceSetId ),
+                                                     copiedBookkeeping,
+                                                     copiedAncillarySettings,
+                                                     sourceDataset.getWeightsForSet( sourceSetId ),
+                                                     sourceDataset.getResidualsForSet( sourceSetId ) );
 
-    const std::vector< unsigned int >& sourceObservationIds = sourceDataset.getObservationIdsForSet( sourceSetId );
-    const std::vector< unsigned int >& targetObservationIds = getObservationIdsForSet( newSetId );
-    std::map< unsigned int, unsigned int > scalarComponentIdMap;
-    for( std::size_t i = 0; i < sourceObservationIds.size( ); ++i )
+    const auto& sourceIds = sourceDataset.getObservationIdsForSet( sourceSetId );
+    const auto& targetIds = getObservationIdsForSet( newSetId );
+    for( std::size_t i = 0; i < sourceIds.size( ); ++i )
     {
-        const unsigned int sourceObservationId = sourceObservationIds.at( i );
-        const unsigned int targetObservationId = targetObservationIds.at( i );
-        copyObservationStateAndWeightFrom( sourceDataset, sourceObservationId, targetObservationId );
-
-        // Extra weight blocks are keyed by global scalar-component ids, so copy by remapping the ids of the cloned rows.
-        const ObservationDatasetRow< TimeType >& sourceRow = sourceDataset.observationRows_.at( sourceObservationId );
-        const ObservationDatasetRow< TimeType >& targetRow = observationRows_.at( targetObservationId );
-        for( unsigned int componentIndex = 0; componentIndex < sourceRow.scalarSize_; ++componentIndex )
-        {
-            scalarComponentIdMap[ sourceRow.firstScalarComponent_ + componentIndex ] = targetRow.firstScalarComponent_ + componentIndex;
-        }
+        const auto& source = sourceDataset.getObservationRow( sourceIds.at( i ) );
+        auto& target = mutableObservationRow( targetIds.at( i ) );
+        target.isActive_ = source.isActive_;
+        target.rejectionReason_ = source.rejectionReason_;
     }
-
-    if( sourceDataset.hasWeightMatrixForSet( sourceSetId ) )
-    {
-        setWeightMatrixForSet( newSetId, sourceDataset.getWeightMatrixForSet( sourceSetId ) );
-    }
-    copyRemappedExtraWeightBlocksFrom( sourceDataset, scalarComponentIdMap );
+    observationWeights_.copyBlock(
+            sourceDataset.observationWeights_.restricted( sourceDataset.getScalarComponentIdsForObservationSelection( sourceIds, {} ) ),
+            getScalarComponentIdsForObservationSelection( targetIds, {} ) );
     return newSetId;
 }
 
@@ -396,56 +261,19 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
 {
-    // Validate the weight policy before adding the set, so invalid weights cannot leave a partial set behind.
-    observation_dataset_detail::validateObservationWeightSettings< ObservationScalarType, TimeType >(
-            observableType, observations, weightSettings );
-
-    // Add observations through the normal path, then apply the selected weight policy to the new set.
-    return observation_dataset_detail::addObservationSetAndApplyWeights(
-            *this,
-            observableType,
-            linkDefinition,
-            observations,
-            times,
-            referenceLinkEnd,
-            dependentVariables,
-            dependentVariableBookkeeping,
-            ancillarySettings,
-            residuals,
-            [ & ]( const unsigned int setId ) {
-                const std::vector< unsigned int >& observationIds = getObservationIdsForSet( setId );
-                switch( weightSettings.type_ )
-                {
-                    case ObservationWeightSettings::Type::default_weights:
-                        return;
-                    case ObservationWeightSettings::Type::constant_scalar:
-                        setConstantSingleObservationScalarWeightForSet( setId, weightSettings.scalarWeight_ );
-                        return;
-                    case ObservationWeightSettings::Type::scalar_per_observation:
-                        for( std::size_t i = 0; i < weightSettings.scalarWeights_.size( ); ++i )
-                        {
-                            observationWeights_.setScalarWeight( observationIds.at( i ), weightSettings.scalarWeights_.at( i ) );
-                        }
-                        return;
-                    case ObservationWeightSettings::Type::constant_block:
-                        for( const unsigned int observationId : observationIds )
-                        {
-                            setWeightMatrixForObservation( observationId, weightSettings.weightBlock_ );
-                        }
-                        return;
-                    case ObservationWeightSettings::Type::block_per_observation:
-                        for( std::size_t i = 0; i < weightSettings.weightBlocks_.size( ); ++i )
-                        {
-                            setWeightMatrixForObservation( observationIds.at( i ), weightSettings.weightBlocks_.at( i ) );
-                        }
-                        return;
-                    case ObservationWeightSettings::Type::set_block:
-                        setWeightMatrixForSet( setId, weightSettings.weightBlock_ );
-                        return;
-                    default:
-                        throw std::runtime_error( "Error when applying observation weight settings, weight settings type is invalid." );
-                }
-            } );
+    const auto weights = ObservationWeights::forSet( observations.size( ), getObservableSize( observableType ), weightSettings );
+    const unsigned int setId = addObservationSet( observableType,
+                                                  linkDefinition,
+                                                  observations,
+                                                  times,
+                                                  referenceLinkEnd,
+                                                  dependentVariables,
+                                                  dependentVariableBookkeeping,
+                                                  ancillarySettings,
+                                                  {},
+                                                  residuals );
+    observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
+    return setId;
 }
 
 // Replace every vector-valued observation in one set without changing row metadata.
@@ -462,6 +290,14 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setObservatio
     if( observations.size( ) != observationIds.size( ) )
     {
         throw std::runtime_error( "Error when setting dataset observations, number of observations is inconsistent." );
+    }
+
+    for( const auto& value : observations )
+    {
+        if( value.size( ) != static_cast< Eigen::Index >( getObservationSetMetadata( setId ).observableSize_ ) )
+        {
+            throw std::runtime_error( "Observation component size is inconsistent." );
+        }
     }
 
     // Delegate each row assignment to the scalar-component aware setter.
@@ -487,6 +323,14 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setResidualsF
         throw std::runtime_error( "Error when setting dataset residuals, number of observations is inconsistent." );
     }
 
+    for( const auto& value : residuals )
+    {
+        if( value.size( ) != static_cast< Eigen::Index >( getObservationSetMetadata( setId ).observableSize_ ) )
+        {
+            throw std::runtime_error( "Observation component size is inconsistent." );
+        }
+    }
+
     // Delegate each row assignment to the scalar-component aware setter.
     for( std::size_t i = 0; i < residuals.size( ); ++i )
     {
@@ -506,91 +350,49 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservatio
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
         const bool sortObservations )
 {
-    if( hasWeightMatrixForSet( setId ) && !observations.empty( ) )
-    {
-        throw std::runtime_error(
-                "Error when appending observations to dataset, the target set has a full set-level weight block. "
-                "Provide a new complete set block by replacing the set data explicitly." );
-    }
-
-    std::vector< unsigned int > updatedSourceObservationIds = observationIdsBySet_.at( setId );
     validateObservationSetData( setId, observations, times, dependentVariables, weights, residuals );
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedObservations = getObservationsForSet( setId );
-    std::vector< TimeType > updatedTimes = getObservationTimesForSet( setId );
-    std::vector< Eigen::VectorXd > updatedDependentVariables = getDependentVariablesForSet( setId );
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > updatedWeights = getWeightsForSet( setId );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedResiduals = getResidualsForSet( setId );
-    std::vector< bool > updatedExplicitWeights;
-    updatedExplicitWeights.reserve( updatedSourceObservationIds.size( ) + observations.size( ) );
-    for( const unsigned int observationId : updatedSourceObservationIds )
+    const auto& metadata = getObservationSetMetadata( setId );
+    const auto& ids = observationIdsBySet_.at( setId );
+    if( !observations.empty( ) && !ids.empty( ) &&
+        ( getObservationRow( ids.front( ) ).dependentVariableValues_.size( ) != 0 ) != !dependentVariables.empty( ) )
     {
-        updatedExplicitWeights.push_back( observationWeights_.hasExplicitObservationWeight( observationId ) );
+        throw std::runtime_error( "Dependent variables must be present for all observations in a set or none." );
     }
-
-    updatedObservations.insert( updatedObservations.end( ), observations.begin( ), observations.end( ) );
-    updatedTimes.insert( updatedTimes.end( ), times.begin( ), times.end( ) );
-    updatedSourceObservationIds.insert( updatedSourceObservationIds.end( ), observations.size( ), invalidObservationId( ) );
-    updatedWeights.insert( updatedWeights.end( ), weights.begin( ), weights.end( ) );
-    updatedResiduals.insert( updatedResiduals.end( ), residuals.begin( ), residuals.end( ) );
-    updatedExplicitWeights.insert( updatedExplicitWeights.end( ), observations.size( ), !weights.empty( ) );
-
-    if( !dependentVariables.empty( ) || !updatedDependentVariables.empty( ) )
+    if( observations.size( ) > std::numeric_limits< unsigned int >::max( ) - nextObservationId_ ||
+        observations.size( ) > ( std::numeric_limits< unsigned int >::max( ) - observedValues_.size( ) ) / metadata.observableSize_ )
     {
-        if( updatedDependentVariables.empty( ) )
-        {
-            updatedDependentVariables.resize( getNumberOfObservationsForSet( setId ) );
-        }
-        if( dependentVariables.empty( ) )
-        {
-            updatedDependentVariables.resize( updatedObservations.size( ) );
-        }
-        else
-        {
-            updatedDependentVariables.insert( updatedDependentVariables.end( ), dependentVariables.begin( ), dependentVariables.end( ) );
-        }
+        throw std::overflow_error( "Observation identity or scalar storage capacity exceeded." );
     }
-
-    if( weights.empty( ) )
+    for( std::size_t i = 0; i < observations.size( ); ++i )
     {
-        const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
-        for( std::size_t i = 0; i < observations.size( ); ++i )
+        const unsigned int id = nextObservationId_++;
+        const unsigned int first = observedValues_.size( );
+        rowPositionById_.emplace( id, observationRows_.size( ) );
+        observationRows_.push_back( { id,
+                                      times.at( i ),
+                                      setId,
+                                      first,
+                                      metadata.observableSize_,
+                                      static_cast< unsigned int >( observationIdsBySet_.at( setId ).size( ) ),
+                                      dependentVariables.empty( ) ? Eigen::VectorXd( ) : dependentVariables.at( i ),
+                                      true,
+                                      "" } );
+        observationIdsBySet_.at( setId ).push_back( id );
+        for( unsigned int component = 0; component < metadata.observableSize_; ++component )
         {
-            updatedWeights.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( observableSize, 1 ) );
+            observedValues_.push_back( observations.at( i )( component ) );
+            residualValues_.push_back( residuals.empty( ) ? ObservationScalarType( 0 ) : residuals.at( i )( component ) );
         }
+        observationWeights_.appendDiagonal( weights.empty( ) ? Eigen::VectorXd::Ones( metadata.observableSize_ ) : weights.at( i ) );
     }
-    if( residuals.empty( ) )
+    if( sortObservations )
     {
-        const unsigned int observableSize = getObservationSetMetadata( setId ).observableSize_;
-        for( std::size_t i = 0; i < observations.size( ); ++i )
-        {
-            updatedResiduals.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observableSize, 1 ) );
-        }
+        sortObservationIdsForSet( setId );
     }
-
-    if( sortObservations && updatedTimes.size( ) > 1 )
+    if( !observations.empty( ) )
     {
-        const std::vector< std::size_t > permutation = getTimeSortingPermutation( updatedTimes );
-        reorderVector( updatedObservations, permutation );
-        reorderVector( updatedTimes, permutation );
-        reorderVector( updatedSourceObservationIds, permutation );
-        reorderVector( updatedWeights, permutation );
-        reorderVector( updatedResiduals, permutation );
-        reorderVector( updatedExplicitWeights, permutation );
-        if( !updatedDependentVariables.empty( ) )
-        {
-            reorderVector( updatedDependentVariables, permutation );
-        }
+        ++structuralVersion_;
     }
-
-    replaceObservationSetDataWithSourceRows( setId,
-                                             updatedObservations,
-                                             updatedTimes,
-                                             updatedDependentVariables,
-                                             updatedWeights,
-                                             updatedResiduals,
-                                             updatedSourceObservationIds,
-                                             updatedExplicitWeights );
 }
 
 template< typename ObservationScalarType,
@@ -599,42 +401,30 @@ template< typename ObservationScalarType,
 void ObservationDataset< ObservationScalarType, TimeType, Dummy >::removeObservationsFromSet( const unsigned int setId,
                                                                                               std::vector< unsigned int > indicesToRemove )
 {
-    std::sort( indicesToRemove.begin( ), indicesToRemove.end( ) );
-    indicesToRemove.erase( std::unique( indicesToRemove.begin( ), indicesToRemove.end( ) ), indicesToRemove.end( ) );
-
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedObservations = getObservationsForSet( setId );
-    std::vector< TimeType > updatedTimes = getObservationTimesForSet( setId );
-    std::vector< Eigen::VectorXd > updatedDependentVariables = getDependentVariablesForSet( setId );
-    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > updatedWeights = getWeightsForSet( setId );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedResiduals = getResidualsForSet( setId );
-    std::vector< unsigned int > updatedSourceObservationIds = observationIdsBySet_.at( setId );
-
-    for( std::vector< unsigned int >::reverse_iterator indexIterator = indicesToRemove.rbegin( ); indexIterator != indicesToRemove.rend( );
-         ++indexIterator )
+    const auto& ids = observationIdsBySet_.at( setId );
+    std::unordered_set< unsigned int > removed;
+    for( std::size_t i = 0; i < indicesToRemove.size( ); ++i )
     {
-        const unsigned int indexToRemove = *indexIterator;
-        if( indexToRemove >= updatedObservations.size( ) )
+        const unsigned int index = indicesToRemove.at( i );
+        if( index >= ids.size( ) )
         {
-            throw std::runtime_error( "Error when removing observations from dataset, index is out of bounds." );
+            throw std::runtime_error( "Observation removal index is out of bounds." );
         }
-        updatedObservations.erase( updatedObservations.begin( ) + indexToRemove );
-        updatedTimes.erase( updatedTimes.begin( ) + indexToRemove );
-        updatedSourceObservationIds.erase( updatedSourceObservationIds.begin( ) + indexToRemove );
-        updatedWeights.erase( updatedWeights.begin( ) + indexToRemove );
-        updatedResiduals.erase( updatedResiduals.begin( ) + indexToRemove );
-        if( !updatedDependentVariables.empty( ) )
+        if( i > 0 && index <= indicesToRemove.at( i - 1 ) )
         {
-            updatedDependentVariables.erase( updatedDependentVariables.begin( ) + indexToRemove );
+            throw std::runtime_error( "Observation removal indices must be strictly increasing and unique." );
+        }
+        removed.insert( ids.at( index ) );
+    }
+    std::vector< unsigned int > retained;
+    for( const auto& row : observationRows_ )
+    {
+        if( !removed.count( row.observationId_ ) )
+        {
+            retained.push_back( row.observationId_ );
         }
     }
-
-    replaceObservationSetDataWithSourceRows( setId,
-                                             updatedObservations,
-                                             updatedTimes,
-                                             updatedDependentVariables,
-                                             updatedWeights,
-                                             updatedResiduals,
-                                             updatedSourceObservationIds );
+    retainObservationRows( retained );
 }
 
 template< typename ObservationScalarType,
@@ -733,7 +523,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 std::size_t ObservationDataset< ObservationScalarType, TimeType, Dummy >::getTotalScalarSize( ) const
 {
-    return scalarComponentRows_.size( );
+    return observedValues_.size( );
 }
 
 template< typename ObservationScalarType,
@@ -769,25 +559,43 @@ template< typename ObservationScalarType,
 const ObservationDatasetRow< TimeType >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationRow(
         const unsigned int observationId ) const
 {
-    return observationRows_.at( observationId );
+    return observationRows_.at( rowPositionById_.at( observationId ) );
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const std::vector< ObservationScalarComponentRow >& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRows( )
-        const
+std::vector< ObservationScalarComponentRow > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRows( ) const
 {
-    return scalarComponentRows_;
+    std::vector< ObservationScalarComponentRow > result;
+    result.reserve( getTotalScalarSize( ) );
+    for( const auto& row : observationRows_ )
+    {
+        for( unsigned int component = 0; component < row.scalarSize_; ++component )
+        {
+            result.push_back( { row.observationId_, component } );
+        }
+    }
+    return result;
 }
 
 template< typename ObservationScalarType,
           typename TimeType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
-const ObservationScalarComponentRow& ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRow(
+ObservationScalarComponentRow ObservationDataset< ObservationScalarType, TimeType, Dummy >::getScalarComponentRow(
         const unsigned int scalarComponentId ) const
 {
-    return scalarComponentRows_.at( scalarComponentId );
+    if( scalarComponentId >= getTotalScalarSize( ) )
+    {
+        throw std::out_of_range( "Observation scalar component is out of bounds." );
+    }
+    const auto next = std::upper_bound(
+            observationRows_.begin( ),
+            observationRows_.end( ),
+            scalarComponentId,
+            []( unsigned int scalar, const ObservationDatasetRow< TimeType >& row ) { return scalar < row.firstScalarComponent_; } );
+    const auto& row = *std::prev( next );
+    return { row.observationId_, scalarComponentId - row.firstScalarComponent_ };
 }
 
 template< typename ObservationScalarType,
@@ -819,7 +627,7 @@ template< typename ObservationScalarType,
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationValue(
         const unsigned int observationId ) const
 {
-    const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
+    const ObservationDatasetRow< TimeType >& row = getObservationRow( observationId );
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > value =
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( row.scalarSize_ );
     for( unsigned int i = 0; i < row.scalarSize_; ++i )
@@ -838,7 +646,7 @@ std::vector< TimeType > ObservationDataset< ObservationScalarType, TimeType, Dum
     std::vector< TimeType > times;
     for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
     {
-        times.push_back( observationRows_.at( observationId ).time_ );
+        times.push_back( getObservationRow( observationId ).time_ );
     }
     return times;
 }
@@ -848,7 +656,7 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 TimeType ObservationDataset< ObservationScalarType, TimeType, Dummy >::getObservationTime( const unsigned int observationId ) const
 {
-    return observationRows_.at( observationId ).time_;
+    return getObservationRow( observationId ).time_;
 }
 
 template< typename ObservationScalarType,
@@ -871,8 +679,7 @@ template< typename ObservationScalarType,
 Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightValue(
         const unsigned int observationId ) const
 {
-    const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-    return observationWeights_.getObservationWeightVector( observationId, row.scalarSize_ );
+    return observationWeights_.getDiagonal( getScalarComponentIdsForObservationSelection( { observationId }, {} ) );
 }
 
 template< typename ObservationScalarType,
@@ -881,8 +688,9 @@ template< typename ObservationScalarType,
 Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightMatrixForObservation(
         const unsigned int observationId ) const
 {
-    const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-    return observationWeights_.getObservationWeightMatrix( observationId, row.scalarSize_ );
+    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( { observationId }, {} ) )
+            .sparseMatrix( )
+            .toDense( );
 }
 
 template< typename ObservationScalarType,
@@ -890,21 +698,9 @@ template< typename ObservationScalarType,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
 Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getWeightMatrixForSet( const unsigned int setId ) const
 {
-    if( observationWeights_.hasSetWeightBlock( setId ) )
-    {
-        return observationWeights_.getSetWeightBlock( setId );
-    }
-
-    Eigen::MatrixXd weightMatrix = Eigen::MatrixXd::Zero( getTotalScalarSizeForSet( setId ), getTotalScalarSizeForSet( setId ) );
-    std::size_t currentIndex = 0;
-    for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
-    {
-        const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
-        weightMatrix.block( currentIndex, currentIndex, row.scalarSize_, row.scalarSize_ ) =
-                observationWeights_.getObservationWeightMatrix( observationId, row.scalarSize_ );
-        currentIndex += row.scalarSize_;
-    }
-    return weightMatrix;
+    return observationWeights_.restricted( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) )
+            .sparseMatrix( )
+            .toDense( );
 }
 
 template< typename ObservationScalarType,
@@ -927,7 +723,7 @@ template< typename ObservationScalarType,
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationDataset< ObservationScalarType, TimeType, Dummy >::getResidualValue(
         const unsigned int observationId ) const
 {
-    const ObservationDatasetRow< TimeType >& row = observationRows_.at( observationId );
+    const ObservationDatasetRow< TimeType >& row = getObservationRow( observationId );
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > value =
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( row.scalarSize_ );
     for( unsigned int i = 0; i < row.scalarSize_; ++i )
@@ -947,7 +743,7 @@ std::vector< Eigen::VectorXd > ObservationDataset< ObservationScalarType, TimeTy
     bool hasNonEmptyDependentVariables = false;
     for( const unsigned int observationId : observationIdsBySet_.at( setId ) )
     {
-        const Eigen::VectorXd dependentVariable = observationRows_.at( observationId ).dependentVariableValues_;
+        const Eigen::VectorXd dependentVariable = getObservationRow( observationId ).dependentVariableValues_;
         if( dependentVariable.size( ) > 0 )
         {
             hasNonEmptyDependentVariables = true;
@@ -963,7 +759,7 @@ template< typename ObservationScalarType,
 Eigen::VectorXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::getDependentVariables(
         const unsigned int observationId ) const
 {
-    return observationRows_.at( observationId ).dependentVariableValues_;
+    return getObservationRow( observationId ).dependentVariableValues_;
 }
 
 template< typename ObservationScalarType,
@@ -974,6 +770,11 @@ Eigen::MatrixXd ObservationDataset< ObservationScalarType, TimeType, Dummy >::ge
         const std::pair< int, int >& dependentVariableIndexAndSize ) const
 {
     const std::vector< Eigen::VectorXd > observationsDependentVariables = getDependentVariablesForSet( setId );
+    if( observationsDependentVariables.empty( ) )
+    {
+        throw std::runtime_error(
+                "Error when retrieving single observation dependent variable, the set has no dependent-variable values." );
+    }
     Eigen::MatrixXd singleDependentVariable =
             Eigen::MatrixXd::Zero( getNumberOfObservationsForSet( setId ), dependentVariableIndexAndSize.second );
     for( unsigned int i = 0; i < observationsDependentVariables.size( ); ++i )

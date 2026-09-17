@@ -227,7 +227,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
         std::vector< int >& timeOrder )
 {
     // Retrieve unordered vector of times
-    std::vector< TimeType > concatenatedTimes = measurementData->createOrderedFlattenedObservationData( ).getTimes( );
+    std::vector< TimeType > concatenatedTimes = measurementData->createObservationVectorData( ).getTimes( );
 
     // Sort the concatesnated time vector, and get the order of the sorting.
     std::pair< std::vector< int >, std::vector< TimeType > > sortOutput =
@@ -255,6 +255,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
     return std::make_pair( sortedMatrix, sortOutput.second );
 }
 
+//! Return a time-ordered design matrix for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
@@ -328,6 +329,10 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
             getTimeOrderedDesignMatrix< ObservationScalarType, TimeType >(
                     measurementData, typeAndLinkSortedNormalizedDesignMatrix, timeOrder );
     std::vector< TimeType > orderedTimeVector = timeOrderedMatrixOutput.second;
+    if( orderedTimeVector.empty( ) )
+    {
+        throw std::runtime_error( "Cannot calculate covariance history without active observations." );
+    }
 
     Eigen::VectorXd timeOrderedDiagonalOfWeightMatrix = Eigen::VectorXd::Zero( diagonalOfWeightMatrix.rows( ) );
     for( unsigned int i = 0; i < timeOrder.size( ); i++ )
@@ -396,6 +401,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     return covarianceMatrixHistory;
 }
 
+//! Calculate covariance history at explicit epochs for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,
@@ -413,6 +419,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                                                      unnormalizedInverseAPrioriCovariance );
 }
 
+//! Calculate covariance history at a fixed cadence for an observation dataset.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > measurementData,
@@ -422,8 +429,15 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
-    Eigen::VectorXd timeVector =
-            utilities::convertStlVectorToEigenVector( measurementData->createOrderedFlattenedObservationData( ).getTimes( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector( measurementData->createObservationVectorData( ).getTimes( ) );
+    if( timeVector.size( ) == 0 )
+    {
+        throw std::runtime_error( "Cannot calculate covariance history without active observations." );
+    }
+    if( !std::isfinite( outputTimeStep ) || outputTimeStep <= 0.0 )
+    {
+        throw std::runtime_error( "Covariance history output time step must be finite and positive." );
+    }
     double minimumTime = timeVector.minCoeff( );
     double maximumTime = timeVector.maxCoeff( );
     double currentTime = minimumTime;
@@ -445,6 +459,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
                                                   unnormalizedInverseAPrioriCovariance );
 }
 
+//! Calculate covariance history at a fixed cadence for a legacy observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > measurementData,

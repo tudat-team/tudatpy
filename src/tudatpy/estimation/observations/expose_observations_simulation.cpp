@@ -172,14 +172,14 @@ tuple[list[ObservationSimulator], tudatpy.estimation.observations.ObservationDat
             },
             py::arg( "observations" ),
             py::arg( "reference_link_end" ),
-            py::arg( "ancillary_settings_per_observatble" ) =
+            py::arg( "ancillary_settings_per_observable" ) =
                     std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
 
     m.def( "set_existing_observation_dataset",
            &tss::setExistingObservationDataset< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings_per_observatble" ) =
+           py::arg( "ancillary_settings_per_observable" ) =
                    std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
            R"doc(
 Create an observation dataset from existing observation values.
@@ -190,7 +190,7 @@ observations : dict
     Existing observations grouped by observable type and link definition.
 reference_link_end : tudatpy.estimation.observable_models_setup.links.LinkEndType
     Link end used as the reference for the observation times.
-ancillary_settings_per_observatble : dict, optional
+ancillary_settings_per_observable : dict, optional
     Ancillary settings to attach to each observable type.
 
 Returns

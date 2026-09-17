@@ -26,6 +26,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Simulate a pseudo-observation dataset at explicitly supplied epochs.
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
            std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > >
@@ -60,6 +61,7 @@ simulatePseudoObservationDataset( const SystemOfBodies& bodies,
     return std::make_pair( observationModelSettingsList, observationDataset );
 }
 
+//! Simulate a pseudo-observation dataset at a fixed cadence.
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
            std::shared_ptr< observation_models::ObservationDataset< StateScalarType, TimeType > > >
@@ -81,6 +83,7 @@ simulatePseudoObservationDataset( const SystemOfBodies& bodies,
     return simulatePseudoObservationDataset< TimeType, StateScalarType >( bodies, bodiesToPropagate, centralBodies, observationTimes );
 }
 
+//! Simulate a legacy pseudo-observation collection at a fixed cadence.
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
            std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
@@ -100,6 +103,7 @@ simulatePseudoObservations( const SystemOfBodies& bodies,
                            observation_models::createObservationCollection< StateScalarType, TimeType >( datasetResult.second ) );
 }
 
+//! Simulate a legacy pseudo-observation collection at explicitly supplied epochs.
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
            std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >

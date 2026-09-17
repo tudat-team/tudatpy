@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -16,7 +15,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/utilities.h"
 #include "tudat/basics/testMacros.h"
@@ -1226,7 +1225,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
             for( auto observableIt : variableIt.second )
             {
                 std::vector< unsigned int > observationSetIds;
-                for( const unsigned int setId : idealObservationsAndTimes->getSetIdsInOrderedFlattenedDataOrder( ) )
+                for( const unsigned int setId : idealObservationsAndTimes->getSetIdsInObservationVectorOrder( ) )
                 {
                     if( idealObservationsAndTimes->getObservationSetMetadata( setId ).observableType_ == observableIt.first )
                     {
@@ -1262,7 +1261,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
                 std::vector< std::vector< Eigen::MatrixXd > > currentDependentVariablesSortedPerSet;
 
-                for( const unsigned int setId : idealObservationsAndTimes->getSetIdsInOrderedFlattenedDataOrder( ) )
+                for( const unsigned int setId : idealObservationsAndTimes->getSetIdsInObservationVectorOrder( ) )
                 {
                     std::vector< Eigen::MatrixXd > currentSetDependentVariablesPerSettings =
                             idealObservationsAndTimes->getAllCompatibleDependentVariablesForSet( setId, currentSettings );

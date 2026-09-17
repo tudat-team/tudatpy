@@ -14,14 +14,23 @@
 #include <Eigen/Core>
 #include <functional>
 #include <memory>
+#include <type_traits>
+#include <set>
 #include <vector>
+
+#include <cereal/access.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/utility.hpp>
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/serialization/base.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -52,81 +61,31 @@ public:
                           const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = {},
                           const bool eraseDuplicates = false ):
 
-        observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
-        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
-        filteredObservationSet_( nullptr ), dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) ),
-        setId_( 0 )
+        dataset_( std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( ) )
     {
-        if( dependentVariableBookkeeping_ != nullptr )
-        {
-            if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
-            {
-                std::cout << dependentVariableBookkeeping_->getObservableType( ) << " " << observableType_ << std::endl;
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, "
-                        "ObservationDependentVariableBookkeeping has incompatible type " );
-            }
-
-            if( !( dependentVariableBookkeeping_->getLinkEnds( ) == linkEnds ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, "
-                        "ObservationDependentVariableBookkeeping has incompatible link ends " );
-            }
-        }
-
-        if( observations.size( ) != observationTimes.size( ) )
-        {
-            throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
-                                      std::to_string( observations.size( ) ) + ", " + std::to_string( observationTimes.size( ) ) );
-        }
-
-        // Check observation dependent variables size
-        if( observationsDependentVariables.size( ) > 0 )
-        {
-            if( observationsDependentVariables.size( ) != observations.size( ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input should be consistent "
-                        "with the number of observations." );
-            }
-            if( dependentVariableBookkeeping_ != nullptr &&
-                observationsDependentVariables[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) )
-            {
-                throw std::runtime_error(
-                        "Error when creating SingleObservationSet, the size of the observation "
-                        "dependent variables input "
-                        "should be consistent with the total dependent variable size." );
-            }
-        }
-
-        setId_ = dataset_->addObservationSet( observableType_,
+        setId_ = dataset_->addObservationSet( observableType,
                                               linkEnds,
                                               observations,
                                               observationTimes,
-                                              referenceLinkEnd_,
+                                              referenceLinkEnd,
                                               observationsDependentVariables,
-                                              dependentVariableBookkeeping_,
-                                              ancillarySettings_,
+                                              dependentVariableBookkeeping,
+                                              ancillarySettings,
                                               weights,
                                               residuals,
                                               true,
                                               eraseDuplicates );
     }
 
+    //! Create a legacy single-set facade for one set in an observation dataset.
     SingleObservationSet( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset, const int setId ):
-        observableType_( dataset->getObservationSetMetadata( setId ).observableType_ ),
-        referenceLinkEnd_( dataset->getObservationSetMetadata( setId ).referenceLinkEnd_ ),
-        dependentVariableBookkeeping_(
-                dataset->getDependentVariableBookkeeping( dataset->getObservationSetMetadata( setId ).dependentVariableLayoutId_ ) ),
-        ancillarySettings_( dataset->getAncillarySettings( dataset->getObservationSetMetadata( setId ).ancillarySettingsId_ ) ),
-        filteredObservationSet_( nullptr ), dataset_( dataset ), setId_( setId )
+        dataset_( dataset ), setId_( setId )
     {
         if( dataset_ == nullptr )
         {
-            throw std::runtime_error( "Error when creating SingleObservationSet wrapper, input dataset is null." );
+            throw std::runtime_error( "Cannot create a SingleObservationSet facade from a null dataset." );
         }
+        dataset_->getObservationSetMetadata( setId_ );
     }
 
     ObservableType getObservableType( )
@@ -139,9 +98,14 @@ public:
         return dataset_->getLinkDefinition( dataset_->getObservationSetMetadata( setId_ ).linkDefinitionId_ );
     }
 
-    void setLinkEnds( LinkDefinition& linkEnds )
+    //! Replace the link definition associated with this dataset-backed set.
+    void setLinkEnds( const LinkDefinition& linkEnds )
     {
         dataset_->resetLinkDefinitionForSet( setId_, linkEnds );
+        if( filteredObservationSet_ != nullptr )
+        {
+            filteredObservationSet_->setLinkEnds( linkEnds );
+        }
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
@@ -196,10 +160,7 @@ public:
                     "Error when setting single observation value, the observation size is "
                     "inconsistent." );
         }
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = getObservations( );
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > updatedObservations = observations;
-        updatedObservations.at( index ) = observation;
-        setObservations( updatedObservations );
+        dataset_->setObservationValue( dataset_->getObservationIdsForSet( setId_ ).at( index ), observation );
     }
 
     std::vector< TimeType > getObservationTimes( )
@@ -272,11 +233,21 @@ public:
     Eigen::MatrixXd getObservationsDependentVariablesMatrix( )
     {
         const std::vector< Eigen::VectorXd > observationsDependentVariables = getObservationsDependentVariables( );
-        Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero( dataset_->getNumberOfObservationsForSet( setId_ ),
-                                                                          dependentVariableBookkeeping_->getTotalDependentVariableSize( ) );
+        if( getDependentVariableBookkeeping( ) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting observation dependent-variable matrix, no dependent-variable bookkeeping is available." );
+        }
+        if( observationsDependentVariables.empty( ) && dataset_->getNumberOfObservationsForSet( setId_ ) > 0 )
+        {
+            throw std::runtime_error(
+                    "Error when getting observation dependent-variable matrix, no dependent-variable values are available." );
+        }
+        Eigen::MatrixXd dependentVariablesMatrix = Eigen::MatrixXd::Zero(
+                dataset_->getNumberOfObservationsForSet( setId_ ), getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ) );
         for( unsigned int i = 0; i < observationsDependentVariables.size( ); i++ )
         {
-            dependentVariablesMatrix.block( i, 0, 1, dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) =
+            dependentVariablesMatrix.block( i, 0, 1, getDependentVariableBookkeeping( )->getTotalDependentVariableSize( ) ) =
                     observationsDependentVariables.at( i ).transpose( );
         }
         return dependentVariablesMatrix;
@@ -326,35 +297,12 @@ public:
     //! Function to reset the observation dependent variable values
     void setObservationsDependentVariables( std::vector< Eigen::VectorXd >& dependentVariables )
     {
-        if( dependentVariables.size( ) > 0 )
-        {
-            if( dependentVariables.size( ) != dataset_->getNumberOfObservationsForSet( setId_ ) )
-            {
-                throw std::runtime_error(
-                        "Error when resetting observation dependent variables in "
-                        "SingleObservationSet, the input size should be consistent "
-                        "with the number of observations." );
-            }
-            if( ( dependentVariableBookkeeping_ != nullptr ) &&
-                ( dependentVariables[ 0 ].size( ) != dependentVariableBookkeeping_->getTotalDependentVariableSize( ) ) )
-            {
-                throw std::runtime_error(
-                        "Error when resetting observation dependent variables in "
-                        "SingleObservationSet, the size of the observation dependent variables "
-                        "input "
-                        "should be consistent with the total dependent variable size." );
-            }
-            dataset_->setDependentVariablesForSet( setId_, dependentVariables );
-        }
-        else
-        {
-            dataset_->clearDependentVariablesForSet( setId_ );
-        }
+        dataset_->setDependentVariablesForSet( setId_, dependentVariables );
     }
 
     std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > getDependentVariableBookkeeping( )
     {
-        return dependentVariableBookkeeping_;
+        return dataset_->getDependentVariableBookkeeping( dataset_->getObservationSetMetadata( setId_ ).dependentVariableLayoutId_ );
     }
 
     //! Function that returns the time history of all observation dependent variables. It must be noted that the reported epochs are the times at which the
@@ -384,28 +332,31 @@ public:
 
     std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > getAncillarySettings( )
     {
-        return ancillarySettings_;
+        return dataset_->getAncillarySettings( dataset_->getObservationSetMetadata( setId_ ).ancillarySettingsId_ );
     }
 
+    //! Return the live dataset backing this compatibility facade.
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > getObservationDataset( ) const
     {
         return dataset_;
     }
 
-    int getObservationSetId( ) const
-    {
-        return setId_;
-    }
-
+    //! Rebind this facade to a set in another dataset after collection reconstruction.
     void resetObservationDatasetReference( const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > >& dataset,
                                            const int setId )
     {
-        if( dataset == nullptr )
+        if( dataset == nullptr || setId < 0 || setId >= static_cast< int >( dataset->getNumberOfObservationSets( ) ) )
         {
-            throw std::runtime_error( "Error when resetting SingleObservationSet dataset reference, dataset is null." );
+            throw std::runtime_error( "Error when resetting observation dataset reference, invalid dataset or set id." );
         }
         dataset_ = dataset;
         setId_ = setId;
+    }
+
+    //! Return the stable set identity represented by this facade.
+    int getObservationSetId( ) const
+    {
+        return setId_;
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
@@ -563,14 +514,14 @@ public:
         if( observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
         {
             filteredObservationSet_ = std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    observableType_,
+                    getObservableType( ),
                     getLinkEnds( ),
                     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
                     std::vector< TimeType >( ),
-                    referenceLinkEnd_,
+                    getReferenceLinkEnd( ),
                     std::vector< Eigen::VectorXd >( ),
-                    dependentVariableBookkeeping_,
-                    ancillarySettings_ );
+                    getDependentVariableBookkeeping( ),
+                    getAncillarySettings( ) );
         }
         if( !observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
         {
@@ -612,19 +563,15 @@ public:
     void addDependentVariables(
             const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings )
     {
-        if( dependentVariableBookkeeping_ == nullptr )
+        if( !dataset_->getDependentVariablesForSet( setId_ ).empty( ) )
         {
-            dependentVariableBookkeeping_ =
-                    std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, getLinkEnds( ).linkEnds_ );
-            dataset_->resetDependentVariableBookkeepingForSet( setId_, dependentVariableBookkeeping_ );
+            throw std::runtime_error( "Cannot add dependent-variable settings after computing their values." );
         }
-        else if( dataset_->getDependentVariablesForSet( setId_ ).size( ) != 0 )
-        {
-            throw std::runtime_error(
-                    "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated "
-                    "already" );
-        }
-        dependentVariableBookkeeping_->addDependentVariables( dependentVariableSettings );
+        auto bookkeeping = getDependentVariableBookkeeping( );
+        bookkeeping = bookkeeping ? bookkeeping->clone( )
+                                  : std::make_shared< ObservationDependentVariableBookkeeping >( getObservableType( ), getLinkEnds( ) );
+        bookkeeping->addDependentVariables( dependentVariableSettings );
+        dataset_->resetDependentVariableBookkeepingForSet( setId_, bookkeeping );
     }
 
     void clearDependentVariableValues( )
@@ -639,19 +586,11 @@ private:
         return dataset_->getSingleDependentVariableForSet( setId_, dependentVariableIndexAndSize );
     }
 
-    const ObservableType observableType_;
-
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
     std::vector< TimeType > observationTimes_;
 
-    const LinkEndType referenceLinkEnd_;
-
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
-
-    std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
-
-    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 
@@ -664,8 +603,124 @@ private:
     std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > dataset_;
 
     int setId_;
+
+public:
+    bool operator==( const SingleObservationSet& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const SingleObservationSet& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const SingleObservationSet& rhs ) const
+    {
+        const auto pointedObjectsEqual = []( const auto& lhs, const auto& rhs ) {
+            return static_cast< bool >( lhs ) == static_cast< bool >( rhs ) && ( !lhs || *lhs == *rhs );
+        };
+
+        ObservationDataset< ObservationScalarType, TimeType > lhsData, rhsData;
+        lhsData.addObservationSetFromDataset( *dataset_, setId_ );
+        rhsData.addObservationSetFromDataset( *rhs.dataset_, rhs.setId_ );
+        return lhsData == rhsData && pointedObjectsEqual( filteredObservationSet_, rhs.filteredObservationSet_ );
+    }
+
+    TUDAT_DEFINE_BINARY_IO( SingleObservationSet< ObservationScalarType, TimeType > )
+
+protected:
+    //! Create an empty facade for deserialization.
+    SingleObservationSet( ): setId_( 0 ) {}
+
+private:
+    friend class cereal::access;
+
+    // The base-branch format began with ObservableType. A disjoint tag keeps
+    // old binary files readable while storing the shared backend in new files.
+    static constexpr std::underlying_type_t< ObservableType > binaryFormatTag_ = 0x544F5331;
+
+    //! Serialize the dataset backend, set identity, and optional filtered set.
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( binaryFormatTag_, dataset_, setId_, filteredObservationSet_ );
+    }
+
+    //! Deserialize the current dataset-backed or legacy inline-set layout.
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        std::underlying_type_t< ObservableType > tag;
+        ar( tag );
+        if( tag == binaryFormatTag_ )
+        {
+            ar( dataset_, setId_, filteredObservationSet_ );
+            const auto filteredObservationSet = filteredObservationSet_;
+            *this = SingleObservationSet( dataset_, setId_ );
+            filteredObservationSet_ = filteredObservationSet;
+        }
+        else if( tag >= one_way_range && tag <= pixel_coordinates )
+        {
+            loadLegacyBinaryData( ar, static_cast< ObservableType >( tag ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Unsupported SingleObservationSet serialization format." );
+        }
+    }
+
+    //! Import the layout from feature/data-refactor at 213fd175, discarding only derived caches.
+    template< class Archive >
+    void loadLegacyBinaryData( Archive& ar, const ObservableType observableType )
+    {
+        LinkDefinition link;
+        std::pair< TimeType, TimeType > oldTimeBounds;
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations, residuals;
+        std::vector< TimeType > times;
+        LinkEndType referenceLinkEnd;
+        std::vector< Eigen::VectorXd > dependentVariables, weights;
+        std::shared_ptr< ObservationDependentVariableBookkeeping > bookkeeping;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillary;
+        unsigned int count, dimension;
+        std::shared_ptr< SingleObservationSet > filtered;
+        ar( link,
+            oldTimeBounds,
+            observations,
+            times,
+            referenceLinkEnd,
+            dependentVariables,
+            bookkeeping,
+            ancillary,
+            count,
+            dimension,
+            weights,
+            residuals,
+            filtered );
+        if( count != observations.size( ) || dimension != static_cast< unsigned int >( getObservableSize( observableType ) ) )
+        {
+            throw std::runtime_error( "Legacy observation archive has inconsistent row or component counts." );
+        }
+        auto dataset = std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+        const auto setId = dataset->addObservationSet( observableType,
+                                                       link,
+                                                       observations,
+                                                       times,
+                                                       referenceLinkEnd,
+                                                       dependentVariables,
+                                                       bookkeeping,
+                                                       ancillary,
+                                                       weights,
+                                                       residuals,
+                                                       false,
+                                                       false );
+        *this = SingleObservationSet( dataset, setId );
+        filteredObservationSet_ = std::move( filtered );
+    }
 };
 
+//! Copy one legacy single observation set into an independent dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -677,9 +732,13 @@ std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > createO
         throw std::runtime_error( "Error when creating observation dataset, input set is null." );
     }
 
-    return observationSet->getObservationDataset( );
+    std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > dataset =
+            std::make_shared< ObservationDataset< ObservationScalarType, TimeType > >( );
+    dataset->addObservationSetFromDataset( *observationSet->getObservationDataset( ), observationSet->getObservationSetId( ) );
+    return dataset;
 }
 
+//! Create a legacy single-set facade for a set in an observation dataset.
 template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
@@ -708,20 +767,8 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                 "Error when creating new single observation set post-filtering, the filterOut "
                 "option should be set to true" );
     }
-    // Create new observation set
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
-            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    singleObservationSet->getObservableType( ),
-                    singleObservationSet->getLinkEnds( ),
-                    singleObservationSet->getObservationsReference( ),
-                    singleObservationSet->getObservationTimesReference( ),
-                    singleObservationSet->getReferenceLinkEnd( ),
-                    singleObservationSet->getObservationsDependentVariablesReference( ),
-                    singleObservationSet->getDependentVariableBookkeeping( ),
-                    singleObservationSet->getAncillarySettings( ) );
-    newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
-    newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
+            createSingleObservationSet( createObservationDataset( singleObservationSet ) );
 
     // Filter observations from new observation set
     newObservationSet->filterObservations( observationFilter, saveFilteredObservations );
@@ -747,10 +794,6 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
 
     std::vector< int > rawStartIndicesNewSets = { 0 };
     std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
-    std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getWeightsVector( );
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
 
     switch( observationSetSplitter->getSplitterType( ) )
     {
@@ -846,31 +889,21 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
         int startIndex = indicesNewSets.at( k ).first;
         int sizeCurrentSet = indicesNewSets.at( k ).second;
 
-        std::vector< Eigen::VectorXd > newDependentVariables;
-        if( !dependentVariables.empty( ) )
+        const std::vector< unsigned int >& sourceObservationIds =
+                observationSet->getObservationDataset( )->getObservationIdsForSet( observationSet->getObservationSetId( ) );
+        std::set< unsigned int > selectedObservationIds;
+        for( int i = startIndex; i < startIndex + sizeCurrentSet; ++i )
         {
-            newDependentVariables = utilities::getStlVectorSegment(
-                    observationSet->getObservationsDependentVariablesReference( ), startIndex, sizeCurrentSet );
+            selectedObservationIds.insert( sourceObservationIds.at( i ) );
         }
-
+        const ObservationSelectionCondition< ObservationScalarType, TimeType > selectedRowsCondition(
+                [ selectedObservationIds ]( const ObservationDataset< ObservationScalarType, TimeType >&, const int observationId ) {
+                    return selectedObservationIds.count( observationId ) > 0;
+                } );
+        const std::shared_ptr< ObservationDataset< ObservationScalarType, TimeType > > splitDataset =
+                observationSet->getObservationDataset( )->createNewAndKeep( selectedRowsCondition );
         std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet =
-                std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                        observationSet->getObservableType( ),
-                        observationSet->getLinkEnds( ),
-                        utilities::getStlVectorSegment( observationSet->getObservationsReference( ), startIndex, sizeCurrentSet ),
-                        utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
-                        observationSet->getReferenceLinkEnd( ),
-                        newDependentVariables,
-                        observationSet->getDependentVariableBookkeeping( ),
-                        observationSet->getAncillarySettings( ) );
-
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
-                weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-        newSet->setTabulatedWeights( newWeightsVector );
-
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
-                utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
-        newSet->setResiduals( newResiduals );
+                createSingleObservationSet( splitDataset, observationSet->getObservationSetId( ) );
 
         newObsSets.push_back( newSet );
     }

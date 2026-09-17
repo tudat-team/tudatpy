@@ -1066,12 +1066,16 @@ class HorizonsBatch:
 
         Parameters
         ----------
-        query_id : str
+        query_id_list : list[str]
             List of query terms to retrieve data for,
             all queries behave as type default and the `query_type` behaviour
             can not be set for the `HorizonsBatch` class.
         location : str
             Coordinate centre for the data with syntax `site@body`.
+        epoch_list : Union[list, None], optional
+            List of times in seconds since J2000 TDB. Can be used
+            to retrieve specific times instead of a range.
+            Must be None if start, end and step are set, by default None
         epoch_start : Union[datetime.datetime, float, None], optional
             Starting date to retrieve data for.
             Must be either a python datetime object or a float seconds since J2000 TDB.
@@ -1096,10 +1100,6 @@ class HorizonsBatch:
             Month and Year are normally available in JPL Horizons but are restricted
             here because they may produce ambiguous results (leap years etc.).
             If `epoch_list` is used, value must be None, by default None
-        epoch_list : Union[list, None], optional
-            List of times in seconds since J2000 TDB. Can be used
-            to retrieve specific times instead of a range.
-            Must be None if start, end and step are set, by default None
         extended_query : bool, optional
             Enables the retrieval of larger collections of data, by default False.
         """

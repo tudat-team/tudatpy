@@ -11,6 +11,10 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
 )
 from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
 
+from tudatpy.data_input.tracking_data.optical_utilities.optical_utilities import (
+    _resolve_optical_target_names,
+)
+
 OBS_TYPES_TO_DROP = unpackers.OBS_TYPES_TO_DROP
 
 
@@ -263,21 +267,21 @@ class BatchMPC:
         exclude_space_telescopes: bool = False,
         include_positions: bool = False,
     ) -> pd.DataFrame:
-        """Return a table with observatory counts for this batch.
+        """Return MPC observatory names and observation counts for this batch.
+
+        Observatory metadata is retrieved only when this method is called;
+        constructing or loading a batch does not require the station catalog.
 
         Parameters
         ----------
         only_in_batch : bool, default True
-            Whether to return only observatories present in this batch. Since
-            the new MPC interface does not maintain a separate global MPC
-            observatory catalog, this argument is retained for compatibility
-            and has no effect when ``True``.
+            Whether to return only observatories present in this batch.
         only_space_telescopes : bool, default False
             Whether to return only observatories marked as space telescopes in
-            the batch metadata.
+            the MPC observatory catalog.
         exclude_space_telescopes : bool, default False
             Whether to remove observatories marked as space telescopes in the
-            batch metadata.
+            MPC observatory catalog.
         include_positions : bool, default False
             Retained for compatibility. The current table does not include
             observatory positions.
@@ -287,22 +291,33 @@ class BatchMPC:
         pandas.DataFrame
             Dataframe with columns ``Code``, ``Name`` and ``count``.
         """
-        if self._table.empty:
+        if self._table.empty and only_in_batch:
             return pd.DataFrame(columns=["Code", "Name", "count"])
 
-        table = (
-            self._table.groupby("observatory")
-            .size()
-            .rename("count")
-            .reset_index()
-            .rename(columns={"observatory": "Code"})
-            .assign(Name=lambda x: x["Code"])
+        catalog = MPC.get_observatory_codes().to_pandas()
+        catalog["Code"] = catalog["Code"].astype(str).str.strip().str.zfill(3)
+        space_telescopes = catalog.loc[catalog["Longitude"].isna(), "Code"]
+        counts = (
+            self._table.groupby("observatory").size().rename("count")
+            if not self._table.empty
+            else pd.Series(dtype=int, name="count")
         )
+        if only_in_batch:
+            table = (
+                counts.rename_axis("Code")
+                .reset_index()
+                .merge(catalog[["Code", "Name"]], on="Code", how="left")
+            )
+            # Preserve observations with a code absent from the current catalog.
+            table["Name"] = table["Name"].fillna(table["Code"])
+        else:
+            table = catalog[["Code", "Name"]].copy()
+            table["count"] = table["Code"].map(counts).fillna(0).astype(int)
 
         if only_space_telescopes:
-            table = table.loc[table["Code"].isin(self.space_telescopes)]
+            table = table.loc[table["Code"].isin(space_telescopes)]
         if exclude_space_telescopes:
-            table = table.loc[~table["Code"].isin(self.space_telescopes)]
+            table = table.loc[~table["Code"].isin(space_telescopes)]
 
         columns = ["Code", "Name", "count"]
         return table.loc[:, columns].reset_index(drop=True)
@@ -434,11 +449,7 @@ class BatchMPC:
         if "band" in self._table.columns:
             self._bands = list(self._table.band.unique())
 
-        # if user gives custom name, set that as body name, else MPC code
-        if "custom_name" in self._table.columns and self._table["custom_name"].notna().any():
-            self._MPC_codes = list(self._table["custom_name"].unique())
-        else:
-            self._MPC_codes = list(self._table.number.unique())
+        self._MPC_codes = list(dict.fromkeys(_resolve_optical_target_names(self._table).values()))
         self._size = len(self._table)
 
         if "epoch_seconds_UTC" in self._table.columns:

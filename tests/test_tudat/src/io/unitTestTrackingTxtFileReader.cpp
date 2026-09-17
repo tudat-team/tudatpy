@@ -12,8 +12,9 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
+
+#include <boost/test/included/unit_test.hpp>
 
 #include <cstdio>
 #include <cmath>
@@ -22,13 +23,15 @@
 #include <sstream>
 #include <utility>
 
-#include <boost/filesystem.hpp>
-
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/createObservationDataset.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
+#include "tudat/simulation/estimation_setup/createObservationCollection.h"
+#include "tudat/support/testFileUtilities.h"
 
 #include "tudat/io/preProcessFdetsFile.h"
 #include "tudat/io/readTrackingTxtFile.h"
@@ -54,9 +57,7 @@ namespace
 
 std::string createTempPath( const std::string& suffix )
 {
-    boost::filesystem::path tempPath =
-            boost::filesystem::temp_directory_path( ) / boost::filesystem::unique_path( "tudat-tracking-cadence-%%%%%%" + suffix );
-    return tempPath.string( );
+    return createTemporaryFilePath( "tudat-tracking-cadence", suffix );
 }
 
 class CoutRedirect
@@ -426,6 +427,7 @@ BOOST_AUTO_TEST_CASE( marinerSimpleReading )
 }
 
 //! Test observation dataset and time conversions with Viking Data
+//! Verify Viking range tracking data convert to an observation dataset.
 BOOST_AUTO_TEST_CASE( TestVikingRangeDataObservationDataset )
 {
     // Load the observations from the Viking file
@@ -528,7 +530,7 @@ BOOST_AUTO_TEST_CASE( TestJuiceFile )
     bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     auto observationDataset = tom::createObservationDatasetFromTrackingData< double, Time >( trackingData, bodies );
-    std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedFlattenedObservationData( ).getTimes( );
+    std::vector< Time > observationDatasetEpochs = observationDataset->createOrderedObservationVectorData( ).getTimes( );
     const Eigen::Vector3d earthFixedPosition =
             bodies.getBody( "Earth" )->getGroundStation( receivingStationName )->getNominalStationState( )->getNominalCartesianPosition( );
     Time expectedTdbObservationTime = TerrestrialTimeScaleConverter( ).getCurrentTime< Time >(
@@ -677,6 +679,118 @@ BOOST_AUTO_TEST_CASE( GroundStationLocations )
 
 // End test suite
 BOOST_AUTO_TEST_SUITE_END( );
+
+BOOST_AUTO_TEST_SUITE( test_tracking_data_conversion )
+
+using namespace observation_models;
+
+std::shared_ptr< data::TrackingData<> > angularTracking( const double epoch = 10.0 )
+{
+    return std::make_shared< data::TrackingData<> >(
+            "AngularPosition",
+            data::PlainLinkDefinition{ { { "433", "" }, "transmitter" }, { { "Earth", "500" }, "receiver" } },
+            std::vector< Eigen::VectorXd >{ Eigen::Vector2d( 1.0, 2.0 ) },
+            std::vector< double >{ epoch },
+            "receiver",
+            "TDB" );
+}
+
+// Give two angle measurements separate weights, reject incorrectly sized replacements,
+// and verify that the valid weights remain unchanged.
+BOOST_AUTO_TEST_CASE( testVectorWeightSetterShapeAndExceptionSafety )
+{
+    const LinkEnds linkEnds = { { transmitter, LinkEndId( "433", "" ) }, { receiver, LinkEndId( "Earth", "500" ) } };
+    const std::vector< Eigen::VectorXd > observations = { Eigen::Vector2d::Ones( ), Eigen::Vector2d::Ones( ) };
+    SingleObservationSet< double, double > observationSet(
+            angular_position, LinkDefinition( linkEnds ), observations, { 0.0, 1.0 }, receiver );
+    const std::vector< Eigen::VectorXd > weights = { Eigen::Vector2d( 10.0, 11.0 ), Eigen::Vector2d( 20.0, 21.0 ) };
+    const Eigen::Vector4d expectedWeights( 10.0, 11.0, 20.0, 21.0 );
+
+    // Two weights per angle measurement must be accepted and found again in the supplied order.
+    BOOST_CHECK_NO_THROW( observationSet.setWeights( weights ) );
+    BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
+
+    // Too few rows or too many values in one row must be rejected without changing valid weights.
+    BOOST_CHECK_THROW( observationSet.setWeights( { weights.front( ) } ), std::runtime_error );
+    BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
+    BOOST_CHECK_THROW( observationSet.setWeights( { weights.front( ), Eigen::Vector3d( 30.0, 31.0, 32.0 ) } ), std::runtime_error );
+    BOOST_CHECK( observationSet.getWeightsVector( ).isApprox( expectedWeights ) );
+}
+
+// Put corrected angles and an uncorrected distance in the same collection, then
+// verify that only the angles change and that the supplied source values stay intact.
+BOOST_AUTO_TEST_CASE( testMixedCorrectedAndUncorrectedInputs )
+{
+    auto corrected = angularTracking( );
+    corrected->setObservationCorrections( { Eigen::Vector2d( -0.1, -0.2 ) } );
+    auto uncorrected = std::make_shared< data::TrackingData<> >( "OneWayRange",
+                                                                 corrected->getLinkEnds( ),
+                                                                 std::vector< Eigen::VectorXd >{ Eigen::VectorXd::Constant( 1, 1000.0 ) },
+                                                                 std::vector< double >{ 20.0 },
+                                                                 "receiver",
+                                                                 "TDB" );
+    simulation_setup::SystemOfBodies bodies;
+    const std::vector< std::shared_ptr< data::TrackingData<> > > input = { corrected, uncorrected };
+    // Requesting corrections must accept the mixed input without an error.
+    BOOST_CHECK_NO_THROW( createObservationCollection( input, bodies, true ) );
+    // The two angles must decrease as requested, the distance must stay at 1,000,
+    // and the original angle values must remain available for later reuse.
+    auto correctedSet = createSingleObservationSetFromTrackingData( corrected, bodies, true );
+    auto uncorrectedSet = createSingleObservationSetFromTrackingData( uncorrected, bodies, true );
+    BOOST_CHECK( correctedSet->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 0.9, 1.8 ) ) );
+    BOOST_CHECK_EQUAL( uncorrectedSet->getObservations( ).at( 0 )( 0 ), 1000.0 );
+    BOOST_CHECK( corrected->getObservations( ).at( 0 ).isApprox( Eigen::Vector2d( 1.0, 2.0 ) ) );
+}
+
+// Install a transmitter schedule on both a ground station and a spacecraft, then
+// verify that each requested frequency starts at the right time and stays constant.
+BOOST_AUTO_TEST_CASE( testPiecewiseConstantFrequencySupplementaryDataUsesZeroRateRamps )
+{
+    using FrequencyDataMap =
+            std::map< std::pair< std::string, std::string >, std::vector< std::shared_ptr< data::FrequencySupplementaryData > > >;
+    const std::map< double, double > firstHistory = { { 0.0, 100.0 }, { 10.0, 150.0 } };
+    const std::map< double, double > secondHistory = { { 10.0, 200.0 }, { 20.0, 300.0 } };
+    auto first = std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( firstHistory );
+    auto second = std::make_shared< data::PiecewiseConstantFrequencySupplementaryData >( secondHistory );
+
+    for( const bool useGroundStation : { true, false } )
+    {
+        simulation_setup::SystemOfBodies bodies;
+        const std::string bodyName = useGroundStation ? "Earth" : "Spacecraft";
+        const std::string referencePointName = useGroundStation ? "500" : "";
+        bodies.createEmptyBody( bodyName );
+        auto body = bodies.at( bodyName );
+        if( useGroundStation )
+        {
+            createGroundStation( body, referencePointName, Eigen::Vector3d( 6378137.0, 0.0, 0.0 ) );
+        }
+        const auto linkEnd = std::make_pair( bodyName, referencePointName );
+        const auto getCalculator = [ & ]( ) {
+            return useGroundStation ? body->getGroundStation( referencePointName )->getTransmittingFrequencyCalculator( )
+                                    : body->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+        };
+        FrequencyDataMap frequencyData;
+        frequencyData[ linkEnd ] = { first, second };
+        setFrequencySupplementaryDataInBodies( bodies, frequencyData );
+
+        // A spacecraft must receive its transmitter information even when it had no systems yet.
+        if( !useGroundStation )
+        {
+            BOOST_REQUIRE( body->getVehicleSystems( ) != nullptr );
+        }
+        // Both the station and the spacecraft must receive a usable frequency schedule.
+        auto calculator = std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >( getCalculator( ) );
+        BOOST_REQUIRE( calculator != nullptr );
+
+        // The three frequency steps must be constant; the second input supplies the value at time 10.
+        BOOST_CHECK( calculator->getRampRates( ) == std::vector< double >( 3, 0.0 ) );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 5.0 ), 100.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 15.0 ), 200.0 );
+        BOOST_CHECK_EQUAL( calculator->getTemplatedCurrentFrequency<>( 25.0 ), 300.0 );
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
 

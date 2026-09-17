@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -19,7 +18,7 @@
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/singleArcVariationalEquationsSolver.h"
@@ -479,8 +478,8 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         // Perform estimation
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare(
-                observationsAndTimes->createEstimationFlattenedObservationData( ).getResidualVector( ) );
+        double rmsResidual =
+                linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->createObservationVectorData( ).getResidualVector( ) );
         BOOST_CHECK_SMALL( rmsResidual, 1.0E-3 );
         Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
         std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;

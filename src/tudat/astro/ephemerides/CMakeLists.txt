@@ -27,6 +27,7 @@ set(ephemerides_SOURCES
         "synchronousRotationalEphemeris.cpp"
         "fullPlanetaryRotationModel.cpp"
         "tleEphemeris.cpp"
+        "tleFitting.cpp"
         "aeordynamicAngleRotationalEphemeris.cpp"
         "directionBasedRotationalEphemeris.cpp"
         "multiArcEphemeris.cpp"
@@ -57,6 +58,7 @@ set(ephemerides_HEADERS
         "fullPlanetaryRotationModel.h"
         "synchronousRotationalEphemeris.h"
         "tleEphemeris.h"
+        "tleFitting.h"
         "aeordynamicAngleRotationalEphemeris.h"
         "directionBasedRotationalEphemeris.h"
         "timeEphemeris.h"
@@ -73,6 +75,6 @@ TUDAT_ADD_LIBRARY("ephemerides"
 #        tudat_spice_interface
 #        tudat_reference_frames
 #        tudat_interpolators
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" "${CSpice_INCLUDE_DIRS}"
         )

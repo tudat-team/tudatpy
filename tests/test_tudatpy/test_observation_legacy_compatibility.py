@@ -3,6 +3,7 @@ import warnings
 import numpy as np
 import pytest
 
+from tudatpy.dynamics import environment_setup
 from tudatpy.estimation import observations
 from tudatpy.estimation.observations import observations_processing
 
@@ -97,6 +98,7 @@ def _to_dense_matrix(matrix):
 
 
 def test_legacy_single_observation_set_conversion_matches_dataset():
+    """Verify legacy single-set conversion preserves dataset values and metadata."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         observation_set = observations.create_single_observation_set(
@@ -117,7 +119,229 @@ def test_legacy_single_observation_set_conversion_matches_dataset():
     )
 
 
+def test_legacy_saved_filtered_set_tracks_link_definition_updates():
+    """Verify repeated legacy filtering after a link-definition update."""
+    with warnings.catch_warnings(record=True) as warning_records:
+        warnings.simplefilter("always")
+        observation_set = observations.create_single_observation_set(
+            observations.one_way_range,
+            _link_ends("Earth"),
+            [np.array([10.0]), np.array([20.0]), np.array([30.0])],
+            [1.0, 2.0, 4.0],
+            observations.receiver,
+        )
+
+        # Save observations outside the time window in the filtered set.
+        time_filter = observations_processing.observation_filter(
+            observations_processing.ObservationFilterType.time_bounds_filtering,
+            1.5,
+            3.5,
+            use_opposite_condition=True,
+        )
+        observation_set.filter_observations(time_filter)
+
+        # Update the active and saved observations before filtering again.
+        updated_link_ends = _link_ends("Earth")
+        updated_link_ends[observations.receiver] = observations.LinkEndId("Earth", "Station")
+        observation_set.link_definition = observations.LinkDefinition(updated_link_ends)
+        observation_set.set_residuals([np.array([5.0])])
+        residual_filter = observations_processing.observation_filter(
+            observations_processing.ObservationFilterType.residual_filtering,
+            0.1,
+        )
+        observation_set.filter_observations(residual_filter)
+        active_observation_count = observation_set.number_of_observables
+        filtered_observation_count = observation_set.filtered_observation_set.number_of_observables
+
+    # Both legacy operations remain usable and explain their modern replacements.
+    messages = [str(record.message) for record in warning_records]
+    assert any("create_single_observation_set is deprecated" in message for message in messages)
+    filter_messages = [
+        message for message in messages if "SingleObservationSet.filter_observations" in message
+    ]
+    assert len(filter_messages) >= 2
+    assert all("ObservationDataset" in message for message in filter_messages)
+    assert active_observation_count == 0
+    assert filtered_observation_count == 3
+
+
+def test_legacy_reference_point_keeps_live_dataset_and_filtered_metadata():
+    """Verify reference-point changes preserve live data and repeated filtering."""
+    dataset = _new_dataset_single_set(
+        observations.one_way_range,
+        "Probe",
+        [[10.0], [20.0], [30.0]],
+        [1.0, 2.0, 4.0],
+    )
+    dataset.add_observation_set(
+        observations.one_way_range,
+        observations.LinkDefinition(_link_ends("Mars")),
+        [],
+        [],
+        observations.receiver,
+    )
+    collection = _legacy_collection(dataset)
+    bodies = environment_setup.create_system_of_bodies(
+        environment_setup.BodyListSettings("SSB", "J2000")
+    )
+    bodies.create_empty_body("Probe")
+
+    with warnings.catch_warnings(record=True) as warning_records:
+        warnings.simplefilter("always")
+
+        # Save two rows, then change the reference point of both active and saved data.
+        time_filter = observations_processing.observation_filter(
+            observations_processing.ObservationFilterType.time_bounds_filtering,
+            1.5,
+            3.5,
+            use_opposite_condition=True,
+        )
+        collection.filter_observations(time_filter)
+        collection.remove_empty_observation_sets()
+        collection.set_reference_point(
+            bodies,
+            np.array([1.0, 2.0, 3.0]),
+            "Antenna",
+            "Probe",
+            observations.receiver,
+        )
+
+        # Mutations through the returned dataset must remain visible to the collection.
+        live_dataset = observations.create_observation_dataset_from_collection(collection)
+        live_dataset.set_residuals_for_set(0, [np.array([5.0])])
+        residuals = np.asarray(collection.get_concatenated_residuals()).reshape(-1)
+
+        # A second filter must move the active row into the compatible saved set.
+        residual_filter = observations_processing.observation_filter(
+            observations_processing.ObservationFilterType.residual_filtering,
+            0.1,
+        )
+        collection.filter_observations(residual_filter)
+        observation_set = collection.get_single_observation_sets()[0]
+        active_observation_count = observation_set.number_of_observables
+        filtered_observation_count = observation_set.filtered_observation_set.number_of_observables
+
+    messages = [str(record.message) for record in warning_records]
+    assert any("set_reference_point is deprecated" in message for message in messages)
+    assert any(
+        "create_observation_dataset_from_collection is deprecated" in message
+        for message in messages
+    )
+    np.testing.assert_allclose(residuals, [5.0])
+    assert active_observation_count == 0
+    assert filtered_observation_count == 3
+
+
+def test_legacy_reference_point_switch_history_ignores_empty_sets():
+    """Verify reference-point switch histories tolerate empty observation sets."""
+    dataset = observations.ObservationDataset()
+    dataset.add_observation_set(
+        observations.one_way_range,
+        observations.LinkDefinition(_link_ends("Earth")),
+        [],
+        [],
+        observations.receiver,
+    )
+    dataset.add_observation_set(
+        observations.one_way_range,
+        observations.LinkDefinition(_link_ends("Mars")),
+        [np.array([10.0]), np.array([20.0]), np.array([30.0])],
+        [1.0, 2.0, 4.0],
+        observations.receiver,
+    )
+    collection = _legacy_collection(dataset)
+    bodies = environment_setup.create_system_of_bodies(
+        environment_setup.BodyListSettings("SSB", "J2000")
+    )
+    bodies.create_empty_body("Probe")
+
+    with warnings.catch_warnings(record=True) as warning_records:
+        warnings.simplefilter("always")
+
+        # Split the populated set at the antenna switch while leaving the empty set alone.
+        collection.set_reference_points(
+            bodies,
+            {
+                0.0: np.array([1.0, 0.0, 0.0]),
+                3.0: np.array([2.0, 0.0, 0.0]),
+                5.0: np.array([2.0, 0.0, 0.0]),
+            },
+            "Probe",
+            observations.transmitter,
+        )
+        observation_sets = collection.get_single_observation_sets()
+        populated_sets = [
+            observation_set
+            for observation_set in observation_sets
+            if observation_set.number_of_observables > 0
+        ]
+        populated_reference_points = {
+            observation_set.link_definition.link_ends[observations.transmitter].reference_point
+            for observation_set in populated_sets
+        }
+
+        # Residual updates through the converted dataset must remain live.
+        live_dataset = observations.create_observation_dataset_from_collection(collection)
+        live_dataset.set_residuals_for_set(0, [np.array([5.0]), np.array([5.0])])
+        live_dataset.set_residuals_for_set(1, [np.array([5.0])])
+        residuals = np.asarray(collection.get_concatenated_residuals()).reshape(-1)
+
+    messages = [str(record.message) for record in warning_records]
+    assert any("set_reference_points is deprecated" in message for message in messages)
+    assert len(observation_sets) == 2
+    assert len(populated_sets) == 2
+    assert populated_reference_points == {"Antenna1", "Antenna2"}
+    np.testing.assert_allclose(residuals, [5.0, 5.0, 5.0])
+
+
+def test_legacy_ephemeris_reference_point_adopts_grouped_collection_dataset():
+    """Verify an ephemeris reference point keeps grouped collections live."""
+    with warnings.catch_warnings(record=True) as warning_records:
+        warnings.simplefilter("always")
+        observation_set = observations.create_single_observation_set(
+            observations.one_way_range,
+            _link_ends("Earth"),
+            [np.array([10.0]), np.array([20.0])],
+            [1.0, 2.0],
+            observations.receiver,
+        )
+        collection = observations.ObservationCollection([observation_set])
+        bodies = environment_setup.create_system_of_bodies(
+            environment_setup.BodyListSettings("SSB", "J2000")
+        )
+        bodies.create_empty_body("Probe")
+        antenna_ephemeris = environment_setup.ephemeris.create_ephemeris(
+            environment_setup.ephemeris.constant(
+                np.zeros(6),
+                "SSB",
+                "J2000",
+            ),
+            "Antenna",
+        )
+
+        # This overload is used by the older MEX residual example.
+        collection.set_reference_point(
+            bodies,
+            antenna_ephemeris,
+            "Antenna",
+            "Probe",
+            observations.transmitter,
+        )
+        live_dataset = observations.create_observation_dataset_from_collection(collection)
+        live_dataset.set_residuals_for_set(0, [np.array([5.0]), np.array([6.0])])
+        residuals = np.asarray(collection.get_concatenated_residuals()).reshape(-1)
+
+    messages = [str(record.message) for record in warning_records]
+    assert any("set_reference_point is deprecated" in message for message in messages)
+    assert any(
+        "create_observation_dataset_from_collection is deprecated" in message
+        for message in messages
+    )
+    np.testing.assert_allclose(residuals, [5.0, 6.0])
+
+
 def test_dataset_add_observation_set_accepts_single_observation_set_object():
+    """Verify a legacy single-set object can be added directly to a dataset."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         observation_set = observations.create_single_observation_set(
@@ -139,9 +363,10 @@ def test_dataset_add_observation_set_accepts_single_observation_set_object():
 
 
 def test_dataset_add_observation_set_component_shape_matches_keyword_construction():
+    """Verify positional and keyword dataset construction preserve component shape."""
     link_definition = observations.LinkDefinition(_link_ends("Earth"))
-    observation_values = [np.array([10.0]), np.array([20.0])]
-    observation_times = [1.0, 2.0]
+    observation_values = [np.array([20.0]), np.array([10.0])]
+    observation_times = [2.0, 1.0]
 
     positional_dataset = observations.ObservationDataset()
     assert (
@@ -168,25 +393,32 @@ def test_dataset_add_observation_set_component_shape_matches_keyword_constructio
     )
 
     np.testing.assert_allclose(
-        positional_dataset.ordered_flattened_observation_data().observation_vector,
-        keyword_dataset.ordered_flattened_observation_data().observation_vector,
+        positional_dataset.ordered_observation_vector_data().observation_vector,
+        keyword_dataset.ordered_observation_vector_data().observation_vector,
     )
     np.testing.assert_allclose(
-        positional_dataset.ordered_flattened_observation_data().times,
-        keyword_dataset.ordered_flattened_observation_data().times,
+        positional_dataset.ordered_observation_vector_data().times,
+        keyword_dataset.ordered_observation_vector_data().times,
+    )
+    np.testing.assert_allclose(
+        [float(time) for time in positional_dataset.observation_times_for_set(0)],
+        observation_times,
     )
 
 
 def test_dataset_add_observation_set_wrong_shape_names_accepted_signatures():
+    """Verify invalid add-observation-set calls report both supported signatures."""
     with pytest.raises(TypeError) as exception_info:
         observations.ObservationDataset().add_observation_set(object())
 
     error_message = str(exception_info.value)
-    assert "add_observation_set(single_observation_set)" in error_message
-    assert "add_observation_set(observable_type, link_definition" in error_message
+    assert "single_observation_set" in error_message
+    assert "observable_type" in error_message
+    assert "link_definition" in error_message
 
 
 def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
+    """Verify dataset legacy vector properties match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -212,6 +444,7 @@ def test_dataset_exposes_legacy_collection_vector_properties(sample_dataset):
 
 
 def test_dataset_exposes_legacy_collection_metadata_properties(sample_dataset):
+    """Verify dataset legacy metadata properties match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -252,6 +485,7 @@ def test_dataset_exposes_legacy_collection_metadata_properties(sample_dataset):
 
 
 def test_dataset_exposes_legacy_collection_lookup_methods(sample_dataset):
+    """Verify dataset legacy lookup methods match the collection facade."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -291,6 +525,7 @@ def test_dataset_exposes_legacy_collection_lookup_methods(sample_dataset):
 
 
 def test_dataset_delegates_remaining_legacy_collection_method_names(sample_dataset):
+    """Verify retained legacy method names delegate to dataset behavior."""
     legacy_collection = _legacy_collection(sample_dataset)
 
     with warnings.catch_warnings():
@@ -307,27 +542,29 @@ def test_dataset_delegates_remaining_legacy_collection_method_names(sample_datas
 
         sample_dataset.set_constant_weight(12.0)
         np.testing.assert_allclose(
-            sample_dataset.ordered_flattened_observation_data().weight_vector,
+            sample_dataset.ordered_observation_vector_data().weight_vector,
             np.full(sample_dataset.total_scalar_size, 12.0),
         )
 
 
 def test_dataset_legacy_full_vector_setters_update_dataset(sample_dataset):
-    flattened = sample_dataset.ordered_flattened_observation_data()
-    new_observations = np.asarray(flattened.observation_vector, dtype=float) + 100.0
-    new_residuals = np.asarray(flattened.residual_vector, dtype=float) - 0.25
+    """Verify legacy full-vector setters update the dataset backend."""
+    vector_data = sample_dataset.ordered_observation_vector_data()
+    new_observations = np.asarray(vector_data.observation_vector, dtype=float) + 100.0
+    new_residuals = np.asarray(vector_data.residual_vector, dtype=float) - 0.25
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         sample_dataset.set_observations(new_observations)
         sample_dataset.set_residuals(new_residuals)
 
-    updated = sample_dataset.ordered_flattened_observation_data()
+    updated = sample_dataset.ordered_observation_vector_data()
     np.testing.assert_allclose(updated.observation_vector, new_observations)
     np.testing.assert_allclose(updated.residual_vector, new_residuals)
 
 
 def test_legacy_weight_setters_match_dataset(sample_dataset):
+    """Verify legacy collection weight setters match dataset weights."""
     legacy_collection = _legacy_collection(sample_dataset)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", DeprecationWarning)
@@ -341,10 +578,10 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
                 np.asarray(legacy_collection.concatenated_weights),
                 expected_weights,
             )
-        flattened = sample_dataset.ordered_flattened_observation_data()
-        np.testing.assert_allclose(flattened.weight_vector, expected_weights)
+        vector_data = sample_dataset.ordered_observation_vector_data()
+        np.testing.assert_allclose(vector_data.weight_vector, expected_weights)
         np.testing.assert_allclose(
-            _to_dense_matrix(flattened.sparse_weight_matrix),
+            _to_dense_matrix(vector_data.sparse_weight_matrix),
             np.diag(expected_weights),
         )
         with warnings.catch_warnings():
@@ -371,20 +608,16 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
         legacy_collection.set_tabulated_weights(tabulated_weights)
     assert_weights_match(np.array([1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4]))
 
-    stale_viewer = sample_dataset.create_viewer(observations.observation_query.active)
+    source_snapshot = sample_dataset.get_observations(observations.observation_query.active)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         legacy_collection.remove_single_observation_sets(range_parser)
-    with pytest.raises(RuntimeError):
-        stale_viewer.number_of_observations
-
-    assert sample_dataset.number_of_observation_sets == 1
-    assert sample_dataset.get_observation_set_metadata(0).observable_type == (
-        observations.angular_position
-    )
+    # Removing a collection member changes its grouping, not its dataset owner.
+    assert len(source_snapshot) == 5
+    assert sample_dataset.number_of_observation_sets == 2
     np.testing.assert_allclose(
-        sample_dataset.ordered_flattened_observation_data().weight_vector,
-        [2.1, 2.2, 2.3, 2.4],
+        sample_dataset.ordered_observation_vector_data().weight_vector,
+        [1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4],
     )
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -392,3 +625,27 @@ def test_legacy_weight_setters_match_dataset(sample_dataset):
             np.asarray(legacy_collection.concatenated_weights),
             [2.1, 2.2, 2.3, 2.4],
         )
+
+
+@pytest.mark.parametrize("container", [list, lambda values: np.array(values, dtype=object)])
+def test_dataset_preserves_precise_time_objects(container):
+    """Verify dataset input preserves precise time objects in common containers."""
+    from tudatpy.astro.time_representation import Time
+
+    epoch = Time(1000000, 0.000000001)
+    dataset = _new_dataset_single_set(
+        observations.one_way_range, "Earth", [[10.0]], container([epoch])
+    )
+    stored = dataset.observation_times_for_set(0)[0]
+    assert stored == epoch
+    assert float(stored - Time(1000000, 0.0)) == pytest.approx(1.0e-9, rel=1.0e-12)
+
+
+def test_scalar_setters_accept_one_dimensional_arrays(sample_dataset):
+    """Verify scalar observation and residual setters accept one-dimensional arrays."""
+    sample_dataset.set_observations_for_set(0, np.array([101.0, 102.0, 103.0]))
+    sample_dataset.set_residuals_for_set(0, np.array([0.5, 1.5, 2.5]))
+    np.testing.assert_array_equal(
+        sample_dataset.observation_vector_for_set(0), [101.0, 102.0, 103.0]
+    )
+    np.testing.assert_array_equal(sample_dataset.residual_vector_for_set(0), [0.5, 1.5, 2.5])

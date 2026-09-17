@@ -362,6 +362,7 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
             2,
             false,
             true,
+            nullptr,
             [ &disabledObservationId, &rejectedObservationId ]( const std::shared_ptr< Dataset >& dataset,
                                                                 const std::shared_ptr< Input >& input ) {
                 const unsigned int angularSetId = dataset->getObservationSetIdsForObservableType( angular_position ).at( 0 );
@@ -380,17 +381,16 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
                 angularObservations.segment( angularSize, angularSize ).array( ) += 1.0;
                 dataset->setObservationVectorForSet( angularSetId, angularObservations );
 
-                const std::map< ObservableType, double > thresholds = {
-                    { one_way_range, 1.0E12 }, { one_way_doppler, 1.0E12 }, { angular_position, 0.5 }
-                };
+                const std::map< ObservableType, double > thresholds = { { one_way_range, 1.0E12 },
+                                                                        { one_way_doppler, 1.0E12 },
+                                                                        { angular_position, 0.5 } };
                 input->setOutlierRejectionSettings( simpleOutlierRejectionSettings( thresholds, 0, false ) );
             } );
 
-    const FlattenedObservationData< double, double > rejectedFullData =
-            rejectedPodData.second->getObservationDataset( )->createOrderedFlattenedObservationData( true );
+    const ObservationVectorData< double, double > rejectedFullData =
+            rejectedPodData.second->getObservationDataset( )->createOrderedObservationVectorData( true );
     const Eigen::MatrixXd rejectedResidualHistory = rejectedPodData.first->getResidualHistoryMatrix( );
-    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags =
-            rejectedPodData.first->getActiveFlagsPerIterationMatrix( );
+    const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = rejectedPodData.first->getActiveFlagsPerIterationMatrix( );
 
     BOOST_REQUIRE_GE( activeFlags.cols( ), 2 );
     BOOST_REQUIRE_EQUAL( activeFlags.rows( ), rejectedResidualHistory.rows( ) );
@@ -399,8 +399,7 @@ BOOST_AUTO_TEST_CASE( test_ActiveObservationHistory )
     {
         const unsigned int observationId = rejectedFullData.getObservationIds( ).at( row );
         BOOST_CHECK_EQUAL( activeFlags( row, 0 ), observationId != disabledObservationId );
-        BOOST_CHECK_EQUAL( activeFlags( row, 1 ),
-                           observationId != disabledObservationId && observationId != rejectedObservationId );
+        BOOST_CHECK_EQUAL( activeFlags( row, 1 ), observationId != disabledObservationId && observationId != rejectedObservationId );
     }
 
     int numberOfActiveRowsInBestIteration = 0;
@@ -563,8 +562,7 @@ BOOST_AUTO_TEST_CASE( test_CostFunctionBasedBestIterationSelection )
                 orbitDeterminationManager.estimateParameters( estimationInput );
 
         const Eigen::MatrixXd residualHistoryMatrix = estimationOutput->getResidualHistoryMatrix( );
-        const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags =
-                estimationOutput->getActiveFlagsPerIterationMatrix( );
+        const Eigen::Matrix< bool, Eigen::Dynamic, Eigen::Dynamic > activeFlags = estimationOutput->getActiveFlagsPerIterationMatrix( );
         BOOST_CHECK_EQUAL( activeFlags.rows( ), residualHistoryMatrix.rows( ) );
         BOOST_CHECK_EQUAL( activeFlags.cols( ), residualHistoryMatrix.cols( ) );
         BOOST_CHECK( activeFlags.array( ).all( ) );

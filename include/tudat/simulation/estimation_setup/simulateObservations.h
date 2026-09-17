@@ -11,9 +11,10 @@
 #ifndef TUDAT_SIMULATEOBSERVATIONS_H
 #define TUDAT_SIMULATEOBSERVATIONS_H
 
-#include <memory>
-
+#include <deque>
 #include <functional>
+#include <map>
+#include <memory>
 
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observationDataset.h"
@@ -226,6 +227,7 @@ simulateObservationDatasetWithCheckAndLinkEndIdOutput(
     return observationDataset;
 }
 
+//! Simulate one dataset set with per-arc observation settings.
 template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > simulatePerArcObservationDataset(
         const std::shared_ptr< PerArcObservationSimulationSettings< TimeType > > observationsToSimulate,
@@ -499,6 +501,23 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
         observation_models::ObservableType observableType = observationsToSimulate.at( i )->getObservableType( );
         observation_models::LinkEnds linkEnds = observationsToSimulate.at( i )->getLinkEnds( ).linkEnds_;
 
+        // Empty tabulated groups carry metadata only. Keep their set positions
+        // without requiring a model, bodies or dependent-variable evaluation.
+        const auto tabulatedSettings =
+                std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( observationsToSimulate.at( i ) );
+        if( tabulatedSettings && tabulatedSettings->simulationTimes_.empty( ) )
+        {
+            observationDataset->addObservationSet( observableType,
+                                                   tabulatedSettings->getLinkEnds( ),
+                                                   {},
+                                                   {},
+                                                   tabulatedSettings->getReferenceLinkEndType( ),
+                                                   {},
+                                                   tabulatedSettings->getObservationDependentVariableBookkeeping( ),
+                                                   tabulatedSettings->getAncillarySettings( ) );
+            continue;
+        }
+
         int observationSize = observation_models::getObservableSize( observableType );
 
         switch( observationSize )
@@ -563,6 +582,7 @@ std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, 
     return observationDataset;
 }
 
+//! Create an observation dataset from externally supplied observation values and times.
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > setExistingObservationDataset(
         const std::map< observation_models::ObservableType,
@@ -728,25 +748,77 @@ void computeResidualsAndDependentVariables(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
             simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > observationData =
-            observationDataset->createComputationFlattenedObservationData( true );
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > computedObservationData =
-            computedObservationDataset->createComputationFlattenedObservationData( true );
-
-    // Residual/dependent-variable computation includes rejected rows by default so they remain inspectable for restoration decisions.
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals =
-            observationData.getObservationVector( ) - computedObservationData.getObservationVector( );
-    observationDataset->setResidualVector( observationData, residuals );
+    if( observationDataset->getNumberOfObservationSets( ) != computedObservationDataset->getNumberOfObservationSets( ) )
+    {
+        throw std::runtime_error( "Error when computing observation residuals, simulated and observed set counts differ." );
+    }
 
     for( unsigned int setId = 0; setId < observationDataset->getNumberOfObservationSets( ); ++setId )
     {
-        std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
-        if( computedDependentVariables.size( ) > 0 )
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& observedMetadata =
+                observationDataset->getObservationSetMetadata( setId );
+        const observation_models::ObservationSetMetadata< ObservationScalarType, TimeType >& computedMetadata =
+                computedObservationDataset->getObservationSetMetadata( setId );
+        if( observedMetadata.observableType_ != computedMetadata.observableType_ ||
+            observedMetadata.referenceLinkEnd_ != computedMetadata.referenceLinkEnd_ ||
+            observedMetadata.observableSize_ != computedMetadata.observableSize_ ||
+            !( observationDataset->getLinkDefinition( observedMetadata.linkDefinitionId_ ) ==
+               computedObservationDataset->getLinkDefinition( computedMetadata.linkDefinitionId_ ) ) )
         {
-            if( computedDependentVariables.at( 0 ).size( ) > 0 )
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed set metadata differ." );
+        }
+
+        const std::vector< TimeType > observedTimes = observationDataset->getObservationTimesForSet( setId );
+        const std::vector< TimeType > computedTimes = computedObservationDataset->getObservationTimesForSet( setId );
+        if( observedTimes.size( ) != computedTimes.size( ) )
+        {
+            throw std::runtime_error( "Error when computing observation residuals, simulated and observed row counts differ." );
+        }
+
+        std::map< TimeType, std::deque< std::size_t > > computedIndicesByTime;
+        for( std::size_t i = 0; i < computedTimes.size( ); ++i )
+        {
+            computedIndicesByTime[ computedTimes.at( i ) ].push_back( i );
+        }
+
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observedValues =
+                observationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedValues =
+                computedObservationDataset->getObservationsForSet( setId );
+        const std::vector< Eigen::VectorXd > computedDependentVariables = computedObservationDataset->getDependentVariablesForSet( setId );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals( observedTimes.size( ) );
+        std::vector< Eigen::VectorXd > reorderedDependentVariables;
+        if( !computedDependentVariables.empty( ) )
+        {
+            if( computedDependentVariables.size( ) != computedTimes.size( ) )
             {
-                observationDataset->setDependentVariablesForSet( setId, computedDependentVariables );
+                throw std::runtime_error(
+                        "Error when computing observation residuals, simulated dependent-variable row count is inconsistent." );
             }
+            reorderedDependentVariables.resize( observedTimes.size( ) );
+        }
+
+        for( std::size_t i = 0; i < observedTimes.size( ); ++i )
+        {
+            auto computedIndexIterator = computedIndicesByTime.find( observedTimes.at( i ) );
+            if( computedIndexIterator == computedIndicesByTime.end( ) || computedIndexIterator->second.empty( ) )
+            {
+                throw std::runtime_error( "Error when computing observation residuals, no simulated row has the observed epoch." );
+            }
+            const std::size_t computedIndex = computedIndexIterator->second.front( );
+            computedIndexIterator->second.pop_front( );
+            residuals.at( i ) = observedValues.at( i ) - computedValues.at( computedIndex );
+            if( !reorderedDependentVariables.empty( ) )
+            {
+                reorderedDependentVariables.at( i ) = computedDependentVariables.at( computedIndex );
+            }
+        }
+
+        // Restore the source row order after simulation, which sorts tabulated epochs for deterministic model evaluation.
+        observationDataset->setResidualsForSet( setId, residuals );
+        if( !reorderedDependentVariables.empty( ) )
+        {
+            observationDataset->setDependentVariablesForSet( setId, reorderedDependentVariables );
         }
     }
 }
@@ -778,10 +850,10 @@ Eigen::VectorXd getNumericalObservationTimePartial(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedDownperturbedObservationDataset =
             simulateObservationDataset( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
 
-    return ( computedUpperturbedObservationDataset->createOrderedFlattenedObservationData( )
+    return ( computedUpperturbedObservationDataset->createOrderedObservationVectorData( )
                      .getObservationVector( )
                      .template cast< double >( ) -
-             computedDownperturbedObservationDataset->createOrderedFlattenedObservationData( )
+             computedDownperturbedObservationDataset->createOrderedObservationVectorData( )
                      .getObservationVector( )
                      .template cast< double >( ) ) /
             ( 2.0 * timePerturbation );
@@ -796,7 +868,7 @@ void estimateTimeBiasPerSet(
 {
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
     Eigen::VectorXd residualVector =
-            observationDataset->createOrderedFlattenedObservationData( ).getResidualVector( ).template cast< double >( );
+            observationDataset->createOrderedObservationVectorData( ).getResidualVector( ).template cast< double >( );
     correctedResiduals.resize( residualVector.rows( ), 1 );
 
     for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
@@ -822,7 +894,7 @@ void estimateTimeBiasAndPolynomialFitPerSet(
     estimateTimeBiasPerSet( observationDataset, timePartials, timeBiases, correctedResiduals );
 
     std::vector< double > stlTimeVector =
-            utilities::staticCastVector< double, TimeType >( observationDataset->createOrderedFlattenedObservationData( ).getTimes( ) );
+            utilities::staticCastVector< double, TimeType >( observationDataset->createOrderedObservationVectorData( ).getTimes( ) );
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
 
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
@@ -849,12 +921,12 @@ void getResidualStatistics(
         Eigen::VectorXd& meanValues,
         Eigen::VectorXd& rmsValues )
 {
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > flattenedObservationData =
-            observationDataset->createOrderedFlattenedObservationData( );
-    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( flattenedObservationData.getTimes( ) );
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > observationVectorData =
+            observationDataset->createOrderedObservationVectorData( );
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( observationVectorData.getTimes( ) );
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
 
-    Eigen::VectorXd residuals = flattenedObservationData.getResidualVector( ).template cast< double >( );
+    Eigen::VectorXd residuals = observationVectorData.getResidualVector( ).template cast< double >( );
 
     std::vector< std::pair< int, int > > startEndIndices = observationDataset->getObservationSetStartAndSize( );
     startTimes = Eigen::VectorXd::Zero( startEndIndices.size( ) );
@@ -878,4 +950,7 @@ void getResidualStatistics(
 }  // namespace simulation_setup
 
 }  // namespace tudat
+// Preserve the original include path for the base-branch simulation API.
+#include "tudat/simulation/estimation_setup/simulateObservationsLegacy.h"
+
 #endif  // TUDAT_SIMULATEOBSERVATIONS_H

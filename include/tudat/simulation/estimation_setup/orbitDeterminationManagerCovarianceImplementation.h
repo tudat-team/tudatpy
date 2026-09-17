@@ -17,7 +17,9 @@
 
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
+#include "tudat/simulation/estimation_setup/interArcContinuityConstraint.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -32,9 +34,14 @@ std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >
 OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCovariance(
         const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
 {
-    const observation_models::FlattenedObservationData< ObservationScalarType, TimeType > weightData =
-            estimationInput->getObservationDataset( )->createOrderedFlattenedObservationData( false );
+    const auto observationDataset = estimationInput->getObservationDataset( );
+    const observation_models::ObservationVectorData< ObservationScalarType, TimeType > weightData =
+            observationDataset->createObservationVectorData( );
     const int totalNumberOfObservations = static_cast< int >( weightData.getObservationVector( ).size( ) );
+    if( totalNumberOfObservations == 0 )
+    {
+        throw std::runtime_error( "Cannot run estimation or covariance analysis without active observations." );
+    }
     const Eigen::VectorXd weightsMatrixDiagonal = weightData.getWeightVector( );
     const bool hasOffDiagonalWeights = weightData.hasOffDiagonalWeights( );
     Eigen::SparseMatrix< double > weightsMatrix;
@@ -72,8 +79,14 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     bool exceptionDuringPropagation = false;
     std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
-            designMatricesAndResiduals = performPreEstimationSteps(
-                    estimationInput, parameterValues, weightData, false, 0, exceptionDuringPropagation, simulationResults );
+            designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
+                                                                    observationDataset,
+                                                                    parameterValues,
+                                                                    weightData,
+                                                                    false,
+                                                                    0,
+                                                                    exceptionDuringPropagation,
+                                                                    simulationResults );
     Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
     Eigen::MatrixXd designMatrixConsiderParameters;
     designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
@@ -101,6 +114,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
     Eigen::MatrixXd constraintStateMultiplier;
     Eigen::VectorXd constraintRightHandSide;
     parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+    normalizeLinearConstraints( constraintStateMultiplier, constraintRightHandSide, normalizationTerms );
 
     // Compute inverse of updated covariance
     Eigen::MatrixXd inverseNormalizedCovariance;
@@ -123,6 +137,27 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                 constraintStateMultiplier,
                 constraintRightHandSide,
                 estimationInput->getLimitConditionNumberForWarning( ) );
+    }
+
+    const auto& interArcConstraints = estimationInput->getInterArcContinuityConstraints( );
+    InterArcConstraintContribution interArcContribution;
+    if( !interArcConstraints.empty( ) )
+    {
+        // Add the soft inter-arc continuity-prior normal-matrix contribution.
+        interArcContribution = assembleInterArcContinuityContributionFromManagerInterfaces< ObservationScalarType, TimeType >(
+                interArcConstraints,
+                parametersToEstimate_,
+                stateTransitionAndSensitivityMatrixInterface_,
+                variationalEquationsSolver_,
+                normalizationTerms,
+                static_cast< int >( numberEstimatedParameters_ ),
+                "covariance analysis",
+                static_cast< int >( designMatrixEstimatedParameters.rows( ) ) );
+        if( interArcContribution.additionalNormalMatrix.size( ) > 0 )
+        {
+            inverseNormalizedCovariance.topLeftCorner( numberEstimatedParameters_, numberEstimatedParameters_ ) +=
+                    interArcContribution.additionalNormalMatrix;
+        }
     }
 
     // Compute contribution consider parameters
@@ -165,7 +200,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::computeCova
                     covarianceContributionConsiderParameters,
                     estimationInput->getConsiderCovariance( ),
                     exceptionDuringPropagation,
-                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ) );
+                    hasOffDiagonalWeights ? weightsMatrix : Eigen::SparseMatrix< double >( ),
+                    interArcContribution.totalConstraintCost,
+                    interArcContribution.perPairDiscrepancies );
 
     return estimationOutput;
 }

@@ -139,7 +139,7 @@ class _ParsingMixin:
             print("Format key not supported")
         #########################################################################################################
 
-    def match_type_extension(self, data_type, filename):
+    def match_type_extension(self, data_type, filename) -> bool:
         """
         Checks if the extension of a given file matches the expected extension for the specified data type.
 
@@ -165,7 +165,7 @@ class _ParsingMixin:
 
     #########################################################################################################
 
-    def get_extension_for_data_type(self, data_type, first_only=True):
+    def get_extension_for_data_type(self, data_type, first_only=True) -> str | list[str] | None:
         """
         Returns one or more file extensions for the given data type.
 

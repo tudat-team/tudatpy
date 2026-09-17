@@ -8,13 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -406,8 +405,8 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
                     // Compute numerical partials
                     Eigen::VectorXd numericalPartials =
-                            ( upperturbedSimulatedObservations->createEstimationFlattenedObservationData( ).getObservationVector( ) -
-                              downperturbedSimulatedObservations->createEstimationFlattenedObservationData( ).getObservationVector( ) ) /
+                            ( upperturbedSimulatedObservations->createObservationVectorData( ).getObservationVector( ) -
+                              downperturbedSimulatedObservations->createObservationVectorData( ).getObservationVector( ) ) /
                             ( 2.0 * timeBiasPerturbation );
                     Eigen::VectorXd analyticalPartials = partials.block( 0, parameterIndex, partials.rows( ), 1 );
 

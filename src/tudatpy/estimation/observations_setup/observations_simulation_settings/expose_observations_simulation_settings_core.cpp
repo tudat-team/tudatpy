@@ -156,8 +156,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
            py::arg( "simulation_times" ),
            py::arg( "reference_link_end_type" ) = tom::receiver,
            py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-           py::arg( "noise_function" ) = nullptr,
-           py::arg( "ancillary_settings" ) = nullptr,
+           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ),
+           py::arg_v( "ancillary_settings", std::shared_ptr< tom::ObservationAncillarySimulationSettings >( ), "None" ),
            R"doc(
 
  Function for creating settings object for observation simulation, using a predefined list of observation times.
@@ -227,7 +227,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ TabulatedObservationSimulationSettings ]
+ list[TabulatedObservationSimulationSettings]
      List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
 
 
@@ -250,7 +250,7 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
            py::arg( "minimum_time_between_arcs" ),
            py::arg( "reference_link_end_type" ) = tom::receiver,
            py::arg( "additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
-           py::arg( "noise_function" ) = nullptr,
+           py::arg_v( "noise_function", std::function< Eigen::VectorXd( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
@@ -303,8 +303,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
- :class:`TabulatedObservationSimulationSettings`
-     Instance of the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` class.
+ ObservationSimulationSettings
+     Settings defining continuous observation arcs.
 
 
 
@@ -361,8 +361,8 @@ void expose_observation_simulation_settings_core_bindings( py::module& m )
 
  Returns
  -------
- List[ :class:`TabulatedObservationSimulationSettings` ]
-     List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
+ list[ObservationSimulationSettings]
+     List of settings defining continuous observation arcs.
 
 
 

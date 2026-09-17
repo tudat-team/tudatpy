@@ -338,39 +338,21 @@ def test_query_conditions_compose_when_selecting_dataset_rows(sample_dataset):
     ) == [3]
 
 
-def test_query_conditions_drive_viewers_and_flattened_data(sample_dataset):
-    """Check that query results drive viewers and flattened provenance correctly."""
-    observation_query = observations.observation_query
-
-    viewer = sample_dataset.create_viewer(
-        (observation_query.set_id == 1) | (observation_query.time < 2.0)
+def test_query_conditions_drive_snapshot_getters(sample_dataset):
+    """Verify query conditions select aligned fields in detached snapshots."""
+    query = observations.observation_query
+    selection = (query.set_id == 1) | (query.time < 2.0)
+    data = sample_dataset.get_data(
+        selection,
+        fields=("observations", "observation_ids", "set_ids", "rows", "scalar_components"),
+        ordering="estimation",
     )
-    # The viewer should contain row 0 plus both angular-position rows.
-    assert viewer.number_of_observations == 3
-    # The stored row ids verify that viewer ordering follows dataset row order.
-    assert viewer.observation_ids == [0, 3, 4]
-
-    # Viewer index 1 should refer to dataset row 3 from angular set id 1.
-    assert viewer.observation_row(1).set_id == 1
-    # The same viewer index should return the first angular-position value.
-    np.testing.assert_allclose(viewer.observation_value(1), [1.0, 2.0])
-
-    flattened = viewer.estimation_flattened_observation_data()
-    # Flattened values should expand vector observations into scalar components.
-    np.testing.assert_allclose(
-        flattened.observation_vector,
-        [10.0, 1.0, 2.0, 3.0, 4.0],
-    )
-    # Each flattened scalar should point back to the source observation row.
-    assert flattened.observation_ids == [0, 3, 3, 4, 4]
-    # Each flattened scalar should point back to the source observation set.
-    assert flattened.set_ids == [0, 1, 1, 1, 1]
-    # The per-set ordering should record first appearance in flattened data.
-    assert flattened.set_ids_in_row_order == [0, 1]
-    # Unique row ids for set 1 should collapse vector components back to rows.
-    assert flattened.unique_observation_ids_for_set(1) == [3, 4]
-    # Row lookup should map observation row 3 component 1 to flattened row 2.
-    assert flattened.flattened_row(3, 1) == 2
+    assert data["observation_ids"] == [0, 3, 4]
+    assert data["set_ids"] == [0, 1, 1]
+    assert data["rows"][1]["set_id"] == 1
+    np.testing.assert_array_equal(data["observations"][1], [1.0, 2.0])
+    np.testing.assert_array_equal(np.concatenate(data["observations"]), [10, 1, 2, 3, 4])
+    assert data["scalar_components"] == [(0, 0), (3, 0), (3, 1), (4, 0), (4, 1)]
 
 
 def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sample_dataset):
@@ -386,28 +368,17 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
 
     # The dataset-level flag verifies that the Python set_weight_block call stored advanced blocks.
     assert sample_dataset.has_extra_weight_blocks is True
-    # Symmetric insertion should store the requested block and its transpose.
-    assert len(sample_dataset.extra_weight_blocks) == 2
-    # The first exposed block should preserve the row scalar-component ids for the first angular row.
-    assert sample_dataset.extra_weight_blocks[0].row_scalar_component_ids == [3, 4]
-    # The first exposed block should preserve the column scalar-component ids for the second angular row.
-    assert sample_dataset.extra_weight_blocks[0].column_scalar_component_ids == [5, 6]
-    # The dense block value must round-trip through the Python ObservationWeightBlock binding.
-    np.testing.assert_allclose(
-        sample_dataset.extra_weight_blocks[0].weight_block, cross_weight_block
-    )
-
-    flattened = sample_dataset.estimation_flattened_observation_data(True)
-    # A cross-observation block must mark the flattened data as non-diagonal.
-    assert flattened.has_off_diagonal_weights is True
+    vector_data = sample_dataset.observation_vector_data(True)
+    # A cross-observation block must mark the vector data as non-diagonal.
+    assert vector_data.has_off_diagonal_weights is True
     # The inverse flag should also reflect the presence of off-diagonal weights.
-    assert flattened.is_diagonal_weight_only is False
+    assert vector_data.is_diagonal_weight_only is False
 
-    dense_weight_matrix = _to_dense_matrix(flattened.sparse_weight_matrix)
-    first_row_start = flattened.flattened_row(angular_ids[0], 0)
-    second_row_start = flattened.flattened_row(angular_ids[1], 0)
+    dense_weight_matrix = _to_dense_matrix(vector_data.sparse_weight_matrix)
+    first_row_start = vector_data.vector_row(angular_ids[0], 0)
+    second_row_start = vector_data.vector_row(angular_ids[1], 0)
 
-    # The requested block must materialize at the flattened rows of the selected observations.
+    # The requested block must appear at the vector rows of the selected observations.
     np.testing.assert_allclose(
         dense_weight_matrix[
             first_row_start : first_row_start + 2, second_row_start : second_row_start + 2
@@ -423,8 +394,8 @@ def test_python_sparse_weight_block_binding_materializes_off_diagonal_weights(sa
     )
 
 
-def test_python_viewer_ordered_flattening_reorders_selected_rows():
-    """Check Python viewer ordered flattening against dataset-row flattening."""
+def test_python_snapshot_estimation_order():
+    """Check snapshot estimation order against the observation vector data."""
     angular_dataset = _new_dataset_single_set(
         observations.angular_position,
         "Mars",
@@ -439,17 +410,23 @@ def test_python_viewer_ordered_flattening_reorders_selected_rows():
     )
     assert angular_dataset.add_observation_set_from_dataset(range_dataset, 0) == 1
 
-    viewer = angular_dataset.create_viewer(observations.ObservationSelectionCondition.all())
-    # The viewer itself follows dataset row insertion order: angular rows before range rows.
-    assert viewer.observation_ids == [0, 1, 2, 3]
+    assert angular_dataset.get_observation_ids() == [0, 1, 2, 3]
+    assert angular_dataset.get_observation_ids(ordering="estimation") == [2, 3, 0, 1]
+    values = angular_dataset.get_observations(ordering="estimation")
+    np.testing.assert_array_equal(np.concatenate(values), [10, 20, 1, 2, 3, 4])
+    vector_data = angular_dataset.observation_vector_data()
+    np.testing.assert_array_equal(np.concatenate(values), vector_data.observation_vector)
 
-    estimation_flattened = viewer.estimation_flattened_observation_data()
-    # Estimation flattening expands vector rows but keeps the selected dataset row order.
-    assert estimation_flattened.observation_ids == [0, 0, 1, 1, 2, 3]
-
-    ordered_flattened = viewer.ordered_flattened_observation_data()
-    # Ordered flattening should reorder selected rows into Tudat's ordered-output convention.
-    assert ordered_flattened.observation_ids == [2, 3, 0, 0, 1, 1]
+    # Scalar-aligned link IDs follow the same estimation order as the observation vector.
+    assert vector_data.link_definition_ids == [1, 1, 0, 0, 0, 0]
+    # Dataset bounds and observable-specific links remain available without a legacy collection.
+    assert [bound.to_float() for bound in angular_dataset.observation_time_bounds] == [
+        1.0,
+        4.0,
+    ]
+    assert angular_dataset.link_definitions_for_observable(observations.one_way_range) == [
+        range_dataset.link_definition(0)
+    ]
 
 
 def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
@@ -468,15 +445,15 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     # Row metadata should preserve the rejection reason for diagnostics.
     assert sample_dataset.observation_row(1).rejection_reason == "large"
 
-    # Estimation flattening should exclude rejected rows by default.
-    assert sample_dataset.estimation_flattened_observation_data().observation_ids == [
+    # Estimation vector data should exclude rejected rows by default.
+    assert sample_dataset.observation_vector_data().observation_ids == [
         0,
         2,
         3,
         3,
     ]
     # include_rejected=True should keep all scalar components, including rejected rows.
-    assert sample_dataset.estimation_flattened_observation_data(True).observation_ids == [
+    assert sample_dataset.observation_vector_data(True).observation_ids == [
         0,
         1,
         2,
@@ -507,14 +484,21 @@ def test_query_conditions_drive_rejection_restoration_and_filtered_datasets(
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == [4]
     # Restored row 1 should become active again.
     assert sample_dataset.observation_row(1).is_active is True
-    # The renamed removal API should physically delete all rows that are still rejected.
-    sample_dataset.remove_rejected_observations()
+    # Physical deletion preserves all surviving row identities.
+    sample_dataset.delete_rejected_observations()
     # After physical removal, no rejected rows should remain selectable.
     assert sample_dataset.observation_ids_matching_condition(observation_query.rejected) == []
     # The dataset should now contain the four rows that were not rejected at removal time.
     assert sample_dataset.number_of_observations == 4
-    # The old delete_* spelling should not remain on the primary ObservationDataset API.
-    assert not hasattr(sample_dataset, "delete_rejected_observations")
+    assert sample_dataset.observation_ids_matching_condition(~observation_query.rejected) == [
+        0,
+        1,
+        2,
+        3,
+    ]
+    # Keep the provisional removal spelling as a thin alias.
+    sample_dataset.remove_rejected_observations()
+    assert sample_dataset.number_of_observations == 4
 
 
 def test_query_conditions_can_be_used_by_weight_api(sample_dataset):
@@ -596,3 +580,31 @@ def test_redundant_dataset_only_aliases_are_not_public(sample_dataset):
     assert not hasattr(sample_dataset, "filtered_observation_indices")
     # Duplicate-erasure is a legacy set-processing helper and should not be public on ObservationDataset.
     assert not hasattr(sample_dataset, "erase_duplicate_observations_from_set")
+
+
+@pytest.mark.parametrize("epoch, expected_ids", [(1.0, [0]), (3.0, [3]), (7.0, [])])
+def test_time_equality_and_inequality_are_complementary(sample_dataset, epoch, expected_ids):
+    """Verify time equality and inequality queries partition dataset rows."""
+    query = observations.observation_query
+    equal = sample_dataset.observation_ids_matching_condition(query.time == epoch)
+    unequal = sample_dataset.observation_ids_matching_condition(query.time != epoch)
+    assert equal == expected_ids
+    assert unequal == [row for row in range(5) if row not in expected_ids]
+    assert sample_dataset.observation_ids_matching_condition(~(query.time == epoch)) == unequal
+
+
+def test_python_row_and_metadata_descriptions_survive_dataset_removal(sample_dataset):
+    """Verify Python row and metadata snapshots survive dataset removal."""
+    dataset = sample_dataset
+    row = dataset.observation_rows[0]
+    metadata = dataset.observation_set_metadata[0]
+    original_id = row.observation_id
+    original_time = row.time
+    original_type = metadata.observable_type
+    dataset.remove_observations(
+        observations.observation_query.active | observations.observation_query.rejected
+    )
+    del dataset
+    assert row.observation_id == original_id
+    assert row.time == original_time
+    assert metadata.observable_type == original_type
