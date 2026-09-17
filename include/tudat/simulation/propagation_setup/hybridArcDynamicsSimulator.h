@@ -302,8 +302,12 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
-        nullptr )
+    if( propagatorSettings == nullptr )
+    {
+        return nullptr;
+    }
+    else if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         if( integratorSettings.size( ) == 0 )
         {
