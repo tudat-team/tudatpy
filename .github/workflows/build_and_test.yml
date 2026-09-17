@@ -252,15 +252,18 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: |
+        # `-- -k` keeps building independent targets on errors such that all warnings/errors will be reported at once
         if [ "${{ runner.os }}" = "macOS" ]; then
           cmake --build "${{ github.workspace }}/build" \
             --config "${{ matrix.build_type }}" \
             -j${{ matrix.platform.build_jobs }} \
+            -- -k \
             2> >(sed '/^ld: warning: could not create compact unwind for /d' >&2)
         else
           cmake --build "${{ github.workspace }}/build" \
             --config "${{ matrix.build_type }}" \
-            -j${{ matrix.platform.build_jobs }}
+            -j${{ matrix.platform.build_jobs }} \
+            -- -k
         fi
 
     - name: Build C++ kernel
@@ -277,7 +280,7 @@ jobs:
         if errorlevel 1 exit /b 1
         set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
         set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
-        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3 -- -k 0
 
     - name: Build Python package
       shell: bash -l {0}
