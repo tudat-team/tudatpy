@@ -34,6 +34,8 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <Eigen/Cholesky>
+
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -534,6 +536,325 @@ BOOST_AUTO_TEST_CASE( testPointingOffsetRecovery )
     // SIGMA_PTG a-priori inverse covariance was produced for this image.
     BOOST_REQUIRE_EQUAL( conversionResult.inverseAprioriCovarianceDiagonalEntries_.size( ), 1 );
     BOOST_CHECK_EQUAL( conversionResult.inverseAprioriCovarianceDiagonalEntries_.at( 0 ).first.first, camera_pointing_correction );
+}
+
+//! Recover an injected per-image pointing offset through the OrbitDeterminationManager while holding the
+//! trajectory fixed, using the explicit observation-only/null-propagator mode.
+BOOST_AUTO_TEST_CASE( testObservationOnlyPointingRecoveryThroughOrbitDeterminationManager )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+    const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ) };
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterNames, bodies );
+    BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
+
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
+
+    std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface =
+            orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( );
+    BOOST_REQUIRE( stateTransitionInterface != nullptr );
+    BOOST_CHECK_EQUAL( stateTransitionInterface->getStateTransitionMatrixSize( ), 0 );
+    BOOST_CHECK_EQUAL( stateTransitionInterface->getFullParameterVectorSize( ), 3 );
+    BOOST_CHECK( orbitDeterminationManager.getVariationalEquationsSolver( ) == nullptr );
+
+    const Eigen::Vector3d trueOffset = ( Eigen::Vector3d( ) << 1.0E-3, -8.0E-4, 1.5E-3 ).finished( );
+    Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
+    truthParameters.segment( 0, 3 ) = trueOffset;
+    parametersToEstimate->resetParameterValues( truthParameters );
+
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
+            getObservationSimulationSettingsFromObservations< double, double >( conversionResult.observationCollection_, bodies );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    Eigen::VectorXd startParameters = truthParameters;
+    startParameters.segment( 0, 3 ) = Eigen::Vector3d::Zero( );
+    parametersToEstimate->resetParameterValues( startParameters );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8 ) );
+
+    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringPropagation_ );
+    BOOST_CHECK_SMALL( residualRms( estimationOutput->residuals_ ), 1.0E-6 );
+    BOOST_CHECK_SMALL( ( estimationOutput->parameterEstimate_ - truthParameters ).norm( ), 1.0E-9 );
+
+    const Eigen::MatrixXd designMatrix = estimationOutput->getUnnormalizedDesignMatrix( );
+    BOOST_CHECK_EQUAL( designMatrix.rows( ), simulatedObservations->getTotalObservableSize( ) );
+    BOOST_CHECK_EQUAL( designMatrix.cols( ), 3 );
+    BOOST_CHECK_GT( designMatrix.norm( ), 0.0 );
+
+    parametersToEstimate->resetParameterValues( startParameters );
+    const std::shared_ptr< EstimationInput< double, double > > stateHistoryInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    stateHistoryInput->defineEstimationSettings( true, true, true, false, true, true );
+    BOOST_CHECK_THROW( orbitDeterminationManager.estimateParameters( stateHistoryInput ), std::runtime_error );
+}
+
+//! Recover a DISTINCT injected pointing offset for several images at once, with the trajectory held
+//! fixed, through the OrbitDeterminationManager in observation-only mode.
+//!
+//! This is the case the pointing parameter exists for. With the state fixed there is no
+//! pointing/position ridge to slide along, so each image's three angles are determined solely by its own
+//! landmarks and the solve should reach the numerical floor without any a-priori. It also exercises the
+//! per-image routing through the full estimation stack rather than at the observation-model level: the
+//! normal matrix must come out block diagonal, three columns per image, because no observation may
+//! depend on another image's pointing.
+BOOST_AUTO_TEST_CASE( testObservationOnlyMultiImagePointingRecovery )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
+    const std::vector< std::string > imageIds = { "IMGA", "IMGB", "IMGC" };
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+
+    std::vector< input_output::sum_lmk::SumImageData > images;
+    for( const std::string& imageId : imageIds )
+    {
+        images.push_back( makeImage( imageId, landmarkIds, -10000.0 ) );
+    }
+
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterNames, bodies );
+    BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 * static_cast< int >( imageIds.size( ) ) );
+
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
+
+    // Locate each image's parameter block by identifier rather than assuming the vector layout.
+    std::vector< int > pointingStartIndices;
+    for( const std::string& imageId : imageIds )
+    {
+        const std::string cameraName = conversionResult.imageIdToCameraName_.at( imageId );
+        const std::vector< std::pair< int, int > > indices = parametersToEstimate->getIndicesForParameterType(
+                EstimatebleParameterIdentifier( camera_pointing_correction, std::make_pair( "Spacecraft", cameraName ) ) );
+        BOOST_REQUIRE_EQUAL( indices.size( ), 1 );
+        pointingStartIndices.push_back( indices.at( 0 ).first );
+    }
+
+    // A distinct offset per image, so a routing error shows up as one image taking another's value.
+    Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
+    for( std::size_t imageIndex = 0; imageIndex < imageIds.size( ); ++imageIndex )
+    {
+        truthParameters.segment( pointingStartIndices.at( imageIndex ), 3 ) =
+                syntheticPointingOffset( static_cast< int >( imageIndex ), 1.5E-3 );
+    }
+    parametersToEstimate->resetParameterValues( truthParameters );
+
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
+            getObservationSimulationSettingsFromObservations< double, double >( conversionResult.observationCollection_, bodies );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    Eigen::VectorXd startParameters = truthParameters;
+    for( const int startIndex : pointingStartIndices )
+    {
+        startParameters.segment( startIndex, 3 ) = Eigen::Vector3d::Zero( );
+    }
+    parametersToEstimate->resetParameterValues( startParameters );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 8 ) );
+
+    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+
+    // No a-priori is used: with the trajectory fixed the data alone determines every angle.
+    BOOST_CHECK_SMALL( residualRms( estimationOutput->residuals_ ), 1.0E-6 );
+    for( std::size_t imageIndex = 0; imageIndex < imageIds.size( ); ++imageIndex )
+    {
+        const int startIndex = pointingStartIndices.at( imageIndex );
+        const Eigen::Vector3d recovered = estimationOutput->parameterEstimate_.segment( startIndex, 3 );
+        const Eigen::Vector3d injected = truthParameters.segment( startIndex, 3 );
+        BOOST_CHECK_SMALL( ( recovered - injected ).norm( ), 1.0E-9 );
+        // Guard against a routing error that happens to look small: the offsets must differ per image.
+        if( imageIndex > 0 )
+        {
+            const Eigen::Vector3d previous = truthParameters.segment( pointingStartIndices.at( imageIndex - 1 ), 3 );
+            BOOST_CHECK_GT( ( injected - previous ).norm( ), 1.0E-4 );
+        }
+    }
+
+    // Per-image independence through the full stack: no observation may depend on another image's
+    // pointing, so the normal matrix must be block diagonal with one 3x3 block per image. Checking the
+    // normal matrix rather than the design matrix keeps this independent of observation row ordering.
+    const Eigen::MatrixXd designMatrix = estimationOutput->getUnnormalizedDesignMatrix( );
+    BOOST_REQUIRE_EQUAL( designMatrix.cols( ), 3 * static_cast< int >( imageIds.size( ) ) );
+    const Eigen::MatrixXd normalMatrix = designMatrix.transpose( ) * designMatrix;
+    for( std::size_t row = 0; row < imageIds.size( ); ++row )
+    {
+        const Eigen::Matrix3d diagonalBlock = normalMatrix.block( pointingStartIndices.at( row ), pointingStartIndices.at( row ), 3, 3 );
+        BOOST_CHECK_GT( diagonalBlock.norm( ), 0.0 );
+        for( std::size_t column = 0; column < imageIds.size( ); ++column )
+        {
+            if( row == column )
+            {
+                continue;
+            }
+            const Eigen::Matrix3d offDiagonalBlock =
+                    normalMatrix.block( pointingStartIndices.at( row ), pointingStartIndices.at( column ), 3, 3 );
+            BOOST_CHECK_SMALL( offDiagonalBlock.norm( ) / diagonalBlock.norm( ), 1.0E-12 );
+        }
+    }
+}
+
+//! The SIGMA_PTG a-priori must assemble and apply in observation-only mode too, where the parameter
+//! vector has no initial-state block and every index belongs to a pointing parameter.
+BOOST_AUTO_TEST_CASE( testObservationOnlyPointingApriori )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+    const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ),
+                                                                        makeImage( "IMGB", landmarkIds, -10000.0 ) };
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+
+    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate = createParametersToEstimate< double, double >(
+            createSumLmkPointingParameterSettings< double, double >( conversionResult ), bodies );
+    BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 6 );
+
+    // makeImage sets SIGMA_PTG = 1e-4 rad on all three axes.
+    const Eigen::MatrixXd inverseAprioriCovariance =
+            createSumLmkInverseAprioriCovariance< double, double, double >( conversionResult, parametersToEstimate );
+    BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.rows( ), 6 );
+    BOOST_REQUIRE_EQUAL( inverseAprioriCovariance.cols( ), 6 );
+    const double expectedInverseVariance = 1.0 / ( 1.0E-4 * 1.0E-4 );
+    for( int i = 0; i < 6; ++i )
+    {
+        BOOST_CHECK_CLOSE( inverseAprioriCovariance( i, i ), expectedInverseVariance, 1.0E-8 );
+    }
+    BOOST_CHECK_SMALL( ( inverseAprioriCovariance - Eigen::MatrixXd( inverseAprioriCovariance.diagonal( ).asDiagonal( ) ) ).norm( ) /
+                               expectedInverseVariance,
+                       1.0E-12 );
+
+    // And it must be accepted by an observation-only estimation run.
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
+
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
+            getObservationSimulationSettingsFromObservations< double, double >( conversionResult.observationCollection_, bodies );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations, inverseAprioriCovariance );
+    estimationInput->defineEstimationSettings( true, true, true, false, true, false );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 5 ) );
+
+    const std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+    // The data was simulated at zero correction, which is also where the a-priori pulls, so the solution
+    // must stay at zero rather than being displaced by a misindexed a-priori.
+    BOOST_CHECK_SMALL( estimationOutput->parameterEstimate_.norm( ), 1.0E-9 );
+}
+
+//! A covariance analysis (no parameter update) must run in observation-only mode: the path takes a
+//! CovarianceAnalysisInput rather than an EstimationInput, so none of the propagation-dependent
+//! branches of the estimation loop may be entered.
+BOOST_AUTO_TEST_CASE( testObservationOnlyCovarianceAnalysis )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    const std::vector< std::string > landmarkIds = { "L1", "L2", "L3", "L4" };
+    SystemOfBodies bodies = makeBodies( -10000.0 );
+    const std::vector< input_output::sum_lmk::SumImageData > images = { makeImage( "IMGA", landmarkIds, -10000.0 ) };
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    SumLmkObservationConversionResult< double, double > conversionResult =
+            createSumLmkObservationCollection< double, double >( images, makeLandmarks( ), bodies, conversionSettings );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            createSumLmkPointingParameterSettings< double, double >( conversionResult );
+    const std::shared_ptr< EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate< double, double >( parameterNames, bodies );
+    BOOST_REQUIRE_EQUAL( parametersToEstimate->getEstimatedParameterSetSize( ), 3 );
+
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, parametersToEstimate, conversionResult.observationModelSettings_, nullPropagatorSettings );
+    BOOST_REQUIRE( orbitDeterminationManager.getVariationalEquationsSolver( ) == nullptr );
+
+    const std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings =
+            getObservationSimulationSettingsFromObservations< double, double >( conversionResult.observationCollection_, bodies );
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( pixel_coordinates ) ] = 1.0;
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
+
+    const std::shared_ptr< CovarianceAnalysisInput< double, double > > covarianceInput =
+            std::make_shared< CovarianceAnalysisInput< double, double > >( simulatedObservations );
+    covarianceInput->defineCovarianceSettings( true, true, true, false );
+
+    const std::shared_ptr< CovarianceAnalysisOutput< double, double > > covarianceOutput =
+            orbitDeterminationManager.computeCovariance( covarianceInput );
+    BOOST_REQUIRE( covarianceOutput != nullptr );
+    BOOST_CHECK( !covarianceOutput->exceptionDuringPropagation_ );
+
+    // The design matrix must be built purely from observation partials: as many rows as observations,
+    // one column per pointing parameter, and no zero column (each parameter is observable).
+    const Eigen::MatrixXd designMatrix = covarianceOutput->getUnnormalizedDesignMatrix( );
+    BOOST_REQUIRE_EQUAL( designMatrix.rows( ), simulatedObservations->getTotalObservableSize( ) );
+    BOOST_REQUIRE_EQUAL( designMatrix.cols( ), 3 );
+    for( int i = 0; i < designMatrix.cols( ); i++ )
+    {
+        BOOST_CHECK_GT( designMatrix.col( i ).norm( ), 0.0 );
+    }
+
+    // The resulting covariance must be a finite, symmetric, positive-definite 3x3 matrix.
+    const Eigen::MatrixXd covariance = covarianceOutput->getUnnormalizedCovarianceMatrix( );
+    BOOST_REQUIRE_EQUAL( covariance.rows( ), 3 );
+    BOOST_REQUIRE_EQUAL( covariance.cols( ), 3 );
+    BOOST_REQUIRE( covariance.allFinite( ) );
+    BOOST_CHECK_SMALL( ( covariance - covariance.transpose( ) ).norm( ) / covariance.norm( ), 1.0E-12 );
+    const Eigen::LLT< Eigen::MatrixXd > covarianceCholesky( covariance );
+    BOOST_CHECK( covarianceCholesky.info( ) == Eigen::Success );
+    for( int i = 0; i < covariance.rows( ); i++ )
+    {
+        BOOST_CHECK_GT( covariance( i, i ), 0.0 );
+    }
+
+    // Covariance analysis is the inverse of the weighted normal matrix built from the same design
+    // matrix, so recomputing it by hand must reproduce the manager's result.
+    const Eigen::MatrixXd expectedInverseCovariance = designMatrix.transpose( ) * designMatrix;
+    const Eigen::MatrixXd actualInverseCovariance = covarianceOutput->getUnnormalizedInverseCovarianceMatrix( );
+    BOOST_REQUIRE_EQUAL( actualInverseCovariance.rows( ), 3 );
+    BOOST_CHECK_SMALL( ( actualInverseCovariance - expectedInverseCovariance ).norm( ) / expectedInverseCovariance.norm( ), 1.0E-10 );
 }
 
 //! Two images produce two independent pointing parameters: perturbing one image's correction
