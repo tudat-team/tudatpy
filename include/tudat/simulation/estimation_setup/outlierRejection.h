@@ -17,6 +17,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <Eigen/Core>
@@ -148,10 +149,17 @@ public:
             throw std::runtime_error( "Error when creating outlier rejection object, observation dataset is null." );
         }
 
-        isRejected_.resize( observationDataset_->getNumberOfObservations( ) );
-        for( unsigned int observationId = 0; observationId < isRejected_.size( ); observationId++ )
+        for( const auto& row : observationDataset_->getObservationRows( ) )
         {
-            isRejected_.at( observationId ) = !observationDataset_->getObservationRow( observationId ).isActive_;
+            observationIds_.push_back( row.observationId_ );
+        }
+        std::sort( observationIds_.begin( ), observationIds_.end( ) );
+        isRejected_.resize( observationIds_.size( ) );
+        for( unsigned int observationIndex = 0; observationIndex < observationIds_.size( ); observationIndex++ )
+        {
+            const unsigned int observationId = observationIds_.at( observationIndex );
+            indexByObservationId_.emplace( observationId, observationIndex );
+            isRejected_.at( observationIndex ) = !observationDataset_->getObservationRow( observationId ).isActive_;
         }
         isDisabled_ = isRejected_;
         numberOfDisabledObservations_ = getNumberOfRejectedObservations( );
@@ -179,10 +187,16 @@ public:
         applyRejectionStatusToObservationDataset( );
     }
 
-    //! Return the rejection status of each observation, indexed by observation id.
+    //! Return rejection status in the order of getObservationIds().
     const std::vector< bool >& getRejectionStatus( ) const
     {
         return isRejected_;
+    }
+
+    //! Return the observation ids corresponding to entries in getRejectionStatus().
+    const std::vector< unsigned int >& getObservationIds( ) const
+    {
+        return observationIds_;
     }
 
     //! Return the number of observations that are currently rejected.
@@ -215,7 +229,7 @@ protected:
         // evaluated by the dataset for each of its observations in turn.
         const observation_models::ObservationSelectionCondition< ObservationScalarType, TimeType > isRejectedCondition(
                 [ this ]( const observation_models::ObservationDataset< ObservationScalarType, TimeType >&, const int observationId ) {
-                    return isRejected_.at( observationId );
+                    return isRejected_.at( indexByObservationId_.at( observationId ) );
                 } );
 
         observationDataset_->rejectObservations( isRejectedCondition, getOutlierRejectionTypeString( outlierRejectionType_ ) );
@@ -231,7 +245,13 @@ protected:
     //! Algorithm implemented by the derived class.
     const OutlierRejectionType outlierRejectionType_;
 
-    //! Rejection status of each observation, indexed by observation id; true means the observation is rejected.
+    //! Observation ids in the order used by the rejection status vectors.
+    std::vector< unsigned int > observationIds_;
+
+    //! Map a persistent observation id to its position in the compact status vectors.
+    std::unordered_map< unsigned int, unsigned int > indexByObservationId_;
+
+    //! Rejection status of each observation in observationIds_ order; true means rejected.
     std::vector< bool > isRejected_;
 
     //! Vector that tracks if the observation was inactive at the start of estimation
@@ -293,15 +313,16 @@ protected:
         }
         std::vector< double > chiSquaredPerObservation;
 
-        // Compute chi-squared for each observation ID
-        for( unsigned int observationId = 0; observationId < this->isRejected_.size( ); observationId++ )
+        // Compute chi-squared for each observation, using its persistent dataset id to find the matching rows.
+        for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
+            const unsigned int observationId = this->observationIds_.at( observationIndex );
             const double chiSquared = computeChiSquared( outlierRejectionInput.getDesignMatrixBlock( observationId ),
                                                          outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( ),
                                                          outlierRejectionInput.parameterCorrection_.template cast< double >( ),
                                                          outlierRejectionInput.parameterCovariance_,
                                                          outlierRejectionInput.getObservationCovariance( observationId ),
-                                                         this->getRejectionStatus( ).at( observationId ) );
+                                                         this->getRejectionStatus( ).at( observationIndex ) );
 
             chiSquaredPerObservation.push_back( chiSquared );
         }
@@ -311,16 +332,16 @@ protected:
         // Rejection status for the next iteration. The isRejected_ member keeps the status of the current
         // iteration until the end of this function, so that every step below can compare against it.
         std::vector< bool > newRejectionStatus = this->isRejected_;
-        for( unsigned int observationId = 0; observationId < newRejectionStatus.size( ); observationId++ )
+        for( unsigned int observationIndex = 0; observationIndex < newRejectionStatus.size( ); observationIndex++ )
         {
             // Observations that were excluded at start of estimation cannot be recovered
-            if( this->isDisabled_.at( observationId ) )
+            if( this->isDisabled_.at( observationIndex ) )
             {
                 continue;
             }
-            const bool isCurrentlyRejected = this->getRejectionStatus( ).at( observationId );
-            newRejectionStatus.at( observationId ) =
-                    decideRejectionStatus( isCurrentlyRejected, chiSquaredPerObservation.at( observationId ), rejectionThreshold );
+            const bool isCurrentlyRejected = this->getRejectionStatus( ).at( observationIndex );
+            newRejectionStatus.at( observationIndex ) =
+                    decideRejectionStatus( isCurrentlyRejected, chiSquaredPerObservation.at( observationIndex ), rejectionThreshold );
         }
 
         // Prevent too many observations being rejected at once during one iteration
@@ -335,7 +356,7 @@ protected:
      * that were already rejected and are still rejected during this iteration.
      *
      * \param newRejectionStatus Rejection status for the next iteration, modified in place by this function.
-     * \param chiSquaredPerObservation Chi-squared value of each observation, indexed by observation id.
+     * \param chiSquaredPerObservation Chi-squared value of each observation, in getObservationIds() order.
      */
     void applyMaximumRejectedFraction( std::vector< bool >& newRejectionStatus,
                                        const std::vector< double >& chiSquaredPerObservation ) const
@@ -348,27 +369,27 @@ protected:
         // Split the observations that are to be rejected into those that were already rejected before this
         // iteration, and those that are rejected by the criteria of this iteration
         std::size_t numberOfRetainedRejections = 0;
-        std::vector< unsigned int > newlyRejectedObservationIds;
-        for( unsigned int observationId = 0; observationId < newRejectionStatus.size( ); observationId++ )
+        std::vector< unsigned int > newlyRejectedObservationIndices;
+        for( unsigned int observationIndex = 0; observationIndex < newRejectionStatus.size( ); observationIndex++ )
         {
-            if( this->isDisabled_.at( observationId ) )
+            if( this->isDisabled_.at( observationIndex ) )
             {
                 continue;
             }
-            if( newRejectionStatus.at( observationId ) )
+            if( newRejectionStatus.at( observationIndex ) )
             {
-                if( this->isRejected_.at( observationId ) )
+                if( this->isRejected_.at( observationIndex ) )
                 {
                     numberOfRetainedRejections++;  // Number of observations that were already rejected
                 }
                 else
                 {
-                    newlyRejectedObservationIds.push_back( observationId );  // Observations that are now, but were not rejected
+                    newlyRejectedObservationIndices.push_back( observationIndex );  // Observations newly rejected
                 }
             }
         }
 
-        if( numberOfRetainedRejections + newlyRejectedObservationIds.size( ) <= maximumNumberRejected )
+        if( numberOfRetainedRejections + newlyRejectedObservationIndices.size( ) <= maximumNumberRejected )
         {
             return;
         }
@@ -378,18 +399,18 @@ protected:
                 ( maximumNumberRejected > numberOfRetainedRejections ) ? maximumNumberRejected - numberOfRetainedRejections : 0;
 
         // Order the new rejections by decreasing chi-squared, so that the worst observations are the ones that are kept
-        std::stable_sort( newlyRejectedObservationIds.begin( ),
-                          newlyRejectedObservationIds.end( ),
-                          [ &chiSquaredPerObservation ]( const unsigned int firstObservationId, const unsigned int secondObservationId ) {
-                              return chiSquaredPerObservation.at( firstObservationId ) > chiSquaredPerObservation.at( secondObservationId );
+        std::stable_sort( newlyRejectedObservationIndices.begin( ),
+                          newlyRejectedObservationIndices.end( ),
+                          [ &chiSquaredPerObservation ]( const unsigned int firstIndex, const unsigned int secondIndex ) {
+                              return chiSquaredPerObservation.at( firstIndex ) > chiSquaredPerObservation.at( secondIndex );
                           } );
 
-        for( std::size_t i = allowedNumberOfNewRejections; i < newlyRejectedObservationIds.size( ); i++ )
+        for( std::size_t i = allowedNumberOfNewRejections; i < newlyRejectedObservationIndices.size( ); i++ )
         {
-            newRejectionStatus.at( newlyRejectedObservationIds.at( i ) ) = false;
+            newRejectionStatus.at( newlyRejectedObservationIndices.at( i ) ) = false;
         }
 
-        std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIds.size( ) - allowedNumberOfNewRejections
+        std::cerr << "Warning during outlier rejection, " << newlyRejectedObservationIndices.size( ) - allowedNumberOfNewRejections
                   << " observations that met the rejection criterion were kept, since the maximum rejected fraction of "
                   << outlierRejectionSettings_->getMaximumRejectedFraction( ) << " was reached." << std::endl;
     }
@@ -398,11 +419,11 @@ protected:
     {
         // Get Maximum chi-squared of all accepted observations
         double chiSquaredMax = 0.0;
-        for( unsigned int observationId = 0; observationId < this->isRejected_.size( ); observationId++ )
+        for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
-            if( !this->isRejected_.at( observationId ) )
+            if( !this->isRejected_.at( observationIndex ) )
             {
-                chiSquaredMax = std::max( chiSquaredMax, chiSquaredPerObservation.at( observationId ) );
+                chiSquaredMax = std::max( chiSquaredMax, chiSquaredPerObservation.at( observationIndex ) );
             }
         }
 
@@ -515,13 +536,14 @@ protected:
                 outlierRejectionSettings_->getMaximumAllowedResidualValueMap( );
         const bool useMaximumAllowedResidualValueMap = !maximumAllowedResidualValueMap.empty( );
 
-        for( unsigned int observationId = 0; observationId < this->isRejected_.size( ); observationId++ )
+        for( unsigned int observationIndex = 0; observationIndex < this->isRejected_.size( ); observationIndex++ )
         {
             // Skip observations that were excluded at the start of the estimation
-            if( this->isDisabled_.at( observationId ) )
+            if( this->isDisabled_.at( observationIndex ) )
             {
                 continue;
             }
+            const unsigned int observationId = this->observationIds_.at( observationIndex );
             const Eigen::VectorXd residualVector = outlierRejectionInput.getResidualBlock( observationId ).template cast< double >( );
             double rejectionThreshold;
 
@@ -546,13 +568,13 @@ protected:
             // If any of the residual values for the observation exceeds threshold, reject
             if( residualAboveThreshold )
             {
-                this->isRejected_.at( observationId ) = true;
+                this->isRejected_.at( observationIndex ) = true;
             }
 
             // If restoring is enabled, accept observation if below the threshold
             if( !residualAboveThreshold && outlierRejectionSettings_->getAllowRestore( ) )
             {
-                this->isRejected_.at( observationId ) = false;
+                this->isRejected_.at( observationIndex ) = false;
             }
         }
     }

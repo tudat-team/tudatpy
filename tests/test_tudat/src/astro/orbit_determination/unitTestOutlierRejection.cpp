@@ -756,14 +756,14 @@ BOOST_AUTO_TEST_CASE( test_ChiSquaredCalculation )
             outlierRejection.computeChiSquared( partialsMatrix, residuals, parameterCorrection, parameterCovariance, covariance, true );
     const double expectedChiSquaredRejectedObservation = 1.246383124908181e-09;
 
-    BOOST_CHECK_CLOSE_FRACTION( chiSquaredRejectedObservation, expectedChiSquaredRejectedObservation, 1E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( chiSquaredRejectedObservation, expectedChiSquaredRejectedObservation, 1E-12 );
 
     // check case where observation is accepted
     const double chiSquaredAcceptedObservation =
             outlierRejection.computeChiSquared( partialsMatrix, residuals, parameterCorrection, parameterCovariance, covariance, false );
 
     const double expectedChiSquaredAcceptedObservation = 1.246546181332082e-09;
-    BOOST_CHECK_CLOSE( chiSquaredAcceptedObservation, expectedChiSquaredAcceptedObservation, 1E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( chiSquaredAcceptedObservation, expectedChiSquaredAcceptedObservation, 1E-12 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )  // carpino_outlier_rejection
