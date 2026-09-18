@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATEBODIESFACTORY_H
 #define TUDAT_CREATEBODIESFACTORY_H
 
+#include <cmath>
+
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
@@ -188,6 +190,47 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
+
+    // Reconcile gravity-derived rigid-body settings before either runtime object is created. A legacy
+    // scaled mean moment on spherical-harmonic gravity settings is only an input carrier; explicit
+    // non-gravity rigid-body settings and the legacy constant-mass input retain precedence.
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        const std::shared_ptr< BodySettings >& currentBodySettings = orderedBodySettings.at( i ).second;
+        if( currentBodySettings->gravityFieldSettings == nullptr )
+        {
+            continue;
+        }
+
+        double legacyScaledMeanMomentOfInertia = TUDAT_NAN;
+        const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsGravityFieldSettings =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( currentBodySettings->gravityFieldSettings );
+        if( sphericalHarmonicsGravityFieldSettings != nullptr )
+        {
+            legacyScaledMeanMomentOfInertia = sphericalHarmonicsGravityFieldSettings->getScaledMeanMomentOfInertia( );
+        }
+
+        if( currentBodySettings->rigidBodyPropertiesSettings == nullptr )
+        {
+            // BodySettings historically treats every non-NaN constant mass as explicit input.
+            if( std::isnan( currentBodySettings->constantMass ) )
+            {
+                currentBodySettings->rigidBodyPropertiesSettings =
+                        fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia );
+            }
+        }
+        else
+        {
+            const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > fromGravityFieldSettings =
+                    std::dynamic_pointer_cast< FromGravityFieldRigidBodyPropertiesSettings >(
+                            currentBodySettings->rigidBodyPropertiesSettings );
+            if( fromGravityFieldSettings != nullptr && !std::isfinite( fromGravityFieldSettings->getScaledMeanMomentOfInertia( ) ) &&
+                std::isfinite( legacyScaledMeanMomentOfInertia ) )
+            {
+                fromGravityFieldSettings->setScaledMeanMomentOfInertia( legacyScaledMeanMomentOfInertia );
+            }
+        }
+    }
 
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )

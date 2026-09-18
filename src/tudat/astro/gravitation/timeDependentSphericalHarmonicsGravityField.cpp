@@ -51,6 +51,8 @@ void TimeDependentSphericalHarmonicsGravityField::update( const double time )
         // Add correction of this iteration to current coefficients.
         correctionFunctions_[ i ]( time, sineCoefficients_, cosineCoefficients_ );
     }
+
+    notifyMassDistributionUpdate( );
 }
 
 }  // namespace gravitation
