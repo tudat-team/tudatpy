@@ -8,7 +8,7 @@ reviewed.
    including the legacy scaled-mean-moment setting and deprecation path. Direct
    C++ construction and interfaces may change where the new ownership model
    requires it. The architecture branch owns this migration.
-2. **Rates of existing gravity-field variations — required.** Add coefficient-rate
+2. **Rates of existing gravity-field variations — required, open.** Add coefficient-rate
    support for the existing periodic, polynomial, tabulated, tidal, and custom
    variation models in the gravity-deformation branch. Their contributions to
    the inertia-tensor derivative must be combined with the integrated variation
@@ -28,5 +28,5 @@ The architecture branch contains gravity-derived rigid-body settings and
 properties, their gravity-field link and synchronization, inertia availability,
 Python compatibility, and related estimation and torque-partial changes. The
 gravity-deformation branch contains integrated variations, the Maxwell model,
-gravity-deformation propagation, coefficient-rate implementations, and their
-tests and Python exposure.
+gravity-deformation propagation, and their tests and Python exposure. Existing
+variation rates remain work for the deformation branch before its PR is ready.
