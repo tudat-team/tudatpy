@@ -61,9 +61,29 @@ def test_remote_connectivity_failure_is_skipped(exception):
 
 
 @pytest.mark.parametrize(
+    "outage_message",
+    (
+        "wldini(): missing required file LTKERNL",
+        "ERROR in VLRDC: Var not declared: IP_ADDR",
+    ),
+)
+def test_jpl_horizons_backend_outage_is_skipped(outage_message):
+    report = _run_report_hook(
+        ValueError(
+            "Query failed without known error message; received the following "
+            "response:\nAPI SOURCE: NASA/JPL Horizons API\n" + outage_message
+        )
+    )
+
+    assert report.outcome == "skipped"
+    assert "Remote service unavailable:" in report.longrepr[2]
+
+
+@pytest.mark.parametrize(
     "exception",
     (
         AssertionError("incorrect result"),
+        ValueError("invalid test data"),
         requests.HTTPError("HTTP 500"),
         requests.exceptions.InvalidURL("invalid URL"),
         requests.exceptions.InvalidJSONError("invalid JSON"),
