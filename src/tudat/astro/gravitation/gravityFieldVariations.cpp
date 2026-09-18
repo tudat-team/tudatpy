@@ -229,10 +229,9 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     }
 }
 
-void GravityFieldVariationsSet::addGravityFieldVariation(
-        const std::shared_ptr< GravityFieldVariations > variationObject,
-        const BodyDeformationTypes variationType,
-        const std::string& variationIdentifier )
+void GravityFieldVariationsSet::addGravityFieldVariation( const std::shared_ptr< GravityFieldVariations > variationObject,
+                                                          const BodyDeformationTypes variationType,
+                                                          const std::string& variationIdentifier )
 {
     if( variationObject == nullptr )
     {
