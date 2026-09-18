@@ -5,13 +5,13 @@ import numpy as np
 
 # Load Tudatpy modules
 from tudatpy.dynamics import environment_setup
-from tudatpy.data import (
-    read_solar_activity_data,
+from tudatpy.data_input.resource_paths import (
     get_space_weather_path,
     get_atmosphere_tables_path,
 )
 from tudatpy.astro.time_representation import iso_string_to_epoch
 from tudatpy.astro.element_conversion import convert_geographic_to_geodetic_latitude
+from tudatpy.data_input.environment_data import spice
 
 
 def test_nrlmsise00():
@@ -23,11 +23,17 @@ def test_nrlmsise00():
     with open(get_atmosphere_tables_path() + "/nrlmsise00_validation_data.pkl", "rb") as file:
         validation_data = pickle.load(file)
 
-    # Initialise Tudat NRLMSISE00 model
-    solar_weather_data = read_solar_activity_data(get_space_weather_path() + "/sw19571001.txt")
-    NRLMSISE00 = environment_setup.atmosphere.NRLMSISE00Atmosphere(
-        solar_weather_data, True, False, True
+    # Initialise Tudat NRLMSISE00 model through the settings API, which reads
+    # the space-weather file internally.
+    spice.load_standard_kernels()
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").atmosphere_settings = environment_setup.atmosphere.nrlmsise00(
+        get_space_weather_path() + "/sw19571001.txt",
+        use_storm_conditions=False,
+        use_anomalous_oxygen=True,
     )
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    NRLMSISE00 = bodies.get_body("Earth").atmosphere_model
 
     # Extract input data and expected densities from the list of dictionaries
     altitudes = np.array([data["altitude"] for data in validation_data])
