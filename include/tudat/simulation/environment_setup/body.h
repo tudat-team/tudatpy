@@ -739,6 +739,8 @@ public:
      */
     Eigen::Matrix3d getBodyInertiaTensor( );
 
+    Eigen::Matrix3d getBodyInertiaTensorDerivative( );
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -841,6 +843,9 @@ public:
 
 protected:
 private:
+    //! Keep the gravity model's non-owning rigid-body link and change callbacks synchronized.
+    void linkGravityFieldAndRigidBodyProperties( );
+
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
     int bodyIsGlobalFrameOrigin_;
 

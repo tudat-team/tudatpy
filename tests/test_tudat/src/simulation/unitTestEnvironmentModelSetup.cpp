@@ -649,6 +649,12 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
 
         bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+
+        const std::shared_ptr< gravitation::GravityFieldModel > runtimeGravityField = bodies.getBody( "Phobos" )->getGravityFieldModel( );
+        BOOST_CHECK_EQUAL( runtimeGravityField->getRigidBodyProperties( ), bodies.getBody( "Phobos" )->getMassProperties( ) );
+        runtimeGravityField->resetGravitationalParameter( 2.0 * gravitationalParameter );
+        const Eigen::Matrix3d expectedUpdatedInertiaTensor = 2.0 * expectedInertiaTensor;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUpdatedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
     }
 }
 

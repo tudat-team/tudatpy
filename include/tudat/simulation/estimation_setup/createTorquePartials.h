@@ -112,6 +112,21 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
             }
             else
             {
+                std::function< double( ) > perturberGravitationalParameterFunction;
+                const std::shared_ptr< gravitation::GravityFieldModel > perturberGravityField =
+                        acceleratingBody.second->getGravityFieldModel( );
+                const std::shared_ptr< simulation_setup::RigidBodyProperties > perturberRigidBodyProperties =
+                        acceleratingBody.second->getMassProperties( );
+                // A change in mu also changes the perturber mass only for gravity-derived
+                // rigid-body properties linked to this same gravity field.
+                if( perturberGravityField != nullptr &&
+                    std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( perturberRigidBodyProperties ) !=
+                            nullptr &&
+                    perturberGravityField->getRigidBodyProperties( ) == perturberRigidBodyProperties )
+                {
+                    perturberGravitationalParameterFunction =
+                            std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, perturberGravityField );
+                }
                 // Create partial-calculating object.
                 torquePartial = std::make_shared< SphericalHarmonicGravitationalTorquePartial >(
                         std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
@@ -123,7 +138,8 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                                 bodies,
                                 parametersToEstimate ) ),
                         acceleratedBody.first,
-                        acceleratingBody.first );
+                        acceleratingBody.first,
+                        perturberGravitationalParameterFunction );
             }
             break;
         case full_two_body_spherical_harmonic_gravitational_torque: {
