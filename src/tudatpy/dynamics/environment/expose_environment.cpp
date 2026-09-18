@@ -2946,7 +2946,7 @@ bool
                 tgs::StationFrequencyInterpolator >( m,
                                                      "PiecewiseLinearFrequencyInterpolator",
                                                      R"doc(
-                
+
                 Object that computes the current transmitting frequency of a ground station, using a piecewise linear interpolation of the frequency over defined intervals.
 
                 If multiple intervals are defined at the same time, the frequency of the interval with the latest start time is used. If no interval is defined at the current time, the frequency is computed using the strategy defined by ``gap_handling``.
@@ -2962,7 +2962,7 @@ bool
                   py::arg( "start_frequency" ),
                   py::arg( "gap_handling" ) = tgs::extrapolate_at_gaps,
                   R"doc(
-                                    
+
                 Initialize the piecewise linear frequency interpolator.
 
                 Parameters
@@ -2976,48 +2976,48 @@ bool
                 start_frequency : float
                     Frequencies of the piecewise linear frequency interval at the start epoch.
                 gap_handling : FrequencyGapHandling, default = FrequencyGapHandling.extrapolate_at_gaps
-                    Strategy for handling frequency gaps.                          
-                                    
+                    Strategy for handling frequency gaps.
+
                                     )doc" )
             .def_property_readonly( "start_times",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes,
                                     R"doc(
-                                    
+
                                     Start times of the piecewise linear frequency intervals.
 
                                     :type: numpy.ndarray
-                                    
-                                    
+
+
                                     )doc" )
             .def_property_readonly( "end_times",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes,
                                     R"doc(
-                                    
+
                                     End times of the piecewise linear frequency intervals.
 
                                     :type: numpy.ndarray
-                                    
-                                    
+
+
                                     )doc" )
             .def_property_readonly( "ramp_rates",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates,
                                     R"doc(
-                                    
+
                                     Ramp rates of the piecewise linear frequency intervals, used to interpolate the frequency between the start and end times.
 
                                     :type: numpy.ndarray
-                                    
-                                    
+
+
                                     )doc" )
             .def_property_readonly( "start_frequencies",
                                     &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies,
                                     R"doc(
-                                    
+
                                     Frequencies of the piecewise linear frequency interval at the start epoch.
 
                                     :type: numpy.ndarray
-                                    
-                                    
+
+
                                     )doc" )
             .def( "compute_current_frequency",
                   &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
@@ -3026,14 +3026,14 @@ bool
                   &tgs::PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator,
                   py::arg( "frequency_interpolator_to_add" ),
                   R"doc(
-                       
-                     Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator. 
-     
+
+                     Function to add a frequency interpolator to the current interpolator. This will add the start times, end times, ramp rates and start frequencies of the provided interpolator to those of the current interpolator.
+
                      Parameters
                      ----------
                      frequency_interpolator_to_add : PiecewiseLinearFrequencyInterpolator
                          The frequency interpolator to add to the current interpolator.
-                       
+
                        )doc" );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )

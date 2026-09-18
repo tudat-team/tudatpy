@@ -22,6 +22,7 @@
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro/accelerationModel.h>
 #include <tudat/astro/basic_astro/accelerationModelTypes.h>
+#include <tudat/astro/basic_astro/gravityDeformationModel.h>
 #include <tudat/astro/basic_astro/massRateModel.h>
 #include <tudat/astro/basic_astro/torqueModel.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
@@ -90,6 +91,8 @@ void expose_propagation_state_utility_types( py::module& m )
             } );
 
     py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+
+    py::class_< tba::GravityDeformationModel, std::shared_ptr< tba::GravityDeformationModel > >( m, "GravityDeformationModel" );
 }
 
 void expose_propagation_state_utility_bindings( py::module& m )

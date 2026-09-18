@@ -1154,7 +1154,7 @@ It implements the model of 2010 Conventions (chapter 10, section 3).
 For the Schwarzschild correction, we have:
 
 .. math::
-   
+
    \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
 
 For the Lense-Thirring correction, we have:

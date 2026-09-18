@@ -31,6 +31,8 @@ set(basic_astrodynamics_SOURCES
         "torqueModelTypes.cpp"
         "torqueModel.cpp"
         "neQuick2Model.cpp"
+        "gravityDeformationModelTypes.cpp"
+        "gravityDeformationModel.cpp"
         )
 
 # Set the header files.
@@ -74,6 +76,8 @@ set(basic_astrodynamics_HEADERS
         "torqueModel.h"
         "torqueModelTypes.h"
         "dissipativeTorqueModel.h"
+        "gravityDeformationModelTypes.h"
+        "gravityDeformationModel.h"
         "climateModel.h"
         )
 

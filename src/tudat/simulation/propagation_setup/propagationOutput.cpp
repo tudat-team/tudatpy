@@ -456,6 +456,11 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case total_acceleration_partial_wrt_body_translational_state:
             variableSize = 18;
             break;
+        case single_gravity_deformation_state_derivative_dependent_variable:
+        case maxwell_gravity_deformation_equilibrium_coefficients_dependent_variable:
+        case maxwell_gravity_deformation_equilibrium_coefficient_derivative_dependent_variable:
+            variableSize = 5;
+            break;
         case acceleration_derivative_partial_wrt_parameter:
         case total_acceleration_derivative_partial_wrt_parameter: {
             std::shared_ptr< AccelerationDerivativePartialWrtParameterSaveSettings > partialSettings =

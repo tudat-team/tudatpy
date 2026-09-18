@@ -12,6 +12,7 @@
 #define TUDAT_STATEDERIVATIVE_H
 
 #include <map>
+#include <vector>
 
 #include <Eigen/Core>
 
@@ -33,7 +34,8 @@ enum IntegratedStateType {
     rotational_state = 2,
     body_mass_state = 3,
     custom_state = 4,
-    proper_time = 5
+    proper_time = 5,
+    gravity_deformation_state = 6
 };
 
 enum RelativisticTimeStateDerivativeType {
@@ -88,7 +90,9 @@ public:
      * Constructor.
      * \param integratedStateType Type of dynamics for whichh the state derivative is calculated.
      */
-    SingleStateTypeDerivative( const IntegratedStateType integratedStateType ): integratedStateType_( integratedStateType )
+    SingleStateTypeDerivative( const IntegratedStateType integratedStateType,
+                               const std::vector< std::string >& bodiesToIntegrate = std::vector< std::string >( ) ):
+        integratedStateType_( integratedStateType ), bodiesToIntegrate_( bodiesToIntegrate )
     {
         if( isStateToBePostProcessed( ) )
         {
@@ -241,12 +245,19 @@ public:
         return false;
     }
 
+    virtual std::vector< std::string > getBodiesToIntegrate( )
+    {
+        return bodiesToIntegrate_;
+    }
+
 protected:
     // Type of dynamics for which the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
     // Vector used during post-processing of state.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
+
+    std::vector< std::string > bodiesToIntegrate_;
 };
 
 // extern template class SingleStateTypeDerivative< double, double >;

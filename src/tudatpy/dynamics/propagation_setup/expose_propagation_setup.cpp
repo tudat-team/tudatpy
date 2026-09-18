@@ -19,6 +19,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/simulation/propagation_setup/createAccelerationModels.h>
+#include <tudat/simulation/propagation_setup/createGravityDeformationModels.h>
 #include <tudat/simulation/propagation_setup/createMassRateModels.h>
 #include <tudat/simulation/propagation_setup/createStateDerivativeModel.h>
 #include <tudat/simulation/propagation_setup/createTorqueModel.h>
@@ -238,6 +239,11 @@ void expose_propagation_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "create_gravity_deformation_models",
+           &tss::createGravityDeformationModelsMap,
+           py::arg( "body_system" ),
+           py::arg( "selected_deformation_per_body" ) );
 }
 
 }  // namespace propagation_setup

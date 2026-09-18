@@ -49,6 +49,7 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 namespace tse = tudat::serialization;
+namespace tss = tudat::simulation_setup;
 
 namespace tudatpy
 {
@@ -992,6 +993,14 @@ Enumeration of available integrated state types.
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "MassPropagatorSettings", R"doc(No propagator documentation found.)doc" );
 
+    py::class_< tp::GravityDeformationPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::GravityDeformationPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "GravityDeformationPropagatorSettings", R"doc(Gravity deformation propagator settings.)doc" );
+
+    py::class_< tss::GravityDeformationSettings, std::shared_ptr< tss::GravityDeformationSettings > >(
+            m, "GravityDeformationSettings", R"doc(Settings for a numerically propagated gravity-deformation model.)doc" );
+
     py::class_< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
@@ -1202,10 +1211,10 @@ initial_time : astro.time_representation.Time
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
 
-    .. note:: 
-    
+    .. note::
+
         The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
-    
+
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 propagator : RotationalPropagatorType, default=quaternions
@@ -1336,6 +1345,76 @@ Returns
 SingleArcPropagatorSettings
     Custom propagator settings object.
      )doc" );
+
+    m.def( "gravity_deformation",
+           &tp::gravityPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies_to_integrate" ),
+           py::arg( "deformation_models" ),
+           py::arg( "initial_gravity" ),
+           py::arg( "initial_time" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "termination_settings" ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg_v( "processing_settings", std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >( ), "None" ),
+           R"doc(Create settings for propagation of unnormalised degree-two gravity-coefficient variations.
+
+The numerical state contains additive variations in the order
+``[C20, C21, C22, S21, S22]`` for each body. Nominal environment coefficients
+and other configured gravity variations remain separate. Propagation setup
+automatically creates an internal integrated gravity-field variation for each
+body and promotes a static spherical-harmonic field to a time-dependent field
+when required.
+
+During propagation the environment reads the current variation directly from
+the numerical state. When integrated results are installed in the environment,
+the state-history interpolator is installed in the same variation object and
+is used outside propagation. A later propagation switches back to the live
+state.
+
+Gravity-derived rigid-body properties are refreshed from the resulting total
+field. When the gravity variation is propagated, its current coefficient rate
+also defines the inertia-tensor derivative. Instantaneous non-integrated
+gravity-variation models do not currently provide coefficient derivatives.
+
+This interface supports degree and order two in single-arc propagation, alone
+or in a multi-type propagation, and supports multiple bodies in
+``bodies_to_integrate`` order.)doc" );
+
+    m.def( "maxwell_deformation",
+           py::overload_cast< const double, const double, const double, const int, const int, const std::string, const bool, const bool >(
+                   &tss::maxwellDeformationSettings ),
+           py::arg( "maxwell_relaxation_time" ),
+           py::arg( "global_relaxation_time" ),
+           py::arg( "love_number" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "perturbing_body" ),
+           py::arg( "include_order_1" ) = true,
+           py::arg( "include_centrifugal_potential" ) = false,
+           R"doc(Create degree-two Maxwell gravity-deformation settings.
+
+The static coefficient baseline is obtained directly from the deforming body's
+gravity field. The propagated state uses the ordering
+``[C20, C21, C22, S21, S22]`` with unnormalised coefficients and contains only
+the additive variation from that baseline.)doc" );
+
+    m.def( "maxwell_deformation",
+           py::overload_cast< const double,
+                              const double,
+                              const double,
+                              const int,
+                              const int,
+                              const std::vector< std::string >,
+                              const bool,
+                              const bool >( &tss::maxwellDeformationSettings ),
+           py::arg( "maxwell_relaxation_time" ),
+           py::arg( "global_relaxation_time" ),
+           py::arg( "love_number" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           py::arg( "perturbing_bodies" ),
+           py::arg( "include_order_1" ) = true,
+           py::arg( "include_centrifugal_potential" ) = false );
 
     m.def( "multitype",
            &tp::multiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,

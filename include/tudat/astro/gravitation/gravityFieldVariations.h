@@ -31,7 +31,8 @@ enum BodyDeformationTypes {
     polynomial_variation,
     iers_2010,
     pole_tide,
-    ocean_tide
+    ocean_tide,
+    integrated_gravity_field_variation
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and
@@ -379,6 +380,16 @@ public:
     std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > getGravityFieldVariation(
             const BodyDeformationTypes deformationType,
             const std::string identifier = "" );
+
+    //! Add a gravity-field variation to the set.
+    /*!
+     * Adds a variation that is evaluated directly, without an additional interpolation layer.
+     * This is used for variations whose interpolation behaviour is managed by the variation
+     * object itself, such as numerically integrated gravity-field coefficients.
+     */
+    void addGravityFieldVariation( const std::shared_ptr< GravityFieldVariations > variationObject,
+                                   const BodyDeformationTypes variationType,
+                                   const std::string& variationIdentifier = "" );
 
     //! Function to retrieve list of variation functions.
     /*!

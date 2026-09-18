@@ -48,6 +48,10 @@ Functions
 
    mass
 
+   gravity_deformation
+
+   maxwell_deformation
+
    custom_state
 
    multitype
@@ -85,6 +89,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.rotational
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.gravity_deformation
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.propagator.maxwell_deformation
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.propagator.custom_state
 
@@ -133,8 +141,6 @@ Enumerations
 
    PropagationTerminationTypes
 
-
-
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.TranslationalPropagatorType
    :members:
 
@@ -146,9 +152,6 @@ Enumerations
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationTypes
    :members:
-
-
-
 
 Classes
 -------
@@ -169,6 +172,10 @@ Classes
    RotationalStatePropagatorSettings
 
    MultiTypePropagatorSettings
+
+   GravityDeformationPropagatorSettings
+
+   GravityDeformationSettings
 
    RelativisticTimePropagatorSettings
 
@@ -221,6 +228,12 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.MultiTypePropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.GravityDeformationPropagatorSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.propagator.GravityDeformationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.propagator.RelativisticTimePropagatorSettings

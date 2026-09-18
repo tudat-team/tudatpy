@@ -15,6 +15,7 @@
 set(gravitation_SOURCES
         "basicSolidBodyTideGravityFieldVariations.cpp"
         "gravityFieldVariations.cpp"
+        "integratedGravityFieldVariations.cpp"
         "centralGravityModel.cpp"
 #        "centralJ2GravityModel.cpp"
 #        "centralJ2J3GravityModel.cpp"
@@ -49,6 +50,7 @@ set(gravitation_SOURCES
 set(gravitation_HEADERS
         "basicSolidBodyTideGravityFieldVariations.h"
         "gravityFieldVariations.h"
+        "integratedGravityFieldVariations.h"
         "centralGravityModel.h"
 #        "centralJ2GravityModel.h"
 #        "centralJ2J3GravityModel.h"

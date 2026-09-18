@@ -46,7 +46,7 @@ public:
      */
     BodyMassStateDerivative( const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
                              const std::vector< std::string >& bodiesToIntegrate ):
-        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::body_mass_state ),
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::body_mass_state, bodiesToIntegrate ),
         bodiesToIntegrate_( bodiesToIntegrate )
     {
         for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator =

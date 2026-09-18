@@ -86,7 +86,7 @@ public:
                                      std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
                                      std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
                                              std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
-        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::rotational_state ),
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::rotational_state, bodiesToPropagate ),
         torqueModelsPerBody_( torqueModelsPerBody ), propagatorType_( propagatorType ), bodiesToPropagate_( bodiesToPropagate ),
         bodyInertiaTensorFunctions_( bodyInertiaTensorFunctions ),
         bodyInertiaTensorTimeDerivativeFunctions_( bodyInertiaTensorTimeDerivativeFunctions )

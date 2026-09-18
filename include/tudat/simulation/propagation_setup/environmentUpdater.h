@@ -25,6 +25,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 namespace tudat
 {
@@ -62,7 +63,9 @@ public:
             const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings,
             const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >& integratedStates =
                     ( std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >( ) ) ):
-        bodyList_( bodyList ), integratedStates_( integratedStates )
+        // const std::vector< IntegratedStateType > statesToUpdateDuringPropagation = std::vector< IntegratedStateType >( ) ):
+        bodyList_( bodyList ),
+        integratedStates_( integratedStates )  //, statesToUpdateDuringPropagation_( statesToUpdateDuringPropagation )
     {
         initializeCustomStateBodyCounts( );
 
@@ -105,7 +108,7 @@ public:
         }
 
         // Set integrated state variables in environment.
-        setIntegratedStatesInEnvironment( integratedStatesToSet );
+        setIntegratedStatesInEnvironment( integratedStatesToSet, currentTime );
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
@@ -128,7 +131,8 @@ private:
      * \param integratedStatesToSet Integrated states which are to be set in environment.
      */
     void setIntegratedStatesInEnvironment(
-            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet,
+            const TimeType currentTime )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( ); integratedStateIterator_ != integratedStatesToSet.end( );
@@ -185,6 +189,20 @@ private:
                                                               .template cast< double >( ) );
                         }
                         currentStartIndex += stateSize;
+                    }
+                    break;
+                }
+                case gravity_deformation_state: {
+                    // Set gravity field for bodies provided as input.
+                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedGravity =
+                            integratedStates_.at( gravity_deformation_state );
+
+                    for( unsigned int i = 0; i < bodiesWithIntegratedGravity.size( ); i++ )
+                    {
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedGravity[ i ] ) )
+                                ->setCurrentPropagatedGravityFieldVariation(
+                                        integratedStateIterator_->second.segment( i * 5, 5 ).template cast< double >( ),
+                                        static_cast< double >( currentTime ) );
                     }
                     break;
                 }
@@ -268,6 +286,17 @@ private:
                 }
                 case proper_time:
                     break;
+                case gravity_deformation_state: {
+                    // Iterate over all gravity deformations.
+                    std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedStates =
+                            integratedStates_.at( gravity_deformation_state );
+                    for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
+                    {
+                        bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )
+                                ->updateCurrentGravityField( static_cast< double >( currentTime ) );
+                    }
+                    break;
+                }
                 default:
                     throw std::runtime_error( "Error, could not find  state settings for " + std::to_string( statesToSet.at( i ) ) );
             }
@@ -870,6 +899,156 @@ private:
 };
 
 // extern template class EnvironmentUpdater< double, double >;
+
+enum StateDerivativeDependency { inertia_tensor_derivative_dependency = 0, rotation_rate_derivative_dependency = 1 };
+
+std::vector< StateDerivativeDependency > getTorqueStateDerivativeDependencies( const basic_astrodynamics::AvailableTorque torqueType );
+
+std::vector< StateDerivativeDependency > getGravityStateDerivativeDependencies(
+        const basic_astrodynamics::GravityDeformationType gravityDeformationType );
+
+IntegratedStateType getStateTypeForDependency( StateDerivativeDependency dependency );
+
+//! Class used to update the environment during numerical integration.
+/*!
+ *  Class used to update the environment during numerical integration. The class ensures that the
+ *  current state of the numerical integration is properly set, and that all the environment models
+ *  that are used during the numerical integration are updated to the current time and state in the
+ *  correct order.
+ */
+template< typename StateScalarType, typename TimeType >
+class StateDerivativeUpdater
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor, provides the required settings for updating the environment.
+     * \param bodyList List of body objects, this list encompasses all environment object in the
+     * simulation.
+     * \param updateSettings List of updates of the environment models that are required.
+     * The list defines per model type (key) the bodies for which this environment model should be
+     * updated (values)
+     * \param integratedStates This map provides the list of identifiers for the numerically
+     * integrated states. The type of integrated state (key) is defined for each reference
+     * (value). Note that for the numerical integration of translational motion, the entry
+     * in the pair will have a second entry that is empty (""), with the first entry defining
+     * the body that is integrated.
+     */
+    StateDerivativeUpdater(
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::map< StateDerivativeDependency, std::vector< std::string > >& updateSettings,
+            std::vector< std::function< void( const double ) > > updateModelFunctions,
+            const std::unordered_map< IntegratedStateType,
+                                      std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >&
+                    stateDerivativeModelsToUpdate,
+            const std::map<
+                    StateDerivativeDependency,
+                    std::vector< std::pair< std::string,
+                                            std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >&
+                    environmentUpdateFunctions ):
+        bodies_( bodies ), updateSettings_( updateSettings ), updateModelFunctions_( updateModelFunctions ),
+        stateDerivativeModelsToUpdate_( stateDerivativeModelsToUpdate ), environmentUpdateFunctions_( environmentUpdateFunctions )
+    {}
+
+    //! Function to update the environment to the current state and time.
+    /*!
+     * Function to update the environment to the current state and time. This function calls the
+     * dependent variable functions set by the setUpdateFunctions function. By default, the
+     * numerically integrated states are set in the environment first. This may be overridden by
+     * using the setIntegratedStatesFromEnvironment variable, which forces the function to ignore
+     * specific integrated states and update them from the existing environment modelsad.
+     * \param currentTime Current time.
+     * \param integratedStatesToSet Current list of integrated states, with specific integrated
+     * states defined by integratedStates_ member variable. Note that these states must have been
+     * converted to the global state before input to this function, as is done by the
+     * convertCurrentStateToGlobalRepresentationPerType function of the DynamicsStateDerivativeModel.
+     * \param setIntegratedStatesFromEnvironment Integrated state types which are not to be used for
+     * updating the environment, but which are to be set from existing environment models instead.
+     */
+    void updateEnvironmentFromStateDerivative( const TimeType currentTime,
+                                               const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& integratedStateDerivativesToSet2 )
+    {
+        for( auto dependencyTypeIt : environmentUpdateFunctions_ )
+        {
+            for( unsigned int i = 0; i < dependencyTypeIt.second.size( ); i++ )
+            {
+                std::pair< int, int > indices = stateDerivativeIndices_.at( getStateTypeForDependency( dependencyTypeIt.first ) ).at( i );
+
+                if( dependencyTypeIt.first == inertia_tensor_derivative_dependency )
+                {
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentGravityStateDerivative =
+                            integratedStateDerivativesToSet2.block( indices.first, 0, indices.second, 1 );
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > fullDegree2Derivative =
+                            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 5 );
+                    fullDegree2Derivative[ 0 ] = currentGravityStateDerivative[ 0 ];
+                    fullDegree2Derivative[ 1 ] = currentGravityStateDerivative[ 1 ];
+                    fullDegree2Derivative[ 2 ] = currentGravityStateDerivative[ 2 ];
+                    fullDegree2Derivative[ 3 ] = currentGravityStateDerivative[ 3 ];
+                    fullDegree2Derivative[ 4 ] = currentGravityStateDerivative[ 4 ];
+
+                    dependencyTypeIt.second.at( i ).second( fullDegree2Derivative );
+                }
+                if( dependencyTypeIt.first == rotation_rate_derivative_dependency )
+                {
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentAngularVelocityDerivative =
+                            integratedStateDerivativesToSet2.block( indices.first + 4, 0, 3, 1 );
+                    dependencyTypeIt.second.at( i ).second( currentAngularVelocityDerivative );
+                }
+            }
+        }
+    }
+
+    void updateStateDerivativeModels( TimeType time )
+    {
+        for( unsigned int i = 0; i < updateModelFunctions_.size( ); i++ )
+        {
+            updateModelFunctions_.at( i )( time );
+        }
+    }
+
+    std::map< StateDerivativeDependency, std::vector< std::string > > getUpdateSettings( )
+    {
+        return updateSettings_;
+    }
+
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > getStateDerivativeIndices( )
+    {
+        return stateDerivativeIndices_;
+    }
+
+    void setStateDerivativeIndices( std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateDerivativeIndices )
+    {
+        stateDerivativeIndices_ = stateDerivativeIndices;
+    }
+
+    std::map< StateDerivativeDependency,
+              std::vector< std::pair< std::string, std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >
+    getEnvironmentUpdateFunctions( )
+    {
+        return environmentUpdateFunctions_;
+    }
+
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+    getStateDerivativeModelsToUpdate( ) const
+    {
+        return stateDerivativeModelsToUpdate_;
+    }
+
+private:
+    //! List of body objects, this list encompasses all environment object in the simulation.
+    simulation_setup::SystemOfBodies bodies_;
+
+    std::map< StateDerivativeDependency, std::vector< std::string > > updateSettings_;
+
+    std::vector< std::function< void( const double ) > > updateModelFunctions_;
+
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateDerivativeIndices_;
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+            stateDerivativeModelsToUpdate_;
+    std::map< StateDerivativeDependency,
+              std::vector< std::pair< std::string, std::function< void( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > > > >
+            environmentUpdateFunctions_;
+};
 
 }  // namespace propagators
 

@@ -38,6 +38,9 @@ std::string getIntegratedStateTypString( const IntegratedStateType stateType )
         case proper_time:
             stateTypeString = "Proper time";
             break;
+        case gravity_deformation_state:
+            stateTypeString = "Gravity state";
+            break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting string";
             throw std::runtime_error( errorMessage );
@@ -62,6 +65,9 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
             break;
         case proper_time:
             singleStateSize = 1;
+            break;
+        case gravity_deformation_state:
+            singleStateSize = 5;
             break;
         case custom_state:
             singleStateSize = 0;
@@ -92,6 +98,9 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
         case proper_time:
             singleStateSize = 1;
             break;
+        case gravity_deformation_state:
+            singleStateSize = 1;
+            break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting order";
             throw std::runtime_error( errorMessage );
@@ -116,6 +125,9 @@ int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
             break;
         case proper_time:
             accelerationSize = 1;
+            break;
+        case gravity_deformation_state:
+            accelerationSize = 5;
             break;
         default:
             std::string errorMessage = "Did not recognize state type " + std::to_string( stateType ) + "when getting acceleration sizw";
