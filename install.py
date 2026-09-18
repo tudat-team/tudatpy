@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import subprocess
+import sysconfig
 
 
 class InstallParser(argparse.ArgumentParser):
@@ -11,14 +12,17 @@ class InstallParser(argparse.ArgumentParser):
 
         super().__init__(
             prog="install.py",
-            usage="Install tudat and tudatpy in the active conda environment.\n Note: The use without the -e flag, which performs an editable installation, is currently discouraged",
+            usage="Install tudat and tudatpy in the active conda environment.",
         )
 
         self.add_argument(
             "-e",
             dest="editable",
             action="store_true",
-            help="Install in editable mode",
+            help=(
+                "Install using links to the source checkout. Changes or branch switches "
+                "in this checkout immediately affect the installed Python package."
+            ),
         )
 
         self.add_argument(
@@ -71,12 +75,7 @@ class Installer:
             raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Resolve pylib destination directory
-        self.pylib_dir = (
-            Path(sys.exec_prefix)
-            / sys.platlibdir
-            / f"python{sys.version_info.major}.{sys.version_info.minor}"
-            / "site-packages"
-        )
+        self.pylib_dir = Path(sysconfig.get_path("purelib"))
         if not self.pylib_dir.exists():
             raise FileNotFoundError(f"Python library directory {self.pylib_dir} does not exist.")
 
@@ -214,11 +213,35 @@ class Installer:
         if self.args.install_tudat:
 
             # Install tudat static libraries
-            self.link_content(
-                self.build_dir / "lib",
-                self.conda_prefix / "lib",
-                [".a", ".lib"],
-            )
+            if sys.platform == "win32":
+                # Multi-config generators put libraries in
+                # build/lib/<build_config>; single-config generators use
+                # build/lib directly.
+                lib_root = self.build_dir / "lib"
+                lib_dirs = [
+                    lib_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                lib_dirs.append(lib_root)
+                for lib_dir in lib_dirs:
+                    if any(lib_dir.glob("*.a")) or any(lib_dir.glob("*.lib")):
+                        self.link_content(
+                            lib_dir,
+                            self.conda_prefix / "lib",
+                            [".a", ".lib"],
+                        )
+                        break
+            else:
+                self.link_content(
+                    self.build_dir / "lib",
+                    self.conda_prefix / "lib",
+                    [".a", ".lib"],
+                )
 
             # Install tudat headers
             self.link_content(
@@ -252,11 +275,34 @@ class Installer:
             )
 
             # Install kernel
-            self.link_content(
-                self.build_dir / "src/tudatpy",
-                self.pylib_dir / "tudatpy",
-                [".so", ".dll", ".dylib"],
-            )
+            if sys.platform == "win32":
+                # Support both multi-config and single-config generators.
+                kernel_root = self.build_dir / "src/tudatpy"
+                kernel_dirs = [
+                    kernel_root / build_config
+                    for build_config in [
+                        "Release",
+                        "Debug",
+                        "RelWithDebInfo",
+                        "MinSizeRel",
+                    ]
+                ]
+                kernel_dirs.append(kernel_root)
+                for kernel_dir in kernel_dirs:
+                    if (kernel_dir / "kernel.pyd").is_file():
+                        self.link_content(
+                            kernel_dir,
+                            self.pylib_dir / "tudatpy",
+                            [".pyd"],
+                        )
+                        break
+            else:
+                # On Linux/macOS, kernel is in build/src/tudatpy/
+                self.link_content(
+                    self.build_dir / "src/tudatpy",
+                    self.pylib_dir / "tudatpy",
+                    [".so", ".dll", ".dylib", ".pyd"],
+                )
 
             # Install stubs
             if self.stubs_dir.exists():

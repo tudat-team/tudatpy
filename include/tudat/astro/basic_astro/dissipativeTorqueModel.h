@@ -60,7 +60,6 @@ public:
         currentBodyRotationPerturbationVector_ = bodyFixedRotationVectorFunction_( );
         currentBodyRotationPerturbationVector_( 2 ) -= bodyMeanRotationRate_;
         currentTorque_ = -dampingMatrixFunction_( ) * currentBodyRotationPerturbationVector_;
-        // std::cout << "update dissipative torque, damping matrix " << dampingMatrixFunction_( ) << std::endl;
     }
 
     //! Function to modify the damping matrix
@@ -71,11 +70,6 @@ public:
     void setDampingMatrixFunction( const Eigen::Matrix3d& dampingMatrix )
     {
         dampingMatrixFunction_ = [ = ]( ) { return dampingMatrix; };
-    }
-
-    void setDampingMatrixFunction( const std::function< Eigen::Matrix3d( ) >& dampingMatrixFunction )
-    {
-        dampingMatrixFunction_ = dampingMatrixFunction;
     }
 
 protected:

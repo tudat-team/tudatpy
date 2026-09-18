@@ -39,31 +39,19 @@ namespace rigid_body
 
 void expose_rigid_body_setup( py::module& m )
 {
-    //    py::enum_<tss::RigidBodyPropertiesType>(m,
-    //    "RigidBodyPropertiesType",
-    //                                     get_docstring("RigidBodyPropertiesType").c_str())
-    //        .value("from_function_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_function_rigid_body_properties").c_str())
-    //        .value("constant_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::constant_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.constant_rigid_body_properties").c_str())
-    //        .value("from_gravity_field_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.from_gravity_field_rigid_body_properties").c_str())
-    //        .value("mass_dependent_rigid_body_properties",
-    //        tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
-    //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
-    //        .export_values();
-    //
+    py::enum_< tss::RigidBodyPropertiesType >( m, "RigidBodyPropertiesType" )
+            .value( "from_function_rigid_body_properties", tss::RigidBodyPropertiesType::from_function_rigid_body_properties )
+            .value( "constant_rigid_body_properties", tss::RigidBodyPropertiesType::constant_rigid_body_properties )
+            .value( "from_gravity_field_rigid_body_properties", tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties )
+            .value( "mass_dependent_rigid_body_properties", tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties );
+
     py::class_< tss::RigidBodyPropertiesSettings, std::shared_ptr< tss::RigidBodyPropertiesSettings > >( m,
                                                                                                          "RigidBodyPropertiesSettings",
                                                                                                          R"doc(
 
          Base class for providing settings for rigid body model creation.
 
-         This class is a functional base class for settings of gravity field models that require no information in addition to their type.
-         Gravity field model classes requiring additional information must be created using an object derived from this class.
+         Derived settings select how mass, center of mass, and inertia are defined for a body.
 
 
 
@@ -80,6 +68,40 @@ void expose_rigid_body_setup( py::module& m )
 
          :type: RigidBodyPropertiesType
       )doc" );
+
+    py::class_< tss::FromGravityFieldRigidBodyPropertiesSettings,
+                std::shared_ptr< tss::FromGravityFieldRigidBodyPropertiesSettings >,
+                tss::RigidBodyPropertiesSettings >(
+            m, "FromGravityFieldRigidBodyPropertiesSettings", R"doc(Settings for properties derived from the body's gravity field.)doc" )
+            .def_property( "scaled_mean_moment_of_inertia",
+                           &tss::FromGravityFieldRigidBodyPropertiesSettings::getScaledMeanMomentOfInertia,
+                           &tss::FromGravityFieldRigidBodyPropertiesSettings::setScaledMeanMomentOfInertia,
+                           R"doc(Mean principal moment divided by mass times squared gravity reference radius.)doc" );
+
+    m.def( "from_gravity_field",
+           tss::fromGravityFieldRigidBodyPropertiesSettings,
+           py::arg( "scaled_mean_moment_of_inertia" ) = TUDAT_NAN,
+           R"doc(
+
+Create rigid-body properties derived from the body's gravity field.
+
+The gravitational parameter defines mass. For a spherical-harmonic field, degree-one coefficients define the center
+of mass, while complete degree-two coefficients and ``scaled_mean_moment_of_inertia`` define the inertia tensor. A
+polyhedron field derives its inertia tensor from its homogeneous geometry. Leaving the scaled mean moment unset keeps
+a spherical-harmonic gravity field valid without defining an inertia tensor.
+
+Parameters
+----------
+scaled_mean_moment_of_inertia : float, default = nan
+    Mean principal moment divided by :math:`MR^2`, equivalently
+    :math:`(I_{xx}+I_{yy}+I_{zz})/(3MR^2)`.
+
+Returns
+-------
+FromGravityFieldRigidBodyPropertiesSettings
+    Canonical settings for gravity-derived mass, center of mass, and inertia.
+
+     )doc" );
 
     m.def( "constant_rigid_body_properties",
            tss::constantRigidBodyPropertiesSettings,
@@ -117,8 +139,8 @@ void expose_rigid_body_setup( py::module& m )
     m.def( "custom_time_dependent_rigid_body_properties",
            tss::fromFunctionRigidBodyPropertiesSettings,
            py::arg( "mass_function" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -130,12 +152,12 @@ void expose_rigid_body_setup( py::module& m )
 
  Parameters
  ----------
- mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
-     Function returning the mass as a function of time (Time object representing seconds since J2000 TDB) to ne used during the propagation
- center_of_mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 1]]] = None
-     Function returning the center of mass as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
- inertia_tensor_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 3]]] = None
-     Function returning the inertia tensor as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
+ mass_function : callable[[float], float]
+     Function returning the mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ center_of_mass_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
+     Function returning the center of mass as a function of time in seconds since J2000 TDB, to be used during the propagation.
+ inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the inertia tensor as a function of time in seconds since J2000 TDB, to be used during the propagation.
  Returns
  -------
  RigidBodyPropertiesSettings
@@ -151,8 +173,8 @@ void expose_rigid_body_setup( py::module& m )
     m.def( "custom_mass_dependent_rigid_body_properties",
            tss::massDependentMassDistributionSettings,
            py::arg( "mass" ),
-           py::arg( "center_of_mass_function" ) = nullptr,
-           py::arg( "inertia_tensor_function" ) = nullptr,
+           py::arg_v( "center_of_mass_function", std::function< Eigen::Vector3d( const double ) >( ), "None" ),
+           py::arg_v( "inertia_tensor_function", std::function< Eigen::Matrix3d( const double ) >( ), "None" ),
            R"doc(
 
  Function for creating custom (time-dependent) rigid body properties.
@@ -163,7 +185,7 @@ void expose_rigid_body_setup( py::module& m )
 
  Parameters
  ----------
- mass : callable[[float], float]
+ mass : float
      Mass of the body (to be overridden during propagation if mass is propagated)
  center_of_mass_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
      Function returning the center of mass as a function of mass (to be used during the propagation)

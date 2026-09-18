@@ -213,7 +213,7 @@ std::shared_ptr< GroundStationSettings > getDsnStationSetting( const std::string
         // DSS-65 was moved in 2005 to its current new location
         // define piecewise-constant displacement according to
         // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/earthstns_itrf93_050714.cmt
-        auto const& dss65Pre2005Position = ( Eigen::Vector3d( ) << 4849336.6176, -360488.6349, 4114748.9218 ).finished( );
+        const Eigen::Vector3d dss65Pre2005Position = ( Eigen::Vector3d( ) << 4849336.6176, -360488.6349, 4114748.9218 ).finished( );
         const std::map< double, Eigen::Vector3d > displacementList = {
             { basic_astrodynamics::DateTime( 1987, 1, 1, 0, 0, 0 ).epoch< double >( ),
               dss65Pre2005Position - stationStateItrf2014.segment( 0, 3 ) },

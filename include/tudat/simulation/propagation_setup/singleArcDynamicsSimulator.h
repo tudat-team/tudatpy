@@ -450,6 +450,10 @@ public:
         {
             try
             {
+                for( auto processorIterator : integratedStateProcessors_ )
+                {
+                    processorIterator.second->setInterpolatorSettings( outputSettings_->getInterpolatorSettings( ) );
+                }
                 // Create and set interpolators for ephemerides
                 resetIntegratedStates( propagationResults_->equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
             }

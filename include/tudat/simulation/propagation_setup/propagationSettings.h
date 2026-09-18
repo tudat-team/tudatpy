@@ -37,6 +37,8 @@
 #include "tudat/simulation/propagation_setup/propagationProcessingSettings.h"
 #include "tudat/simulation/propagation_setup/createGravityDeformationModels.h"
 
+#include <cereal/access.hpp>
+
 namespace tudat
 {
 
@@ -58,6 +60,48 @@ struct PropagatorType {
     RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
     bool otherPropagator_ = false;
     int customStateSize_ = 0;
+
+private:
+    friend class cereal::access;
+    template< class Archive >
+    void save( Archive& ar ) const
+    {
+        ar( CEREAL_NVP( translationalPropagatorType_ ) );
+        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
+        ar( CEREAL_NVP( otherPropagator_ ) );
+        ar( CEREAL_NVP( customStateSize_ ) );
+    }
+
+    template< class Archive >
+    void load( Archive& ar )
+    {
+        ar( CEREAL_NVP( translationalPropagatorType_ ) );
+        ar( CEREAL_NVP( rotationalPropagatorType_ ) );
+        ar( CEREAL_NVP( otherPropagator_ ) );
+        ar( CEREAL_NVP( customStateSize_ ) );
+    }
+
+public:
+    //! Equality comparison for PropagatorType
+    bool operator==( const PropagatorType& rhs ) const
+    {
+        return equals( rhs );
+    }
+
+    bool operator!=( const PropagatorType& rhs ) const
+    {
+        return !( *this == rhs );
+    }
+
+    //! Equality comparison via equals method
+    bool equals( const PropagatorType& rhs ) const
+    {
+        return translationalPropagatorType_ == rhs.translationalPropagatorType_ &&
+                rotationalPropagatorType_ == rhs.rotationalPropagatorType_ && otherPropagator_ == rhs.otherPropagator_ &&
+                customStateSize_ == rhs.customStateSize_;
+    }
+
+private:
 };
 
 //! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
@@ -1677,6 +1721,7 @@ public:
         {
             gravityDeformationModels_[ deformationModelIt->first ].push_back( deformationModelIt->second );
         }
+        verifyInput( );
     }
 
     //! Constructor of gravity deformation propagator settings, with already-created gravity deformation models.
@@ -1739,30 +1784,15 @@ public:
     //! List of bodies for which the gravity deformation is to be propagated.
     std::vector< std::string > bodiesWithGravityToPropagate_;
 
-    //! Function to create the gravity deformation models with support for thrust-acceleration-based mass-rate models.
+    //! Function to create the gravity deformation models.
     /*!
-     * Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up
-     * mass-rate models determined from thrust accelerations.
+     * Function to create the gravity deformation models from the configured settings.
      * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
-     * \param accelerationMap Map of accelerations in the propagation.
      */
-    void resetIntegratedStateModels(
-        const simulation_setup::SystemOfBodies& bodies/*,
-        const basic_astrodynamics::AccelerationMap& accelerationMap*/ )
+    void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies ) override
     {
-        gravityDeformationModels_ =
-                simulation_setup::createGravityDeformationModelsMap( bodies, gravityDeformationSettingsMap_ /*, accelerationMap*/ );
+        gravityDeformationModels_ = simulation_setup::createGravityDeformationModelsMap( bodies, gravityDeformationSettingsMap_ );
     }
-
-    // //! Function to create the gravity deformation models.
-    // /*!
-    //     * Function to create the gravity deformation models.
-    //     * \param bodies Map of bodies in the propagation, with keys the names of the bodies.
-    //     */
-    // virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
-    // {
-    //     resetIntegratedStateModels( bodies, basic_astrodynamics::AccelerationMap( ) );
-    // }
 
     //! Function to get the gravity deformation settings map.
     /*!
@@ -1814,19 +1844,23 @@ inline std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, T
         const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::GravityDeformationModel > > >&
                 gravityDeformationModels,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyGravity,
+        const TimeType& initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ) ) /*,
-                const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )*/
+                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse =
+            ( outputSettings == nullptr ) ? std::make_shared< SingleArcPropagatorProcessingSettings >( ) : outputSettings;
     return std::make_shared< GravityDeformationPropagatorSettings< StateScalarType, TimeType > >( bodiesWihGravityToPropagate,
                                                                                                   gravityDeformationModels,
                                                                                                   initialBodyGravity,
+                                                                                                  initialTime,
                                                                                                   integratorSettings,
                                                                                                   terminationSettings,
-                                                                                                  dependentVariablesToSave );
+                                                                                                  dependentVariablesToSave,
+                                                                                                  outputSettingsToUse );
 }
 
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function

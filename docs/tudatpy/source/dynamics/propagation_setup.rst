@@ -23,6 +23,7 @@ a numerical propagation (for instance for custom models) see `here <https://docs
    /dynamics/propagation_setup/acceleration
    /dynamics/propagation_setup/dependent_variable
    /dynamics/propagation_setup/integrator
+   /dynamics/propagation_setup/gravity_deformation
    /dynamics/propagation_setup/mass_rate
    /dynamics/propagation_setup/propagator
    /dynamics/propagation_setup/torque
@@ -41,6 +42,8 @@ Functions
 
    create_mass_rate_models
 
+   create_gravity_deformation_models
+
 
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.create_acceleration_models
@@ -49,6 +52,7 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.create_mass_rate_models
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.create_gravity_deformation_models
 
 
 

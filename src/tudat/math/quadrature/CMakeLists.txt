@@ -27,6 +27,6 @@ set(numerical_quadrature_SOURCES
 TUDAT_ADD_LIBRARY("numerical_quadrature"
         "${numerical_quadrature_SOURCES}"
         "${numerical_quadrature_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
+#        PRIVATE_LINKS "Boost::boost"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

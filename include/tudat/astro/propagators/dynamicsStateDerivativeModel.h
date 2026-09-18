@@ -125,8 +125,6 @@ public:
                             conventionalStateTypeSize_.at( stateDerivativeModels.at( i )->getIntegratedStateType( ) ), 1 );
         }
 
-        /// ADDED STUFF
-
         if( stateDerivativeUpdater_ != nullptr )
         {
             auto environmentUpdateFunctions = stateDerivativeUpdater_->getEnvironmentUpdateFunctions( );
@@ -152,15 +150,9 @@ public:
                                     find( integratedBodies.begin( ), integratedBodies.end( ), bodyToCheck ) - integratedBodies.begin( );
 
                             std::pair< int, int > indexFullState = propagatedStateIndices_.at( stateType ).at( indexCurrentModel );
-                            std::cout << "indexFullState " << indexFullState.first << " - " << indexFullState.second << std::endl;
-
                             int propagatedSingleStateSize = indexFullState.second / integratedBodies.size( );
-                            std::cout << "propagatedSingleStateSize " << propagatedSingleStateSize << std::endl;
-
                             std::pair< int, int > indexSingleStateBody = std::make_pair(
                                     indexFullState.first + propagatedSingleStateSize * indexBody, propagatedSingleStateSize );
-                            std::cout << "indexSingleStateBody " << indexSingleStateBody.first << " " << indexSingleStateBody.second
-                                      << std::endl;
                             stateDerivativeIndices[ stateType ].push_back( indexSingleStateBody );
                         }
                     }
@@ -184,8 +176,6 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
-        // std::cout << "in computeStateDerivative TIME " << time << std::endl;
-
         if( !( time == time ) )
         {
             throw std::invalid_argument( "Error when computing system state derivative. Input time is NaN" );
@@ -299,11 +289,6 @@ public:
             stateDerivative_ = modifiedStateDerivative;
         }
 
-        /// ADDED STUFF
-
-        // std::cout << "stateDerivative_" << std::endl;
-        // std::cout << stateDerivative_.transpose( ) << std::endl;
-
         bool interdependencies = ( stateDerivativeUpdater_ != nullptr );
         bool convergenceReached = false;
         int iterations = 1;
@@ -311,8 +296,6 @@ public:
         double convergenceTolerance = 1.0e-14;
         while( interdependencies && !convergenceReached )
         {
-            // std::cout << "ITERATION " << iterations << std::endl;
-
             // Iterate
             oldStateDerivative_ = stateDerivative_;
 
@@ -336,9 +319,6 @@ public:
                 }
             }
 
-            // std::cout << "oldStateDerivative_: " << oldStateDerivative_.transpose( ) << std::endl;
-            // std::cout << "NEW state derivative: " << stateDerivative_.transpose( ) << std::endl;
-
             iterations += 1;
 
             // Check if convergence is reached or maximum number of iterations is attained
@@ -349,18 +329,12 @@ public:
                 {
                     if( std::fabs( oldStateDerivative_( i, j ) - stateDerivative_( i, j ) ) > convergenceTolerance )
                     {
-                        // std::cout << "std::fabs( oldStateDerivative_( i, j ) - stateDerivative_( i, j ) ) " <<
-                        // std::fabs( oldStateDerivative_( i, j ) - stateDerivative_( i, j ) ) << std::endl;
                         convergenceReached = false;
                     }
                 }
             }
             if( iterations > maxIterations )
             {
-                if( !convergenceReached )
-                {
-                    std::cout << "max iteration reached " << std::endl;
-                }
                 convergenceReached = true;
             }
         }

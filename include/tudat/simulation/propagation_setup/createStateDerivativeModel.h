@@ -39,6 +39,7 @@
 #include "tudat/astro/propagators/relativisticTimeStateDerivative.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/simulation/environment_setup/createMetric.h"
+#include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
 #include "tudat/astro/propagators/gravityDerivative.h"
 
 namespace tudat
@@ -450,8 +451,15 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
     std::vector< std::function< Eigen::Matrix3d( ) > > momentOfInertiaDerivativeFunctions;
     for( unsigned int i = 0; i < rotationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
     {
-        momentOfInertiaDerivativeFunctions.push_back( std::bind( &simulation_setup::Body::getBodyInertiaTensorDerivative,
-                                                                 bodies.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
+        const std::shared_ptr< simulation_setup::Body > body = bodies.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) );
+        momentOfInertiaDerivativeFunctions.push_back( [ body ]( ) {
+            const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = body->getMassProperties( );
+            if( rigidBodyProperties == nullptr || !rigidBodyProperties->isInertiaTensorDerivativeAvailable( ) )
+            {
+                return Eigen::Matrix3d::Zero( ).eval( );
+            }
+            return rigidBodyProperties->getCurrentDerivativeInertiaTensor( );
+        } );
     }
 
     // Check propagator type and create corresponding state derivative object.
@@ -512,7 +520,10 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
         const std::shared_ptr< GravityDeformationPropagatorSettings< StateScalarType, TimeType > > gravityPropagatorSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
-    TUDAT_UNUSED_PARAMETER( bodies );
+    for( const std::string& bodyName : gravityPropagatorSettings->bodiesWithGravityToPropagate_ )
+    {
+        simulation_setup::ensureIntegratedGravityFieldVariation( bodies.at( bodyName ), bodyName );
+    }
     return std::make_shared< propagators::GravityStateDerivative< StateScalarType, TimeType > >(
             gravityPropagatorSettings->getGravityDeformationModelsMap( ), gravityPropagatorSettings->bodiesWithGravityToPropagate_ );
 }

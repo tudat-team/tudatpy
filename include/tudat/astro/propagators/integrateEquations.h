@@ -573,7 +573,6 @@ void integrateEquationsFromIntegrator(
                 //                previousTime = currentTime;
 
                 // Perform integration step.
-                // std::cout << currentTime << " - new state " << newState.transpose( ) << std::endl;
                 newState = integrator->performIntegrationStep( timeStep );
                 if( statePostProcessingFunction != nullptr )
                 {

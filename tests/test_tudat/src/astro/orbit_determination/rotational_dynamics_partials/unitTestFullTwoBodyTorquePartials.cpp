@@ -8,14 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <sstream>
 #include <string>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
@@ -128,20 +127,25 @@ SystemOfBodies createTwoBodyTorquePartialTestSystem( const double testTime,
                                                             sineCoefficientsOfBodyExertingTorque,
                                                             scaledMeanMomentOfInertiaBodyExertingTorque );
 
-    bodyUndergoingTorque->setGravityFieldModel(
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyUndergoingTorque =
             std::make_shared< gravitation::SphericalHarmonicsGravityField >( gravitationalParameterBodyUndergoingTorque,
                                                                              referenceRadiusBodyUndergoingTorque,
                                                                              cosineCoefficientsOfBodyUndergoingTorque,
                                                                              sineCoefficientsOfBodyUndergoingTorque,
-                                                                             bodyUndergoingTorqueName + "_Fixed",
-                                                                             scaledMeanMomentOfInertiaBodyUndergoingTorque ) );
-    bodyExertingTorque->setGravityFieldModel(
+                                                                             bodyUndergoingTorqueName + "_Fixed" );
+    bodyUndergoingTorque->setGravityFieldModel( gravityFieldOfBodyUndergoingTorque );
+    bodyUndergoingTorque->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+            gravityFieldOfBodyUndergoingTorque, scaledMeanMomentOfInertiaBodyUndergoingTorque ) );
+
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldOfBodyExertingTorque =
             std::make_shared< gravitation::SphericalHarmonicsGravityField >( gravitationalParameterBodyExertingTorque,
                                                                              referenceRadiusBodyExertingTorque,
                                                                              cosineCoefficientsOfBodyExertingTorque,
                                                                              sineCoefficientsOfBodyExertingTorque,
-                                                                             bodyExertingTorqueName + "_Fixed",
-                                                                             scaledMeanMomentOfInertiaBodyExertingTorque ) );
+                                                                             bodyExertingTorqueName + "_Fixed" );
+    bodyExertingTorque->setGravityFieldModel( gravityFieldOfBodyExertingTorque );
+    bodyExertingTorque->setMassProperties( std::make_shared< simulation_setup::FromGravityFieldRigidBodyProperties >(
+            gravityFieldOfBodyExertingTorque, scaledMeanMomentOfInertiaBodyExertingTorque ) );
 
     bodyUndergoingTorque->getMassProperties( )->update( testTime );
     bodyExertingTorque->getMassProperties( )->update( testTime );

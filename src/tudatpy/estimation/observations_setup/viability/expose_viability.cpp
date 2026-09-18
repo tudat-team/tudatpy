@@ -72,7 +72,7 @@ namespace observations_setup
 namespace viability
 {
 
-void expose_viability( py::module& m )
+void expose_observation_viability_settings_type( py::module& m )
 {
     py::class_< tom::ObservationViabilitySettings, std::shared_ptr< tom::ObservationViabilitySettings > >( m,
                                                                                                            "ObservationViabilitySettings",
@@ -104,7 +104,10 @@ void expose_viability( py::module& m )
 
 
       )doc" );
+}
 
+void expose_viability( py::module& m )
+{
     py::class_< tom::ObservationBoundariesViabilitySettings,
                 std::shared_ptr< tom::ObservationBoundariesViabilitySettings >,
                 tom::ObservationViabilitySettings >( m,
@@ -183,8 +186,8 @@ Examples
 
     Returns
     -------
-    :class:`ObservationBoundariesViabilitySettings`
-    Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationBoundariesViabilitySettings`, defining the settings for observation viability.
+    ObservationBoundariesViabilitySettings
+        Observation-boundary viability settings for the link end.
 
      )doc" );
 
@@ -219,7 +222,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` class, defining the settings for observation viability
 
      )doc" );
@@ -264,7 +267,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
@@ -303,7 +306,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ ObservationViabilitySettings
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
@@ -330,6 +333,11 @@ Examples
 
     boundaries : list[tuple[float, float]]
     List of pairs of minimum and maximum allowed values for the observation. Each entry on the list corresponds to minimum and maximum allowed for each entry in the observation vector.
+
+ Returns
+ -------
+ list[ObservationBoundariesViabilitySettings]
+     List of observation-boundary viability settings, one for each link end.
     )doc" );
 
     m.def( "elevation_angle_viability_list",
@@ -355,7 +363,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
@@ -391,7 +399,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
@@ -424,7 +432,7 @@ Examples
 
  Returns
  -------
- :class:`ObservationViabilitySettings`
+ list[ObservationViabilitySettings]
      List of :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 

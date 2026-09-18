@@ -348,6 +348,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" );
+    py::class_< tni::IntegratorSettings< double >, std::shared_ptr< tni::IntegratorSettings< double > > >( m, "IntegratorSettingsFloat" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,
@@ -994,7 +995,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- time_step : float
+ time_step : astro.time_representation.Time
      Initial time step to be used.
  coefficient_set : CoefficientSets
      Coefficient set (Butcher's tableau) to be used in the integration.
@@ -1061,7 +1062,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- initial_time_step : float
+ initial_time_step : astro.time_representation.Time
      Initial time step to be used.
  coefficient_set : CoefficientSets
      Coefficient set (Butcher's tableau) to be used in the integration.
@@ -1151,7 +1152,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- time_step : float
+ initial_time_step : astro.time_representation.Time
      Initial time step to be used.
  extrapolation_sequence : ExtrapolationMethodStepSequences
      Extrapolation sequence to be used for the integration (defining the number of substeps in iteration :math:`i`).
@@ -1216,7 +1217,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- time_step : float
+ time_step : astro.time_representation.Time
      Time step to be used.
  extrapolation_sequence : ExtrapolationMethodStepSequences
      Extrapolation sequence to be used for the integration (defining the number of substeps in iteration :math:`i`).
@@ -1278,11 +1279,11 @@ recommended that a reasonable minimum step is provided to this function, to part
 
 Parameters
 ----------
-initial_time_step : float
+initial_time_step : astro.time_representation.Time
     Initial time step to be used.
-minimum_step_size : float
+minimum_step_size : astro.time_representation.Time
     Minimum time step to be used during the integration.
-maximum_step_size : float
+maximum_step_size : astro.time_representation.Time
     Maximum time step to be used during the integration.
 relative_error_tolerance : float, default=1.0E-12
     Relative tolerance to adjust the time step.
@@ -1294,7 +1295,7 @@ maximum_order
     Maximum order of the integrator.
 assess_termination_on_minor_steps : bool, default=false
     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
-bandwidth : float, default=200.0
+bandwidth : astro.time_representation.Time, default=200.0
     Maximum error factor for doubling the step size.
 Returns
 -------
@@ -1327,11 +1328,11 @@ with fixed order and variable step
 
 Parameters
 ----------
-initial_time_step : float
+initial_time_step : astro.time_representation.Time
     Initial time step to be used.
-minimum_step_size : float
+minimum_step_size : astro.time_representation.Time
     Minimum time step to be used during the integration.
-maximum_step_size : float
+maximum_step_size : astro.time_representation.Time
     Maximum time step to be used during the integration.
 relative_error_tolerance : float, default=1.0E-12
     Relative tolerance to adjust the time step.
@@ -1341,7 +1342,7 @@ order
     Order of the integrator.
 assess_termination_on_minor_steps : bool, default=false
     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
-bandwidth : float, default=200.0
+bandwidth : astro.time_representation.Time, default=200.0
     Maximum error factor for doubling the step size.
 Returns
 -------
@@ -1374,7 +1375,7 @@ IntegratorSettings
 
  Parameters
  ----------
- time_step : float
+ time_step : astro.time_representation.Time
      Initial time step to be used.
  relative_error_tolerance : float, default=1.0E-12
      Relative tolerance to adjust the time step.
@@ -1386,7 +1387,7 @@ IntegratorSettings
      Maximum order of the integrator.
  assess_termination_on_minor_steps : bool, default=false
      Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
- bandwidth : float, default=200.0
+ bandwidth : astro.time_representation.Time, default=200.0
      Maximum error factor for doubling the step size.
  Returns
  -------
@@ -1415,7 +1416,7 @@ IntegratorSettings
 
  Parameters
  ----------
- time_step : float
+ time_step : astro.time_representation.Time
      Initial time step to be used.
  order
      Order of the integrator.

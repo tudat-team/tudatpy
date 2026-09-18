@@ -13,12 +13,11 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
     aerodynamics::ExponentialAtmosphere exponentialAtmosphere( scaleHeight, constantTemperature, densityAtZeroAltitude );
 
     // Create an exponential atmosphere object.
-    aerodynamics::ExponentialAtmosphere defaultExponentialAtmosphere( aerodynamics::earth_ea );
+    aerodynamics::ExponentialAtmosphere defaultExponentialAtmosphere( aerodynamics::earth );
 
     // Declare and set expected density.
     const double expectedDensity = densityAtZeroAltitude * std::exp( -altitude / scaleHeight );

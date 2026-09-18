@@ -40,11 +40,6 @@ namespace observations_wrapper
 
 void expose_observations_wrapper_io_bindings( py::module& m )
 {
-    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
-                                                                 tudat::observation_models::FrequencyBands band2 ) {
-        return tom::getDsnDefaultTurnaroundRatios( band1, band2 );
-    };
-
     py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >(
             m, "ProcessedOdfFileContents", R"doc(
         Class containing processed ODF data.
@@ -241,7 +236,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg( "processed_odf_file" ),
            py::arg( "bodies" ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
-           py::arg( "turnaround_ratio_function" ) = getDsnDefaultTurnaroundRatios_wrapper,
+           py::arg_v( "turnaround_ratio_function",
+                      std::function< double( tom::FrequencyBands, tom::FrequencyBands ) >( &tom::getDsnDefaultTurnaroundRatios ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios" ),
            R"doc(
         Sets the ODF information required for simulating observations into the system of bodies.
 
@@ -257,7 +254,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             System of bodies.
         body_with_ground_stations_name : str, optional
             Name of the body in which the ground stations are located, by default "Earth".
-        turnaround_ratio_function : function, optional
+        turnaround_ratio_function : Callable[[FrequencyBands, FrequencyBands], float], default = :func:`~tudatpy.estimation.observations_setup.ancillary_settings.dsn_default_turnaround_ratios`
             Function returning the turnaround ratio as a function of the uplink and downlink bands.
         )doc" );
 
@@ -278,7 +275,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             Processed ODF data.
         observable_types_to_process : list[tudatpy.estimation.observable_models_setup.model_settings.ObservableType]
             Observable types to process.
-        start_and_end_times_to_process : tuple[float, float]
+        start_and_end_times_to_process : tuple[astro.time_representation.Time, astro.time_representation.Time]
             Start and end times of the data to process.
         allow_duplicate_observations_within_single_set: bool
             Determines if duplicate observations should be erased on SingleObservationSet level before ObservationCollection creation, default is True.
@@ -539,7 +536,9 @@ void expose_observations_wrapper_io_bindings( py::module& m )
            py::arg_v( "earth_fixed_ground_station_positions",
                       tss::getApproximateDsnGroundStationPositions( ),
                       "tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions()" ),
-           py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
+           py::arg_v( "ancillary_settings",
+                      tom::ObservationAncillarySimulationSettings( ),
+                      "tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()" ),
            R"doc(
         Create an observation collection from raw tracking file data.
 
@@ -553,7 +552,7 @@ void expose_observations_wrapper_io_bindings( py::module& m )
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame. If none is provided, the approximate positions of DSN ground stations (as given by :func:`~tudatpy.dynamics.environment_setup.ground_station.get_approximate_dsn_ground_station_positions`) will be used.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, default = tudatpy.estimation.observations_setup.ancillary_settings.empty_ancillary_settings()
             Ancillary settings for the observations.
 
         Returns

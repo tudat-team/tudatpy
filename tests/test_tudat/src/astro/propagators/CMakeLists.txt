@@ -37,7 +37,7 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         )
     endif ()
     target_link_libraries(tudat_propagators_test_case_support PRIVATE
-        "${Boost_LIBRARIES}"
+        "Boost::boost"
     )
 
     set_target_properties(tudat_propagators_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)
@@ -86,13 +86,13 @@ TUDAT_ADD_TEST_CASE(GaussStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRA
 
 TUDAT_ADD_TEST_CASE(UnifiedStateModelStateDerivative PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(EnvironmentUpdater PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_estimatable_parameters)
+TUDAT_ADD_TEST_CASE(EnvironmentUpdater PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(BodyMassPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(RigidBodyProperties PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(MultiTypeStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_estimatable_parameters)
+TUDAT_ADD_TEST_CASE(MultiTypeStatePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(StoppingConditions PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
@@ -106,7 +106,7 @@ TUDAT_ADD_TEST_CASE(PropagationTerminationReason PRIVATE_LINKS ${Tudat_ESTIMATIO
 
 TUDAT_ADD_TEST_CASE(PropagationTermination PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} tudat_estimatable_parameters)
+TUDAT_ADD_TEST_CASE(RotationalDynamicsPropagator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(FullTwoBodyCoupledDynamicsPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
@@ -128,37 +128,34 @@ TUDAT_ADD_TEST_CASE(IntegratorSteps PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES}
 
 TUDAT_ADD_TEST_CASE(StateDerivativeModifier PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
-TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+else()
+    TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+endif()
 
 TUDAT_ADD_TEST_CASE(RelativisticTimePropagation PRIVATE_LINKS  ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(IntegratedStateInterpolator PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_basic_mathematics tudat_statistics tudat_input_output)
 
-#TUDAT_ADD_TEST_CASE(FullPropagationRestrictedThreeBodyProblem PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-
-#TUDAT_ADD_TEST_CASE(FullPropagationLambertTargeter PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-
-#TUDAT_ADD_TEST_CASE(FullPropagationPatchedConicsTrajectory PRIVATE_LINKS tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-
-
 if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
-#TUDAT_ADD_TEST_CASE(SequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-
 TUDAT_ADD_TEST_CASE(VariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(FullTwoBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(MultiArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(MultiArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(MultiArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(HybridArcStateTransitionMatrixInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(HybridArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(HybridArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(HybridArcMultiBodyStateTransitionMatrixInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(HybridArcMultiBodyStateTransitionMatrixInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(DependentVariableOutput PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 

@@ -13,13 +13,13 @@
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/astro/gravitation/integratedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/linearAlgebra.h"
-#include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 #include <iostream>
@@ -44,7 +44,6 @@ Body::Body( const Eigen::Vector6d& state ):
     isStateSet_ = false;
     isCustomStateSet_ = false;
     isRotationSet_ = false;
-    staticDegreeTwoCoefficients_ = Eigen::VectorXd::Zero( 5 );
 }
 
 std::shared_ptr< BaseStateInterface > Body::getEphemerisFrameToBaseFrame( )
@@ -301,67 +300,109 @@ void Body::setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEph
 
 void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
 {
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityFieldModel == nullptr && ( massProperties_ == nullptr || gravityLinkedRigidBodyProperties != nullptr ) )
+    {
+        throw std::runtime_error( "Error when setting a null gravity field on a body with gravity-derived rigid-body properties." );
+    }
+
+    if( gravityFieldModel_ != nullptr )
+    {
+        // Remove the reverse link before replacing the gravity model.
+        gravityFieldModel_->setRigidBodyProperties( nullptr );
+    }
     gravityFieldModel_ = gravityFieldModel;
-
-    if( massProperties_ != nullptr )
-    {
-        std::cerr << "Warning when settings gravity field model for body, mass interface already found: overrriding existing mass "
-                     "interface"
-                  << std::endl;
-    }
-    else
-    {
-        massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
-    }
-}
-
-void Body::setCurrentPropagatedGravityField( const Eigen::VectorXd gravityCoefficients )
-{
-    double C20 = gravityCoefficients[ 0 ];
-    double C21 = gravityCoefficients[ 1 ];
-    double C22 = gravityCoefficients[ 2 ];
-    double S21 = gravityCoefficients[ 3 ];
-    double S22 = gravityCoefficients[ 4 ];
-
-    C20 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
-    C21 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    C22 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-    S21 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    S22 *= 1.0 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-
-    C20 += staticDegreeTwoCoefficients_[ 0 ];
-    C21 += staticDegreeTwoCoefficients_[ 1 ];
-    C22 += staticDegreeTwoCoefficients_[ 2 ];
-    S21 += staticDegreeTwoCoefficients_[ 3 ];
-    S22 += staticDegreeTwoCoefficients_[ 4 ];
-
-    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicsModel =
-            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
-    if( sphericalHarmonicsModel == nullptr )
-    {
-        throw std::runtime_error( "Error when setting current propagated gravity field, should be a spherical harmonics expansion model" );
-    }
-    Eigen::MatrixXd cosineCoefficients = sphericalHarmonicsModel->getCosineCoefficients( );
-    Eigen::MatrixXd sineCoefficients = sphericalHarmonicsModel->getSineCoefficients( );
-    cosineCoefficients( 2, 0 ) = C20;
-    cosineCoefficients( 2, 1 ) = C21;
-    cosineCoefficients( 2, 2 ) = C22;
-    sineCoefficients( 2, 1 ) = S21;
-    sineCoefficients( 2, 2 ) = S22;
-    sphericalHarmonicsModel->setCosineCoefficients( cosineCoefficients );
-    sphericalHarmonicsModel->setSineCoefficients( sineCoefficients );
 
     if( massProperties_ == nullptr )
     {
-        throw std::runtime_error(
-                "Error when resetting propagated gravity field, rigid body properties are not defined and cannot be updated" );
+        // Direct Body construction remains useful: it creates gravity-derived mass and center of
+        // mass, but spherical-harmonic inertia remains unavailable until an explicit scaled mean
+        // moment is supplied through gravity-derived rigid-body properties.
+        massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
     }
-    massProperties_->setIsBodyInPropagation( isBodyInPropagation_ );
+    else if( gravityLinkedRigidBodyProperties != nullptr )
+    {
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel );
+    }
+    linkGravityFieldAndRigidBodyProperties( );
 }
 
-void Body::setStaticDegreeTwoCoefficients( Eigen::VectorXd staticDegreeTwoCoefficients )
+void Body::setCurrentPropagatedGravityFieldVariation( const Eigen::VectorXd& gravityCoefficientCorrections, const double currentTime )
 {
-    staticDegreeTwoCoefficients_ = staticDegreeTwoCoefficients;
+    if( gravityFieldVariationSet_ == nullptr )
+    {
+        throw std::runtime_error( "Error when setting propagated gravity-field variation of body " + bodyName_ +
+                                  ": no gravity-field variation set is available." );
+    }
+    const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
+            gravityFieldVariationSet_->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );
+    const std::shared_ptr< gravitation::IntegratedGravityFieldVariations > integratedVariation =
+            std::dynamic_pointer_cast< gravitation::IntegratedGravityFieldVariations >( variation.second );
+    if( !variation.first || integratedVariation == nullptr )
+    {
+        throw std::runtime_error( "Error when setting propagated gravity-field variation of body " + bodyName_ +
+                                  ": no compatible integrated variation is available." );
+    }
+    integratedVariation->setCurrentCoefficientCorrections( gravityCoefficientCorrections );
+    updateCurrentGravityField( currentTime );
+}
+
+void Body::setCurrentPropagatedGravityFieldVariationDerivative( const Eigen::VectorXd& gravityCoefficientCorrectionDerivative )
+{
+    if( gravityFieldVariationSet_ == nullptr )
+    {
+        throw std::runtime_error( "Error when setting gravity-field variation derivative of body " + bodyName_ +
+                                  ": no gravity-field variation set is available." );
+    }
+    const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
+            gravityFieldVariationSet_->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );
+    const std::shared_ptr< gravitation::IntegratedGravityFieldVariations > integratedVariation =
+            std::dynamic_pointer_cast< gravitation::IntegratedGravityFieldVariations >( variation.second );
+    if( !variation.first || integratedVariation == nullptr )
+    {
+        throw std::runtime_error( "Error when setting gravity-field variation derivative of body " + bodyName_ +
+                                  ": no compatible integrated variation is available." );
+    }
+    integratedVariation->setCurrentCoefficientCorrectionDerivative( gravityCoefficientCorrectionDerivative );
+
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties != nullptr && gravityLinkedRigidBodyProperties->isInertiaTensorAvailable( ) )
+    {
+        gravityLinkedRigidBodyProperties->updateInertiaTensorDerivative( gravityCoefficientCorrectionDerivative );
+    }
+}
+
+void Body::updateCurrentGravityField( const double currentTime )
+{
+    const std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel_ );
+    if( timeDependentGravityField == nullptr )
+    {
+        throw std::runtime_error( "Error when updating gravity field of body " + bodyName_ +
+                                  ": a time-dependent spherical-harmonic field is required." );
+    }
+
+    timeDependentGravityField->update( currentTime );
+
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties != nullptr )
+    {
+        if( !isBodyInPropagation_ && gravityLinkedRigidBodyProperties->isInertiaTensorAvailable( ) && gravityFieldVariationSet_ != nullptr )
+        {
+            const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > variation =
+                    gravityFieldVariationSet_->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );
+            const std::shared_ptr< gravitation::IntegratedGravityFieldVariations > integratedVariation =
+                    std::dynamic_pointer_cast< gravitation::IntegratedGravityFieldVariations >( variation.second );
+            if( variation.first && integratedVariation != nullptr )
+            {
+                gravityLinkedRigidBodyProperties->updateInertiaTensorDerivative(
+                        integratedVariation->getCoefficientCorrectionDerivative( currentTime ) );
+            }
+        }
+    }
 }
 
 void Body::setAtmosphereModel( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
@@ -561,13 +602,42 @@ std::shared_ptr< RigidBodyProperties > Body::getMassProperties( )
 
 void Body::setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties )
 {
-    if( gravityFieldModel_ != nullptr )
+    const bool replacingAutomaticallyCreatedProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ ) != nullptr &&
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties ) != nullptr;
+    if( gravityFieldModel_ != nullptr && massProperties != nullptr && !replacingAutomaticallyCreatedProperties )
     {
         std::cerr << "Warning, setting body mass distribution, but existing gravity field model and associated mass properties already "
                      "found; overriding existing body mass properties"
                   << std::endl;
     }
     massProperties_ = massProperties;
+    if( massProperties_ == nullptr && gravityFieldModel_ != nullptr )
+    {
+        massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel_ );
+    }
+    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
+            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
+    if( gravityLinkedRigidBodyProperties != nullptr && gravityFieldModel_ != nullptr )
+    {
+        // Body is authoritative for the association: direct callers cannot accidentally leave
+        // its gravity model linked to rigid-body properties derived from a different field.
+        gravityLinkedRigidBodyProperties->resetGravityFieldModel( gravityFieldModel_ );
+    }
+    linkGravityFieldAndRigidBodyProperties( );
+}
+
+void Body::linkGravityFieldAndRigidBodyProperties( )
+{
+    if( gravityFieldModel_ == nullptr )
+    {
+        return;
+    }
+
+    // Body and gravity field refer to the same rigid-body-properties object. Gravity-derived
+    // properties override the synchronization hooks; explicitly prescribed properties retain
+    // precedence through the base-class no-op implementations.
+    gravityFieldModel_->setRigidBodyProperties( massProperties_ );
 }
 
 void Body::setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )
@@ -794,6 +864,23 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
 
+    if( gravityFieldVariationSet_ != nullptr )
+    {
+        const std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > integratedVariation =
+                gravityFieldVariationSet_->getGravityFieldVariation( gravitation::integrated_gravity_field_variation );
+        if( integratedVariation.first )
+        {
+            const std::shared_ptr< gravitation::IntegratedGravityFieldVariations > integratedGravityFieldVariation =
+                    std::dynamic_pointer_cast< gravitation::IntegratedGravityFieldVariations >( integratedVariation.second );
+            if( integratedGravityFieldVariation == nullptr )
+            {
+                throw std::runtime_error( "Error when updating propagation status of body " + bodyName_ +
+                                          ": integrated gravity-field variation has an incompatible type." );
+            }
+            integratedGravityFieldVariation->setIsBodyInPropagation( isBodyInPropagation );
+        }
+    }
+
     if( rotationalEphemeris_ != nullptr )
     {
         rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
@@ -942,6 +1029,7 @@ std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair<
 
     return timingSystem;
 }
+
 }  // namespace simulation_setup
 
 }  // namespace tudat

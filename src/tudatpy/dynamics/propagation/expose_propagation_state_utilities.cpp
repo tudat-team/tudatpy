@@ -21,6 +21,7 @@
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro/accelerationModel.h>
+#include <tudat/astro/basic_astro/gravityDeformationModel.h>
 #include <tudat/astro/basic_astro/massRateModel.h>
 #include <tudat/astro/basic_astro/torqueModel.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
@@ -69,6 +70,18 @@ namespace dynamics
 namespace propagation
 {
 
+void expose_propagation_state_utility_types( py::module& m )
+{
+    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
+
+    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
+            m, "AccelerationModel" );
+
+    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
+
+    py::class_< tba::GravityDeformationModel, std::shared_ptr< tba::GravityDeformationModel > >( m, "GravityDeformationModel" );
+}
+
 void expose_propagation_state_utility_bindings( py::module& m )
 {
     py::class_< ta::AerodynamicGuidance, ta::PyAerodynamicGuidance, std::shared_ptr< ta::AerodynamicGuidance > >( m, "AerodynamicGuidance" )
@@ -79,8 +92,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
             .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
             .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
             .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
-
-    py::class_< tba::TorqueModel, std::shared_ptr< tba::TorqueModel > >( m, "TorqueModel" );
 
     m.def( "get_single_integration_differential_equation_order",
            &tp::getSingleIntegrationDifferentialEquationOrder,
@@ -112,7 +123,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
      List of names of bodies for which the state is to be extracted
  central_bodies : list[str]
      List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
- bodies_to_propagate : SystemOfBodies
+ body_system : SystemOfBodies
      System of bodies that define the environment
  initial_time : astro.time_representation.Time
      Time at which the states are to be extracted from the environment (Time object representing seconds since J2000 TDB)
@@ -207,7 +218,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
     m.def( "get_damped_proper_mode_initial_rotational_state",
            py::overload_cast< const tss::SystemOfBodies&,
                               const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              std::map< std::string, double >,
+                              const double,
                               const std::vector< double >,
                               const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
@@ -257,9 +268,8 @@ void expose_propagation_state_utility_bindings( py::module& m )
      settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
      dynamics for a single body (e.g. translational-rotational dynamics for a single body)
 
- body_mean_rotational_rate : dict[str, float]
-     Mean rotational rate :math:`\omega_{p}` for each propagated body, keyed by body name. The damping algorithm
-     forces each body's body-fixed rotation about its z-axis toward the corresponding value.
+ body_mean_rotational_rate : float
+     Mean rotational rate :math:`\omega_{p}` to which the damping algorithm will force the body-fixed rotation about its z-axis.
  dissipation_times : list[ float ]
      List of damping times :math:`\tau_{d}` for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly
  propagate_undamped : bool, default = True
@@ -268,7 +278,7 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
  Returns
  -------
- DampedInitialRotationalStateResults
+ RotationalProperModeDampingResults
      Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
 
 
@@ -305,13 +315,6 @@ void expose_propagation_state_utility_bindings( py::module& m )
 
 
      )doc" );
-
-    py::class_< tba::AccelerationModel< Eigen::Vector3d >, std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
-            m, "AccelerationModel" );
-
-    py::class_< tba::MassRateModel, std::shared_ptr< tba::MassRateModel > >( m, "MassRateModel" );
-
-    py::class_< tba::GravityDeformationModel, std::shared_ptr< tba::GravityDeformationModel > >( m, "GravityDeformationModel" );
 }
 
 }  // namespace propagation

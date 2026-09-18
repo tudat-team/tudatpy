@@ -31,7 +31,7 @@ if (TUDAT_BUILD_WITH_PCH AND TUDAT_BUILD_WITH_TEST_PCH)
         ${Tudat_ESTIMATION_LIBRARIES}
     )
     target_link_libraries(tudat_observation_models_test_case_support PRIVATE
-        "${Boost_LIBRARIES}"
+        "Boost::boost"
     )
 
     set_target_properties(tudat_observation_models_test_case_support PROPERTIES POSITION_INDEPENDENT_CODE OFF)
@@ -113,10 +113,6 @@ TUDAT_ADD_TEST_CASE(ObservationDependentVariables PRIVATE_LINKS ${Tudat_ESTIMATI
 TUDAT_ADD_TEST_CASE(LightTimeCorrectionComponents PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(ProcessOdfData PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-
-# TUDAT_ADD_TEST_CASE(DsnOdfGrail PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
-
-#TUDAT_ADD_TEST_CASE(DsnOdfGrailStatistics PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(DsnNWayDopplerObservationModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 

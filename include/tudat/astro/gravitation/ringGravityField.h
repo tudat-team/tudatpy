@@ -24,12 +24,6 @@
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 
-#include <boost/math/special_functions/ellint_1.hpp>
-#include <boost/math/special_functions/ellint_2.hpp>
-#include <boost/math/special_functions/ellint_d.hpp>
-#include <boost/math/special_functions/ellint_rf.hpp>
-#include <boost/math/special_functions/ellint_rf.hpp>
-
 namespace tudat
 {
 
@@ -201,16 +195,13 @@ public:
      * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
      * @param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
-     * @param updateInertiaTensor Function that is to be called to update the inertia tensor (typically in Body class;
-     *      default empty)
      */
     RingGravityField( const double gravitationalParameter,
                       const double ringRadius,
                       const bool ellipticIntegralSFromDAndB,
-                      const std::string& fixedReferenceFrame = "",
-                      const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
-        GravityFieldModel( gravitationalParameter, updateInertiaTensor ), gravitationalParameter_( gravitationalParameter ),
-        ringRadius_( ringRadius ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ), fixedReferenceFrame_( fixedReferenceFrame )
+                      const std::string& fixedReferenceFrame = "" ):
+        GravityFieldModel( gravitationalParameter ), ringRadius_( ringRadius ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
+        fixedReferenceFrame_( fixedReferenceFrame )
     {
         ringGravityCache_ = std::make_shared< RingGravityCache >( ringRadius_, ellipticIntegralSFromDAndB_ );
     }
@@ -266,9 +257,6 @@ public:
     }
 
 private:
-    // Gravitational parameter
-    const double gravitationalParameter_;
-
     // Radius of the ring
     const double ringRadius_;
 

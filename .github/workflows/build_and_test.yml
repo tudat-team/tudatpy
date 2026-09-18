@@ -18,6 +18,7 @@ jobs:
 
     env:
         CACHE_NUMBER: 0
+        BUILD_WITH_MCD: "ON"
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -82,6 +83,52 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Download MCD code and data
+      id: mcd_setup
+      if: env.BUILD_WITH_MCD == 'ON'
+      env:
+        GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        set -uo pipefail
+
+        disable_mcd() {
+          echo "MCD setup failed or is unavailable; continuing with MCD disabled."
+          echo "BUILD_WITH_MCD=OFF" >> "$GITHUB_ENV"
+        }
+
+        if [ -z "${GH_TOKEN}" ]; then
+          echo "MCD_REPO_TOKEN is unavailable; continuing with MCD disabled."
+          echo "BUILD_WITH_MCD=OFF" >> "$GITHUB_ENV"
+          exit 0
+        fi
+
+        if ! (
+          set -euo pipefail
+          mkdir -p temp_mcd
+          mkdir -p third_parties/mcd/interfaces/c_interfaces
+          gh release download v1 --repo tudat-team/MCD --pattern "dataset.tgz" --dir temp_mcd
+          tar -xzf temp_mcd/dataset.tgz -C temp_mcd --strip-components=1
+          cp -R temp_mcd/data third_parties/mcd/
+          cp temp_mcd/source/MCD.F90 third_parties/mcd/MCD.F90
+          cp temp_mcd/source/mcd.h third_parties/mcd/interfaces/c_interfaces/mcd.h
+          # MCD's loadvar_mcd routine does not initialize its success status.
+          # Patch the private source after download until the release is corrected.
+          python - <<'PY'
+        from pathlib import Path
+
+        path = Path("third_parties/mcd/MCD.F90")
+        source = path.read_text()
+        marker = "      if (typevar.eq.'mean') then"
+        if source.count(marker) != 1:
+            raise RuntimeError("Could not locate the unique loadvar_mcd insertion point")
+        path.write_text(source.replace(marker, "      ier=0\n\n" + marker))
+        PY
+        ); then
+          disable_mcd
+        fi
+
     - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
       uses: conda-incubator/setup-miniconda@v4
@@ -143,6 +190,7 @@ jobs:
     #     key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
     - name: Configure CMake
+      if: runner.os != 'Windows'
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
@@ -155,7 +203,45 @@ jobs:
           -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} \
           -DTUDAT_BUILD_WITH_TEST_PCH=ON \
           -DTUDAT_BUILD_WITH_PCH=ON \
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=${BUILD_WITH_MCD} \
           -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON \
+          -DCMAKE_UNITY_BUILD=ON
+
+    - name: Configure CMake
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        @echo off
+        for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
+        if "%VSINSTALL%"=="" exit /b 1
+        set "VCVARS64=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+        if not exist "%VCVARS64%" exit /b 1
+        set "MSVC_TOOLSET_VERSION=14.44"
+        echo VCVARS64=%VCVARS64%>>"%GITHUB_ENV%"
+        echo MSVC_TOOLSET_VERSION=%MSVC_TOOLSET_VERSION%>>"%GITHUB_ENV%"
+        rem Match the toolset supplied for Conda's vs2022_win-64 package.
+        rem Visual Studio 18 otherwise selects its incompatible 14.51 toolset.
+        call "%VCVARS64%" -vcvars_ver=%MSVC_TOOLSET_VERSION% >nul 2>nul
+        if errorlevel 1 exit /b 1
+        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
+        set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
+        set "CMAKE_PREFIX_PATH=%CONDA_ENV%\Library"
+        echo === Windows Python selection ===
+        where python
+        "%CONDA_ENV%\python.exe" -c "import sys; print(sys.executable); print(sys.version)"
+        "%CONDA_ENV%\Library\bin\cmake.exe" -B "%GITHUB_WORKSPACE%\build" -S "%GITHUB_WORKSPACE%" -G Ninja ^
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
+          -DCMAKE_C_COMPILER=cl ^
+          -DCMAKE_CXX_COMPILER=cl ^
+          -DCMAKE_Fortran_COMPILER="%CONDA_ENV%\Library\bin\flang-new.exe" ^
+          -DPYTHON_EXECUTABLE="%CONDA_ENV%\python.exe" ^
+          -DPython_EXECUTABLE="%CONDA_ENV%\python.exe" ^
+          -DTUDAT_BUILD_GITHUB_ACTIONS=${{ matrix.platform.ccache }} ^
+          -DTUDAT_FORCE_DYNAMIC_RUNTIME=ON ^
+          -DTUDAT_BUILD_WITH_TEST_PCH=ON ^
+          -DTUDAT_BUILD_WITH_PCH=ON ^
+          -DTUDAT_BUILD_WITH_MCD_INTERFACE=%BUILD_WITH_MCD% ^
+          -DTUDAT_BUILD_FOR_REDUCED_COMPILE_TIME=ON ^
           -DCMAKE_UNITY_BUILD=ON
 
     - name: Debug
@@ -163,13 +249,44 @@ jobs:
         conda info
         conda list
 
-    - name: Build
+    - name: Build C++ kernel
+      id: build_kernel_non_windows
+      if: runner.os != 'Windows'
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
       run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
-    - name: Test
+    - name: Build C++ kernel
+      id: build_kernel_windows
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        @echo off
+        call "%VCVARS64%" -vcvars_ver=%MSVC_TOOLSET_VERSION% >nul 2>nul
+        if errorlevel 1 exit /b 1
+        set "CONDA_ENV=${{ matrix.platform.path_conda_env }}"
+        set "PATH=%CONDA_ENV%;%CONDA_ENV%\Library\bin;%CONDA_ENV%\Scripts;%PATH%"
+        "%CONDA_ENV%\Library\bin\cmake.exe" --build "%GITHUB_WORKSPACE%\build" --config "${{ matrix.build_type }}" -j3
+
+    - name: Build Python package
+      shell: bash -l {0}
+      run: |
+        python build.py --skip-setup --skip-build --skip-stubs --tests -j${{ matrix.platform.build_jobs }}
+
+    - name: Install
+      shell: bash -l {0}
+      run: |
+        python install.py -e
+
+    - name: Test Python
+      shell: bash -l {0}
+      run: |
+        pytest
+
+    - name: Test C++ kernel
+      if: always() && (steps.build_kernel_non_windows.outcome == 'success' || steps.build_kernel_windows.outcome == 'success')
       working-directory: "${{ github.workspace }}/build"
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      shell: bash -l {0}
       run: ctest --build-config ${{ matrix.build_type }} --output-on-failure -j4

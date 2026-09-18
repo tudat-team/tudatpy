@@ -31,7 +31,8 @@ enum BodyDeformationTypes {
     polynomial_variation,
     iers_2010,
     pole_tide,
-    ocean_tide
+    ocean_tide,
+    integrated_gravity_field_variation
 };
 
 //! Interface class between GravityFieldVariations objects that are interpolated and
@@ -380,6 +381,16 @@ public:
             const BodyDeformationTypes deformationType,
             const std::string identifier = "" );
 
+    //! Add a gravity-field variation to the set.
+    /*!
+     * Adds a variation that is evaluated directly, without an additional interpolation layer.
+     * This is used for variations whose interpolation behaviour is managed by the variation
+     * object itself, such as numerically integrated gravity-field coefficients.
+     */
+    void addGravityFieldVariation( const std::shared_ptr< GravityFieldVariations > variationObject,
+                                   const BodyDeformationTypes variationType,
+                                   const std::string& variationIdentifier = "" );
+
     //! Function to retrieve list of variation functions.
     /*!
      *  Function to retrieve list of variation functions, entries are either created using function
@@ -410,6 +421,23 @@ public:
      */
     std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation( const std::vector< std::string >& deformingBodies,
                                                                                    const BodyDeformationTypes tideType = basic_solid_body );
+
+    //! Function to retrieve all compatible tidal gravity field variations covering the requested deforming bodies
+    /*!
+     * Selects variation models of the requested tidal type that provide the requested Love-number degree and together
+     * cover the requested deforming bodies. Models that do not contain the requested degree are ignored before any
+     * coverage checks. An empty deformingBodies list selects every degree-compatible model of the requested type, but
+     * still rejects duplicate coverage of any deforming body. Models whose deforming-body set only partially overlaps
+     * an explicit request are rejected.
+     * \param deformingBodies List of tide-raising bodies that must be covered (empty = select all degree-compatible models)
+     * \param requestedDegree Spherical-harmonic degree that must be available in each selected model
+     * \param tideType Type of tidal gravity field variation to select
+     * \return Selected variation models in environment order
+     */
+    std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariationsForDegree(
+            const std::vector< std::string >& deformingBodies,
+            const int requestedDegree,
+            const BodyDeformationTypes tideType = basic_solid_body );
 
     //! Function to retrieve the tidal gravity field variations
     /*!

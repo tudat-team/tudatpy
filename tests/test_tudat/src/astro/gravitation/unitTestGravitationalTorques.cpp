@@ -14,13 +14,12 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -135,10 +134,8 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                     spice_interface::getBodyGravitationalParameter( "Moon" ) / physical_constants::GRAVITATIONAL_CONSTANT;
         }
 
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )
-                ->setScaledMeanMomentOfInertia( 0.4 );
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )
-                ->setScaledMeanMomentOfInertia( 0.4 );
+        bodySettings.at( "Moon" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.4 );
+        bodySettings.at( "Earth" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.4 );
 
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -259,10 +256,8 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
                                                                                 "IAU_Moon" );
         }
 
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )
-                ->setScaledMeanMomentOfInertia( 0.0 );
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )
-                ->setScaledMeanMomentOfInertia( 0.0 );
+        bodySettings.at( "Moon" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.0 );
+        bodySettings.at( "Earth" )->rigidBodyPropertiesSettings = fromGravityFieldRigidBodyPropertiesSettings( 0.0 );
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 

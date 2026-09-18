@@ -17,6 +17,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
+#include <cmath>
 #include <functional>
 #include <memory>
 
@@ -441,19 +442,20 @@ public:
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
-     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
-     *  empty)
+     *
+     *  This runtime gravity model contains no inertia configuration. Direct C++ callers that
+     *  require gravity-derived inertia must attach a FromGravityFieldRigidBodyProperties object
+     *  with an explicit scaled mean moment through Body.
      */
     SphericalHarmonicsGravityField( const double gravitationalParameter,
                                     const double referenceRadius,
                                     const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
                                     const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
-                                    const std::string& fixedReferenceFrame = "",
-                                    const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+                                    const std::string& fixedReferenceFrame = "" ):
         GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), fixedReferenceFrame_( fixedReferenceFrame ),
-        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
-        maximumOrder_( cosineCoefficients_.cols( ) - 1 ), sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
+        maximumDegree_( cosineCoefficients_.rows( ) - 1 ), maximumOrder_( cosineCoefficients_.cols( ) - 1 ),
+        sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
     {
         if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
         {
@@ -461,7 +463,6 @@ public:
         }
 
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
-        derivativeInertiaTensor_ = Eigen::Matrix3d::Zero( );
     }
 
     //! Virtual destructor.
@@ -500,6 +501,26 @@ public:
         return sineCoefficients_;
     }
 
+    //! Return cosine coefficients excluding all time-dependent variations.
+    /*!
+     * For a static field these are the current coefficients. Time-dependent fields override
+     * this function to return their nominal coefficient set.
+     */
+    virtual Eigen::MatrixXd getCosineCoefficientsWithoutVariations( )
+    {
+        return cosineCoefficients_;
+    }
+
+    //! Return sine coefficients excluding all time-dependent variations.
+    /*!
+     * For a static field these are the current coefficients. Time-dependent fields override
+     * this function to return their nominal coefficient set.
+     */
+    virtual Eigen::MatrixXd getSineCoefficientsWithoutVariations( )
+    {
+        return sineCoefficients_;
+    }
+
     Eigen::MatrixXd& getCosineCoefficientsReference( )
     {
         return cosineCoefficients_;
@@ -524,10 +545,7 @@ public:
         }
 
         cosineCoefficients_ = cosineCoefficients;
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
+        notifyMassDistributionUpdate( );
     }
 
     //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
@@ -544,11 +562,7 @@ public:
         }
 
         sineCoefficients_ = sineCoefficients;
-
-        if( !( updateInertiaTensor_ == nullptr ) )
-        {
-            updateInertiaTensor_( );
-        }
+        notifyMassDistributionUpdate( );
     }
 
     //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
@@ -759,53 +773,6 @@ public:
         return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
     }
 
-    virtual Eigen::Vector3d getCenterOfMass( )
-    {
-        if( cosineCoefficients_.size( ) > 1 && sineCoefficients_.size( ) > 1 )
-        {
-            return ( Eigen::Vector3d( ) << cosineCoefficients_( 1, 1 ), sineCoefficients_( 1, 1 ), cosineCoefficients_( 1, 0 ) )
-                           .finished( ) /
-                    referenceRadius_ * std::sqrt( 3.0 );
-        }
-        else
-        {
-            return Eigen::Vector3d::Zero( );
-        }
-    }
-
-    virtual Eigen::Matrix3d getInertiaTensor( );
-
-    void resetDerivativeInertiaTensor( const double derivativeC20Coefficient,
-                                       const double derivativeC21Coefficient,
-                                       const double derivativeC22Coefficient,
-                                       const double derivativeS21Coefficient,
-                                       const double derivativeS22Coefficient )
-    {
-        derivativeInertiaTensor_ =
-                computeDerivativeInertiaTensor( derivativeC20Coefficient,
-                                                derivativeC21Coefficient,
-                                                derivativeC22Coefficient,
-                                                derivativeS21Coefficient,
-                                                derivativeS22Coefficient,
-                                                this->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
-                                                referenceRadius_ );
-    }
-
-    Eigen::Matrix3d getDerivativeInertiaTensor( )
-    {
-        return derivativeInertiaTensor_;
-    }
-
-    double getScaledMeanMomentOfInertia( )
-    {
-        return scaledMeanMomentOfInertia_;
-    }
-
-    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
-    {
-        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-    }
-
 protected:
     //! Reference radius of spherical harmonic field expansion
     /*!
@@ -831,16 +798,12 @@ protected:
      */
     std::string fixedReferenceFrame_;
 
-    double scaledMeanMomentOfInertia_;
-
     const int maximumDegree_;
 
     const int maximumOrder_;
 
     //! Cache object for potential calculations.
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
-
-    Eigen::Matrix3d derivativeInertiaTensor_;
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients

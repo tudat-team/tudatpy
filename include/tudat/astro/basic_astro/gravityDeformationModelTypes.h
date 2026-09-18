@@ -17,8 +17,6 @@
 #include <unordered_map>
 
 #include <memory>
-#include <iostream>
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 

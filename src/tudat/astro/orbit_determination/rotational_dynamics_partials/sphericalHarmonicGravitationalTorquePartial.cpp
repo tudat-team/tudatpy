@@ -46,7 +46,18 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
                 accelerationPartial_->getParameterPartialFunction( parameter );
-        if( accelerationPartialFunction.second > 0 )
+        const bool hasPerturberMassDependency = parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
+                parameter->getParameterName( ).second.first == bodyExertingTorque_ && perturberGravitationalParameterFunction_;
+        if( accelerationPartialFunction.second > 0 && hasPerturberMassDependency )
+        {
+            partialFunctionPair =
+                    std::make_pair( std::bind( &SphericalHarmonicGravitationalTorquePartial::getCombinedGravitationalParameterPartial,
+                                               this,
+                                               std::placeholders::_1,
+                                               accelerationPartialFunction ),
+                                    accelerationPartialFunction.second );
+        }
+        else if( accelerationPartialFunction.second > 0 )
         {
             partialFunctionPair = std::make_pair(
                     std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
@@ -54,6 +65,14 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
                                std::placeholders::_1,
                                accelerationPartialFunction ),
                     accelerationPartialFunction.second );
+        }
+        else if( hasPerturberMassDependency )
+        {
+            partialFunctionPair = std::make_pair(
+                    std::bind( &SphericalHarmonicGravitationalTorquePartial::addPerturberMassPartialWrtGravitationalParameter,
+                               this,
+                               std::placeholders::_1 ),
+                    1 );
         }
     }
 
@@ -144,6 +163,21 @@ void SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAcceler
     accelerationPartialFunction.first( accelerationPartialsMatrix );
 
     partialMatrix += currentParameterPartialPreMultiplier_ * accelerationPartialsMatrix;
+}
+
+void SphericalHarmonicGravitationalTorquePartial::addPerturberMassPartialWrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
+{
+    // For gravity-derived rigid-body properties M = mu/G. Since this torque is linear in
+    // the perturber mass, its additional derivative is T/mu.
+    partialMatrix.block( 0, 0, 3, 1 ) += torqueModel_->getTorque( ) / perturberGravitationalParameterFunction_( );
+}
+
+void SphericalHarmonicGravitationalTorquePartial::getCombinedGravitationalParameterPartial(
+        Eigen::MatrixXd& partialMatrix,
+        const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
+{
+    getParameterPartialFromAccelerationPartialFunction( partialMatrix, accelerationPartialFunction );
+    addPerturberMassPartialWrtGravitationalParameter( partialMatrix );
 }
 
 }  // namespace acceleration_partials
