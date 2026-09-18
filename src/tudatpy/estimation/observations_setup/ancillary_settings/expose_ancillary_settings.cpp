@@ -80,6 +80,18 @@ void expose_ancillary_settings_types( py::module& m )
                     tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate )
             .export_values( );
 
+    py::enum_< tom::PositionAngleDirectionType >( m,
+                                                  "PositionAngleDirectionType",
+                                                  R"doc(
+        Direction convention for position-angle and angular-separation observations.
+
+        The astrometric convention uses the independently light-time-corrected geometric directions. The aberrated convention applies
+        stellar aberration using the receiver's inertial velocity at reception.
+        )doc" )
+            .value( "astrometric", tom::PositionAngleDirectionType::astrometric_position_angle_direction )
+            .value( "aberrated", tom::PositionAngleDirectionType::aberrated_position_angle_direction )
+            .export_values( );
+
     py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
         Enumeration of frequency bands.
 
@@ -89,6 +101,27 @@ void expose_ancillary_settings_types( py::module& m )
             .value( "x_band", tom::FrequencyBands::x_band )
             .value( "ka_band", tom::FrequencyBands::ka_band )
             .value( "ku_band", tom::FrequencyBands::ku_band );
+
+    py::enum_< tom::PositionAngleReferenceFrame >( m,
+                                                   "PositionAngleReferenceFrame",
+                                                   R"doc(
+        Enumeration of celestial reference frames whose north pole can define a position-angle observable.
+
+        The mean- and true-of-date choices specify the IAU precession/nutation convention.
+        For these choices, ``reference_epoch`` in :func:`position_angle_ancillary_settings`
+        fixes the pole at that date; otherwise the pole uses each observation's reception epoch.
+        The observation epochs are unchanged.
+        )doc" )
+            .value( "j2000", tom::PositionAngleReferenceFrame::j2000_position_angle_reference_frame )
+            .value( "b1950", tom::PositionAngleReferenceFrame::b1950_position_angle_reference_frame )
+            .value( "mean_of_date_iau_1976", tom::PositionAngleReferenceFrame::mean_of_date_iau_1976_position_angle_reference_frame )
+            .value( "true_of_date_iau_1976_1980",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_1976_1980_position_angle_reference_frame )
+            .value( "mean_of_date_iau_2006", tom::PositionAngleReferenceFrame::mean_of_date_iau_2006_position_angle_reference_frame )
+            .value( "true_of_date_iau_2006_2000a",
+                    tom::PositionAngleReferenceFrame::true_of_date_iau_2006_2000a_position_angle_reference_frame )
+            .value( "custom_pole", tom::PositionAngleReferenceFrame::custom_position_angle_reference_pole )
+            .export_values( );
 
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
                                                               "ObservationAncillarySimulationVariable",
@@ -165,6 +198,29 @@ void expose_ancillary_settings_types( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings.set_float_settings`
                     )doc" )
+            .value( "position_angle_reference_frame",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_frame,
+                    R"doc(
+                    Celestial reference-frame enum value defining the north pole used by a position-angle observable.
+                    Set and retrieve with ``set_int_settings`` and ``get_int_settings``.
+                    )doc" )
+            .value( "position_angle_reference_epoch",
+                    tom::ObservationAncillarySimulationVariable::position_angle_reference_epoch,
+                    R"doc(
+                    Optional TDB epoch, in seconds since J2000, at which a time-dependent position-angle reference frame is evaluated.
+                    If omitted, the observation's reception epoch is used.
+                    )doc" )
+            .value( "position_angle_custom_reference_pole",
+                    tom::ObservationAncillarySimulationVariable::position_angle_custom_reference_pole,
+                    R"doc(
+                    Custom position-angle north-pole vector expressed in ICRF/J2000 coordinates.
+                    )doc" )
+            .value( "position_angle_direction_type",
+                    tom::ObservationAncillarySimulationVariable::position_angle_direction_type,
+                    R"doc(
+                    Astrometric or stellar-aberrated direction convention used for position-angle and angular-separation observations.
+                    Set and retrieve with ``set_int_settings`` and ``get_int_settings``.
+                    )doc" )
             .export_values( );
 
     py::class_< tom::ObservationAncillarySimulationSettings, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
@@ -174,7 +230,7 @@ void expose_ancillary_settings_types( py::module& m )
 
     Class for holding ancillary settings for observation simulation (see module level documentation for typical usage and creation).
 
-    This class holds both single-valued (float) and multi-valued (list of floats) ancillary settings
+    This class holds integer, floating-point, and list-of-floating-point ancillary settings.
 
       )doc" )
             .def( py::init<>( ),
@@ -193,7 +249,7 @@ void expose_ancillary_settings_types( py::module& m )
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a multi-valued ancillary setting in this object
+                Function to set a single-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -204,13 +260,27 @@ void expose_ancillary_settings_types( py::module& m )
                    Value for the setting
 
                 )doc" )
+            .def( "set_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::setAncillaryIntData,
+                  py::arg( "variable" ),
+                  py::arg( "value" ),
+                  R"doc(
+                Set an integer-valued ancillary setting, such as the position-angle reference frame or direction type.
+
+                Parameters
+                ----------
+                variable : ObservationAncillarySimulationVariable
+                    Type of integer ancillary setting to set.
+                value : int
+                    Integer value of the selected setting.
+                )doc" )
             .def( "set_float_list_settings",
                   &tudat::observation_models::ObservationAncillarySimulationSettings::setAncillaryDoubleVectorData,
                   py::arg( "variable" ),
                   py::arg( "value" ),
                   R"doc(
 
-                Function to set a single-valued ancillary setting value in this object
+                Function to set a list-valued floating-point ancillary setting in this object
 
                 Parameters
                 ----------
@@ -247,6 +317,22 @@ void expose_ancillary_settings_types( py::module& m )
              Value of the requested ancillary variable (or NaN if it does not exist and ``throw_exception`` is ``false``)
 
      )doc" )
+            .def( "get_int_settings",
+                  &tom::ObservationAncillarySimulationSettings::getAncillaryIntData,
+                  py::arg( "setting_type" ),
+                  R"doc(
+                Return an integer-valued ancillary setting; raise an exception if it is absent or is not integer-valued.
+
+                Parameters
+                ----------
+                setting_type : ObservationAncillarySimulationVariable
+                    Type of integer ancillary setting to retrieve.
+
+                Returns
+                -------
+                int
+                    Value of the requested setting.
+                )doc" )
             .def( "get_float_list_settings",
                   &tom::ObservationAncillarySimulationSettings::getAncillaryDoubleVectorData,
                   py::arg( "setting_type" ),
@@ -307,6 +393,54 @@ void expose_ancillary_settings( py::module& m )
  -------
  ObservationAncillarySimulationSettings
      Empty ancillary settings.
+
+     )doc" );
+
+    m.def( "position_angle_ancillary_settings",
+           &tom::getPositionAngleAncillarySettings,
+           py::arg( "reference_frame" ) = tom::j2000_position_angle_reference_frame,
+           py::arg( "reference_epoch" ) = TUDAT_NAN,
+           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
+           R"doc(
+
+ Create ancillary settings selecting the celestial north pole used for position-angle observations.
+
+ Parameters
+ ----------
+ reference_frame : PositionAngleReferenceFrame, default = j2000
+     Celestial reference-frame convention for the position angle.
+ reference_epoch : float, optional
+     TDB seconds since J2000 used to fix a mean- or true-of-date pole at one date.
+     If omitted, the pole uses each observation's reception epoch. Ignored for fixed frames.
+ direction_type : PositionAngleDirectionType, default = astrometric
+     Selects astrometric directions or apparent directions including stellar aberration from the receiver's inertial velocity.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Ancillary settings for position-angle simulation.
+
+     )doc" );
+
+    m.def( "custom_position_angle_ancillary_settings",
+           &tom::getCustomPositionAngleAncillarySettings,
+           py::arg( "reference_pole" ),
+           py::arg( "direction_type" ) = tom::astrometric_position_angle_direction,
+           R"doc(
+
+ Create ancillary settings using a custom celestial north-pole direction for position angle.
+
+ Parameters
+ ----------
+ reference_pole : numpy.ndarray
+     Non-zero three-vector expressed in ICRF/J2000 coordinates.
+ direction_type : PositionAngleDirectionType, default = astrometric
+     Selects astrometric directions or apparent directions including stellar aberration from the receiver's inertial velocity.
+
+ Returns
+ -------
+ ObservationAncillarySimulationSettings
+     Ancillary settings for position-angle simulation.
 
      )doc" );
 

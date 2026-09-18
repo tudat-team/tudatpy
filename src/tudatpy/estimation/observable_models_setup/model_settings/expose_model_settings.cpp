@@ -80,6 +80,9 @@ Examples
             .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
             .value( "pixel_coordinates_type", tom::ObservableType::pixel_coordinates )
             .value( "differenced_frequency_of_arrival_type", tom::ObservableType::differenced_frequency_of_arrival )
+            .value( "position_angle_type", tom::ObservableType::position_angle )
+            .value( "separation_distance_type", tom::ObservableType::separation_distance )
+            .value( "position_angle_and_separation_type", tom::ObservableType::position_angle_and_separation )
             .export_values( );
 }
 
@@ -1717,6 +1720,165 @@ Returns
            ObservationModelSettings
                Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the one-way Doppler measured frequency observable.
            )doc" );
+
+    m.def( "position_angle",
+           &tom::positionAngleSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for a position angle observable.
+
+Function for creating observation model settings of position angle type observables.
+It models the position-angle component :math:`\theta` of
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`.
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position angle observable.
+
+)doc" );
+
+    m.def( "separation_distance",
+           &tom::separationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for an angular separation-distance observable.
+
+Function for creating observation model settings of angular separation-distance type observables.
+It returns the angular-separation component :math:`\rho` of
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.position_angle_and_separation`.
+Note that changing the position-angle reference frame, pole, or reference epoch does not change :math:`\rho`.
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the angular separation-distance observable.
+
+)doc" );
+
+    m.def( "position_angle_and_separation",
+           &tom::positionAngleAndSeparationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+Function for creating settings for a position-angle and separation-distance observable.
+
+Function for creating observation model settings of position-angle and separation-distance type observables.
+It returns :math:`\mathbf{h}=[\theta,\rho]^T`, where :math:`\theta` is the position angle of
+``transmitter2`` relative to ``transmitter`` and :math:`\rho` is their angular separation, both observed at ``receiver``.
+For reception epoch :math:`t_R`, each transmitter has its own retarded emission epoch :math:`t_i` found from its
+light-time equation, including any configured light-time corrections. With transmitter and receiver inertial states
+evaluated at those respective epochs, define
+
+.. math::
+
+    \mathbf{q}_i &= \mathbf{r}_i(t_i)-\mathbf{r}_R(t_R), \\
+    \mathbf{u}_i &= \mathbf{q}_i/\|\mathbf{q}_i\|, \qquad i\in\{1,2\}.
+
+By default these are astrometric directions. If stellar aberration is selected (through ancillary settings, see below), each :math:`\mathbf{u}_i` is first
+transformed using the inertial velocity of the receiver at :math:`t_R`as follows.
+Writing :math:`\boldsymbol{\beta}_R=\mathbf{v}_R(t_R)/c`, with :math:`c` the speed of light:
+
+.. math::
+    a_i &= -\mathbf{u}_i\cdot\boldsymbol{\beta}_R
+           +\sqrt{1-\|\boldsymbol{\beta}_R\|^2
+                  +(\mathbf{u}_i\cdot\boldsymbol{\beta}_R)^2}, \\
+    \mathbf{u}_i &\longrightarrow
+        \frac{a_i\mathbf{u}_i+\boldsymbol{\beta}_R}
+             {\|a_i\mathbf{u}_i+\boldsymbol{\beta}_R\|}.
+
+Let :math:`\mathbf{n}` be the selected unit celestial north pole (default ICRF, can be modified through ancillary settings, see below) in the same frame as the states,
+and define local east and north at the first transmitter's line of sight by
+
+.. math::
+
+    \mathbf{e} &= \frac{\mathbf{n}\times\mathbf{u}_1}{\|\mathbf{n}\times\mathbf{u}_1\|}, \\
+    \mathbf{m} &= \mathbf{u}_1\times\mathbf{e}.
+
+The unbiased observables, in radians, are then:
+
+.. math::
+
+    \theta &= \operatorname{atan2}(\mathbf{u}_2\cdot\mathbf{e},\mathbf{u}_2\cdot\mathbf{m}), \\
+    \rho &= \operatorname{atan2}(\|\mathbf{u}_1\times\mathbf{u}_2\|,\mathbf{u}_1\cdot\mathbf{u}_2).
+
+:math:`\theta` is measured from north through east and has principal value :math:`[-\pi,\pi]`;
+:math:`\rho` lies in :math:`[0,\pi]`.
+
+The frame and direction convention are chosen **per observation** through
+:class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings` (when simulating or loading observations), usually
+created by :func:`~tudatpy.estimation.observations_setup.ancillary_settings.position_angle_ancillary_settings`.
+``position_angle_reference_frame`` selects the pole: J2000 (default), B1950, IAU 1976/2006 mean-of-date,
+IAU 1976/1980 or IAU 2006/2000A true-of-date, or a custom pole.
+For the custom choice, ``position_angle_custom_reference_pole`` supplies the pole vector in ICRF/J2000 coordinates.
+``position_angle_reference_epoch`` optionally fixes the TDB epoch used to evaluate a time-dependent pole; if absent,
+the reception epoch is used. It does not change the observation time tag or light-time solution.
+These pole settings affect :math:`\theta` but not :math:`\rho`.
+``position_angle_direction_type`` selects astrometric (default) or receiver-velocity-aberrated directions and can
+affect both components.
+
+Parameters
+----------
+link_ends : :class:`~tudatpy.estimation.observable_models_setup.links.LinkDefinition`
+    Set of link ends that define the geometry of the observation. This observable requires the
+    ``transmitter``, ``transmitter2`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used.
+
+bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation.
+
+light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the position-angle and separation-distance observable.
+
+)doc" );
 
     m.def( "get_observable_size",
            &tom::getObservableSize,
