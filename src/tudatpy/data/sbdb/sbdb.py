@@ -2,6 +2,8 @@ from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
 from typing import Any, Union
 import math
+import numpy as np
+import datetime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
 
 
@@ -106,7 +108,74 @@ class SBDBquery:
             res = self.query["phys_par"]["diameter"].to(u.meter)
             return res.value
         except Exception as _:
-            raise ValueError(f"Gravitational parameter is not available for object {self.name}")
+            raise ValueError(f"Diameter is not available for object {self.name}")
+
+    @property
+    def nongrav_params(self):
+        """Returns cometary non-gravitational model parameters for the small body if they are available, in m/s^2.
+        If one or more parameter is unavailable a corresponding value of 0 is returned in the array
+        """
+        try:
+            A1 = (self.query["orbit"]["model_pars"]["A1"].value * u.au / u.day**2).to(u.m / u.s**2)
+        except Exception as _:
+            A1 = 0
+        try:
+            A2 = (self.query["orbit"]["model_pars"]["A2"].value * u.au / u.day**2).to(u.m / u.s**2)
+        except Exception as _:
+            A2 = 0
+        try:
+            A3 = (self.query["orbit"]["model_pars"]["A3"].value * u.au / u.day**2).to(u.m / u.s**2)
+        except Exception as _:
+            A3 = 0
+        return np.array([A1, A2, A3])
+
+    @property
+    def Dt(self):
+        """Returns asymmetric Marsden model Dt (see Yeomans and Chodas, 1989) of the small body if available, in seconds"""
+        try:
+            DT = self.query["orbit"]["model_pars"]["DT"].value
+            return (DT * u.day).to(
+                u.s
+            )  # a positive Dt will need to evaluate the position at (t-Dt)
+        except Exception as _:
+            raise ValueError(f"Asymmetry parameter DT is not available for object {self.name}")
+
+    @property
+    def first_obs(self):
+        """Returns date of the first observation used for the orbit estimation of the small body if available"""
+        try:
+            first_obs = [int(el) for el in self.query["orbit"]["first_obs"].split("-")]
+            return datetime.datetime(first_obs[0], first_obs[1], first_obs[2])
+
+        except Exception as _:
+            raise ValueError(f"Date of first observation is not available for object {self.name}")
+
+    @property
+    def last_obs(self):
+        """Returns date of the last observation used for the orbit estimation of the small body if available"""
+        try:
+            last_obs = [int(el) for el in self.query["orbit"]["last_obs"].split("-")]
+            return datetime.datetime(last_obs[0], last_obs[1], last_obs[2])
+        except Exception as _:
+            raise ValueError(f"Date of last observation is not available for object {self.name}")
+
+    @property
+    def perihelion(self):
+        """Returns perihelion of the small body in meters if available"""
+        try:
+            q = (self.query["orbit"]["elements"]["q"].value * u.au).to(u.m).value
+            return q
+        except Exception as _:
+            raise ValueError(f"Perihelion distance is not available for object {self.name}")
+
+    @property
+    def time_perihelion(self):
+        """Returns time of perihelion in JD of the small body if available"""
+        try:
+            tp = self.query["orbit"]["elements"]["tp"].value
+            return tp
+        except Exception as _:
+            raise ValueError(f"Perihelion time is not available for object {self.name}")
 
     def estimated_spherical_mass(self, density: float) -> float:
         """Calculate a very simple mass by estimating the object's mass using a given density.
