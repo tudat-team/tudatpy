@@ -2556,9 +2556,9 @@ bool
                           {
                               throw py::error_already_set( );
                           }
-                          // Preserve the old callback behavior for direct Python construction
-                          // without restoring inertia state to the gravity model.
-                          gravityFieldModel->setRigidBodyProperties( nullptr, std::function< void( ) >( ), legacyUpdateFunction );
+                          // Compatibility is isolated from the normal single-object link between
+                          // a body, its gravity field, and its rigid-body properties.
+                          gravityFieldModel->setLegacyMassDistributionUpdateFunction( legacyUpdateFunction );
                       }
                       return gravityFieldModel;
                   } ),

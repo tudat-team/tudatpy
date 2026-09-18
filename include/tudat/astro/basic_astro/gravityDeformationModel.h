@@ -27,6 +27,14 @@
 
 namespace tudat
 {
+
+namespace gravitation
+{
+
+class SphericalHarmonicsGravityField;
+
+}  // namespace gravitation
+
 namespace basic_astrodynamics
 {
 
@@ -120,100 +128,47 @@ typedef std::map< std::string, std::vector< std::shared_ptr< GravityDeformationM
  */
 class MaxwellGravityDeformationModel : public GravityDeformationModel
 {
-private:
-    //! Typedef for coefficient-matrix-returning function.
-    typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
-
 public:
     //! Typedef for a position-returning function.
     typedef std::function< void( Eigen::Vector6d& ) > StateFunction;
 
-    //! Constructor taking position-functions for bodies, and constant parameters of spherical
-    //! harmonics expansion.
+    //! Create a Maxwell model linked to the deforming body's gravity field.
     /*!
-     * Constructor taking a pointer to a function returning the position of the body subject to
-     * gravitational acceleration, gravitational-parameter functions and equatorial radius of the
-     * body exerting the acceleration, constant coefficient matrices for the spherical harmonics
-     * expansion, and a pointer to a function returning the position of the body exerting the
-     * gravitational acceleration (typically the central body). This constructor uses the
-     * provided functions to retrieve the current gravitational parameters, equatorial radius and
-     * coefficient matrices. The
-     * constructor also updates all the internal members. The position of the body exerting the
-     * gravitational acceleration is an optional parameter; the default position is the origin.
-     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
-     *          body subject to gravitational acceleration.
-     * \param aGravitationalParameter Function returning the current gravitational parameter [m^3 s^-2].
-     * \param anEquatorialRadius A (constant) equatorial radius [m].
-     * \param aCosineHarmonicCoefficientMatrix A (constant) cosine harmonic coefficient matrix.
-     * \param aSineHarmonicCoefficientMatrix A (constant) sine harmonic coefficient matrix.
-     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
-     *          body exerting gravitational acceleration (default = (0,0,0)).
+     * The gravity field remains the owner of the variation-free coefficient baseline. At each
+     * update this model subtracts that baseline from the current total coefficients and uses only
+     * the resulting variation in the Maxwell evolution equation.
+     * \param stateOfDeformingBodyFunction Function returning the deforming body's Cartesian state.
+     * \param perturbingBody Names of bodies producing the deformation.
+     * \param maxwellRelaxationTime Maxwell relaxation time.
+     * \param globalRelaxationTime Global relaxation time.
+     * \param gravityFieldModel Spherical-harmonic gravity field of the deforming body.
+     * \param gravitationalParameterPerturbingBody Functions returning perturber gravitational parameters.
+     * \param angularVelocityDeformingBody Function returning deforming-body angular velocity.
+     * \param angularVelocityDerivativeDeformingBody Function returning its angular-velocity derivative.
+     * \param k2 Degree-two Love number.
+     * \param stateOfPerturbingBodyFunction Functions returning perturber Cartesian states.
      * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
-     * body-fixes from to the frame in which the numerical integration is performed.
-     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
-     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
-     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
-     * if the variable is true.
+     * body-fixed to integration frame.
+     * \param rotationToLocalFrameDerivativeFunction Derivative of the integration-to-body-fixed rotation.
+     * \param includeOrder1 Whether degree-two, order-one deformation terms are included.
+     * \param includeCentrifugalPotential Whether the centrifugal potential contributes to equilibrium.
      */
     MaxwellGravityDeformationModel(
             const StateFunction stateOfDeformingBodyFunction,
             const std::vector< std::string > perturbingBody,
             const double maxwellRelaxationTime,
             const double globalRelaxationTime,
-            const std::function< double( ) > gravitationalParameterDeformingBody,
+            const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldModel,
             const std::vector< std::function< double( ) > > gravitationalParameterPerturbingBody,
-            const double referenceRadius,
             const std::function< Eigen::Vector3d( ) > angularVelocityDeformingBody,
             const std::function< Eigen::Vector3d( ) > angularVelocityDerivativeDeformingBody,
             const double k2,
-            CoefficientMatrixReturningFunction cosineCoefficients,
-            CoefficientMatrixReturningFunction sineCoefficients,
             const std::vector< StateFunction > stateOfPerturbingBodyFunction = {},
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const std::function< Eigen::Matrix3d( ) > rotationToLocalFrameDerivativeFunction = []( ) { return Eigen::Matrix3d::Zero( ); },
-            const Eigen::VectorXd staticCoefficients = Eigen::VectorXd::Zero( 5 ),
             const bool includeOrder1 = true,
-            const bool includeCentrifugalPotential = false ):
-        GravityDeformationModel( ), perturbingBody_( perturbingBody ), maxwellRelaxationTime_( maxwellRelaxationTime ),
-        globalRelaxationTime_( globalRelaxationTime ), gravitationalParameterDeformingBody_( gravitationalParameterDeformingBody ),
-        gravitationalParameterPerturbingBody_( gravitationalParameterPerturbingBody ), referenceRadius_( referenceRadius ), k2_( k2 ),
-        staticCoefficients_( staticCoefficients ), getCosineHarmonicsCoefficients( cosineCoefficients ),
-        getSineHarmonicsCoefficients( sineCoefficients ),
-        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-        rotationToBodyFixedDerivativeFunction_( rotationToLocalFrameDerivativeFunction ),
-        stateOfDeformingBodyFunction_( stateOfDeformingBodyFunction ), stateOfPerturbingBodyFunction_( stateOfPerturbingBodyFunction ),
-        includeOrder1_( includeOrder1 ), includeCentrifugalPotential_( includeCentrifugalPotential ),
-        angularVelocityDeformingBody_( angularVelocityDeformingBody ),
-        angularVelocityDerivativeDeformingBody_( angularVelocityDerivativeDeformingBody )
-    {
-        unsigned int numberPerturbingBodies = perturbingBody.size( );
-        stateOfPerturbingBody_.resize( numberPerturbingBodies );
-        currentRelativePosition_.resize( numberPerturbingBodies );
-        currentRelativeVelocity_.resize( numberPerturbingBodies );
-        currentInertialRelativeState_.resize( numberPerturbingBodies );
-        currentLongitude_.resize( numberPerturbingBodies );
-        currentLatitude_.resize( numberPerturbingBodies );
-        currentLongitudeDerivative_.resize( numberPerturbingBodies );
-        currentLatitudeDerivative_.resize( numberPerturbingBodies );
-
-        // Initialise nominal coefficient values
-        nominalCoefficients_ = Eigen::VectorXd::Zero( 5 );
-        nominalCoefficients_[ 0 ] = getCosineHarmonicsCoefficients( )( 2, 0 );
-        nominalCoefficients_[ 1 ] = getCosineHarmonicsCoefficients( )( 2, 1 );
-        nominalCoefficients_[ 2 ] = getCosineHarmonicsCoefficients( )( 2, 2 );
-        nominalCoefficients_[ 3 ] = getSineHarmonicsCoefficients( )( 2, 1 );
-        nominalCoefficients_[ 4 ] = getSineHarmonicsCoefficients( )( 2, 2 );
-        equilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
-        derivativeEquilibriumCoefficients_ = Eigen::VectorXd::Zero( 5 );
-
-        // Tranform to **unnormalised** coefficients
-        staticCoefficients_[ 0 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
-        staticCoefficients_[ 1 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-        staticCoefficients_[ 2 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-        staticCoefficients_[ 3 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-        staticCoefficients_[ 4 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-    }
+            const bool includeCentrifugalPotential = false );
 
     //! Update class members.
     /*!
@@ -254,11 +209,10 @@ private:
 
     const double globalRelaxationTime_;
 
-    const std::function< double( ) > gravitationalParameterDeformingBody_;
+    //! Gravity field providing both current and variation-free coefficient values.
+    const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldModel_;
 
     const std::vector< std::function< double( ) > > gravitationalParameterPerturbingBody_;
-
-    const double referenceRadius_;
 
     //! Love number k2
     const double k2_;
@@ -267,35 +221,8 @@ private:
 
     Eigen::VectorXd derivativeEquilibriumCoefficients_;
 
-    Eigen::VectorXd nominalCoefficients_;
-
-    Eigen::VectorXd staticCoefficients_;
-
-    //! Matrix of cosine coefficients.
-    /*!
-     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
-     */
-    Eigen::MatrixXd cosineHarmonicCoefficients;
-
-    //! Matrix of sine coefficients.
-    /*!
-     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
-     */
-    Eigen::MatrixXd sineHarmonicCoefficients;
-
-    //! Pointer to function returning cosine harmonics coefficients matrix.
-    /*!
-     * Pointer to function that returns the current coefficients of the cosine terms of the
-     * spherical harmonics expansion.
-     */
-    const CoefficientMatrixReturningFunction getCosineHarmonicsCoefficients;
-
-    //! Pointer to function returning sine harmonics coefficients matrix.
-    /*!
-     * Pointer to function that returns the current coefficients of the sine terms of the
-     * spherical harmonics expansion.
-     */
-    const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
+    //! Current unnormalised gravity-coefficient variation relative to the gravity field baseline.
+    Eigen::VectorXd currentCoefficientVariation_;
 
     //! Function returning the current rotation from body-fixed frame to integration frame.
     std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;

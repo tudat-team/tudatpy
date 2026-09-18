@@ -150,7 +150,7 @@ total field = nominal environment field
 
 A static contribution already present in the nominal field is retained automatically and must not be added again.
 
-`static_coefficients` are now used inside the Maxwell constitutive model. They are converted to unnormalised form and subtracted from the current degree-two coefficients when defining the deformable baseline. This is more than a mechanical code move, so regression tests must establish whether historical Python workflows retain identical total-field behavior before any further change is made.
+The later review identified that retaining `static_coefficients` in the Maxwell model still duplicated gravity-field state. The Maxwell model now obtains both the current total coefficients and the coefficients without variations from the gravity field itself. Their difference is the propagated deformation used by the constitutive equation. The separate Maxwell `static_coefficients` setting and member have therefore been removed.
 
 ### 10. Requested comments on `IntegratedGravityFieldVariations`
 
@@ -163,6 +163,50 @@ Brief public-function documentation and focused implementation comments were add
 - propagation lifecycle behavior.
 
 This comment-only change was committed as `066601762` (`Document integrated gravity field variation lifecycle`).
+
+### 11. Why did `Body::linkGravityFieldAndRigidBodyProperties()` contain weak-pointer callbacks?
+
+Those callbacks allowed `GravityFieldModel`, which only forward-declared `RigidBodyProperties`, to notify the gravity-derived subclass after a gravitational parameter or coefficient change without depending directly on the environment-setup implementation. The weak pointer prevented a reference cycle because gravity-derived rigid-body properties retain their gravity field.
+
+The lifecycle was safe, but the anonymous callbacks obscured a simpler invariant: a body has one rigid-body-properties object, and the gravity field points back to that same object. The callbacks have consequently been removed. `GravityFieldModel` now keeps only the non-owning pointer and calls explicit virtual synchronization hooks on the linked object. Gravity-derived properties override those hooks; explicitly prescribed properties retain their existing precedence through no-op base implementations. The deprecated direct Python callback remains isolated as a compatibility-only hook and is not used by normal body setup.
+
+### 12. Should there be a single rigid-body-properties object?
+
+Yes. `Body::massProperties_` is the authoritative object. `GravityFieldModel::rigidBodyProperties_` is a non-owning reverse pointer to that exact object, not another property container. Mass, center of mass, inertia, and inertia derivative are not duplicated in the gravity field. A gravity-derived implementation reads gravity data when its synchronization hook is invoked; an explicitly configured implementation remains independent.
+
+### 13. Why was `perturberGravitationalParameterFunction` added to `SphericalHarmonicGravitationalTorquePartial`?
+
+The spherical-harmonic torque model evaluates
+
+```text
+T = -m_p (r x a).
+```
+
+When the perturber uses gravity-derived rigid-body properties, `m_p = mu_p/G`. Estimating `mu_p` therefore changes the torque through the perturber mass as well as through any gravitational-acceleration dependency. The callback supplies the current `mu_p` only when this linked mass dependency exists, allowing the additional derivative `T/mu_p` to be included. It is deliberately absent for explicitly prescribed mass.
+
+The physical term is required for correct estimation. The current callback is narrower than ideal, but removing it without moving the dependency information elsewhere would make the analytical partial incomplete.
+
+### 14. Why was `getCombinedGravitationalParameterPartial()` added?
+
+The pre-existing path maps the spherical-harmonic acceleration partial into a torque partial. With gravity-derived perturber mass, the product rule gives two terms:
+
+```text
+dT/dmu = -m_p r x (da/dmu) + (dm_p/dmu) T/m_p.
+```
+
+`getCombinedGravitationalParameterPartial()` preserves the existing acceleration-derived term and adds the mass-derived term. A separate combined function avoids replacing one dependency with the other when both are present. This logic remains necessary unless torque partials gain a more general rigid-body-property dependency interface.
+
+### 15. Why should `MaxwellGravityDeformationModel` not own static coefficients?
+
+The propagated gravity-deformation state is an additive variation, while the static coefficient baseline is already owned by the gravity field. Passing the baseline through `MaxwellDeformationSettings` and storing another copy in the Maxwell model created two sources of truth and allowed the model's baseline to disagree with the environment.
+
+The gravity-field interface now explicitly provides coefficients without variations. A static field returns its current coefficients; a time-dependent field returns its nominal coefficient matrices. At every update the Maxwell model computes
+
+```text
+current deformation = current total coefficients - coefficients without variations
+```
+
+and converts only that difference to the unnormalised propagated-state convention. Changing nominal/static gravity coefficients therefore leaves the deformation state unchanged, as it should.
 
 ## Original proposed change list
 
@@ -297,7 +341,7 @@ The implemented design satisfies the approved ownership and compatibility requir
 3. `SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` remains only as a deprecated Python-compatible input carrier. Body-settings reconciliation transfers it to automatically created gravity-derived rigid-body settings; no runtime gravity model receives a copy.
 4. Explicit non-gravity rigid-body settings and the legacy explicit constant-mass input retain precedence. Gravity changes do not overwrite them.
 5. Runtime gravity models have no inertia or center-of-mass accessor. Spherical-harmonic conversion is performed by the gravity-derived rigid-body properties; homogeneous polyhedron inertia moved there as part of the same migration. Ring and point-mass fields provide no inertia.
-6. A gravity model stores a non-owning reverse pointer to the associated rigid-body properties. `Body` installs callbacks so changes to gravitational parameter update gravity-derived mass and inertia normalization, while spherical-harmonic coefficient changes update center of mass and inertia. A weak pointer is used deliberately to avoid a gravity/rigid-body ownership cycle.
+6. A gravity model stores a non-owning reverse pointer to the single associated rigid-body-properties object. Changes to gravitational parameter or spherical-harmonic coefficients invoke explicit synchronization hooks on that object. Gravity-derived properties refresh mass, center of mass, and inertia; explicit properties use no-op hooks and retain precedence. The weak pointer avoids a gravity/rigid-body ownership cycle.
 7. Mean-moment estimation now reads and writes the gravity-derived rigid-body properties. The spherical-harmonic gravitational-torque partial also includes the gravitational-parameter contribution caused by the linked relation `M = mu/G`; this contribution is omitted when mass is explicitly configured and independent.
 8. A spherical-harmonic gravity field remains valid without a finite scaled mean moment or inertia tensor. Ordinary instantaneous gravity variations update the current inertia tensor, but do not claim an inertia derivative because those variation models do not currently expose coefficient rates.
 9. Direct C++ construction now has one explicit policy: construct the runtime gravity field without inertia configuration, then install `FromGravityFieldRigidBodyProperties(gravity_field, scaled_mean_moment)` on the same `Body` when gravity-derived inertia is required.

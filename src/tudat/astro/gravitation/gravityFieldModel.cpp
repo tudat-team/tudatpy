@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -25,13 +26,9 @@ void GravityFieldModel::resetGravitationalParameter( const double gravitationalP
     notifyMassDistributionUpdate( );
 }
 
-void GravityFieldModel::setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties,
-                                                const std::function< void( ) >& massUpdateFunction,
-                                                const std::function< void( ) >& massDistributionUpdateFunction )
+void GravityFieldModel::setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties )
 {
     rigidBodyProperties_ = rigidBodyProperties;
-    massUpdateFunction_ = massUpdateFunction;
-    massDistributionUpdateFunction_ = massDistributionUpdateFunction;
 }
 
 std::shared_ptr< simulation_setup::RigidBodyProperties > GravityFieldModel::getRigidBodyProperties( ) const
@@ -39,19 +36,30 @@ std::shared_ptr< simulation_setup::RigidBodyProperties > GravityFieldModel::getR
     return rigidBodyProperties_.lock( );
 }
 
+void GravityFieldModel::setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction )
+{
+    legacyMassDistributionUpdateFunction_ = updateFunction;
+}
+
 void GravityFieldModel::notifyMassUpdate( )
 {
-    if( massUpdateFunction_ )
+    const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = rigidBodyProperties_.lock( );
+    if( rigidBodyProperties != nullptr )
     {
-        massUpdateFunction_( );
+        rigidBodyProperties->synchronizeMassFromGravityField( );
     }
 }
 
 void GravityFieldModel::notifyMassDistributionUpdate( )
 {
-    if( massDistributionUpdateFunction_ )
+    const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = rigidBodyProperties_.lock( );
+    if( rigidBodyProperties != nullptr )
     {
-        massDistributionUpdateFunction_( );
+        rigidBodyProperties->synchronizeMassDistributionFromGravityField( );
+    }
+    if( legacyMassDistributionUpdateFunction_ )
+    {
+        legacyMassDistributionUpdateFunction_( );
     }
 }
 

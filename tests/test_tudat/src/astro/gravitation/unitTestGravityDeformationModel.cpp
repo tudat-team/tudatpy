@@ -89,8 +89,7 @@ Eigen::Matrix3d getRotationToGlobalFrameWithAxisTowardsDirection( const Eigen::V
 }
 
 Eigen::VectorXd getUnnormalizedMoonDegreeTwoCoefficients(
-        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
-        const Eigen::VectorXd& staticCoefficients )
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField )
 {
     Eigen::VectorXd nominalCoefficients = Eigen::VectorXd::Zero( 5 );
     const Eigen::MatrixXd cosineCoefficients = gravityField->getCosineCoefficients( );
@@ -106,9 +105,7 @@ Eigen::VectorXd getUnnormalizedMoonDegreeTwoCoefficients(
               basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) )
                     .finished( );
 
-    // The deformation settings accept normalized coefficients, whereas the Maxwell model works internally with
-    // unnormalized coefficients. Apply the same conversion before removing the static contribution.
-    return nominalCoefficients.cwiseProduct( normalizationFactors ) - staticCoefficients.cwiseProduct( normalizationFactors );
+    return nominalCoefficients.cwiseProduct( normalizationFactors );
 }
 
 Eigen::VectorXd calculateEquilibriumCoefficients( const Eigen::Vector3d& relativePositionOfEarthWrtMoonInBodyFixedFrame,
@@ -171,7 +168,7 @@ GravityDeformationPropagationResults propagateMoonGravityDeformation(
         const MoonEnvironmentCase environmentCase,
         const double relaxationTime,
         const double elasticRelaxationTime,
-        const Eigen::VectorXd& staticCoefficients,
+        const Eigen::VectorXd& nominalCoefficientCorrections,
         const Eigen::Matrix3d& staticRotationToGlobalFrame = Eigen::Matrix3d::Identity( ) )
 {
     std::vector< std::string > bodyNames = { "Earth", "Moon" };
@@ -216,11 +213,20 @@ GravityDeformationPropagationResults propagateMoonGravityDeformation(
     const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > moonGravityField =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( bodies.at( "Moon" )->getGravityFieldModel( ) );
     BOOST_REQUIRE( moonGravityField != nullptr );
-    const Eigen::VectorXd initialNominalCoefficients = getUnnormalizedMoonDegreeTwoCoefficients( moonGravityField, staticCoefficients );
+    BOOST_REQUIRE_EQUAL( nominalCoefficientCorrections.size( ), 5 );
+    Eigen::MatrixXd nominalCosineCoefficients = moonGravityField->getCosineCoefficients( );
+    Eigen::MatrixXd nominalSineCoefficients = moonGravityField->getSineCoefficients( );
+    nominalCosineCoefficients( 2, 0 ) += nominalCoefficientCorrections( 0 );
+    nominalCosineCoefficients( 2, 1 ) += nominalCoefficientCorrections( 1 );
+    nominalCosineCoefficients( 2, 2 ) += nominalCoefficientCorrections( 2 );
+    nominalSineCoefficients( 2, 1 ) += nominalCoefficientCorrections( 3 );
+    nominalSineCoefficients( 2, 2 ) += nominalCoefficientCorrections( 4 );
+    moonGravityField->setCosineCoefficients( nominalCosineCoefficients );
+    moonGravityField->setSineCoefficients( nominalSineCoefficients );
+    const Eigen::VectorXd initialNominalCoefficients = getUnnormalizedMoonDegreeTwoCoefficients( moonGravityField );
 
     SelectedGravityDeformationModelMap deformationSettings;
-    deformationSettings[ "Moon" ] = { maxwellDeformationSettings(
-            elasticRelaxationTime, relaxationTime, moonLoveNumber, 2, 2, "Earth", staticCoefficients ) };
+    deformationSettings[ "Moon" ] = { maxwellDeformationSettings( elasticRelaxationTime, relaxationTime, moonLoveNumber, 2, 2, "Earth" ) };
     const basic_astrodynamics::GravityDeformationModelMap deformationModels =
             createGravityDeformationModelsMap( bodies, deformationSettings );
 
@@ -295,8 +301,10 @@ void checkConstantEquilibriumRelaxationSolution( const GravityDeformationPropaga
         const Eigen::VectorXd& currentDependentVariables = propagationResults.dependentVariableHistory_.at( stateEntry.first );
 
         // The derivative inherits the accumulated RK4 state error. For a one-hour step and a 15-day relaxation
-        // time, its expected relative truncation error over three e-folds is of order 1e-12.
-        checkVectorCloseCombined( currentDependentVariables.segment( 0, 5 ), expectedStateDerivative, 5.0e-12, 1.0e-28 );
+        // time, its expected relative truncation error over three e-folds is of order 1e-12. Recovering the
+        // variation by subtracting the normalized total and baseline gravity fields adds a small absolute
+        // round-off floor before division by the relaxation time.
+        checkVectorCloseCombined( currentDependentVariables.segment( 0, 5 ), expectedStateDerivative, 5.0e-12, 5.0e-27 );
         // The RK4 propagation of this coupled state agrees with the exact exponential solution to better than 1e-12.
         checkVectorCloseFractionOrAbsolute( stateEntry.second, expectedState, 1.0e-12, 1.0e-20 );
     }
@@ -346,23 +354,23 @@ BOOST_AUTO_TEST_CASE( testCircularSynchronousMoonGravityDeformation )
 BOOST_AUTO_TEST_CASE( testSpiceMoonGravityDeformationParameterSweep )
 {
     spice_interface::loadStandardSpiceKernels( );
-    Eigen::VectorXd moonStaticCoefficients = Eigen::VectorXd::Zero( 5 );
-    moonStaticCoefficients( 0 ) = -9.09e-5;
-    moonStaticCoefficients( 2 ) = 3.47e-5;
+    Eigen::VectorXd moonNominalCoefficientCorrections = Eigen::VectorXd::Zero( 5 );
+    moonNominalCoefficientCorrections( 0 ) = -9.09e-5;
+    moonNominalCoefficientCorrections( 2 ) = 3.47e-5;
 
     const std::vector< double > relaxationTimes = { moonRelaxationTime, 2.0 * moonRelaxationTime };
     const std::vector< double > elasticRelaxationTimes = { 0.5 * moonElasticRelaxationTime, moonElasticRelaxationTime };
-    const std::vector< Eigen::VectorXd > staticCoefficientSets = { Eigen::VectorXd::Zero( 5 ), moonStaticCoefficients };
+    const std::vector< Eigen::VectorXd > nominalCoefficientSets = { Eigen::VectorXd::Zero( 5 ), moonNominalCoefficientCorrections };
 
     std::vector< GravityDeformationPropagationResults > propagationResults;
     for( const double relaxationTime : relaxationTimes )
     {
         for( const double elasticRelaxationTime : elasticRelaxationTimes )
         {
-            for( const Eigen::VectorXd& staticCoefficients : staticCoefficientSets )
+            for( const Eigen::VectorXd& nominalCoefficientCorrections : nominalCoefficientSets )
             {
                 propagationResults.push_back( propagateMoonGravityDeformation(
-                        spice_moon_environment, relaxationTime, elasticRelaxationTime, staticCoefficients ) );
+                        spice_moon_environment, relaxationTime, elasticRelaxationTime, nominalCoefficientCorrections ) );
                 checkSavedDependentVariables( propagationResults.back( ) );
             }
         }
@@ -373,33 +381,25 @@ BOOST_AUTO_TEST_CASE( testSpiceMoonGravityDeformationParameterSweep )
             propagationResults.at( 4 ).dependentVariableHistory_.begin( )->second.segment( 0, 5 );
     const Eigen::VectorXd changedElasticRelaxationTimeDerivative =
             propagationResults.at( 2 ).dependentVariableHistory_.begin( )->second.segment( 0, 5 );
-    const Eigen::VectorXd changedStaticCoefficientsDerivative =
+    const Eigen::VectorXd changedNominalCoefficientsDerivative =
             propagationResults.at( 1 ).dependentVariableHistory_.begin( )->second.segment( 0, 5 );
     const Eigen::VectorXd equilibriumCoefficientDerivative =
             propagationResults.front( ).dependentVariableHistory_.begin( )->second.segment( 10, 5 );
-    const Eigen::VectorXd normalizedStaticCoefficients =
-            ( Eigen::VectorXd( 5 ) << moonStaticCoefficients( 0 ) * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ),
-              moonStaticCoefficients( 1 ) * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ),
-              moonStaticCoefficients( 2 ) * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ),
-              moonStaticCoefficients( 3 ) * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ),
-              moonStaticCoefficients( 4 ) * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) )
-                    .finished( );
-
     BOOST_CHECK_GT( firstSpiceDerivative.norm( ), 0.0 );
 
-    // The global relaxation time scales the entire derivative, the Maxwell relaxation time multiplies only the
-    // equilibrium-coefficient derivative, and static coefficients enter with the opposite sign in the nominal field.
+    // The global relaxation time scales the entire derivative and the Maxwell relaxation time multiplies only the
+    // equilibrium-coefficient derivative. Changing the gravity field's variation-free baseline must not alter the
+    // deformation derivative: the model obtains and removes that baseline directly from the gravity field.
     const Eigen::VectorXd expectedChangedRelaxationTimeDerivative = 0.5 * firstSpiceDerivative;
     const Eigen::VectorXd expectedElasticRelaxationTimeDerivativeDifference =
             0.5 * moonElasticRelaxationTime / moonRelaxationTime * equilibriumCoefficientDerivative;
     const Eigen::VectorXd elasticRelaxationTimeDerivativeDifference = changedElasticRelaxationTimeDerivative - firstSpiceDerivative;
-    const Eigen::VectorXd expectedStaticCoefficientsDerivativeDifference = normalizedStaticCoefficients / moonRelaxationTime;
-    const Eigen::VectorXd staticCoefficientsDerivativeDifference = changedStaticCoefficientsDerivative - firstSpiceDerivative;
+    const Eigen::VectorXd nominalCoefficientsDerivativeDifference = changedNominalCoefficientsDerivative - firstSpiceDerivative;
 
     checkVectorCloseCombined( changedRelaxationTimeDerivative, expectedChangedRelaxationTimeDerivative, 5.0e-14, 1.0e-26 );
     checkVectorCloseCombined(
             elasticRelaxationTimeDerivativeDifference, expectedElasticRelaxationTimeDerivativeDifference, 5.0e-14, 1.0e-26 );
-    checkVectorCloseCombined( staticCoefficientsDerivativeDifference, expectedStaticCoefficientsDerivativeDifference, 5.0e-14, 1.0e-26 );
+    checkVectorCloseCombined( nominalCoefficientsDerivativeDifference, Eigen::VectorXd::Zero( 5 ), 0.0, 1.0e-26 );
 }
 
 }  // namespace unit_tests

@@ -65,6 +65,20 @@ public:
 
     virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
 
+    //! Synchronize gravity-derived mass after the linked gravity field changes.
+    /*!
+     * The base implementation intentionally does nothing: explicitly prescribed rigid-body
+     * properties are independent of the body's gravity field.
+     */
+    virtual void synchronizeMassFromGravityField( ) {}
+
+    //! Synchronize gravity-derived center of mass and inertia after gravity data change.
+    /*!
+     * The base implementation intentionally does nothing: explicitly prescribed rigid-body
+     * properties are independent of the body's gravity field.
+     */
+    virtual void synchronizeMassDistributionFromGravityField( ) {}
+
 protected:
     double currentMass_;
 
@@ -180,10 +194,10 @@ public:
     void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );
 
     //! Immediately synchronize mass after the linked gravity field's gravitational parameter changes.
-    void synchronizeMassFromGravityField( );
+    void synchronizeMassFromGravityField( ) override;
 
     //! Immediately synchronize center of mass and inertia after linked gravity data change.
-    void synchronizeMassDistributionFromGravityField( );
+    void synchronizeMassDistributionFromGravityField( ) override;
 
     //! Return the mean principal moment divided by mass times squared gravity reference radius.
     double getScaledMeanMomentOfInertia( ) const;

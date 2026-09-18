@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), explicitInertia, 5.0e-15 );
 }
 
-BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndCallbacks )
+BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization )
 {
     using namespace gravitation;
     using namespace simulation_setup;

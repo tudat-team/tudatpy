@@ -53,12 +53,6 @@ std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > createMax
             throw std::runtime_error( "Error when creating Maxwell gravity deformation of " + nameOfDeformingBody +
                                       ": numerical gravity propagation currently supports degree and order 2 only." );
         }
-        if( maxwellDeformationSettings->staticCoefficients_.size( ) != 5 )
-        {
-            throw std::runtime_error( "Error when creating Maxwell gravity deformation of " + nameOfDeformingBody +
-                                      ": static degree-two coefficient vector must contain [C20, C21, C22, S21, S22]." );
-        }
-
         // Get pointer to gravity field and rotational ephemeris of deforming body and cast to required type.
         std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( deformingBody->getGravityFieldModel( ) );
@@ -95,32 +89,19 @@ std::shared_ptr< basic_astrodynamics::MaxwellGravityDeformationModel > createMax
                         std::bind( &Body::getStateByReference, perturbingBody.at( k ), std::placeholders::_1 ) );
             }
 
-            std::function< double( ) > gravitationalParameterFunctionDeformingBody =
-                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, sphericalHarmonicsGravityField );
-
             deformationModel = std::make_shared< MaxwellGravityDeformationModel >(
                     std::bind( &Body::getStateByReference, deformingBody, std::placeholders::_1 ),
                     nameOfPerturbingBody,
                     maxwellDeformationSettings->maxwellRelaxationTime_,
                     maxwellDeformationSettings->globalRelaxationTime_,
-                    gravitationalParameterFunctionDeformingBody,
+                    sphericalHarmonicsGravityField,
                     gravitationalParameterFunctionsPerturbingBodies,
-                    sphericalHarmonicsGravityField->getReferenceRadius( ),
                     std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, deformingBody ),
                     std::bind( &Body::getCurrentAngularVelocityDerivativeVectorInLocalFrame, deformingBody ),
                     maxwellDeformationSettings->loveNumber_,
-                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
-                               sphericalHarmonicsGravityField,
-                               maxwellDeformationSettings->maximumDegree_,
-                               maxwellDeformationSettings->maximumOrder_ ),
-                    std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
-                               sphericalHarmonicsGravityField,
-                               maxwellDeformationSettings->maximumDegree_,
-                               maxwellDeformationSettings->maximumOrder_ ),
                     stateFunctionPerturbingBodies,
                     std::bind( &Body::getCurrentRotationToGlobalFrame, deformingBody ),
                     std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, deformingBody ),
-                    maxwellDeformationSettings->staticCoefficients_,
                     maxwellDeformationSettings->includeOrder1_,
                     maxwellDeformationSettings->includeCentrifugalPotential_ );
         }

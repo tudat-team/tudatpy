@@ -106,16 +106,16 @@ public:
     //! Link the gravity field to the rigid-body properties associated with the same body.
     /*!
      * The link is non-owning because gravity-derived rigid-body properties retain the gravity
-     * model from which they compute mass, center of mass, and inertia. The two callbacks keep
-     * these quantities synchronized without introducing a dependency from the gravitation
-     * library on the environment-setup implementation.
+     * model from which they compute mass, center of mass, and inertia. Gravity changes notify
+     * this same object directly; no duplicate rigid-body state is created.
      */
-    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties,
-                                 const std::function< void( ) >& massUpdateFunction = std::function< void( ) >( ),
-                                 const std::function< void( ) >& massDistributionUpdateFunction = std::function< void( ) >( ) );
+    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties );
 
     //! Retrieve the linked rigid-body properties, if these still exist.
     std::shared_ptr< simulation_setup::RigidBodyProperties > getRigidBodyProperties( ) const;
+
+    //! Retain the deprecated Python-only gravity update callback during API migration.
+    void setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction );
 
 protected:
     //! Gravitational parameter.
@@ -133,9 +133,8 @@ protected:
     //! Non-owning link avoids a cycle: gravity-derived rigid-body properties retain their gravity field.
     std::weak_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
 
-    std::function< void( ) > massUpdateFunction_;
-
-    std::function< void( ) > massDistributionUpdateFunction_;
+    //! Compatibility-only callback for the deprecated direct Python constructor argument.
+    std::function< void( ) > legacyMassDistributionUpdateFunction_;
 
 private:
 };

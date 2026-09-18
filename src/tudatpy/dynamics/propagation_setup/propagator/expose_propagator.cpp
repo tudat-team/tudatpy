@@ -1381,32 +1381,22 @@ or in a multi-type propagation, and supports multiple bodies in
 ``bodies_to_integrate`` order.)doc" );
 
     m.def( "maxwell_deformation",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string,
-                              const Eigen::VectorXd,
-                              const bool,
-                              const bool >( &tss::maxwellDeformationSettings ),
+           py::overload_cast< const double, const double, const double, const int, const int, const std::string, const bool, const bool >(
+                   &tss::maxwellDeformationSettings ),
            py::arg( "maxwell_relaxation_time" ),
            py::arg( "global_relaxation_time" ),
            py::arg( "love_number" ),
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
            py::arg( "perturbing_body" ),
-           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
            py::arg( "include_order_1" ) = true,
            py::arg( "include_centrifugal_potential" ) = false,
            R"doc(Create degree-two Maxwell gravity-deformation settings.
 
-``static_coefficients`` are geodesy-normalised coefficients in the order
-``[C20, C21, C22, S21, S22]``. They identify a static contribution already
-contained in the nominal environment field, which is excluded from the
-deformable baseline and is not propagated. The propagated state uses the same
-ordering with unnormalised coefficients and contains only the additive
-variation from the nominal gravity field.)doc" );
+The static coefficient baseline is obtained directly from the deforming body's
+gravity field. The propagated state uses the ordering
+``[C20, C21, C22, S21, S22]`` with unnormalised coefficients and contains only
+the additive variation from that baseline.)doc" );
 
     m.def( "maxwell_deformation",
            py::overload_cast< const double,
@@ -1415,7 +1405,6 @@ variation from the nominal gravity field.)doc" );
                               const int,
                               const int,
                               const std::vector< std::string >,
-                              const Eigen::VectorXd,
                               const bool,
                               const bool >( &tss::maxwellDeformationSettings ),
            py::arg( "maxwell_relaxation_time" ),
@@ -1424,7 +1413,6 @@ variation from the nominal gravity field.)doc" );
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
            py::arg( "perturbing_bodies" ),
-           py::arg( "static_coefficients" ) = Eigen::VectorXd::Zero( 5 ),
            py::arg( "include_order_1" ) = true,
            py::arg( "include_centrifugal_potential" ) = false );
 

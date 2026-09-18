@@ -501,6 +501,26 @@ public:
         return sineCoefficients_;
     }
 
+    //! Return cosine coefficients excluding all time-dependent variations.
+    /*!
+     * For a static field these are the current coefficients. Time-dependent fields override
+     * this function to return their nominal coefficient set.
+     */
+    virtual Eigen::MatrixXd getCosineCoefficientsWithoutVariations( )
+    {
+        return cosineCoefficients_;
+    }
+
+    //! Return sine coefficients excluding all time-dependent variations.
+    /*!
+     * For a static field these are the current coefficients. Time-dependent fields override
+     * this function to return their nominal coefficient set.
+     */
+    virtual Eigen::MatrixXd getSineCoefficientsWithoutVariations( )
+    {
+        return sineCoefficients_;
+    }
+
     Eigen::MatrixXd& getCosineCoefficientsReference( )
     {
         return cosineCoefficients_;

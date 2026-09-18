@@ -10,6 +10,7 @@
  */
 
 #include "tudat/astro/basic_astro/gravityDeformationModel.h"
+#include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
@@ -17,27 +18,82 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+MaxwellGravityDeformationModel::MaxwellGravityDeformationModel(
+        const StateFunction stateOfDeformingBodyFunction,
+        const std::vector< std::string > perturbingBody,
+        const double maxwellRelaxationTime,
+        const double globalRelaxationTime,
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldModel,
+        const std::vector< std::function< double( ) > > gravitationalParameterPerturbingBody,
+        const std::function< Eigen::Vector3d( ) > angularVelocityDeformingBody,
+        const std::function< Eigen::Vector3d( ) > angularVelocityDerivativeDeformingBody,
+        const double k2,
+        const std::vector< StateFunction > stateOfPerturbingBodyFunction,
+        const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction,
+        const std::function< Eigen::Matrix3d( ) > rotationToLocalFrameDerivativeFunction,
+        const bool includeOrder1,
+        const bool includeCentrifugalPotential ):
+    GravityDeformationModel( ), perturbingBody_( perturbingBody ), maxwellRelaxationTime_( maxwellRelaxationTime ),
+    globalRelaxationTime_( globalRelaxationTime ), gravityFieldModel_( gravityFieldModel ),
+    gravitationalParameterPerturbingBody_( gravitationalParameterPerturbingBody ), k2_( k2 ),
+    equilibriumCoefficients_( Eigen::VectorXd::Zero( 5 ) ), derivativeEquilibriumCoefficients_( Eigen::VectorXd::Zero( 5 ) ),
+    currentCoefficientVariation_( Eigen::VectorXd::Zero( 5 ) ),
+    rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+    rotationToBodyFixedDerivativeFunction_( rotationToLocalFrameDerivativeFunction ),
+    stateOfDeformingBodyFunction_( stateOfDeformingBodyFunction ), stateOfPerturbingBodyFunction_( stateOfPerturbingBodyFunction ),
+    includeOrder1_( includeOrder1 ), includeCentrifugalPotential_( includeCentrifugalPotential ),
+    angularVelocityDeformingBody_( angularVelocityDeformingBody ),
+    angularVelocityDerivativeDeformingBody_( angularVelocityDerivativeDeformingBody )
+{
+    if( gravityFieldModel_ == nullptr )
+    {
+        throw std::runtime_error( "Error when creating Maxwell gravity deformation model: gravity field is null." );
+    }
+    if( gravitationalParameterPerturbingBody_.size( ) != perturbingBody_.size( ) ||
+        stateOfPerturbingBodyFunction_.size( ) != perturbingBody_.size( ) )
+    {
+        throw std::runtime_error( "Error when creating Maxwell gravity deformation model: inconsistent perturber input sizes." );
+    }
+    const Eigen::MatrixXd cosineCoefficients = gravityFieldModel_->getCosineCoefficientsWithoutVariations( );
+    const Eigen::MatrixXd sineCoefficients = gravityFieldModel_->getSineCoefficientsWithoutVariations( );
+    if( cosineCoefficients.rows( ) < 3 || cosineCoefficients.cols( ) < 3 || sineCoefficients.rows( ) < 3 || sineCoefficients.cols( ) < 3 )
+    {
+        throw std::runtime_error( "Error when creating Maxwell gravity deformation model: degree-two gravity coefficients are absent." );
+    }
+
+    const unsigned int numberPerturbingBodies = perturbingBody_.size( );
+    stateOfPerturbingBody_.resize( numberPerturbingBodies );
+    currentRelativePosition_.resize( numberPerturbingBodies );
+    currentRelativeVelocity_.resize( numberPerturbingBodies );
+    currentInertialRelativeState_.resize( numberPerturbingBodies );
+    currentLongitude_.resize( numberPerturbingBodies );
+    currentLatitude_.resize( numberPerturbingBodies );
+    currentLongitudeDerivative_.resize( numberPerturbingBodies );
+    currentLatitudeDerivative_.resize( numberPerturbingBodies );
+}
+
 void MaxwellGravityDeformationModel::updateMembers( const double currentTime )
 {
-    // Update gravity coefficients
-    cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
-    sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+    // The integrated state is a variation, so remove the gravity field's own variation-free
+    // baseline from its current total coefficients. The Maxwell model does not retain a second
+    // copy of the static field.
+    const Eigen::MatrixXd cosineHarmonicCoefficients =
+            gravityFieldModel_->getCosineCoefficients( ) - gravityFieldModel_->getCosineCoefficientsWithoutVariations( );
+    const Eigen::MatrixXd sineHarmonicCoefficients =
+            gravityFieldModel_->getSineCoefficients( ) - gravityFieldModel_->getSineCoefficientsWithoutVariations( );
 
-    nominalCoefficients_[ 0 ] = cosineHarmonicCoefficients( 2, 0 );
-    nominalCoefficients_[ 1 ] = cosineHarmonicCoefficients( 2, 1 );
-    nominalCoefficients_[ 2 ] = cosineHarmonicCoefficients( 2, 2 );
-    nominalCoefficients_[ 3 ] = sineHarmonicCoefficients( 2, 1 );
-    nominalCoefficients_[ 4 ] = sineHarmonicCoefficients( 2, 2 );
+    currentCoefficientVariation_[ 0 ] = cosineHarmonicCoefficients( 2, 0 );
+    currentCoefficientVariation_[ 1 ] = cosineHarmonicCoefficients( 2, 1 );
+    currentCoefficientVariation_[ 2 ] = cosineHarmonicCoefficients( 2, 2 );
+    currentCoefficientVariation_[ 3 ] = sineHarmonicCoefficients( 2, 1 );
+    currentCoefficientVariation_[ 4 ] = sineHarmonicCoefficients( 2, 2 );
 
-    // Transform to unnormalized coefficients
-    nominalCoefficients_[ 0 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
-    nominalCoefficients_[ 1 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    nominalCoefficients_[ 2 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-    nominalCoefficients_[ 3 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
-    nominalCoefficients_[ 4 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
-
-    // Remove static field contribution
-    nominalCoefficients_ = nominalCoefficients_ - staticCoefficients_;
+    // The environment stores geodesy-normalised coefficients; the propagated Maxwell state is unnormalised.
+    currentCoefficientVariation_[ 0 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    currentCoefficientVariation_[ 1 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    currentCoefficientVariation_[ 2 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    currentCoefficientVariation_[ 3 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    currentCoefficientVariation_[ 4 ] *= basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
     // Update rotation and positions
     rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
@@ -88,7 +144,7 @@ void MaxwellGravityDeformationModel::updateMembers( const double currentTime )
     updateEquilibriumDeformation( );
 
     currentDeformation_ = ( 1.0 / globalRelaxationTime_ ) *
-            ( equilibriumCoefficients_ - nominalCoefficients_ + maxwellRelaxationTime_ * derivativeEquilibriumCoefficients_ );
+            ( equilibriumCoefficients_ - currentCoefficientVariation_ + maxwellRelaxationTime_ * derivativeEquilibriumCoefficients_ );
 }
 
 void MaxwellGravityDeformationModel::updateEquilibriumDeformation( const double currentTime )
@@ -101,11 +157,12 @@ void MaxwellGravityDeformationModel::updateEquilibriumDeformation( const double 
     const Eigen::Vector3d angularVelocityDerivative = angularVelocityDerivativeDeformingBody_( );
     const double rotationRate = angularVelocity.norm( );
     const double rotationRateDerivative = ( rotationRate > 0.0 ) ? angularVelocity.dot( angularVelocityDerivative ) / rotationRate : 0.0;
-    const double gravitationalParameterDeformingBody = gravitationalParameterDeformingBody_( );
+    const double gravitationalParameterDeformingBody = gravityFieldModel_->getGravitationalParameter( );
+    const double referenceRadius = gravityFieldModel_->getReferenceRadius( );
     if( includeCentrifugalPotential_ )
     {
         const double centrifugalCoefficientFactor =
-                -k2_ * referenceRadius_ * referenceRadius_ * referenceRadius_ / ( 3.0 * gravitationalParameterDeformingBody );
+                -k2_ * referenceRadius * referenceRadius * referenceRadius / ( 3.0 * gravitationalParameterDeformingBody );
         equilibriumCoefficients_[ 0 ] += centrifugalCoefficientFactor * rotationRate * rotationRate;
         derivativeEquilibriumCoefficients_[ 0 ] += 2.0 * centrifugalCoefficientFactor * rotationRate * rotationRateDerivative;
     }
@@ -114,7 +171,7 @@ void MaxwellGravityDeformationModel::updateEquilibriumDeformation( const double 
     {
         double relativeDistance = currentRelativePosition_.at( k ).segment( 0, 3 ).norm( );
         double radiusRatioPowerThree =
-                referenceRadius_ * referenceRadius_ * referenceRadius_ / ( relativeDistance * relativeDistance * relativeDistance );
+                referenceRadius * referenceRadius * referenceRadius / ( relativeDistance * relativeDistance * relativeDistance );
 
         double gravitationalParametersRatio = gravitationalParameterPerturbingBody_.at( k )( ) / gravitationalParameterDeformingBody;
 

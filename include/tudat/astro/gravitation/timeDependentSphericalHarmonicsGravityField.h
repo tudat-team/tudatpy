@@ -160,6 +160,12 @@ public:
         return nominalCosineCoefficients_;
     }
 
+    //! Return nominal cosine coefficients, without any gravity-field variations.
+    Eigen::MatrixXd getCosineCoefficientsWithoutVariations( ) override
+    {
+        return nominalCosineCoefficients_;
+    }
+
     //! Get current total correction to cosine coefficients
     /*!
      * Get current total correction to cosine coefficients up to given degree and order
@@ -260,6 +266,12 @@ public:
      *  \return Nominal sine coefficients.
      */
     Eigen::MatrixXd getNominalSineCoefficients( )
+    {
+        return nominalSineCoefficients_;
+    }
+
+    //! Return nominal sine coefficients, without any gravity-field variations.
+    Eigen::MatrixXd getSineCoefficientsWithoutVariations( ) override
     {
         return nominalSineCoefficients_;
     }

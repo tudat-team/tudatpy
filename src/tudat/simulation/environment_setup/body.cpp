@@ -309,8 +309,7 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
 
     if( gravityFieldModel_ != nullptr )
     {
-        // Remove the reverse link before replacing the gravity model. This also clears callbacks
-        // that captured the current gravity-derived rigid-body properties.
+        // Remove the reverse link before replacing the gravity model.
         gravityFieldModel_->setRigidBodyProperties( nullptr );
     }
     gravityFieldModel_ = gravityFieldModel;
@@ -635,33 +634,10 @@ void Body::linkGravityFieldAndRigidBodyProperties( )
         return;
     }
 
-    const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
-            std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
-    if( gravityLinkedRigidBodyProperties == nullptr )
-    {
-        // Explicit non-gravity rigid-body properties retain precedence. The gravity model may
-        // inspect them through the reverse link, but gravity changes must not overwrite them.
-        gravityFieldModel_->setRigidBodyProperties( massProperties_ );
-        return;
-    }
-
-    const std::weak_ptr< FromGravityFieldRigidBodyProperties > weakRigidBodyProperties = gravityLinkedRigidBodyProperties;
-    gravityFieldModel_->setRigidBodyProperties(
-            massProperties_,
-            [ weakRigidBodyProperties ]( ) {
-                const std::shared_ptr< FromGravityFieldRigidBodyProperties > rigidBodyProperties = weakRigidBodyProperties.lock( );
-                if( rigidBodyProperties != nullptr )
-                {
-                    rigidBodyProperties->synchronizeMassFromGravityField( );
-                }
-            },
-            [ weakRigidBodyProperties ]( ) {
-                const std::shared_ptr< FromGravityFieldRigidBodyProperties > rigidBodyProperties = weakRigidBodyProperties.lock( );
-                if( rigidBodyProperties != nullptr )
-                {
-                    rigidBodyProperties->synchronizeMassDistributionFromGravityField( );
-                }
-            } );
+    // Body and gravity field refer to the same rigid-body-properties object. Gravity-derived
+    // properties override the synchronization hooks; explicitly prescribed properties retain
+    // precedence through the base-class no-op implementations.
+    gravityFieldModel_->setRigidBodyProperties( massProperties_ );
 }
 
 void Body::setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )
