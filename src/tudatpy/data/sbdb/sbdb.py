@@ -116,15 +116,27 @@ class SBDBquery:
         If one or more parameter is unavailable a corresponding value of 0 is returned in the array
         """
         try:
-            A1 = (self.query["orbit"]["model_pars"]["A1"].value * u.au / u.day**2).to(u.m / u.s**2)
+            A1 = (
+                (self.query["orbit"]["model_pars"]["A1"].value * u.au / u.day**2)
+                .to(u.m / u.s**2)
+                .value
+            )
         except Exception as _:
             A1 = 0
         try:
-            A2 = (self.query["orbit"]["model_pars"]["A2"].value * u.au / u.day**2).to(u.m / u.s**2)
+            A2 = (
+                (self.query["orbit"]["model_pars"]["A2"].value * u.au / u.day**2)
+                .to(u.m / u.s**2)
+                .value
+            )
         except Exception as _:
             A2 = 0
         try:
-            A3 = (self.query["orbit"]["model_pars"]["A3"].value * u.au / u.day**2).to(u.m / u.s**2)
+            A3 = (
+                (self.query["orbit"]["model_pars"]["A3"].value * u.au / u.day**2)
+                .to(u.m / u.s**2)
+                .value
+            )
         except Exception as _:
             A3 = 0
         return np.array([A1, A2, A3])
@@ -134,8 +146,8 @@ class SBDBquery:
         """Returns asymmetric Marsden model Dt (see Yeomans and Chodas, 1989) of the small body if available, in seconds"""
         try:
             DT = self.query["orbit"]["model_pars"]["DT"].value
-            return (DT * u.day).to(
-                u.s
+            return (
+                (DT * u.day).to(u.s).value
             )  # a positive Dt will need to evaluate the position at (t-Dt)
         except Exception as _:
             raise ValueError(f"Asymmetry parameter DT is not available for object {self.name}")
