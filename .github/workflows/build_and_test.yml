@@ -83,6 +83,52 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Restore resources cache
+      id: cache-resources
+      uses: actions/cache@v6
+      with:
+        path: resources.tar.gz
+        key: tudat-resources-${{ hashFiles('tests/resource-catalog.txt') }}
+
+    - name: Extract resources if cache hit
+      if: steps.cache-resources.outputs.cache-hit == 'true'
+      shell: bash -l {0}
+      run: |
+        mkdir -p $HOME/.tudat/resource/
+        tar -xzf resources.tar.gz -C $HOME/.tudat/resource/
+
+    # - name: Download resources
+    #   if: steps.cache-resources.outputs.cache-hit != 'true'
+    #   shell: bash -l {0}
+    #   run: |
+    #     python -m tudatpy.resource_installer --mode manifest
+    #     python -m tudatpy.resource_installer --mode update --files $(cat tests/resource-catalog.txt)
+
+    - name: Download resources if cache miss
+      if: steps.cache-resources.outputs.cache-hit != 'true'
+      uses: actions/checkout@v6
+      with:
+        repository: 'tudat-escience/tudat-resources'
+        ref: 'updated_resource_directory'
+        path: 'tudat-resources'
+        fetch-depth: 1
+        sparse-checkout-cone-mode: 'true'
+        sparse-checkout: |
+          test-data
+
+    - name: Move downloaded resources to default location if cache miss
+      if: steps.cache-resources.outputs.cache-hit != 'true'
+      shell: bash -l {0}
+      run: |
+        mkdir -p $HOME/.tudat/resource/
+        mv tudat-resources/test-data/* $HOME/.tudat/resource/
+
+    - name: Pack downloaded resources if cache miss
+      if: steps.cache-resources.outputs.cache-hit != 'true'
+      shell: bash -l {0}
+      run: |
+        tr -d '\r' < tests/resource-catalog.txt | tar -czf resources.tar.gz -C $HOME/.tudat/resource/ -T -
+
     - name: Download MCD code and data
       id: mcd_setup
       if: env.BUILD_WITH_MCD == 'ON'
