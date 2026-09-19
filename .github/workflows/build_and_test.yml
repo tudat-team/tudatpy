@@ -127,7 +127,7 @@ jobs:
       if: steps.cache-resources.outputs.cache-hit != 'true'
       shell: bash -l {0}
       run: |
-        tar -czf resources.tar.gz -C $HOME/.tudat/resource/ -T tests/resource-catalog.txt
+        tr -d '\r' < tests/resource-catalog.txt | tar -czf resources.tar.gz -C $HOME/.tudat/resource/ -T -
 
     - name: Download MCD code and data
       id: mcd_setup
