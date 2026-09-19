@@ -110,6 +110,7 @@ jobs:
       with:
         repository: 'tudat-escience/tudat-resources'
         ref: 'updated_resource_directory'
+        path: 'tudat-resources'
         fetch-depth: 1
         sparse-checkout-cone-mode: 'true'
         sparse-checkout: |
