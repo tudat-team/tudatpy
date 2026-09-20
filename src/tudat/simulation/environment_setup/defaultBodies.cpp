@@ -342,7 +342,7 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const
             std::make_pair( -35.0 * milliArcSecondToRadian, -3.0 * milliArcSecondToRadian - 1 * milliArcSecondToRadian );
     rotationRateCorrections[ 4.0 ] = std::make_pair( -10.0 * milliArcSecondToRadian, -8.0 * milliArcSecondToRadian );
 
-    // Create default polar motion coefficients
+    // Create default polar motion coefficients (Van den Acker et al. 2002; Konopliv et al. 2016 carries no polar motion)
     std::map< double, std::pair< double, double > > xPolarMotionCoefficients;
     xPolarMotionCoefficients[ 1.0 ] = std::make_pair( 2.8 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 46.5 ) ),
                                                       2.8 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 46.5 ) ) );
@@ -356,7 +356,7 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const
     yPolarMotionCoefficients[ 1.0 ] = std::make_pair( 11.7 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 118.7 ) ),
                                                       11.7 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
     yPolarMotionCoefficients[ 2.0 ] = std::make_pair( 3.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 172.5 ) ),
-                                                      3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+                                                      3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 172.5 ) ) );
     yPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
     yPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
     yPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars's Chandler wobble T=205 dd
