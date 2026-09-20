@@ -211,6 +211,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         torquePartial->wrtNonRotationalStateOfAdditionalBody(
                 partialWrtMarsState.block( 0, 0, 3, 6 ), std::make_pair( "Mars", "" ), propagators::translational_state );
 
+        // The spherical-harmonic torque must reject the unimplemented Mars-mu partial;
+        // the degree-two torque still returns an analytical partial for comparison below.
         Eigen::Vector3d partialWrtMarsGravitationalParameter = Eigen::Vector3d::Zero( );
         if( torqueModelTest == 0 )
         {
@@ -340,6 +342,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 partialWrtMarsState.block( 0, 3, 3, 3 ), testPartialWrtMarsVelocity, std::numeric_limits< double >::epsilon( ) );
 
+        // Compare the supported degree-two Mars-mu partial with its numerical derivative.
         if( torqueModelTest == 0 )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0E-6 );

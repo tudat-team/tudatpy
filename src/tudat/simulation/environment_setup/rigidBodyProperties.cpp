@@ -29,25 +29,24 @@ namespace simulation_setup
 namespace
 {
 
-void computeSphericalHarmonicMassDistribution(
-        const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
-        const double scaledMeanMomentOfInertia,
-        Eigen::Vector3d& centerOfMass,
-        Eigen::Matrix3d& inertiaTensor,
-        bool& inertiaTensorAvailable )
+void computeSphericalHarmonicMassDistribution( const std::shared_ptr< gravitation::SphericalHarmonicsGravityField >& gravityField,
+                                               const double scaledMeanMomentOfInertia,
+                                               Eigen::Vector3d& centerOfMass,
+                                               Eigen::Matrix3d& inertiaTensor,
+                                               bool& inertiaTensorAvailable )
 {
     centerOfMass.setZero( );
     const Eigen::MatrixXd cosineCoefficients = gravityField->getCosineCoefficients( );
     const Eigen::MatrixXd sineCoefficients = gravityField->getSineCoefficients( );
-    if( cosineCoefficients.rows( ) > 1 && cosineCoefficients.cols( ) > 1 && sineCoefficients.rows( ) > 1 &&
-        sineCoefficients.cols( ) > 1 )
+    if( cosineCoefficients.rows( ) > 1 && cosineCoefficients.cols( ) > 1 && sineCoefficients.rows( ) > 1 && sineCoefficients.cols( ) > 1 )
     {
+        // For geodesy-normalized degree-one coefficients, r_CM = sqrt(3) * R * (C11, S11, C10).
         centerOfMass =
-                ( Eigen::Vector3d( ) << cosineCoefficients( 1, 1 ), sineCoefficients( 1, 1 ), cosineCoefficients( 1, 0 ) ).finished( ) /
-                gravityField->getReferenceRadius( ) * std::sqrt( 3.0 );
+                ( Eigen::Vector3d( ) << cosineCoefficients( 1, 1 ), sineCoefficients( 1, 1 ), cosineCoefficients( 1, 0 ) ).finished( ) *
+                ( gravityField->getReferenceRadius( ) * std::sqrt( 3.0 ) );
     }
-    inertiaTensorAvailable = cosineCoefficients.rows( ) > 2 && cosineCoefficients.cols( ) > 2 &&
-            sineCoefficients.rows( ) > 2 && sineCoefficients.cols( ) > 2 && std::isfinite( scaledMeanMomentOfInertia );
+    inertiaTensorAvailable = cosineCoefficients.rows( ) > 2 && cosineCoefficients.cols( ) > 2 && sineCoefficients.rows( ) > 2 &&
+            sineCoefficients.cols( ) > 2 && std::isfinite( scaledMeanMomentOfInertia );
     if( inertiaTensorAvailable )
     {
         inertiaTensor = gravitation::getInertiaTensorFromGravityField( gravityField, scaledMeanMomentOfInertia );
@@ -55,16 +54,15 @@ void computeSphericalHarmonicMassDistribution(
 }
 
 void computePolyhedronMassDistribution( const std::shared_ptr< gravitation::PolyhedronGravityField >& gravityField,
-                                       Eigen::Vector3d& centerOfMass,
-                                       Eigen::Matrix3d& inertiaTensor,
-                                       bool& inertiaTensorAvailable )
+                                        Eigen::Vector3d& centerOfMass,
+                                        Eigen::Matrix3d& inertiaTensor,
+                                        bool& inertiaTensorAvailable )
 {
     centerOfMass.setZero( );
-    inertiaTensor =
-            basic_astrodynamics::computePolyhedronInertiaTensor( gravityField->getVerticesCoordinates( ),
-                                                                 gravityField->getVerticesDefiningEachFacet( ),
-                                                                 gravityField->getGravitationalParameter( ),
-                                                                 physical_constants::GRAVITATIONAL_CONSTANT );
+    inertiaTensor = basic_astrodynamics::computePolyhedronInertiaTensor( gravityField->getVerticesCoordinates( ),
+                                                                         gravityField->getVerticesDefiningEachFacet( ),
+                                                                         gravityField->getGravitationalParameter( ),
+                                                                         physical_constants::GRAVITATIONAL_CONSTANT );
     inertiaTensorAvailable = true;
 }
 
@@ -395,8 +393,7 @@ void FromGravityFieldRigidBodyProperties::synchronizeMassDistributionFromGravity
     else if( const std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
                      std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ ) )
     {
-        computePolyhedronMassDistribution(
-                polyhedronGravityField, currentCenterOfMass_, currentInertiaTensor_, isInertiaTensorAvailable_ );
+        computePolyhedronMassDistribution( polyhedronGravityField, currentCenterOfMass_, currentInertiaTensor_, isInertiaTensorAvailable_ );
     }
     else if( std::dynamic_pointer_cast< gravitation::RingGravityField >( gravityFieldModel_ ) != nullptr )
     {
