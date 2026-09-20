@@ -178,17 +178,17 @@ public:
 
     virtual ~FromGravityFieldRigidBodyProperties( );
 
-    virtual void resetCurrentTime( );
+    void resetCurrentTime( ) override;
 
-    virtual void updateMass( const double currentTime );
+    void updateMass( const double currentTime ) override;
 
-    virtual void updateMassDistribution( const double currentTime );
+    void updateMassDistribution( const double currentTime ) override;
 
-    virtual void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients );
+    void updateInertiaTensorDerivative( const Eigen::Vector5d& derivativeDegreeTwoCoefficients ) override;
 
-    virtual void setCurrentMass( const double currentMass );
+    void setCurrentMass( const double currentMass ) override;
 
-    virtual void setIsBodyInPropagation( const bool isBodyInPropagation );
+    void setIsBodyInPropagation( const bool isBodyInPropagation ) override;
 
     //! Reset the gravity field from which these properties are derived, retaining their owned configuration.
     void resetGravityFieldModel( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel );

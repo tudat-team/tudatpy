@@ -250,15 +250,15 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagat
     body->setGravityFieldVariationSet( variationSet );
     body->setIsBodyInPropagation( true );
 
-    BOOST_CHECK( !body->getGravityFieldVariation( integrated_gravity_field_variation ).first );
+    BOOST_CHECK( body->getGravityFieldVariation( polynomial_variation ).first );
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
     BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
 
-    body->updateCurrentGravityField( 0.0 );
+    gravityField->update( 0.0 );
     const Eigen::Matrix3d initialInertia = body->getBodyInertiaTensor( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialInertia, getInertiaTensorFromGravityField( gravityField, 0.4 ), 5.0e-15 );
 
-    body->updateCurrentGravityField( 10.0 );
+    gravityField->update( 10.0 );
     const Eigen::Matrix3d variedInertia = body->getBodyInertiaTensor( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( variedInertia, getInertiaTensorFromGravityField( gravityField, 0.4 ), 5.0e-15 );
     BOOST_CHECK_GT( ( variedInertia - initialInertia ).norm( ), 0.0 );
