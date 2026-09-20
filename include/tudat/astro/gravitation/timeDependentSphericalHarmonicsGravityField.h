@@ -254,7 +254,7 @@ public:
      */
     void setNominalCosineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalCosineCoefficients_.rows( ) && order <= nominalCosineCoefficients_.cols( ) )
+        if( degree >= 0 && degree < nominalCosineCoefficients_.rows( ) && order >= 0 && order < nominalCosineCoefficients_.cols( ) )
         {
             nominalCosineCoefficients_( degree, order ) = coefficient;
         }
@@ -293,7 +293,7 @@ public:
      */
     void setNominalSineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalSineCoefficients_.rows( ) && order <= nominalSineCoefficients_.cols( ) )
+        if( degree >= 0 && degree < nominalSineCoefficients_.rows( ) && order >= 0 && order < nominalSineCoefficients_.cols( ) )
         {
             nominalSineCoefficients_( degree, order ) = coefficient;
         }

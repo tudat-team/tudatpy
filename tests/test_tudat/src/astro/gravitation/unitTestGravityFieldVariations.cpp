@@ -19,6 +19,7 @@
 
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -243,6 +244,13 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
                                                                              nominalCosineCoefficients,
                                                                              nominalSineCoefficients,
                                                                              getTestGravityFieldVariations( ) );
+    // Reject indices outside the nominal coefficient blocks before attempting a matrix write.
+    BOOST_CHECK_THROW( timeDependentGravityField->setNominalCosineCoefficient( nominalCosineCoefficients.rows( ), 0, 0.0 ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( timeDependentGravityField->setNominalSineCoefficient( 0, nominalSineCoefficients.cols( ), 0.0 ),
+                       std::runtime_error );
+    BOOST_CHECK_THROW( timeDependentGravityField->setNominalCosineCoefficient( -1, 0, 0.0 ), std::runtime_error );
+    BOOST_CHECK_THROW( timeDependentGravityField->setNominalSineCoefficient( 0, -1, 0.0 ), std::runtime_error );
     timeDependentGravityField->update( 2.0 * testTime );
 
     // Calculate variations for current test time.
@@ -632,6 +640,21 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
             for( const double derivativeTime : { referenceEpoch - 2.0e4, referenceEpoch, referenceEpoch + 3.0e4 } )
             {
                 checkGravityFieldVariationDerivative( variations->getVariationObjects( ).at( 0 ), derivativeTime, 1.0 );
+            }
+
+            if( k == 0 )
+            {
+                const auto periodicVariation =
+                        std::dynamic_pointer_cast< PeriodicGravityFieldVariations >( variations->getVariationObjects( ).at( 0 ) );
+                auto invalidAmplitudes = cosineShAmplitudesCosineTime;
+                invalidAmplitudes.pop_back( );
+                // Reject inconsistent counts and block sizes when resetting, before they reach the evaluation loop.
+                BOOST_CHECK_THROW( periodicVariation->resetCosineShAmplitudesCosineTime( invalidAmplitudes ), std::runtime_error );
+                invalidAmplitudes = cosineShAmplitudesCosineTime;
+                invalidAmplitudes.front( ) = Eigen::MatrixXd::Zero( 1, 1 );
+                BOOST_CHECK_THROW( periodicVariation->resetCosineShAmplitudesCosineTime( invalidAmplitudes ), std::runtime_error );
+                // A rejected reset must leave the original variations and their rates consistent.
+                checkGravityFieldVariationDerivative( periodicVariation, referenceEpoch + 3.0e4, 1.0 );
             }
 
             if( k < 3 )

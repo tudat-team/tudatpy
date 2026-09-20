@@ -33,28 +33,24 @@ PeriodicGravityFieldVariations::PeriodicGravityFieldVariations( const std::vecto
     sineShAmplitudesCosineTime_( sineShAmplitudesCosineTime ), sineShAmplitudesSineTime_( sineShAmplitudesSineTime ),
     frequencies_( frequencies ), referenceEpoch_( referenceEpoch )
 {
-    if( cosineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
-    {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input sizes (C_lm * cos time) inconsistent" );
-    }
+    checkAmplitudes( cosineShAmplitudesCosineTime_ );
+    checkAmplitudes( cosineShAmplitudesSineTime_ );
+    checkAmplitudes( sineShAmplitudesCosineTime_ );
+    checkAmplitudes( sineShAmplitudesSineTime_ );
+}
 
-    if( cosineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
+void PeriodicGravityFieldVariations::checkAmplitudes( const std::vector< Eigen::MatrixXd >& amplitudes ) const
+{
+    if( amplitudes.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (C_lm * sin time) inconsistent" );
+        throw std::runtime_error( "Error configuring periodic gravity variations: amplitude and frequency counts differ." );
     }
-
-    if( sineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
+    for( const auto& amplitude : amplitudes )
     {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (S_lm * cos time) inconsistent" );
-    }
-
-    if( sineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
-    {
-        throw std::runtime_error(
-                "Error when making periodic gravity field variations, frequency input size (S_lm * sin time) inconsistent" );
+        if( amplitude.rows( ) != numberOfDegrees_ || amplitude.cols( ) != numberOfOrders_ )
+        {
+            throw std::runtime_error( "Error configuring periodic gravity variations: amplitude block dimensions differ." );
+        }
     }
 }
 
