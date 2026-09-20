@@ -190,7 +190,8 @@ BOOST_AUTO_TEST_CASE( test_PropagationResultsSerialization )
         BOOST_REQUIRE( deserializedResults != nullptr );
         if( !( *results == *deserializedResults ) )
         {
-            std::cout << "--- Serialization mismatch for type: " << typeid( *results ).name( ) << " ---\n";
+            const auto& resultObject = *results;
+            std::cout << "--- Serialization mismatch for type: " << typeid( resultObject ).name( ) << " ---\n";
             // Single-arc
             if( auto single = std::dynamic_pointer_cast< propagators::SingleArcSimulationResults< double, double > >( results ) )
             {
