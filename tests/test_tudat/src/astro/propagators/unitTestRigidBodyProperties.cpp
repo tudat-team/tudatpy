@@ -111,6 +111,26 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), getInertiaTensorFromGravityField( sphericalField, 0.4 ), 5.0e-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), Eigen::Matrix3d::Zero( ), 5.0e-15 );
 
+    Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
+    rotationalState( 0 ) = 1.0;
+    rotationalState.tail( 3 ) << 1.0e-4, -2.0e-4, 3.0e-4;
+    body->setCurrentRotationalStateToLocalFrame( rotationalState );
+    body->setIsBodyInPropagation( true );
+    const auto inertialTorque = createInertialTorqueModel( body, "TestBody" );
+    const Eigen::Vector3d angularVelocity = rotationalState.tail( 3 );
+    for( const double time : { 0.0, 10.0 } )
+    {
+        body->getMassProperties( )->resetCurrentTime( );
+        body->getMassProperties( )->updateMassDistribution( time );
+        // A static gravity field needs no derivative provider, even after resetting the update time.
+        BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+        BOOST_CHECK_SMALL( body->getBodyInertiaTensorDerivative( ).norm( ), 1.0e-30 );
+        BOOST_CHECK_NO_THROW( inertialTorque->updateMembers( time ) );
+        // Its inertial torque contains only the usual gyroscopic term.
+        const Eigen::Vector3d expectedTorque = -angularVelocity.cross( body->getBodyInertiaTensor( ) * angularVelocity );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque->getTorque( ), expectedTorque, 5.0e-15 );
+    }
+
     // An explicitly configured rigid-body object owns its tensor and is not replaced with the gravity field.
     const Eigen::Matrix3d explicitInertia = 7.0 * Eigen::Matrix3d::Identity( );
     const std::shared_ptr< TimeDependentRigidBodyProperties > explicitProperties =
@@ -229,9 +249,9 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     BOOST_CHECK_CLOSE_FRACTION( explicitBody->getBodyMass( ), explicitMass, 5.0e-15 );
 }
 
-// Apply a prescribed degree-two gravity variation at two epochs to check that inertia follows
-// the coefficients during propagation and that inertial torque rejects an unavailable derivative.
-BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagation )
+// Apply a prescribed degree-two variation at several epochs and compare its inertia derivative
+// with finite differences, then check that inertial torque includes the derivative contribution.
+BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative )
 {
     using namespace gravitation;
     using namespace simulation_setup;
@@ -263,7 +283,7 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagat
     body->setGravityFieldVariationSet( variationSet );
     body->setIsBodyInPropagation( true );
 
-    // The variation is installed and inertia is available, but its time derivative is not supplied.
+    // The variation is installed, but its first update has not yet supplied the inertia derivative.
     BOOST_CHECK( body->getGravityFieldVariation( polynomial_variation ).first );
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
     BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
@@ -275,10 +295,10 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagat
 
     gravityField->update( 10.0 );
     const Eigen::Matrix3d variedInertia = body->getBodyInertiaTensor( );
-    // At the later epoch, inertia follows the changed coefficients, while its derivative remains unavailable.
+    // At the later epoch, inertia follows the changed coefficients and its derivative is available.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( variedInertia, getInertiaTensorFromGravityField( gravityField, 0.4 ), 5.0e-15 );
     BOOST_CHECK_GT( ( variedInertia - initialInertia ).norm( ), 0.0 );
-    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
 
     const Eigen::Vector3d angularVelocity = ( Eigen::Vector3d( ) << 1.0e-4, -2.0e-4, 3.0e-4 ).finished( );
     Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
@@ -286,8 +306,30 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagat
     rotationalState.tail( 3 ) = angularVelocity;
     body->setCurrentRotationalStateToLocalFrame( rotationalState );
     const std::shared_ptr< basic_astrodynamics::InertialTorqueModel > inertialTorque = createInertialTorqueModel( body, "TestBody" );
-    // Updating inertial torque must report the missing inertia derivative instead of assuming it is zero.
-    BOOST_CHECK_THROW( inertialTorque->updateMembers( 10.0 ), std::runtime_error );
+    for( const double time : { 0.0, 10.0, 40.0 } )
+    {
+        const double step = 1.0;
+        gravityField->update( time - step );
+        const Eigen::Matrix3d previousInertia = body->getBodyInertiaTensor( );
+        gravityField->update( time + step );
+        const Eigen::Matrix3d nextInertia = body->getBodyInertiaTensor( );
+        const Eigen::Matrix3d numericalDerivative = ( nextInertia - previousInertia ) / ( 2.0 * step );
+        gravityField->update( time );
+        const Eigen::Matrix3d inertiaDerivative = body->getBodyInertiaTensorDerivative( );
+
+        // All five varying degree-two coefficients must produce the derivative of the actual tensor,
+        // including its diagonal and off-diagonal entries and their normalization factors.
+        BOOST_REQUIRE_GT( inertiaDerivative.norm( ), 0.0 );
+        BOOST_CHECK_SMALL( ( inertiaDerivative - numericalDerivative ).norm( ) / inertiaDerivative.norm( ), 1.0e-9 );
+
+        inertialTorque->updateMembers( time );
+        const Eigen::Vector3d derivativeTorque =
+                inertialTorque->getTorque( ) + angularVelocity.cross( body->getBodyInertiaTensor( ) * angularVelocity );
+        const Eigen::Vector3d expectedDerivativeTorque = -inertiaDerivative * angularVelocity;
+        // Removing the gyroscopic term leaves exactly the nonzero inertia-derivative torque.
+        BOOST_REQUIRE_GT( expectedDerivativeTorque.norm( ), 0.0 );
+        BOOST_CHECK_SMALL( ( derivativeTorque - expectedDerivativeTorque ).norm( ) / expectedDerivativeTorque.norm( ), 1.0e-13 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

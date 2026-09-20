@@ -19,6 +19,7 @@
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
 #include "tudat/astro/gravitation/ringGravityField.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/math/basic/legendrePolynomials.h"
 
 namespace tudat
 {
@@ -328,11 +329,16 @@ void FromGravityFieldRigidBodyProperties::updateInertiaTensorDerivative( const E
                 "Error when updating inertia tensor derivative: gravity field does not provide degree-two inertia data." );
     }
 
-    currentDerivativeInertiaTensor_ = gravitation::getInertiaTensor( derivativeDegreeTwoCoefficients[ 0 ],
-                                                                     derivativeDegreeTwoCoefficients[ 1 ],
-                                                                     derivativeDegreeTwoCoefficients[ 2 ],
-                                                                     derivativeDegreeTwoCoefficients[ 3 ],
-                                                                     derivativeDegreeTwoCoefficients[ 4 ],
+    // Coefficient rates use the same geodesy normalization as the gravity coefficients.
+    // The inertia conversion requires unnormalized values; these factors are constant.
+    static const double normalization20 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    static const double normalization21 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    static const double normalization22 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    currentDerivativeInertiaTensor_ = gravitation::getInertiaTensor( derivativeDegreeTwoCoefficients[ 0 ] * normalization20,
+                                                                     derivativeDegreeTwoCoefficients[ 1 ] * normalization21,
+                                                                     derivativeDegreeTwoCoefficients[ 2 ] * normalization22,
+                                                                     derivativeDegreeTwoCoefficients[ 3 ] * normalization21,
+                                                                     derivativeDegreeTwoCoefficients[ 4 ] * normalization22,
                                                                      0.0,
                                                                      currentMass_,
                                                                      sphericalHarmonicsGravityField->getReferenceRadius( ) );
