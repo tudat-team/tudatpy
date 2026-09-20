@@ -1243,6 +1243,12 @@ EstimatableParameterSettings
  Using the mean moment of inertia as estimatable parameter requires:
 
  * The estimation of an initial rotational state of the body specified by the ``body`` parameter
+ * Gravity-derived rigid-body properties for that body, configured with
+   :func:`~tudatpy.dynamics.environment_setup.rigid_body.from_gravity_field`,
+   a spherical-harmonic gravity field including degree two, and a finite scaled mean moment of inertia.
+
+ The estimated value is the scaled mean moment :math:`(I_{xx}+I_{yy}+I_{zz})/(3MR^2)`.
+ Explicitly prescribed inertia tensors cannot be used with this parameter.
 
 
  Parameters

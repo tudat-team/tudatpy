@@ -108,6 +108,14 @@ public:
         {
             throw std::runtime_error( "Error when creating inertial torque: rigid-body properties are missing." );
         }
+        if( !rigidBodyProperties_->isInertiaTensorAvailable( ) )
+        {
+            throw std::runtime_error( "Error when creating inertial torque: inertia tensor is not available." );
+        }
+        if( !rigidBodyProperties_->isInertiaTensorDerivativeAvailable( ) )
+        {
+            throw std::runtime_error( "Error when creating inertial torque: inertia tensor derivative is not available." );
+        }
     }
 
     //! Destructor
@@ -118,7 +126,7 @@ public:
      * Returns the inertial torque.
      * \return Inertial torque.
      */
-    Eigen::Vector3d getTorque( )
+    Eigen::Vector3d getTorque( ) override
     {
         return currentTorque_;
     }
@@ -135,10 +143,6 @@ public:
     {
         if( !( currentTime == currentTime_ ) )
         {
-            if( !rigidBodyProperties_->isInertiaTensorDerivativeAvailable( ) )
-            {
-                throw std::runtime_error( "Error when updating inertial torque: inertia tensor derivative is not available." );
-            }
             const Eigen::Vector3d angularVelocity = angularVelocityFunction_( );
             const Eigen::Matrix3d inertiaTensor = rigidBodyProperties_->getCurrentInertiaTensor( );
             currentTorque_ = -angularVelocity.cross( inertiaTensor * angularVelocity ) -

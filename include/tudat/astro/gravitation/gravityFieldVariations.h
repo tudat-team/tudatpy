@@ -175,7 +175,7 @@ public:
      */
     virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time );
 
-    //! Add this model's coefficient rates to its degree/order block.
+    //! Add the portion of this model's coefficient rates inside the supplied matrices.
     void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
                                                          Eigen::MatrixXd& sineCoefficientDerivatives,
                                                          Eigen::MatrixXd& cosineCoefficientDerivatives );
@@ -409,7 +409,8 @@ public:
 
     //! Add all model coefficient rates to the supplied matrices.
     /*!
-     * The matrices have the same dimensions as those used to accumulate coefficient corrections.
+     * The matrices may contain only the low-degree coefficients needed by a caller. Each
+     * variation is evaluated and the overlapping part of its rate block is added.
      */
     void addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
                                                          Eigen::MatrixXd& sineCoefficientDerivatives,

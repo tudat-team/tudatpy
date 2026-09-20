@@ -76,7 +76,7 @@ public:
      *  block positions in total matrices defined by
      *  minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_;
      */
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override;
 
     //! Return the interval slope for linear interpolation; other types use the base warning and zero rates.
     /*!

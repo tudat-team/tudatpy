@@ -241,7 +241,8 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
                         deformingBodies,
                         basicSolidBodyGravityVariationSettings->getMeanForcingCosineTerms( ),
-                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ) );
+                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ),
+                        deformedBodyRotationDerivativeFunction );
             }
             else if( gravityFieldVariationSettings->getBodyDeformationType( ) == mode_coupled_solid_body )
             {
@@ -255,11 +256,9 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         modeCoupledSolidBodyGravityVariationSettings->getLoveNumbers( ),
-                        deformingBodies );
+                        deformingBodies,
+                        deformedBodyRotationDerivativeFunction );
             }
-
-            std::static_pointer_cast< SolidBodyTideGravityFieldVariations >( gravityFieldVariationModel )
-                    ->resetRotationDerivativeFunction( deformedBodyRotationDerivativeFunction );
             break;
         }
         case tabulated_variation: {

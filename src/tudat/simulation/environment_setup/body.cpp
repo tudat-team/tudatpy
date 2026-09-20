@@ -291,7 +291,11 @@ void Body::setGravityFieldModel( const std::shared_ptr< gravitation::GravityFiel
 {
     const std::shared_ptr< FromGravityFieldRigidBodyProperties > gravityLinkedRigidBodyProperties =
             std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( massProperties_ );
-    if( gravityFieldModel == nullptr && ( massProperties_ == nullptr || gravityLinkedRigidBodyProperties != nullptr ) )
+    if( gravityFieldModel == nullptr && massProperties_ == nullptr )
+    {
+        throw std::runtime_error( "Error when setting gravity field: both the gravity field and rigid-body properties are absent." );
+    }
+    if( gravityFieldModel == nullptr && gravityLinkedRigidBodyProperties != nullptr )
     {
         throw std::runtime_error( "Error when setting a null gravity field on a body with gravity-derived rigid-body properties." );
     }

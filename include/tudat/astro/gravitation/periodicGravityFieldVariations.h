@@ -35,7 +35,7 @@ public:
 
     virtual ~PeriodicGravityFieldVariations( ) {}
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) override;
 
     //! Differentiate the sine and cosine time dependence at each frequency.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;

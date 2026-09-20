@@ -34,8 +34,8 @@ void TimeDependentSphericalHarmonicsGravityField::updateInertiaTensorDerivative(
         return;
     }
 
-    Eigen::MatrixXd sineCoefficientDerivatives = Eigen::MatrixXd::Zero( sineCoefficients_.rows( ), sineCoefficients_.cols( ) );
-    Eigen::MatrixXd cosineCoefficientDerivatives = Eigen::MatrixXd::Zero( cosineCoefficients_.rows( ), cosineCoefficients_.cols( ) );
+    Eigen::MatrixXd sineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::MatrixXd cosineCoefficientDerivatives = Eigen::MatrixXd::Zero( 3, 3 );
     if( gravityFieldVariationsSet_ != nullptr )
     {
         gravityFieldVariationsSet_->addSphericalHarmonicsCorrectionTimeDerivatives(

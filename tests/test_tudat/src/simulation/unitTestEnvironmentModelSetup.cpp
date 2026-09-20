@@ -656,6 +656,10 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
         runtimeGravityField->resetGravitationalParameter( 2.0 * gravitationalParameter );
         const Eigen::Matrix3d expectedUpdatedInertiaTensor = 2.0 * expectedInertiaTensor;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUpdatedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 10.0 );
+        // Resynchronization preserves the mass-scaled tensor; fixed geometry still has zero dI/dt.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUpdatedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor( ), 1e-15 );
+        BOOST_CHECK_SMALL( bodies.getBody( "Phobos" )->getBodyInertiaTensorDerivative( ).norm( ), 1e-30 );
     }
 }
 

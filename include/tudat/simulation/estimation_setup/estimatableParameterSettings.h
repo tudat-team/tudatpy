@@ -1573,6 +1573,8 @@ inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor
     return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
 }
 
+//! Estimate (Ixx + Iyy + Izz)/(3 M R^2). Requires gravity-derived rigid-body properties,
+//! degree-two spherical-harmonic gravity data, and an estimated rotational state for this body.
 inline std::shared_ptr< EstimatableParameterSettings > meanMomentOfInertia( const std::string& body )
 {
     return std::make_shared< EstimatableParameterSettings >( body, mean_moment_of_inertia );

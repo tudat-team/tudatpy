@@ -34,6 +34,7 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
@@ -235,6 +236,48 @@ SystemOfBodies getIoJupiterDegreeOnlyTorqueTestBodyMap( const double initialEpoc
 }
 
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
+
+// Manually update a Body at one rotational state, then check both frames, matrix rates and
+// angular velocities against each other and a small finite rotation, without any propagation.
+BOOST_AUTO_TEST_CASE( testBodyRotationalStateConsistency )
+{
+    Body body;
+    const Eigen::Quaterniond orientation( Eigen::AngleAxisd( 0.4, Eigen::Vector3d( 1.0, 2.0, -1.0 ).normalized( ) ) );
+    const Eigen::Vector3d omegaBody( 1.0e-4, -2.0e-4, 3.0e-4 );
+    Eigen::Vector7d state;
+    state.head< 4 >( ) = linear_algebra::convertQuaternionToVectorFormat( orientation );
+    state.tail< 3 >( ) = omegaBody;
+    body.setCurrentRotationalStateToLocalFrame( state );
+    const Eigen::Matrix3d rotation = body.getCurrentRotationToGlobalFrame( ).toRotationMatrix( );
+    const Eigen::Matrix3d inverseRotation = body.getCurrentRotationToLocalFrame( ).toRotationMatrix( );
+    const Eigen::Matrix3d rotationRate = body.getCurrentRotationMatrixDerivativeToGlobalFrame( );
+    const Eigen::Matrix3d inverseRotationRate = body.getCurrentRotationMatrixDerivativeToLocalFrame( );
+
+    // The stored rotations are inverses, their rates are transposes, and omega transforms as a vector.
+    BOOST_CHECK_SMALL( ( rotation - orientation.toRotationMatrix( ) ).norm( ), 1.0e-15 );
+    BOOST_CHECK_SMALL( ( inverseRotation * rotation - Eigen::Matrix3d::Identity( ) ).norm( ), 1.0e-15 );
+    BOOST_CHECK_SMALL( ( inverseRotationRate - rotationRate.transpose( ) ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInLocalFrame( ) - omegaBody ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( body.getCurrentAngularVelocityVectorInGlobalFrame( ) - rotation * omegaBody ).norm( ), 1.0e-18 );
+    // Matrix-rate products recover the angular velocities with the appropriate frame and sign.
+    BOOST_CHECK_SMALL( ( inverseRotationRate * rotation + linear_algebra::getCrossProductMatrix( omegaBody ) ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( rotationRate * inverseRotation -
+                         linear_algebra::getCrossProductMatrix( body.getCurrentAngularVelocityVectorInGlobalFrame( ) ) )
+                               .norm( ),
+                       1.0e-18 );
+
+    const double step = 0.1;
+    const Eigen::Quaterniond increment( Eigen::AngleAxisd( omegaBody.norm( ) * step, omegaBody.normalized( ) ) );
+    const Eigen::Matrix3d numericalRate =
+            ( ( orientation * increment ).toRotationMatrix( ) - ( orientation * increment.inverse( ) ).toRotationMatrix( ) ) /
+            ( 2.0 * step );
+    // A physical positive rotation independently fixes the derivative sign; the constant-state
+    // ephemeris must return the same instantaneous derivative for the same supplied state.
+    BOOST_CHECK_SMALL( ( rotationRate - numericalRate ).norm( ), 1.0e-12 );
+    ConstantRotationalEphemeris constantRotation( state );
+    BOOST_CHECK_SMALL( ( constantRotation.getDerivativeOfRotationToTargetFrame( 0.0 ) - inverseRotationRate ).norm( ), 1.0e-18 );
+    BOOST_CHECK_SMALL( ( constantRotation.getRotationalVelocityVectorInTargetFrame( 0.0 ) - omegaBody ).norm( ), 1.0e-18 );
+}
 
 //! Function to test torque-free propagation with initial rotation around one of its principal axes
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
@@ -1208,13 +1251,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedTorque, secondDegreeTorque, ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         Eigen::Vector3d inertialTorque = totalTorque - secondDegreeTorque;
-        Eigen::Vector3d computedInertialTorque =
+        const Eigen::Vector3d computedInertialTorque =
                 -angularVelocity.cross( inertiaTensor * angularVelocity ) - inertiaDerivative * angularVelocity;
-
         // The directly saved inertial torque is included in total torque exactly once.
         // Scale the subtraction check by the original torques to allow roundoff in cancelling components.
         BOOST_CHECK_SMALL( ( inertialTorque - savedInertialTorque ).norm( ) / ( totalTorque.norm( ) + secondDegreeTorque.norm( ) ),
                            1.0e-13 );
+        // The saved torque independently satisfies the rotational equation with the current inertia and its rate.
         BOOST_CHECK_SMALL( ( savedInertialTorque - computedInertialTorque ).norm( ) / computedInertialTorque.norm( ), 1.0e-13 );
 
         const Eigen::Vector3d derivativeTorque = savedInertialTorque + angularVelocity.cross( inertiaTensor * angularVelocity );

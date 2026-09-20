@@ -127,31 +127,25 @@ Eigen::Matrix3d getInertiaTensor( const Eigen::MatrixXd& unnormalizedCosineCoeff
 Eigen::Matrix3d getInertiaTensorFromGravityField( const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
                                                   const double scaledMeanMomentOfInertia )
 {
-    // Denormalize coefficients if needed, and compute inertia tensor
-    if( sphericalHarmonicGravityField->areCoefficientsGeodesyNormalized( ) )
-    {
-        Eigen::MatrixXd normalizedCosineCoefficients = Eigen::Matrix3d::Zero( );
-        Eigen::MatrixXd normalizedSineCoefficient = Eigen::Matrix3d::Zero( );
-        basic_mathematics::convertGeodesyNormalizedToUnnormalizedCoefficients(
-                sphericalHarmonicGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 ),
-                sphericalHarmonicGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 ),
-                normalizedCosineCoefficients,
-                normalizedSineCoefficient );
-
-        return getInertiaTensor( normalizedCosineCoefficients,
-                                 normalizedSineCoefficient,
-                                 scaledMeanMomentOfInertia,
-                                 sphericalHarmonicGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
-                                 sphericalHarmonicGravityField->getReferenceRadius( ) );
-    }
-    else
-    {
-        return getInertiaTensor( sphericalHarmonicGravityField->getCosineCoefficients( ),
-                                 sphericalHarmonicGravityField->getSineCoefficients( ),
-                                 scaledMeanMomentOfInertia,
-                                 sphericalHarmonicGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
-                                 sphericalHarmonicGravityField->getReferenceRadius( ) );
-    }
+    // Read the five required entries directly. Neither the full matrices nor coefficient blocks
+    // are materialized; passing an Eigen block to a MatrixXd parameter would create a temporary.
+    const Eigen::MatrixXd& cosineCoefficients = sphericalHarmonicGravityField->getCosineCoefficientsReference( );
+    const Eigen::MatrixXd& sineCoefficients = sphericalHarmonicGravityField->getSineCoefficientsReference( );
+    static const double normalization20 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    static const double normalization21 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+    static const double normalization22 = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    const bool normalized = sphericalHarmonicGravityField->areCoefficientsGeodesyNormalized( );
+    const double scale20 = normalized ? normalization20 : 1.0;
+    const double scale21 = normalized ? normalization21 : 1.0;
+    const double scale22 = normalized ? normalization22 : 1.0;
+    return getInertiaTensor( cosineCoefficients( 2, 0 ) * scale20,
+                             cosineCoefficients( 2, 1 ) * scale21,
+                             cosineCoefficients( 2, 2 ) * scale22,
+                             sineCoefficients( 2, 1 ) * scale21,
+                             sineCoefficients( 2, 2 ) * scale22,
+                             scaledMeanMomentOfInertia,
+                             sphericalHarmonicGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
+                             sphericalHarmonicGravityField->getReferenceRadius( ) );
 }
 
 //! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters

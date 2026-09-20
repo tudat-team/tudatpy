@@ -205,9 +205,8 @@ void SolidBodyTideGravityFieldVariations::initializeTimeDerivative( const int ma
     }
 }
 
-void SolidBodyTideGravityFieldVariations::updateTidalForcingTimeDerivatives( const Eigen::Vector3d& position,
-                                                                             const Eigen::Vector3d& velocity,
-                                                                             const double massRatio )
+template< bool computeTimeDerivative >
+void SolidBodyTideGravityFieldVariations::updateTidalForcing( const Eigen::Vector3d& position, const Eigen::Vector3d& velocity )
 {
     const double inverseDistanceSquared = 1.0 / position.squaredNorm( );
     const double relativeRadialRate = position.dot( velocity ) * inverseDistanceSquared;
@@ -225,25 +224,37 @@ void SolidBodyTideGravityFieldVariations::updateTidalForcingTimeDerivatives( con
     // These are the normalized cosine/sine forcing terms, including mass ratio and 1 / (2n + 1).
     // The Cartesian recurrence and its product-rule derivative also remain regular at the poles.
     tidalForcing_( 0, 0 ) = massRatio * radiusRatio;
-    tidalForcingRates_( 0, 0 ) = -relativeRadialRate * tidalForcing_( 0, 0 );
+    if constexpr( computeTimeDerivative )
+    {
+        tidalForcingRates_( 0, 0 ) = -relativeRadialRate * tidalForcing_( 0, 0 );
+    }
     for( int m = 1; m <= maximumForcingOrder_; ++m )
     {
         const double factor = firstRecurrenceFactors_( m, m );
         tidalForcing_( m, m ) = factor * xy * tidalForcing_( m - 1, m - 1 );
-        tidalForcingRates_( m, m ) = factor * ( xyRate * tidalForcing_( m - 1, m - 1 ) + xy * tidalForcingRates_( m - 1, m - 1 ) );
+        if constexpr( computeTimeDerivative )
+        {
+            tidalForcingRates_( m, m ) = factor * ( xyRate * tidalForcing_( m - 1, m - 1 ) + xy * tidalForcingRates_( m - 1, m - 1 ) );
+        }
     }
     for( int m = 0; m <= maximumForcingOrder_ && m < maximumForcingDegree_; ++m )
     {
         const double factor = firstRecurrenceFactors_( m + 1, m );
         tidalForcing_( m + 1, m ) = factor * z * tidalForcing_( m, m );
-        tidalForcingRates_( m + 1, m ) = factor * ( zRate * tidalForcing_( m, m ) + z * tidalForcingRates_( m, m ) );
+        if constexpr( computeTimeDerivative )
+        {
+            tidalForcingRates_( m + 1, m ) = factor * ( zRate * tidalForcing_( m, m ) + z * tidalForcingRates_( m, m ) );
+        }
         for( int n = m + 2; n <= maximumForcingDegree_; ++n )
         {
             const double a = firstRecurrenceFactors_( n, m );
             const double b = secondRecurrenceFactors_( n, m );
             tidalForcing_( n, m ) = a * z * tidalForcing_( n - 1, m ) - b * radiusRatioSquared * tidalForcing_( n - 2, m );
-            tidalForcingRates_( n, m ) = a * ( zRate * tidalForcing_( n - 1, m ) + z * tidalForcingRates_( n - 1, m ) ) -
-                    b * ( radiusRatioSquaredRate * tidalForcing_( n - 2, m ) + radiusRatioSquared * tidalForcingRates_( n - 2, m ) );
+            if constexpr( computeTimeDerivative )
+            {
+                tidalForcingRates_( n, m ) = a * ( zRate * tidalForcing_( n - 1, m ) + z * tidalForcingRates_( n - 1, m ) ) -
+                        b * ( radiusRatioSquaredRate * tidalForcing_( n - 2, m ) + radiusRatioSquared * tidalForcingRates_( n - 2, m ) );
+            }
         }
     }
 }
@@ -258,17 +269,14 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
 
     Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
-    const Eigen::Vector6d deformedState = deformedBodyStateFunction_( time );
-    const Eigen::Matrix3d rotation = deformedBodyOrientationFunction_( time ).toRotationMatrix( );
     const Eigen::Matrix3d rotationRate = rotationDerivativeFunction_( time );
-    const double inverseDeformedMass = 1.0 / deformedBodyMass_( );
 
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); ++i )
     {
-        const Eigen::Vector6d relativeState = deformingBodyStateFunctions_[ i ]( time ) - deformedState;
-        updateTidalForcingTimeDerivatives( rotation * relativeState.head< 3 >( ),
-                                           rotation * relativeState.tail< 3 >( ) + rotationRate * relativeState.head< 3 >( ),
-                                           deformingBodyMasses_[ i ]( ) * inverseDeformedMass );
+        setBodyGeometryParameters( i, time );
+        const Eigen::Vector3d relativeBodyFixedVelocity = toDeformedBodyFrameRotation * relativeDeformingBodyState_.tail< 3 >( ) +
+                rotationRate * relativeDeformingBodyState_.head< 3 >( );
+        updateTidalForcing< true >( relativeDeformingBodyFixedPosition_, relativeBodyFixedVelocity );
         addTidalCorrectionTimeDerivatives( cosineRates, sineRates );
     }
     return std::make_pair( cosineRates, sineRates );
@@ -318,15 +326,21 @@ void SolidBodyTideGravityFieldVariations::setBodyGeometryParameters( const int b
     // Calculate current state and orientation of deformed body.
     if( bodyIndex == 0 )
     {
-        deformedBodyPosition = std::move( deformedBodyStateFunction_( evaluationTime ) ).segment( 0, 3 );
+        const Eigen::Vector6d deformedBodyState = deformedBodyStateFunction_( evaluationTime );
+        deformedBodyPosition = deformedBodyState.head< 3 >( );
+        deformedBodyVelocity_ = deformedBodyState.tail< 3 >( );
         toDeformedBodyFrameRotation = deformedBodyOrientationFunction_( evaluationTime );
+        inverseDeformedBodyMass_ = 1.0 / deformedBodyMass_( );
     }
 
     // Calculate current state of body causing deformation.
-    Eigen::Vector3d relativeDeformingBodyPosition = toDeformedBodyFrameRotation *
-            ( std::move( deformingBodyStateFunctions_[ bodyIndex ]( evaluationTime ) ).segment( 0, 3 ) - deformedBodyPosition );
+    relativeDeformingBodyState_ = deformingBodyStateFunctions_[ bodyIndex ]( evaluationTime );
+    relativeDeformingBodyState_.head< 3 >( ) -= deformedBodyPosition;
+    relativeDeformingBodyState_.tail< 3 >( ) -= deformedBodyVelocity_;
+    relativeDeformingBodyFixedPosition_ = toDeformedBodyFrameRotation * relativeDeformingBodyState_.head< 3 >( );
     Eigen::Vector3d relativeDeformingBodySphericalPosition =
-            coordinate_conversions::convertCartesianToSpherical( relativeDeformingBodyPosition );
+            coordinate_conversions::convertCartesianToSpherical( relativeDeformingBodyFixedPosition_ );
+    massRatio = deformingBodyMasses_[ bodyIndex ]( ) * inverseDeformedBodyMass_;
 
     // Set geometric parameters of body causing deformation.
     radiusRatio = deformedBodyReferenceRadius_ / relativeDeformingBodySphericalPosition.x( );
@@ -347,8 +361,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariation
     {
         setBodyGeometryParameters( i, time );
 
-        // Calculate properties of currently considered body
-        massRatio = deformingBodyMasses_[ i ]( ) / deformedBodyMass_( );
+        updateTidalForcing< false >( relativeDeformingBodyFixedPosition_, Eigen::Vector3d::Zero( ) );
 
         // Calculate all correction functions.
         for( unsigned int j = 0; j < correctionFunctions.size( ); j++ )
@@ -372,26 +385,17 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         unsigned int n = static_cast< unsigned int >( loveNumberIt.first );
-        radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
+        const auto& meanCosine = meanForcingCosineTerms_.at( n );
+        const auto& meanSine = meanForcingSineTerms_.at( n );
 
         for( unsigned int m = 0; ( m <= n && m < loveNumberIt.second.size( ) ); m++ )
         {
-            updateTidalAmplitudeAndArgument( n, m );
-
-            // Calculate and add coefficients.
+            // Values and rates use the same normalized forcing recurrence.
             stokesCoefficientCorrection =
-                    calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude( loveNumbers_[ n ][ m ],
-                                                                                       massRatio,
-                                                                                       radiusRatioPower,
-                                                                                       tideAmplitude,
-                                                                                       tideArgument,
-                                                                                       n,
-                                                                                       m,
-                                                                                       meanForcingCosineTerms_[ n ][ m ],
-                                                                                       meanForcingSineTerms_[ n ][ m ] );
+                    loveNumberIt.second[ m ] * ( tidalForcing_( n, m ) - std::complex< double >( meanCosine[ m ], -meanSine[ m ] ) );
 
             currentCosineCorrections_( n - 2, m ) += stokesCoefficientCorrection.real( );
             if( m != 0 )
@@ -405,8 +409,21 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
     sTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 ) += currentSineCorrections_;
 }
 
+int getBasicTideMaximumDegree( const std::map< int, std::vector< std::complex< double > > >& loveNumbers )
+{
+    if( loveNumbers.empty( ) )
+    {
+        throw std::runtime_error( "Error creating basic tidal variation: Love numbers are empty." );
+    }
+    return loveNumbers.rbegin( )->first;
+}
+
 int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
 {
+    if( loveNumbers.empty( ) )
+    {
+        throw std::runtime_error( "Error creating mode-coupled tidal variation: Love numbers are empty." );
+    }
     int maximumDegree = 0;
     for( auto it : loveNumbers )
     {
@@ -449,24 +466,17 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrec
     //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
-    for( auto loveNumberIt : loveNumbers_ )
+    for( const auto& loveNumberIt : loveNumbers_ )
     {
         // Retrieve forcing degree/order
         std::pair< int, int > forcingDegreeOrder = loveNumberIt.first;
         int n = forcingDegreeOrder.first;
         int m = forcingDegreeOrder.second;
 
-        // Compute forcing quantities
-        radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
-        updateTidalAmplitudeAndArgument( n, m );
-
-        // Compute response for unity Love umber
-        std::complex< double > unityLoveNumberStokesCoefficientCorrection =
-                calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                        std::complex< double >( 1.0, 0.0 ), massRatio, radiusRatioPower, tideAmplitude, tideArgument, n, m );
+        const std::complex< double > unityLoveNumberStokesCoefficientCorrection = tidalForcing_( n, m );
 
         // Compute response at required degrees/orders with required love numbers
-        for( auto responseIt : loveNumberIt.second )
+        for( const auto& responseIt : loveNumberIt.second )
         {
             int nResponse = responseIt.first.first;
             int mResponse = responseIt.first.second;

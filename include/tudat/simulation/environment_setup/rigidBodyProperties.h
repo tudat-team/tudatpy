@@ -218,6 +218,11 @@ protected:
     double scaledMeanMomentOfInertia_;
 
     bool modelIsTimeDependent_;
+
+    //! Fixed polyhedron geometry, scaled by the current mass during synchronization.
+    Eigen::Matrix3d polyhedronInertiaTensorPerUnitMass_;
+
+    bool hasWarnedUnrecognizedGravityField_ = false;
 };
 
 }  // namespace simulation_setup

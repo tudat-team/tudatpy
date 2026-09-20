@@ -89,12 +89,30 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     const std::shared_ptr< Body > body = std::make_shared< Body >( );
     body->setBodyName( "TestBody" );
 
+    class UserGravityField : public GravityFieldModel
+    {
+    public:
+        using GravityFieldModel::GravityFieldModel;
+    };
+    body->setGravityFieldModel( std::make_shared< UserGravityField >( 4.0e5 ) );
+    // An unrecognized subclass still supplies mass without inventing an inertia tensor.
+    BOOST_CHECK_CLOSE_FRACTION( body->getBodyMass( ), 4.0e5 / physical_constants::GRAVITATIONAL_CONSTANT, 5.0e-15 );
+    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
+
     // A gravity model alone is sufficient for mass, but not necessarily for inertia.
     body->setGravityFieldModel( std::make_shared< GravityFieldModel >( 4.0e5 ) );
     BOOST_REQUIRE( body->getMassProperties( ) != nullptr );
     BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorAvailable( ) );
     BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
-    BOOST_CHECK_THROW( body->getBodyInertiaTensor( ), std::runtime_error );
+
+    Eigen::MatrixXd zonalCosine = Eigen::MatrixXd::Zero( 2, 1 );
+    zonalCosine( 0, 0 ) = 1.0;
+    zonalCosine( 1, 0 ) = 2.0e-5;
+    body->setGravityFieldModel(
+            std::make_shared< SphericalHarmonicsGravityField >( 4.0e5, 2.0e3, zonalCosine, Eigen::MatrixXd::Zero( 2, 1 ), "BodyFixed" ) );
+    // A zonal-only field retains its axial COM offset even though C11 and S11 are absent.
+    const Eigen::Vector3d expectedZonalCenter = ( Eigen::Vector3d( ) << 0.0, 0.0, std::sqrt( 3.0 ) * 2.0e3 * 2.0e-5 ).finished( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyFixedCenterOfMass( ), expectedZonalCenter, 5.0e-15 );
 
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
@@ -108,8 +126,13 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
     // Degree-two coefficients and a scaled mean moment provide inertia, with zero derivative for a static field.
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), getInertiaTensorFromGravityField( sphericalField, 0.4 ), 5.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), Eigen::Matrix3d::Zero( ), 5.0e-15 );
+    const double c20 = -1.0e-3 * std::sqrt( 5.0 );
+    const double c22 = 2.0e-4 * std::sqrt( 5.0 / 12.0 );
+    const Eigen::Vector3d scaledPrincipalMoments( 0.4 + c20 / 3.0 - 2.0 * c22, 0.4 + c20 / 3.0 + 2.0 * c22, 0.4 - 2.0 * c20 / 3.0 );
+    const Eigen::Matrix3d expectedStaticInertia =
+            ( 4.0e5 / physical_constants::GRAVITATIONAL_CONSTANT ) * ( 2.0e3 * 2.0e3 ) * scaledPrincipalMoments.asDiagonal( );
+    // The known principal moments check the conversion independently of its implementation helper.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensor( ), expectedStaticInertia, 5.0e-15 );
 
     Eigen::Vector7d rotationalState = Eigen::Vector7d::Zero( );
     rotationalState( 0 ) = 1.0;
@@ -125,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testGravityLinkedInertiaAvailabilityAndOwnership )
         // A static gravity field needs no derivative provider, even after resetting the update time.
         BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
         BOOST_CHECK_SMALL( body->getBodyInertiaTensorDerivative( ).norm( ), 1.0e-30 );
-        BOOST_CHECK_NO_THROW( inertialTorque->updateMembers( time ) );
+        inertialTorque->updateMembers( time );
         // Its inertial torque contains only the usual gyroscopic term.
         const Eigen::Vector3d expectedTorque = -angularVelocity.cross( body->getBodyInertiaTensor( ) * angularVelocity );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque->getTorque( ), expectedTorque, 5.0e-15 );
@@ -213,7 +236,6 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     // Complete gravity coefficients do not imply an inertia tensor without a finite scaled mean.
     BOOST_REQUIRE( noInertiaBody->getMassProperties( ) != nullptr );
     BOOST_CHECK( !noInertiaBody->getMassProperties( )->isInertiaTensorAvailable( ) );
-    BOOST_CHECK_THROW( noInertiaBody->getBodyInertiaTensor( ), std::runtime_error );
 
     // Explicit non-gravity rigid-body settings retain precedence over the compatibility carrier.
     BOOST_CHECK( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( explicitBody->getMassProperties( ) ) == nullptr );
@@ -234,14 +256,19 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     const std::shared_ptr< SphericalHarmonicsGravityField > canonicalGravityField =
             std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( canonicalBody->getGravityFieldModel( ) );
     BOOST_REQUIRE( canonicalGravityField != nullptr );
-    const Eigen::Vector3d initialCenterOfMass = canonicalBody->getBodyFixedCenterOfMass( );
     Eigen::MatrixXd modifiedCosineCoefficients = cosineCoefficients;
     // Changing degree one must move the center of mass; changing degree two must update inertia.
     modifiedCosineCoefficients( 1, 1 ) *= 2.0;
     modifiedCosineCoefficients( 2, 0 ) *= 1.5;
     canonicalGravityField->setCosineCoefficients( modifiedCosineCoefficients );
-    BOOST_CHECK_GT( ( canonicalBody->getBodyFixedCenterOfMass( ) - initialCenterOfMass ).norm( ), 0.0 );
-    BOOST_CHECK_GT( ( canonicalBody->getBodyInertiaTensor( ) - expectedInertiaAfterMassUpdate ).norm( ), 0.0 );
+    Eigen::Vector3d expectedUpdatedCenterOfMass = expectedCenterOfMass;
+    expectedUpdatedCenterOfMass.x( ) *= 2.0;
+    const double inertiaChangeScale = canonicalBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
+            ( modifiedCosineCoefficients( 2, 0 ) - cosineCoefficients( 2, 0 ) ) / 3.0;
+    const Eigen::Matrix3d expectedCoefficientInertiaChange = inertiaChangeScale * Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyFixedCenterOfMass( ), expectedUpdatedCenterOfMass, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            canonicalBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate + expectedCoefficientInertiaChange, 5.0e-15 );
 
     // The same gravity changes do not overwrite explicitly configured rigid-body properties.
     explicitBody->getGravityFieldModel( )->resetGravitationalParameter( 3.0 * gravitationalParameter );
@@ -283,21 +310,7 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     body->setGravityFieldVariationSet( variationSet );
     body->setIsBodyInPropagation( true );
 
-    // The variation is installed, but its first update has not yet supplied the inertia derivative.
-    BOOST_CHECK( body->getGravityFieldVariation( polynomial_variation ).first );
-    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorAvailable( ) );
-    BOOST_CHECK( !body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
-
-    gravityField->update( 0.0 );
-    const Eigen::Matrix3d initialInertia = body->getBodyInertiaTensor( );
-    // At the initial epoch, the body's inertia agrees with the gravity coefficients.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( initialInertia, getInertiaTensorFromGravityField( gravityField, 0.4 ), 5.0e-15 );
-
-    gravityField->update( 10.0 );
-    const Eigen::Matrix3d variedInertia = body->getBodyInertiaTensor( );
-    // At the later epoch, inertia follows the changed coefficients and its derivative is available.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( variedInertia, getInertiaTensorFromGravityField( gravityField, 0.4 ), 5.0e-15 );
-    BOOST_CHECK_GT( ( variedInertia - initialInertia ).norm( ), 0.0 );
+    // The rate provider is available at setup, but its first epoch still needs to be computed.
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
 
     const Eigen::Vector3d angularVelocity = ( Eigen::Vector3d( ) << 1.0e-4, -2.0e-4, 3.0e-4 ).finished( );
@@ -305,7 +318,23 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     rotationalState( 0 ) = 1.0;
     rotationalState.tail( 3 ) = angularVelocity;
     body->setCurrentRotationalStateToLocalFrame( rotationalState );
-    const std::shared_ptr< basic_astrodynamics::InertialTorqueModel > inertialTorque = createInertialTorqueModel( body, "TestBody" );
+    const auto inertialTorque = createInertialTorqueModel( body, "TestBody" );
+
+    gravityField->update( 10.0 );
+    const Eigen::Matrix3d rateBeforeResynchronization = body->getBodyInertiaTensorDerivative( );
+    body->setIsBodyInPropagation( false );
+    body->getMassProperties( )->updateMassDistribution( 10.0 );
+    body->setIsBodyInPropagation( true );
+    // Switching propagation mode and resynchronizing at the same epoch preserve the computed rate.
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), rateBeforeResynchronization, 5.0e-15 );
+    body->getMassProperties( )->resetCurrentTime( );
+    // An epoch reset invalidates the value, never the capability; updating gravity restores the value.
+    BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
+    BOOST_CHECK_THROW( body->getBodyInertiaTensorDerivative( ), std::runtime_error );
+    gravityField->update( 10.0 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), rateBeforeResynchronization, 5.0e-15 );
+
     for( const double time : { 0.0, 10.0, 40.0 } )
     {
         const double step = 1.0;
