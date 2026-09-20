@@ -47,8 +47,9 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
         if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter &&
             parameter->getParameterName( ).second.first == bodyExertingTorque_ )
         {
-            throw std::runtime_error( "Partial derivative of spherical harmonic gravitational torque with respect to the "
-                                      "gravitational parameter of the body exerting torque is not yet implemented." );
+            throw std::runtime_error(
+                    "Partial derivative of spherical harmonic gravitational torque with respect to the "
+                    "gravitational parameter of the body exerting torque is not yet implemented." );
         }
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
                 accelerationPartial_->getParameterPartialFunction( parameter );

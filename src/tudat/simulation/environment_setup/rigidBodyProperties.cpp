@@ -274,6 +274,20 @@ void MassDependentRigidBodyProperties::updateMassDistribution( const double curr
         currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
         isInertiaTensorComputed_ = true;
     }
+
+    if( isDerivativeInertiaTensorAvailable_ && ( !isDerivativeInertiaTensorComputed_ || !isBodyInPropagation_ ) )
+    {
+        currentDerivativeInertiaTensor_ = inertiaTensorDerivativeFunction_( currentTime );
+        isDerivativeInertiaTensorComputed_ = true;
+    }
+}
+
+void MassDependentRigidBodyProperties::setInertiaTensorDerivativeFunction(
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction )
+{
+    inertiaTensorDerivativeFunction_ = inertiaTensorDerivativeFunction;
+    isDerivativeInertiaTensorAvailable_ = ( inertiaTensorDerivativeFunction_ != nullptr );
+    isDerivativeInertiaTensorComputed_ = false;
 }
 
 void MassDependentRigidBodyProperties::setCurrentMass( const double currentMass )

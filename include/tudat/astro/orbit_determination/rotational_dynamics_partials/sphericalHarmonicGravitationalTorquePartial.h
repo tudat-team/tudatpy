@@ -193,7 +193,6 @@ protected:
 
     //! Partial for associated spherical harmonic acceleration
     const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
-
 };
 
 }  // namespace acceleration_partials

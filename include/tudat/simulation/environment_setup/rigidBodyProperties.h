@@ -153,10 +153,15 @@ public:
 
     virtual void setCurrentMass( const double currentMass );
 
+    //! Supply dI/dt as a function of time, including the mass-rate dependence, for rotational dynamics.
+    void setInertiaTensorDerivativeFunction( const std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction );
+
 protected:
     std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
 
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorDerivativeFunction_;
 };
 
 //! Rigid-body properties whose mass distribution is derived from an associated gravity model.
