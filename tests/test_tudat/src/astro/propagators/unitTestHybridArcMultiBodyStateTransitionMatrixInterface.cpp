@@ -643,7 +643,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
     double initialEpoch = 946728000.0;
     double finalEpoch = 1200000000.0;
 
-    int numberArcs = 5;
+    unsigned int numberArcs = 5;
 
     double propagationTimeStep = 1800.0;
     double flybyDuration = 8.0 * 3600.0;
@@ -686,7 +686,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::map< int, std::vector< std::string > > bodiesToPropagatePerArc, centralBodiesPerArc;
         if( testCase == 0 )
         {
-            for( int i = 0; i < numberArcs; i++ )
+            for( unsigned int i = 0; i < numberArcs; i++ )
             {
                 bodiesToPropagatePerArc[ i ] = { "Io", "Europa", "Ganymede", "Callisto", "JUICE" };
                 centralBodiesPerArc[ i ] = { "Jupiter", "Jupiter", "Jupiter", "Jupiter", multiArcCentralBodies.at( i ) };
@@ -713,10 +713,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         // Set accelerations map for the moons.
         std::vector< std::string > moonsToPropagate, centralBodiesForMoons;
         std::map< int, AccelerationMap > multiArcMoonsAccelerationMap;
-        for( int i = 0; i < numberArcs; i++ )
+        for( unsigned int i = 0; i < numberArcs; i++ )
         {
             std::vector< std::string > arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
-            for( int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
+            for( unsigned int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
             {
                 arcWiseMoonsToPropagate.push_back( bodiesToPropagatePerArc.at( i ).at( j ) );
                 arcWiseMoonsCentralBodies.push_back( centralBodiesPerArc.at( i ).at( j ) );
@@ -743,7 +743,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::map< std::string, std::vector< double > > arcStartTimesPerBody;
         std::vector< std::string > listBodiesToPropagate;
 
-        for( int arc = 0; arc < numberArcs; arc++ )
+        for( unsigned int arc = 0; arc < numberArcs; arc++ )
         {
             arcStartTimes.push_back( multiArcStartTimes.at( arc ) );
 
@@ -927,7 +927,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( combinedMatrix, independentlyReconstructedCombinedMatrix, 1.0E-13 );
 
         // Repeat the numerical block reconstruction for every remaining arc, whose propagated-body sets and matrix sizes differ.
-        for( int arc = 1; arc < numberArcs; arc++ )
+        for( unsigned int arc = 1; arc < numberArcs; arc++ )
         {
             const double evaluationTime = ( arcStartTimes.at( arc ) + multiArcEndTimes.at( arc ) ) / 2.0;
             const Eigen::MatrixXd currentHybridMatrix =
@@ -985,7 +985,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullMultiArcVariationalSolution =
                 hybridArcVariationalEquationsSolver.getMultiArcSolver( )->getNumericalVariationalEquationsSolution( );
         BOOST_REQUIRE_EQUAL( singleArcVariationalSolution.size( ), 2 );
-        BOOST_REQUIRE_EQUAL( fullMultiArcVariationalSolution.size( ), static_cast< unsigned int >( numberArcs ) );
+        BOOST_REQUIRE_EQUAL( fullMultiArcVariationalSolution.size( ), numberArcs );
         BOOST_REQUIRE( !singleArcVariationalSolution.at( 0 ).empty( ) );
         BOOST_REQUIRE( !singleArcVariationalSolution.at( 1 ).empty( ) );
         for( const auto& arcSolution : fullMultiArcVariationalSolution )
