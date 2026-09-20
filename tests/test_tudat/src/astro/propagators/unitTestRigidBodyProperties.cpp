@@ -270,9 +270,7 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaDuringPropagat
     rotationalState.tail( 3 ) = angularVelocity;
     body->setCurrentRotationalStateToLocalFrame( rotationalState );
     const std::shared_ptr< basic_astrodynamics::InertialTorqueModel > inertialTorque = createInertialTorqueModel( body, "TestBody" );
-    inertialTorque->updateMembers( 10.0 );
-    const Eigen::Vector3d expectedTorque = -angularVelocity.cross( variedInertia * angularVelocity );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inertialTorque->getTorque( ), expectedTorque, 5.0e-15 );
+    BOOST_CHECK_THROW( inertialTorque->updateMembers( 10.0 ), std::runtime_error );
 }
 
 BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )

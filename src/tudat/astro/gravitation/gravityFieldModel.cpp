@@ -36,11 +36,6 @@ std::shared_ptr< simulation_setup::RigidBodyProperties > GravityFieldModel::getR
     return rigidBodyProperties_.lock( );
 }
 
-void GravityFieldModel::setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction )
-{
-    legacyMassDistributionUpdateFunction_ = updateFunction;
-}
-
 void GravityFieldModel::notifyMassUpdate( )
 {
     const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = rigidBodyProperties_.lock( );
@@ -57,10 +52,7 @@ void GravityFieldModel::notifyMassDistributionUpdate( )
     {
         rigidBodyProperties->synchronizeMassDistributionFromGravityField( );
     }
-    if( legacyMassDistributionUpdateFunction_ )
-    {
-        legacyMassDistributionUpdateFunction_( );
-    }
+    notifyLegacyMassDistributionUpdate( );
 }
 
 //! Set predefined central gravity field settings.
@@ -177,6 +169,20 @@ std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
             throw std::runtime_error( errorMessage );
     }
     return std::make_shared< GravityFieldModel >( gravitationalParameter );
+}
+
+// Deprecated Python constructor compatibility.
+void GravityFieldModel::setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction )
+{
+    legacyMassDistributionUpdateFunction_ = updateFunction;
+}
+
+void GravityFieldModel::notifyLegacyMassDistributionUpdate( )
+{
+    if( legacyMassDistributionUpdateFunction_ )
+    {
+        legacyMassDistributionUpdateFunction_( );
+    }
 }
 
 }  // namespace gravitation

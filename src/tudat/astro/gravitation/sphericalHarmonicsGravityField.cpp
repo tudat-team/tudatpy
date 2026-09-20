@@ -154,31 +154,6 @@ Eigen::Matrix3d getInertiaTensorFromGravityField( const std::shared_ptr< Spheric
     }
 }
 
-//! Function to determine the time derivative of a body's inertia tensor from its degree two unnormalized gravity field coefficients
-Eigen::Matrix3d computeDerivativeInertiaTensor( const double derivativeC20Coefficient,
-                                                const double derivativeC21Coefficient,
-                                                const double derivativeC22Coefficient,
-                                                const double derivativeS21Coefficient,
-                                                const double derivativeS22Coefficient,
-                                                const double bodyMass,
-                                                const double referenceRadius )
-{
-    // Compute inertia tensor
-    double scalingConstant = bodyMass * referenceRadius * referenceRadius;
-    Eigen::Matrix3d derivativeInertiaTensor = ( Eigen::Matrix3d( ) << derivativeC20Coefficient / 3.0 - 2.0 * derivativeC22Coefficient,
-                                                -2.0 * derivativeS22Coefficient,
-                                                -derivativeC21Coefficient,
-                                                -2.0 * derivativeS22Coefficient,
-                                                derivativeC20Coefficient / 3.0 + 2.0 * derivativeC22Coefficient,
-                                                -derivativeS21Coefficient,
-                                                -derivativeC21Coefficient,
-                                                -derivativeS21Coefficient,
-                                                -2.0 * derivativeC20Coefficient / 3.0 )
-                                                      .finished( );
-
-    return scalingConstant * derivativeInertiaTensor;
-}
-
 //! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
 void getDegreeTwoSphericalHarmonicCoefficients( const Eigen::Matrix3d inertiaTensor,
                                                 const double bodyGravitationalParameter,

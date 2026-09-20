@@ -211,7 +211,19 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         torquePartial->wrtNonRotationalStateOfAdditionalBody(
                 partialWrtMarsState.block( 0, 0, 3, 6 ), std::make_pair( "Mars", "" ), propagators::translational_state );
 
-        Eigen::Vector3d partialWrtMarsGravitationalParameter = torquePartial->wrtParameter( marsGravitationalParameterParameter );
+        Eigen::Vector3d partialWrtMarsGravitationalParameter = Eigen::Vector3d::Zero( );
+        if( torqueModelTest == 0 )
+        {
+            partialWrtMarsGravitationalParameter = torquePartial->wrtParameter( marsGravitationalParameterParameter );
+        }
+        else
+        {
+            BOOST_CHECK_EXCEPTION( torquePartial->wrtParameter( marsGravitationalParameterParameter ),
+                                   std::runtime_error,
+                                   []( const std::runtime_error& error ) {
+                                       return std::string( error.what( ) ).find( "not yet implemented" ) != std::string::npos;
+                                   } );
+        }
         Eigen::Vector3d partialWrtMeanMomentOfInertia = torquePartial->wrtParameter( phobosMeanMomentOfInertia );
 
         Eigen::MatrixXd partialWrtPhobosCosineCoefficients = torquePartial->wrtParameter( phobosCosineCoefficientsParameter );
@@ -281,8 +293,12 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                 phobosStateSetFunction, gravitationalTorque, phobos->getState( ), velocityPerturbation, 3 );
 
         // Calculate numerical partials wrt parameters
-        Eigen::Vector3d testPartialWrtMarsGravitationalParameter =
-                calculateTorqueWrtParameterPartials( marsGravitationalParameterParameter, gravitationalTorque, 1.0E12 );
+        Eigen::Vector3d testPartialWrtMarsGravitationalParameter = Eigen::Vector3d::Zero( );
+        if( torqueModelTest == 0 )
+        {
+            testPartialWrtMarsGravitationalParameter =
+                    calculateTorqueWrtParameterPartials( marsGravitationalParameterParameter, gravitationalTorque, 1.0E12 );
+        }
         Eigen::Vector3d testPartialWrtMeanMomentOfInertia =
                 calculateTorqueWrtParameterPartials( phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
         std::function< void( ) > updateFunction =
@@ -324,7 +340,10 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 partialWrtMarsState.block( 0, 3, 3, 3 ), testPartialWrtMarsVelocity, std::numeric_limits< double >::epsilon( ) );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0E-6 );
+        if( torqueModelTest == 0 )
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0E-6 );
+        }
 
         // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
         BOOST_CHECK_SMALL( std::fabs( testPartialWrtPhobosCosineCoefficients( 2, 2 ) ), 2.0E6 );

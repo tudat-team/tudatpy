@@ -114,9 +114,6 @@ public:
     //! Retrieve the linked rigid-body properties, if these still exist.
     std::shared_ptr< simulation_setup::RigidBodyProperties > getRigidBodyProperties( ) const;
 
-    //! Retain the deprecated Python-only gravity update callback during API migration.
-    void setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction );
-
 protected:
     //! Gravitational parameter.
     /*!
@@ -133,10 +130,13 @@ protected:
     //! Non-owning link avoids a cycle: gravity-derived rigid-body properties retain their gravity field.
     std::weak_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
 
-    //! Compatibility-only callback for the deprecated direct Python constructor argument.
-    std::function< void( ) > legacyMassDistributionUpdateFunction_;
+public:
+    // Deprecated Python constructor compatibility. Keep this block together for later removal.
+    void setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction );
 
 private:
+    void notifyLegacyMassDistributionUpdate( );
+    std::function< void( ) > legacyMassDistributionUpdateFunction_;
 };
 
 //! List of bodies for which predefined central gravity fields may be created through the

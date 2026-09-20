@@ -25,19 +25,14 @@ std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorque
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::string& nameOfBodyUndergoingTorque )
 {
-    std::function< Eigen::Vector3d( ) > angularVelocityFunction =
-            std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque );
-    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, bodyUndergoingTorque );
-    std::function< Eigen::Matrix3d( ) > inertiaTensorDerivativeFunction = [ bodyUndergoingTorque ]( ) {
-        const std::shared_ptr< RigidBodyProperties > rigidBodyProperties = bodyUndergoingTorque->getMassProperties( );
-        if( rigidBodyProperties == nullptr || !rigidBodyProperties->isInertiaTensorDerivativeAvailable( ) )
-        {
-            return Eigen::Matrix3d::Zero( ).eval( );
-        }
-        return rigidBodyProperties->getCurrentDerivativeInertiaTensor( );
-    };
+    if( bodyUndergoingTorque == nullptr || bodyUndergoingTorque->getMassProperties( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when creating inertial torque for " + nameOfBodyUndergoingTorque +
+                                  ": rigid-body properties are missing." );
+    }
     return std::make_shared< basic_astrodynamics::InertialTorqueModel >(
-            angularVelocityFunction, inertiaTensorFunction, inertiaTensorDerivativeFunction );
+            std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque ),
+            bodyUndergoingTorque->getMassProperties( ) );
 }
 
 //! Function to create an aerodynamic torque model.

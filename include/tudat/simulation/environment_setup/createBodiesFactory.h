@@ -79,6 +79,9 @@ void setSimpleRotationSettingsFromSpice( const BodyListSettings& bodySettings, c
 std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings );
 
+//! Resolve rigid-body settings, translating deprecated gravity-field inputs without changing the supplied settings.
+std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings );
+
 //! Function to create a map of bodies objects.
 /*!
  *  Function to create a map of body objects based on model-specific settings for the bodies,
@@ -191,47 +194,6 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
     }
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
 
-    // Reconcile gravity-derived rigid-body settings before either runtime object is created. A legacy
-    // scaled mean moment on spherical-harmonic gravity settings is only an input carrier; explicit
-    // non-gravity rigid-body settings and the legacy constant-mass input retain precedence.
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
-    {
-        const std::shared_ptr< BodySettings >& currentBodySettings = orderedBodySettings.at( i ).second;
-        if( currentBodySettings->gravityFieldSettings == nullptr )
-        {
-            continue;
-        }
-
-        double legacyScaledMeanMomentOfInertia = TUDAT_NAN;
-        const std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsGravityFieldSettings =
-                std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( currentBodySettings->gravityFieldSettings );
-        if( sphericalHarmonicsGravityFieldSettings != nullptr )
-        {
-            legacyScaledMeanMomentOfInertia = sphericalHarmonicsGravityFieldSettings->getScaledMeanMomentOfInertia( );
-        }
-
-        if( currentBodySettings->rigidBodyPropertiesSettings == nullptr )
-        {
-            // BodySettings historically treats every non-NaN constant mass as explicit input.
-            if( std::isnan( currentBodySettings->constantMass ) )
-            {
-                currentBodySettings->rigidBodyPropertiesSettings =
-                        fromGravityFieldRigidBodyPropertiesSettings( legacyScaledMeanMomentOfInertia );
-            }
-        }
-        else
-        {
-            const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > fromGravityFieldSettings =
-                    std::dynamic_pointer_cast< FromGravityFieldRigidBodyPropertiesSettings >(
-                            currentBodySettings->rigidBodyPropertiesSettings );
-            if( fromGravityFieldSettings != nullptr && !std::isfinite( fromGravityFieldSettings->getScaledMeanMomentOfInertia( ) ) &&
-                std::isfinite( legacyScaledMeanMomentOfInertia ) )
-            {
-                fromGravityFieldSettings->setScaledMeanMomentOfInertia( legacyScaledMeanMomentOfInertia );
-            }
-        }
-    }
-
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
@@ -257,15 +219,15 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Create gravity field model objects for each body (if required).
+    // Create rigid-body properties for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
+        const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodySettings =
+                resolveRigidBodyPropertiesSettings( orderedBodySettings.at( i ).second );
+        if( rigidBodySettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setMassProperties( createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
-                                                                    orderedBodySettings.at( i ).first,
-                                                                    bodyList ) );
+                    ->setMassProperties( createRigidBodyProperties( rigidBodySettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
