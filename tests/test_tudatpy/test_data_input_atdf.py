@@ -509,10 +509,10 @@ class TestRampConverter:
         (supplementary_data,) = converter.process(converter.extract(df), EARTH)
         (ramp,) = supplementary_data.frequency_supplementary_data[0].frequency_ramps
 
-        assert ramp.start_time == pytest.approx(
+        assert ramp.start_time.to_float() == pytest.approx(
             expected_epoch(pd.Timestamp("1999-03-07 11:46:54")), rel=0, abs=1e-6
         )
-        assert ramp.end_time - ramp.start_time == pytest.approx(6.0)
+        assert (ramp.end_time - ramp.start_time).to_float() == pytest.approx(6.0)
         assert ramp.start_frequency == pytest.approx(7164234321.75112, rel=0, abs=1e-6)
         assert ramp.frequency_rate == pytest.approx(-57.565952, rel=0, abs=1e-6)
 
