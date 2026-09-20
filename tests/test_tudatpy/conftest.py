@@ -5,9 +5,20 @@ from urllib.error import HTTPError, URLError
 import pytest
 import requests
 
+_REMOTE_SERVICE_UNAVAILABLE_STATUSES = (502, 503, 504)
+
 
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
+    # Gateways can respond even when the upstream service is unavailable.
+    if isinstance(exception, requests.exceptions.HTTPError):
+        return (
+            exception.response is not None
+            and exception.response.status_code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+        )
+    if isinstance(exception, HTTPError):
+        return exception.code in _REMOTE_SERVICE_UNAVAILABLE_STATUSES
+
     if isinstance(
         exception,
         (
