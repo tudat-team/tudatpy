@@ -669,13 +669,13 @@ double computeLegendrePolynomialExplicit( const int degree, const int order, con
                              30.0 * polynomialParameter * polynomialParameter + 3.0 ) /
                             8.0;
                 case 1:
-                    return -2.5 * ( 7.0 * polynomialParameter * polynomialParameter * polynomialParameter - 3.0 * polynomialParameter ) *
+                    return 2.5 * ( 7.0 * polynomialParameter * polynomialParameter * polynomialParameter - 3.0 * polynomialParameter ) *
                             std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
                 case 2:
                     return 15.0 / 2.0 * ( -1.0 + 7.0 * polynomialParameter * polynomialParameter ) *
                             ( 1.0 - polynomialParameter * polynomialParameter );
                 case 3:
-                    return -105.0 * polynomialParameter * ( 1.0 - polynomialParameter * polynomialParameter ) *
+                    return 105.0 * polynomialParameter * ( 1.0 - polynomialParameter * polynomialParameter ) *
                             std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
                 case 4:
                     return 105.0 * ( 1.0 - polynomialParameter * polynomialParameter ) *
