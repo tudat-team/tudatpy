@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -21,6 +23,29 @@ namespace tudat
 
 namespace gravitation
 {
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( const double )
+{
+    if( !missingDerivativeWarningIssued_ )
+    {
+        std::cerr << "Warning: gravity-field variation at degrees " << minimumDegree_ << "-" << maximumDegree_ << " and orders "
+                  << minimumOrder_ << "-" << maximumOrder_
+                  << " does not implement coefficient time derivatives; zero rates are used for this variation." << std::endl;
+        missingDerivativeWarningIssued_ = true;
+    }
+    const Eigen::MatrixXd zeroRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    return std::make_pair( zeroRates, zeroRates );
+}
+
+void GravityFieldVariations::addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                                             Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                                             Eigen::MatrixXd& cosineCoefficientDerivatives )
+{
+    const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientDerivatives =
+            calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    sineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ ) += coefficientDerivatives.second;
+    cosineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ ) += coefficientDerivatives.first;
+}
 
 //! Function to add sine and cosine corrections at given time to coefficient matrices.
 void PairInterpolationInterface::getCosineSinePair( const double time,
@@ -258,6 +283,16 @@ std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixX
 
     // Return list.
     return variationFunctions;
+}
+
+void GravityFieldVariationsSet::addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                                                Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                                                Eigen::MatrixXd& cosineCoefficientDerivatives )
+{
+    for( const std::shared_ptr< GravityFieldVariations >& variation : variationObjects_ )
+    {
+        variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+    }
 }
 
 //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation

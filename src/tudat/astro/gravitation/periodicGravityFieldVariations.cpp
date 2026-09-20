@@ -74,6 +74,25 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::ca
     return std::make_pair( cosineCorrections, sineCorrections );
 }
 
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative(
+        const double time )
+{
+    Eigen::MatrixXd cosineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    Eigen::MatrixXd sineRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    const double timeSinceEpoch = time - referenceEpoch_;
+
+    for( unsigned int i = 0; i < frequencies_.size( ); i++ )
+    {
+        const double argument = frequencies_[ i ] * timeSinceEpoch;
+        const double cosineTimeDerivative = -frequencies_[ i ] * std::sin( argument );
+        const double sineTimeDerivative = frequencies_[ i ] * std::cos( argument );
+        cosineRates += cosineShAmplitudesCosineTime_[ i ] * cosineTimeDerivative + cosineShAmplitudesSineTime_[ i ] * sineTimeDerivative;
+        sineRates += sineShAmplitudesCosineTime_[ i ] * cosineTimeDerivative + sineShAmplitudesSineTime_[ i ] * sineTimeDerivative;
+    }
+
+    return std::make_pair( cosineRates, sineRates );
+}
+
 }  // namespace gravitation
 
 }  // namespace tudat

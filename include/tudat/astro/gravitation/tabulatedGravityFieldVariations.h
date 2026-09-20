@@ -78,6 +78,13 @@ public:
      */
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
+    //! Return the interval slope for linear interpolation; other types use the base warning and zero rates.
+    /*!
+     * At an interior table epoch, use the slope to its right; at the final epoch, use the last
+     * interval. Outside the table, follow the interpolator's configured boundary handling.
+     */
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
+
     //! Function to return map of cosine coefficient variations, with associated times as map key.
     /*!
      *  Function to return map of cosine coefficient variations, with associated times as map key.
@@ -110,6 +117,12 @@ public:
     }
 
 private:
+    //! Set when creating or resetting the coefficient interpolator.
+    bool canComputeTimeDerivative_ = false;
+
+    //! Precomputed interval slopes, with boundary handling configured during reset.
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > derivativeInterpolator_;
+
     //! Type of interpolator to use for calculating coefficients at any time.
     std::shared_ptr< interpolators::InterpolatorSettings > interpolatorType_;
 

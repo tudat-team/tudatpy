@@ -9,12 +9,44 @@
  */
 
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
 
 namespace gravitation
 {
+
+void TimeDependentSphericalHarmonicsGravityField::setRigidBodyProperties(
+        const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties )
+{
+    GravityFieldModel::setRigidBodyProperties( rigidBodyProperties );
+    gravityDerivedRigidBodyProperties_ =
+            std::dynamic_pointer_cast< simulation_setup::FromGravityFieldRigidBodyProperties >( rigidBodyProperties );
+}
+
+void TimeDependentSphericalHarmonicsGravityField::updateInertiaTensorDerivative( const double time )
+{
+    const std::shared_ptr< simulation_setup::FromGravityFieldRigidBodyProperties > rigidBodyProperties =
+            gravityDerivedRigidBodyProperties_.lock( );
+    if( rigidBodyProperties == nullptr || !rigidBodyProperties->isInertiaTensorAvailable( ) )
+    {
+        return;
+    }
+
+    Eigen::MatrixXd sineCoefficientDerivatives = Eigen::MatrixXd::Zero( sineCoefficients_.rows( ), sineCoefficients_.cols( ) );
+    Eigen::MatrixXd cosineCoefficientDerivatives = Eigen::MatrixXd::Zero( cosineCoefficients_.rows( ), cosineCoefficients_.cols( ) );
+    if( gravityFieldVariationsSet_ != nullptr )
+    {
+        gravityFieldVariationsSet_->addSphericalHarmonicsCorrectionTimeDerivatives(
+                time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+    }
+
+    Eigen::Vector5d degreeTwoCoefficientDerivatives;
+    degreeTwoCoefficientDerivatives << cosineCoefficientDerivatives( 2, 0 ), cosineCoefficientDerivatives( 2, 1 ),
+            cosineCoefficientDerivatives( 2, 2 ), sineCoefficientDerivatives( 2, 1 ), sineCoefficientDerivatives( 2, 2 );
+    rigidBodyProperties->updateInertiaTensorDerivative( degreeTwoCoefficientDerivatives );
+}
 
 //! Function to (re)set the gravity field variations
 void TimeDependentSphericalHarmonicsGravityField::setFieldVariationSettings(
@@ -53,6 +85,7 @@ void TimeDependentSphericalHarmonicsGravityField::update( const double time )
     }
 
     notifyMassDistributionUpdate( );
+    updateInertiaTensorDerivative( time );
 }
 
 }  // namespace gravitation

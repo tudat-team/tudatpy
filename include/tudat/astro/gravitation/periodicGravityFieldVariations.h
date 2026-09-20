@@ -37,6 +37,9 @@ public:
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
+    //! Differentiate the sine and cosine time dependence at each frequency.
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
+
     std::vector< Eigen::MatrixXd > getCosineShAmplitudesCosineTime( )
     {
         return cosineShAmplitudesCosineTime_;

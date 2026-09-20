@@ -109,7 +109,7 @@ public:
      * model from which they compute mass, center of mass, and inertia. Gravity changes notify
      * this same object directly; no duplicate rigid-body state is created.
      */
-    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties );
+    virtual void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties );
 
     //! Retrieve the linked rigid-body properties, if these still exist.
     std::shared_ptr< simulation_setup::RigidBodyProperties > getRigidBodyProperties( ) const;

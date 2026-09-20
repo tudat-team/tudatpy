@@ -11,6 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <sstream>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/included/unit_test.hpp>
 
@@ -34,6 +35,23 @@ BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 
 using namespace tudat::gravitation;
 using namespace tudat::spice_interface;
+
+// Compare coefficient rates with a central difference of the model's own variation values.
+void checkGravityFieldVariationDerivative( const std::shared_ptr< GravityFieldVariations >& variation,
+                                           const double time,
+                                           const double timeStep,
+                                           const double relativeTolerance = 1.0e-8 )
+{
+    const auto rates = variation->calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    const auto before = variation->calculateSphericalHarmonicsCorrections( time - timeStep );
+    const auto after = variation->calculateSphericalHarmonicsCorrections( time + timeStep );
+    const Eigen::MatrixXd numericalCosineRate = ( after.first - before.first ) / ( 2.0 * timeStep );
+    const Eigen::MatrixXd numericalSineRate = ( after.second - before.second ) / ( 2.0 * timeStep );
+
+    // Both coefficient blocks must agree with the numerical rates, including zero sine entries.
+    BOOST_CHECK_SMALL( ( rates.first - numericalCosineRate ).norm( ), relativeTolerance * numericalCosineRate.norm( ) + 1.0e-25 );
+    BOOST_CHECK_SMALL( ( rates.second - numericalSineRate ).norm( ), relativeTolerance * numericalSineRate.norm( ) + 1.0e-25 );
+}
 
 //! Function to get nominal gravity field coefficients for Jupiter
 /*!
@@ -177,6 +195,8 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
             std::vector< std::string >{ "BasicTidal", "Tabulated" } );
 }
 
+// Compare combined tidal/tabulated values with direct corrections; check tabulated rates against
+// finite differences in several intervals and after resetting the table, plus the nonlinear fallback.
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     // Load spice kernels.
@@ -286,6 +306,48 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
             BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-19 );
         }
     }
+
+    const auto tabulatedVariation = getTabulatedGravityFieldVariations( );
+    auto cosineTable = tabulatedVariation->getCosineCoefficientCorrections( );
+    auto sineTable = tabulatedVariation->getSineCoefficientCorrections( );
+    const double firstEpoch = cosineTable.begin( )->first;
+    const double tableStep = 3600.0;
+    // Interior points in three different intervals check the slope without crossing a knot.
+    for( const double intervalOffset : { 0.25, 1.5, 2.75 } )
+    {
+        checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + intervalOffset * tableStep, 10.0, 1.0e-10 );
+    }
+
+    for( auto& entry : cosineTable )
+    {
+        entry.second *= 2.0;
+    }
+    for( auto& entry : sineTable )
+    {
+        entry.second *= -3.0;
+    }
+    tabulatedVariation->resetCoefficientInterpolator( cosineTable, sineTable );
+    // Replacing the table must also replace the cached slopes for both coefficient blocks.
+    checkGravityFieldVariationDerivative( tabulatedVariation, firstEpoch + 1.5 * tableStep, 10.0, 1.0e-10 );
+
+    TabulatedGravityFieldVariations nonlinearVariation(
+            cosineTable,
+            sineTable,
+            1,
+            0,
+            std::make_shared< interpolators::InterpolatorSettings >( interpolators::cubic_spline_interpolator ) );
+    std::ostringstream warnings;
+    std::streambuf* originalBuffer = std::cerr.rdbuf( warnings.rdbuf( ) );
+    const auto firstRates = nonlinearVariation.calculateSphericalHarmonicsCorrectionsTimeDerivative( firstEpoch );
+    const std::string firstWarning = warnings.str( );
+    const auto secondRates = nonlinearVariation.calculateSphericalHarmonicsCorrectionsTimeDerivative( firstEpoch + tableStep );
+    std::cerr.rdbuf( originalBuffer );
+
+    // Unsupported interpolation returns zero rates and emits a warning only on the first call.
+    BOOST_CHECK( !firstWarning.empty( ) );
+    BOOST_CHECK_EQUAL( warnings.str( ), firstWarning );
+    BOOST_CHECK_SMALL( firstRates.first.norm( ) + firstRates.second.norm( ) + secondRates.first.norm( ) + secondRates.second.norm( ),
+                       1.0e-25 );
 }
 
 std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( )
@@ -487,6 +549,8 @@ void getPeriodicGravityFieldVariationSettings( std::vector< Eigen::MatrixXd >& c
     }
 }
 
+// Check periodic values for the existing frequency/block settings, and compare their rates with
+// central differences before, at, and after the reference epoch.
 BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -563,6 +627,12 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
             std::shared_ptr< gravitation::GravityFieldVariationsSet > variations =
                     createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
             timeDependentGravityField->updateCorrectionFunctions( );
+
+            // Exercise the same single-frequency and multiple-frequency models used for the value checks.
+            for( const double derivativeTime : { referenceEpoch - 2.0e4, referenceEpoch, referenceEpoch + 3.0e4 } )
+            {
+                checkGravityFieldVariationDerivative( variations->getVariationObjects( ).at( 0 ), derivativeTime, 1.0 );
+            }
 
             if( k < 3 )
             {
@@ -654,6 +724,8 @@ void getPolynomialGravityFieldVariationSettings( std::map< int, Eigen::MatrixXd 
     minimumOrder = 0;
 }
 
+// Check polynomial values and rates for constant, linear, quadratic, and cubic terms, including
+// the reference epoch where constant terms must contribute zero rate.
 BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
 {
     using namespace tudat::simulation_setup;
@@ -677,6 +749,11 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
         int minimumOrder;
         getPolynomialGravityFieldVariationSettings( cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder, 0 );
 
+        cosineAmplitudes[ 0 ] = cosineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+        sineAmplitudes[ 0 ] = sineAmplitudes.at( 1 ) * physical_constants::JULIAN_YEAR;
+        cosineAmplitudes[ 2 ] = cosineAmplitudes.at( 1 ) / physical_constants::JULIAN_YEAR;
+        sineAmplitudes[ 3 ] = sineAmplitudes.at( 1 ) / ( physical_constants::JULIAN_YEAR * physical_constants::JULIAN_YEAR );
+
         std::shared_ptr< PolynomialGravityFieldVariationsSettings > variationSettings =
                 std::dynamic_pointer_cast< PolynomialGravityFieldVariationsSettings >( polynomialGravityFieldVariationsSettings(
                         cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder ) );
@@ -695,6 +772,17 @@ BOOST_AUTO_TEST_CASE( testPolynomialGravityFieldVariations )
         std::shared_ptr< gravitation::GravityFieldVariationsSet > variations =
                 createGravityFieldModelVariationsSet( "Jupiter", dummySystem, variationSettingsList );
         timeDependentGravityField->updateCorrectionFunctions( );
+
+        const auto polynomialVariation = variations->getVariationObjects( ).at( 0 );
+        // Compare both rate blocks with finite differences on either side of, and at, the reference epoch.
+        for( const double timeOffset : { -0.25 * physical_constants::JULIAN_YEAR, 0.0, 0.5 * physical_constants::JULIAN_YEAR } )
+        {
+            checkGravityFieldVariationDerivative( polynomialVariation, referenceEpoch + timeOffset, 100.0 );
+        }
+        const auto referenceRates = polynomialVariation->calculateSphericalHarmonicsCorrectionsTimeDerivative( referenceEpoch );
+        // At the reference epoch, only the linear terms contribute; constants must not introduce NaNs.
+        BOOST_CHECK_SMALL( ( referenceRates.first - cosineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
+        BOOST_CHECK_SMALL( ( referenceRates.second - sineAmplitudes.at( 1 ) ).norm( ), 1.0e-25 );
 
         timeDependentGravityField->update( 2.0 * testTime );
 

@@ -34,6 +34,9 @@ public:
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
+    //! Differentiate each nonconstant power of time relative to the reference epoch.
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrectionsTimeDerivative( const double time ) override;
+
     std::map< int, Eigen::MatrixXd > getCosineAmplitudes( )
     {
         return cosineAmplitudes_;

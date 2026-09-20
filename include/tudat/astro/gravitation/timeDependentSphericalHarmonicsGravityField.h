@@ -23,6 +23,13 @@
 namespace tudat
 {
 
+namespace simulation_setup
+{
+
+class FromGravityFieldRigidBodyProperties;
+
+}  // namespace simulation_setup
+
 namespace gravitation
 {
 
@@ -111,6 +118,9 @@ public:
      *  \param time Current time.
      */
     void update( const double time );
+
+    //! Cache gravity-derived rigid-body properties when the Body links or replaces them.
+    void setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties ) override;
 
     //! Update correction functions.
     /*!
@@ -308,6 +318,12 @@ public:
     }
 
 private:
+    //! Pass the degree-two coefficient rates to gravity-derived rigid-body properties.
+    void updateInertiaTensorDerivative( const double time );
+
+    //! Cached non-owning link, checked once when rigid-body properties are set.
+    std::weak_ptr< simulation_setup::FromGravityFieldRigidBodyProperties > gravityDerivedRigidBodyProperties_;
+
     //! Nominal (i.e. with zero variations) cosine coefficients.
     /*!
      *  Nominal (i.e. with zero variations) cosine coefficients. When calling the update function,
