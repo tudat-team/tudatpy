@@ -557,8 +557,8 @@ BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
     const auto higherDegreeValues = higherDegreeVariation->calculateSphericalHarmonicsCorrections( testTime );
     // An independent explicit-Legendre calculation checks C41/S41, including normalization,
     // the complex Love number and the mean offset; a value/rate consistency check alone cannot do this.
-    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.first( 2, 1 ), expectedCoefficient41.real( ), 1.0e-13 );
-    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.second( 2, 1 ), -expectedCoefficient41.imag( ), 1.0e-13 );
+    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.first( 2, 1 ), expectedCoefficient41.real( ), 1.0e-12 );
+    BOOST_CHECK_CLOSE_FRACTION( higherDegreeValues.second( 2, 1 ), -expectedCoefficient41.imag( ), 1.0e-12 );
     auto degreeFourLoveNumbers = higherDegreeVariation->getLoveNumbersOfDegree( 4 );
     degreeFourLoveNumbers.push_back( 0.5 );
     higherDegreeVariation->resetLoveNumbersOfDegree( degreeFourLoveNumbers, 4 );

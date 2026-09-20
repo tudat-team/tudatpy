@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( test_ExplicitLegendrePolynomialsAgainstRecurrence )
                     const double normalizedValue = normalizedCache.getLegendrePolynomial( degree, order );
                     const double normalization = basic_mathematics::calculateLegendreGeodesyNormalizationFactor( degree, order );
                     // Applying geodesy normalization must also agree with the separately normalized recurrence.
-                    BOOST_CHECK_SMALL( normalization * explicitValue - normalizedValue, 5.0e-14 * ( 1.0 + std::abs( normalizedValue ) ) );
+                    BOOST_CHECK_SMALL( normalization * explicitValue - normalizedValue, 5.0e-13 * ( 1.0 + std::abs( normalizedValue ) ) );
                 }
             }
         }

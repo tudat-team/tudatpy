@@ -266,9 +266,9 @@ BOOST_AUTO_TEST_CASE( testGravityDerivedSettingsCompatibilityAndSynchronization 
     const double inertiaChangeScale = canonicalBody->getBodyMass( ) * referenceRadius * referenceRadius * std::sqrt( 5.0 ) *
             ( modifiedCosineCoefficients( 2, 0 ) - cosineCoefficients( 2, 0 ) ) / 3.0;
     const Eigen::Matrix3d expectedCoefficientInertiaChange = inertiaChangeScale * Eigen::Vector3d( 1.0, 1.0, -2.0 ).asDiagonal( );
+    const Eigen::Matrix3d expectedUpdatedInertia = expectedInertiaAfterMassUpdate + expectedCoefficientInertiaChange;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyFixedCenterOfMass( ), expectedUpdatedCenterOfMass, 5.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            canonicalBody->getBodyInertiaTensor( ), expectedInertiaAfterMassUpdate + expectedCoefficientInertiaChange, 5.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( canonicalBody->getBodyInertiaTensor( ), expectedUpdatedInertia, 5.0e-15 );
 
     // The same gravity changes do not overwrite explicitly configured rigid-body properties.
     explicitBody->getGravityFieldModel( )->resetGravitationalParameter( 3.0 * gravitationalParameter );
@@ -325,6 +325,7 @@ BOOST_AUTO_TEST_CASE( testPrescribedGravityVariationUpdatesInertiaAndDerivative 
     body->setIsBodyInPropagation( false );
     body->getMassProperties( )->updateMassDistribution( 10.0 );
     body->setIsBodyInPropagation( true );
+    body->setCurrentRotationalStateToLocalFrame( rotationalState );
     // Switching propagation mode and resynchronizing at the same epoch preserve the computed rate.
     BOOST_CHECK( body->getMassProperties( )->isInertiaTensorDerivativeAvailable( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( body->getBodyInertiaTensorDerivative( ), rateBeforeResynchronization, 5.0e-15 );
