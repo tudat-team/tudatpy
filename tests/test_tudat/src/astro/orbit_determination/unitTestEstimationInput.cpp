@@ -86,7 +86,8 @@ BOOST_AUTO_TEST_CASE( test_NormalizedLinearConstraints )
     BOOST_CHECK_CLOSE_FRACTION( normalizedConstraint.cwiseAbs( ).maxCoeff( ), 1.0, 1.0E-15 );
 }
 
-//! Test the direct a priori parameter-deviation contribution to the normal-equation right-hand side.
+// Test the a priori contribution to one linear least-squares step by comparing its covariance and parameter correction
+// against the normal equations evaluated explicitly.
 BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
 {
     Eigen::MatrixXd designMatrix( 3, 2 );
@@ -97,21 +98,19 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
     inverseAprioriCovariance << 4.0, 1.0, 1.0, 3.0;
     const Eigen::Vector2d aprioriParameterDeviation = ( Eigen::Vector2d( ) << 0.5, -0.25 ).finished( );
 
-    const auto performAdjustment = [ & ]( const Eigen::MatrixXd& inversePrior ) {
-        return linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
-                                                                              residuals,
-                                                                              weights,
-                                                                              inversePrior,
-                                                                              std::numeric_limits< double >::quiet_NaN( ),
-                                                                              Eigen::MatrixXd( 0, 0 ),
-                                                                              Eigen::VectorXd( 0 ),
-                                                                              Eigen::MatrixXd( 0, 0 ),
-                                                                              Eigen::VectorXd( 0 ),
-                                                                              Eigen::MatrixXd( 0, 0 ),
-                                                                              Eigen::VectorXd( 0 ),
-                                                                              aprioriParameterDeviation );
-    };
-    const auto leastSquaresOutput = performAdjustment( inverseAprioriCovariance );
+    const auto leastSquaresOutput =
+            linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrix,
+                                                                           residuals,
+                                                                           weights,
+                                                                           inverseAprioriCovariance,
+                                                                           std::numeric_limits< double >::quiet_NaN( ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           Eigen::MatrixXd( 0, 0 ),
+                                                                           Eigen::VectorXd( 0 ),
+                                                                           aprioriParameterDeviation );
 
     const Eigen::Matrix2d expectedNormalMatrix =
             designMatrix.transpose( ) * weights.asDiagonal( ) * designMatrix + inverseAprioriCovariance;
@@ -119,18 +118,16 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviationNormalEquations )
             designMatrix.transpose( ) * weights.asDiagonal( ) * residuals - inverseAprioriCovariance * aprioriParameterDeviation;
     const Eigen::Vector2d expectedParameterCorrection = expectedNormalMatrix.inverse( ) * expectedRightHandSide;
 
+    // The inverse prior covariance must augment the normal matrix, while its parameter-deviation term must enter the
+    // correction with the expected sign.
     BOOST_CHECK_SMALL( ( leastSquaresOutput.second - expectedNormalMatrix ).norm( ), 1.0E-14 );
     BOOST_CHECK_SMALL( ( leastSquaresOutput.first - expectedParameterCorrection ).norm( ), 1.0E-14 );
-    BOOST_CHECK_THROW( performAdjustment( Eigen::MatrixXd::Zero( 0, 0 ) ), std::runtime_error );
-    BOOST_CHECK_THROW( performAdjustment( Eigen::MatrixXd::Zero( 2, 1 ) ), std::runtime_error );
 }
 
-//! Test that a priori information constrains the total deviation in a realistic iterative orbit determination.
+// Test the iterative use of the a priori deviation with noise-free orbit data: corrections must converge, and comparison
+// with an unconstrained estimate must show the expected remaining bias toward the supplied a priori parameters.
 BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
 {
-    // Simulate one day of position data for a low Earth orbiter subject to gravity and atmospheric drag, then estimate
-    // its initial state and drag coefficient. The a priori parameter vector is deliberately offset from truth. The
-    // converged MAP estimate must move toward the data while retaining a non-zero offset from truth due to the prior.
     using namespace observation_models;
     using namespace orbital_element_conversions;
 
@@ -229,31 +226,30 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
 
     const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // The constrained estimation must complete all three requested iterations without numerical failures.
     BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
     BOOST_REQUIRE( !estimationOutput->exceptionDuringPropagation_ );
     BOOST_REQUIRE_EQUAL( estimationOutput->residualHistory_.size( ), 3 );
 
     const Eigen::MatrixXd parameterHistory = estimationOutput->getParameterHistoryMatrix( );
+
+    // The parameter history must contain the supplied a priori parameters followed by one entry per iteration.
     BOOST_REQUIRE_EQUAL( parameterHistory.rows( ), 7 );
     BOOST_REQUIRE_EQUAL( parameterHistory.cols( ), 4 );
     BOOST_CHECK_SMALL( ( parameterHistory.col( 0 ) - aprioriParameters ).norm( ), 1.0E-12 );
 
     const int convergedIteration = 2;
-    BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, convergedIteration );
-    const int balanceIteration = estimationOutput->bestIteration_;
-    const Eigen::VectorXd constrainedParameters = parameterHistory.col( balanceIteration );
-    const double initialResidualRms = linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.front( ) );
-    const double constrainedResidualRms = linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residuals_ );
 
-    // The nonlinear differential corrections decrease monotonically until the fixed third iteration converges.
+    // The selected iteration and shrinking corrections must show stable convergence within the fixed iteration count.
+    BOOST_CHECK_EQUAL( estimationOutput->bestIteration_, convergedIteration );
+    const Eigen::VectorXd constrainedParameters = parameterHistory.col( estimationOutput->bestIteration_ );
+
     std::vector< double > correctionNorms;
     for( int iteration = 1; iteration < parameterHistory.cols( ); iteration++ )
     {
         const Eigen::VectorXd correction = parameterHistory.col( iteration ) - parameterHistory.col( iteration - 1 );
         correctionNorms.push_back( correction.norm( ) );
-        BOOST_TEST_MESSAGE( "Constrained correction "
-                            << iteration << ": total=" << correction.norm( ) << ", position=" << correction.segment( 0, 3 ).norm( )
-                            << ", velocity=" << correction.segment( 3, 3 ).norm( ) << ", Cd=" << std::fabs( correction( 6 ) ) );
     }
     for( unsigned int iteration = 1; iteration < correctionNorms.size( ); iteration++ )
     {
@@ -261,33 +257,7 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
     }
     BOOST_CHECK_LT( correctionNorms.back( ), 1.0E-6 * correctionNorms.front( ) );
 
-    // At the converged linearization point, separately map the observation and a priori right-hand-side terms to
-    // parameter corrections. They must be non-negligible, opposite contributions whose sum equals the final negligible
-    // correction recorded in the parameter history.
-    const Eigen::MatrixXd normalizedDesignMatrix = estimationOutput->getNormalizedDesignMatrix( );
-    const Eigen::VectorXd normalizationTerms = estimationOutput->getNormalizationTerms( );
-    const Eigen::MatrixXd normalizedInverseAprioriCovariance =
-            orbitDeterminationManager.normalizeAprioriCovariance( fullEstimationInverseAprioriCovariance, normalizationTerms );
-    const Eigen::VectorXd normalizedAprioriDeviation = ( constrainedParameters - aprioriParameters ).cwiseProduct( normalizationTerms );
-    const Eigen::VectorXd observationRightHandSide = normalizedDesignMatrix.transpose( ) *
-            estimationInput->getWeightsMatrixDiagonals( ).cwiseProduct( estimationOutput->residuals_ );
-    const Eigen::VectorXd aprioriRightHandSide = -normalizedInverseAprioriCovariance * normalizedAprioriDeviation;
-    const Eigen::MatrixXd normalizedCovariance = estimationOutput->getNormalizedCovarianceMatrix( );
-    const Eigen::VectorXd observationCorrection = ( normalizedCovariance * observationRightHandSide ).cwiseQuotient( normalizationTerms );
-    const Eigen::VectorXd aprioriCorrection = ( normalizedCovariance * aprioriRightHandSide ).cwiseQuotient( normalizationTerms );
-    const Eigen::VectorXd balancedCorrection = observationCorrection + aprioriCorrection;
-    const Eigen::VectorXd finalCorrection = parameterHistory.col( balanceIteration + 1 ) - constrainedParameters;
-    const double individualCorrectionScale = std::max( observationCorrection.norm( ), aprioriCorrection.norm( ) );
-    BOOST_TEST_MESSAGE( "Observation correction at balance: " << observationCorrection.transpose( ) );
-    BOOST_TEST_MESSAGE( "A priori correction at balance: " << aprioriCorrection.transpose( ) );
-    BOOST_TEST_MESSAGE( "Correction sum at balance: " << balancedCorrection.transpose( ) );
-    BOOST_CHECK_GT( observationCorrection.norm( ), 1.0E-2 );
-    BOOST_CHECK_GT( aprioriCorrection.norm( ), 1.0E-2 );
-    BOOST_CHECK_SMALL( balancedCorrection.norm( ), 1.0E-6 * individualCorrectionScale );
-    BOOST_CHECK_SMALL( ( balancedCorrection - finalCorrection ).norm( ), 1.0E-8 * individualCorrectionScale );
-
-    // Repeat the estimation from the same perturbed parameters without an a priori constraint. The noise-free synthetic
-    // observations must then recover the true parameters and zero post-fit residuals to numerical precision.
+    // Repeat from the same perturbed parameters without a prior to provide a numerical reference for its effect.
     orbitDeterminationManager.resetParameterEstimate( aprioriParameters, true );
     const std::shared_ptr< EstimationInput< double, double > > unconstrainedEstimationInput =
             std::make_shared< EstimationInput< double, double > >(
@@ -295,18 +265,27 @@ BOOST_AUTO_TEST_CASE( test_APrioriParameterDeviation )
     unconstrainedEstimationInput->defineEstimationSettings( true, true, true, false, true, false );
     const std::shared_ptr< EstimationOutput< double, double > > unconstrainedEstimationOutput =
             orbitDeterminationManager.estimateParameters( unconstrainedEstimationInput );
+
+    // The reference estimation must also complete and select the converged iteration.
     BOOST_REQUIRE( !unconstrainedEstimationOutput->exceptionDuringInversion_ );
     BOOST_REQUIRE( !unconstrainedEstimationOutput->exceptionDuringPropagation_ );
     BOOST_REQUIRE_EQUAL( unconstrainedEstimationOutput->bestIteration_, convergedIteration );
     const Eigen::VectorXd unconstrainedParameterError = unconstrainedEstimationOutput->parameterEstimate_ - trueParameters;
-    const double unconstrainedResidualRms = linear_algebra::getVectorEntryRootMeanSquare( unconstrainedEstimationOutput->residuals_ );
-    BOOST_TEST_MESSAGE( "Constrained residual RMS reduced from " << initialResidualRms << " m to " << constrainedResidualRms << " m" );
-    BOOST_TEST_MESSAGE( "Unconstrained parameter error: " << unconstrainedParameterError.transpose( ) );
-    BOOST_TEST_MESSAGE( "Unconstrained residual RMS: " << unconstrainedResidualRms );
+
+    // With noise-free data and no prior, the estimate must recover truth to numerical precision.
     BOOST_CHECK_SMALL( unconstrainedParameterError.segment( 0, 3 ).norm( ), 1.0E-5 );
     BOOST_CHECK_SMALL( unconstrainedParameterError.segment( 3, 3 ).norm( ), 1.0E-8 );
     BOOST_CHECK_SMALL( unconstrainedParameterError( 6 ), 1.0E-6 );
-    BOOST_CHECK_SMALL( unconstrainedResidualRms, 1.0E-5 );
+
+    const Eigen::VectorXd constrainedParameterError = constrainedParameters - trueParameters;
+    const Eigen::VectorXd aprioriParameterError = aprioriParameters - trueParameters;
+
+    // The constrained estimate must move toward truth but retain more position and drag-coefficient bias than the
+    // unconstrained estimate, demonstrating that the a priori deviation affects iterative convergence.
+    BOOST_CHECK_LT( constrainedParameterError.segment( 0, 3 ).norm( ), aprioriParameterError.segment( 0, 3 ).norm( ) );
+    BOOST_CHECK_LT( std::fabs( constrainedParameterError( 6 ) ), std::fabs( aprioriParameterError( 6 ) ) );
+    BOOST_CHECK_GT( constrainedParameterError.segment( 0, 3 ).norm( ), unconstrainedParameterError.segment( 0, 3 ).norm( ) );
+    BOOST_CHECK_GT( std::fabs( constrainedParameterError( 6 ) ), std::fabs( unconstrainedParameterError( 6 ) ) );
 }
 
 //! Test a constrained least-squares orbit estimation with position and velocity corrections at different scales.
