@@ -792,7 +792,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                                                                                     cosineCoefficientsOfBody2,
                                                                                     sineCoefficientsOfBody2,
                                                                                     Eigen::Quaterniond::Identity( ),
-                                                                                    Eigen::Quaterniond::Identity( ) );
+                                                                                    Eigen::Quaterniond::Identity( ),
+                                                                                    0.4 );
         bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
 
@@ -847,7 +848,8 @@ BOOST_AUTO_TEST_CASE( testFullTwoBodySphericalHarmonicTorque )
                                                                                         cosineCoefficientsOfBody2,
                                                                                         sineCoefficientsOfBody2,
                                                                                         orientationCase.first,
-                                                                                        orientationCase.second );
+                                                                                        orientationCase.second,
+                                                                                        0.4 );
 
             bodies.at( bodyUndergoingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
             bodies.at( bodyExertingTorqueName )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
