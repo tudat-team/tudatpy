@@ -16,7 +16,6 @@ observation defined by the specific factory functions below.
 
 More details on the link with the observation model is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html>`_ .
 
-
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.biases
