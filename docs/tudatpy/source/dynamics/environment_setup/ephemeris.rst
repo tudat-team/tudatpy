@@ -118,6 +118,8 @@ Functions
 
    tabulated_from_existing
 
+   gaia_from_astrometry
+
    horizons_wrapper.jpl_horizons_from_query
 
    horizons_wrapper.jpl_horizons
@@ -155,6 +157,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.tabulated
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.tabulated_from_existing
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.gaia_from_astrometry
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons
 

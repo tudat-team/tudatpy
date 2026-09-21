@@ -12,6 +12,7 @@
 #define TUDAT_CREATE_OBSERVATION_DATASET_H
 
 #include <Eigen/Core>
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -263,17 +264,66 @@ int addTrackingDataToObservationDataset( const std::shared_ptr< data::TrackingDa
         }
     }
 
-    return observationDataset.addObservationSet( observableType,
-                                                 linkEnds,
-                                                 observations,
-                                                 epochsTdb,
-                                                 referenceLinkEnd,
-                                                 std::vector< Eigen::VectorXd >( ),
-                                                 nullptr,
-                                                 ancillarySettings,
-                                                 weights,
-                                                 std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
-                                                 true );
+    // Sort once here so correlated blocks can be mapped from their input-event
+    // indices to the stable dataset observation identities.
+    std::vector< std::size_t > permutation( epochsTdb.size( ) );
+    for( std::size_t i = 0; i < permutation.size( ); ++i )
+    {
+        permutation.at( i ) = i;
+    }
+    std::stable_sort( permutation.begin( ), permutation.end( ), [ &epochsTdb ]( const std::size_t i, const std::size_t j ) {
+        return epochsTdb.at( i ) < epochsTdb.at( j );
+    } );
+
+    const auto applyPermutation = [ &permutation ]( auto& values ) {
+        if( values.empty( ) )
+        {
+            return;
+        }
+        const auto originalValues = values;
+        for( std::size_t i = 0; i < permutation.size( ); ++i )
+        {
+            values.at( i ) = originalValues.at( permutation.at( i ) );
+        }
+    };
+    applyPermutation( observations );
+    applyPermutation( epochsTdb );
+    applyPermutation( weights );
+
+    const int setId = observationDataset.addObservationSet( observableType,
+                                                            linkEnds,
+                                                            observations,
+                                                            epochsTdb,
+                                                            referenceLinkEnd,
+                                                            std::vector< Eigen::VectorXd >( ),
+                                                            nullptr,
+                                                            ancillarySettings,
+                                                            weights,
+                                                            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+                                                            false );
+
+    if( trackingData->hasObservationWeightBlocks( ) )
+    {
+        const std::vector< unsigned int >& sortedObservationIds = observationDataset.getObservationIdsForSet( setId );
+        std::vector< unsigned int > observationIdByInputIndex( permutation.size( ) );
+        for( std::size_t sortedIndex = 0; sortedIndex < permutation.size( ); ++sortedIndex )
+        {
+            observationIdByInputIndex.at( permutation.at( sortedIndex ) ) = sortedObservationIds.at( sortedIndex );
+        }
+
+        for( const auto& weightBlock : trackingData->getObservationWeightBlocks( ) )
+        {
+            std::vector< unsigned int > observationIds;
+            observationIds.reserve( weightBlock.first.size( ) );
+            for( const unsigned int inputIndex : weightBlock.first )
+            {
+                observationIds.push_back( observationIdByInputIndex.at( inputIndex ) );
+            }
+            observationDataset.setWeightBlock( observationIds, observationIds, weightBlock.second );
+        }
+    }
+
+    return setId;
 }
 
 //! Create a dataset from one or more generic tracking-data objects.

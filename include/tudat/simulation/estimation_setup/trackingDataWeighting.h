@@ -47,7 +47,7 @@ void setObservationWeightsFromTrackingDataScheme(
         return;
     }
 
-    if( !trackingData->getObservationWeights( ).empty( ) )
+    if( !trackingData->getObservationWeights( ).empty( ) || trackingData->hasObservationWeightBlocks( ) )
     {
         return;
     }

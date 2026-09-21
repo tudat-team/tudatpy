@@ -23,6 +23,7 @@ objects is applied with
    tracking_data/obs_80_cols
    tracking_data/fdets
    tracking_data/generic_text_file
+   tracking_data/gaia
    tracking_data/ifms
    tracking_data/mpc
    tracking_data/odf

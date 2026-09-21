@@ -33,6 +33,7 @@ Functions
    create_compressed_doppler_dataset
    observation_simulation_settings_from_dataset
    compute_residuals_and_dependent_variables
+   create_observation_dataset_from_gaia_astrometry
    set_tracking_supplementary_data_in_bodies
 
 .. autofunction:: create_observation_dataset_from_tracking_data
@@ -44,6 +45,7 @@ Functions
 .. autofunction:: create_compressed_doppler_dataset
 .. autofunction:: observation_simulation_settings_from_dataset
 .. autofunction:: compute_residuals_and_dependent_variables
+.. autofunction:: create_observation_dataset_from_gaia_astrometry
 .. autofunction:: set_tracking_supplementary_data_in_bodies
 
 Classes
@@ -119,3 +121,4 @@ Submodules
    :maxdepth: 1
 
    /estimation/observations/observations_geometry
+   /estimation/observations/observation_corrections

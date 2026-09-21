@@ -303,6 +303,37 @@ void expose_tracking_data( py::module& m )
          list[float]
              Concatenated observation weights.
       )doc" )
+            .def( "set_observation_weight_blocks",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeightBlocks,
+                  py::arg( "observation_weight_blocks" ),
+                  R"doc(
+         Set correlated observation weights as disjoint blocks.
+
+         Each entry contains observation indices followed by a dense symmetric weight
+         matrix. Scalar rows within each observation use the observable's component
+         order. The blocks must cover every observation exactly once.
+
+         Parameters
+         ----------
+         observation_weight_blocks : list[tuple[list[int], numpy.ndarray]]
+             Observation-index lists and their corresponding weight matrices.
+      )doc" )
+            .def( "get_observation_weight_blocks",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightBlocks,
+                  R"doc(
+         Return correlated observation weight blocks and their input-observation indices.
+
+         Returns
+         -------
+         list[tuple[list[int], numpy.ndarray]]
+             Copies of the stored weight blocks.
+      )doc" )
+            .def_property_readonly( "has_observation_weight_blocks",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::hasObservationWeightBlocks,
+                                    R"doc(bool: Whether correlated observation weight blocks are stored.)doc" )
+            .def_property_readonly( "observation_weight_blocks",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightBlocks,
+                                    R"doc(list[tuple[list[int], numpy.ndarray]]: Correlated weight blocks.)doc" )
             .def( "set_observation_corrections",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
                   py::arg( "observation_corrections" ),
