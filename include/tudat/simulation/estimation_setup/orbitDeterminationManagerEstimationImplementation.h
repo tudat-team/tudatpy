@@ -125,6 +125,12 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
         // Set simulation results
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
+            if( simulationResults == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when saving state history for each estimation iteration: no propagation results exist "
+                        "in observation-only estimation." );
+            }
             simulationResultsPerIteration.push_back( simulationResults->clone( ) );
         }
 
@@ -160,7 +166,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
             if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
             {
-                normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( normalizationTermsConsider.rows( ) );
             }
             else
             {
@@ -440,6 +446,16 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
     // Get number of observations
     int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
+    std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > parameterEstimationInput =
+            std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput );
+    if( parameterEstimationInput != nullptr && parameterEstimationInput->getSaveStateHistoryForEachIteration( ) &&
+        variationalEquationsSolver_ == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when preparing estimation iteration: saving state history requires propagated dynamics and "
+                "is not supported in observation-only estimation." );
+    }
+
     // Re-integrate equations of motion and variational equations with new parameter estimate.
     try
     {
@@ -448,10 +464,9 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::performPreE
             resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
         }
 
-        if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
+        if( parameterEstimationInput != nullptr )
         {
-            if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )
-                        ->getSaveStateHistoryForEachIteration( ) )
+            if( parameterEstimationInput->getSaveStateHistoryForEachIteration( ) )
             {
                 simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
             }

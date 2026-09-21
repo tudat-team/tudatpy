@@ -50,11 +50,16 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
                  "of use cases"
               << std::endl;
 
+    const auto stateTransitionInterface = orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( );
+    if( stateTransitionInterface->getStateTransitionMatrixSize( ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error when propagating covariance to the RSW frame: a propagated state is required; "
+                "observation-only estimation is not supported." );
+    }
+
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    tp::propagateCovariance( propagatedCovariance,
-                             initialCovariance,
-                             orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( ),
-                             evaluationTimes );
+    tp::propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
 
     tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies( );
 

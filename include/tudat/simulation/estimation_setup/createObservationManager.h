@@ -453,6 +453,13 @@ void performTimeBiasPartialClosure(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > timeBiasPartial,
         const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface )
 {
+    if( dependentVariablesInterface == nullptr )
+    {
+        // Time-bias observation partials obtain accelerations from the link-end ephemerides.
+        // The optional propagated-acceleration callback is not needed when no dependent-variable interface is available.
+        return;
+    }
+
     std::string bodyName = timeBiasPartial->getParameterName( ).second.first;
     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable =
             std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable,

@@ -156,8 +156,6 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initia
         const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
         const bool propagateOnCreation )
 {
-    propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
-
     // Detect whether consider parameters are included
     considerParametersIncluded_ = false;
     if( considerParameters_ != nullptr )
@@ -183,7 +181,20 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initia
             estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >( parametersToEstimate_ );
     integrateAndEstimateOrbit_ = ( initialDynamicalStates.size( ) > 0 );
 
-    propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
+    const bool isObservationOnlyEstimation = ( !integrateAndEstimateOrbit_ && propagatorSettings == nullptr );
+    if( integrateAndEstimateOrbit_ && propagatorSettings == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when creating OrbitDeterminationManager: propagator settings are required when estimating "
+                "initial dynamical state parameters." );
+    }
+
+    if( propagatorSettings != nullptr )
+    {
+        propagators::toggleIntegratedResultSettings< ObservationScalarType, TimeType >( propagatorSettings );
+        propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
+    }
+
     if( integrateAndEstimateOrbit_ )
     {
         variationalEquationsSolver_ = simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(
@@ -194,7 +205,7 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initia
     {
         stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
     }
-    else if( propagatorSettings == nullptr )
+    else if( isObservationOnlyEstimation )
     {
         stateTransitionAndSensitivityMatrixInterface_ =
                 createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
@@ -202,11 +213,15 @@ void OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::initia
     }
     else
     {
-        throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
+        throw std::runtime_error(
+                "Error when creating OrbitDeterminationManager: propagator settings were provided, but no initial "
+                "dynamical state parameters are estimated. To estimate only observation or environment parameters, "
+                "pass nullptr/None as propagator settings." );
     }
 
     // TODO correct this when moving dependent variable interface into results object
-    if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
+    if( variationalEquationsSolver_ != nullptr &&
+        std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
                 variationalEquationsSolver_ ) == nullptr )
     {
         dependentVariablesInterface_ = variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariablesInterface( );

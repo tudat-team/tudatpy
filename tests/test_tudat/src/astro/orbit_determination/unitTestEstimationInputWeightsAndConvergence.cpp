@@ -14,6 +14,10 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/environment_setup/createBodiesFactory.h"
+#include "tudat/simulation/environment_setup/createBodyShapeModel.h"
+#include "tudat/simulation/environment_setup/createEphemeris.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParametersFactory.h"
@@ -28,6 +32,121 @@ namespace tudat
 namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
+
+//! Verify that an OrbitDeterminationManager without propagator settings can estimate parameters whose
+//! observation partials are entirely direct, while rejecting parameters that require propagated dynamics.
+BOOST_AUTO_TEST_CASE( test_ObservationOnlyEstimation )
+{
+    using namespace observation_models;
+
+    BodyListSettings bodySettings( "SSB", "J2000" );
+    bodySettings.addSettings( "Earth" );
+    bodySettings.at( "Earth" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings.at( "Earth" )->shapeModelSettings = sphericalBodyShapeSettings( 6.4E6 );
+    // Keep the station frame fixed so that all link-end motion is prescribed analytically.
+    bodySettings.at( "Earth" )->rotationModelSettings =
+            constantRotationModelSettings( "J2000", "IAU_Earth", Eigen::Quaterniond::Identity( ) );
+    bodySettings.addSettings( "Vehicle" );
+    bodySettings.at( "Vehicle" )->ephemerisSettings = customEphemerisSettings(
+            []( const double time ) -> Eigen::Vector6d {
+                return ( Eigen::Vector6d( ) << 7.2E6 + 100.0 * time, 0.0, 0.0, 100.0, 0.0, 0.0 ).finished( );
+            },
+            "SSB",
+            "J2000" );
+
+    for( int i = 0; i < 3; i++ )
+    {
+        bodySettings.at( "Earth" )->groundStationSettings.push_back(
+                groundStationSettings( "Station" + std::to_string( i ),
+                                       Eigen::Vector3d( 0.0, 0.05 * ( i - 1 ), 0.1 * ( i - 1 ) ),
+                                       coordinate_conversions::geodetic_position ) );
+    }
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    const Eigen::Vector3d trueBiases( 12.0, -7.0, 0.5 );
+    const std::vector< double > observationTimes = { 0.0, 60.0, 120.0, 180.0 };
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationSimulationSettings;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > biasParameterNames;
+
+    // Track the same vehicle from three stations, estimating two additive range biases and one time bias.
+    for( int i = 0; i < 3; i++ )
+    {
+        const std::string stationName = "Station" + std::to_string( i );
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = LinkEndId( "Earth", stationName );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
+        std::shared_ptr< ObservationBiasSettings > biasSettings;
+        if( i < 2 )
+        {
+            biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( trueBiases( i ) ), true );
+            biasParameterNames.push_back(
+                    std::make_shared< ConstantObservationBiasEstimatableParameterSettings >( linkEnds, one_way_range, true ) );
+        }
+        else
+        {
+            biasSettings = std::make_shared< ConstantTimeBiasSettings >( trueBiases( i ), receiver );
+            biasParameterNames.push_back(
+                    std::make_shared< ConstantTimeBiasEstimatableParameterSettings >( linkEnds, one_way_range, receiver ) );
+        }
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                one_way_range, linkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) );
+        observationSimulationSettings.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                one_way_range, linkEnds, observationTimes, receiver ) );
+    }
+    const std::shared_ptr< PropagatorSettings< double > > nullPropagatorSettings;
+
+    // An initial state still requires a variational-equations solver.
+    const std::vector< std::shared_ptr< EstimatableParameterSettings > > unsupportedParameterSettings = {
+        std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                "Vehicle", Eigen::Vector6d::Zero( ), "Earth" )
+    };
+    const std::shared_ptr< EstimatableParameterSet< double > > unsupportedParameters =
+            createParametersToEstimate< double, double >( unsupportedParameterSettings, bodies );
+    BOOST_CHECK_THROW( ( OrbitDeterminationManager< double, double >(
+                               bodies, unsupportedParameters, observationSettingsList, nullPropagatorSettings ) ),
+                       std::runtime_error );
+
+    const std::shared_ptr< EstimatableParameterSet< double > > biasParameters =
+            createParametersToEstimate< double, double >( biasParameterNames, bodies );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager(
+            bodies, biasParameters, observationSettingsList, nullPropagatorSettings );
+
+    // Both interface methods preserve the three parameter columns without a propagated state.
+    const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface =
+            orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( );
+    BOOST_REQUIRE( std::dynamic_pointer_cast< ObservationOnlyStateTransitionAndSensitivityMatrixInterface >( stateTransitionInterface ) !=
+                   nullptr );
+    BOOST_CHECK( orbitDeterminationManager.getVariationalEquationsSolver( ) == nullptr );
+
+    const std::vector< Eigen::MatrixXd > interfaceMatrices = {
+        stateTransitionInterface->getCombinedStateTransitionAndSensitivityMatrix( -10.0, false ),
+        stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( 20.0, true, { "Vehicle" } )
+    };
+    for( const Eigen::MatrixXd& interfaceMatrix : interfaceMatrices )
+    {
+        BOOST_CHECK_EQUAL( interfaceMatrix.rows( ), 0 );
+        BOOST_CHECK_EQUAL( interfaceMatrix.cols( ), 3 );
+    }
+
+    // Simulate at the true biases, then perturb all three estimated parameters, leaving the data unchanged.
+    const std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+            observationSimulationSettings, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    orbitDeterminationManager.resetParameterEstimate( trueBiases + Eigen::Vector3d( 5.0, -3.0, 0.25 ) );
+
+    const std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+    estimationInput->defineEstimationSettings( true, true, true, true, true, false );
+    const std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
+
+    BOOST_REQUIRE( !estimationOutput->exceptionDuringInversion_ );
+    BOOST_REQUIRE( !estimationOutput->residualHistory_.empty( ) );
+    BOOST_CHECK_GT( estimationOutput->residualHistory_.front( ).cwiseAbs( ).maxCoeff( ), 10.0 );
+    BOOST_REQUIRE_EQUAL( estimationOutput->parameterEstimate_.size( ), 3 );
+    BOOST_CHECK_SMALL( ( estimationOutput->parameterEstimate_ - trueBiases ).norm( ), 1.0E-8 );
+    BOOST_CHECK_SMALL( estimationOutput->residuals_.cwiseAbs( ).maxCoeff( ), 1.0E-8 );
+}
 
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
