@@ -166,7 +166,7 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
             getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
             if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
             {
-                normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( normalizationTermsConsider.rows( ) );
             }
             else
             {
