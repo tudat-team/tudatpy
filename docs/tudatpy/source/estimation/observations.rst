@@ -58,7 +58,6 @@ Classes
    ObservationSetMetadata
    ObservationDatasetRow
    ObservationScalarComponentRow
-   ObservationWeightSettings
 
 .. autoclass:: ObservationDataset
    :members:
@@ -80,9 +79,6 @@ Classes
    :members:
 
 .. autoclass:: ObservationScalarComponentRow
-   :members:
-
-.. autoclass:: ObservationWeightSettings
    :members:
 
 Observation query

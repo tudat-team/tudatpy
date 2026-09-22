@@ -10,7 +10,7 @@ from tudatpy.astro.time_representation import (
     DateTime,
 )
 from tudatpy.dynamics.environment import SystemOfBodies
-from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.tracking_data import ObservationWeightSettings, TrackingData
 from tudatpy.constants import ASTRONOMICAL_UNIT, JULIAN_DAY
 from tudatpy.dynamics.environment_setup import ephemeris
 from scipy.linalg import block_diag
@@ -284,15 +284,15 @@ class GaiaAstrometry:
         return observation_covariance_matrix
 
     def to_tracking_data(self) -> tuple[list[TrackingData], list]:
-        """Collect all Gaia observations into :class:`~tudatpy.data_input.tracking_data.TrackingData` objects and
-        apply the observation weights according to the Gaia weighting scheme. Any filtering or corrections must be
-        done before constructing the tracking data. Observations are in the ``J2000`` frame.
+        """Collect Gaia observations into one :class:`~tudatpy.data_input.tracking_data.TrackingData` object per
+        transit and apply the observation weights according to the Gaia weighting scheme. Any filtering or corrections
+        must be done before constructing the tracking data. Observations are in the ``J2000`` frame.
 
         Returns
         -------
         tuple[list[TrackingData], list]
-            Tudat TrackingData objects containing observations of all asteroids organized by link-ends, and an empty
-            list of supplementary data. Asteroids are named by their MPC number.
+            Tudat TrackingData objects containing one Gaia transit each, and an empty list of supplementary data.
+            Asteroids are named by their MPC number.
         """
         # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
         force_symmetric = lambda mat: (mat + mat.T) / 2
@@ -301,36 +301,34 @@ class GaiaAstrometry:
         for mpc_number in self.mpc_numbers_in_table:
             # Get the data for current asteroid
             table_for_object = self._table_for_single_object(mpc_number)
-            observation_angles = table_for_object.loc[:, ["ra", "dec"]].to_numpy()
-            observation_times = table_for_object["epoch"].to_numpy()
-
-            tracking_data = TrackingData(
-                observable_type="AngularPosition",
-                link_ends=[
-                    ((str(mpc_number), ""), "transmitter"),
-                    (("Gaia", ""), "receiver"),
-                ],
-                observations=[
-                    np.array(observation, dtype=float) for observation in observation_angles
-                ],
-                epochs=observation_times.tolist(),
-                reference_link_end="receiver",
-                time_scale="TDB",
-            )
-
             observation_covariance_matrices = self._get_observation_covariance(mpc_number)
-            weight_matrices = [
-                force_symmetric(np.linalg.inv(block)) for block in observation_covariance_matrices
-            ]
-            weight_blocks = [
-                (transit_rows.index.to_list(), weight_matrix)
-                for (_, transit_rows), weight_matrix in zip(
-                    table_for_object.groupby("transit_id", sort=False), weight_matrices
-                )
-            ]
 
-            tracking_data.set_observation_weight_blocks(weight_blocks)
-            tracking_data_objects.append(tracking_data)
+            for (_, transit_rows), covariance_matrix in zip(
+                table_for_object.groupby("transit_id", sort=False),
+                observation_covariance_matrices,
+            ):
+                observation_angles = transit_rows.loc[:, ["ra", "dec"]].to_numpy()
+                observation_times = transit_rows["epoch"].to_numpy()
+
+                tracking_data = TrackingData(
+                    observable_type="AngularPosition",
+                    link_ends=[
+                        ((str(mpc_number), ""), "transmitter"),
+                        (("Gaia", ""), "receiver"),
+                    ],
+                    observations=[
+                        np.array(observation, dtype=float) for observation in observation_angles
+                    ],
+                    epochs=observation_times.tolist(),
+                    reference_link_end="receiver",
+                    time_scale="TDB",
+                )
+
+                weight_matrix = force_symmetric(np.linalg.inv(covariance_matrix))
+                tracking_data.set_observation_weight_settings(
+                    ObservationWeightSettings.set_block(weight_matrix)
+                )
+                tracking_data_objects.append(tracking_data)
 
         return tracking_data_objects, []
 
@@ -350,8 +348,8 @@ class GaiaAstrometry:
         Returns
         -------
         ObservationDataset
-            Tudat ObservationDataset containing observations of all asteroids organized in observation sets by
-            link-ends. Asteroids are named by their MPC number.
+            Tudat ObservationDataset containing one observation set per Gaia transit. Asteroids are named by their MPC
+            number.
         """
         if bodies.global_frame_orientation() != "J2000":
             raise ValueError(

@@ -26,83 +26,12 @@
 #include <cereal/types/utility.hpp>
 #include <cereal/types/vector.hpp>
 
+#include "tudat/io/observationWeightSettings.h"
+
 namespace tudat
 {
 namespace observation_models
 {
-
-//! Weight policy used while adding a new observation set.
-/*!
- * This object keeps the add-observation-set interface small while still
- * supporting compact scalar weights, per-observation scalar weights,
- * observable-size per-observation blocks and full set-level blocks.
- */
-struct ObservationWeightSettings {
-    //! Supported compact representations for weights supplied with a new set.
-    enum class Type { default_weights, constant_scalar, scalar_per_observation, constant_block, block_per_observation, set_block };
-
-    //! Create settings that assign unit diagonal weights.
-    static ObservationWeightSettings defaultWeights( )
-    {
-        return ObservationWeightSettings( );
-    }
-
-    //! Create settings for one scalar weight repeated over all observations and components.
-    static ObservationWeightSettings constantScalar( const double weight )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = Type::constant_scalar;
-        settings.scalarWeight_ = weight;
-        return settings;
-    }
-
-    //! Create settings with one scalar weight per observation event.
-    static ObservationWeightSettings scalarPerObservation( const std::vector< double >& weights )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = Type::scalar_per_observation;
-        settings.scalarWeights_ = weights;
-        return settings;
-    }
-
-    //! Create settings with one component block repeated for every observation event.
-    static ObservationWeightSettings constantBlock( const Eigen::MatrixXd& weightBlock )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = Type::constant_block;
-        settings.weightBlock_ = weightBlock;
-        return settings;
-    }
-
-    //! Create settings with a separate component block for every observation event.
-    static ObservationWeightSettings blockPerObservation( const std::vector< Eigen::MatrixXd >& weightBlocks )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = Type::block_per_observation;
-        settings.weightBlocks_ = weightBlocks;
-        return settings;
-    }
-
-    //! Create settings with one full principal block for the complete set.
-    static ObservationWeightSettings setBlock( const Eigen::MatrixXd& weightBlock )
-    {
-        ObservationWeightSettings settings;
-        settings.type_ = Type::set_block;
-        settings.weightBlock_ = weightBlock;
-        return settings;
-    }
-
-    //! Selected compact weight representation.
-    Type type_ = Type::default_weights;
-    //! Scalar value used by the constant-scalar representation.
-    double scalarWeight_ = 1.0;
-    //! Per-observation values used by the scalar-per-observation representation.
-    std::vector< double > scalarWeights_;
-    //! Shared component block or complete set block, depending on type_.
-    Eigen::MatrixXd weightBlock_;
-    //! Per-observation component blocks used by the block-per-observation representation.
-    std::vector< Eigen::MatrixXd > weightBlocks_;
-};
 
 //! One effective symmetric weight matrix, indexed by dataset scalar storage.
 /*!
@@ -117,72 +46,6 @@ class ObservationWeights
 public:
     using Index = unsigned int;
     using Entry = std::pair< Index, Index >;
-
-    //! Validate and normalize an addition policy before changing the dataset.
-    static ObservationWeights forSet( const std::size_t count, const unsigned int dimension, const ObservationWeightSettings& settings )
-    {
-        if( dimension == 0 || count > std::numeric_limits< Index >::max( ) / dimension )
-        {
-            throw std::runtime_error( "Observation weight dimensions exceed scalar storage capacity." );
-        }
-        using Type = ObservationWeightSettings::Type;
-        ObservationWeights result;
-        Eigen::VectorXd diagonal = Eigen::VectorXd::Ones( count * dimension );
-        switch( settings.type_ )
-        {
-            case Type::constant_scalar:
-                validateDiagonal( Eigen::VectorXd::Constant( 1, settings.scalarWeight_ ) );
-                diagonal.setConstant( settings.scalarWeight_ );
-                break;
-            case Type::scalar_per_observation:
-                if( settings.scalarWeights_.size( ) != count )
-                {
-                    throw std::runtime_error( "Observation scalar weight count is inconsistent." );
-                }
-                for( std::size_t i = 0; i < count; ++i )
-                {
-                    diagonal.segment( i * dimension, dimension ).setConstant( settings.scalarWeights_.at( i ) );
-                }
-                break;
-            case Type::default_weights:
-            case Type::constant_block:
-            case Type::block_per_observation:
-            case Type::set_block:
-                break;
-            default:
-                throw std::runtime_error( "Unknown observation weight policy." );
-        }
-        result.appendDiagonal( diagonal );
-        if( settings.type_ == Type::set_block )
-        {
-            std::vector< Index > indices( count * dimension );
-            std::iota( indices.begin( ), indices.end( ), 0 );
-            result.setBlock( indices, indices, settings.weightBlock_ );
-        }
-        else if( settings.type_ == Type::constant_block || settings.type_ == Type::block_per_observation )
-        {
-            if( settings.type_ == Type::block_per_observation && settings.weightBlocks_.size( ) != count )
-            {
-                throw std::runtime_error( "Observation weight block count is inconsistent." );
-            }
-            std::vector< Index > indices( dimension );
-            if( settings.type_ == Type::constant_block )
-            {
-                // Validate a constant block even for an empty observation set.
-                ObservationWeights single;
-                single.appendDiagonal( Eigen::VectorXd::Ones( dimension ) );
-                std::iota( indices.begin( ), indices.end( ), 0 );
-                single.setBlock( indices, indices, settings.weightBlock_ );
-            }
-            for( std::size_t i = 0; i < count; ++i )
-            {
-                std::iota( indices.begin( ), indices.end( ), i * dimension );
-                result.setBlock(
-                        indices, indices, settings.type_ == Type::constant_block ? settings.weightBlock_ : settings.weightBlocks_.at( i ) );
-            }
-        }
-        return result;
-    }
 
     //! Return the number of scalar rows represented by this weight matrix.
     std::size_t size( ) const
@@ -457,6 +320,109 @@ private:
     //! Nonzero off-diagonal coefficients stored once in the upper triangle.
     std::map< Entry, double > offDiagonal_;
 };
+
+//! Create the effective weights for a new observation set.
+/*!
+ * \param numberOfObservations Number of observation events in the set.
+ * \param singleObservationSize Number of scalar components in each observation event. For example, this is two for
+ * angular-position observations.
+ * \param weightSettings Representation and numerical weight values to apply. For scalar_per_observation,
+ * scalarWeights_ must contain numberOfObservations entries. For diagonal_per_observation, diagonalWeights_ must contain
+ * numberOfObservations vectors of length singleObservationSize. For constant_block, weightBlock_ must be a
+ * singleObservationSize-by-singleObservationSize matrix. For block_per_observation, weightBlocks_ must contain
+ * numberOfObservations matrices of that size. For set_block, weightBlock_ must have
+ * numberOfObservations * singleObservationSize rows and columns.
+ * \return Validated weights ordered by observation event and then by scalar component within each event.
+ */
+inline ObservationWeights createObservationWeightsForSet( const std::size_t numberOfObservations,
+                                                          const unsigned int singleObservationSize,
+                                                          const ObservationWeightSettings& weightSettings )
+{
+    using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
+    if( singleObservationSize == 0 ||
+        numberOfObservations > std::numeric_limits< ObservationWeights::Index >::max( ) / singleObservationSize )
+    {
+        throw std::runtime_error( "Observation weight dimensions exceed scalar storage capacity." );
+    }
+
+    ObservationWeights result;
+    Eigen::VectorXd diagonal = Eigen::VectorXd::Ones( numberOfObservations * singleObservationSize );
+    switch( weightSettings.type_ )
+    {
+        case WeightsBlockType::constant_scalar:
+            ObservationWeights::validateDiagonal( Eigen::VectorXd::Constant( 1, weightSettings.scalarWeight_ ) );
+            diagonal.setConstant( weightSettings.scalarWeight_ );
+            break;
+        case WeightsBlockType::scalar_per_observation:
+            if( weightSettings.scalarWeights_.size( ) != numberOfObservations )
+            {
+                throw std::runtime_error( "Observation scalar weight count is inconsistent." );
+            }
+            for( std::size_t i = 0; i < numberOfObservations; ++i )
+            {
+                diagonal.segment( i * singleObservationSize, singleObservationSize ).setConstant( weightSettings.scalarWeights_.at( i ) );
+            }
+            break;
+        case WeightsBlockType::diagonal_per_observation:
+            if( weightSettings.diagonalWeights_.size( ) != numberOfObservations )
+            {
+                throw std::runtime_error( "Observation diagonal weight count is inconsistent." );
+            }
+            for( std::size_t i = 0; i < numberOfObservations; ++i )
+            {
+                const Eigen::VectorXd& observationDiagonal = weightSettings.diagonalWeights_.at( i );
+                if( observationDiagonal.size( ) != singleObservationSize )
+                {
+                    throw std::runtime_error( "Observation diagonal weight size is inconsistent." );
+                }
+                ObservationWeights::validateDiagonal( observationDiagonal );
+                diagonal.segment( i * singleObservationSize, singleObservationSize ) = observationDiagonal;
+            }
+            break;
+        case WeightsBlockType::default_weights:
+        case WeightsBlockType::constant_block:
+        case WeightsBlockType::block_per_observation:
+        case WeightsBlockType::set_block:
+            break;
+        default:
+            throw std::runtime_error( "Unknown observation weight policy." );
+    }
+
+    result.appendDiagonal( diagonal );
+    if( weightSettings.type_ == WeightsBlockType::set_block )
+    {
+        std::vector< ObservationWeights::Index > indices( numberOfObservations * singleObservationSize );
+        std::iota( indices.begin( ), indices.end( ), 0 );
+        result.setBlock( indices, indices, weightSettings.weightBlock_ );
+    }
+    else if( weightSettings.type_ == WeightsBlockType::constant_block || weightSettings.type_ == WeightsBlockType::block_per_observation )
+    {
+        if( weightSettings.type_ == WeightsBlockType::block_per_observation &&
+            weightSettings.weightBlocks_.size( ) != numberOfObservations )
+        {
+            throw std::runtime_error( "Observation weight block count is inconsistent." );
+        }
+
+        std::vector< ObservationWeights::Index > indices( singleObservationSize );
+        if( weightSettings.type_ == WeightsBlockType::constant_block )
+        {
+            // Validate a constant block even for an empty observation set.
+            ObservationWeights singleObservationWeights;
+            singleObservationWeights.appendDiagonal( Eigen::VectorXd::Ones( singleObservationSize ) );
+            std::iota( indices.begin( ), indices.end( ), 0 );
+            singleObservationWeights.setBlock( indices, indices, weightSettings.weightBlock_ );
+        }
+        for( std::size_t i = 0; i < numberOfObservations; ++i )
+        {
+            std::iota( indices.begin( ), indices.end( ), i * singleObservationSize );
+            result.setBlock( indices,
+                             indices,
+                             weightSettings.type_ == WeightsBlockType::constant_block ? weightSettings.weightBlock_
+                                                                                      : weightSettings.weightBlocks_.at( i ) );
+        }
+    }
+    return result;
+}
 
 }  // namespace observation_models
 }  // namespace tudat

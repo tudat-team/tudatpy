@@ -259,9 +259,29 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
         const std::vector< Eigen::VectorXd >& dependentVariables,
         const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping,
         const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings,
-        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals,
+        const bool sortObservations )
 {
-    const auto weights = ObservationWeights::forSet( observations.size( ), getObservableSize( observableType ), weightSettings );
+    const unsigned int singleObservationSize = getObservableSize( observableType );
+    ObservationWeights weights = createObservationWeightsForSet( observations.size( ), singleObservationSize, weightSettings );
+
+    // Apply the same time ordering to the weight rows and columns that
+    // addObservationSet applies to the observations themselves.
+    if( sortObservations && times.size( ) > 1 )
+    {
+        const std::vector< std::size_t > observationPermutation = getTimeSortingPermutation( times );
+        std::vector< unsigned int > scalarPermutation;
+        scalarPermutation.reserve( observations.size( ) * singleObservationSize );
+        for( const std::size_t observationIndex : observationPermutation )
+        {
+            for( unsigned int componentIndex = 0; componentIndex < singleObservationSize; ++componentIndex )
+            {
+                scalarPermutation.push_back( observationIndex * singleObservationSize + componentIndex );
+            }
+        }
+        weights = weights.restricted( scalarPermutation );
+    }
+
     const unsigned int setId = addObservationSet( observableType,
                                                   linkDefinition,
                                                   observations,
@@ -271,7 +291,8 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                                   dependentVariableBookkeeping,
                                                   ancillarySettings,
                                                   {},
-                                                  residuals );
+                                                  residuals,
+                                                  sortObservations );
     observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
     return setId;
 }

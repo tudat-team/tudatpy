@@ -97,6 +97,7 @@ set(io_HEADERS
         "readVariousPdsFiles.h"
         "readInpopEphemerisFile.h"
         "comaModelInputOutput.h"
+        "observationWeightSettings.h"
         "trackingData.h"
         )
 

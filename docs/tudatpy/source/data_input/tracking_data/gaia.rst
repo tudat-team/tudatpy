@@ -8,7 +8,8 @@ data from the online archive or local parquet archives. :class:`GaiaAstrometry`
 prepares TDB epochs, angular observations, and transit-correlated weights.
 Convert it to generic tracking data with :meth:`GaiaAstrometry.to_tracking_data`,
 or directly to an :class:`~tudatpy.estimation.observations.ObservationDataset`
-with :meth:`GaiaAstrometry.to_observation_dataset`.
+with :meth:`GaiaAstrometry.to_observation_dataset`. Each Gaia transit becomes
+one tracking-data object and one observation set.
 
 .. currentmodule:: tudatpy.data_input.tracking_data.gaia
 
