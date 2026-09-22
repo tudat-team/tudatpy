@@ -401,7 +401,7 @@ private:
      *   6 : Average of eight 3 hr AP indicies from 36 to 57 hrs
      *           prior to current time
      */
-    ap_array aph_;
+    ap_array aph_{};
 
     //! Input structure with 10 scalar settings and magnetic values struct.
     /*!

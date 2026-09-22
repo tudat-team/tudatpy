@@ -635,7 +635,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
     double initialEpoch = 946728000.0;
     double finalEpoch = 1200000000.0;
 
-    int numberArcs = 5;
+    unsigned int numberArcs = 5;
 
     double propagationTimeStep = 1800.0;
     double flybyDuration = 8.0 * 3600.0;
@@ -678,7 +678,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::map< int, std::vector< std::string > > bodiesToPropagatePerArc, centralBodiesPerArc;
         if( testCase == 0 )
         {
-            for( int i = 0; i < numberArcs; i++ )
+            for( unsigned int i = 0; i < numberArcs; i++ )
             {
                 bodiesToPropagatePerArc[ i ] = { "Io", "Europa", "Ganymede", "Callisto", "JUICE" };
                 centralBodiesPerArc[ i ] = { "Jupiter", "Jupiter", "Jupiter", "Jupiter", multiArcCentralBodies.at( i ) };
@@ -704,11 +704,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
 
         // Set accelerations map for the moons.
         std::vector< std::string > moonsToPropagate, centralBodiesForMoons;
-        std::map< int, AccelerationMap > multiArcMoonsAccelerationMap;
-        for( int i = 0; i < numberArcs; i++ )
+        std::map< unsigned int, AccelerationMap > multiArcMoonsAccelerationMap;
+        for( unsigned int i = 0; i < numberArcs; i++ )
         {
             std::vector< std::string > arcWiseMoonsToPropagate, arcWiseMoonsCentralBodies;
-            for( int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
+            for( unsigned int j = 0; j < bodiesToPropagatePerArc.at( i ).size( ) - 1; j++ )
             {
                 arcWiseMoonsToPropagate.push_back( bodiesToPropagatePerArc.at( i ).at( j ) );
                 arcWiseMoonsCentralBodies.push_back( centralBodiesPerArc.at( i ).at( j ) );
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         }
 
         // Merge arc-wise acceleration maps
-        std::map< int, AccelerationMap > multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
+        std::map< unsigned int, AccelerationMap > multiArcCompleteAccelerationMaps = multiArcMoonsAccelerationMap;
         for( unsigned int k = 0; k < numberArcs; k++ )
         {
             AccelerationMap arcWiseAccelerationMap = multiArcCompleteAccelerationMaps.at( k );
@@ -729,13 +729,13 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         std::vector< std::shared_ptr< SingleArcPropagatorSettings<> > > propagatorSettingsList;
         std::map< std::string, std::vector< std::string > > multiArcCentralBodiesPerBody;
         std::map< std::string, Eigen::VectorXd > multiArcInitialStatesPerBody;
-        std::map< std::string, std::vector< std::pair< int, int > > > counterArcsPerBody;
-        std::map< int, Eigen::VectorXd > multiArcInitialStates;
+        std::map< std::string, std::vector< std::pair< unsigned int, unsigned int > > > counterArcsPerBody;
+        std::map< unsigned int, Eigen::VectorXd > multiArcInitialStates;
         std::vector< double > arcStartTimes;
         std::map< std::string, std::vector< double > > arcStartTimesPerBody;
         std::vector< std::string > listBodiesToPropagate;
 
-        for( int arc = 0; arc < numberArcs; arc++ )
+        for( unsigned int arc = 0; arc < numberArcs; arc++ )
         {
             arcStartTimes.push_back( multiArcStartTimes.at( arc ) );
 
@@ -812,7 +812,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyVariationalEquationCalculation1 )
         {
             Eigen::VectorXd arcWiseStatesCurrentBody;
             arcWiseStatesCurrentBody.resize( 6 * itr.second.size( ) );
-            std::vector< std::pair< int, int > > currentBodyArcIndices = counterArcsPerBody.at( itr.first );
+            std::vector< std::pair< unsigned int, unsigned int > > currentBodyArcIndices = counterArcsPerBody.at( itr.first );
             for( unsigned int j = 0; j < itr.second.size( ); j++ )
             {
                 arcWiseStatesCurrentBody.segment( 6 * j, 6 ) = multiArcInitialStates.at( currentBodyArcIndices.at( j ).first )

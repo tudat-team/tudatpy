@@ -107,6 +107,12 @@ public:
         return linkEnds_;
     }
 
+    //! Function to retrieve model-dependent residual wrapping settings.
+    virtual ResidualWrappingSettings getResidualWrappingSettings( ) const
+    {
+        return ResidualWrappingSettings( );
+    }
+
     virtual std::map< std::pair< LinkEndType, LinkEndType >, std::vector< std::shared_ptr< LightTimeCalculatorBase > > >
     getLegLightTimeCalculators( ) const = 0;
 

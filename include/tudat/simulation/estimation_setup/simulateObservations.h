@@ -27,6 +27,7 @@
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/orbitDeterminationManagerHelpers.h"
 
 namespace tudat
 {
@@ -748,6 +749,15 @@ void computeResidualsAndDependentVariables(
     std::shared_ptr< observation_models::ObservationDataset< ObservationScalarType, TimeType > > computedObservationDataset =
             simulateObservationDataset( observationSimulationSettings, observationSimulators, bodies );
 
+    std::map< observation_models::ObservableType,
+              std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+            observationSimulatorMap;
+    for( const std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > >& observationSimulator :
+         observationSimulators )
+    {
+        observationSimulatorMap[ observationSimulator->getObservableType( ) ] = observationSimulator;
+    }
+
     if( observationDataset->getNumberOfObservationSets( ) != computedObservationDataset->getNumberOfObservationSets( ) )
     {
         throw std::runtime_error( "Error when computing observation residuals, simulated and observed set counts differ." );
@@ -811,6 +821,23 @@ void computeResidualsAndDependentVariables(
             if( !reorderedDependentVariables.empty( ) )
             {
                 reorderedDependentVariables.at( i ) = computedDependentVariables.at( computedIndex );
+            }
+        }
+
+        if( observation_models::isResidualWrappingRequired( observedMetadata.observableType_ ) )
+        {
+            const observation_models::ResidualWrappingSettings residualWrappingSettings =
+                    observationSimulatorMap.at( observedMetadata.observableType_ )
+                            ->getResidualWrappingSettings(
+                                    observationDataset->getLinkDefinition( observedMetadata.linkDefinitionId_ ).linkEnds_ );
+            for( std::size_t i = 0; i < residuals.size( ); ++i )
+            {
+                wrapObservationResiduals< ObservationScalarType >(
+                        residuals.at( i ),
+                        std::make_pair( 0, static_cast< int >( observedMetadata.observableSize_ ) ),
+                        observedMetadata.observableType_,
+                        observedValues.at( i ),
+                        residualWrappingSettings );
             }
         }
 
