@@ -3,10 +3,24 @@
 ``sbdb``
 ========
 
-This module contains a wrapper for selected data from JPL's Small-Body
-Database (SBDB). The current Tudat interface uses only a limited part of the
-available SBDB information: object names, SPK identifiers, diameters, and
-gravitational parameters when available.
+This module provides two independent interfaces to JPL's Small-Body Database
+(SBDB). :class:`~tudatpy.data_input.environment_data.sbdb.SBDBquery` queries one
+object and exposes its properties.
+:class:`~tudatpy.data_input.environment_data.sbdb.SBDBbatch` downloads or loads
+the catalogue as a table; its ``get`` method filters that table by primary MPC
+designation without making another request.
+
+For example, a catalogue query can select an object and save the table for
+later reuse:
+
+.. code-block:: python
+
+    from tudatpy.data_input.environment_data.sbdb import SBDBbatch
+
+    batch = SBDBbatch(fields=["pdes", "name"])
+    vesta = batch.get(4)
+    batch.to_csv("sbdb.csv")
+    reloaded = SBDBbatch(csv_path="sbdb.csv")
 
 For direct environment setup, SBDB data are used by
 :func:`~tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb` and
@@ -23,7 +37,11 @@ Classes
 
 .. autosummary::
 
+   SBDBbatch
    SBDBquery
+
+.. autoclass:: SBDBbatch
+   :members:
 
 .. autoclass:: SBDBquery
    :members:

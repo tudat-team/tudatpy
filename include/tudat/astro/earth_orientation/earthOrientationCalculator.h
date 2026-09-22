@@ -21,6 +21,7 @@
 #include "tudat/astro/earth_orientation/eopReader.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+#include "tudat/interface/sofa/fundamentalArguments.h"
 
 namespace tudat
 {
@@ -245,8 +246,27 @@ public:
         // Compute nutation/precession parameters
         Eigen::Vector3d positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
 
-        // Compute polar motion values
-        Eigen::Vector2d positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
+        // Compute polar motion values. Before the start of the EOP data, use the historical UT1 value already calculated above
+        // instead of asking the approximate fundamental-argument function to perform a TT->UTC conversion through SOFA.
+        const double eopIntroductionEpochInTai =
+                ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY;
+        const TimeType atomicTime = basic_astrodynamics::convertTTtoTAI( terrestrialTime );
+        Eigen::Vector2d positionOfCipInItrs;
+        if( static_cast< double >( atomicTime ) < eopIntroductionEpochInTai )
+        {
+            TimeType barycentricDynamicalTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::tdb_scale, timeValue, Eigen::Vector3d::Zero( ) );
+            Eigen::Vector6d fundamentalArguments =
+                    sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( static_cast< double >( barycentricDynamicalTime ),
+                                                                                   static_cast< double >( terrestrialTime ),
+                                                                                   static_cast< double >( ut1 ) );
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( fundamentalArguments, static_cast< double >( utc ) );
+        }
+        else
+        {
+            positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
+        }
 
         // Return vector of angles.
         Eigen::Vector5d rotationAngles;
