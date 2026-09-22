@@ -1,5 +1,6 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
+from astropy.time import Time
 from typing import Any, Union
 import math
 import numpy as np
@@ -112,7 +113,7 @@ class SBDBquery:
 
     @property
     def nongrav_params(self):
-        """Returns cometary non-gravitational model parameters for the small body if they are available, in m/s^2.
+        """Returns cometary non-gravitational model parameters for the small body in [m/s^2].
         If one or more parameter is unavailable a corresponding value of 0 is returned in the array
         """
         try:
@@ -143,7 +144,7 @@ class SBDBquery:
 
     @property
     def Dt(self):
-        """Returns asymmetric Marsden model Dt (see Yeomans and Chodas, 1989) of the small body if available, in seconds"""
+        """If available, returns asymmetric cometary non-gravitational model Dt (see Yeomans and Chodas, 1989) of the small body in [seconds]"""
         try:
             DT = self.query["orbit"]["model_pars"]["DT"].value
             return (
@@ -154,26 +155,27 @@ class SBDBquery:
 
     @property
     def first_obs(self):
-        """Returns date of the first observation used for the orbit estimation of the small body if available"""
+        """If available, returns date of the first observation used for the orbit estimation of the small body in [JD]"""
         try:
             first_obs = [int(el) for el in self.query["orbit"]["first_obs"].split("-")]
-            return datetime.datetime(first_obs[0], first_obs[1], first_obs[2])
-
+            observation_start = datetime.datetime(first_obs[0], first_obs[1], first_obs[2])
+            return Time(observation_start).jd
         except Exception as _:
             raise ValueError(f"Date of first observation is not available for object {self.name}")
 
     @property
     def last_obs(self):
-        """Returns date of the last observation used for the orbit estimation of the small body if available"""
+        """If available, returns date of the last observation used for the orbit estimation of the small body in [JD]"""
         try:
             last_obs = [int(el) for el in self.query["orbit"]["last_obs"].split("-")]
-            return datetime.datetime(last_obs[0], last_obs[1], last_obs[2])
+            observation_end = datetime.datetime(last_obs[0], last_obs[1], last_obs[2])
+            return Time(observation_end).jd
         except Exception as _:
             raise ValueError(f"Date of last observation is not available for object {self.name}")
 
     @property
     def perihelion(self):
-        """Returns perihelion of the small body in meters if available"""
+        """If available, returns perihelion of the small body in [m]"""
         try:
             q = (self.query["orbit"]["elements"]["q"].value * u.au).to(u.m).value
             return q
@@ -182,7 +184,7 @@ class SBDBquery:
 
     @property
     def time_perihelion(self):
-        """Returns time of perihelion in JD of the small body if available"""
+        """If available, returns time of perihelion of the small body in [JD]"""
         try:
             tp = self.query["orbit"]["elements"]["tp"].value
             return tp
