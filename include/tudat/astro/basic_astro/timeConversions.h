@@ -16,6 +16,7 @@
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <stdexcept>
+#include <string>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
@@ -79,6 +80,17 @@ const static long double JULIAN_DAY_AT_0_MJD_LONG = 2400000.5L;
  *  \return True if timeScale is one of the general, relativistic scales, false otherwise.
  */
 bool isTimeScaleRelativistic( const TimeScales timeScale );
+
+//! Function to get a TimeScales enum entry from its string representation.
+/*!
+ *  Function to get a TimeScales enum entry from its string representation (e.g. as found in the header of a tracking
+ *  data file). Only the earth-based, non-ambiguous time scales are recognized (TAI, TT, TDB, UTC, UT1); the
+ *  relativistic scales that require additional identifiers (bodycentric, barycentric, topocentric) are not covered by
+ *  this function. The lookup is an exact, case-sensitive match (e.g. "TDB", not "tdb").
+ *  \param timeScaleString String representation of the requested time scale.
+ *  \return TimeScales enum entry corresponding to timeScaleString.
+ */
+TimeScales timeScaleFromString( const std::string& timeScaleString );
 
 //! Function to get the Julian day on zero modified Julian day.
 /*!

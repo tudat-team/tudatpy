@@ -24,6 +24,8 @@ set(sources
         ${TUDATPY_SOURCE_DIR}/add_constants_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_interface_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_data_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_data_input_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_util_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_dynamics_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_estimation_to_kernel.cpp
         ${TUDATPY_SOURCE_DIR}/add_exceptions_to_kernel.cpp
@@ -33,7 +35,8 @@ update_sources(astro sources)
 update_sources(trajectory_design sources)
 update_sources(constants sources)
 update_sources(interface sources)
-update_sources(data sources)
+update_sources(data_input sources)
+update_sources(util sources)
 update_sources(numerical_simulation sources)
 update_sources(dynamics sources)
 update_sources(estimation sources)
@@ -48,7 +51,7 @@ if(TUDAT_BUILD_WITH_MCD_INTERFACE)
         ${NetCDF_Fortran_LIBRARIES}
         ${NetCDF_C_LIBRARIES}
     )
-    target_include_directories(kernel SYSTEM PRIVATE 
+    target_include_directories(kernel SYSTEM PRIVATE
         "${NetCDF_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/third_parties/mcd")
     message(STATUS "Tudatpy: MCD support linked to kernel")

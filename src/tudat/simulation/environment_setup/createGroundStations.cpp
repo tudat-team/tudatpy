@@ -12,12 +12,159 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ground_stations/meteorologicalConditions.h"
+#include "tudat/io/readTabulatedWeatherData.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+std::shared_ptr< ground_stations::StationMeteoData > createGroundStationMeteoData(
+        const std::shared_ptr< WeatherDataSettings > weatherDataSettings )
+{
+    if( weatherDataSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating ground station meteo data: no weather data settings were provided." );
+    }
+
+    switch( weatherDataSettings->getWeatherDataType( ) )
+    {
+        case dsn_weather_data: {
+            std::shared_ptr< DsnWeatherDataSettings > dsnWeatherDataSettings =
+                    std::dynamic_pointer_cast< DsnWeatherDataSettings >( weatherDataSettings );
+            if( dsnWeatherDataSettings == nullptr || dsnWeatherDataSettings->getWeatherData( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating DSN meteo data: incompatible or empty weather data settings." );
+            }
+
+            std::map< ground_stations::MeteoDataEntries, int > dsnMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                                   { ground_stations::pressure_meteo_data, 2 },
+                                                                                   { ground_stations::water_vapor_pressure_meteo_data, 3 },
+                                                                                   { ground_stations::relative_humidity_meteo_data, 4 },
+                                                                                   { ground_stations::dew_point_meteo_data, 0 } };
+
+            return std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
+                    interpolators::createOneDimensionalInterpolator( dsnWeatherDataSettings->getWeatherData( )->meteoDataMap_,
+                                                                     dsnWeatherDataSettings->getInterpolatorSettings( ) ),
+                    dsnMeteoEntries );
+        }
+        case estrack_weather_data: {
+            std::shared_ptr< EstrackWeatherDataSettings > estrackWeatherDataSettings =
+                    std::dynamic_pointer_cast< EstrackWeatherDataSettings >( weatherDataSettings );
+            if( estrackWeatherDataSettings == nullptr || estrackWeatherDataSettings->getWeatherData( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating ESTRACK meteo data: incompatible or empty weather data settings." );
+            }
+
+            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > interpolators;
+            std::vector< std::map< double, Eigen::VectorXd > > meteoDataList =
+                    estrackWeatherDataSettings->getWeatherData( )->getMeteoDataPerFile( );
+            for( unsigned int i = 0; i < meteoDataList.size( ); i++ )
+            {
+                interpolators.push_back( interpolators::createOneDimensionalInterpolator(
+                        meteoDataList.at( i ), estrackWeatherDataSettings->getInterpolatorSettings( ) ) );
+            }
+
+            std::map< ground_stations::MeteoDataEntries, int > estrackMeteoEntries = { { ground_stations::temperature_meteo_data, 2 },
+                                                                                       { ground_stations::pressure_meteo_data, 1 },
+                                                                                       { ground_stations::relative_humidity_meteo_data,
+                                                                                         0 } };
+
+            return std::make_shared< ground_stations::PiecewiseInterpolatedMeteoData >( interpolators, estrackMeteoEntries );
+        }
+        default:
+            throw std::runtime_error( "Error when creating ground station meteo data: weather data settings type not recognized." );
+    }
+}
+
+void setWeatherDataInGroundStation( const std::shared_ptr< ground_stations::GroundStation > groundStation,
+                                    const std::shared_ptr< WeatherDataSettings > weatherDataSettings )
+{
+    if( groundStation == nullptr )
+    {
+        throw std::runtime_error( "Error when setting weather data in ground station: ground station is nullptr." );
+    }
+    groundStation->setMeteoData( createGroundStationMeteoData( weatherDataSettings ) );
+}
+
+std::shared_ptr< GroundStationSettings > getGroundStationSettingsByName(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::string& groundStation )
+{
+    for( unsigned int i = 0; i < groundStationSettings.size( ); i++ )
+    {
+        if( groundStationSettings.at( i ) != nullptr && groundStationSettings.at( i )->getStationName( ) == groundStation )
+        {
+            return groundStationSettings.at( i );
+        }
+    }
+
+    throw std::runtime_error( "Error when setting weather data in ground station settings: station " + groundStation +
+                              " not found in settings list." );
+}
+
+void setDsnWeatherDataInGroundStationSettings(
+        const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+        const std::map< int, std::shared_ptr< input_output::DsnWeatherData > >& weatherDataPerComplex,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex )
+{
+    for( auto weatherDataIt = weatherDataPerComplex.begin( ); weatherDataIt != weatherDataPerComplex.end( ); ++weatherDataIt )
+    {
+        int dsnComplex = weatherDataIt->first;
+        std::shared_ptr< input_output::DsnWeatherData > weatherData = weatherDataIt->second;
+
+        std::vector< std::string > groundStations;
+        if( groundStationsPerComplex.count( dsnComplex ) )
+        {
+            groundStations = groundStationsPerComplex.at( dsnComplex );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when setting weather data in ground station settings: no ground stations in complex." );
+        }
+
+        std::shared_ptr< DsnWeatherDataSettings > weatherDataSettings =
+                std::make_shared< DsnWeatherDataSettings >( weatherData, interpolatorSettings );
+        for( const std::string& groundStation : groundStations )
+        {
+            getGroundStationSettingsByName( groundStationSettings, groundStation )->setWeatherDataSettings( weatherDataSettings );
+        }
+    }
+}
+
+void setDsnWeatherDataInGroundStationSettings( const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+                                               const std::vector< std::string >& weatherFileNames,
+                                               std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                               const std::map< int, std::vector< std::string > >& groundStationsPerComplex )
+{
+    setDsnWeatherDataInGroundStationSettings( groundStationSettings,
+                                              input_output::readDsnWeatherDataFiles( weatherFileNames ),
+                                              interpolatorSettings,
+                                              groundStationsPerComplex );
+}
+
+void setEstrackWeatherDataInGroundStationSettings( const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+                                                   const std::shared_ptr< input_output::EstrackWeatherData > weatherData,
+                                                   const std::string groundStation,
+                                                   std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    getGroundStationSettingsByName( groundStationSettings, groundStation )
+            ->setWeatherDataSettings( std::make_shared< EstrackWeatherDataSettings >( weatherData, interpolatorSettings ) );
+}
+
+void setEstrackWeatherDataInGroundStationSettings( const std::vector< std::shared_ptr< GroundStationSettings > >& groundStationSettings,
+                                                   const std::vector< std::string >& weatherFileNames,
+                                                   const std::string groundStation,
+                                                   std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    setEstrackWeatherDataInGroundStationSettings( groundStationSettings,
+                                                  std::make_shared< input_output::EstrackWeatherData >( weatherFileNames ),
+                                                  groundStation,
+                                                  interpolatorSettings );
+}
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 void createGroundStation( const std::shared_ptr< Body > body,
@@ -221,6 +368,11 @@ void createGroundStation( const std::shared_ptr< Body > body, const std::shared_
                              groundStationSettings->getGroundStationPosition( ),
                              groundStationSettings->getPositionElementType( ),
                              groundStationSettings->getStationMotionSettings( ) );
+        if( groundStationSettings->getWeatherDataSettings( ) != nullptr )
+        {
+            setWeatherDataInGroundStation( body->getGroundStation( groundStationSettings->getStationName( ) ),
+                                           groundStationSettings->getWeatherDataSettings( ) );
+        }
     }
 }
 
