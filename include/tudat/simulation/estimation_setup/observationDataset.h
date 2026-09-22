@@ -581,7 +581,7 @@ public:
     std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
                                                                const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
 
-    //! Move or copy selected observations from one set to a target dataset set.
+    //! Move or copy selected observations between sets through the backwards-compatible dataset interface.
     void moveObservationsToSet( const unsigned int sourceSetId,
                                 ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
                                 const unsigned int targetSetId,

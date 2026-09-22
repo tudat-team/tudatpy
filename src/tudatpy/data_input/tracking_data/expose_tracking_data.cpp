@@ -292,7 +292,10 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights,
                   py::arg( "observation_weights" ),
                   R"doc(
-         Set one diagonal weight vector for each observation.
+         Backwards-compatible interface for setting one diagonal weight vector for each observation.
+
+         New code should use :meth:`set_observation_weight_settings`, which supports
+         every weight representation.
 
          Parameters
          ----------
@@ -308,7 +311,10 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
                   py::arg( "index" ),
                   py::arg( "observation_weight" ),
                   R"doc(
-         Reset one stored per-observation diagonal weight vector.
+         Backwards-compatible interface for resetting one diagonal weight vector
+         previously set through :meth:`set_observation_weights`.
+
+         This method cannot modify scalar, matrix-block, or set-level weight representations.
 
          Parameters
          ----------
@@ -324,10 +330,11 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
             .def( "get_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights,
                   R"doc(
-         Return stored per-observation diagonal weight vectors.
+         Backwards-compatible accessor for diagonal weight vectors previously set
+         through :meth:`set_observation_weights`.
 
-         Other weight representations are available through
-         :meth:`get_observation_weight_settings` and produce an empty list here.
+         Use :meth:`get_observation_weight_settings` for all representations. Other
+         weight representations produce an empty list here.
 
          Returns
          -------
@@ -337,9 +344,11 @@ diagonal weights, per-observation matrix blocks or one full matrix for the objec
             .def( "get_concatenated_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightsVector,
                   R"doc(
-         Return concatenated per-observation diagonal weights.
+         Backwards-compatible accessor that concatenates diagonal weights previously
+         set through :meth:`set_observation_weights`.
 
-         Other weight representations produce an empty vector here.
+         Use :meth:`get_observation_weight_settings` for all representations. Other
+         weight representations produce an empty vector here.
 
          Returns
          -------

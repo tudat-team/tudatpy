@@ -293,7 +293,8 @@ public:
         return ancillarySettingsDoubleVector_;
     }
 
-    //! Set one diagonal weight vector for each observation (optional).
+    //! Backwards-compatible interface for setting one diagonal weight vector per observation.
+    //! New code should use setObservationWeightSettings, which supports every weight representation.
     void setObservationWeights( const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& observationWeights )
     {
         // Check size consistency (for the total number of observations)
@@ -356,7 +357,8 @@ public:
         observationWeightSettings_.reset( );
     }
 
-    //! Reset one stored per-observation diagonal weight vector.
+    //! Backwards-compatible interface for resetting one diagonal weight vector set through setObservationWeights.
+    //! It cannot modify scalar, matrix-block, or set-level weight representations.
     void setSingleObservationWeight( const unsigned int index, const Eigen::Matrix< double, Eigen::Dynamic, 1 >& observationWeight )
     {
         // Check if weights are already available
@@ -388,7 +390,8 @@ public:
         observationWeightSettings_->diagonalWeights_.at( index ) = observationWeight;
     }
 
-    //! Return stored per-observation diagonal weight vectors, or an empty vector for any other weight representation.
+    //! Backwards-compatible accessor for diagonal weight vectors set through setObservationWeights.
+    //! Use getObservationWeightSettings for all representations; this function returns an empty vector for every other representation.
     const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getObservationWeights( ) const
     {
         if( observationWeightSettings_.has_value( ) &&
@@ -400,7 +403,8 @@ public:
         return emptyWeights;
     }
 
-    //! Return the concatenated per-observation diagonal weights, or a size-zero vector for any other representation.
+    //! Backwards-compatible accessor that concatenates diagonal weights set through setObservationWeights.
+    //! Use getObservationWeightSettings for all representations; this function returns a size-zero vector for every other representation.
     Eigen::VectorXd getObservationWeightsVector( ) const
     {
         const std::vector< Eigen::VectorXd >& observationWeights = getObservationWeights( );
