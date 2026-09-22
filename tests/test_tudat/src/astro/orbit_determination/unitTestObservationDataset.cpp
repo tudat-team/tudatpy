@@ -63,6 +63,11 @@ public:
         return observableSize_;
     }
 
+    ResidualWrappingSettings getResidualWrappingSettings( const LinkEnds& ) override
+    {
+        return ResidualWrappingSettings( );
+    }
+
     void computeObservations( const std::vector< double >& times,
                               const LinkEnds,
                               const LinkEndType,
@@ -195,8 +200,12 @@ BOOST_AUTO_TEST_CASE( test_dataset_storage_observation_vector_data_and_residuals
     simulation_setup::calculateResiduals< double, double >(
             std::make_shared< ObservationDataset< double, double > >( dataset ), simulators, residuals );
 
-    // With zero-valued simulators, residual computation must return the observed scalar vector itself.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( residuals, expectedObservations, 1.0E-15 );
+    Eigen::VectorXd expectedResiduals = expectedObservations;
+    expectedResiduals( 2 ) -= 6.0 * mathematical_constants::PI;
+    expectedResiduals( 4 ) -= 8.0 * mathematical_constants::PI;
+
+    // With zero-valued simulators, only the periodic right-ascension residuals are wrapped.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( residuals, expectedResiduals, 1.0E-15 );
 }
 
 /*!
@@ -1394,7 +1403,7 @@ BOOST_AUTO_TEST_CASE( test_dataset_snapshot_ordered_vector_data_reorders_selecte
             simulators,
             legacyResiduals );
     Eigen::VectorXd expectedLegacyResiduals( 6 );
-    expectedLegacyResiduals << 10.0, 11.0, 20.0, 21.0, 22.0, 23.0;
+    expectedLegacyResiduals << 10.0, 11.0, 20.0 - 6.0 * mathematical_constants::PI, 21.0, 22.0 - 8.0 * mathematical_constants::PI, 23.0;
 
     // Legacy collections expose residuals in their observable/link ordered layout, independent of dataset insertion order.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( legacyResiduals, expectedLegacyResiduals, 1.0E-15 );
