@@ -20,6 +20,7 @@
 
 namespace py = pybind11;
 namespace tdat = tudat::data;
+namespace tom = tudat::observation_models;
 
 namespace tudatpy
 {
@@ -32,6 +33,43 @@ namespace tracking_data
 
 void expose_tracking_data( py::module& m )
 {
+    py::class_< tom::ObservationWeightSettings >( m,
+                                                  "ObservationWeightSettings",
+                                                  R"doc(
+Settings describing the weights stored in a :class:`TrackingData` object.
+
+Use the static constructors to request compact scalar weights, per-observation
+diagonal weights, per-observation matrix blocks or one full matrix for the object.
+)doc" )
+            .def( py::init<>( ), R"doc(Create settings for default unit weights.)doc" )
+            .def_static( "default_weights",
+                         &tom::ObservationWeightSettings::defaultWeights,
+                         R"doc(Return settings for default unit weights.)doc" )
+            .def_static( "constant_scalar",
+                         &tom::ObservationWeightSettings::constantScalar,
+                         py::arg( "weight" ),
+                         R"doc(Return settings using one scalar weight for every observation.)doc" )
+            .def_static( "scalar_per_observation",
+                         &tom::ObservationWeightSettings::scalarPerObservation,
+                         py::arg( "weights" ),
+                         R"doc(Return settings using one scalar weight per observation.)doc" )
+            .def_static( "diagonal_per_observation",
+                         &tom::ObservationWeightSettings::diagonalPerObservation,
+                         py::arg( "weights" ),
+                         R"doc(Return settings using one component-level diagonal per observation.)doc" )
+            .def_static( "constant_block",
+                         &tom::ObservationWeightSettings::constantBlock,
+                         py::arg( "weight_block" ),
+                         R"doc(Return settings using one observable-size matrix block for every observation.)doc" )
+            .def_static( "block_per_observation",
+                         &tom::ObservationWeightSettings::blockPerObservation,
+                         py::arg( "weight_blocks" ),
+                         R"doc(Return settings using one observable-size matrix block per observation.)doc" )
+            .def_static( "set_block",
+                         &tom::ObservationWeightSettings::setBlock,
+                         py::arg( "weight_block" ),
+                         R"doc(Return settings using one full matrix covering every observation in the object.)doc" );
+
     py::class_< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >, std::shared_ptr< tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
             "TrackingData",
@@ -254,12 +292,15 @@ void expose_tracking_data( py::module& m )
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeights,
                   py::arg( "observation_weights" ),
                   R"doc(
-         Set per-observation weights.
+         Backwards-compatible interface for setting one diagonal weight vector for each observation.
+
+         New code should use :meth:`set_observation_weight_settings`, which supports
+         every weight representation.
 
          Parameters
          ----------
          observation_weights : list
-             Observation weights.
+             One component-level diagonal vector per observation.
 
          Returns
          -------
@@ -270,14 +311,17 @@ void expose_tracking_data( py::module& m )
                   py::arg( "index" ),
                   py::arg( "observation_weight" ),
                   R"doc(
-         Reset one observation weight.
+         Backwards-compatible interface for resetting one diagonal weight vector
+         previously set through :meth:`set_observation_weights`.
+
+         This method cannot modify scalar, matrix-block, or set-level weight representations.
 
          Parameters
          ----------
          index : int
              Observation index.
-         observation_weight : float
-             Replacement observation weight.
+         observation_weight : numpy.ndarray
+             Replacement component-level diagonal vector.
 
          Returns
          -------
@@ -286,23 +330,59 @@ void expose_tracking_data( py::module& m )
             .def( "get_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeights,
                   R"doc(
-         Return per-observation weights.
+         Backwards-compatible accessor for diagonal weight vectors previously set
+         through :meth:`set_observation_weights`.
+
+         Use :meth:`get_observation_weight_settings` for all representations. Other
+         weight representations produce an empty list here.
 
          Returns
          -------
          list
-             Observation weights.
+             One component-level diagonal vector per observation.
       )doc" )
             .def( "get_concatenated_observation_weights",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightsVector,
                   R"doc(
-         Return concatenated observation weights.
+         Backwards-compatible accessor that concatenates diagonal weights previously
+         set through :meth:`set_observation_weights`.
+
+         Use :meth:`get_observation_weight_settings` for all representations. Other
+         weight representations produce an empty vector here.
 
          Returns
          -------
          list[float]
              Concatenated observation weights.
       )doc" )
+            .def( "set_observation_weight_settings",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationWeightSettings,
+                  py::arg( "observation_weight_settings" ),
+                  R"doc(
+         Set the representation and numerical values of the observation weights.
+
+         Parameters
+         ----------
+         observation_weight_settings : tudatpy.data_input.tracking_data.ObservationWeightSettings
+             Settings defining the weights for all observations in this object.
+      )doc" )
+            .def( "get_observation_weight_settings",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationWeightSettings,
+                  py::return_value_policy::copy,
+                  R"doc(
+         Return the settings defining the observation weights.
+
+         Returns
+         -------
+         tudatpy.data_input.tracking_data.ObservationWeightSettings
+             Copy of the stored settings.
+      )doc" )
+            .def_property_readonly( "has_observation_weight_settings",
+                                    &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::hasObservationWeightSettings,
+                                    R"doc(bool: Whether observation weight settings are stored.)doc" )
+            .def( "clear_observation_weight_settings",
+                  &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::clearObservationWeightSettings,
+                  R"doc(Remove the stored observation weight settings.)doc" )
             .def( "set_observation_corrections",
                   &tdat::TrackingData< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationCorrections,
                   py::arg( "observation_corrections" ),

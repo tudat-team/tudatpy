@@ -58,7 +58,6 @@ Classes
    ObservationSetMetadata
    ObservationDatasetRow
    ObservationScalarComponentRow
-   ObservationWeightSettings
 
 .. autoclass:: ObservationDataset
    :members:
@@ -80,9 +79,6 @@ Classes
    :members:
 
 .. autoclass:: ObservationScalarComponentRow
-   :members:
-
-.. autoclass:: ObservationWeightSettings
    :members:
 
 Observation query
@@ -119,3 +115,4 @@ Submodules
    :maxdepth: 1
 
    /estimation/observations/observations_geometry
+   /estimation/observations/observation_corrections

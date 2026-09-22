@@ -652,39 +652,6 @@ observation.
                            &tom::ObservationScalarComponentRow::componentIndex_,
                            R"doc(int: Component index within the owning vector-valued observation.)doc" );
 
-    py::class_< tom::ObservationWeightSettings >( m,
-                                                  "ObservationWeightSettings",
-                                                  R"doc(
-Weight policy used when adding a new observation set.
-
-Use the static constructors to request compact scalar weights, per-observation
-scalar weights, per-observation matrix blocks or a full set-level block.
-)doc" )
-            .def( py::init<>( ), R"doc(Create settings for default unit weights.)doc" )
-            .def_static( "default_weights",
-                         &tom::ObservationWeightSettings::defaultWeights,
-                         R"doc(Return settings for default unit weights.)doc" )
-            .def_static( "constant_scalar",
-                         &tom::ObservationWeightSettings::constantScalar,
-                         py::arg( "weight" ),
-                         R"doc(Return settings using one scalar weight for every observation.)doc" )
-            .def_static( "scalar_per_observation",
-                         &tom::ObservationWeightSettings::scalarPerObservation,
-                         py::arg( "weights" ),
-                         R"doc(Return settings using one scalar weight per observation.)doc" )
-            .def_static( "constant_block",
-                         &tom::ObservationWeightSettings::constantBlock,
-                         py::arg( "weight_block" ),
-                         R"doc(Return settings using one observable-size matrix block for every observation.)doc" )
-            .def_static( "block_per_observation",
-                         &tom::ObservationWeightSettings::blockPerObservation,
-                         py::arg( "weight_blocks" ),
-                         R"doc(Return settings using one observable-size matrix block per observation.)doc" )
-            .def_static( "set_block",
-                         &tom::ObservationWeightSettings::setBlock,
-                         py::arg( "weight_block" ),
-                         R"doc(Return settings using one full set-level matrix block.)doc" );
-
     {
         py::class_< tom::ObservationVectorData< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
                                                                                   "ObservationVectorData",
@@ -1214,7 +1181,7 @@ fields, and no unrequested observation-vector payload is constructed.)doc" )
                         R"doc(Add a logical observation set and initialize its weights from settings.
 
 ``reference_link_end``: Link end at which the observation time is defined.
-``weight_settings``: Compact scalar, per-observation block or set-level block weight policy.
+``weight_settings``: Scalar, per-observation diagonal or matrix, or full-set matrix weights.
 ``dependent_variable_bookkeeping``: Bookkeeping that describes the dependent-variable vector layout.
 ``residuals``: Residual vectors, one entry per observation event.)doc" )
                 .def(

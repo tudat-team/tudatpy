@@ -24,6 +24,7 @@ objects is applied with
    tracking_data/obs_80_cols
    tracking_data/fdets
    tracking_data/generic_text_file
+   tracking_data/gaia
    tracking_data/ifms
    tracking_data/mpc
    tracking_data/odf
@@ -46,9 +47,13 @@ the same source that must be applied to the simulation environment.
 .. autosummary::
 
    TrackingData
+   ObservationWeightSettings
    TrackingSupplementaryData
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingData
+   :members:
+
+.. autoclass:: tudatpy.data_input.tracking_data.ObservationWeightSettings
    :members:
 
 .. autoclass:: tudatpy.data_input.tracking_data.TrackingSupplementaryData

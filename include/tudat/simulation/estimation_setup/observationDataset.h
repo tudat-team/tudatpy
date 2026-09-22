@@ -158,7 +158,8 @@ public:
             const std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping >& dependentVariableBookkeeping = nullptr,
             const std::shared_ptr< ObservationAncillarySimulationSettings >& ancillarySettings = nullptr,
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals =
-                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ) );
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ),
+            const bool sortObservations = false );
 
     //////////////////////////////////////////////////////////
     /////////////////       VALUE MUTATION          //////////
@@ -580,7 +581,7 @@ public:
     std::vector< unsigned int > getFilteredObservationIndices( const unsigned int setId,
                                                                const std::shared_ptr< ObservationFilterBase >& observationFilter ) const;
 
-    //! Move or copy selected observations from one set to a target dataset set.
+    //! Move or copy selected observations between sets through the backwards-compatible dataset interface.
     void moveObservationsToSet( const unsigned int sourceSetId,
                                 ObservationDataset< ObservationScalarType, TimeType >& targetDataset,
                                 const unsigned int targetSetId,
@@ -824,6 +825,14 @@ private:
     /////////////////       PRIVATE HELPERS         //////////
     //////////////////////////////////////////////////////////
 
+    //! Record the correlations introduced by a nonzero entry between firstScalar and secondScalar in observationWeights_.
+    //! Update both affected sets without reducing either set's existing within-set block size.
+    void promoteWeightStructureForEntry( const unsigned int firstScalar, const unsigned int secondScalar );
+
+    //! Recheck correlations after changing set membership, removing observations, or replacing cross-set weights.
+    //! Preserve known within-set block sizes; clear cross-set flags only where no connecting entries remain.
+    void refreshWeightStructures( );
+
     //! Single selection/order route shared by inspection and numerical preparation.
     std::vector< unsigned int > resolveObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
                                                        const ObservationOrdering ordering,
@@ -894,33 +903,52 @@ private:
 
     //! One row per observation event; vector observables occupy one row, not N rows.
     std::vector< ObservationDatasetRow< TimeType > > observationRows_;
-    //! Derived lookup from persistent identity to packed row position.
+
+    //! For each ObservationDatasetRow::observationId_, store its current index in observationRows_.
+    //! The observation ID remains unchanged, while the index may change when observations are reordered or removed.
     std::unordered_map< unsigned int, std::size_t > rowPositionById_;
+
     //! Next stable identity assigned to a newly added observation event.
     unsigned int nextObservationId_ = 0;
-    //! One metadata record per observation set.
+
+    //!  For each set id, the metadata record belonging to that set.
     std::vector< ObservationSetMetadata< ObservationScalarType, TimeType > > setMetadata_;
-    //! For each set id, the ordered observation ids belonging to that set.
+
+    //! ObservationDatasetRow::observationId_ values grouped and ordered within each observation set.
+    //! The outer vector index is the setId; each inner vector is ordered by ObservationDatasetRow::indexInSet_.
     std::vector< std::vector< unsigned int > > observationIdsBySet_;
 
-    //! Registry of full link definitions shared by observation sets.
+    //! Full link definitions referenced by the observation sets.
+    //! For a given setId, setMetadata_.at(setId).linkDefinitionId_ gives the index in this vector.
     std::vector< LinkDefinition > linkDefinitionRegistry_;
-    //! Registry of ancillary settings pointers shared by observation sets.
+
+    //! Ancillary settings referenced by the observation sets.
+    //! For a given setId, setMetadata_.at(setId).ancillarySettingsId_ gives the index in this vector.
     std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsRegistry_;
-    //! Registry of dependent-variable bookkeeping/layout pointers shared by observation sets.
+
+    //! Dependent-variable bookkeeping referenced by the observation sets.
+    //! For a given setId, setMetadata_.at(setId).dependentVariableLayoutId_ gives the index in this vector.
     std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableBookkeeping > > dependentVariableLayoutRegistry_;
 
     //! Scalar observed values; vector observables contribute one entry per component.
     std::vector< ObservationScalarType > observedValues_;
+
     //! Scalar residual values aligned one-to-one with observedValues_.
     std::vector< ObservationScalarType > residualValues_;
+
     //! Compact observation weight storage; materialized into vectors/matrices only on request.
     ObservationWeights observationWeights_;
-    //! Monotonic counter used to invalidate numerical mappings after structural mutations.
+
+    //! Version number for the dataset structure recorded in ObservationVectorData.
+    //! It increases when observation rows or set metadata change; writeback is rejected if the stored number differs.
     std::size_t structuralVersion_ = 0;
-    //! Invalidates vector-data writeback after observed-value or selection changes.
+
+    //! Version number for the observed values and each row's active or inactive state.
+    //! It increases when either changes; ObservationVectorData created before that change cannot be written back.
     std::size_t vectorDataVersion_ = 0;
-    //! Source identity for observation-vector-data validation and dataset-backed compatibility facades.
+
+    //! Identifier for this specific ObservationDataset object.
+    //! ObservationVectorData and compatibility wrappers retain it to detect data from another or already-destroyed dataset.
     LifetimeToken lifetimeToken_;
 };
 }  // namespace observation_models
