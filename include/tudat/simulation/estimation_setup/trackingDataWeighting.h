@@ -47,6 +47,8 @@ void setObservationWeightsFromTrackingDataScheme(
         return;
     }
 
+    // Preserve either form of explicitly supplied weighting. A named scheme
+    // is only evaluated when the tracking data contains no weights yet.
     if( !trackingData->getObservationWeights( ).empty( ) || trackingData->hasObservationWeightBlocks( ) )
     {
         return;

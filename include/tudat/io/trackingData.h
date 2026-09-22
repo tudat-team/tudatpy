@@ -48,8 +48,6 @@ template< typename ObservationScalarType = double,
 class TrackingData
 {
 public:
-    using ObservationWeightBlock = std::pair< std::vector< unsigned int >, Eigen::MatrixXd >;
-
     TrackingData( const std::string observableType,
                   const PlainLinkDefinition& linkEnds,
                   const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
@@ -326,23 +324,32 @@ public:
 
         // If all sizes are consistent, store observation weights
         weights_ = observationWeights;
+
+        // Diagonal weights and correlated weight blocks are alternative
+        // representations of the complete observation weighting.
         observationWeightBlocks_.clear( );
     }
 
     //! Set correlated observation weights as disjoint blocks indexed by input observation number.
-    void setObservationWeightBlocks( const std::vector< ObservationWeightBlock >& observationWeightBlocks )
+    void setObservationWeightBlocks(
+            const std::vector< std::pair< std::vector< unsigned int >, Eigen::MatrixXd > >& observationWeightBlocks )
     {
+        // An empty input explicitly removes the correlated weighting.
         if( observationWeightBlocks.empty( ) )
         {
             observationWeightBlocks_.clear( );
             return;
         }
 
+        // Track assignment by input observation index so that the blocks form
+        // a disjoint and complete partition of the observations.
         std::vector< bool > assignedObservations( numberOfObservations_, false );
         for( const auto& weightBlock : observationWeightBlocks )
         {
             const std::vector< unsigned int >& observationIndices = weightBlock.first;
             const Eigen::MatrixXd& weightMatrix = weightBlock.second;
+
+            // Every block must identify at least one observation.
             if( observationIndices.empty( ) )
             {
                 throw std::runtime_error(
@@ -350,6 +357,8 @@ public:
                         "block is empty." );
             }
 
+            // Each indexed observation contributes singleObservationSize_
+            // consecutive scalar rows and columns to its block matrix.
             const Eigen::Index expectedSize = static_cast< Eigen::Index >( observationIndices.size( ) * singleObservationSize_ );
             if( weightMatrix.rows( ) != expectedSize || weightMatrix.cols( ) != expectedSize )
             {
@@ -357,6 +366,9 @@ public:
                         "Error when adding observation weight blocks to tracking data object, a weight matrix size is "
                         "inconsistent with its observation indices." );
             }
+
+            // Weight matrices must have the basic properties required of a
+            // real-valued observation weight matrix.
             if( !weightMatrix.allFinite( ) || !weightMatrix.isApprox( weightMatrix.transpose( ) ) ||
                 ( weightMatrix.diagonal( ).array( ) < 0.0 ).any( ) )
             {
@@ -365,6 +377,7 @@ public:
                         "finite and symmetric with a non-negative diagonal." );
             }
 
+            // Validate the input indices and reject overlap between blocks.
             for( const unsigned int observationIndex : observationIndices )
             {
                 if( observationIndex >= numberOfObservations_ )
@@ -383,6 +396,8 @@ public:
             }
         }
 
+        // Partial block weightings are not supported: every observation must
+        // be represented in exactly one block.
         if( std::find( assignedObservations.begin( ), assignedObservations.end( ), false ) != assignedObservations.end( ) )
         {
             throw std::runtime_error(
@@ -391,11 +406,13 @@ public:
         }
 
         observationWeightBlocks_ = observationWeightBlocks;
+
+        // Correlated blocks replace any previously stored diagonal weights.
         weights_.clear( );
     }
 
     //! Return correlated weight blocks and their input-observation indices.
-    const std::vector< ObservationWeightBlock >& getObservationWeightBlocks( ) const
+    const std::vector< std::pair< std::vector< unsigned int >, Eigen::MatrixXd > >& getObservationWeightBlocks( ) const
     {
         return observationWeightBlocks_;
     }
@@ -539,6 +556,7 @@ public:
         observations_.erase( observations_.begin( ) + index );
         epochs_.erase( epochs_.begin( ) + index );
 
+        // Keep every per-observation metadata vector aligned with the data.
         for( const auto& key : observationMetadataKeys_ )
         {
             auto& values = ancillarySettingsStringVector_.at( key );
@@ -551,6 +569,9 @@ public:
             weights_.erase( weights_.begin( ) + index );
         }
 
+        // Keep correlated weights aligned as well. The removed observation is
+        // represented by singleObservationSize_ consecutive rows and columns
+        // within the block containing its input index.
         for( auto weightBlockIterator = observationWeightBlocks_.begin( ); weightBlockIterator != observationWeightBlocks_.end( ); )
         {
             std::vector< unsigned int >& observationIndices = weightBlockIterator->first;
@@ -558,6 +579,9 @@ public:
             if( removedIterator != observationIndices.end( ) )
             {
                 const std::size_t removedPosition = std::distance( observationIndices.begin( ), removedIterator );
+
+                // A one-observation block disappears together with that
+                // observation; no matrix entries remain to preserve.
                 if( observationIndices.size( ) == 1 )
                 {
                     weightBlockIterator = observationWeightBlocks_.erase( weightBlockIterator );
@@ -568,6 +592,9 @@ public:
                 const Eigen::Index removedScalarStart = static_cast< Eigen::Index >( removedPosition * singleObservationSize_ );
                 Eigen::MatrixXd reducedMatrix( originalMatrix.rows( ) - singleObservationSize_,
                                                originalMatrix.cols( ) - singleObservationSize_ );
+
+                // Copy all scalar components except the rows and columns of
+                // the removed observation, preserving the remaining order.
                 Eigen::Index newRow = 0;
                 for( Eigen::Index oldRow = 0; oldRow < originalMatrix.rows( ); ++oldRow )
                 {
@@ -590,6 +617,8 @@ public:
                 weightBlockIterator->second = reducedMatrix;
             }
 
+            // Removing an observation shifts every later input index down by
+            // one, including indices in blocks that did not contain it.
             for( unsigned int& observationIndex : observationIndices )
             {
                 if( observationIndex > index )
@@ -631,7 +660,7 @@ private:
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights_;
 
-    std::vector< ObservationWeightBlock > observationWeightBlocks_;
+    std::vector< std::pair< std::vector< unsigned int >, Eigen::MatrixXd > > observationWeightBlocks_;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationCorrections_;
 
