@@ -554,8 +554,9 @@ protected:
 struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser {
 public:
     ObservationCollectionMultiTypeParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers,
-                                          const bool combineConditions = false ):
-        ObservationCollectionParser( multi_type_parser, false ), observationParsers_( observationParsers ),
+                                          const bool combineConditions = false,
+                                          const bool useOppositeCondition = false ):
+        ObservationCollectionParser( multi_type_parser, useOppositeCondition ), observationParsers_( observationParsers ),
         combineConditions_( combineConditions )
     {}
 
@@ -690,9 +691,10 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser(
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser(
         const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers,
-        const bool combineConditions = false )
+        const bool combineConditions = false,
+        const bool useOppositeCondition = false )
 {
-    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions );
+    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions, useOppositeCondition );
 }
 
 }  // namespace observation_models
