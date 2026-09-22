@@ -455,9 +455,9 @@ void performTimeBiasPartialClosure(
 {
     if( dependentVariablesInterface == nullptr )
     {
-        throw std::runtime_error(
-                "Error when setting time bias parameter closure: time-observation-bias partials require propagated "
-                "dependent-variable acceleration data and are not supported in observation-only estimation." );
+        // Time-bias observation partials obtain accelerations from the link-end ephemerides.
+        // The optional propagated-acceleration callback is not needed when no dependent-variable interface is available.
+        return;
     }
 
     std::string bodyName = timeBiasPartial->getParameterName( ).second.first;

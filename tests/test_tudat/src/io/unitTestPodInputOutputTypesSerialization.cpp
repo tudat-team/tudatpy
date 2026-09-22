@@ -136,8 +136,9 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAnalysisOutputSerialization )
     {
         auto roundTripped = roundTripSerialize( result );
         BOOST_REQUIRE( roundTripped != nullptr );
+        const auto& resultObject = *result;
         BOOST_CHECK_MESSAGE( *result == *roundTripped,
-                             "Round-tripped object is not equal to original. Type: " << typeid( *result ).name( ) );
+                             "Round-tripped object is not equal to original. Type: " << typeid( resultObject ).name( ) );
     }
     // checkCovarianceAnalysisOutputRoundTrip< double >( );
     // checkCovarianceAnalysisOutputRoundTrip< tudat::Time >( );
