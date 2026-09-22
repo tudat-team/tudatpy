@@ -5,16 +5,12 @@ Utility functions for observation corrections
 import numpy as np
 from numpy.linalg import norm
 from tudatpy.estimation.observations import (
-    ObservationCollection,
     ObservationDataset,
     ObservationSelectionCondition,
     LinkEndId,
     angular_position,
-    create_observation_collection_from_dataset,
-    create_observation_dataset_from_collection,
     observation_query,
     receiver,
-    transmitter,
 )
 from tudatpy.dynamics.environment import SystemOfBodies
 from collections.abc import Callable
@@ -74,8 +70,10 @@ def _apply_corrections_to_observation_dataset(
     **kwargs,
 ) -> ObservationDataset | None:
     """
-    Compute corrections first, then apply them atomically to matching dataset rows.
+    Helper function that computes the corrections from correction_function, and applies them on an
+    ObservationDataset.
     """
+    # Query to obtain angular observations for specified observer
     observer_link_end = LinkEndId(observer_body_name, observer_reference_name or "")
     condition = (
         (observation_query.observable_type == angular_position)
@@ -89,7 +87,7 @@ def _apply_corrections_to_observation_dataset(
     )
     if not selected["observation_ids"]:
         raise ValueError(
-            "ObservationDataset does not contain angular observations with the specified link ends."
+            f"ObservationDataset does not contain angular observations with specified link-ends."
         )
 
     for set_id in set(selected["set_ids"]):
@@ -101,6 +99,7 @@ def _apply_corrections_to_observation_dataset(
         (np.array([_epoch_as_float(epoch) for epoch in selected["times"]]), angular_observations)
     )
 
+    # Compute corrections
     angular_corrections = correction_function(
         observations=observations_with_times,
         bodies=bodies,
@@ -117,8 +116,9 @@ def _apply_corrections_to_observation_dataset(
         2 * np.pi
     ) - np.pi
 
-    target_dataset = observation_dataset
-    if not in_place:
+    if in_place:
+        target_dataset = observation_dataset
+    else:
         target_dataset = observation_dataset.create_new_and_keep(
             ObservationSelectionCondition.all()
         )
@@ -134,32 +134,8 @@ def _apply_corrections_to_observation_dataset(
                 observations[row_index] = replacements_by_id[observation_id]
         target_dataset.set_observations_for_set(set_id, observations)
 
-    return None if in_place else target_dataset
-
-
-def _apply_corrections_to_observation_collection(
-    observation_collection: ObservationCollection,
-    body_name: str,
-    bodies: SystemOfBodies,
-    observer_body_name: str,
-    observer_reference_name: str | None,
-    correction_function: Callable,
-    in_place: bool = True,
-    **kwargs,
-) -> ObservationCollection | None:
-    """Compatibility adapter for the dataset correction implementation."""
-    observation_dataset = create_observation_dataset_from_collection(observation_collection)
-    result = _apply_corrections_to_observation_dataset(
-        observation_dataset=observation_dataset,
-        body_name=body_name,
-        bodies=bodies,
-        observer_body_name=observer_body_name,
-        observer_reference_name=observer_reference_name,
-        correction_function=correction_function,
-        in_place=in_place,
-        **kwargs,
-    )
-    if in_place:
+    if in_place:  # Apply to original observation dataset
         return None
 
-    return create_observation_collection_from_dataset(result)
+    else:  # Return new observation dataset
+        return target_dataset

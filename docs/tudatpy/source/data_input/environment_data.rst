@@ -18,7 +18,6 @@ functions in :ref:`environment_setup`.
 
    environment_data/coma
    environment_data/discos
-   environment_data/gaia
    environment_data/horizons
    environment_data/missions
    environment_data/sbdb

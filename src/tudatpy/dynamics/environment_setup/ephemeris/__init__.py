@@ -7,4 +7,3 @@ from .horizons_wrapper import (
     jpl_horizons,
 )
 from .spacetrack_wrapper import tle_to_tle, tle_to_tle_ephemeris
-from .gaia_wrapper import gaia_from_astrometry

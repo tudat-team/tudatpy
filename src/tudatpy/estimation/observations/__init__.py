@@ -24,7 +24,6 @@ from tudatpy.estimation.observable_models_setup.model_settings import (
 from tudatpy.kernel.estimation.observations import *
 
 from ._query import observation_query
-from .gaia import create_observation_dataset_from_gaia_astrometry
 
 for _name, _object in list(globals().items()):
     if getattr(_object, "__module__", None) == "tudatpy.kernel.estimation.observations":

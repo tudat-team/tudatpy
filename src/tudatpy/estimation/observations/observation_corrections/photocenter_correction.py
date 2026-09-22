@@ -3,40 +3,39 @@ Functions to calculate photocenter corrections to observations
 """
 
 import numpy as np
-from tudatpy.estimation.observations import ObservationCollection, ObservationDataset
+from tudatpy.estimation.observations import ObservationDataset
 from tudatpy.dynamics.environment_setup import create_ground_station_ephemeris
 from tudatpy.dynamics.environment import SystemOfBodies
 from ._correction_utils import (
     _offset_vector_to_corrections,
     _unit,
-    _apply_corrections_to_observation_collection,
     _apply_corrections_to_observation_dataset,
 )
 from tudatpy.constants import SPEED_OF_LIGHT
 from collections.abc import Iterable
 
 
-def apply_photocenter_correction_to_observation_collection(
-    observation_collection: ObservationCollection,
+def apply_photocenter_correction_to_observation_dataset(
+    observation_dataset: ObservationDataset,
     body_dimensions: float | Iterable[float],
     bodies: SystemOfBodies,
     body_name: str,
     observer_body_name: str,
     observer_reference_name: str | None = None,
     in_place: bool = True,
-) -> ObservationCollection | None:
+) -> ObservationDataset | None:
     """
-    Computes photocenter corrections and applies them to an observation collection.
+    Computes photocenter corrections and applies them to an observation dataset.
 
-    Computes photocenter corrections and applies them to an observation collection. Calls the function
+    Computes photocenter corrections and applies them to an observation dataset. Calls the function
     :func:`~tudatpy.estimation.observations.observation_corrections.photocenter_correction.photocenter_correction_angular_observations`,
-    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationCollection` with the specified
+    and applies the resulting corrections to all angular observations in the :class:`~tudatpy.estimation.observations.ObservationDataset` with the specified
     link-ends.
 
     Parameters
     ----------
-    observation_collection : :class:`~tudatpy.estimation.observations.ObservationCollection`
-        ObservationCollection containing angular observations on specified link-ends
+    observation_dataset : :class:`~tudatpy.estimation.observations.ObservationDataset`
+        ObservationDataset containing angular observations on specified link-ends
     body_dimensions : float | list[float]
         Body size in meters. If a scalar, the body is modeled as a sphere with that radius. If a list of 3 floats, they are
         assumed to be ellipsoid semi-axes.
@@ -50,36 +49,14 @@ def apply_photocenter_correction_to_observation_collection(
         Name of reference point on the observing body. If not given, it is assumed the observer coincides with the origin
         of the observer_body_name body.
     in_place : bool
-        If true, corrections are applied in-place to the ObservationCollection object. If false, a new ObservationCollection
+        If true, corrections are applied in-place to the ObservationDataset object. If false, a new ObservationDataset
         is returned with the corrections applied. By default, true.
 
     Returns
     -------
-    None | ObservationCollection
-        Returns a new observation collection with applied corrections if in_place is False.
+    None | ObservationDataset
+        Returns a new observation dataset with applied corrections if in_place is False.
     """
-    return _apply_corrections_to_observation_collection(
-        observation_collection=observation_collection,
-        body_name=body_name,
-        bodies=bodies,
-        observer_body_name=observer_body_name,
-        observer_reference_name=observer_reference_name,
-        in_place=in_place,
-        correction_function=photocenter_correction_angular_observations,
-        body_dimensions=body_dimensions,
-    )
-
-
-def apply_photocenter_correction_to_observation_dataset(
-    observation_dataset: ObservationDataset,
-    body_dimensions: float | Iterable[float],
-    bodies: SystemOfBodies,
-    body_name: str,
-    observer_body_name: str,
-    observer_reference_name: str | None = None,
-    in_place: bool = True,
-) -> ObservationDataset | None:
-    """Compute and apply photocenter corrections to matching dataset observations."""
     return _apply_corrections_to_observation_dataset(
         observation_dataset=observation_dataset,
         body_name=body_name,

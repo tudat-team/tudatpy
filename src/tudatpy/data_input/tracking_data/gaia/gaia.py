@@ -1,4 +1,6 @@
-"""Gaia solar-system astrometry and archive data interfaces."""
+"""
+Retrieve Gaia FPR astrometry from the archives
+"""
 
 import numpy as np
 import pandas as pd
@@ -48,7 +50,7 @@ def _check_for_missing_entries(
 
 def _as_iterable(data) -> Iterable:
     """Make sure scalars are iterable"""
-    return [data] if np.isscalar(data) else list(data)
+    return [data] if np.isscalar(data) else data
 
 
 def _generate_parquet(
@@ -120,7 +122,7 @@ def generate_asteroid_parquet(archive_dir: Path | str, dir_to_save: Path | str) 
     Generate a .parquet file of the Gaia asteroid archive, to be used to retrieve data locally.
 
     The resulting file is saved as ``gaia_source_archive.parquet`` and can be passed to
-    :func:`~tudatpy.data_input.environment_data.gaia.gaia_object_catalog`.
+    :func:`~tudatpy.data_input.tracking_data.gaia.gaia_object_catalog`.
 
     Requires all ``SsoSource_*.csv.gz`` files to be stored in the same directory. Uncompressed
     ``.csv`` files are also supported. Files can be downloaded from:
@@ -245,6 +247,12 @@ class GaiaAstrometry:
         )
         observation_covariance_matrix = []
 
+        # Transit ID must be increasing with epoch to build a matrix consistent with the observations:
+        if not table["transit_id"].is_monotonic_increasing:
+            raise RuntimeError(
+                "Error while building observation covariance matrix: possible broken observation entries"
+            )
+
         for transit_id, transit_rows in table.groupby("transit_id", sort=False):
 
             transit_length = len(transit_rows)
@@ -276,21 +284,26 @@ class GaiaAstrometry:
         return observation_covariance_matrix
 
     def to_tracking_data(self) -> tuple[list[TrackingData], list]:
-        """Convert the loaded astrometry to Tudat tracking-data containers.
-
-        One :class:`~tudatpy.data_input.tracking_data.TrackingData` object is
-        returned per asteroid. Gaia's random and transit-systematic covariance
-        model is stored as correlated weight blocks, one block per transit.
-        Filter or correct the source table before calling this method.
+        """Collect all Gaia observations into :class:`~tudatpy.data_input.tracking_data.TrackingData` objects and
+        apply the observation weights according to the Gaia weighting scheme. Any filtering or corrections must be
+        done before constructing the tracking data. Observations are in the ``J2000`` frame.
 
         Returns
         -------
         tuple[list[TrackingData], list]
-            Tracking-data objects and an empty supplementary-data list.
+            Tudat TrackingData objects containing observations of all asteroids organized by link-ends, and an empty
+            list of supplementary data. Asteroids are named by their MPC number.
         """
+        # Force the weight matrix to be completely symmetric (due to possible numerical error introduced in inversion)
+        force_symmetric = lambda mat: (mat + mat.T) / 2
+
         tracking_data_objects = []
         for mpc_number in self.mpc_numbers_in_table:
+            # Get the data for current asteroid
             table_for_object = self._table_for_single_object(mpc_number)
+            observation_angles = table_for_object.loc[:, ["ra", "dec"]].to_numpy()
+            observation_times = table_for_object["epoch"].to_numpy()
+
             tracking_data = TrackingData(
                 observable_type="AngularPosition",
                 link_ends=[
@@ -298,46 +311,34 @@ class GaiaAstrometry:
                     (("Gaia", ""), "receiver"),
                 ],
                 observations=[
-                    np.array(observation, dtype=float)
-                    for observation in table_for_object.loc[:, ["ra", "dec"]].to_numpy()
+                    np.array(observation, dtype=float) for observation in observation_angles
                 ],
-                epochs=table_for_object["epoch"].to_numpy().tolist(),
+                epochs=observation_times.tolist(),
                 reference_link_end="receiver",
                 time_scale="TDB",
             )
 
-            covariance_blocks = self._get_observation_covariance(mpc_number)
-            weight_blocks = []
-            for (_, transit_rows), covariance in zip(
-                table_for_object.groupby("transit_id", sort=False), covariance_blocks
-            ):
-                try:
-                    weight = np.linalg.inv(covariance)
-                except np.linalg.LinAlgError as error:
-                    transit_id = transit_rows["transit_id"].iloc[0]
-                    raise ValueError(
-                        f"Gaia covariance is singular for asteroid {mpc_number}, transit {transit_id}"
-                    ) from error
-                weight = (weight + weight.T) / 2
-                weight_blocks.append((transit_rows.index.to_list(), weight))
+            observation_covariance_matrices = self._get_observation_covariance(mpc_number)
+            weight_matrices = [
+                force_symmetric(np.linalg.inv(block)) for block in observation_covariance_matrices
+            ]
+            weight_blocks = [
+                (transit_rows.index.to_list(), weight_matrix)
+                for (_, transit_rows), weight_matrix in zip(
+                    table_for_object.groupby("transit_id", sort=False), weight_matrices
+                )
+            ]
 
             tracking_data.set_observation_weight_blocks(weight_blocks)
-            tracking_data.add_observation_metadata(
-                "number_mp", table_for_object["number_mp"].astype(str).tolist()
-            )
-            tracking_data.add_observation_metadata(
-                "transit_id", table_for_object["transit_id"].astype(str).tolist()
-            )
             tracking_data_objects.append(tracking_data)
 
         return tracking_data_objects, []
 
     def to_observation_dataset(self, bodies: SystemOfBodies):
-        """Create a weighted :class:`~tudatpy.estimation.observations.ObservationDataset`.
-
-        Observations are in the ``J2000`` frame. Gaia and its ephemeris must
-        already be present in ``bodies``. Missing asteroid bodies are added as
-        empty bodies using their MPC numbers as names.
+        """Collect all Gaia observations into an :class:`~tudatpy.estimation.observations.ObservationDataset` and apply the
+        observation weights according to the Gaia weighting scheme. Any filtering or corrections must be done before
+        constructing the observation dataset. Observations are in the ``J2000`` frame, and the ``global_frame_orientation``
+        must match this accordingly.
 
         Parameters
         ----------
@@ -348,8 +349,9 @@ class GaiaAstrometry:
 
         Returns
         -------
-        tudatpy.estimation.observations.ObservationDataset
-            Dataset containing one correlated angular-observation set per asteroid.
+        ObservationDataset
+            Tudat ObservationDataset containing observations of all asteroids organized in observation sets by
+            link-ends. Asteroids are named by their MPC number.
         """
         if bodies.global_frame_orientation() != "J2000":
             raise ValueError(
@@ -363,6 +365,8 @@ class GaiaAstrometry:
             )
 
         for mpc_number in self.mpc_numbers_in_table:
+
+            # Add asteroids to bodies
             if not bodies.does_body_exist(str(mpc_number)):
                 bodies.create_empty_body(str(mpc_number))
 
@@ -370,15 +374,6 @@ class GaiaAstrometry:
 
         tracking_data, _ = self.to_tracking_data()
         return create_observation_dataset_from_tracking_data(tracking_data, bodies)
-
-    def to_observation_collection(self, bodies: SystemOfBodies):
-        """Create the legacy dataset-backed observation collection.
-
-        Use :meth:`to_observation_dataset` for new code.
-        """
-        from tudatpy.estimation.observations import create_observation_collection_from_dataset
-
-        return create_observation_collection_from_dataset(self.to_observation_dataset(bodies))
 
     def apply_corrections(
         self,
@@ -402,8 +397,7 @@ class GaiaAstrometry:
 
         * Reference ephemeris of each of the objects for which astrometry exists on this instance, covering at least
           the entire span of observations (typically july 2014 - january 2020, for Gaia FPR and DR4);
-        * Ephemeris of Gaia, retrieved from
-          :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`;
+        * Ephemeris of Gaia, retrieved from :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.get_gaia_ephemeris_settings`;
         * Ephemeris of the Sun (for the photocenter correction);
         * Ephemeris of each body in ``light_deflection_bodies``;
         * Rotational model of each object for which the ellipsoid photocenter correction is used. The body-fixed frame
@@ -493,11 +487,9 @@ class GaiaAstrometry:
 
         Requires an internet connection. Login to the Gaia archive website is optional. Note this method of loading the
         data may be slow or unreliable. For loading large batches of data, it is recommended to use
-        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.load_from_local_archive`
-        instead.
+        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.load_from_local_archive` instead.
 
-        Observations and metadata are stored on the
-        :attr:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.table` attribute.
+        Observations and metadata are stored on the :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.table` attribute.
 
         Parameters
         ----------
@@ -553,13 +545,10 @@ class GaiaAstrometry:
         mpc_numbers: int | Iterable[int],
     ) -> "GaiaAstrometry":
         """
-        Retrieve astrometry locally from a .parquet file generated by
-        :func:`~tudatpy.data_input.tracking_data.gaia.generate_astrometry_parquet`.
+        Retrieve astrometry locally from a .parquet file (generated by :func:`~tudatpy.data_input.tracking_data.gaia.generate_astrometry_parquet`).
 
-        Mirrors
-        :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.load_from_astroquery`.
-        This method of loading data is typically much faster, at a small one-time cost of
-        generating parquet files.
+        Mirrors :meth:`~tudatpy.data_input.tracking_data.gaia.GaiaAstrometry.load_from_astroquery`. This method of loading data is typically
+        much faster, at a small one-time cost of generating parquet files.
 
         Parameters
         ----------
@@ -588,7 +577,6 @@ class GaiaAstrometry:
     @staticmethod
     def _prepare_table(table: pd.DataFrame) -> pd.DataFrame:
         """Convert raw table values into a tudat-compatible format."""
-        table = table.copy()
         # Convert Gaia TCB to tudat TDB epoch
         gaia_to_tudat_epoch = lambda jd: TCB_to_TDB(julian_day_to_seconds_since_epoch(jd + _J2010))
         table["epoch"] = table["epoch"].apply(gaia_to_tudat_epoch)
@@ -664,9 +652,9 @@ class GaiaAstrometry:
 
         # Filter by epoch
         if isinstance(epoch_start, DateTime):
-            epoch_start = epoch_start.to_epoch()
+            epoch_start = epoch_start.epoch()
         if isinstance(epoch_end, DateTime):
-            epoch_end = epoch_end.to_epoch()
+            epoch_end = epoch_end.epoch()
 
         if epoch_start is not None:
             epoch_start_filter = self._table["epoch"] >= epoch_start
@@ -725,17 +713,7 @@ class GaiaAstrometry:
         EphemerisSettings
             Tabulated ephemeris settings of Gaia.
         """
-        gaia_state_history = self.get_gaia_state_history(geocentric)
-
-        settings = ephemeris.tabulated(
-            gaia_state_history,
-            frame_origin="Earth" if geocentric else "SSB",
-            frame_orientation="J2000",
-        )
-        return settings
-
-    def get_gaia_state_history(self, geocentric: bool = True) -> dict[float, np.ndarray]:
-        """Return Gaia's tabulated Cartesian state history in SI units."""
+        # Variable names for the state vector
         state_vector_labels = ["x_gaia", "y_gaia", "z_gaia", "vx_gaia", "vy_gaia", "vz_gaia"]
         if geocentric:
             state_vector_labels = [label + "_geocentric" for label in state_vector_labels]
@@ -743,7 +721,14 @@ class GaiaAstrometry:
         # Create dict of state vectors
         epochs = self._table["epoch"].to_numpy()
         states = self._table[state_vector_labels].to_numpy()
-        return dict(zip(epochs, states))
+        gaia_state_history = dict(zip(epochs, states))
+
+        settings = ephemeris.tabulated(
+            gaia_state_history,
+            frame_origin="Earth" if geocentric else "SSB",
+            frame_orientation="J2000",
+        )
+        return settings
 
 
 def _prepare_gaia_asteroid_table(table: pd.DataFrame) -> pd.DataFrame:
@@ -974,12 +959,10 @@ def get_kepler_covariance_from_gaia_archive(
 def gaia_object_catalog(archive_file_path: Path | str) -> pd.DataFrame:
     """
     Retrieve the Gaia object catalog (sso_source in Gaia documentation). This table contains primarily the state
-    and covariance of asteroids that were derived using the latest Gaia dataset (see Gaia
-    Collaboration (2023)). The functions
-    :func:`~tudatpy.data_input.environment_data.gaia.get_state_from_gaia_archive`,
-    :func:`~tudatpy.data_input.environment_data.gaia.get_state_covariance_from_gaia_archive`,
-    and :func:`~tudatpy.data_input.environment_data.gaia.get_kepler_covariance_from_gaia_archive`
-    can be used to obtain this information for a single object queried by MPC number.
+    and covariance of asteroids that were derived using the latest Gaia dataset (see Gaia Collaboration (2023)). The functions
+    :func:`~tudatpy.data_input.tracking_data.gaia.get_state_from_gaia_archive`, :func:`~tudatpy.data_input.tracking_data.gaia.get_state_covariance_from_gaia_archive`,
+    and :func:`~tudatpy.data_input.tracking_data.gaia.get_kepler_covariance_from_gaia_archive` can be used to obtain this information for a
+    single object queried by MPC number.
 
     Parameters
     ----------

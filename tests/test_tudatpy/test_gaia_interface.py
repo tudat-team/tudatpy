@@ -1,4 +1,6 @@
-"""Tests for the Gaia tracking-data and environment-data interfaces."""
+"""
+Tests for the Gaia interfaces in tudatpy.data_input.tracking_data.gaia.gaia.
+"""
 
 from pathlib import Path
 from unittest import mock
@@ -9,13 +11,11 @@ import pytest
 from scipy.linalg import block_diag
 from tudatpy.data_input.tracking_data.gaia import (
     GaiaAstrometry,
-    generate_astrometry_parquet,
-)
-from tudatpy.data_input.environment_data.gaia import (
     gaia_object_catalog,
     get_kepler_covariance_from_gaia_archive,
     get_state_covariance_from_gaia_archive,
     get_state_from_gaia_archive,
+    generate_astrometry_parquet,
 )
 from tudatpy.astro.time_representation import (
     date_time_components_to_epoch,
@@ -79,6 +79,7 @@ def astrometry_table(gaia_astrometry):
 @pytest.fixture
 def observation_dataset(gaia_astrometry, spice_kernels):
     """ObservationDataset of gaia_astrometry with observations for 673 and 779"""
+    # Gaia must be loaded in bodies with its ephemeris to use to_observation_dataset()
     body_settings = get_default_body_settings(["Sun"], "SSB", "J2000")
     body_settings.add_empty_settings("Gaia")
     body_settings.get("Gaia").ephemeris_settings = gaia_astrometry.get_gaia_ephemeris_settings(

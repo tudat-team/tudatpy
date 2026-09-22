@@ -21,7 +21,7 @@ _MODULE = "tudatpy.estimation.observations.observation_corrections.light_deflect
 
 
 def _build_angular_observation_dataset(observation_pairs, times, body_name, observer_body_name):
-    """Build an ObservationDataset holding angular observations of one body by one observer."""
+    """Build a real ObservationDataset holding angular observations of one body by one observer"""
     link_ends = {
         observations.transmitter: observations.LinkEndId(body_name, ""),
         observations.receiver: observations.LinkEndId(observer_body_name, ""),
@@ -208,7 +208,7 @@ def test_light_deflection_integration():
 
 @pytest.mark.parametrize("in_place", [True, False])
 def test_apply_light_deflection_correction_to_observation_dataset(in_place):
-    """Test that the wrapper adds computed corrections to a real dataset and wraps RA."""
+    """Test that the wrapper adds computed corrections to a real dataset's observations and wraps RA"""
     # First observation RA sits just below +pi so its correction pushes it over the boundary (tests RA wrapping)
     observation_pairs = [np.array([np.pi - 1e-9, 0.2]), np.array([0.3, 0.4])]  # [RA, DEC]
     angular_corrections = np.array([[2e-9, 2e-9], [3e-9, 4e-9]])

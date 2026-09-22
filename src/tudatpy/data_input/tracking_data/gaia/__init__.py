@@ -1,5 +1,9 @@
-"""Gaia solar-system astrometry loading and tracking-data conversion."""
-
-from .gaia import GaiaAstrometry, generate_astrometry_parquet
-
-__all__ = ["GaiaAstrometry", "generate_astrometry_parquet"]
+from .gaia import (
+    GaiaAstrometry,
+    gaia_object_catalog,
+    get_kepler_covariance_from_gaia_archive,
+    get_state_covariance_from_gaia_archive,
+    get_state_from_gaia_archive,
+    generate_astrometry_parquet,
+    generate_asteroid_parquet,
+)
