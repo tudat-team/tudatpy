@@ -64,6 +64,11 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightVect
                                                                                           const Eigen::VectorXd& weightVector )
 {
     observationWeights_.setDiagonal( getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ), weightVector );
+    auto& structure = setMetadata_.at( setId ).weightStructure_;
+    if( structure != ObservationWeightStructure::inter_set_weights )
+    {
+        structure = ObservationWeightStructure::diagonal;
+    }
 }
 
 template< typename ObservationScalarType,
@@ -425,6 +430,9 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
         }
         sortObservationIdsForSet( sourceSetId );
         sortObservationIdsForSet( targetSetId );
+        auto& targetStructure = setMetadata_.at( targetSetId ).weightStructure_;
+        targetStructure = std::max( targetStructure, std::min( sourceMetadata.weightStructure_, ObservationWeightStructure::per_set ) );
+        refreshWeightStructures( );
         ++structuralVersion_;
         return;
     }
@@ -451,6 +459,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::moveObservati
     const auto& target = targetDataset.getObservationIdsForSet( targetSetId );
     const std::vector< unsigned int > targetIds( target.begin( ) + firstAdded, target.end( ) );
     targetDataset.observationWeights_.copyBlock( weights, targetDataset.getScalarComponentIdsForObservationSelection( targetIds, {} ) );
+    auto& targetStructure = targetDataset.setMetadata_.at( targetSetId ).weightStructure_;
+    targetStructure = std::max( targetStructure, std::min( sourceMetadata.weightStructure_, ObservationWeightStructure::per_set ) );
     for( std::size_t i = 0; i < targetIds.size( ); ++i )
     {
         auto& row = targetDataset.mutableObservationRow( targetIds.at( i ) );

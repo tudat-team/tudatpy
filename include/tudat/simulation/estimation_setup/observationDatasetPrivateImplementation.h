@@ -138,6 +138,7 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::retainObserva
     observedValues_ = std::move( observations );
     residualValues_ = std::move( residuals );
     observationWeights_ = std::move( weights );
+    refreshWeightStructures( );
     ++structuralVersion_;
 }
 

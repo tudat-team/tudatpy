@@ -243,6 +243,8 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
     observationWeights_.copyBlock(
             sourceDataset.observationWeights_.restricted( sourceDataset.getScalarComponentIdsForObservationSelection( sourceIds, {} ) ),
             getScalarComponentIdsForObservationSelection( targetIds, {} ) );
+    // Copying one set does not copy its correlations with other sets.
+    setMetadata_.at( newSetId ).weightStructure_ = std::min( sourceMetadata.weightStructure_, ObservationWeightStructure::per_set );
     return newSetId;
 }
 
@@ -294,6 +296,20 @@ int ObservationDataset< ObservationScalarType, TimeType, Dummy >::addObservation
                                                   residuals,
                                                   sortObservations );
     observationWeights_.copyBlock( weights, getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} ) );
+    // Creation from settings (including TrackingData) never enters the later cross-set update path.
+    using WeightsBlockType = ObservationWeightSettings::WeightsBlockType;
+    switch( weightSettings.type_ )
+    {
+        case WeightsBlockType::constant_block:
+        case WeightsBlockType::block_per_observation:
+            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_observation;
+            break;
+        case WeightsBlockType::set_block:
+            setMetadata_.at( setId ).weightStructure_ = ObservationWeightStructure::per_set;
+            break;
+        default:
+            break;  // All other settings supply diagonal weights; the metadata already have this default.
+    }
     return setId;
 }
 

@@ -59,6 +59,12 @@ public:
         return !offDiagonal_.empty( );
     }
 
+    //! Nonzero upper-triangular coefficients, keyed by their two dataset scalar-storage indices.
+    const std::map< Entry, double >& getOffDiagonalEntries( ) const
+    {
+        return offDiagonal_;
+    }
+
     //! Validate that diagonal weights are finite and nonnegative.
     static void validateDiagonal( const Eigen::VectorXd& diagonal )
     {

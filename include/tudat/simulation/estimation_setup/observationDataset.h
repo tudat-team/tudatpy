@@ -825,6 +825,14 @@ private:
     /////////////////       PRIVATE HELPERS         //////////
     //////////////////////////////////////////////////////////
 
+    //! Record the correlations introduced by a nonzero entry between firstScalar and secondScalar in observationWeights_.
+    //! Update both affected sets without reducing either set's existing within-set block size.
+    void promoteWeightStructureForEntry( const unsigned int firstScalar, const unsigned int secondScalar );
+
+    //! Recheck correlations after changing set membership, removing observations, or replacing cross-set weights.
+    //! Preserve known within-set block sizes; clear cross-set flags only where no connecting entries remain.
+    void refreshWeightStructures( );
+
     //! Single selection/order route shared by inspection and numerical preparation.
     std::vector< unsigned int > resolveObservationIds( const ObservationSelectionCondition< ObservationScalarType, TimeType >& condition,
                                                        const ObservationOrdering ordering,

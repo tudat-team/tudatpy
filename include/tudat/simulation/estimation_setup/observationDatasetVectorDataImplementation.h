@@ -206,6 +206,15 @@ ObservationDataset< ObservationScalarType, TimeType, Dummy >::createObservationV
     result.structuralVersion_ = structuralVersion_;
     result.vectorDataVersion_ = vectorDataVersion_;
     result.uniqueObservationIdsBySet_.resize( setMetadata_.size( ) );
+    // Covariance queries use all observations, independently of the estimation vector selection below.
+    result.completeWeights_ = observationWeights_;
+    result.completeWeightSetMetadata_ = setMetadata_;
+    result.completeWeightObservationIdsBySet_ = observationIdsBySet_;
+    result.completeWeightObservationMapping_.reserve( observationRows_.size( ) );
+    for( const auto& row : observationRows_ )
+    {
+        result.completeWeightObservationMapping_.emplace( row.observationId_, std::make_pair( row.firstScalarComponent_, row.setId_ ) );
+    }
     std::vector< unsigned int > selected;
     for( const unsigned int id : selectedObservationIds )
     {

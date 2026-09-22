@@ -20,6 +20,44 @@ namespace tudat
 namespace observation_models
 {
 
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::promoteWeightStructureForEntry( const unsigned int firstScalar,
+                                                                                                   const unsigned int secondScalar )
+{
+    const auto& first = getObservationRow( getScalarComponentRow( firstScalar ).observationId_ );
+    const auto& second = getObservationRow( getScalarComponentRow( secondScalar ).observationId_ );
+    const auto structure = first.setId_ != second.setId_
+            ? ObservationWeightStructure::inter_set_weights
+            : ( first.observationId_ != second.observationId_ ? ObservationWeightStructure::per_set
+                                                              : ObservationWeightStructure::per_observation );
+    for( const unsigned int setId : { first.setId_, second.setId_ } )
+    {
+        auto& current = setMetadata_.at( setId ).weightStructure_;
+        current = std::max( current, structure );
+    }
+}
+
+template< typename ObservationScalarType,
+          typename TimeType,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type Dummy >
+void ObservationDataset< ObservationScalarType, TimeType, Dummy >::refreshWeightStructures( )
+{
+    // A former cross-set block may now be wholly within one set. Keep its within-set size conservative.
+    for( auto& metadata : setMetadata_ )
+    {
+        if( metadata.weightStructure_ == ObservationWeightStructure::inter_set_weights )
+        {
+            metadata.weightStructure_ = ObservationWeightStructure::per_set;
+        }
+    }
+    for( const auto& entry : observationWeights_.getOffDiagonalEntries( ) )
+    {
+        promoteWeightStructureForEntry( entry.first.first, entry.first.second );
+    }
+}
+
 // Apply one compact scalar weight to every observation row in one set.
 template< typename ObservationScalarType,
           typename TimeType,
@@ -66,6 +104,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
 {
     const auto indices = getScalarComponentIdsForObservationSelection( observationIdsBySet_.at( setId ), {} );
     observationWeights_.setBlock( indices, indices, weightMatrix );
+    auto& structure = setMetadata_.at( setId ).weightStructure_;
+    structure = std::max( structure, ObservationWeightStructure::per_set );
 }
 
 // Apply one dense observable-size block to every observation row in one set.
@@ -115,6 +155,8 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightMatr
 {
     const auto indices = getScalarComponentIdsForObservationSelection( { observationId }, {} );
     observationWeights_.setBlock( indices, indices, weightMatrix );
+    auto& structure = setMetadata_.at( getObservationRow( observationId ).setId_ ).weightStructure_;
+    structure = std::max( structure, ObservationWeightStructure::per_observation );
 }
 
 // Report whether one observation row has an explicit dense weight block.
@@ -138,9 +180,28 @@ void ObservationDataset< ObservationScalarType, TimeType, Dummy >::setWeightBloc
                                                                                    const std::vector< unsigned int >& rowComponents,
                                                                                    const std::vector< unsigned int >& columnComponents )
 {
-    observationWeights_.setBlock( getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents ),
-                                  getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents ),
-                                  weightBlock );
+    const auto rows = getScalarComponentIdsForObservationSelection( rowObservationIds, rowComponents );
+    const auto columns = getScalarComponentIdsForObservationSelection( columnObservationIds, columnComponents );
+    observationWeights_.setBlock( rows, columns, weightBlock );
+    // Only update metadata after validation. An existing cross-set connection may have been removed.
+    if( std::any_of( rowObservationIds.begin( ), rowObservationIds.end( ), [ this ]( unsigned int id ) {
+            return setMetadata_.at( getObservationRow( id ).setId_ ).weightStructure_ == ObservationWeightStructure::inter_set_weights;
+        } ) )
+    {
+        refreshWeightStructures( );
+        return;
+    }
+    const auto& entries = observationWeights_.getOffDiagonalEntries( );
+    for( const unsigned int row : rows )
+    {
+        for( const unsigned int column : columns )
+        {
+            if( entries.count( std::minmax( row, column ) ) )
+            {
+                promoteWeightStructureForEntry( row, column );
+            }
+        }
+    }
 }
 
 // Apply one compact scalar weight to all observation rows matching a condition.
