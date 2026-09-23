@@ -226,17 +226,15 @@ def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSu
     ):
         positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
         receiver_data = TrackingSupplementaryData(str(observatory), "")
-        receiver_data.translational_state_supplementary_data = (
-            TranslationalStateSupplementaryData(
-                state_history={
-                    float(epoch): np.concatenate((position, np.zeros(3)))
-                    for epoch, position in zip(positions.index, positions.to_numpy())
-                },
-                frame_origin="Earth",
-                is_velocity_defined=False,
-                time_scale="UTC",
-                frame_orientation="J2000",
-            )
+        receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
+            state_history={
+                float(epoch): np.concatenate((position, np.zeros(3)))
+                for epoch, position in zip(positions.index, positions.to_numpy())
+            },
+            frame_origin="Earth",
+            is_velocity_defined=False,
+            time_scale="UTC",
+            frame_orientation="J2000",
         )
         supplementary_data.append(receiver_data)
 
@@ -310,9 +308,7 @@ def filter_augmented_optical_table(
             filtered["epoch_seconds_UTC"] >= datetime_to_utc_seconds(epoch_start)
         ]
     if epoch_end is not None:
-        filtered = filtered.loc[
-            filtered["epoch_seconds_UTC"] <= datetime_to_utc_seconds(epoch_end)
-        ]
+        filtered = filtered.loc[filtered["epoch_seconds_UTC"] <= datetime_to_utc_seconds(epoch_end)]
 
     if observatories is not None:
         included = {str(observatory).strip().zfill(3) for observatory in observatories}

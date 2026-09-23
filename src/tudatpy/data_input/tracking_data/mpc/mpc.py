@@ -337,13 +337,19 @@ class BatchMPC:
         space_telescopes = catalog.loc[catalog["Longitude"].isna(), "Code"]
 
         radar = self._radar_table
-        counts = pd.concat(
-            [
-                self._table.get("observatory", pd.Series(dtype=str)),
-                radar["transmitter"],
-                radar["receiver"].where(radar["receiver"] != radar["transmitter"]),
-            ]
-        ).dropna().astype(str).value_counts().rename("count")
+        counts = (
+            pd.concat(
+                [
+                    self._table.get("observatory", pd.Series(dtype=str)),
+                    radar["transmitter"],
+                    radar["receiver"].where(radar["receiver"] != radar["transmitter"]),
+                ]
+            )
+            .dropna()
+            .astype(str)
+            .value_counts()
+            .rename("count")
+        )
 
         if only_in_batch:
             table = (

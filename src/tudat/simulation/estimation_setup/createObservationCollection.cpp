@@ -260,9 +260,10 @@ std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
     }
     if( inputTimeScale != basic_astrodynamics::utc_scale )
     {
-        throw std::runtime_error( "Error when processing translational state tracking supplementary data: "
-                                  "only TDB and UTC time scales are supported, received " +
-                                  translationalStateSupplementaryData.getTimeScale( ) + "." );
+        throw std::runtime_error(
+                "Error when processing translational state tracking supplementary data: "
+                "only TDB and UTC time scales are supported, received " +
+                translationalStateSupplementaryData.getTimeScale( ) + "." );
     }
 
     if( timeScaleConverter == nullptr )

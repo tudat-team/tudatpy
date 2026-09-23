@@ -114,10 +114,7 @@ def radar_data_from_raw(raw: pd.DataFrame, source: str) -> pd.DataFrame:
     )
     doppler_rows = common[is_doppler].assign(
         observable_type=DOPPLER_OBSERVABLE,
-        value=(
-            raw.loc[is_doppler, "transmitter_frequency_hz"]
-            + raw.loc[is_doppler, "doppler_hz"]
-        ),
+        value=(raw.loc[is_doppler, "transmitter_frequency_hz"] + raw.loc[is_doppler, "doppler_hz"]),
         sigma=raw.loc[is_doppler, "doppler_sigma_hz"],
     )
     if range_rows.empty and doppler_rows.empty:
@@ -156,9 +153,7 @@ def filter_radar_data(
         ("observable_type", observable_type),
     ]:
         if allowed is not None:
-            keep &= table[column].isin(
-                [allowed] if isinstance(allowed, str) else list(allowed)
-            )
+            keep &= table[column].isin([allowed] if isinstance(allowed, str) else list(allowed))
 
     def uses_station(ids):
         ids = {str(station).strip().zfill(3) for station in ids}
@@ -218,16 +213,14 @@ def radar_data_to_tracking_data(
         table["observable_type"] == DOPPLER_OBSERVABLE
     )
     table = table.assign(
-        band=doppler_frequency.map(
-            radar_frequency_band_string_from_hz, na_action="ignore"
-        ).fillna("")
+        band=doppler_frequency.map(radar_frequency_band_string_from_hz, na_action="ignore").fillna(
+            ""
+        )
     )
 
     tracking_data = []
     keys = ["target_body", "transmitter", "receiver", "observable_type", "band"]
-    for (target, transmitter, receiver, observable, band), group in table.groupby(
-        keys, sort=False
-    ):
+    for (target, transmitter, receiver, observable, band), group in table.groupby(keys, sort=False):
         data = TrackingData(
             observable_type=observable,
             link_ends=[
@@ -240,9 +233,7 @@ def radar_data_to_tracking_data(
             reference_link_end="receiver",
             time_scale="UTC",
         )
-        data.set_observation_weights(
-            [np.array([sigma**-2]) for sigma in group["sigma"]]
-        )
+        data.set_observation_weights([np.array([sigma**-2]) for sigma in group["sigma"]])
         if band:
             data.add_string_vector_ancillary_setting("frequency bands", [band, band])
         tracking_data.append(data)
@@ -252,11 +243,7 @@ def radar_data_to_tracking_data(
 def set_reflector_turnaround_ratio(bodies, target_body: str) -> None:
     """Set a passive radar target's turnaround ratio to one for all band pairs."""
     body = bodies.get_body(target_body)
-    systems = (
-        body.system_models
-        if body.system_models is not None
-        else environment.VehicleSystems()
-    )
+    systems = body.system_models if body.system_models is not None else environment.VehicleSystems()
     bands = [
         FrequencyBands.s_band,
         FrequencyBands.x_band,

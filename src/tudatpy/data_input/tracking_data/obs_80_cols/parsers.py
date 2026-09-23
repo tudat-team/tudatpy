@@ -16,7 +16,6 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
 
 from . import unpackers
 
-
 PARSED_80COL_COLUMNS = [
     "number",
     "provisional_designation",
@@ -57,14 +56,17 @@ def _parse_implicit_decimal(field: str, integer_width: int) -> float:
 def _mpc_epochs_utc(year, month, day_fraction, round_to_second=False) -> np.ndarray:
     """Return UTC seconds since J2000 from MPC date fields."""
     day = day_fraction.astype(int)
-    epochs = np.array(
-        [
-            time_representation.date_time_components_to_epoch(
-                int(current_year), int(current_month), int(current_day), 0, 0, 0.0
-            )
-            for current_year, current_month, current_day in zip(year, month, day)
-        ]
-    ) + (day_fraction - day).to_numpy(dtype=float) * constants.JULIAN_DAY
+    epochs = (
+        np.array(
+            [
+                time_representation.date_time_components_to_epoch(
+                    int(current_year), int(current_month), int(current_day), 0, 0, 0.0
+                )
+                for current_year, current_month, current_day in zip(year, month, day)
+            ]
+        )
+        + (day_fraction - day).to_numpy(dtype=float) * constants.JULIAN_DAY
+    )
     return np.round(epochs) if round_to_second else epochs
 
 
@@ -118,9 +120,7 @@ def _parse_radar_records(lines: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
             "MPC radar records with a transmitter frequency continued on the "
             "'r' record are not supported."
         )
-    return radar_data_from_raw(raw, source="MPC"), is_first | is_first.shift(
-        1, fill_value=False
-    )
+    return radar_data_from_raw(raw, source="MPC"), is_first | is_first.shift(1, fill_value=False)
 
 
 def _parse_spacecraft_parallax(parallax_lines: pd.Series) -> pd.DataFrame:
@@ -128,9 +128,7 @@ def _parse_spacecraft_parallax(parallax_lines: pd.Series) -> pd.DataFrame:
     parallax_type = pd.to_numeric(parallax_lines.str[32], errors="coerce")
     positions = pd.DataFrame(
         {
-            column: pd.to_numeric(
-                parallax_lines.str[field].str.replace(" ", ""), errors="coerce"
-            )
+            column: pd.to_numeric(parallax_lines.str[field].str.replace(" ", ""), errors="coerce")
             for column, field in zip(
                 SPACECRAFT_POSITION_COLUMNS,
                 [slice(34, 45), slice(46, 57), slice(58, 69)],
@@ -340,9 +338,9 @@ def parse_80cols_data(lines: list[str]) -> Table:
                 f"Observation 'S' not followed by Parallax 's'."
             )
 
-    spacecraft_positions = _parse_spacecraft_parallax(
-        df.loc[is_sat_par, "clean_line"]
-    ).set_axis(df.index[is_sat_obs])
+    spacecraft_positions = _parse_spacecraft_parallax(df.loc[is_sat_par, "clean_line"]).set_axis(
+        df.index[is_sat_obs]
+    )
 
     # 5. VALIDATION LOGIC
     is_valid_structure = (
@@ -413,25 +411,13 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
     names = _unpacked_names(df_obs["number"], df_obs["provisional_designation"])
     df_obs["number"] = names.fillna(df_obs["number"])
 
-    epochs_utc = _mpc_epochs_utc(
-        df_obs["year_n"], df_obs["month_n"], df_obs["day_frac_n"]
-    )
+    epochs_utc = _mpc_epochs_utc(df_obs["year_n"], df_obs["month_n"], df_obs["day_frac_n"])
     ra_rad = np.deg2rad(
-        (
-            df_obs["ra_h_n"]
-            + df_obs["ra_m_n"] / 60.0
-            + df_obs["ra_s_n"] / 3600.0
-        )
-        * 15.0
+        (df_obs["ra_h_n"] + df_obs["ra_m_n"] / 60.0 + df_obs["ra_s_n"] / 3600.0) * 15.0
     )
     dec_sign = np.where(df_obs["dec_sign"] == "-", -1.0, 1.0)
     dec_rad = np.deg2rad(
-        (
-            df_obs["dec_d_n"]
-            + df_obs["dec_m_n"] / 60.0
-            + df_obs["dec_s_n"] / 3600.0
-        )
-        * dec_sign
+        (df_obs["dec_d_n"] + df_obs["dec_m_n"] / 60.0 + df_obs["dec_s_n"] / 3600.0) * dec_sign
     )
 
     return pd.DataFrame(
@@ -440,8 +426,7 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
             "provisional_designation": df_obs["provisional_designation"],
             "discovery": df_obs["discovery"].eq("*"),
             "epoch": [
-                time_representation.seconds_since_epoch_to_julian_day(epoch)
-                for epoch in epochs_utc
+                time_representation.seconds_since_epoch_to_julian_day(epoch) for epoch in epochs_utc
             ],
             "epoch_seconds_UTC": epochs_utc,
             "RA": ra_rad,

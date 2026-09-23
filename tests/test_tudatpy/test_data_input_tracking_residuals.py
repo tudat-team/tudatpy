@@ -1066,9 +1066,7 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     assert residuals.size == len(radar_table)
     assert np.all(np.isfinite(residuals))
     assert np.any(np.abs(by_type[model_settings.n_way_range_type]) > 1.0e-6)
-    assert np.any(
-        np.abs(by_type[model_settings.doppler_measured_frequency_type]) > 1.0e-9
-    )
+    assert np.any(np.abs(by_type[model_settings.doppler_measured_frequency_type]) > 1.0e-9)
     assert np.sqrt(np.mean(normalized_residuals**2)) < 3.0
     assert np.max(normalized_residuals) < 3.5
 

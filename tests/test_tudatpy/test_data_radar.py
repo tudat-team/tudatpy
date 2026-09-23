@@ -118,9 +118,7 @@ def test_empty_radar_table_uses_canonical_columns():
 
 
 def test_mpc_radar_delay_record(mpc_radar_pair):
-    row = _parsed_radar(
-        mpc_radar_pair(delay_us=4000.0, delay_sigma_us=0.25)
-    ).iloc[0]
+    row = _parsed_radar(mpc_radar_pair(delay_us=4000.0, delay_sigma_us=0.25)).iloc[0]
     assert row["observable_type"] == RANGE_OBSERVABLE
     assert row["value"] == pytest.approx(SPEED_OF_LIGHT * 4000.0e-6)
     assert row["sigma"] == pytest.approx(SPEED_OF_LIGHT * 0.25e-6)
@@ -132,9 +130,7 @@ def test_mpc_radar_delay_record(mpc_radar_pair):
 
 
 def test_mpc_radar_doppler_record(mpc_radar_pair):
-    row = _parsed_radar(
-        mpc_radar_pair(doppler_hz=-124458.2215, doppler_sigma_hz=0.3)
-    ).iloc[0]
+    row = _parsed_radar(mpc_radar_pair(doppler_hz=-124458.2215, doppler_sigma_hz=0.3)).iloc[0]
     assert row["observable_type"] == DOPPLER_OBSERVABLE
     assert row["value"] == pytest.approx(2380.0e6 - 124458.2215)
     assert row["sigma"] == pytest.approx(0.3)
@@ -187,9 +183,7 @@ def test_roving_observer_pair_is_not_parsed_as_radar():
 
 def test_real_mpc_radar_lines_parse():
     # Published 80-column record from https://projectpluto.com/radar/99942.htm.
-    lines = (
-        Path(__file__).parent / "fixtures" / "mpc_radar_sample.txt"
-    ).read_text().splitlines()
+    lines = (Path(__file__).parent / "fixtures" / "mpc_radar_sample.txt").read_text().splitlines()
     table = _parsed_radar(lines)
     assert set(table["observable_type"]) == {RANGE_OBSERVABLE, DOPPLER_OBSERVABLE}
 
@@ -200,9 +194,9 @@ def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
 
     assert len(table) == 3
     assert set(table["transmitter"]) == set(table["receiver"]) == {"251"}
-    delay = table[table["observable_type"] == RANGE_OBSERVABLE].sort_values(
-        "epoch_seconds_UTC"
-    ).iloc[0]
+    delay = (
+        table[table["observable_type"] == RANGE_OBSERVABLE].sort_values("epoch_seconds_UTC").iloc[0]
+    )
     assert delay["value"] == pytest.approx(SPEED_OF_LIGHT * 96148022.94e-6)
     assert delay["sigma"] == pytest.approx(SPEED_OF_LIGHT * 4.0e-6)
     doppler = table[table["observable_type"] == DOPPLER_OBSERVABLE].iloc[0]
@@ -264,12 +258,8 @@ def test_radar_data_converts_with_weights_and_link_ends():
         (("433", ""), "reflector_1"),
         (("Earth", "251"), "receiver"),
     ]
-    np.testing.assert_allclose(
-        np.concatenate(tracking_data[0].get_observation_weights()), [1.0e-2]
-    )
-    np.testing.assert_allclose(
-        np.concatenate(tracking_data[1].get_observation_weights()), [1.0e2]
-    )
+    np.testing.assert_allclose(np.concatenate(tracking_data[0].get_observation_weights()), [1.0e-2])
+    np.testing.assert_allclose(np.concatenate(tracking_data[1].get_observation_weights()), [1.0e2])
     assert [(item.body_name, item.reference_point_name) for item in supplementary_data] == [
         ("Earth", "251")
     ]
@@ -311,9 +301,7 @@ def test_batchmpc_get_satellite_state_history():
     np.testing.assert_allclose(states[:, 3:], [[1.0, 0.0, -1.0]] * 3)
 
 
-def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(
-    monkeypatch, mpc_radar_pair
-):
+def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(monkeypatch, mpc_radar_pair):
     eros_observation = (
         "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
     )
@@ -340,9 +328,7 @@ def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(
     assert len(batch.table) == 1 and len(batch.radar_table) == 2 and batch.size == 3
     assert batch.epoch_start == batch.radar_table["epoch_seconds_UTC"].min()
     assert batch.epoch_end == batch.table["epoch_seconds_UTC"].max()
-    np.testing.assert_allclose(
-        batch.table["spacecraft_position_x"].iloc[0], -198301940.0
-    )
+    np.testing.assert_allclose(batch.table["spacecraft_position_x"].iloc[0], -198301940.0)
 
     radar_only = batch.filter(observation_types=["R"], in_place=False)
     assert len(radar_only.table) == 0 and len(radar_only.radar_table) == 2

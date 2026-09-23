@@ -134,8 +134,7 @@ class JPLRadarQuery:
                 {
                     "target_body": str(target_body or self.target),
                     "epoch_seconds_UTC": [
-                        time_representation.iso_string_to_epoch(epoch)
-                        for epoch in raw["epoch"]
+                        time_representation.iso_string_to_epoch(epoch) for epoch in raw["epoch"]
                     ],
                     "transmitter": raw["xmit"].map(_station_id),
                     "receiver": raw["rcvr"].map(_station_id),
