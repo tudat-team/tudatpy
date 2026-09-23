@@ -312,10 +312,8 @@ class TrackingSupplementaryData
 public:
     TrackingSupplementaryData( ) = default;
 
-    TrackingSupplementaryData( const std::string& bodyName,
-                               const std::string& referencePointName,
-                               const bool isPassiveRadarReflector = false ):
-        bodyName_( bodyName ), referencePointName_( referencePointName ), isPassiveRadarReflector_( isPassiveRadarReflector )
+    TrackingSupplementaryData( const std::string& bodyName, const std::string& referencePointName ):
+        bodyName_( bodyName ), referencePointName_( referencePointName ), isPassiveRadarReflector_( false )
     {}
 
     void setTranslationalStateSupplementaryData( const TranslationalStateSupplementaryData& translationalStateSupplementaryData )
@@ -381,6 +379,11 @@ public:
     bool isPassiveRadarReflector( ) const
     {
         return isPassiveRadarReflector_;
+    }
+
+    void setIsPassiveRadarReflector( const bool isPassiveRadarReflector )
+    {
+        isPassiveRadarReflector_ = isPassiveRadarReflector;
     }
 
 private:
