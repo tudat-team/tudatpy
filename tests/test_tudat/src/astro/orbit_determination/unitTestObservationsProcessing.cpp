@@ -125,14 +125,21 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-    // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ), cowell );
-
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
             40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    double( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( double( finalEphemerisTime ) ),
+                    cowell );
 
     // Define link ends.
     stationReceiverLinkEnds.clear( );
@@ -187,7 +194,6 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
     }
 
     // Create orbit determination object.
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, double( initialEphemerisTime ), integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

@@ -126,33 +126,20 @@ std::vector< double > PropagationTargetingProblem::fitness( const std::vector< d
             createAccelerationModelsMap( bodies_, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Setup propagator (cowell) and integrator (RK4 fixed stepsize)
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                accelerationModelMap,
-                                                                                bodiesToPropagate,
-                                                                                systemInitialState,
-                                                                                simulationEndEpoch_,
-                                                                                cowell,
-                                                                                dependentVariablesToSave_ );
     std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch_,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch_ ),
+                    cowell,
+                    dependentVariablesToSave_ );
 
     // Start simulation
-    propagatorSettings->resetInitialTime( simulationStartEpoch_ );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, propagatorSettings, true );
 
     // Retrieve results

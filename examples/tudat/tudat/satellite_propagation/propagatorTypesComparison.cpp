@@ -194,26 +194,6 @@ int main( )
 
             ///////////////////////     CREATE SIMULATION SETTINGS          ////////////////////////////////////////////
 
-            // Propagator settings
-            std::shared_ptr< TranslationalStatePropagatorSettings<> > propagatorSettings;
-            if( propagatorType == 7 )
-            {
-                // Reference trajectory
-                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings<> >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, satelliteInitialState, simulationEndEpoch, cowell );
-            }
-            else
-            {
-                // Propagator dependent on loop
-                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings<> >(
-                        centralBodies,
-                        accelerationModelMap,
-                        bodiesToPropagate,
-                        satelliteInitialState,
-                        simulationEndEpoch,
-                        static_cast< TranslationalPropagatorType >( propagatorType ) );
-            }
-
             // Integrator settings
             std::shared_ptr< IntegratorSettings<> > integratorSettings;
             if( propagatorType == 7 )
@@ -236,25 +216,22 @@ int main( )
                 }
             }
 
+            const TranslationalPropagatorType selectedPropagator =
+                    propagatorType == 7 ? cowell : static_cast< TranslationalPropagatorType >( propagatorType );
+            std::shared_ptr< TranslationalStatePropagatorSettings<> > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings<> >(
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            satelliteInitialState,
+                            simulationStartEpoch,
+                            integratorSettings,
+                            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                            selectedPropagator );
+
             ///////////////////////     PROPAGATE ORBIT                     ////////////////////////////////////////////
 
             // Simulate orbit and output computation time
-            propagatorSettings->resetInitialTime( simulationStartEpoch );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-            propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
             // Retrieve results

@@ -156,15 +156,6 @@ int main( )
     std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                accelerationModelMap,
-                                                                                bodiesToPropagate,
-                                                                                teslaRoadsterInitialState,
-                                                                                simulationEndEpoch,
-                                                                                cowell,
-                                                                                dependentVariablesToSave );
-
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< tudat::numerical_integrators::BulirschStoerIntegratorSettings<> >(
                     3600.0,
@@ -175,27 +166,23 @@ int main( )
                     1.0E-15,
                     1.0E-12 );
 
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    teslaRoadsterInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariablesToSave );
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    propagatorSettings->resetInitialTime( simulationStartEpoch );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );

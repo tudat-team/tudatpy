@@ -216,15 +216,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     terminationSettings = std::make_shared< PropagationHybridTerminationSettings >( terminationSettingsList, false );
                 }
 
-                std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                        std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                            accelerationModelMap,
-                                                                                            bodiesToPropagate,
-                                                                                            vehicleInitialState,
-                                                                                            terminationSettings,
-                                                                                            cowell,
-                                                                                            dependentVariables );
-
                 // Define integrator settings.
                 const double fixedStepSize = 5.0;
                 std::shared_ptr< IntegratorSettings<> > integratorSettings;
@@ -238,23 +229,18 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                             directionMultiplier * fixedStepSize, CoefficientSets::rungeKuttaFehlberg45, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 
+                std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                        std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                            accelerationModelMap,
+                                                                                            bodiesToPropagate,
+                                                                                            vehicleInitialState,
+                                                                                            simulationStartEpoch,
+                                                                                            integratorSettings,
+                                                                                            terminationSettings,
+                                                                                            cowell,
+                                                                                            dependentVariables );
+
                 // Propagate orbit with Cowell method
-                propagatorSettings->resetInitialTime( simulationStartEpoch );
-                propagatorSettings->setIntegratorSettings( integratorSettings );
-                propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-                propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-                propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                        false,
-                        false,
-                        propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                        0,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false );
                 SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
                 std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );

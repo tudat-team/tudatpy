@@ -447,10 +447,10 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
                 accelerationModelMap,
                 bodiesToIntegrate,
                 allBodiesPerArcInitialStates.at( i ),
-                integrationArcEndTimes.at( i ),
-                cowell,
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                60.0 ) );
+                integrationArcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEndTimes.at( i ) ),
+                cowell ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
@@ -474,10 +474,6 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     }
 
     // Create orbit determination object.
-    propagators::setMultiArcIntegrationSettings(
-            propagatorSettings,
-            estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ),
-            integratorSettings );
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, propagatorSettings );

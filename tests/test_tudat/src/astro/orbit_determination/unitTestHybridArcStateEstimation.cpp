@@ -137,13 +137,19 @@ Eigen::VectorXd executeParameterEstimation(
             getInitialStatesOfBodies( singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
     singleArcInitialStates += initialStateDifference.segment( 0, singleArcInitialStates.rows( ) );
 
+    // Define integrator settings
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
+
     // Create Mars propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings<> > singleArcPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings<> >( singleArcCentralBodies,
-                                                                        singleArcAccelerationModelMap,
-                                                                        singleArcBodiesToIntegrate,
-                                                                        singleArcInitialStates,
-                                                                        finalEphemerisTime );
+            std::make_shared< TranslationalStatePropagatorSettings<> >(
+                    singleArcCentralBodies,
+                    singleArcAccelerationModelMap,
+                    singleArcBodiesToIntegrate,
+                    singleArcInitialStates,
+                    initialEphemerisTime,
+                    integratorSettings->clone( ),
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Set accelerations to act on orbiter
     SelectedAccelerationMap multiArcAccelerationMap;
@@ -216,12 +222,14 @@ Eigen::VectorXd executeParameterEstimation(
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
     {
-        arcPropagationSettingsList.push_back(
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( multiArcCentralBodies,
-                                                                                    multiArcAccelerationModelMap,
-                                                                                    multiArcBodiesToIntegrate,
-                                                                                    multiArcSystemInitialStates.at( i ),
-                                                                                    integrationArcEnds.at( i ) ) );
+        arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                multiArcCentralBodies,
+                multiArcAccelerationModelMap,
+                multiArcBodiesToIntegrate,
+                multiArcSystemInitialStates.at( i ),
+                integrationArcStarts.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
     }
 
     // Define propagator settings (multi- and hybrid-arc)
@@ -229,9 +237,6 @@ Eigen::VectorXd executeParameterEstimation(
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList, patchMultiArcs );
     std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
             std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
-
-    // Define integrator settings
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
 
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -264,11 +269,6 @@ Eigen::VectorXd executeParameterEstimation(
     }
 
     // Create orbit determination object.
-    propagators::setHybridArcIntegrationSettings(
-            hybridArcPropagatorSettings,
-            initialEphemerisTime,
-            estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, false ),
-            integratorSettings );
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );

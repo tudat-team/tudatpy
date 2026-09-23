@@ -196,25 +196,12 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 initialState,
+                                                                                initialTime,
+                                                                                integratorSettings,
+
                                                                                 propagationTimeTerminationSettings( finalTime, true ) );
 
     // Propagate orbit with Cowell method
-    propagatorSettings->resetInitialTime( initialTime );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -329,25 +316,12 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
                             accelerationModelMap,
                             bodiesToPropagate,
                             initialState,
+                            initialTime,
+                            integratorSettings,
+
                             propagationTimeTerminationSettings( finalTime, true ) );
 
             // Propagate orbit with Cowell method
-            propagatorSettings->resetInitialTime( initialTime );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-            propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

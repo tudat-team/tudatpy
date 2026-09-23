@@ -156,31 +156,20 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    systemInitialState,
-                                                                                    finalEphemerisTime,
-                                                                                    cowell,
-                                                                                    dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                        cowell,
+                        dependentVariables );
 
         // Propagate orbit with Cowell method
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
         // Define ephemeris interrogation settings.
@@ -207,25 +196,18 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, encke, dependentVariables );
+                centralBodies,
+                accelerationModelMap,
+                bodiesToPropagate,
+                systemInitialState,
+                initialEphemerisTime,
+                integratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                encke,
+                dependentVariables );
 
         // Propagate orbit with Encke method
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Get resutls of Encke integration at given times.
@@ -448,36 +430,25 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
                 std::make_shared< SingleDependentVariableSaveSettings >( keplerian_state_dependent_variable, "Vehicle", "Earth" ) );
 
         // Define propagator settings (Cowell)
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    vehicleInitialState,
-                                                                                    simulationEndEpoch,
-                                                                                    cowell,
-                                                                                    dependentVariables );
-
-        // Define integrator settings.
         const double fixedStepSize = 5.0;
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        vehicleInitialState,
+                        0.0,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
+
+        // Define integrator settings.
 
         // Propagate orbit with Cowell method
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
         // Define ephemeris interrogation settings.
@@ -498,31 +469,20 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronC
         }
 
         // Create propagation settings (Encke)
-        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                 accelerationModelMap,
-                                                                                                 bodiesToPropagate,
-                                                                                                 vehicleInitialState,
-                                                                                                 simulationEndEpoch,
-                                                                                                 encke,
-                                                                                                 dependentVariables );
+        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToPropagate,
+                vehicleInitialState,
+                0.0,
+                integratorSettings,
+
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                encke,
+                dependentVariables );
 
         // Propagate orbit with Encke method
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Get resutls of Encke integration at given times.

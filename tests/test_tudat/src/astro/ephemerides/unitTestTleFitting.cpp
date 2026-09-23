@@ -82,25 +82,15 @@ std::map< double, Eigen::Vector6d > propagateTleWithExtendedDynamics( const std:
     const Eigen::Vector6d initialState = initialTleEphemeris.getCartesianState( initialEpoch );
 
     // Integrate at 30-second fixed steps and retain a state every 30 minutes for the batch fit.
-    const auto propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-            centralBodies, accelerationModels, bodiesToPropagate, initialState, finalEpoch );
     const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 30.0 );
-    propagatorSettings->resetInitialTime( initialEpoch );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
+    const auto propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+            centralBodies,
+            accelerationModels,
+            bodiesToPropagate,
+            initialState,
+            initialEpoch,
+            integratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ) );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     std::map< double, Eigen::Vector6d > stateHistory;

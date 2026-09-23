@@ -149,38 +149,25 @@ int main( )
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariable, 25.0E3, true );
 
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+
     // Create propagation settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 systemInitialState,
+                                                                                simulationStartEpoch,
+                                                                                integratorSettings,
                                                                                 terminationSettings,
                                                                                 cowell,
                                                                                 dependentVariablesToSave );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    propagatorSettings->resetInitialTime( simulationStartEpoch );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

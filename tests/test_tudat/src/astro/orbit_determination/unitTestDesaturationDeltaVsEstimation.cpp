@@ -172,14 +172,21 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( initialStateInKeplerianElements, earthGravitationalParameter );
 
-    // Create propagator settings.
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime, cowell );
-
     // Create integrator settings.
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
             40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
+    // Create propagator settings.
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell );
 
     // Define link ends.
     std::vector< LinkDefinition > stationReceiverLinkEnds;
@@ -246,7 +253,6 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     }
 
     // Create orbit determination object.
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

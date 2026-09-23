@@ -421,32 +421,23 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                     convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
             // Define propagator settings (Cowell)
-            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
-
-            // Define integrator settings.
             const double fixedStepSize = 5.0;
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            vehicleInitialState,
+                            0.0,
+                            integratorSettings,
+                            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+            // Define integrator settings.
 
             // Propagate orbit with Cowell method
-            propagatorSettings->resetInitialTime( 0.0 );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
             // Define ephemeris interrogation settings.
@@ -466,30 +457,19 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             }
 
             // Create propagation settings
-            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                     accelerationModelMap,
-                                                                                                     bodiesToPropagate,
-                                                                                                     vehicleInitialState,
-                                                                                                     simulationEndEpoch,
-                                                                                                     translationalPropagatorType );
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    vehicleInitialState,
+                    0.0,
+                    integratorSettings,
+
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    translationalPropagatorType );
 
             // Propagate orbit with USM EOM
-            propagatorSettings->resetInitialTime( 0.0 );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             // Get resutls of USM integration at given times.

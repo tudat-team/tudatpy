@@ -139,9 +139,8 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime,
 
     // Hybrid propagation settings.
     std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > propagatorSettings =
-            std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
-    propagatorSettings->resetInitialTime( initialTime );
-    propagatorSettings->setIntegratorSettings( integratorSettings_ );
+            std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
+                    propagatorSettingsVector, integratorSettings_, initialTime, terminationSettings );
 
     // Propagate the trajectory.
     propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, propagatorSettings );

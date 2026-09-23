@@ -151,35 +151,24 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         const Eigen::Vector6d asterixInitialState =
                 convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
-
         const double fixedStepSize = 50.0;
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
                 std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize, assessDuringSubsteps );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        asterixInitialState,
+                        0.0,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).end( ) )->first;
@@ -340,43 +329,29 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
                 std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Asterix", "Earth" ) );
 
         // Create propagator settings
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    asterixInitialState,
-                                                                                    terminationSettings,
-                                                                                    cowell,
-                                                                                    dependentVariables );
-
         const double initialStepSize = 30.0;
         const double minStepSize = 30.0;
         const double maxStepSize = 30.0;
         const double tolerance = 1.0E-11;
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
                 initialStepSize, rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, assessDuringSubsteps );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    asterixInitialState,
+                                                                                    simulationStartEpoch,
+                                                                                    integratorSettings,
+
+                                                                                    terminationSettings,
+                                                                                    cowell,
+                                                                                    dependentVariables );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        propagatorSettings->resetInitialTime( simulationStartEpoch );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory( ).end( ) )->second( 0 );

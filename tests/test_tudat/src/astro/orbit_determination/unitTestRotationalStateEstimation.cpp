@@ -190,6 +190,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                     torqueModelMap,
                     bodiesToIntegrate,
                     systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Define link ends and observables
@@ -234,7 +236,6 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     }
 
     // Create orbit determination object
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
@@ -436,7 +437,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-            propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+            propagatorSettingsList,
+            integratorSettings,
+            initialEphemerisTime,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Define link ends and observables
     std::vector< LinkDefinition > linkEndsList;
@@ -479,7 +483,6 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     }
 
     // Create orbit determination object
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 

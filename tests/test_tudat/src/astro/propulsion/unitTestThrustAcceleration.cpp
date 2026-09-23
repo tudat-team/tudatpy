@@ -104,28 +104,17 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 10.0 );
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
     std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.1 );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                systemInitialState,
+                                                                                0.0,
+                                                                                integratorSettings,
+                                                                                terminationSettings );
     {
         // Create simulation object and propagate dynamics.
-        translationalPropagatorSettings->resetInitialTime( 0.0 );
-        translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-        translationalPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        translationalPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        translationalPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings, true );
 
         // Retrieve numerical solutions for state and dependent variables
@@ -160,25 +149,10 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
-                std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
+                std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsVector, integratorSettings, 0.0, terminationSettings );
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -349,36 +323,24 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         //                        "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
 
         // Define propagator settings (Cowell)
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    vehicleInitialState,
-                                                                                    simulationEndEpoch,
-                                                                                    cowell,
-                                                                                    dependentVariables );
-
-        // Define integrator settings.
         const double fixedStepSize = 5.0;
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        vehicleInitialState,
+                        0.0,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
+
+        // Define integrator settings.
 
         // Propagate orbit with Cowell method
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::map< double, Eigen::Matrix3d > currentRotationMatrixHistory;
@@ -600,25 +562,10 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
-                std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
+                std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsVector, integratorSettings, 0.0, terminationSettings );
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -743,33 +690,20 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         }
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.1 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                     accelerationModelMap,
                                                                                     bodiesToPropagate,
                                                                                     systemInitialState,
+                                                                                    0.0,
+                                                                                    integratorSettings,
+
                                                                                     terminationSettings,
                                                                                     cowell,
                                                                                     dependentVariables );
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.1 );
 
         // Create simulation object and propagate dynamics.
-        translationalPropagatorSettings->resetInitialTime( 0.0 );
-        translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-        translationalPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        translationalPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        translationalPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings, true );
 
         // Retrieve numerical solutions for state and dependent variables
@@ -894,33 +828,20 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 2.5 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                 accelerationModelMap,
                                                                                 bodiesToPropagate,
                                                                                 systemInitialState,
+                                                                                0.0,
+                                                                                integratorSettings,
+
                                                                                 terminationSettings,
                                                                                 cowell,
                                                                                 dependentVariables );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 2.5 );
 
     // Create simulation object and propagate dynamics.
-    translationalPropagatorSettings->resetInitialTime( 0.0 );
-    translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
-    translationalPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    translationalPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    translationalPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings, true );
 
     // Retrieve numerical solutions for state and dependent variables
@@ -1068,34 +989,21 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         dependentVariables.push_back( std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                 "Apollo", reference_frames::aerodynamic_frame, reference_frames::body_frame ) );
 
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodies,
                         accelerationModelMap,
                         bodiesToPropagate,
                         systemInitialState,
+                        simulationStartEpoch,
+                        integratorSettings,
+
                         std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
                         cowell,
                         dependentVariables );
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( simulationStartEpoch );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Retrieve numerical solutions for state and dependent variables
@@ -1381,37 +1289,25 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
                 tnw_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
 
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    systemInitialState,
-                                                                                    simulationEndEpoch,
-                                                                                    cowell,
-                                                                                    dependentVariables );
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        0.0,
+                        integratorSettings,
+
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
@@ -1741,32 +1637,19 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< MultiTypePropagatorSettings< double > >(
                         propagatorSettingsVector,
+                        integratorSettings,
+                        simulationStartEpoch,
+
                         std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                         dependentVariables );
 
         // Define integration settings.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( simulationStartEpoch );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Retrieve numerical solutions for state and dependent variables
@@ -1975,30 +1858,16 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
     std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
             propagatorSettingsVector,
+            integratorSettings,
+            simulationStartEpoch,
+
             std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
             dependentVariables );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
-
     // Create simulation object and propagate dynamics.
-    propagatorSettings->resetInitialTime( simulationStartEpoch );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Retrieve numerical solutions for state and dependent variables
@@ -2310,22 +2179,6 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
 
     // Create simulation object and propagate dynamics.
-    propagatorSettings->resetInitialTime( simulationStartEpoch );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            true,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcVariationalEquationsSolver<> dynamicsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
     auto stateHistory = dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );

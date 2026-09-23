@@ -136,7 +136,9 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
                     accelerationModelMap,
                     bodiesToIntegrate,
                     getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
-                    TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
+                    TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ) ),
                     cowell );
 
     // Define link ends.
@@ -179,8 +181,6 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
 
     // Create orbit determination object.
-    propagators::setSingleArcIntegrationSettings(
-            propagatorSettings, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), integratorSettings );
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, propagatorSettings );

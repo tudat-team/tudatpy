@@ -348,35 +348,26 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         Eigen::VectorXd systemInitialState =
                 convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, encke );
-
-        // Create numerical integrator.
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings<> >( 10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        0.0,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        encke );
+
+        // Create numerical integrator.
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;

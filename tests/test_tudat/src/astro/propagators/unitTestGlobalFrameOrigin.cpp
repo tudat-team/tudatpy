@@ -119,25 +119,15 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
     AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
     // Create dynamics simulation object.
-    propagatorSettings->resetInitialTime( initialEphemerisTime );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
-    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;

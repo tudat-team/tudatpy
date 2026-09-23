@@ -121,27 +121,25 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
-        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
-        for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
-        {
-            arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
-        }
-
         // For case 0: test multi-arc estimation with same integration settings for each arc
         if( testCase == 0 )
         {
             std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 );
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettings->clone( ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
             std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
                     std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
-            setMultiArcIntegrationSettings( multiArcPropagatorSettings, integrationArcStarts, integratorSettings );
-            multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
             multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-
-            std::shared_ptr< PropagationPrintSettings > multiArcPrintSettings = std::make_shared< PropagationPrintSettings >( );
-            multiArcPrintSettings->reset( true, true, TUDAT_NAN, 0, true, true, true, true, true, true );
-
-            multiArcPropagatorSettings->getOutputSettings( )->resetAndApplyConsistentSingleArcPrintSettings( multiArcPrintSettings );
             // Enable environment updates with a non-default interpolation order for all propagated arcs.
             multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             multiArcPropagatorSettings->getOutputSettings( )->setInterpolatorSettings( lagrangeInterpolation( 8 ) );
@@ -173,9 +171,19 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             {
                 integratorSettingsList.push_back( std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 ) );
             }
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettingsList.at( i ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
             const auto multiArcPropagatorSettings = std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList );
-            setMultiArcIntegrationSettings( multiArcPropagatorSettings, integrationArcStarts, integratorSettingsList );
-            multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
             multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }
@@ -184,10 +192,20 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         else if( testCase == 2 )
         {
             std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 120.0 );
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+            for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
+            {
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        integratorSettings->clone( ),
+                        std::make_shared< PropagationTimeTerminationSettings >( integrationArcEnds.at( i ) ) ) );
+            }
             const auto multiArcPropagatorSettings =
                     std::make_shared< MultiArcPropagatorSettings< double > >( arcPropagationSettingsList, true );
-            setMultiArcIntegrationSettings( multiArcPropagatorSettings, integrationArcStarts, integratorSettings );
-            multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
             multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, multiArcPropagatorSettings );
         }

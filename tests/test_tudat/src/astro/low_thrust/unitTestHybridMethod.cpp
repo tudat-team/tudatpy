@@ -253,27 +253,11 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         // Define propagator settings.
         std::shared_ptr< propagators::MultiTypePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
-                        propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
+                        propagatorSettingsVector, integratorSettings, initialTime, terminationSettings, dependentVariablesToSave );
 
         bodies[ bodyToPropagate ]->setConstantBodyMass( currentMass );
 
         // Perform propagation.
-        propagatorSettings->resetInitialTime( initialTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );

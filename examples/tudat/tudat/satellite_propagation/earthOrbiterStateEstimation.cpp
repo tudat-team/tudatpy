@@ -154,6 +154,11 @@ int main( )
     double arcDuration = 3.01 * 86400.0;
     double arcOverlap = 3600.0;
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
+                    30.0, CoefficientSets::rungeKuttaFehlberg78, 15.0, 15.0, 1.0, 1.0 );
+
     // Create propagator settings (including initial state taken from Kepler orbit) for each arc
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     std::vector< double > arcStartTimes;
@@ -166,18 +171,19 @@ int main( )
                 propagateKeplerOrbit( vehicleInitialKeplerianState, currentTime - initialEphemerisTime, earthGravitationalParameter ),
                 earthGravitationalParameter );
         propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, currentArcInitialState, currentTime + arcDuration + arcOverlap ) );
+                centralBodies,
+                accelerationModelMap,
+                bodiesToIntegrate,
+                currentArcInitialState,
+                currentTime,
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( currentTime + arcDuration + arcOverlap ) ) );
         currentTime += arcDuration;
     }
 
     // Create propagator settings
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< double > >( propagatorSettingsList );
-
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    30.0, CoefficientSets::rungeKuttaFehlberg78, 15.0, 15.0, 1.0, 1.0 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             DEFINE LINK ENDS FOR OBSERVATIONS            //////////////////////////////////////
@@ -297,10 +303,6 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create orbit determination object (propagate orbit, create observation models)
-    propagators::setMultiArcIntegrationSettings(
-            propagatorSettings,
-            estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ),
-            integratorSettings );
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsMap, propagatorSettings );
 

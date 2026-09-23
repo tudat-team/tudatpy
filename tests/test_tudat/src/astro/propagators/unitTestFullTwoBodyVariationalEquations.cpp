@@ -223,6 +223,7 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
 
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
+    const auto integratorSettings = std::make_shared< IntegratorSettings< double > >( rungeKutta4, integratorStep );
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
             std::make_shared< RotationalStatePropagatorSettings< double > >(
                     torqueModelMap, translationalBodiesToIntegrate, unitRotationState, terminationSettings );
@@ -239,8 +240,8 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
                                                                         cowell );
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList{ rotationalPropagatorSettings,
                                                                                                     translationalPropagatorSettings };
-    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsList, terminationSettings );
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            propagatorSettingsList, integratorSettings, initialEphemerisTime, terminationSettings );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back(
@@ -265,10 +266,6 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
         parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 1, maximumEstimatedGravityDegree, maximumEstimatedGravityDegree, "Mars", spherical_harmonics_sine_coefficient_block ) );
     }
-
-    const auto integratorSettings = std::make_shared< IntegratorSettings< double > >( rungeKutta4, integratorStep );
-    propagatorSettings->resetInitialTime( initialEphemerisTime );
-    propagatorSettings->setIntegratorSettings( integratorSettings );
 
     return PhobosRotationSetup{ bodies,
                                 propagatorSettings,
@@ -386,22 +383,7 @@ FullTwoBodyPropagationHistory executeFullTwoBodyPhobosVariationalHistory(
         setup.parametersToEstimate->resetParameterValues( parameterVector );
     }
 
-    setup.propagatorSettings->resetInitialTime( setup.propagatorSettings->getInitialTime( ) );
-    setup.propagatorSettings->setIntegratorSettings( setup.integratorSettings );
-    setup.propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
     setup.propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-    setup.propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    setup.propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            true,
-            setup.propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     SingleArcVariationalEquationsSolver< double, double > solver(
             setup.bodies, setup.propagatorSettings, setup.parametersToEstimate, true, false );
     if( propagateVariationalEquations )

@@ -156,25 +156,16 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
         // Propagate orbit with Cowell method
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
         // Define ephemeris interrogation settings.
@@ -212,30 +203,19 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         }
 
         // Create propagation settings (Gauss)
-        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                 accelerationModelMap,
-                                                                                                 bodiesToPropagate,
-                                                                                                 systemInitialState,
-                                                                                                 finalEphemerisTime,
-                                                                                                 translationalPropagatorType );
+        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToPropagate,
+                systemInitialState,
+                initialEphemerisTime,
+                integratorSettings,
+
+                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                translationalPropagatorType );
 
         // Propagate orbit with Gauss method
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
         // Get resutls of Gauss integration at given times.
@@ -460,32 +440,23 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                     convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
             // Define propagator settings (Cowell)
-            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
-
-            // Define integrator settings.
             const double fixedStepSize = 5.0;
             std::shared_ptr< IntegratorSettings<> > integratorSettings =
                     std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            vehicleInitialState,
+                            0.0,
+                            integratorSettings,
+                            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+            // Define integrator settings.
 
             // Propagate orbit with Cowell method
-            propagatorSettings->resetInitialTime( 0.0 );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, propagatorSettings, true );
 
             // Define ephemeris interrogation settings.
@@ -505,30 +476,19 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             }
 
             // Create propagation settings (Gauss)
-            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                                     accelerationModelMap,
-                                                                                                     bodiesToPropagate,
-                                                                                                     vehicleInitialState,
-                                                                                                     simulationEndEpoch,
-                                                                                                     translationalPropagatorType );
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    vehicleInitialState,
+                    0.0,
+                    integratorSettings,
+
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    translationalPropagatorType );
 
             // Propagate orbit with Gauss method
-            propagatorSettings->resetInitialTime( 0.0 );
-            propagatorSettings->setIntegratorSettings( integratorSettings );
-            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
             propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                    false,
-                    false,
-                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                    0,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false );
             SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
 
             // Get resutls of Gauss integration at given times.

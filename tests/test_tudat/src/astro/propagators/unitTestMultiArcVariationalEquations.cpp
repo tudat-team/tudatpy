@@ -170,13 +170,15 @@ executeMultiArcEarthMoonSimulation(
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        propagatorSettingsList.push_back(
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( centralBodies,
-                                                                                                       accelerationModelMap,
-                                                                                                       bodiesToIntegrate,
-                                                                                                       systemInitialStates.at( i ),
-                                                                                                       arcEndTimes.at( i ),
-                                                                                                       propagatorType ) );
+        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                centralBodies,
+                accelerationModelMap,
+                bodiesToIntegrate,
+                systemInitialStates.at( i ),
+                arcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ),
+                propagatorType ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings;
 
@@ -215,8 +217,6 @@ executeMultiArcEarthMoonSimulation(
             results;
     {
         // Create dynamics simulator
-        setMultiArcIntegrationSettings( multiArcPropagatorSettings, arcStartTimes, integratorSettings );
-        multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
         multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(

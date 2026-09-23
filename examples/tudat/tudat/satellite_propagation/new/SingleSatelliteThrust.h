@@ -171,20 +171,19 @@ public:
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        // Create propagation settings for mass and translational dynamics concurrently
-        std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, termination_settings );
-
         // Define integrator settings
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 30.0 );
+
+        // Create propagation settings for mass and translational dynamics concurrently
+        std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsVector, integratorSettings, 0.0, termination_settings );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( 0.0 );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
         SingleArcDynamicsSimulator<> dynamicsSimulator( this->_body_system, propagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables

@@ -115,15 +115,6 @@ int main( )
         // Get initial state vector as input to integration.
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
-        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    systemInitialState,
-                                                                                    finalEphemerisTime,
-                                                                                    cowell,
-                                                                                    std::shared_ptr< DependentVariableSaveSettings >( ) );
-
         // Define numerical integrator settings.
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
                 std::make_shared< BulirschStoerIntegratorSettings< double > >( 3600.0,
@@ -135,27 +126,23 @@ int main( )
                                                                                1.0E-8,
                                                                                10 );
 
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                        cowell,
+                        std::shared_ptr< DependentVariableSaveSettings >( ) );
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBITS            ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

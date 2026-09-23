@@ -206,29 +206,14 @@ int main( )
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
-    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings_1 =
-            std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, timeTerminationSettings_1 );
-
     // Create integrator settings for first simulation
     std::shared_ptr< IntegratorSettings<> > integratorSettings_1 = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings_1 =
+            std::make_shared< MultiTypePropagatorSettings< double > >(
+                    propagatorSettingsVector, integratorSettings_1, simulationStartEpoch, timeTerminationSettings_1 );
+
     // Create dynamics simulator for first simulation
-    propagatorSettings_1->resetInitialTime( simulationStartEpoch );
-    propagatorSettings_1->setIntegratorSettings( integratorSettings_1 );
-    propagatorSettings_1->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings_1->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings_1->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings_1->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings_1->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator_1 =
             std::make_shared< SingleArcDynamicsSimulator<> >( bodies_1, propagatorSettings_1, false );
 
@@ -316,36 +301,22 @@ int main( )
     std::shared_ptr< propagators::PropagationHybridTerminationSettings > hybridTerminationSettings =
             std::make_shared< propagators::PropagationHybridTerminationSettings >( multiTerminationSettings, true );
 
+    // Create integrator settings for second simulation
+    std::shared_ptr< IntegratorSettings<> > integratorSettings_2 = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
+
     // Create propagator settings for second simulation
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings_2 =
             std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies_2,
                                                                                 accelerationModelMap_2,
                                                                                 bodiesToPropagate_2,
                                                                                 Eigen::VectorXd::Zero( 12 ),
+                                                                                simulationStartEpoch,
+                                                                                integratorSettings_2,
                                                                                 hybridTerminationSettings,
                                                                                 cowell,
                                                                                 dependentVariableSaveSettings );
 
-    // Create integrator settings for second simulation
-    std::shared_ptr< IntegratorSettings<> > integratorSettings_2 = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
-
     // Create dynamics simulator for second simulation
-    propagatorSettings_2->resetInitialTime( simulationStartEpoch );
-    propagatorSettings_2->setIntegratorSettings( integratorSettings_2 );
-    propagatorSettings_2->getOutputSettings( )->setClearNumericalSolutions( false );
-    propagatorSettings_2->getOutputSettings( )->setIntegratedResult( false );
-    propagatorSettings_2->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-    propagatorSettings_2->getOutputSettings( )->getPrintSettings( )->reset(
-            false,
-            false,
-            propagatorSettings_2->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-            0,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false );
     std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator_2 =
             std::make_shared< SingleArcDynamicsSimulator<> >( bodies_2, propagatorSettings_2, false );
 

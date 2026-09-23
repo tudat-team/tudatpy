@@ -431,26 +431,17 @@ void testCowellPropagationOfKeplerOrbit( )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
         // cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 
         // Create dynamics simulation object.
-        propagatorSettings->resetInitialTime( initialEphemerisTime );
-        propagatorSettings->setIntegratorSettings( integratorSettings );
-        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
-        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
-        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
-                false,
-                false,
-                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
-                0,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false );
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
 
         Eigen::Matrix< StateScalarType, 6, 1 > initialKeplerElements =

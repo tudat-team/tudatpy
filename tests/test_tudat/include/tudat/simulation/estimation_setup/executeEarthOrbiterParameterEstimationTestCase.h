@@ -145,20 +145,27 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
+                    40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                    centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, TimeType( finalEphemerisTime ), cowell );
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    TimeType( initialEphemerisTime ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( TimeType( finalEphemerisTime ) ),
+                    cowell );
     if( integratedStateInterpolatorSettings != nullptr )
     {
         propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         propagatorSettings->getOutputSettings( )->setInterpolatorSettings( integratedStateInterpolatorSettings );
     }
-
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -250,7 +257,6 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     }
 
     // Create orbit determination object.
-    propagators::setSingleArcIntegrationSettings( propagatorSettings, TimeType( initialEphemerisTime ), integratorSettings );
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
                     bodies, parametersToEstimate, observationSettingsList, propagatorSettings );

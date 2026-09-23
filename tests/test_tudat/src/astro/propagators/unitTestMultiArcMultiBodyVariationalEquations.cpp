@@ -468,15 +468,14 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
                 multiArcJuiceAccelerationMap.at( i ),
                 std::vector< std::string >( { "JUICE" } ),
                 multiArcSystemInitialStates.at( i ),
-                juiceArcEndTimes.at( i ) ) );
+                flybyTimes.at( i ),
+                multiArcIntegratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( juiceArcEndTimes.at( i ) ) ) );
     }
 
     std::shared_ptr< propagators::MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
-    setMultiArcIntegrationSettings( multiArcPropagatorSettings, flybyTimes, multiArcIntegratorSettings );
-    multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-    multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
     MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
@@ -844,9 +843,6 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         //                    bodies, integratorSettings, std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< > >(
         //                    propagatorSettingsList.at( 0 ) ), singleArcParametersToEstimate/*, true, nullptr, false, true, false*/ );
 
-        setMultiArcIntegrationSettings( multiArcPropagatorSettings, arcStartTimes, integratorSettings );
-        multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         MultiArcVariationalEquationsSolver< double, double > multiArcVariationalEquations =
                 MultiArcVariationalEquationsSolver< double, double >( bodies, multiArcPropagatorSettings, parametersToEstimate, true );
 
@@ -951,10 +947,6 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
                 one_way_range, linkEndsGanymede, lightTimeCorrections /*std::shared_ptr< LightTimeCorrectionSettings >( )*/ ) );
 
-        propagators::setMultiArcIntegrationSettings(
-                multiArcPropagatorSettings,
-                estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ),
-                integratorSettings );
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
                 bodies, parametersToEstimate, observationSettingsList, multiArcPropagatorSettings );
 
@@ -1090,10 +1082,6 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
                             centralBodiesPerArc.at( arc ),
                             multiArcCentralBodies.at( arc ) );
 
-            setMultiArcIntegrationSettings(
-                    perArcPropagatorSettings, std::vector< double >{ arcStartTimes.at( arc ) }, integratorSettings );
-            perArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
-            perArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
             MultiArcVariationalEquationsSolver< double, double > perArcVariationalEquations =
                     MultiArcVariationalEquationsSolver< double, double >(
                             bodies, perArcPropagatorSettings, singleArcParametersToEstimate, true );

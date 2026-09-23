@@ -107,8 +107,6 @@ template< typename StateScalarType = double >
 class PropagatorSettings
 {
 public:
-    using StateScalar = StateScalarType;
-
     //! Constructor
     /*!
      * Constructor
@@ -839,91 +837,6 @@ protected:
     int multiArcStateSize_;
 };
 
-//! Set the epoch and integrator that are owned by a single-arc propagator settings object.
-template< typename PropagatorSettingsType, typename TimeType, typename InitialTimeType >
-void setSingleArcIntegrationSettings( const std::shared_ptr< PropagatorSettingsType >& propagatorSettings,
-                                      const InitialTimeType& initialTime,
-                                      const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
-{
-    const auto singleArcSettings =
-            std::dynamic_pointer_cast< SingleArcPropagatorSettings< typename PropagatorSettingsType::StateScalar, TimeType > >(
-                    propagatorSettings );
-    if( singleArcSettings == nullptr )
-    {
-        throw std::runtime_error( "Error when setting single-arc integration settings: input settings are not single-arc." );
-    }
-    singleArcSettings->resetInitialTime( static_cast< TimeType >( initialTime ) );
-    singleArcSettings->setIntegratorSettings( integratorSettings );
-}
-
-//! Set the epochs and independent integrators that are owned by a multi-arc propagator settings object.
-template< typename PropagatorSettingsType, typename TimeType, typename InitialTimeType >
-void setMultiArcIntegrationSettings(
-        const std::shared_ptr< PropagatorSettingsType >& propagatorSettings,
-        const std::vector< InitialTimeType >& initialTimes,
-        const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings )
-{
-    const auto multiArcSettings =
-            std::dynamic_pointer_cast< MultiArcPropagatorSettings< typename PropagatorSettingsType::StateScalar, TimeType > >(
-                    propagatorSettings );
-    if( multiArcSettings == nullptr )
-    {
-        throw std::runtime_error( "Error when setting multi-arc integration settings: input settings are not multi-arc." );
-    }
-    if( multiArcSettings->getSingleArcSettings( ).size( ) != initialTimes.size( ) || initialTimes.size( ) != integratorSettings.size( ) )
-    {
-        throw std::runtime_error( "Error when setting multi-arc integration settings: inconsistent number of arcs." );
-    }
-
-    for( unsigned int i = 0; i < initialTimes.size( ); ++i )
-    {
-        multiArcSettings->getSingleArcSettings( ).at( i )->resetInitialTime( static_cast< TimeType >( initialTimes.at( i ) ) );
-        multiArcSettings->getSingleArcSettings( ).at( i )->setIntegratorSettings( integratorSettings.at( i )->clone( ) );
-    }
-}
-
-template< typename PropagatorSettingsType, typename TimeType, typename InitialTimeType >
-void setMultiArcIntegrationSettings( const std::shared_ptr< PropagatorSettingsType >& propagatorSettings,
-                                     const std::vector< InitialTimeType >& initialTimes,
-                                     const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
-{
-    setMultiArcIntegrationSettings( propagatorSettings,
-                                    initialTimes,
-                                    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
-                                            initialTimes.size( ), integratorSettings ) );
-}
-
-//! Set the epochs and integrators that are owned by a hybrid-arc propagator settings object.
-template< typename PropagatorSettingsType, typename TimeType, typename SingleArcTimeType, typename MultiArcTimeType >
-void setHybridArcIntegrationSettings(
-        const std::shared_ptr< PropagatorSettingsType >& propagatorSettings,
-        const SingleArcTimeType& singleArcInitialTime,
-        const std::vector< MultiArcTimeType >& multiArcInitialTimes,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& singleArcIntegratorSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& multiArcIntegratorSettings )
-{
-    const auto hybridArcSettings =
-            std::dynamic_pointer_cast< HybridArcPropagatorSettings< typename PropagatorSettingsType::StateScalar, TimeType > >(
-                    propagatorSettings );
-    if( hybridArcSettings == nullptr )
-    {
-        throw std::runtime_error( "Error when setting hybrid-arc integration settings: input settings are not hybrid-arc." );
-    }
-    setSingleArcIntegrationSettings(
-            hybridArcSettings->getSingleArcPropagatorSettings( ), singleArcInitialTime, singleArcIntegratorSettings->clone( ) );
-    setMultiArcIntegrationSettings( hybridArcSettings->getMultiArcPropagatorSettings( ), multiArcInitialTimes, multiArcIntegratorSettings );
-}
-
-template< typename PropagatorSettingsType, typename TimeType, typename SingleArcTimeType, typename MultiArcTimeType >
-void setHybridArcIntegrationSettings( const std::shared_ptr< PropagatorSettingsType >& propagatorSettings,
-                                      const SingleArcTimeType& singleArcInitialTime,
-                                      const std::vector< MultiArcTimeType >& multiArcInitialTimes,
-                                      const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
-{
-    setHybridArcIntegrationSettings(
-            propagatorSettings, singleArcInitialTime, multiArcInitialTimes, integratorSettings, integratorSettings );
-}
-
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings,
@@ -1498,6 +1411,31 @@ public:
              massRateIterator++ )
         {
             massRateModels_[ massRateIterator->first ].push_back( massRateIterator->second );
+        }
+    }
+
+    MassPropagatorSettings( const std::vector< std::string > bodiesWithMassToPropagate,
+                            const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+                            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+                            const TimeType& initialTime,
+                            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+                            const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                            const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                                    std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( body_mass_state,
+                                                                  initialBodyMasses,
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
+    {
+        for( const auto& massRateModel : massRateModels )
+        {
+            massRateModels_[ massRateModel.first ].push_back( massRateModel.second );
         }
     }
 
@@ -2206,6 +2144,30 @@ public:
                                                                   terminationSettings,
                                                                   dependentVariablesToSave,
                                                                   statePrintInterval ),
+        stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
+                                             stateDerivativeFunction,
+                                             std::placeholders::_1,
+                                             std::placeholders::_2 ) ),
+        stateSize_( 1 ), bodyName_( bodyName )
+    {}
+
+    CustomStatePropagatorSettings( const std::function< StateScalarType( const TimeType, const StateScalarType ) > stateDerivativeFunction,
+                                   const StateScalarType initialState,
+                                   const TimeType& initialTime,
+                                   const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+                                   const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                   const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
+                                           std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                                   const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
+                                           std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                                   const std::string& bodyName = "" ):
+        SingleArcPropagatorSettings< StateScalarType, TimeType >( custom_state,
+                                                                  ( StateVectorType( 1 ) << initialState ).finished( ),
+                                                                  initialTime,
+                                                                  integratorSettings,
+                                                                  terminationSettings,
+                                                                  dependentVariablesToSave,
+                                                                  outputSettings ),
         stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
                                              stateDerivativeFunction,
                                              std::placeholders::_1,
