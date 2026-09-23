@@ -834,8 +834,9 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             propagatorSettingsList.push_back( translationalPropagatorSettings );
             propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
-            std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList, terminationSettings, dependentVariablesList );
+            std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< MultiTypePropagatorSettings< double > >(
+                            propagatorSettingsList, terminationSettings, dependentVariablesList );
 
             // Create integrator settings for rotation.
             std::shared_ptr< IntegratorSettings<> > integratorSettings =

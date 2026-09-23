@@ -163,7 +163,7 @@ int main( )
             std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
     // Create propagation settings for mass and translational dynamics concurrently
-    std::shared_ptr< PropagatorSettings<> > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
             propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 
     // Define integrator settings

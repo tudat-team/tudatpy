@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+    std::shared_ptr< MassPropagatorSettings< double > > propagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >( std::vector< std::string >{ "Vehicle" },
                                                                   massRateModels,
                                                                   initialMass,

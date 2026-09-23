@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         // Define propagator settings.
-        std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings =
+        std::shared_ptr< propagators::MultiTypePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
                         propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
 

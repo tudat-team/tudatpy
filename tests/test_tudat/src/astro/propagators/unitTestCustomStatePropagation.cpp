@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testMultipleCustomStatesOfBodyNotSetInBody )
                     TUDAT_NAN,
                     "Vehicle" );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
             std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >{ firstCustomPropagatorSettings,
                                                                                      secondCustomPropagatorSettings },
             std::make_shared< PropagationTimeTerminationSettings >( 1.0 ) );
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                     std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Create total propagator settings, depending on current case.
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings;
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );

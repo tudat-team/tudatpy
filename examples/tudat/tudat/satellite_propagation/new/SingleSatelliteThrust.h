@@ -172,7 +172,7 @@ public:
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         // Create propagation settings for mass and translational dynamics concurrently
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, termination_settings );
 
         // Define integrator settings
