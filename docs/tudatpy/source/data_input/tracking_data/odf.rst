@@ -8,8 +8,10 @@
 This submodule contains functionality to load tracking data from ODF files.
 ODF files are binary files produced by the Deep Space Network (DSN) and encode
 radiometric spacecraft tracking data used for orbit and parameter estimation.
-The format is described in ``820-013, TRK-2-18 Tracking System Interfaces Orbit
-Data File Interface, Revision E, 2008, JPL/DSN``. The :func:`read_odf_data`
+The format is described in `820-013, TRK-2-18 Tracking System Interfaces Orbit
+Data File Interface, Revision E, 2008, JPL/DSN <https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-18/dsn_trk-2-18.2008-02-29.pdf>`_.
+
+The :func:`read_odf_data`
 function is the main interface for loading the data and converting it to objects
 that Tudat can process further; see also :ref:`tracking_data`. All
 other functionality in this module is reserved for better understanding what
@@ -26,9 +28,11 @@ Supporting API
 The functions and classes below expose the raw contents of ODF binary files in
 dedicated containers. They are used internally by :func:`read_odf_data` and do
 not perform the full conversion to Tudat tracking-data objects, but can be used
-to inspect the parsed ODF contents if needed.
+to inspect the parsed ODF contents and process them further if needed.
 
 .. autofunction:: read_raw_odf_file_contents
+
+.. autofunction:: convert_raw_odf_file_contents
 
 .. autoclass:: RawOdfFileContents
    :members:
