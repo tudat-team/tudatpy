@@ -1351,6 +1351,15 @@ class Builder:
                             "CMake will attempt to find it automatically."
                         )
 
+                # Force MSVC cl.exe to match CI
+                if platform == "win32":
+                    cmake_command.extend(
+                        [
+                            "-DCMAKE_C_COMPILER=cl",
+                            "-DCMAKE_CXX_COMPILER=cl",
+                        ]
+                    )
+
                 # Add build and source directories
                 cmake_command.extend(["-B", f"{self.build_dir}", "-S", ".."])
 
