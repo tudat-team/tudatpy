@@ -230,24 +230,32 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 std::shared_ptr< IntegratorSettings<> > integratorSettings;
                 if( integratorCase == 0 )
                 {
-                    integratorSettings = std::make_shared< IntegratorSettings<> >(
-                            rungeKutta4, simulationStartEpoch, directionMultiplier * fixedStepSize );
+                    integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, directionMultiplier * fixedStepSize );
                 }
                 else
                 {
-                    integratorSettings =
-                            std::make_shared< RungeKuttaVariableStepSizeSettings< double > >( simulationStartEpoch,
-                                                                                              directionMultiplier * fixedStepSize,
-                                                                                              CoefficientSets::rungeKuttaFehlberg45,
-                                                                                              1.0E-3,
-                                                                                              1.0E3,
-                                                                                              1.0E-12,
-                                                                                              1.0E-12 );
+                    integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+                            directionMultiplier * fixedStepSize, CoefficientSets::rungeKuttaFehlberg45, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 
                 // Propagate orbit with Cowell method
-                SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                        bodies, integratorSettings, propagatorSettings, true, false, false );
+                propagatorSettings->resetInitialTime( simulationStartEpoch );
+                propagatorSettings->setIntegratorSettings( integratorSettings );
+                propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+                propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+                propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                        false,
+                        false,
+                        propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                        0,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false );
+                SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, propagatorSettings, true );
                 std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

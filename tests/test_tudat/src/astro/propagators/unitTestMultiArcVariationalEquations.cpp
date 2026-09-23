@@ -121,7 +121,7 @@ executeMultiArcEarthMoonSimulation(
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 1800.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 1800.0 );
 
     // Define arc times.
     std::vector< double > arcStartTimes, arcEndTimes;
@@ -215,9 +215,12 @@ executeMultiArcEarthMoonSimulation(
             results;
     {
         // Create dynamics simulator
+        setMultiArcIntegrationSettings( multiArcPropagatorSettings, arcStartTimes, integratorSettings );
+        multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
+        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                        bodies, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
+                        bodies, multiArcPropagatorSettings, parametersToEstimate, false );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )

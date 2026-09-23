@@ -105,8 +105,7 @@ std::map< double, Eigen::Vector3d > runPropagationAndRetrieveTotalAcceleration(
     dependentVariables.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "Vehicle" ) );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 20.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 20.0 );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -354,15 +353,31 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
                         centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, encke );
 
         // Create numerical integrator.
-        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                0.0, 10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< RungeKuttaVariableStepSizeSettings<> >( 10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+        propagatorSettings->resetInitialTime( 0.0 );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 

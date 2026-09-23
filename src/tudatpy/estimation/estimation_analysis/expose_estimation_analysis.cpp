@@ -117,18 +117,6 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
     return propagatedRswCovariance;
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
-        const Eigen::MatrixXd initialCovariance,
-        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
-        const std::vector< double > evaluationTimes )
-{
-    std::map< double, Eigen::MatrixXd > propagatedRswCovariance =
-            propagateCovarianceRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
-
-    return std::make_pair( utilities::createVectorFromMapKeys( propagatedRswCovariance ),
-                           utilities::createVectorFromMapValues( propagatedRswCovariance ) );
-}
-
 std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
@@ -141,46 +129,6 @@ std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
     tp::convertCovarianceHistoryToFormalErrorHistory( propagatedFormalErrors, propagatedCovariance );
 
     return propagatedFormalErrors;
-}
-
-std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
-        const Eigen::MatrixXd initialCovariance,
-        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
-        const std::vector< double > evaluationTimes )
-{
-    std::cerr << "The propagate_covariance_rsw_split_output function is deprecated as of v1.0, use propagate_covariance_rsw instead"
-              << std::endl;
-
-    std::map< double, Eigen::VectorXd > propagatedFormalErrors =
-            propagateFormalErrorsRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
-    return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
-                           utilities::createVectorFromMapValues( propagatedFormalErrors ) );
-}
-
-std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
-        const Eigen::MatrixXd initialCovariance,
-        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes )
-{
-    std::cerr << "The propagate_covariance_split_output function is deprecated as of v1.0, use propagate_covariance instead" << std::endl;
-    std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    tp::propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
-    return std::make_pair( utilities::createVectorFromMapKeys( propagatedCovariance ),
-                           utilities::createVectorFromMapValues( propagatedCovariance ) );
-}
-
-std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectors(
-        const Eigen::MatrixXd initialCovariance,
-        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes )
-{
-    std::cerr << "The propagate_formal_errors_split_output function is deprecated as of v1.0, use propagate_formal_errors instead"
-              << std::endl;
-
-    std::map< double, Eigen::VectorXd > propagatedFormalErrors;
-    tp::propagateFormalErrors( propagatedFormalErrors, initialCovariance, stateTransitionInterface, evaluationTimes );
-    return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
-                           utilities::createVectorFromMapValues( propagatedFormalErrors ) );
 }
 
 }  // namespace propagators
@@ -380,108 +328,6 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
-            .def( "set_constant_weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeightsMatrix,
-                  py::arg( "weight" ),
-                  R"doc(
-
-         Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-         containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-     )doc" )
-            .def( "set_weights_from_observation_collection",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightsFromObservationCollection,
-                  R"doc(
-
-
-        Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-        containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
-            .def( "set_constant_single_observable_weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableWeights,
-                  py::arg( "observable_type" ),
-                  py::arg( "weight" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
-            .def( "set_constant_single_observable_vector_weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableVectorWeights,
-                  py::arg( "observable_type" ),
-                  py::arg( "weight" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
-            .def( "set_constant_single_observable_and_link_end_weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableAndLinkEndsWeights,
-                  py::arg( "observable_type" ),
-                  py::arg( "link_ends" ),
-                  py::arg( "weight" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
-            .def( "set_constant_single_observable_and_link_end_vector_"
-                  "weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableAndLinkEndsVectorWeights,
-                  py::arg( "observable_type" ),
-                  py::arg( "link_ends" ),
-                  py::arg( "weight" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
-            .def( "set_total_single_observable_and_link_end_vector_"
-                  "weight",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedSingleObservableAndLinkEndsWeights,
-                  py::arg( "observable_type" ),
-                  py::arg( "link_ends" ),
-                  py::arg( "weight_vector" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-
-)doc" )
-            .def( "set_constant_weight_per_observable",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantPerObservableWeightsMatrix,
-                  py::arg( "weight_per_observable" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-
-     )doc" )
-            .def( "set_constant_vector_weight_per_observable",
-                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantPerObservableVectorWeightsMatrix,
-                  py::arg( "weight_per_observable" ),
-                  R"doc(
-
-Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
-containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
-
-
-)doc" )
             .def( "define_covariance_settings",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -523,10 +369,9 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
      )doc" )
-            .def_property( "weight_matrix_diagonal",
-                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
-                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightsMatrixDiagonals,
-                           R"doc(
+            .def_property_readonly( "weight_matrix_diagonal",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsMatrixDiagonals,
+                                    R"doc(
 
          **read-only**
 
@@ -1224,51 +1069,6 @@ containing the data, see `user guide description <https://docs.tudat.space/en/la
 
 
      )doc" );
-
-    /************************** DEPRECATED ***************************/
-
-    m.def( "propagate_covariance_split_output",
-           py::overload_cast< const Eigen::MatrixXd,
-                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
-                              const std::vector< double > >( &tp::propagateCovarianceVectors ),
-           py::arg( "initial_covariance" ),
-           py::arg( "state_transition_interface" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_formal_errors_split_output",
-           py::overload_cast< const Eigen::MatrixXd,
-                              const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
-                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
-           py::arg( "initial_covariance" ),
-           py::arg( "state_transition_interface" ),
-           py::arg( "output_times" ) );
-}
-
-void expose_estimation_analysis_orbit_determination_helpers( py::module& m )
-{
-    m.def( "propagate_covariance_rsw_split_output",
-           &tp::propagateCovarianceVectorsRsw,
-           py::arg( "initial_covariance" ),
-           py::arg( "estimator" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_formal_errors_rsw_split_output",
-           &tp::propagateFormalErrorVectorsRsw,
-           py::arg( "initial_covariance" ),
-           py::arg( "estimator" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_covariance_rsw_split_output",
-           &tp::propagateCovarianceVectorsRsw,
-           py::arg( "initial_covariance" ),
-           py::arg( "estimator" ),
-           py::arg( "output_times" ) );
-
-    m.def( "propagate_formal_errors_rsw_split_output",
-           &tp::propagateFormalErrorVectorsRsw,
-           py::arg( "initial_covariance" ),
-           py::arg( "estimator" ),
-           py::arg( "output_times" ) );
 }
 
 }  // namespace estimation_analysis

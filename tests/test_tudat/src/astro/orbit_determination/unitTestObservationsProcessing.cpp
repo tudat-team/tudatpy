@@ -132,7 +132,7 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            double( initialEphemerisTime ), 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
 
     // Define link ends.
     stationReceiverLinkEnds.clear( );
@@ -187,8 +187,9 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
     }
 
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    propagators::setSingleArcIntegrationSettings( propagatorSettings, double( initialEphemerisTime ), integratorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     baseTimeList.clear( );
     std::vector< double > rangeObsTimes, dopplerObsTimes, angularPositionObsTimes;

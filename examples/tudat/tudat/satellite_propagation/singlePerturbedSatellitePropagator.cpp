@@ -61,13 +61,14 @@ int main( )
             constantAerodynamicCoefficientSettings( referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
     addAerodynamicCoefficientInterface( bodies, "Asterix", aerodynamicCoefficientSettings );
 
-    // Create and add radiation pressure interace
+    // Create and add radiation pressure target model
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies = { "Earth" };
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            cannonBallRadiationPressureSettings( "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    addRadiationPressureInterface( bodies, "Asterix", asterixRadiationPressureSettings );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Asterix",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ int main( )
     using namespace tudat::basic_astrodynamics;
     accelerationsOfAsterix[ "Earth" ] = { sphericalHarmonicAcceleration( 8, 8 ), aerodynamicAcceleration( ) };
 
-    accelerationsOfAsterix[ "Sun" ] = { pointMassGravityAcceleration( ), cannonBallRadiationPressureAcceleration( ) };
+    accelerationsOfAsterix[ "Sun" ] = { pointMassGravityAcceleration( ), radiationPressureAcceleration( ) };
 
     accelerationsOfAsterix[ "Mars" ] = { pointMassGravityAcceleration( ) };
 
@@ -119,15 +120,30 @@ int main( )
                     centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    propagatorSettings->resetInitialTime( 0.0 );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

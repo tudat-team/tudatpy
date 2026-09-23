@@ -23,7 +23,6 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-#include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/io/serialization/core.h"
 #include "tudat/io/serialization/file_io_declarations.h"
@@ -195,12 +194,6 @@ inline std::shared_ptr< AccelerationSettings > einsteinInfledHoffmannGravityAcce
 inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic );
-}
-
-//! @get_docstring(cannonBallRadiationPressureAcceleration)
-inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAcceleration( )
-{
-    return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 }
 
 inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration(
@@ -971,17 +964,6 @@ private:
         ar( cereal::base_class< AccelerationSettings >( this ) );
         ar( CEREAL_NVP( engineIds_ ) );
         ar( CEREAL_NVP( useAllEngines_ ) );
-    }
-
-public:
-    template< typename ReturnType >
-    ReturnType printDeprecationError( )
-    {
-        utilities::printDeprecationError(
-                "tudatpy.numerical_simulation.propagation_setup.acceleration.direction_settings/magnitude_settings",
-                "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/"
-                "thrust_refactor.html#thrust-acceleration" );
-        return nullptr;
     }
 };
 

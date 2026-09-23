@@ -62,7 +62,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings( const 
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings;
     if( integratorCase == 0 )
     {
-        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialTime, initialTimeMultiplier * 300.0 );
+        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialTimeMultiplier * 300.0 );
     }
     else if( integratorCase < 5 )
     {
@@ -84,7 +84,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings( const 
             coefficientSet = rungeKutta87DormandPrince;
         }
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
+                initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
     }
     return integratorSettings;
 }
@@ -148,8 +148,23 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                         centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, true, true );
+        propagatorSettings->resetInitialTime( initialTime );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
     }
 
     double testTime = initialEphemerisTime + ( finalEphemerisTime - initialEphemerisTime ) / 2.0;
@@ -171,8 +186,23 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                         centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, true, true );
+        propagatorSettings->resetInitialTime( initialTime );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( true );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
     }
 
     Eigen::Vector6d backwardState = bodies.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );

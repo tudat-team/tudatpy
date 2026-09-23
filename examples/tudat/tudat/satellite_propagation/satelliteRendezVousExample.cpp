@@ -85,6 +85,10 @@ int main( )
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies_1, "SSB", "J2000" );
 
+    bodies_1.at( "Chaser" )
+            ->setRotationalEphemeris( createRotationModel(
+                    orbitalStateBasedRotationSettings( "Earth", true, true, "J2000", "ChaserFixed" ), "Chaser", bodies_1 ) );
+
     // Define propagator settings variables for first simulation.
     SelectedAccelerationMap accelerationMap_1;
     std::vector< std::string > bodiesToPropagate_1;
@@ -104,16 +108,14 @@ int main( )
     double specificImpulse = 316.0;    // s
 
     // Thrust opposite to direction of motion
-    std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
-            std::make_shared< ThrustDirectionFromStateGuidanceSettings >( "Earth", true, true );
-    std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings =
-            std::make_shared< ConstantThrustEngineSettings >( thrustMagnitude, specificImpulse );
+    std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings =
+            std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude, specificImpulse );
+    addEngineModel( "Chaser", "MainEngine", thrustMagnitudeSettings, bodies_1 );
 
     // Define chaser acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfChaser_1;
     accelerationsOfChaser_1[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
-    accelerationsOfChaser_1[ "Chaser" ].push_back(
-            std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings ) );
+    accelerationsOfChaser_1[ "Chaser" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
     accelerationMap_1[ "Chaser" ] = accelerationsOfChaser_1;
     bodiesToPropagate_1.push_back( "Chaser" );
     centralBodies_1.push_back( "Earth" );
@@ -208,12 +210,27 @@ int main( )
             std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, timeTerminationSettings_1 );
 
     // Create integrator settings for first simulation
-    std::shared_ptr< IntegratorSettings<> > integratorSettings_1 =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings_1 = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Create dynamics simulator for first simulation
+    propagatorSettings_1->resetInitialTime( simulationStartEpoch );
+    propagatorSettings_1->setIntegratorSettings( integratorSettings_1 );
+    propagatorSettings_1->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings_1->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings_1->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings_1->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings_1->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
     std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator_1 =
-            std::make_shared< SingleArcDynamicsSimulator<> >( bodies_1, integratorSettings_1, propagatorSettings_1, false, false, false );
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies_1, propagatorSettings_1, false );
 
     // Set the simulation time as decision variable, with boundaries +-5 seconds from
     // the estimated burn time.
@@ -310,12 +327,27 @@ int main( )
                                                                                 dependentVariableSaveSettings );
 
     // Create integrator settings for second simulation
-    std::shared_ptr< IntegratorSettings<> > integratorSettings_2 =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings_2 = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Create dynamics simulator for second simulation
+    propagatorSettings_2->resetInitialTime( simulationStartEpoch );
+    propagatorSettings_2->setIntegratorSettings( integratorSettings_2 );
+    propagatorSettings_2->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings_2->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings_2->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings_2->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings_2->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
     std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator_2 =
-            std::make_shared< SingleArcDynamicsSimulator<> >( bodies_2, integratorSettings_2, propagatorSettings_2, false );
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies_2, propagatorSettings_2, false );
 
     // Use the minimum separation between spacecraft as objective function
 

@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
 
     // Create integrator settings.
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialEphemerisTime, 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+            40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
 
     // Define link ends.
     std::vector< LinkDefinition > stationReceiverLinkEnds;
@@ -267,8 +267,9 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         }
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         // Compute list of observation times.
         std::vector< double > baseTimeList;

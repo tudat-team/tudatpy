@@ -138,15 +138,30 @@ int main( )
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Retrieve numerically integrated states of vehicles.

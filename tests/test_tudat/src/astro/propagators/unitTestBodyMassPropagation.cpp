@@ -62,10 +62,26 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
                                                                   std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
 
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->resetInitialTime( 0.0 );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

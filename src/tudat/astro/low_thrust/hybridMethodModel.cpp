@@ -91,9 +91,6 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime,
                                                         Eigen::Vector6d initialState,
                                                         double initialMass )
 {
-    // Re-initialise integrator settings.
-    integratorSettings_->initialTime_ = initialTime;
-
     bodies_[ bodyToPropagate_ ]->setConstantBodyMass( initialMass );
 
     // Acceleration from the central body.
@@ -141,13 +138,13 @@ Eigen::Vector6d HybridMethodModel::propagateTrajectory( double initialTime,
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
     // Hybrid propagation settings.
-    std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings =
+    std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > propagatorSettings =
             std::make_shared< propagators::MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
-
-    integratorSettings_->initialTime_ = initialTime;
+    propagatorSettings->resetInitialTime( initialTime );
+    propagatorSettings->setIntegratorSettings( integratorSettings_ );
 
     // Propagate the trajectory.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, integratorSettings_, propagatorSettings );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, propagatorSettings );
     Eigen::VectorXd propagationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 
     // Retrieve state and mass of the spacecraft at the end of the propagation.

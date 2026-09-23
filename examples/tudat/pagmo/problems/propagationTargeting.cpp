@@ -134,11 +134,26 @@ std::vector< double > PropagationTargetingProblem::fitness( const std::vector< d
                                                                                 simulationEndEpoch_,
                                                                                 cowell,
                                                                                 dependentVariablesToSave_ );
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch_, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Start simulation
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->resetInitialTime( simulationStartEpoch_ );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, propagatorSettings, true );
 
     // Retrieve results
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );

@@ -26,7 +26,6 @@
 #include <tudat/simulation/environment_setup/createFlightConditions.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/createCameras.h>
-#include <tudat/simulation/environment_setup/createRadiationPressureInterface.h>
 #include <tudat/simulation/environment_setup/createSystemModel.h>
 #include <tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
@@ -1100,7 +1099,7 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
     //
     // # Add the ground station to the environment
     //                                                       environment_setup.add_ground_station(
-    //                                                                                bodies.get_body("Earth"),
+    //                                                                                bodies.get("Earth"),
     //                                                                                ground_station_settings )
 
     m.def( "add_camera",
@@ -1177,12 +1176,6 @@ Object (tuple) containing the ephemeris epoch bounds in seconds since J2000.
                     from tudapy.dynamics.environment_setup import add_camera
                     add_camera(body, "Camera", [np.pi/2.0, 0.0, 0.0])
            )doc" );
-
-    m.def( "create_radiation_pressure_interface",
-           &tss::createRadiationPressureInterface,
-           py::arg( "radiationPressureInterfaceSettings" ),
-           py::arg( "body_name" ),
-           py::arg( "body_dict" ) );
 
     m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) );
 

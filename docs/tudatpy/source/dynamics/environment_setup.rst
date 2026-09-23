@@ -166,8 +166,6 @@ Classes
 
 .. autoclass:: tudatpy.dynamics.environment_setup.BodySettings
    :members:
-   :exclude-members: radiation_pressure_settings
 
 .. autoclass:: tudatpy.dynamics.environment_setup.DirectRelativisticTimeConverterSettings
    :members:
-

@@ -436,7 +436,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 30.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 30.0 );
 
     // Define propagator settings.
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
@@ -474,9 +474,13 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     }
 
     // Create orbit determination object.
+    propagators::setMultiArcIntegrationSettings(
+            propagatorSettings,
+            estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ),
+            integratorSettings );
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

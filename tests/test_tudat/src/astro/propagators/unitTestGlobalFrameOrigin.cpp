@@ -109,7 +109,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
 
     // Define settings for numerical integrator.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 300.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 300.0 );
 
     // Create acceleration models and propagation settings.
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
@@ -122,8 +122,23 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin( const std::string&
                     centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-            bodies, integratorSettings, propagatorSettings, true, false, true );
+    propagatorSettings->resetInitialTime( initialEphemerisTime );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator( bodies, propagatorSettings, true );
 
     return dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
 }

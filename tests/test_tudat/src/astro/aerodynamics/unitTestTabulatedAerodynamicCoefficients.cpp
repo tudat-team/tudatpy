@@ -204,15 +204,30 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, terminationSettings );
 
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 300.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 300.0 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+    translationalPropagatorSettings->resetInitialTime( simulationStartEpoch );
+    translationalPropagatorSettings->setIntegratorSettings( integratorSettings );
+    translationalPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    translationalPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    translationalPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings, true );
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 

@@ -179,15 +179,30 @@ int main( )
                                                                                         cowell,
                                                                                         dependentVariablesToSave );
 
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 10.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 10.0 );
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // Create simulation object and propagate dynamics.
-            SingleArcDynamicsSimulator<> dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+            propagatorSettings->resetInitialTime( simulationStartEpoch );
+            propagatorSettings->setIntegratorSettings( integratorSettings );
+            propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+            propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+            propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                    false,
+                    false,
+                    propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                    0,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false );
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodyMap, propagatorSettings, true );
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

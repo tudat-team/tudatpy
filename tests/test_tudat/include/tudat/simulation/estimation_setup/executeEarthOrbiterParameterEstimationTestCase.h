@@ -91,14 +91,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     bodies.at( "Vehicle" )
             ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
@@ -121,8 +117,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -163,7 +158,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    TimeType( initialEphemerisTime ), 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
+                    40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0, 40.0, 1.0, 1.0 );
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -255,9 +250,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     }
 
     // Create orbit determination object.
+    propagators::setSingleArcIntegrationSettings( propagatorSettings, TimeType( initialEphemerisTime ), integratorSettings );
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     const auto getIntegratedStateInterpolatorOrder = [ &bodies ]( ) {
         std::shared_ptr< TabulatedCartesianEphemeris<> > vehicleEphemeris =

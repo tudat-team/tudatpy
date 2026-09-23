@@ -34,7 +34,6 @@ namespace simulation_setup
  *  this function provides the degree to which a change (e.g. uncertainty) in the environment can be mimicked by a change in the
  *  bodies initial conditions.
  *  \param bodies List of body objects that comprises the environment
- *  \param integratorSettings Settings for numerical integrator.
  *  \param propagatorSettings Settings for propagator.
  *  \param perturbedParameterSettings Type of parameter that is to be adjusted in analysis.
  *  \param simulatedObservationInterval Time interval between consecutive simulated 3-dimensional position observations
@@ -47,7 +46,6 @@ namespace simulation_setup
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const SystemOfBodies& bodies,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
         const double simulatedObservationInterval,
@@ -93,7 +91,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, initialStateParametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, initialStateParametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
     Eigen::VectorXd nominalBodyStates = initialStateParametersToEstimate->template getFullParameterValues< double >( );

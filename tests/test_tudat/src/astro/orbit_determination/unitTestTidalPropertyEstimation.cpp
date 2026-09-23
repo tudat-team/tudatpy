@@ -240,11 +240,12 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
 
         // Define integrator and propagator settings.
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                0.0, fixedStepSize, rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
+                fixedStepSize, rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        propagators::setSingleArcIntegrationSettings( propagatorSettings, 0.0, integratorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
 
@@ -470,7 +471,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
-            initialEphemerisTime, 60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0, 1.0 );
+            60.0, CoefficientSets::rungeKuttaFehlberg78, 60.0, 60.0, 1.0, 1.0 );
 
     // Define link ends to use
     LinkDefinition linkEnds;
@@ -510,8 +511,9 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
     // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+    propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // define observation simulation times
     std::vector< double > baseTimeList;

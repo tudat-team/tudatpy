@@ -26,11 +26,7 @@ Functions
 
    compute_residuals_and_dependent_variables
 
-   single_observation_set
-
    create_single_observation_set
-
-   filter_observations
 
    create_filtered_observation_set
 
@@ -47,11 +43,7 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations.compute_residuals_and_dependent_variables
 
-.. autofunction:: tudatpy.estimation.observations.single_observation_set
-
 .. autofunction:: tudatpy.estimation.observations.create_single_observation_set
-
-.. autofunction:: tudatpy.estimation.observations.filter_observations
 
 .. autofunction:: tudatpy.estimation.observations.create_filtered_observation_set
 

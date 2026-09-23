@@ -132,10 +132,6 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( );
 
-    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( const simulation_setup::SystemOfBodies& bodies,
-                                                                                const std::string& bodyToPropagate,
-                                                                                const std::string& centralBody );
-
     //! Propagate the trajectory to given time.
     Eigen::Vector6d propagateTrajectoryForward( double initialTime,
                                                 double finalTime,
@@ -177,22 +173,10 @@ public:
 
     int convertTimeToLegSegment( double currentTime );
 
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getThrustAccelerationSettingsFullLeg(
-            const simulation_setup::SystemOfBodies& bodies );
-
     double getMassAtSegment( const int segment )
     {
         return segmentMasses_.at( segment );
     }
-
-protected:
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
-            unsigned int indexSegment );
-
-    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( const unsigned int indexSegment,
-                                                                         const simulation_setup::SystemOfBodies& bodies,
-                                                                         const std::string& bodyToPropagate,
-                                                                         const std::string& centralBody );
 
 private:
     //! State vector of the vehicle at the leg departure.

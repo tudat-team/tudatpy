@@ -484,8 +484,10 @@ void getMultiArcInitialAndFinalConditions( const double initialTime,
     std::shared_ptr< propagators::MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
             std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
-    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator =
-            MultiArcDynamicsSimulator<>( bodies, multiArcIntegratorSettings, multiArcPropagatorSettings, flybyTimes, true, false, false );
+    setMultiArcIntegrationSettings( multiArcPropagatorSettings, flybyTimes, multiArcIntegratorSettings );
+    multiArcPropagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    MultiArcDynamicsSimulator<> backwardsFlybyMultiArcDynamicsSimulator = MultiArcDynamicsSimulator<>( bodies, multiArcPropagatorSettings );
 
     std::vector< std::map< double, Eigen::VectorXd > > backwardsFlybyMultiArcStates =
             backwardsFlybyMultiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -674,7 +676,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEpoch, propagationTimeStep );
+            std::make_shared< IntegratorSettings< double > >( rungeKutta4, propagationTimeStep );
 
     // Compute flybys times and associated central bodies
     std::vector< std::string > multiArcCentralBodies;
@@ -887,7 +889,6 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         //                createParametersToEstimate< double >( multiArcParameterNames, bodies, multiArcPropagatorSettings );
         //        printEstimatableParameterEntries( multiArcParametersToEstimate );
 
-        //        integratorSettings->initialTime_ = initialEpoch;
         //        HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
         //                HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings,
         //                parametersToEstimate,
@@ -941,9 +942,13 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
         Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
         std::cout << "parameters values: " << parametersToEstimate->getFullParameterValues< double >( ).transpose( ) << "\n\n";
 
-        //        integratorSettings->initialTime_ = initialEpoch;
+        propagators::setHybridArcIntegrationSettings(
+                hybridArcPropagatorSettings,
+                initialEpoch,
+                estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, false ),
+                integratorSettings );
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
+                bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );
 
         // Compute observation times
         std::vector< double > observationTimes;
@@ -998,7 +1003,6 @@ BOOST_AUTO_TEST_CASE( testHybridArcMultiBodyStateEstimation )
             std::cout << "arc " << k << " - start: " << arcStartTimes.at( k ) << " - end: " << multiArcEndTimes.at( k ) << "\n\n";
         }
 
-        //        integratorSettings->initialTime_ = initialEpoch;
         //        HybridArcVariationalEquationsSolver< double, double > hybridArcVariationalEquationsSolver =
         //                HybridArcVariationalEquationsSolver< double, double >( bodies, integratorSettings, hybridArcPropagatorSettings,
         //                parametersToEstimate,

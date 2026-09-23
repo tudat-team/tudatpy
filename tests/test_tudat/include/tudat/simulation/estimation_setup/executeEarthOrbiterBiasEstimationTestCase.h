@@ -134,7 +134,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    TimeType( initialEphemerisTime ), 120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
+                    120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -552,9 +552,10 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation( const bool
     }
 
     // Create orbit determination object.
+    propagators::setSingleArcIntegrationSettings( propagatorSettings, TimeType( initialEphemerisTime ), integratorSettings );
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     {
         // Verify that pre-closure parameter assignments were transferred to linked bias models.

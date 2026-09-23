@@ -85,13 +85,10 @@ int main( )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies[ "Asterix" ]->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Asterix",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
@@ -113,8 +110,7 @@ int main( )
     accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -146,8 +142,7 @@ int main( )
                     centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS FOR WHICH SENSITIVITY IS TO BE COMPUTED   ////////////////////////////////
@@ -176,15 +171,23 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
-            bodies,
-            integratorSettings,
-            propagatorSettings,
-            parametersToEstimate,
-            true,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+    propagatorSettings->resetInitialTime( 0.0 );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
             false,
-            true );
+            true,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator( bodies, propagatorSettings, parametersToEstimate, true, true );
 
     std::map< double, Eigen::MatrixXd > stateTransitionResult =
             variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 0 );

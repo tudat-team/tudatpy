@@ -101,12 +101,10 @@ Eigen::VectorXd executeParameterEstimation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    bodies.at( "Orbiter" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Orbiter",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Create ground stations
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
@@ -152,7 +150,7 @@ Eigen::VectorXd executeParameterEstimation(
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
     accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
     accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
     accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 
@@ -233,8 +231,7 @@ Eigen::VectorXd executeParameterEstimation(
             std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
 
     // Define integrator settings
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 60.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
 
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -267,9 +264,14 @@ Eigen::VectorXd executeParameterEstimation(
     }
 
     // Create orbit determination object.
+    propagators::setHybridArcIntegrationSettings(
+            hybridArcPropagatorSettings,
+            initialEphemerisTime,
+            estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, false ),
+            integratorSettings );
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, hybridArcPropagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, hybridArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

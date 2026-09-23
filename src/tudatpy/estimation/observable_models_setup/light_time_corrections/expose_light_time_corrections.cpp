@@ -730,7 +730,7 @@ Examples
 
     from tudatpy.estimation.observable_models_setup import light_time_corrections
 
-    ionosphere_model = bodies.get_body("Earth").get_ionosphere_model()
+    ionosphere_model = bodies.get("Earth").get_ionosphere_model()
     vtec_calc = light_time_corrections.GlobalIonosphereModelVtecCalculator(ionosphere_model)
 
     # Sample VTEC at 450 km, 45 deg N, 15 deg E
@@ -748,7 +748,7 @@ Construct a VTEC calculator from an ionosphere model.
 Parameters
 ----------
 ionosphere_model : IonosphereModel
-    The ionosphere model to wrap (e.g., from ``bodies.get_body("Earth").get_ionosphere_model()``).
+    The ionosphere model to wrap (e.g., from ``bodies.get("Earth").get_ionosphere_model()``).
 
                   )doc" )
             .def( "calculate_vtec",

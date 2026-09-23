@@ -126,8 +126,7 @@ int main( )
 
         // Define numerical integrator settings.
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< BulirschStoerIntegratorSettings< double > >( initialEphemerisTime,
-                                                                               3600.0,
+                std::make_shared< BulirschStoerIntegratorSettings< double > >( 3600.0,
                                                                                bulirsch_stoer_sequence,
                                                                                6,
                                                                                std::numeric_limits< double >::epsilon( ),
@@ -141,7 +140,23 @@ int main( )
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+        propagatorSettings->resetInitialTime( initialEphemerisTime );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

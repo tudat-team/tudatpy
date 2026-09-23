@@ -104,14 +104,10 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "Asterix" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+        addRadiationPressureTargetModel(
+                bodies,
+                "Asterix",
+                cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          ///////////////////////////////////////////
@@ -128,8 +124,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfAsterix[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+        accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -162,14 +157,30 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         const double fixedStepSize = 50.0;
         std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize, assessDuringSubsteps );
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize, assessDuringSubsteps );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+        propagatorSettings->resetInitialTime( 0.0 );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).end( ) )->first;
         BOOST_CHECK( finalPropagatedEpoch == ( assessDuringSubsteps ? 1000.0 : 1050.0 ) );
@@ -255,14 +266,10 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-        // Create and set radiation pressure settings
-        bodies.at( "Asterix" )
-                ->setRadiationPressureInterface( "Sun",
-                                                 createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
+        addRadiationPressureTargetModel(
+                bodies,
+                "Asterix",
+                cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -279,8 +286,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 
         accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfAsterix[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+        accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -347,22 +353,31 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         const double minStepSize = 30.0;
         const double maxStepSize = 30.0;
         const double tolerance = 1.0E-11;
-        std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings<> >( simulationStartEpoch,
-                                                                          initialStepSize,
-                                                                          rungeKuttaFehlberg78,
-                                                                          minStepSize,
-                                                                          maxStepSize,
-                                                                          tolerance,
-                                                                          tolerance,
-                                                                          assessDuringSubsteps );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
+                initialStepSize, rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, assessDuringSubsteps );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object (but do not propagate dynamics).
-        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+        propagatorSettings->resetInitialTime( simulationStartEpoch );
+        propagatorSettings->setIntegratorSettings( integratorSettings );
+        propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+        propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+        propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+        propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+                false,
+                false,
+                propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+                0,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
         double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory( ).end( ) )->second( 0 );
         BOOST_CHECK( assessDuringSubsteps ? finalAltitude > 100.0E+3 : finalAltitude < 100.0E+3 );

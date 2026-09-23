@@ -87,13 +87,10 @@ int main( )
     double referenceAreaRadiation = 8.0;
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
-    std::shared_ptr< RadiationPressureInterfaceSettings > teslaRoadsterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies[ "TeslaRoadster" ]->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface( teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "TeslaRoadster",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
@@ -117,8 +114,7 @@ int main( )
     accelerationsOfAsterix[ "Mercury" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     accelerationMap[ "TeslaRoadster" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "TeslaRoadster" );
@@ -171,7 +167,6 @@ int main( )
 
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             std::make_shared< tudat::numerical_integrators::BulirschStoerIntegratorSettings<> >(
-                    simulationStartEpoch,
                     3600.0,
                     numerical_integrators::bulirsch_stoer_sequence,
                     4,
@@ -185,7 +180,23 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    propagatorSettings->resetInitialTime( simulationStartEpoch );
+    propagatorSettings->setIntegratorSettings( integratorSettings );
+    propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
+    propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
+    propagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( false );
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->reset(
+            false,
+            false,
+            propagatorSettings->getOutputSettings( )->getPrintSettings( )->getResultsPrintFrequencyInSeconds( ),
+            0,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 

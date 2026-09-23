@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Define integrator settings.
         std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, maximumTimeStep );
+                std::make_shared< IntegratorSettings< double > >( rungeKutta4, maximumTimeStep );
 
         // Define links in simulation.
         std::vector< LinkDefinition > linkEnds;
@@ -175,8 +175,9 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         printEstimatableParameterEntries( parametersToEstimate );
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        propagators::setSingleArcIntegrationSettings( propagatorSettings, initialEphemerisTime, integratorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );

@@ -47,36 +47,30 @@ public:
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and
      *  equations of motion.
      *  \param bodies Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Settings for numerical integrator of combined propagation of variational equations
-     *  and equations of motion.
      *  \param propagatorSettings Settings for propagation of equations of motion.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
      *  settings and values.
      *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
      *  equations are to be propagated concurrently (if true) or sequentially (of false)
-     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
-     *  equations.
-     *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
-     *  (default true) after propagation and resetting of state transition interface.
      *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
      *  end of this contructor (default true).
-     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides (default true).
      */
     SingleArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const bool integrateEquationsOnCreation = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
                 bodies,
                 parametersToEstimate,
-                propagatorSettings != nullptr ? propagatorSettings->getOutputSettingsWithCheck( )->getClearNumericalSolutions( ) : false ),
+                propagatorSettings != nullptr && propagatorSettings->getOutputSettingsBase( ) != nullptr
+                        ? propagatorSettings->getOutputSettingsBase( )->getClearNumericalSolutions( )
+                        : false ),
         propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) )
     {
         // Check input consistency
-        if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) == nullptr )
+        if( propagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error in variational equations solver, input must be single-arc." );
         }
@@ -139,33 +133,6 @@ public:
                     variationalEquationsObject_->getStatePartialAdditionIndices( ) );
         }
     }
-
-    SingleArcVariationalEquationsSolver(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
-                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            const bool clearNumericalSolution = true,
-            const bool integrateEquationsOnCreation = true,
-            const bool setIntegratedResult = true,
-            const bool printDependentVariableData = true,
-            const bool setDependentVariablesInterface = false ):
-        SingleArcVariationalEquationsSolver( bodies,
-                                             validateDeprecatedSingleArcSettings( integratorSettings,
-                                                                                  propagatorSettings,
-                                                                                  clearNumericalSolution,
-                                                                                  setIntegratedResult,
-                                                                                  false,
-                                                                                  printDependentVariableData,
-                                                                                  false,
-                                                                                  setDependentVariablesInterface ),
-                                             parametersToEstimate,
-                                             integrateDynamicalAndVariationalEquationsConcurrently,
-                                             integrateEquationsOnCreation )
-    {}
 
     //! Destructor
     ~SingleArcVariationalEquationsSolver( ) {}

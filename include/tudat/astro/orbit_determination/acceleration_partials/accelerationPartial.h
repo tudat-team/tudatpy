@@ -65,9 +65,7 @@ public:
     {
         if( accelerationModel_ != nullptr )
         {
-            if( accelerationType_ != basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) &&
-                !( ( accelerationType_ == basic_astrodynamics::cannon_ball_radiation_pressure ) &&
-                   ( basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) == basic_astrodynamics::radiation_pressure ) ) )
+            if( accelerationType_ != basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) )
             {
                 throw std::runtime_error( "Error when creating acceleration model partial, type is not consistent " +
                                           std::to_string( accelerationType_ ) + ", " +
