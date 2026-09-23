@@ -4,11 +4,6 @@ import numpy as np
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols import parsers, unpackers
 from tudatpy.data_input.tracking_data.optical_utilities import create_augmented_optical_table
-from tudatpy.data_input.tracking_data.radar_utilities import (
-    RADAR_TABLE_META_KEY,
-    RANGE_OBSERVABLE,
-)
-from tudatpy.constants import SPEED_OF_LIGHT
 
 parse_80cols_data = parsers.parse_80cols_data
 parse_80cols_file = parsers.parse_80cols_file
@@ -193,37 +188,6 @@ def test_80cols_parser_handles_satellite_parallax_spacing():
     np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], 5530304.1)
     np.testing.assert_allclose(parsed_table["spacecraft_position_y"][0], -4255151.5)
     np.testing.assert_allclose(parsed_table["spacecraft_position_z"][0], -550231.9)
-
-
-def test_80cols_radar_records_are_stored_as_metadata():
-    first_record = list(" " * 80)
-    second_record = list(" " * 80)
-
-    def set_field(record, start, value):
-        record[start : start + len(value)] = list(value)
-
-    set_field(first_record, 0, "99942")
-    set_field(second_record, 0, "99942")
-    first_record[14] = "R"
-    second_record[14] = "r"
-    set_field(first_record, 15, "2005")
-    set_field(first_record, 20, "01")
-    set_field(first_record, 23, "29.000000")
-    set_field(first_record, 32, "00000004000000")
-    set_field(first_record, 62, "085600")
-    set_field(first_record, 68, "253")
-    set_field(first_record, 77, "253")
-    second_record[32] = "C"
-    set_field(second_record, 33, "00000000000250")
-
-    parsed_table = parse_80cols_data(["".join(first_record), "".join(second_record)])
-
-    assert len(parsed_table) == 0
-    assert RADAR_TABLE_META_KEY in parsed_table.meta
-    radar_table = parsed_table.meta[RADAR_TABLE_META_KEY]
-    assert len(radar_table) == 1
-    assert radar_table.loc[0, "observable_type"] == RANGE_OBSERVABLE
-    assert radar_table.loc[0, "value"] == pytest.approx(SPEED_OF_LIGHT * 4000.0e-6)
 
 
 def test_80cols_malformed_lines():

@@ -1,158 +1,154 @@
+import os
 import re
+
 import numpy as np
 import pandas as pd
 from astropy.table import Table
-from tudatpy.astro.time_representation import DateTime
-from tudatpy.constants import ASTRONOMICAL_UNIT, SPEED_OF_LIGHT
+
+from tudatpy import constants
+from tudatpy.astro import time_representation
+from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.radar_utilities import (
-    DOPPLER_OBSERVABLE,
     RADAR_TABLE_META_KEY,
-    RANGE_OBSERVABLE,
     empty_radar_table,
+    radar_data_from_raw,
 )
+
 from . import unpackers
-import os
 
 
-def _parse_implicit_decimal(field: str, integer_width: int) -> float:
-    """Parse an MPC fixed-width numeric field with an implicit decimal point."""
-    if field.strip() == "":
-        return np.nan
-
-    padded_field = field.ljust(integer_width)
-    integer_part = padded_field[:integer_width].replace(" ", "0")
-    fractional_part = padded_field[integer_width:].replace(" ", "0")
-    sign = ""
-    if integer_part and integer_part[0] in ["+", "-"]:
-        sign = integer_part[0]
-        integer_part = integer_part[1:]
-
-    return float(f"{sign}{integer_part}.{fractional_part}")
+PARSED_80COL_COLUMNS = [
+    "number",
+    "provisional_designation",
+    "discovery",
+    "epoch",
+    "epoch_seconds_UTC",
+    "RA",
+    "DEC",
+    "observatory",
+    "magnitude",
+    "band",
+    "note1",
+    "note2",
+    "catalog",
+    "spacecraft_parallax_type",
+    *SPACECRAFT_POSITION_COLUMNS,
+]
 
 
 def _split_80_column_records(lines: list[str]) -> list[str]:
-    """Split raw MPC records, including concatenated 80-column records."""
+    """Strip line endings and split concatenated records."""
     records = []
-    for line in lines:
-        clean_line = str(line).replace("\n", "").replace("\r", "")
-        if len(clean_line) > 80 and len(clean_line) % 80 == 0:
-            records.extend(clean_line[i : i + 80] for i in range(0, len(clean_line), 80))
+    for line in (str(line).rstrip("\r\n") for line in lines):
+        if len(line) > 80 and len(line) % 80 == 0:
+            records.extend(line[index : index + 80] for index in range(0, len(line), 80))
         else:
-            records.append(clean_line)
+            records.append(line)
     return records
 
 
-def _parse_radar_observation_pairs(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
-    """Parse MPC two-line radar observations into canonical radar rows.
+def _parse_implicit_decimal(field: str, integer_width: int) -> float:
+    """Parse a fixed-width field with an implied decimal point."""
+    if not field.strip():
+        return np.nan
+    return float(f"{field[:integer_width]}.{field[integer_width:]}".replace(" ", "0"))
 
-    The returned mask marks both records of every radar pair so that the main
-    optical parser can remove them before applying optical fixed-width column
-    checks. Radar data are returned separately and later stored in astropy table
-    metadata.
-    """
-    radar_rows = []
-    radar_line_mask = pd.Series(False, index=df.index)
 
-    index = 0
-    while index < len(df):
-        first_record = df.iloc[index]["clean_line"]
-        if len(first_record) < 15 or first_record[14] not in ["R", "V"]:
-            index += 1
-            continue
-
-        if index + 1 >= len(df):
-            raise ValueError(f"Radar Structure Error at Line {index + 1}: missing second record.")
-
-        record_type = first_record[14]
-        expected_second_record_type = record_type.lower()
-        second_record = df.iloc[index + 1]["clean_line"]
-        if len(second_record) < 33 or second_record[14] != expected_second_record_type:
-            raise ValueError(
-                f"Radar Structure Error at Line {index + 1}: radar '{record_type}' record "
-                f"is not followed by a radar '{expected_second_record_type}' record."
+def _mpc_epochs_utc(year, month, day_fraction, round_to_second=False) -> np.ndarray:
+    """Return UTC seconds since J2000 from MPC date fields."""
+    day = day_fraction.astype(int)
+    epochs = np.array(
+        [
+            time_representation.date_time_components_to_epoch(
+                int(current_year), int(current_month), int(current_day), 0, 0, 0.0
             )
+            for current_year, current_month, current_day in zip(year, month, day)
+        ]
+    ) + (day_fraction - day).to_numpy(dtype=float) * constants.JULIAN_DAY
+    return np.round(epochs) if round_to_second else epochs
 
-        radar_line_mask.iloc[index] = True
-        radar_line_mask.iloc[index + 1] = True
 
-        target_point = second_record[32]
-        if target_point != "C":
-            # Only centre-of-mass radar target points are currently converted to
-            # Tudat tracking data. Mark the pair as consumed, but do not emit a
-            # canonical radar row.
-            index += 2
-            continue
+def _unpacked_names(number: pd.Series, provisional_designation: pd.Series) -> pd.Series:
+    """Return human-readable object names from packed MPC designations."""
+    identification = pd.DataFrame(
+        {"number": number, "provisional_designation": provisional_designation}
+    ).apply(identify_object, axis=1)
+    return identification["unpacked_number"].fillna(identification["unpacked_name"])
 
-        measurement = _parse_implicit_decimal(first_record[32:47], integer_width=11)
-        measurement_sigma = _parse_implicit_decimal(second_record[33:47], integer_width=10)
-        if np.isnan(measurement) or np.isnan(measurement_sigma):
-            index += 2
-            continue
 
-        ident_info = identify_object(
-            pd.Series(
-                {
-                    "number": first_record[0:5],
-                    "provisional_designation": first_record[5:12],
-                }
+def _parse_radar_records(lines: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
+    """Parse MPC radar record pairs (Note 2 R followed by r)."""
+    is_first = lines.str[14] == "R"
+    if not is_first.any():
+        return empty_radar_table(), is_first
+    first = lines[is_first]
+    second = lines.shift(-1)[is_first]
+    not_paired = second.str[14] != "r"
+    if not_paired.any():
+        raise ValueError(
+            f"Radar Structure Error at Line {not_paired.idxmax() + 1}: "
+            "'R' record not followed by an 'r' record."
+        )
+
+    def decimal(field: pd.Series, integer_width: int) -> pd.Series:
+        return field.map(lambda text: _parse_implicit_decimal(text, integer_width))
+
+    raw = pd.DataFrame(
+        {
+            "target_body": _unpacked_names(first.str[0:5], first.str[5:12]),
+            "epoch_seconds_UTC": _mpc_epochs_utc(
+                first.str[15:19].astype(int),
+                first.str[20:22].astype(int),
+                first.str[23:32].astype(float),
+                round_to_second=True,
+            ),
+            "transmitter": first.str[68:71].str.strip().str.zfill(3),
+            "receiver": first.str[77:80].str.strip().str.zfill(3),
+            "target_point": second.str[32],
+            "transmitter_frequency_hz": decimal(first.str[62:68], 5) * 1.0e6,
+            "delay_us": decimal(first.str[32:47], 11),
+            "delay_sigma_us": decimal(second.str[33:47], 10),
+            "doppler_hz": decimal(first.str[47:62], 11),
+            "doppler_sigma_hz": decimal(second.str[47:62], 11),
+        },
+        index=first.index,
+    )
+    if second.str[62:68].str.strip().ne("").any():
+        raise ValueError(
+            "MPC radar records with a transmitter frequency continued on the "
+            "'r' record are not supported."
+        )
+    return radar_data_from_raw(raw, source="MPC"), is_first | is_first.shift(
+        1, fill_value=False
+    )
+
+
+def _parse_spacecraft_parallax(parallax_lines: pd.Series) -> pd.DataFrame:
+    """Return geocentric J2000 spacecraft positions [m] from MPC s records."""
+    parallax_type = pd.to_numeric(parallax_lines.str[32], errors="coerce")
+    positions = pd.DataFrame(
+        {
+            column: pd.to_numeric(
+                parallax_lines.str[field].str.replace(" ", ""), errors="coerce"
             )
+            for column, field in zip(
+                SPACECRAFT_POSITION_COLUMNS,
+                [slice(34, 45), slice(46, 57), slice(58, 69)],
+            )
+        },
+        index=parallax_lines.index,
+    )
+    invalid = ~parallax_type.isin([1, 2]) | positions.isna().any(axis=1)
+    if invalid.any():
+        raise ValueError(
+            f"Satellite Structure Error at Line {invalid.idxmax() + 1}.\n"
+            "Parallax line needs type '1' or '2' in column 33 and three numeric components."
         )
-        number = ident_info["unpacked_number"] or ident_info["unpacked_name"]
-        # MPC records store the time as a calendar date plus fractional day.
-        # Construct the Tudat DateTime directly; no time-scale conversion is
-        # performed in the data-input layer.
-        day_fraction = float(first_record[23:32])
-        day_integer = int(day_fraction)
-        day_seconds = (day_fraction - day_integer) * 86400.0
-        hour = int(day_seconds // 3600)
-        minute = int((day_seconds - hour * 3600) // 60)
-        seconds = day_seconds - hour * 3600 - minute * 60
-        date_time = DateTime(
-            int(first_record[15:19]),
-            int(first_record[20:22]),
-            day_integer,
-            hour,
-            minute,
-            seconds,
-        )
-        epoch_jd = date_time.to_julian_day()
-        epoch_utc = date_time.to_epoch()
-
-        transmitter = first_record[68:71].strip().zfill(3)
-        receiver = first_record[77:80].strip().zfill(3)
-        radar_frequency_mhz = _parse_implicit_decimal(first_record[62:68], integer_width=5)
-        is_range = record_type == "R"
-        transmitter_frequency_hz = np.nan if is_range else radar_frequency_mhz * 1.0e6
-        # MPC range records store round-trip light time in microseconds. Tudat
-        # range TrackingData uses metres. Doppler records store a frequency
-        # shift, while Tudat uses the measured received frequency.
-        value = (
-            SPEED_OF_LIGHT * measurement * 1.0e-6
-            if is_range
-            else transmitter_frequency_hz + measurement
-        )
-        sigma = SPEED_OF_LIGHT * measurement_sigma * 1.0e-6 if is_range else measurement_sigma
-        radar_rows.append(
-            {
-                "target_body": number,
-                "observable_type": RANGE_OBSERVABLE if is_range else DOPPLER_OBSERVABLE,
-                "value": value,
-                "sigma": sigma,
-                "transmitter": transmitter,
-                "receiver": receiver,
-                "target_point": target_point,
-                "transmitter_frequency_hz": transmitter_frequency_hz,
-                "source": "MPC",
-                "epoch_seconds_UTC": epoch_utc,
-                "epoch": epoch_jd,
-                "radar_frequency_mhz": radar_frequency_mhz,
-            }
-        )
-        index += 2
-
-    if not radar_rows:
-        return empty_radar_table(), radar_line_mask
-    return pd.DataFrame(radar_rows), radar_line_mask
+    positions = positions.mul(
+        np.where(parallax_type == 1, 1.0e3, constants.ASTRONOMICAL_UNIT), axis=0
+    )
+    positions["spacecraft_parallax_type"] = parallax_type
+    return positions
 
 
 def get_first_failure_reason(row: pd.Series) -> str:
@@ -226,8 +222,9 @@ def parse_80cols_data(lines: list[str]) -> Table:
     Parses MPC observation data in the ASCII 80-column format.
 
     The function uses vectorized Pandas operations for efficiency. The input
-    records follow the Minor Planet Center fixed-width optical-observation
-    format: https://minorplanetcenter.net/iau/info/OpticalObs.html.
+    records may contain optical observations, space-based S/s pairs, and radar
+    R/r pairs. Radar observations are stored as a canonical pandas table in
+    ``table.meta[RADAR_TABLE_META_KEY]``.
 
     Parameters
     ----------
@@ -251,26 +248,17 @@ def parse_80cols_data(lines: list[str]) -> Table:
     if not lines:
         raise ValueError("Input list is empty.")
 
-    df = pd.DataFrame({"raw_line": _split_80_column_records(lines)})
-    # Remove newlines regardless of input method
-    df["clean_line"] = (
-        df["raw_line"]
-        .astype(str)
-        .str.replace("\n", "", regex=False)
-        .str.replace("\r", "", regex=False)
-    )
-
-    df["len"] = df["clean_line"].str.len()
-    if (df["len"] != 80).any():
-        bad_idx = df.index[df["len"] != 80][0]
-        bad_row = df.iloc[bad_idx]
+    df = pd.DataFrame({"clean_line": _split_80_column_records(lines)})
+    line_length = df["clean_line"].str.len()
+    if (line_length != 80).any():
+        bad_idx = line_length.ne(80).idxmax()
         raise ValueError(
             f"Line Length Error at Line {bad_idx + 1}.\n"
-            f"Expected 80 characters, got {bad_row['len']}.\n"
-            f"Content: '{bad_row['clean_line']}'"
+            f"Expected 80 characters, got {line_length[bad_idx]}.\n"
+            f"Content: '{df.at[bad_idx, 'clean_line']}'"
         )
 
-    radar_table, radar_line_mask = _parse_radar_observation_pairs(df)
+    radar_table, radar_line_mask = _parse_radar_records(df["clean_line"])
     df = df.loc[~radar_line_mask].copy()
 
     # 2. SLICE COLUMNS
@@ -304,14 +292,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
         "sep_dec_ms": slice(50, 51),
     }
 
-    satellite_col_map = {
-        "satellite_parallax_type": slice(32, 33),
-        "satellite_x": slice(34, 45),
-        "satellite_y": slice(46, 57),
-        "satellite_z": slice(58, 69),
-    }
-
-    for name, sl in {**col_map, **sep_map, **satellite_col_map}.items():
+    for name, sl in {**col_map, **sep_map}.items():
         df[name] = df["clean_line"].str[sl]
 
     # 3. NUMERIC COERCION
@@ -359,65 +340,9 @@ def parse_80cols_data(lines: list[str]) -> Table:
                 f"Observation 'S' not followed by Parallax 's'."
             )
 
-        parallax_rows = df.loc[is_sat_par].copy()
-        parallax_rows["satellite_parallax_type_n"] = pd.to_numeric(
-            parallax_rows["satellite_parallax_type"], errors="coerce"
-        )
-        if (~parallax_rows["satellite_parallax_type_n"].isin([1, 2])).any():
-            bad_idx = parallax_rows.index[~parallax_rows["satellite_parallax_type_n"].isin([1, 2])][
-                0
-            ]
-            raise ValueError(
-                f"Satellite Structure Error at Line {bad_idx + 1}.\n"
-                "Parallax line must specify parallax type '1' or '2' in column 33."
-            )
-
-        for component in ["satellite_x", "satellite_y", "satellite_z"]:
-            # MPC parallax vectors may contain internal spacing around signs.
-            # Remove those spaces before numeric conversion.
-            parallax_rows[f"{component}_n"] = pd.to_numeric(
-                parallax_rows[component].astype(str).str.replace(" ", "", regex=False),
-                errors="coerce",
-            )
-
-        invalid_component = (
-            parallax_rows[["satellite_x_n", "satellite_y_n", "satellite_z_n"]].isna().any(axis=1)
-        )
-        if invalid_component.any():
-            bad_idx = parallax_rows.index[invalid_component][0]
-            raise ValueError(
-                f"Satellite Structure Error at Line {bad_idx + 1}.\n"
-                "Could not parse one or more satellite parallax vector components."
-            )
-
-        scale = np.where(
-            parallax_rows["satellite_parallax_type_n"] == 1,
-            1000.0,
-            ASTRONOMICAL_UNIT,
-        )
-        for component in ["satellite_x", "satellite_y", "satellite_z"]:
-            parallax_rows[f"{component}_m"] = parallax_rows[f"{component}_n"] * scale
-
-        satellite_parallax_data = parallax_rows.loc[
-            :,
-            [
-                "satellite_parallax_type_n",
-                "satellite_x_m",
-                "satellite_y_m",
-                "satellite_z_m",
-            ],
-        ].copy()
-        # Align each parallax row with the preceding S observation row.
-        satellite_parallax_data.index = satellite_parallax_data.index - 1
-    else:
-        satellite_parallax_data = pd.DataFrame(
-            columns=[
-                "satellite_parallax_type_n",
-                "satellite_x_m",
-                "satellite_y_m",
-                "satellite_z_m",
-            ]
-        )
+    spacecraft_positions = _parse_spacecraft_parallax(
+        df.loc[is_sat_par, "clean_line"]
+    ).set_axis(df.index[is_sat_obs])
 
     # 5. VALIDATION LOGIC
     is_valid_structure = (
@@ -458,40 +383,24 @@ def parse_80cols_data(lines: list[str]) -> Table:
             f"Line Content: '{bad_row['clean_line']}'"
         )
 
-    df_obs = df[is_valid_obs & (~is_drop_flag)].copy()
-    df_obs = df_obs.join(satellite_parallax_data, how="left")
-    final_columns = [
-        "number",
-        "provisional_designation",
-        "discovery",
-        "epoch",
-        "epoch_seconds_UTC",
-        "RA",
-        "DEC",
-        "observatory",
-        "magnitude",
-        "band",
-        "note1",
-        "note2",
-        "catalog",
-        "spacecraft_parallax_type",
-        "spacecraft_position_x",
-        "spacecraft_position_y",
-        "spacecraft_position_z",
-    ]
+    df_obs = df[is_valid_obs & (~is_drop_flag)].join(spacecraft_positions, how="left")
     if df_obs.empty and radar_table.empty:
         raise ValueError("No valid observation lines found.")
+    final_df = (
+        _optical_output_frame(df_obs)
+        if not df_obs.empty
+        else pd.DataFrame(columns=PARSED_80COL_COLUMNS)
+    )
+    parsed_table = Table.from_pandas(final_df)
+    if not radar_table.empty:
+        parsed_table.meta[RADAR_TABLE_META_KEY] = radar_table
+    return parsed_table
 
-    final_df = pd.DataFrame(columns=final_columns)
-    if df_obs.empty:
-        # Radar-only 80-column input has no optical rows, but still returns an
-        # astropy table so the radar table can be carried in metadata.
-        parsed_table = Table.from_pandas(final_df)
-        if not radar_table.empty:
-            parsed_table.meta[RADAR_TABLE_META_KEY] = radar_table
-        return parsed_table
 
-    str_cols = [
+def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
+    """Build the parsed optical table from validated fixed-width fields."""
+    df_obs = df_obs.copy()
+    for column in [
         "number",
         "provisional_designation",
         "discovery",
@@ -499,47 +408,42 @@ def parse_80cols_data(lines: list[str]) -> Table:
         "note2",
         "band",
         "observatory",
-    ]
-    for col in str_cols:
-        df_obs[col] = df_obs[col].str.strip().replace({"": None, np.nan: None})
+    ]:
+        df_obs[column] = df_obs[column].str.strip().replace({"": None, np.nan: None})
+    names = _unpacked_names(df_obs["number"], df_obs["provisional_designation"])
+    df_obs["number"] = names.fillna(df_obs["number"])
 
-    ident_info = df_obs.apply(identify_object, axis=1)
-
-    human_readable_number = ident_info["unpacked_number"].fillna(ident_info["unpacked_name"])
-    df_obs["number"] = human_readable_number.fillna(df_obs["number"])
-
-    # -------------------------------------------------------------------------
-    # 8. FINAL CALCULATIONS
-    # -------------------------------------------------------------------------
-    day_int = df_obs["day_frac_n"].astype(int)
-    day_remainder = df_obs["day_frac_n"] - day_int
-
-    timestamps = pd.to_datetime(
-        {"year": df_obs["year_n"], "month": df_obs["month_n"], "day": day_int}, errors="coerce"
+    epochs_utc = _mpc_epochs_utc(
+        df_obs["year_n"], df_obs["month_n"], df_obs["day_frac_n"]
+    )
+    ra_rad = np.deg2rad(
+        (
+            df_obs["ra_h_n"]
+            + df_obs["ra_m_n"] / 60.0
+            + df_obs["ra_s_n"] / 3600.0
+        )
+        * 15.0
+    )
+    dec_sign = np.where(df_obs["dec_sign"] == "-", -1.0, 1.0)
+    dec_rad = np.deg2rad(
+        (
+            df_obs["dec_d_n"]
+            + df_obs["dec_m_n"] / 60.0
+            + df_obs["dec_s_n"] / 3600.0
+        )
+        * dec_sign
     )
 
-    obs_times_utc_datetime = timestamps + pd.to_timedelta(day_remainder, unit="D")
-
-    ra_deg = (df_obs["ra_h_n"] + df_obs["ra_m_n"] / 60.0 + df_obs["ra_s_n"] / 3600.0) * 15.0
-    ra_rad = np.deg2rad(ra_deg)
-
-    dec_sign_mult = np.where(df_obs["dec_sign"] == "-", -1, 1)
-    dec_deg = (
-        df_obs["dec_d_n"] + df_obs["dec_m_n"] / 60.0 + df_obs["dec_s_n"] / 3600.0
-    ) * dec_sign_mult
-    dec_rad = np.deg2rad(dec_deg)
-
-    obs_times_utc_iso_string = [t.isoformat(sep=" ") for t in obs_times_utc_datetime]
-    dt_objects = [DateTime.from_iso_string(t_iso) for t_iso in obs_times_utc_iso_string]
-    float_epochs_utc = [dt.to_epoch() for dt in dt_objects]
-
-    final_df = pd.DataFrame(
+    return pd.DataFrame(
         {
-            "number": df_obs["number"],  # Now contains human-readable string
+            "number": df_obs["number"],
             "provisional_designation": df_obs["provisional_designation"],
             "discovery": df_obs["discovery"].eq("*"),
-            "epoch": [t.to_julian_day() for t in dt_objects],
-            "epoch_seconds_UTC": float_epochs_utc,
+            "epoch": [
+                time_representation.seconds_since_epoch_to_julian_day(epoch)
+                for epoch in epochs_utc
+            ],
+            "epoch_seconds_UTC": epochs_utc,
             "RA": ra_rad,
             "DEC": dec_rad,
             "observatory": df_obs["observatory"],
@@ -548,16 +452,11 @@ def parse_80cols_data(lines: list[str]) -> Table:
             "note1": df_obs["note1"],
             "note2": df_obs["note2"],
             "catalog": None,
-            "spacecraft_parallax_type": df_obs["satellite_parallax_type_n"],
-            "spacecraft_position_x": df_obs["satellite_x_m"],
-            "spacecraft_position_y": df_obs["satellite_y_m"],
-            "spacecraft_position_z": df_obs["satellite_z_m"],
-        }
-    )
-    parsed_table = Table.from_pandas(final_df)
-    if not radar_table.empty:
-        parsed_table.meta[RADAR_TABLE_META_KEY] = radar_table
-    return parsed_table
+            "spacecraft_parallax_type": df_obs["spacecraft_parallax_type"],
+            **{column: df_obs[column] for column in SPACECRAFT_POSITION_COLUMNS},
+        },
+        index=df_obs.index,
+    )[PARSED_80COL_COLUMNS]
 
 
 def parse_80cols_file(filename: str | list[str]) -> Table:

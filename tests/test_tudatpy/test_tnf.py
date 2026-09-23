@@ -456,10 +456,7 @@ def test_reader(tmp_path):
 
     # Download the TNF file if not already present.
     url_tnf = "https://pds-geosciences.wustl.edu/radiosciencedocs/urn-nasa-pds-radiosci_documentation/dsn_trk-2-34/tnfp.dat"
-    try:
-        response = requests.get(url_tnf, timeout=60.0)
-    except requests.RequestException as error:
-        pytest.skip(f"Remote TNF test data unavailable: {error}")
+    response = requests.get(url_tnf)
     assert response.status_code == 200, f"Failed to download TNF file from {url_tnf}"
     with open(local_filename, "wb") as f:
         f.write(response.content)

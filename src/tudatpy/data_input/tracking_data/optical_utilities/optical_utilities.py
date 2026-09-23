@@ -215,56 +215,48 @@ def _spacecraft_observation_mask(table: pd.DataFrame) -> pd.Series:
 
 
 def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
-    """Create receiver state supplementary data for space-based observations."""
-    spacecraft_mask = _spacecraft_observation_mask(table)
-    if not spacecraft_mask.any():
-        return []
+    """Receiver-state supplementary data for space-based observations.
 
-    spacecraft_table = table.loc[spacecraft_mask].copy()
+    MPC parallax records give geocentric J2000 positions at the UTC observation
+    epochs; Tudat derives velocities by finite differences.
+    """
     supplementary_data = []
-    for observatory, group in spacecraft_table.groupby("observatory", sort=False):
-        # Multiple astrometric observations can share the same spacecraft epoch.
-        # Use the mean position at that epoch to define a single state sample.
-        state_table = (
-            group.groupby("epoch_seconds_UTC", as_index=True)[SPACECRAFT_POSITION_COLUMNS]
-            .mean()
-            .sort_index()
-        )
-        epochs = state_table.index.to_numpy(dtype=float)
-        positions = state_table.to_numpy(dtype=float)
-        if len(epochs) > 1:
-            # MPC80 spacecraft parallax rows provide positions only. Tudat's
-            # translational supplementary data stores full states, so estimate
-            # velocities from the tabulated positions when possible.
-            velocities = np.gradient(
-                positions,
-                epochs,
-                axis=0,
-                edge_order=2 if len(epochs) > 2 else 1,
-            )
-        else:
-            velocities = np.zeros_like(positions)
-
-        state_history = {
-            float(epoch): np.hstack((position, velocity))
-            for epoch, position, velocity in zip(epochs, positions, velocities)
-        }
-        translational_data = TranslationalStateSupplementaryData(
-            state_history,
-            "Earth",
-            True,
-            "UTC",
-            "J2000",
-        )
+    for observatory, group in table.loc[_spacecraft_observation_mask(table)].groupby(
+        "observatory", sort=False
+    ):
+        positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
         receiver_data = TrackingSupplementaryData(str(observatory), "")
-        receiver_data.translational_state_supplementary_data = translational_data
+        receiver_data.translational_state_supplementary_data = (
+            TranslationalStateSupplementaryData(
+                state_history={
+                    float(epoch): np.concatenate((position, np.zeros(3)))
+                    for epoch, position in zip(positions.index, positions.to_numpy())
+                },
+                frame_origin="Earth",
+                is_velocity_defined=False,
+                time_scale="UTC",
+                frame_orientation="J2000",
+            )
+        )
         supplementary_data.append(receiver_data)
 
     return supplementary_data
 
 
-def _datetime_to_utc_seconds(epoch) -> float:
-    """Convert supported epoch-like inputs to UTC seconds since J2000."""
+def datetime_to_utc_seconds(epoch) -> float:
+    """Convert an epoch to UTC seconds since J2000.
+
+    Parameters
+    ----------
+    epoch : float | DateTime | Time | datetime.datetime
+        Epoch as UTC seconds since J2000, a Tudat ``DateTime`` or ``Time``, or a
+        Python datetime interpreted as UTC.
+
+    Returns
+    -------
+    float
+        UTC seconds since J2000.
+    """
     if hasattr(epoch, "to_epoch"):
         return float(epoch.to_epoch())
     if hasattr(epoch, "to_float"):
@@ -315,11 +307,11 @@ def filter_augmented_optical_table(
     filtered = table.copy()
     if epoch_start is not None:
         filtered = filtered.loc[
-            filtered["epoch_seconds_UTC"] >= _datetime_to_utc_seconds(epoch_start)
+            filtered["epoch_seconds_UTC"] >= datetime_to_utc_seconds(epoch_start)
         ]
     if epoch_end is not None:
         filtered = filtered.loc[
-            filtered["epoch_seconds_UTC"] <= _datetime_to_utc_seconds(epoch_end)
+            filtered["epoch_seconds_UTC"] <= datetime_to_utc_seconds(epoch_end)
         ]
 
     if observatories is not None:

@@ -1,5 +1,5 @@
-"""JPL small-body radar data retrieval."""
+"""JPL Small-Body Radar Astrometry API."""
 
-from .jpl_radar import JPLRadarQuery, get_available_radar_targets
+from .jpl_radar import JPLRadarQuery, get_available_radar_targets, read_jpl_radar_data
 
-__all__ = ["JPLRadarQuery", "get_available_radar_targets"]
+__all__ = ["JPLRadarQuery", "get_available_radar_targets", "read_jpl_radar_data"]

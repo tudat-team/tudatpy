@@ -12,6 +12,58 @@ _JPL_HORIZONS_OUTAGE_SIGNATURES = (
 )
 
 
+def _implicit_decimal_field(value, integer_width, fraction_width=4, signed=False):
+    """Return a fixed-width MPC field with an implied decimal point."""
+    if value is None:
+        return " " * (integer_width + fraction_width)
+    width = integer_width + fraction_width + 1
+    return f"{value:{'+' if signed else ''}0{width}.{fraction_width}f}".replace(".", "")
+
+
+def _mpc_radar_pair(
+    number="00433",
+    date="1990 07 15.326389",
+    delay_us=None,
+    delay_sigma_us=None,
+    doppler_hz=None,
+    doppler_sigma_hz=None,
+    frequency_mhz=2380.0,
+    transmitter="251",
+    receiver="251",
+    bounce_point="C",
+):
+    """Return two 80-column MPC radar records."""
+    head = f"{number:<5}{'':7}  "
+    tail = f"{transmitter:>3}{'':6}{receiver:>3}"
+    first = (
+        head
+        + "R"
+        + date
+        + _implicit_decimal_field(delay_us, 11)
+        + _implicit_decimal_field(doppler_hz, 11, signed=True)
+        + _implicit_decimal_field(frequency_mhz, 5, 1)
+        + tail
+    )
+    second = (
+        head
+        + "r"
+        + date
+        + bounce_point
+        + _implicit_decimal_field(delay_sigma_us, 10)
+        + _implicit_decimal_field(doppler_sigma_hz, 11)
+        + " " * 6
+        + tail
+    )
+    assert len(first) == len(second) == 80
+    return [first, second]
+
+
+@pytest.fixture
+def mpc_radar_pair():
+    """Return a factory for MPC radar record pairs."""
+    return _mpc_radar_pair
+
+
 def _is_connectivity_failure(exception):
     """Return whether an exception represents an unavailable remote service."""
     # Gateways can respond even when the upstream service is unavailable.

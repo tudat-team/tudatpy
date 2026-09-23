@@ -251,18 +251,8 @@ std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
         const std::map< double, Eigen::Vector6d >& stateHistory,
         std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >& timeScaleConverter )
 {
-    basic_astrodynamics::TimeScales inputTimeScale;
-    try
-    {
-        inputTimeScale = basic_astrodynamics::timeScaleFromString( translationalStateSupplementaryData.getTimeScale( ) );
-    }
-    catch( const std::exception& caughtException )
-    {
-        throw std::runtime_error(
-                "Error when processing translational state tracking supplementary data: state-history epochs currently support only "
-                "TDB and UTC time scales, but received " +
-                translationalStateSupplementaryData.getTimeScale( ) + ". Original error: " + std::string( caughtException.what( ) ) );
-    }
+    const basic_astrodynamics::TimeScales inputTimeScale =
+            basic_astrodynamics::timeScaleFromString( translationalStateSupplementaryData.getTimeScale( ) );
 
     if( inputTimeScale == basic_astrodynamics::tdb_scale )
     {
@@ -270,10 +260,9 @@ std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
     }
     if( inputTimeScale != basic_astrodynamics::utc_scale )
     {
-        throw std::runtime_error(
-                "Error when processing translational state tracking supplementary data: state-history epochs currently support "
-                "only TDB and UTC time scales, but received " +
-                translationalStateSupplementaryData.getTimeScale( ) + "." );
+        throw std::runtime_error( "Error when processing translational state tracking supplementary data: "
+                                  "only TDB and UTC time scales are supported, received " +
+                                  translationalStateSupplementaryData.getTimeScale( ) + "." );
     }
 
     if( timeScaleConverter == nullptr )
@@ -281,15 +270,11 @@ std::map< double, Eigen::Vector6d > convertTranslationalStateHistoryToTdb(
         timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
     }
 
-    // Ephemerides use TDB as their independent variable. Tracking data may carry
-    // receiver-side spacecraft positions tagged in UTC, so convert the epoch keys
-    // only when applying the supplementary data to the environment.
     std::map< double, Eigen::Vector6d > tdbStateHistory;
-    for( const auto& stateEntry : stateHistory )
+    for( const auto& [ utcTime, state ] : stateHistory )
     {
-        const double tdbTime = timeScaleConverter->getCurrentTime(
-                inputTimeScale, basic_astrodynamics::tdb_scale, stateEntry.first, Eigen::Vector3d::Zero( ) );
-        tdbStateHistory[ tdbTime ] = stateEntry.second;
+        tdbStateHistory[ timeScaleConverter->getCurrentTime(
+                inputTimeScale, basic_astrodynamics::tdb_scale, utcTime, Eigen::Vector3d::Zero( ) ) ] = state;
     }
     return tdbStateHistory;
 }

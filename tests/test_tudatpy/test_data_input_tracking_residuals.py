@@ -19,6 +19,7 @@ from tudatpy.data_input.tracking_data.ifms import read_ifms_data
 from tudatpy.data_input.tracking_data.jpl_radar import JPLRadarQuery
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
+from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
@@ -26,9 +27,7 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     RANGE_OBSERVABLE,
     radar_data_from_table,
     radar_data_to_tracking_data,
-)
-from tudatpy.data_input.tracking_data.radar_utilities.stations import (
-    add_all_radar_ground_stations,
+    set_reflector_turnaround_ratio,
 )
 from tudatpy.data_input.tracking_data.tnf import read_tnf_data
 from tudatpy.astro import time_representation
@@ -506,39 +505,6 @@ def _simulate_angular_position_residuals(observation_collection, bodies):
     return np.asarray(observation_collection.get_concatenated_residuals())
 
 
-def _skip_remote_data_error(error: Exception, context: str):
-    message = str(error)
-    remote_error_markers = [
-        "Network is unreachable",
-        "Failed to establish a new connection",
-        "Max retries exceeded",
-        "timed out",
-        "Temporary failure",
-        "Name or service not known",
-        "Connection refused",
-        "Service Unavailable",
-        "HTTP Error",
-    ]
-    if any(marker in message for marker in remote_error_markers):
-        pytest.skip(f"{context} unavailable: {message}")
-    raise error
-
-
-def _utc_seconds_to_tdb(epochs):
-    time_scale_converter = time_representation.default_time_scale_converter()
-    return np.array(
-        [
-            time_scale_converter.convert_time(
-                input_scale=time_representation.utc_scale,
-                output_scale=time_representation.tdb_scale,
-                input_value=float(epoch),
-            )
-            for epoch in epochs
-        ],
-        dtype=float,
-    )
-
-
 def _create_itokawa_radar_bodies(radar_table):
     """Create the environment needed to reproduce the selected Itokawa radar arc."""
     spice.load_standard_kernels()
@@ -558,6 +524,7 @@ def _create_itokawa_radar_bodies(radar_table):
         "J2000",
     )
     earth_settings.gravity_field_settings.associated_reference_frame = "ITRS"
+    earth_settings.ground_station_settings = ground_station.optical_telescope_stations()
 
     body_settings.add_empty_settings("101955")
     horizons_states = HorizonsQuery(
@@ -575,16 +542,7 @@ def _create_itokawa_radar_bodies(radar_table):
     )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    target_systems = environment.VehicleSystems()
-    frequency_bands = [
-        ancillary_settings.FrequencyBands.s_band,
-        ancillary_settings.FrequencyBands.x_band,
-        ancillary_settings.FrequencyBands.ka_band,
-        ancillary_settings.FrequencyBands.ku_band,
-    ]
-    target_systems.set_transponder_turnaround_ratio({(band, band): 1.0 for band in frequency_bands})
-    bodies.get_body("101955").system_models = target_systems
-    add_all_radar_ground_stations(bodies)
+    set_reflector_turnaround_ratio(bodies, "101955")
     return bodies
 
 
@@ -604,6 +562,7 @@ def _create_apophis_radar_bodies_from_fixture(case):
         "J2000",
     )
     earth_settings.gravity_field_settings.associated_reference_frame = "ITRS"
+    earth_settings.ground_station_settings = ground_station.optical_telescope_stations()
 
     target_body = case["designation"]
     ephemeris_data = case["target_ephemeris"]
@@ -615,16 +574,7 @@ def _create_apophis_radar_bodies_from_fixture(case):
     )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    target_systems = environment.VehicleSystems()
-    frequency_bands = [
-        ancillary_settings.FrequencyBands.s_band,
-        ancillary_settings.FrequencyBands.x_band,
-        ancillary_settings.FrequencyBands.ka_band,
-        ancillary_settings.FrequencyBands.ku_band,
-    ]
-    target_systems.set_transponder_turnaround_ratio({(band, band): 1.0 for band in frequency_bands})
-    bodies.get_body(target_body).system_models = target_systems
-    add_all_radar_ground_stations(bodies)
+    set_reflector_turnaround_ratio(bodies, target_body)
     return bodies
 
 
@@ -657,136 +607,9 @@ def _itokawa_2005_jpl_radar_arc():
     )
 
 
-def _radar_sigmas_in_observation_order(observation_collection, radar_table):
-    """Match source radar rows to Tudat's concatenated scalar observation order.
-
-    The conversion groups radar rows by link definition and observable type, so
-    the concatenated observation vector is not identical to the API row order.
-    Matching by scalar value keeps the residual/sigma comparison source-based.
-    """
-    available_rows = radar_table.reset_index(drop=True).copy()
-    sigmas = []
-    observable_types = []
-
-    for observed_value in np.asarray(observation_collection.concatenated_observations, dtype=float):
-        value_differences = np.abs(available_rows["value"].to_numpy(dtype=float) - observed_value)
-        row_index = int(np.argmin(value_differences))
-        value_tolerance = max(1.0e-6, abs(observed_value) * 1.0e-12)
-        assert value_differences[row_index] < value_tolerance
-
-        matched_row = available_rows.iloc[row_index]
-        sigmas.append(float(matched_row["sigma"]))
-        observable_types.append(str(matched_row["observable_type"]))
-        available_rows = available_rows.drop(available_rows.index[row_index]).reset_index(drop=True)
-
-    return np.asarray(sigmas, dtype=float), np.asarray(observable_types, dtype=str)
-
-
-def _horizons_cartesian_states(horizons_id, epochs):
-    unique_epochs = np.array(sorted(set(float(epoch) for epoch in epochs)))
-    return HorizonsQuery(
-        query_id=horizons_id,
-        location="500@SSB",
-        epoch_list=list(unique_epochs),
-        extended_query=True,
-    ).cartesian(frame_orientation="J2000")
-
-
-def _pad_state_history_for_lagrange(state_history, minimum_points=6):
-    if len(state_history) >= minimum_points:
-        return state_history
-
-    epochs = np.array(sorted(state_history), dtype=float)
-    states = np.array([state_history[epoch] for epoch in epochs], dtype=float)
-    nominal_step = 600.0 if len(epochs) == 1 else np.median(np.diff(epochs))
-    if nominal_step <= 0.0:
-        nominal_step = 600.0
-
-    center_epoch = np.mean(epochs)
-    padded_epochs = (
-        center_epoch + (np.arange(minimum_points) - (minimum_points - 1) / 2.0) * nominal_step
-    )
-    padded_epochs = np.unique(np.concatenate((padded_epochs, epochs)))
-
-    padded_states = {}
-    for epoch in padded_epochs:
-        if len(epochs) == 1:
-            reference_epoch = epochs[0]
-            reference_state = states[0]
-        elif epoch <= epochs[0]:
-            reference_epoch = epochs[0]
-            reference_state = states[0]
-        elif epoch >= epochs[-1]:
-            reference_epoch = epochs[-1]
-            reference_state = states[-1]
-        else:
-            right_index = np.searchsorted(epochs, epoch)
-            left_index = right_index - 1
-            fraction = (epoch - epochs[left_index]) / (epochs[right_index] - epochs[left_index])
-            reference_state = (1.0 - fraction) * states[left_index] + fraction * states[right_index]
-            reference_epoch = epoch
-
-        padded_states[float(epoch)] = np.hstack(
-            (
-                reference_state[:3] + reference_state[3:] * (epoch - reference_epoch),
-                reference_state[3:],
-            )
-        )
-
-    for epoch, state in state_history.items():
-        padded_states[float(epoch)] = state
-
-    return dict(sorted(padded_states.items()))
-
-
-def _local_hst_target_ephemeris_settings(batch, horizons_id):
-    table = batch.table.sort_values("epoch_seconds_UTC", kind="stable")
-    receive_epochs = _utc_seconds_to_tdb(table["epoch_seconds_UTC"].to_numpy(dtype=float))
-    spacecraft_positions = table.loc[
-        :,
-        ["spacecraft_position_x", "spacecraft_position_y", "spacecraft_position_z"],
-    ].to_numpy(dtype=float)
-    earth_positions = np.array(
-        [
-            spice.get_body_cartesian_state_at_epoch(
-                "Earth",
-                "SSB",
-                "J2000",
-                "NONE",
-                float(epoch),
-            )[:3]
-            for epoch in receive_epochs
-        ]
-    )
-
-    target_states_at_receive = _horizons_cartesian_states(horizons_id, receive_epochs)[
-        :,
-        1:7,
-    ]
-    receiver_positions = earth_positions + spacecraft_positions
-    light_times = (
-        np.linalg.norm(target_states_at_receive[:, :3] - receiver_positions, axis=1)
-        / constants.SPEED_OF_LIGHT
-    )
-    transmit_epochs = receive_epochs - light_times
-
-    sample_epochs = []
-    for epoch_array in (receive_epochs, transmit_epochs):
-        for offset in (-600.0, -300.0, 0.0, 300.0, 600.0):
-            sample_epochs.extend(epoch_array + offset)
-
-    target_states = _horizons_cartesian_states(horizons_id, sample_epochs)
-    state_history = {float(row[0]): row[1:7] for row in target_states}
-    return ephemeris.tabulated(
-        _pad_state_history_for_lagrange(state_history),
-        frame_origin="SSB",
-        frame_orientation="J2000",
-    )
-
-
 def _hubble_space_astrometry_batch(target, observatory):
     batch = BatchMPC()
-    batch.get_observations([target], drop_misc_observations=False)
+    batch.get_observations([target], use_mpc80_format=True)
     batch.filter(
         epoch_start=datetime.datetime(1990, 1, 1),
         epoch_end=datetime.datetime(2026, 1, 1),
@@ -797,19 +620,37 @@ def _hubble_space_astrometry_batch(target, observatory):
 
 def _create_hubble_space_astrometry_bodies(batch, horizons_id, observatory):
     spice.load_standard_kernels()
+    start = float(batch.table["epoch_seconds_UTC"].min()) - constants.JULIAN_DAY
+    end = float(batch.table["epoch_seconds_UTC"].max()) + constants.JULIAN_DAY
     target_body = batch.MPC_objects[0]
     body_settings = environment_setup.get_default_body_settings(
         ["Sun", "Earth"],
         "SSB",
         "J2000",
     )
+    states = HorizonsQuery(
+        query_id=horizons_id,
+        location="500@SSB",
+        epoch_start=start,
+        epoch_end=end,
+        epoch_step="10m",
+        extended_query=True,
+    ).cartesian(frame_orientation="J2000")
     body_settings.add_empty_settings(target_body)
-    body_settings.get(target_body).ephemeris_settings = _local_hst_target_ephemeris_settings(
-        batch,
-        horizons_id,
+    body_settings.get(target_body).ephemeris_settings = ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:7], dtype=float) for row in states},
+        frame_origin="SSB",
+        frame_orientation="J2000",
     )
     body_settings.add_empty_settings(str(observatory))
     return environment_setup.create_system_of_bodies(body_settings)
+
+
+def _residual_slices(collection, residuals):
+    return {
+        observable: residuals[start : start + size]
+        for observable, (start, size) in collection.observable_type_start_index_and_size.items()
+    }
 
 
 def _estimate_voyager_velocity_from_jacobson_references(references, reference_index: int):
@@ -1202,25 +1043,14 @@ def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
 
 @pytest.mark.remote_data
 def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
-    """Check JPL Itokawa range and Doppler residuals over a multi-point arc."""
-    try:
-        radar_table = _itokawa_2005_jpl_radar_arc()
-    except Exception as error:
-        _skip_remote_data_error(error, "JPL radar data")
-
-    # The selected 2005 arc is intentionally small enough for a remote Horizons
-    # ephemeris query, but large enough to cover both radar observable families.
+    """Check JPL Itokawa range and Doppler residuals over the 2005 arc."""
+    radar_table = _itokawa_2005_jpl_radar_arc()
     observation_counts = radar_table["observable_type"].value_counts()
-    assert len(radar_table) >= 10
     assert observation_counts[RANGE_OBSERVABLE] >= 10
     assert observation_counts[DOPPLER_OBSERVABLE] >= 3
 
     tracking_data, supplementary_data = radar_data_to_tracking_data(radar_table)
-    try:
-        bodies = _create_itokawa_radar_bodies(radar_table)
-    except Exception as error:
-        _skip_remote_data_error(error, "Horizons Itokawa ephemeris")
-
+    bodies = _create_itokawa_radar_bodies(radar_table)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     observed_observations = create_observation_collection_from_tracking_data(
         tracking_data,
@@ -1228,20 +1058,17 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     )
 
     residuals = _simulate_radar_residuals(observed_observations, bodies)
-    sigmas, observable_types = _radar_sigmas_in_observation_order(
-        observed_observations,
-        radar_table,
+    normalized_residuals = np.abs(residuals) * np.sqrt(
+        np.asarray(observed_observations.concatenated_weights)
     )
-    # JPL sigmas are the scale of interest here: the test should fail if the
-    # conversion path creates residuals that are large relative to source data.
-    normalized_residuals = np.abs(residuals) / sigmas
-    range_residuals = residuals[observable_types == RANGE_OBSERVABLE]
-    doppler_residuals = residuals[observable_types == DOPPLER_OBSERVABLE]
+    by_type = _residual_slices(observed_observations, residuals)
 
     assert residuals.size == len(radar_table)
     assert np.all(np.isfinite(residuals))
-    assert np.any(np.abs(range_residuals) > 1.0e-6)
-    assert np.any(np.abs(doppler_residuals) > 1.0e-9)
+    assert np.any(np.abs(by_type[model_settings.n_way_range_type]) > 1.0e-6)
+    assert np.any(
+        np.abs(by_type[model_settings.doppler_measured_frequency_type]) > 1.0e-9
+    )
     assert np.sqrt(np.mean(normalized_residuals**2)) < 3.0
     assert np.max(normalized_residuals) < 3.5
 
@@ -1276,31 +1103,19 @@ def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
 )
 def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizons_id):
     """Check MPC HST astrometry with spacecraft receiver-state supplementary data."""
-    try:
-        batch = _hubble_space_astrometry_batch(target, "250")
-    except Exception as error:
-        _skip_remote_data_error(error, "MPC Hubble astrometry")
-
-    assert len(batch.table) > 0
-    assert {
-        "spacecraft_position_x",
-        "spacecraft_position_y",
-        "spacecraft_position_z",
-    }.issubset(batch.table.columns)
-    assert (
-        batch.table[["spacecraft_position_x", "spacecraft_position_y", "spacecraft_position_z"]]
-        .notna()
-        .all(axis=None)
+    batch = _hubble_space_astrometry_batch(target, "250")
+    first_epoch = batch.table["epoch_seconds_UTC"].min()
+    batch.filter(
+        epoch_start=first_epoch,
+        epoch_end=first_epoch + 3.0 * constants.JULIAN_DAY,
     )
+    assert len(batch.table) >= 3
+    assert batch.table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=None)
 
     tracking_data, supplementary_data = batch.to_tracking_dataset(
         add_star_catalog_corrections=False
     )
-    try:
-        bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id, "250")
-    except Exception as error:
-        _skip_remote_data_error(error, "Horizons Hubble target ephemeris")
-
+    bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id, "250")
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     observed_observations = create_observation_collection_from_tracking_data(
         tracking_data,

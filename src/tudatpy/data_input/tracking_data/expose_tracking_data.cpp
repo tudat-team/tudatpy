@@ -663,10 +663,27 @@ void expose_tracking_data( py::module& m )
                             const std::string&,
                             const std::string& >( ),
                   py::arg( "state_history" ),
-                  py::arg( "frame_origin" ) = "Earth",
-                  py::arg( "is_velocity_defined" ) = true,
+                  py::arg( "frame_origin" ),
+                  py::arg( "is_velocity_defined" ),
                   py::arg( "time_scale" ) = "TDB",
-                  py::arg( "frame_orientation" ) = "J2000" )
+                  py::arg( "frame_orientation" ) = "J2000",
+                  R"doc(
+         Create translational-state supplementary data from a tabulated state history.
+
+         Parameters
+         ----------
+         state_history : dict[float, numpy.ndarray]
+             Cartesian states (position and velocity) per epoch.
+         frame_origin : str
+             Origin of the frame in which the states are expressed.
+         is_velocity_defined : bool
+             Whether the velocity entries are valid. If False, velocities are
+             computed from positions by finite differences when the data are applied.
+         time_scale : str, default "TDB"
+             Time scale of the epochs ("TDB" or "UTC").
+         frame_orientation : str, default "J2000"
+             Orientation of the frame in which the states are expressed.
+      )doc" )
             .def_property_readonly( "state_history",
                                     &tdat::TranslationalStateSupplementaryData::getStateHistory,
                                     R"doc(
