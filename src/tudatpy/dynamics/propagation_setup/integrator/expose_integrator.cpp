@@ -18,6 +18,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/math/integrators/createNumericalIntegrator.h>
 
 #include "scalarTypes.h"
@@ -55,6 +56,93 @@ namespace propagation_setup
 {
 namespace integrator
 {
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsVectorTolerancesDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const Eigen::MatrixXd relativeErrorTolerance,
+        const Eigen::MatrixXd absoluteErrorTolerance,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactor = 0.8,
+        const IndependentVariableType maximumFactorIncrease = 4.0,
+        const IndependentVariableType minimumFactorIncrease = 0.1,
+        const bool throwExceptionIfMinimumStepExceeded = true )
+{
+    tudat::utilities::printDeprecationWarning(
+            "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances",
+            "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step",
+            "Deprecated as of v1.1." );
+    return tni::rungeKuttaVariableStepSettingsVectorTolerances< IndependentVariableType >( initialTimeStep,
+                                                                                           coefficientSet,
+                                                                                           minimumStepSize,
+                                                                                           maximumStepSize,
+                                                                                           relativeErrorTolerance,
+                                                                                           absoluteErrorTolerance,
+                                                                                           assessTerminationOnMinorSteps,
+                                                                                           safetyFactor,
+                                                                                           maximumFactorIncrease,
+                                                                                           minimumFactorIncrease,
+                                                                                           throwExceptionIfMinimumStepExceeded );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaVariableStepSettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const IndependentVariableType minimumStepSize,
+        const IndependentVariableType maximumStepSize,
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
+        const bool assessTerminationOnMinorSteps = false,
+        const IndependentVariableType safetyFactor = 0.8,
+        const IndependentVariableType maximumFactorIncrease = 4.0,
+        const IndependentVariableType minimumFactorIncrease = 0.1,
+        const bool throwExceptionIfMinimumStepExceeded = true )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step_size",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKuttaVariableStepSettingsScalarTolerances< IndependentVariableType >( initialTimeStep,
+                                                                                           coefficientSet,
+                                                                                           minimumStepSize,
+                                                                                           maximumStepSize,
+                                                                                           relativeErrorTolerance,
+                                                                                           absoluteErrorTolerance,
+                                                                                           assessTerminationOnMinorSteps,
+                                                                                           safetyFactor,
+                                                                                           maximumFactorIncrease,
+                                                                                           minimumFactorIncrease,
+                                                                                           throwExceptionIfMinimumStepExceeded );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKutta4SettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_4",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKutta4Settings< IndependentVariableType >( initialTimeStep, assessTerminationOnMinorSteps );
+}
+
+template< typename IndependentVariableType >
+std::shared_ptr< tni::IntegratorSettings< IndependentVariableType > > rungeKuttaFixedStepSettingsDeprecated(
+        const IndependentVariableType initialTimeStep,
+        const tni::CoefficientSets coefficientSet,
+        const tni::RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse =
+                tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+        const bool assessTerminationOnMinorSteps = false )
+{
+    tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step_size",
+                                               "tudatpy.dynamics.propagation_setup.integrator.runge_kutta_fixed_step",
+                                               "Deprecated as of v1.1." );
+    return tni::rungeKuttaFixedStepSettings< IndependentVariableType >(
+            initialTimeStep, coefficientSet, orderToUse, assessTerminationOnMinorSteps );
+}
 
 void expose_integrator( py::module& m )
 {
@@ -1433,6 +1521,50 @@ IntegratorSettings
 
 
      )doc" );
+
+    m.def( "runge_kutta_variable_step_size_vector_tolerances",
+           &rungeKuttaVariableStepSettingsVectorTolerancesDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "minimum_step_size" ),
+           py::arg( "maximum_step_size" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_variable_step` instead.)doc" );
+
+    m.def( "runge_kutta_variable_step_size",
+           &rungeKuttaVariableStepSettingsDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "minimum_step_size" ),
+           py::arg( "maximum_step_size" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_variable_step` instead.)doc" );
+
+    m.def( "runge_kutta_4",
+           &rungeKutta4SettingsDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_fixed_step` with ``CoefficientSets.rk_4`` instead.)doc" );
+
+    m.def( "runge_kutta_fixed_step_size",
+           &rungeKuttaFixedStepSettingsDeprecated< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "order_to_use" ) = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           R"doc(Deprecated as of v1.1. Use :func:`~runge_kutta_fixed_step` instead.)doc" );
 
     /*!
      * DEPRECATED UNDOCUMENTED

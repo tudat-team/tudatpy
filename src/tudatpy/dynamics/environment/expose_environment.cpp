@@ -19,6 +19,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/astro/aerodynamics/aerodynamicCoefficientGenerator.h>
 #include <tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h>
 #include <tudat/astro/aerodynamics/atmosphereModel.h>
@@ -3698,6 +3699,16 @@ bool
 
 
      )doc" )
+            .def(
+                    "get_body",
+                    []( const tss::SystemOfBodies& bodies, const std::string& bodyName ) {
+                        tudat::utilities::printDeprecationWarning( "tudatpy.dynamics.environment.SystemOfBodies.get_body",
+                                                                   "tudatpy.dynamics.environment.SystemOfBodies.get",
+                                                                   "Deprecated as of v1.1." );
+                        return bodies.getBody( bodyName );
+                    },
+                    py::arg( "body_name" ),
+                    R"doc(Deprecated as of v1.1. Use :meth:`~SystemOfBodies.get` instead.)doc" )
             .def( "create_empty_body",
                   &tss::SystemOfBodies::createEmptyBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                   py::arg( "body_name" ),

@@ -20,6 +20,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
+#include "tudat/basics/deprecationWarnings.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
@@ -328,6 +329,17 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" )
+            .def(
+                    "set_constant_weight",
+                    []( tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >& input, const double weight ) {
+                        tudat::utilities::printDeprecationWarning(
+                                "tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput.set_constant_weight",
+                                "tudatpy.estimation.observations.ObservationCollection.set_constant_weight",
+                                "Deprecated as of v1.1." );
+                        input.getObservationCollection( )->setConstantWeight( weight );
+                    },
+                    py::arg( "weight" ),
+                    R"doc(Deprecated as of v1.1. Set weights on the associated :class:`~tudatpy.estimation.observations.ObservationCollection` instead.)doc" )
             .def( "define_covariance_settings",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
