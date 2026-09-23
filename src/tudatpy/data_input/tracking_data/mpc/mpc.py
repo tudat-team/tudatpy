@@ -4,6 +4,7 @@ from astroquery.mpc import MPC
 import copy
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data.optical_utilities import (
+    SPACECRAFT_POSITION_COLUMNS,
     create_augmented_optical_table,
     filter_augmented_optical_table,
     optical_table_to_tracking_data,
@@ -70,14 +71,21 @@ def read_mpc_data(
     add_ancillary_data : bool, default False
         Whether to attach available optical ancillary metadata.
     use_mpc80_format : bool, default False
-        Retrieve raw MPC 80-column records instead of Astroquery's parsed table.
-        This is required for radar and space-based observations.
-        Drop-misc filtering is ignored in this mode.
+        Retrieve raw MPC 80-column records and parse them with
+        :func:`~tudatpy.data_input.tracking_data.obs_80_cols.parsers.parse_80cols_data`.
+        Required for radar (R/r) and space-based (S/s) observations. In this
+        mode ``drop_misc_observations`` has no effect: records with Note 2 flags
+        x, X, V, v, W, w, Q, q, O, T and t are always dropped.
 
     Returns
     -------
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         Tracking data objects and supplementary data objects.
+
+    Notes
+    -----
+    For radar range observation-model time-scale requirements, see
+    :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
     """
     batch = BatchMPC()
     batch.get_observations(
@@ -125,12 +133,6 @@ class BatchMPC:
     constructing a BatchMPC instance.
 
     """
-
-    _SPACECRAFT_POSITION_COLUMNS = (
-        "spacecraft_position_x",
-        "spacecraft_position_y",
-        "spacecraft_position_z",
-    )
 
     def __init__(self) -> None:
         """Create an empty MPC batch."""
@@ -576,141 +578,61 @@ class BatchMPC:
             query_kwargs["id_type"] = id_type
         return [str(row) for row in MPC.get_observations(code, **query_kwargs)["obs"]]
 
-    def _spacecraft_codes_with_positions(self) -> set[str]:
-        """Return observatory codes with complete MPC spacecraft positions."""
-        position_columns = list(self._SPACECRAFT_POSITION_COLUMNS)
-        if "observatory" not in self._table or not set(position_columns).issubset(
-            self._table.columns
-        ):
-            return set()
-
-        return set(
-            self._table.loc[
-                self._table[position_columns].notna().all(axis=1),
-                "observatory",
-            ]
-            .astype(str)
-            .str.strip()
-            .str.zfill(3)
-        )
-
-    def _resolve_spacecraft_observatory_code(self, satellite_name: str) -> str:
-        """Resolve a spacecraft observatory name or code present in this batch."""
-        satellite_name = str(satellite_name).strip()
-        candidate_code = satellite_name.zfill(3)
-        available_codes = self._spacecraft_codes_with_positions()
-
-        if candidate_code in available_codes:
-            return candidate_code
-
-        observatory_catalog = MPC.get_observatory_codes().to_pandas()
-        codes = observatory_catalog["Code"].astype(str).str.strip().str.zfill(3)
-        names = observatory_catalog["Name"].astype(str).str.strip().str.lower()
-        matching_rows = observatory_catalog.loc[
-            (codes == candidate_code) | (names == satellite_name.lower())
-        ]
-        if not matching_rows.empty:
-            resolved_code = str(matching_rows.iloc[0]["Code"]).strip().zfill(3)
-            if resolved_code in available_codes:
-                return resolved_code
-
-        raise ValueError(
-            f"Satellite '{satellite_name}' has no spacecraft positions in this batch. "
-            f"Available observatory codes are: {sorted(available_codes)}."
-        )
-
-    def get_satellite_state_history(
-        self,
-        satellite_name: str,
-        add_finite_difference_velocity: bool = True,
-    ) -> dict[float, np.ndarray]:
-        """Return the MPC-derived state history for a satellite observatory.
-
-        The keys are TDB seconds since J2000. Each value is a Cartesian state
-        in the Earth-centred, equatorial J2000 frame. MPC records provide only
-        positions, so velocities are estimated with finite differences unless
-        ``add_finite_difference_velocity`` is ``False``.
+    def get_satellite_state_history(self, observatory_code: str) -> dict[float, np.ndarray]:
+        """Return the MPC spacecraft positions of one observatory as a state history.
 
         Parameters
         ----------
-        satellite_name : str
-            MPC observatory code, such as ``"C51"``, or its exact name in the
-            MPC observatory catalogue.
-        add_finite_difference_velocity : bool, default True
-            Whether to estimate velocities from the tabulated positions. If
-            ``False``, zero velocities are appended.
+        observatory_code : str
+            MPC observatory code of the spacecraft, e.g. ``"250"`` (HST).
 
         Returns
         -------
         dict[float, numpy.ndarray]
-            TDB epochs mapped to six-element Cartesian states.
+            TDB seconds since J2000 mapped to geocentric J2000 Cartesian states
+            [m, m/s]. Velocities are finite differences between observation
+            epochs, which can be hours apart; do not rely on them for spacecraft
+            in low orbits.
 
         Raises
         ------
         ValueError
-            If the requested observatory has no spacecraft positions in the
-            batch.
+            If the batch has no spacecraft positions for this observatory.
         """
-        spacecraft_code = self._resolve_spacecraft_observatory_code(satellite_name)
-        position_columns = list(self._SPACECRAFT_POSITION_COLUMNS)
-        missing_columns = [
-            column for column in position_columns if column not in self._table.columns
-        ]
-        if missing_columns:
+        code = str(observatory_code).strip().zfill(3)
+        table = self._table
+        if not set(SPACECRAFT_POSITION_COLUMNS).issubset(table.columns):
             raise ValueError(
-                "This batch does not contain MPC spacecraft-position columns. "
-                "Load the observations from raw MPC 80-column records."
+                "This batch has no spacecraft positions; load it with use_mpc80_format=True."
             )
-
-        normalized_codes = self._table["observatory"].astype(str).str.strip().str.zfill(3)
-        epoch_column = (
-            "epoch_seconds_TDB"
-            if "epoch_seconds_TDB" in self._table.columns
-            else "epoch_seconds_UTC"
-        )
-        spacecraft_table = self._table.loc[
-            (normalized_codes == spacecraft_code)
-            & self._table[position_columns].notna().all(axis=1),
-            [epoch_column, *position_columns],
+        rows = table[
+            (table["observatory"].astype(str).str.strip().str.zfill(3) == code)
+            & table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=1)
         ]
-        if spacecraft_table.empty:
-            raise ValueError(
-                f"No MPC spacecraft positions are available for satellite "
-                f"'{satellite_name}' (observatory code '{spacecraft_code}')."
-            )
+        if rows.empty:
+            raise ValueError(f"No spacecraft positions for observatory '{code}' in this batch.")
 
-        spacecraft_table = (
-            spacecraft_table.groupby(epoch_column, as_index=True)[position_columns]
-            .mean()
-            .sort_index()
+        positions = rows.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
+        converter = time_representation.default_time_scale_converter()
+        epochs = np.array(
+            [
+                converter.convert_time(
+                    input_scale=time_representation.utc_scale,
+                    output_scale=time_representation.tdb_scale,
+                    input_value=float(epoch),
+                )
+                for epoch in positions.index
+            ]
         )
-        epochs = spacecraft_table.index.to_numpy(dtype=float)
-        if epoch_column == "epoch_seconds_UTC":
-            converter = time_representation.default_time_scale_converter()
-            epochs = np.asarray(
-                [
-                    converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=float(epoch),
-                    )
-                    for epoch in epochs
-                ]
-            )
-
-        positions = spacecraft_table.to_numpy(dtype=float)
-        if add_finite_difference_velocity and len(epochs) > 1:
-            velocities = np.gradient(
-                positions,
-                epochs,
-                axis=0,
-                edge_order=2 if len(epochs) > 2 else 1,
-            )
-        else:
-            velocities = np.zeros_like(positions)
-
-        states = np.hstack((positions, velocities))
-        return {float(epoch): state for epoch, state in zip(epochs, states)}
+        position_values = positions.to_numpy(dtype=float)
+        velocities = (
+            np.gradient(position_values, epochs, axis=0)
+            if len(epochs) > 1
+            else np.zeros_like(position_values)
+        )
+        return {
+            float(t): np.concatenate((p, v)) for t, p, v in zip(epochs, position_values, velocities)
+        }
 
     ###########################################################################################
     # MPC Astroquery Data Retrieval: get_observations
@@ -748,9 +670,11 @@ class BatchMPC:
             filtering is based on the MPC Note 2 flag, not on the observatory
             code.
         use_mpc80_format : bool, default False
-            Retrieve raw MPC 80-column records instead of Astroquery's parsed
-            table. Required for radar and space-based observations.
-            Drop-misc filtering is ignored in this mode.
+            Retrieve raw MPC 80-column records and parse them with
+            :func:`~tudatpy.data_input.tracking_data.obs_80_cols.parsers.parse_80cols_data`.
+            Required for radar (R/r) and space-based (S/s) observations. In
+            this mode ``drop_misc_observations`` has no effect: records with
+            Note 2 flags x, X, V, v, W, w, Q, q, O, T and t are always dropped.
 
         Raises
         ------
@@ -884,6 +808,11 @@ class BatchMPC:
         -------
         tuple[list[TrackingData], list[TrackingSupplementaryData]]
             Tracking data objects and supplementary data objects.
+
+        Notes
+        -----
+        For radar range observation-model time-scale requirements, see
+        :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
         """
         if self._table.empty:
             optical_tracking_data, optical_supplementary_data = [], []

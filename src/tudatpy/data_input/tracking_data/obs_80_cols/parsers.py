@@ -106,7 +106,7 @@ def _parse_radar_records(lines: pd.Series) -> tuple[pd.DataFrame, pd.Series]:
             ),
             "transmitter": first.str[68:71].str.strip().str.zfill(3),
             "receiver": first.str[77:80].str.strip().str.zfill(3),
-            "target_point": second.str[32],
+            "target_point": second.str[32].replace(" ", "C"),
             "transmitter_frequency_hz": decimal(first.str[62:68], 5) * 1.0e6,
             "delay_us": decimal(first.str[32:47], 11),
             "delay_sigma_us": decimal(second.str[33:47], 10),
@@ -222,7 +222,9 @@ def parse_80cols_data(lines: list[str]) -> Table:
     The function uses vectorized Pandas operations for efficiency. The input
     records may contain optical observations, space-based S/s pairs, and radar
     R/r pairs. Radar observations are stored as a canonical pandas table in
-    ``table.meta[RADAR_TABLE_META_KEY]``.
+    ``table.meta[RADAR_TABLE_META_KEY]``. A blank radar bounce-point field is
+    interpreted as centre of mass (``C``), as found in published historical
+    records whose corresponding JPL entries use that value.
 
     Parameters
     ----------
@@ -530,16 +532,15 @@ def identify_object(row: pd.Series) -> pd.Series:
 
     # --- PATH B: ONLY PROVISIONAL ID IS PRESENT ---
     elif prov_id:
-        try:
-            if len(prov_id) == 7 and prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"]:
-                result["obj_type"] = "Minor Planet"
-                result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
-            else:
-                result["obj_type"] = "Comet/Satellite"
-                result["unpacked_name"] = unpackers.unpack_provisional_comet_or_satellite(prov_id)
-        except ValueError:
-            result["obj_type"] = "Unknown"
-            result["unpacked_name"] = prov_id
+        is_survey = prov_id[:3] in unpackers.SURVEY_MAP
+        if len(prov_id) == 7 and (
+            is_survey or (prov_id[6].isalpha() and prov_id[6] not in ["I", "Z"])
+        ):
+            result["obj_type"] = "Minor Planet"
+            result["unpacked_name"] = unpackers.unpack_provisional_minor_planet(prov_id)
+        else:
+            result["obj_type"] = "Comet/Satellite"
+            result["unpacked_name"] = unpackers.unpack_provisional_comet_or_satellite(prov_id)
 
     else:
         raise ValueError(

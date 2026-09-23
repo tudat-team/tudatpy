@@ -317,6 +317,15 @@ def test_identify_object_types(row_data, expected_type, expected_name):
     assert result["unpacked_name"] == expected_name
 
 
+def test_survey_designation_is_unpacked():
+    """Route survey designations through the minor-planet unpacker."""
+    # Survey codes have a digit in position six but still use the minor-planet route.
+    row = pd.Series({"number": None, "provisional_designation": "T1S1222"})
+
+    # The packed survey code must be expanded to the canonical MPC designation.
+    assert parsers.identify_object(row)["unpacked_name"] == "1222 T-1"
+
+
 def test_identify_object_missing_ids():
     """Ensures error is raised if both ID columns are empty."""
     row = pd.Series({"number": "     ", "provisional_designation": "       "})

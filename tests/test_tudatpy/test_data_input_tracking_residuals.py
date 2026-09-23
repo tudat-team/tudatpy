@@ -633,7 +633,7 @@ def _hubble_space_astrometry_batch(target, observatory):
     return batch
 
 
-def _create_hubble_space_astrometry_bodies(batch, horizons_id, observatory):
+def _create_hubble_space_astrometry_bodies(batch, horizons_id):
     spice.load_standard_kernels()
     start = float(batch.table["epoch_seconds_UTC"].min()) - constants.JULIAN_DAY
     end = float(batch.table["epoch_seconds_UTC"].max()) + constants.JULIAN_DAY
@@ -657,7 +657,6 @@ def _create_hubble_space_astrometry_bodies(batch, horizons_id, observatory):
         frame_origin="SSB",
         frame_orientation="J2000",
     )
-    body_settings.add_empty_settings(str(observatory))
     return environment_setup.create_system_of_bodies(body_settings)
 
 
@@ -1151,7 +1150,7 @@ def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizon
     tracking_data, supplementary_data = batch.to_tracking_dataset(
         add_star_catalog_corrections=False
     )
-    bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id, "250")
+    bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id)
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
     observed_observations = create_observation_collection_from_tracking_data(
         tracking_data,
@@ -1162,8 +1161,7 @@ def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizon
         .reshape(2, -1, order="F")
         .T
     )
-    # RA is periodic; after fixing the HST receiver frame handling, the physical
-    # residual can differ from Tudat's raw value by an integer multiple of 2*pi.
+    # RA residuals wrap by 2*pi when observed and computed RA straddle 0.
     residuals[:, 0] = (residuals[:, 0] + np.pi) % (2.0 * np.pi) - np.pi
     residuals_arcsec = residuals * 180.0 / np.pi * 3600.0
 

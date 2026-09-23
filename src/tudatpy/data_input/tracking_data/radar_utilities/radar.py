@@ -4,6 +4,8 @@ The table has one row per observation: epochs in UTC seconds since J2000, ranges
 round-trip light time times the speed of light [m], Doppler as received frequency [Hz].
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -267,9 +269,26 @@ def radar_data_to_tracking_data(
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         One TrackingData object per target, transmitter, receiver, observable and
         frequency band, plus the transmitter-frequency histories used by Doppler.
+
+    Notes
+    -----
+    Radar delays are measured with station clocks. When computing residuals for
+    these data, create the range observation models with
+    ``model_settings.n_way_range(..., time_scale_for_observable=time_representation.utc_scale)``.
+    Import ``model_settings`` from the public
+    ``tudatpy.estimation.observable_models_setup`` module. With the default
+    (TDB), ranges are biased by about 1.5e-8 times the round-trip light time
+    (roughly 0.5 km for a target at 0.1 au).
     """
     if target_point is not None:
-        table = table[table["target_point"] == target_point]
+        skipped = table["target_point"] != target_point
+        if skipped.any():
+            warnings.warn(
+                f"Skipping {int(skipped.sum())} radar observations with bounce point "
+                f"{sorted(table.loc[skipped, 'target_point'].unique())} "
+                f"(converting only '{target_point}')."
+            )
+        table = table[~skipped]
     table = table.sort_values("epoch_seconds_UTC", kind="stable")
     doppler_frequency = table["transmitter_frequency_hz"].where(
         table["observable_type"] == DOPPLER_OBSERVABLE

@@ -59,6 +59,11 @@ def read_80_column_data(
     -------
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         Tracking data objects and supplementary data objects.
+
+    Notes
+    -----
+    For radar range observation-model time-scale requirements, see
+    :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`.
     """
     parsed_table = parse_80cols_file(file_names)
     optical_tracking_data, supplementary_data = [], []

@@ -8,12 +8,14 @@ from astropy.table import Table
 
 from tudatpy.astro import time_representation
 from tudatpy.constants import SPEED_OF_LIGHT
+from tudatpy.data_input.environment_data import spice
 import tudatpy.data_input.tracking_data.jpl_radar.jpl_radar as jpl_radar_backend
 from tudatpy.data_input.tracking_data.jpl_radar import (
     JPLRadarQuery,
     get_available_radar_targets,
 )
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.obs_80_cols import read_80_column_data
 from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     DOPPLER_OBSERVABLE,
@@ -23,6 +25,8 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     empty_radar_table,
     radar_data_to_tracking_data,
 )
+from tudatpy.dynamics import environment_setup
+from tudatpy.estimation.observations import set_tracking_supplementary_data_in_bodies
 
 _JPL_RESPONSE = {
     "signature": {"version": "1.1", "source": "NASA/JPL Small-Body Radar Astrometry API"},
@@ -245,7 +249,8 @@ def test_mpc_radar_keeps_surface_bounce_point_but_does_not_convert_it(mpc_radar_
 
     # Parsing must retain the source bounce-point label.
     assert list(table["target_point"]) == ["S"]
-    tracking_data, supplementary_data = radar_data_to_tracking_data(table)
+    with pytest.warns(UserWarning, match="Skipping 1 radar observations"):
+        tracking_data, supplementary_data = radar_data_to_tracking_data(table)
 
     # The default conversion accepts centre-of-mass observations only.
     assert len(tracking_data) == len(supplementary_data) == 0
@@ -261,14 +266,18 @@ def test_roving_observer_pair_is_not_parsed_as_radar():
     assert len(parsed) == 1
 
 
-def test_real_mpc_radar_lines_parse():
+def test_real_radar_record_parses_and_converts():
+    """Parse and convert a published record whose blank bounce point means centre of mass."""
     # Check the column layout against a published, non-synthetic MPC radar pair.
     # Published 80-column record from https://projectpluto.com/radar/99942.htm.
     lines = (Path(__file__).parent / "fixtures" / "mpc_radar_sample.txt").read_text().splitlines()
     table = _parsed_radar(lines)
 
-    # The real pair contains both a delay and a Doppler measurement.
+    # The real pair contains both a delay and a Doppler measurement, and neither
+    # may be lost during conversion.
     assert set(table["observable_type"]) == {RANGE_OBSERVABLE, DOPPLER_OBSERVABLE}
+    tracking_data, _ = radar_data_to_tracking_data(table)
+    assert len(tracking_data) == 2
 
 
 def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
@@ -394,7 +403,7 @@ def test_batchmpc_get_satellite_state_history():
     batch._table = pd.DataFrame(
         {
             "observatory": ["C51", "C51", "C51"],
-            "epoch_seconds_TDB": [0.0, 10.0, 20.0],
+            "epoch_seconds_UTC": [0.0, 10.0, 20.0],
             "spacecraft_position_x": [0.0, 10.0, 20.0],
             "spacecraft_position_y": [10.0, 10.0, 10.0],
             "spacecraft_position_z": [0.0, -10.0, -20.0],
@@ -405,8 +414,9 @@ def test_batchmpc_get_satellite_state_history():
     epochs = sorted(state_history)
     states = np.array([state_history[epoch] for epoch in epochs])
 
-    # The state history must retain all source epochs in sorted order.
-    assert epochs == [0.0, 10.0, 20.0]
+    # The state history must retain all source epochs in sorted order; UTC-to-TDB
+    # conversion must preserve their ten-second spacing.
+    np.testing.assert_allclose(np.diff(epochs), [10.0, 10.0], rtol=1.0e-9)
 
     # Position components must be preserved without changing their frame or units.
     np.testing.assert_allclose(
@@ -415,7 +425,7 @@ def test_batchmpc_get_satellite_state_history():
     )
 
     # Finite differences must recover the constant velocity of this linear track.
-    np.testing.assert_allclose(states[:, 3:], [[1.0, 0.0, -1.0]] * 3)
+    np.testing.assert_allclose(states[:, 3:], [[1.0, 0.0, -1.0]] * 3, rtol=1.0e-6)
 
 
 def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(monkeypatch, mpc_radar_pair):
@@ -467,3 +477,27 @@ def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(monkeypatch, mpc_r
         DOPPLER_OBSERVABLE,
     }
     assert {item.body_name for item in supplementary_data} == {"500", "Earth"}
+
+
+def test_supplementary_data_creates_telescope_body(tmp_path):
+    """Apply parsed S/s state data without pre-creating the telescope body."""
+    # Parse a space-based observation without adding its observatory to the environment.
+    eros_observation = (
+        "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+    )
+    eros_parallax = (
+        "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
+    )
+    observation_file = tmp_path / "observations.txt"
+    observation_file.write_text("\n".join([eros_observation, eros_parallax]))
+    _, supplementary_data = read_80_column_data([str(observation_file)])
+
+    spice.load_standard_kernels()
+    body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+
+    # The state-data application must create and configure observatory body 500.
+    assert bodies.does_body_exist("500")
+    assert bodies.get("500").ephemeris is not None

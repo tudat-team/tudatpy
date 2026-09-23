@@ -46,6 +46,9 @@ def _station_id(jpl_code) -> str:
 def get_available_radar_targets(timeout: float = 30.0) -> list[str]:
     """Return the JPL designations of all small bodies with radar astrometry.
 
+    The JPL API has no catalogue endpoint, so this downloads every radar
+    measurement in the database; expect a large response.
+
     Parameters
     ----------
     timeout : float, default 30.0
@@ -152,6 +155,12 @@ class JPLRadarQuery:
             If the JPL API request is unsuccessful.
         RuntimeError
             If the API returns a radar measurement with unsupported units.
+
+        Notes
+        -----
+        See
+        :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`
+        for the time scale required by radar range observation models.
         """
         raw = self.raw_data
         if raw.empty:
@@ -224,6 +233,12 @@ def read_jpl_radar_data(
         If the JPL API request is unsuccessful.
     RuntimeError
         If the API returns a radar measurement with unsupported units.
+
+    Notes
+    -----
+    See
+    :func:`~tudatpy.data_input.tracking_data.radar_utilities.radar_data_to_tracking_data`
+    for the time scale required by radar range observation models.
     """
     table = JPLRadarQuery(target, timeout).to_radar_data(
         target_body=target_body,

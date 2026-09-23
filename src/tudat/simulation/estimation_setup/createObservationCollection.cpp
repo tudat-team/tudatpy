@@ -295,6 +295,10 @@ void setTranslationalStateSupplementaryDataInBodies(
                     "Error, reference point ID for setting ephemeris from tracking supplementary data must be empty, but found " +
                     referencePointName );
         }
+        if( bodies.count( bodyName ) == 0 )
+        {
+            bodies.createEmptyBody( bodyName, false );
+        }
         std::map< double, Eigen::Vector6d > stateHistory;
         std::vector< std::pair< double, std::pair< Eigen::Vector6d, Eigen::Vector6d > > > inconsistentDuplicateStateHistoryEntries;
         std::string frameOrigin;
@@ -380,7 +384,7 @@ void setTranslationalStateSupplementaryDataInBodies(
         // The ephemeris object stores the state with respect to its own frame
         // origin. Rebuild the SystemOfBodies frame links so later observation
         // models obtain states with respect to the global frame origin.
-        bodies.processBodyFrameDefinitions< double, double >( );
+        bodies.processBodyFrameDefinitions< double, Time >( );
     }
 }
 
