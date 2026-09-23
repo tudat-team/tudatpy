@@ -35,5 +35,6 @@ converted to Tudat-compatible tracking-data objects.
 .. autofunction:: filter_augmented_optical_table
 .. autofunction:: standardize_optical_dataframe
 .. autofunction:: validate_optical_table
+.. autofunction:: datetime_to_utc_seconds
 .. autofunction:: load_bias_file
 .. autofunction:: get_biases_EFCC18

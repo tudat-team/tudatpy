@@ -25,10 +25,12 @@ objects is applied with
    tracking_data/fdets
    tracking_data/generic_text_file
    tracking_data/ifms
+   tracking_data/jpl_radar
    tracking_data/mpc
    tracking_data/odf
    tracking_data/optical_utilities
    tracking_data/psf
+   tracking_data/radar_utilities
    tracking_data/tnf
 
 .. automodule:: tudatpy.data_input.tracking_data

@@ -353,9 +353,12 @@ def test_read_80_column_data_reads_file(tmp_path):
         [str(observation_file)], custom_name="Eros"
     )
 
+    # The S record must produce one UTC angular-position data set.
     assert len(tracking_data) == 1
     assert tracking_data[0].time_scale == "UTC"
     assert tracking_data[0].observable_type == "AngularPosition"
+
+    # The paired s record must provide receiver-state data for observatory 500.
     assert len(supplementary_data) == 1
     assert supplementary_data[0].body_name == "500"
     assert supplementary_data[0].reference_point_name == ""

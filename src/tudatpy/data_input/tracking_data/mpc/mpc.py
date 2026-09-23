@@ -9,7 +9,6 @@ from tudatpy.data_input.tracking_data.optical_utilities import (
     optical_table_to_tracking_data,
     standardize_optical_dataframe,
 )
-from tudatpy.dynamics import environment_setup
 from tudatpy.data_input.tracking_data.obs_80_cols import unpackers
 from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
@@ -96,12 +95,13 @@ def read_mpc_data(
 
 
 class BatchMPC:
-    """Interface between MPC optical observations and Tudat tracking data.
+    """Interface between MPC observations and Tudat tracking data.
 
     This class wraps the MPC interface of ``astroquery`` and provides
-    Tudat-specific processing for asteroid and comet observations, including
-    optional observation weights based on :cite:t:`veres2017` and
-    star-catalog bias corrections based on :cite:t:`eggl2020`.
+    Tudat-specific processing for optical, space-based and radar observations
+    of asteroids and comets. Optical data optionally receive observation
+    weights based on :cite:t:`veres2017` and star-catalog bias corrections
+    based on :cite:t:`eggl2020`.
 
     Notes
     ----------
@@ -644,6 +644,12 @@ class BatchMPC:
         -------
         dict[float, numpy.ndarray]
             TDB epochs mapped to six-element Cartesian states.
+
+        Raises
+        ------
+        ValueError
+            If the requested observatory has no spacecraft positions in the
+            batch.
         """
         spacecraft_code = self._resolve_spacecraft_observatory_code(satellite_name)
         position_columns = list(self._SPACECRAFT_POSITION_COLUMNS)
@@ -705,36 +711,6 @@ class BatchMPC:
 
         states = np.hstack((positions, velocities))
         return {float(epoch): state for epoch, state in zip(epochs, states)}
-
-    @staticmethod
-    def satellite_state_history_to_ephemeris_settings(
-        state_history: dict[float, np.ndarray],
-        frame_origin: str = "Earth",
-        frame_orientation: str = "J2000",
-    ):
-        """Convert a TDB satellite state history to tabulated ephemeris settings."""
-        return environment_setup.ephemeris.tabulated(
-            body_state_history=state_history,
-            frame_origin=frame_origin,
-            frame_orientation=frame_orientation,
-        )
-
-    def get_satellite_ephemeris_settings(
-        self,
-        satellite_name: str,
-        frame_origin: str = "Earth",
-        frame_orientation: str = "J2000",
-        add_finite_difference_velocity: bool = True,
-    ):
-        """Return tabulated ephemeris settings from MPC satellite positions."""
-        return self.satellite_state_history_to_ephemeris_settings(
-            self.get_satellite_state_history(
-                satellite_name,
-                add_finite_difference_velocity=add_finite_difference_velocity,
-            ),
-            frame_origin=frame_origin,
-            frame_orientation=frame_orientation,
-        )
 
     ###########################################################################################
     # MPC Astroquery Data Retrieval: get_observations

@@ -38,7 +38,8 @@ def read_80_column_data(
     Parameters
     ----------
     file_names : list[str]
-        Paths to MPC 80-column optical astrometry files.
+        Paths to MPC 80-column files containing optical, space-based or radar
+        observations.
     frame : str, default "J2000"
         Reference frame of the input observations, e.g. the frame in which the
         right ascension and declination are defined.

@@ -14,8 +14,6 @@ from tudatpy.data_input.tracking_data import (
     TrackingSupplementaryData,
 )
 from tudatpy.data_input.tracking_data.optical_utilities import datetime_to_utc_seconds
-from tudatpy.dynamics import environment
-from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands
 
 RANGE_OBSERVABLE = "NWayRange"
 DOPPLER_OBSERVABLE = "DopplerMeasuredFrequency"
@@ -42,12 +40,30 @@ _TUDAT_BANDS = {
 
 
 def empty_radar_table() -> pd.DataFrame:
-    """Return an empty canonical radar table."""
+    """Return an empty canonical radar table.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Empty table with the columns listed in :data:`RADAR_COLUMNS`.
+    """
     return pd.DataFrame(columns=RADAR_COLUMNS)
 
 
 def validate_radar_data(table: pd.DataFrame) -> pd.DataFrame:
     """Check a canonical radar table and return it with numeric columns as floats.
+
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        Radar table to validate. It must contain every column listed in
+        :data:`RADAR_COLUMNS`.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Validated table with a consecutive integer index and numeric columns
+        converted to ``float``.
 
     Raises
     ------
@@ -125,7 +141,19 @@ def radar_data_from_raw(raw: pd.DataFrame, source: str) -> pd.DataFrame:
 
 
 def radar_data_from_table(table) -> pd.DataFrame:
-    """Return the radar table stored in a parsed MPC 80-column table."""
+    """Return the radar data stored in a parsed MPC 80-column table.
+
+    Parameters
+    ----------
+    table : astropy.table.Table
+        Table returned by an MPC 80-column parser.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Canonical radar table stored under :data:`RADAR_TABLE_META_KEY`, or an
+        empty canonical radar table if the metadata contain no radar data.
+    """
     return getattr(table, "meta", {}).get(RADAR_TABLE_META_KEY, empty_radar_table())
 
 
@@ -142,9 +170,34 @@ def filter_radar_data(
 ) -> pd.DataFrame:
     """Filter a canonical radar table.
 
-    Epoch bounds may be UTC seconds since J2000 or datetime-like objects. Station
-    filters match the transmitter or receiver; bare numeric codes are padded to
-    three characters.
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        Canonical radar table to filter.
+    epoch_start : float | DateTime | Time | datetime.datetime | None, default None
+        Inclusive lower epoch bound. Numeric values are UTC seconds since J2000.
+    epoch_end : float | DateTime | Time | datetime.datetime | None, default None
+        Inclusive upper epoch bound. Numeric values are UTC seconds since J2000.
+    target_body : str | iterable[str] | None, default None
+        Target body name or names to retain.
+    target_point : str | iterable[str] | None, default None
+        Radar bounce-point code or codes to retain.
+    observable_type : str | iterable[str] | None, default None
+        Tudat observable type or types to retain.
+    station_ids : iterable[str | int] | None, default None
+        Retain rows that use one of these transmitters or receivers.
+    exclude_station_ids : iterable[str | int] | None, default None
+        Remove rows that use one of these transmitters or receivers.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Filtered canonical radar table with a consecutive integer index.
+
+    Notes
+    -----
+    Bare numeric station codes are padded to three characters following the
+    MPC convention.
     """
     keep = pd.Series(True, index=table.index)
     for column, allowed in [
@@ -173,9 +226,18 @@ def filter_radar_data(
 def radar_frequency_band_string_from_hz(frequency_hz: float) -> str:
     """Return the Tudat frequency-band label nearest to a transmitter frequency.
 
-    Tudat defines S, X, Ku and Ka bands. For a passive reflector the band only
-    selects a turnaround ratio, which is one for every band pair after calling
-    :func:`set_reflector_turnaround_ratio`.
+    Tudat defines S, X, Ku and Ka bands. Frequencies outside those ranges are
+    assigned to the nearest band on a logarithmic scale.
+
+    Parameters
+    ----------
+    frequency_hz : float
+        Positive transmitter frequency [Hz].
+
+    Returns
+    -------
+    str
+        One of ``"S-band"``, ``"X-band"``, ``"Ku-band"`` or ``"Ka-band"``.
     """
     distance = {
         band: max(np.log(lower / frequency_hz), np.log(frequency_hz / upper), 0.0)
@@ -238,22 +300,6 @@ def radar_data_to_tracking_data(
             data.add_string_vector_ancillary_setting("frequency bands", [band, band])
         tracking_data.append(data)
     return tracking_data, _frequency_supplementary_data(table, station_body)
-
-
-def set_reflector_turnaround_ratio(bodies, target_body: str) -> None:
-    """Set a passive radar target's turnaround ratio to one for all band pairs."""
-    body = bodies.get_body(target_body)
-    systems = body.system_models if body.system_models is not None else environment.VehicleSystems()
-    bands = [
-        FrequencyBands.s_band,
-        FrequencyBands.x_band,
-        FrequencyBands.ku_band,
-        FrequencyBands.ka_band,
-    ]
-    systems.set_transponder_turnaround_ratio(
-        {(uplink, downlink): 1.0 for uplink in bands for downlink in bands}
-    )
-    body.system_models = systems
 
 
 def _frequency_supplementary_data(table: pd.DataFrame, station_body: str):

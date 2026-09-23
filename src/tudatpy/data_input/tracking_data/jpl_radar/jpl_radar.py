@@ -5,6 +5,7 @@ import functools
 import numpy as np
 import pandas as pd
 import requests
+from astropy import units as u
 
 from tudatpy.astro import time_representation
 from tudatpy.data_input.tracking_data.radar_utilities import (
@@ -25,7 +26,6 @@ _JPL_TO_MPC_STATION = {
     "-38": "255",
     "-73": "259",
 }
-_ALTITUDE_UNITS = {"m": 1.0, "km": 1.0e3, "ft": 0.3048}
 
 
 def _query(params: dict, timeout: float) -> dict:
@@ -55,6 +55,11 @@ def get_available_radar_targets(timeout: float = 30.0) -> list[str]:
     -------
     list[str]
         Sorted, unique designations.
+
+    Raises
+    ------
+    requests.HTTPError
+        If the JPL API request is unsuccessful.
     """
     data = _as_frame(_query({}, timeout))
     return sorted(data["des"].str.strip().unique()) if not data.empty else []
@@ -81,15 +86,33 @@ class JPLRadarQuery:
 
     @property
     def raw_data(self) -> pd.DataFrame:
-        """Records as returned by the API, one row per measurement."""
+        """**read-only**
+
+        Records returned by the JPL API, with one row per measurement.
+
+        :type: pandas.DataFrame
+        """
         return _as_frame(self._content)
 
     def station_geodetic_positions(self) -> dict[str, np.ndarray]:
-        """Return station positions as altitude [m], latitude and longitude [rad]."""
+        """Return the geodetic positions of stations used by the observations.
+
+        Returns
+        -------
+        dict[str, numpy.ndarray]
+            MPC station codes mapped to arrays containing altitude [m],
+            latitude [rad] and longitude [rad], in that order. Unmapped JPL
+            stations use an identifier of the form ``"JPL:<code>"``.
+
+        Raises
+        ------
+        requests.HTTPError
+            If the JPL API request is unsuccessful.
+        """
         return {
             _station_id(code): np.array(
                 [
-                    float(station["altitude"]) * _ALTITUDE_UNITS[station["alt_units"]],
+                    (float(station["altitude"]) * u.Unit(station["alt_units"])).to_value(u.m),
                     np.deg2rad(float(station["latitude"])),
                     np.deg2rad(float(station["longitude"])),
                 ]
@@ -117,6 +140,18 @@ class JPLRadarQuery:
             Inclusive epoch bounds in UTC seconds since J2000 or datetime-like.
         target_point : str | None, default "C"
             Bounce point to keep; None keeps all points.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Canonical radar table with one row per delay or Doppler measurement.
+
+        Raises
+        ------
+        requests.HTTPError
+            If the JPL API request is unsuccessful.
+        RuntimeError
+            If the API returns a radar measurement with unsupported units.
         """
         raw = self.raw_data
         if raw.empty:
@@ -165,10 +200,30 @@ def read_jpl_radar_data(
 ):
     """Retrieve JPL radar astrometry and return Tudat tracking data.
 
+    Parameters
+    ----------
+    target : str | int
+        JPL small-body designation, for example ``433`` or ``"2004 VB"``.
+    target_body : str | None, default None
+        Tudat body name for the target; defaults to the query designation.
+    epoch_start : float | DateTime | Time | datetime.datetime | None, default None
+        Inclusive lower epoch bound. Numeric values are UTC seconds since J2000.
+    epoch_end : float | DateTime | Time | datetime.datetime | None, default None
+        Inclusive upper epoch bound. Numeric values are UTC seconds since J2000.
+    timeout : float, default 30.0
+        HTTP request timeout [s].
+
     Returns
     -------
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         Tracking data and transmitter-frequency supplementary data.
+
+    Raises
+    ------
+    requests.HTTPError
+        If the JPL API request is unsuccessful.
+    RuntimeError
+        If the API returns a radar measurement with unsupported units.
     """
     table = JPLRadarQuery(target, timeout).to_radar_data(
         target_body=target_body,

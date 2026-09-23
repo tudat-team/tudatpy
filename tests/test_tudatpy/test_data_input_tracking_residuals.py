@@ -27,7 +27,6 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     RANGE_OBSERVABLE,
     radar_data_from_table,
     radar_data_to_tracking_data,
-    set_reflector_turnaround_ratio,
 )
 from tudatpy.data_input.tracking_data.tnf import read_tnf_data
 from tudatpy.astro import time_representation
@@ -505,6 +504,22 @@ def _simulate_angular_position_residuals(observation_collection, bodies):
     return np.asarray(observation_collection.get_concatenated_residuals())
 
 
+def _set_reflector_turnaround_ratio(bodies, target_body):
+    """Configure a passive radar reflector for the observation model."""
+    body = bodies.get_body(target_body)
+    systems = body.system_models if body.system_models is not None else environment.VehicleSystems()
+    bands = [
+        ancillary_settings.FrequencyBands.s_band,
+        ancillary_settings.FrequencyBands.x_band,
+        ancillary_settings.FrequencyBands.ku_band,
+        ancillary_settings.FrequencyBands.ka_band,
+    ]
+    systems.set_transponder_turnaround_ratio(
+        {(uplink, downlink): 1.0 for uplink in bands for downlink in bands}
+    )
+    body.system_models = systems
+
+
 def _create_itokawa_radar_bodies(radar_table):
     """Create the environment needed to reproduce the selected Itokawa radar arc."""
     spice.load_standard_kernels()
@@ -542,7 +557,7 @@ def _create_itokawa_radar_bodies(radar_table):
     )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    set_reflector_turnaround_ratio(bodies, "101955")
+    _set_reflector_turnaround_ratio(bodies, "101955")
     return bodies
 
 
@@ -574,7 +589,7 @@ def _create_apophis_radar_bodies_from_fixture(case):
     )
 
     bodies = environment_setup.create_system_of_bodies(body_settings)
-    set_reflector_turnaround_ratio(bodies, target_body)
+    _set_reflector_turnaround_ratio(bodies, target_body)
     return bodies
 
 
@@ -1021,6 +1036,8 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
 
 def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
     """Reject supplementary state epochs whose conversion is not explicitly supported."""
+    # Check that applying state histories rejects time scales other than the two
+    # explicitly supported input scales, UTC and TDB.
     body_settings = environment_setup.BodyListSettings("SSB", "J2000")
     body_settings.add_empty_settings("TestSpacecraft")
     bodies = environment_setup.create_system_of_bodies(body_settings)
@@ -1037,6 +1054,7 @@ def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
     supplementary_data = TrackingSupplementaryData("TestSpacecraft", "")
     supplementary_data.translational_state_supplementary_data = translational_data
 
+    # The environment update must fail with the documented unsupported-scale error.
     with pytest.raises(RuntimeError, match="only TDB and UTC time scales"):
         set_tracking_supplementary_data_in_bodies(bodies, [supplementary_data])
 
@@ -1044,8 +1062,13 @@ def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
 @pytest.mark.remote_data
 def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     """Check JPL Itokawa range and Doppler residuals over the 2005 arc."""
+    # Check the complete remote-data path from JPL radar rows through Tudat
+    # range and Doppler residual simulation, including source uncertainties.
     radar_table = _itokawa_2005_jpl_radar_arc()
     observation_counts = radar_table["observable_type"].value_counts()
+
+    # The selected arc must contain enough of both observables to test an arc,
+    # rather than an isolated measurement.
     assert observation_counts[RANGE_OBSERVABLE] >= 10
     assert observation_counts[DOPPLER_OBSERVABLE] >= 3
 
@@ -1063,17 +1086,26 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     )
     by_type = _residual_slices(observed_observations, residuals)
 
+    # Every source row must yield one finite residual.
     assert residuals.size == len(radar_table)
     assert np.all(np.isfinite(residuals))
+
+    # Both observable models must produce non-trivial residuals.
     assert np.any(np.abs(by_type[model_settings.n_way_range_type]) > 1.0e-6)
     assert np.any(np.abs(by_type[model_settings.doppler_measured_frequency_type]) > 1.0e-9)
+
+    # The combined residuals must remain bounded relative to the JPL sigmas.
     assert np.sqrt(np.mean(normalized_residuals**2)) < 3.0
     assert np.max(normalized_residuals) < 3.5
 
 
 def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
     """Check Apophis Figure 2 radar residuals against frozen Horizons states."""
+    # Check MPC radar parsing and observation modelling against a reproducible
+    # set of frozen target states spanning the published Apophis data arc.
     fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+
+    # The fixture must retain the complete 50-observation regression data set.
     assert len(fixture_cases) == 50
 
     for case in fixture_cases:
@@ -1087,6 +1119,8 @@ def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
             f"residual = {residual:12.3f} {unit}  sigma = {sigma:10.3f} {unit}  "
             f"residual/sigma = {normalized_residual:10.3f}"
         )
+
+        # Each modelled measurement must stay within the documented sigma bound.
         assert abs(normalized_residual) < APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL, diagnostic
 
 
@@ -1101,12 +1135,16 @@ def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
 )
 def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizons_id):
     """Check MPC HST astrometry with spacecraft receiver-state supplementary data."""
+    # Check that MPC S/s records place HST at its tabulated position and yield
+    # sub-arcsecond angular residuals for three independent target arcs.
     batch = _hubble_space_astrometry_batch(target, "250")
     first_epoch = batch.table["epoch_seconds_UTC"].min()
     batch.filter(
         epoch_start=first_epoch,
         epoch_end=first_epoch + 3.0 * constants.JULIAN_DAY,
     )
+
+    # The short arc must have enough observations and a complete receiver position.
     assert len(batch.table) >= 3
     assert batch.table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=None)
 
@@ -1129,7 +1167,10 @@ def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizon
     residuals[:, 0] = (residuals[:, 0] + np.pi) % (2.0 * np.pi) - np.pi
     residuals_arcsec = residuals * 180.0 / np.pi * 3600.0
 
+    # Each observation must produce finite right-ascension and declination residuals.
     assert residuals_arcsec.shape[1] == 2
     assert np.all(np.isfinite(residuals_arcsec))
+
+    # Peak and RMS residuals must satisfy the sub-arcsecond accuracy limits.
     assert np.max(np.abs(residuals_arcsec)) < 0.1
     assert np.all(np.sqrt(np.mean(residuals_arcsec**2, axis=0)) < 0.05)

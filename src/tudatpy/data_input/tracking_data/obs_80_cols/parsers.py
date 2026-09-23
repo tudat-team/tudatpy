@@ -445,7 +445,7 @@ def _optical_output_frame(df_obs: pd.DataFrame) -> pd.DataFrame:
 
 
 def parse_80cols_file(filename: str | list[str]) -> Table:
-    """Parse MPC 80-column optical astrometry files into an astropy table.
+    """Parse MPC 80-column observation files into an astropy table.
 
     This is a supporting parser used by :func:`read_80_column_data`. In the
     typical Tudat workflow, call :func:`read_80_column_data` instead, so the
@@ -455,7 +455,7 @@ def parse_80cols_file(filename: str | list[str]) -> Table:
     ----------
     filename : str | list[str]
         Path to one MPC 80-column file, or paths to multiple files. Each record
-        must follow the MPC fixed-width optical-observation format.
+        must follow the MPC fixed-width optical, space-based or radar format.
 
     Returns
     -------
@@ -463,6 +463,8 @@ def parse_80cols_file(filename: str | list[str]) -> Table:
         Astropy table with standardized optical astrometry columns, including
         object identifiers, observation epochs, right ascension, declination,
         observatory code, magnitude, band, MPC note fields, and catalog field.
+        Canonical radar data are stored in
+        ``table.meta[RADAR_TABLE_META_KEY]``.
     """
     all_lines = []
 

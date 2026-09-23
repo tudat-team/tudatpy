@@ -11,7 +11,6 @@ from .radar import (
     radar_data_from_table,
     radar_data_to_tracking_data,
     radar_frequency_band_string_from_hz,
-    set_reflector_turnaround_ratio,
     validate_radar_data,
 )
 
@@ -26,6 +25,5 @@ __all__ = [
     "radar_data_from_table",
     "radar_data_to_tracking_data",
     "radar_frequency_band_string_from_hz",
-    "set_reflector_turnaround_ratio",
     "validate_radar_data",
 ]
