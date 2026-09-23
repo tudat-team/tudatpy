@@ -864,27 +864,29 @@ TleFitResult
            py::arg( "frame_orientation" ),
            py::arg( "settings" ),
            R"doc(
-    Fit a full-precision numerical TLE to an Earth-centred Cartesian
-    state history.
 
-    The fit minimizes Cartesian position residuals with a damped Levenberg-Marquardt solve. It evaluates a full-precision
-    SGP4 model using nonsingular equinoctial solve-for parameters and a central-difference Jacobian.
+Fit a full-precision numerical TLE to an Earth-centred Cartesian
+state history.
 
-    Parameters
-    ----------
-    cartesian_state_history : dict
-        Mapping from epoch to Cartesian state.
+The fit minimizes Cartesian position residuals with a damped Levenberg-Marquardt solve. It evaluates a full-precision
+SGP4 model using nonsingular equinoctial solve-for parameters and a central-difference Jacobian.
 
-    frame_orientation : str
-        Either "J2000" or "ECLIPJ2000".
+Parameters
+----------
+cartesian_state_history : dict
+    Mapping from epoch to Cartesian state.
 
-    settings : TleFitSettings
-        Configuration settings for the nonlinear fit.
+frame_orientation : str
+    Either "J2000" or "ECLIPJ2000".
 
-    Returns
-    -------
-    TleFitResult
-        The fitted TLE and residual diagnostics.
+settings : TleFitSettings
+    Configuration settings for the nonlinear fit.
+
+Returns
+-------
+TleFitResult
+    The fitted TLE and residual diagnostics.
+
     )doc" );
     /*!
      **************   END EPHEMERIDES  ******************
