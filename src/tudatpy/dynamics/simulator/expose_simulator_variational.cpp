@@ -70,26 +70,15 @@ void expose_simulator_variational_bindings( py::module& m )
 
       )doc" )
             .def( py::init< const tudat::simulation_setup::SystemOfBodies&,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
                             const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
                             const bool,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
-                            const bool,
-                            const bool,
-                            const bool,
                             const bool >( ),
                   py::arg( "bodies" ),
-                  py::arg( "integrator_settings" ),
                   py::arg( "propagator_settings" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "integrate_equations_concurrently" ) = true,
-                  py::arg( "variational_only_integrator_settings" ) =
-                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
-                  py::arg( "clear_numerical_solutions" ) = false,
                   py::arg( "integrate_on_creation" ) = true,
-                  py::arg( "set_integrated_result" ) = false,
-                  py::arg( "print_dependent_variable_data" ) = true,
                   R"doc(
 
          Class constructor.
@@ -108,9 +97,6 @@ void expose_simulator_variational_bindings( py::module& m )
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 
-         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
-             Settings to create the numerical integrator that is to be used for the integration of the equations of motion.
-
          propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be used for the propagation of the dynamics.
 
@@ -122,22 +108,9 @@ void expose_simulator_variational_bindings( py::module& m )
              Boolean defining whether equations of motion and variational equations are to be propagated concurrently
              (if true) or sequentially (of false).
 
-         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettingsFloat`, default = None
-             Settings to create the numerical integrator that is to be used for integration the variational equations.
-             If none is given (default), the numerical integration settings are taken to be the same as the ones applied
-             in the integration of the equations of motions (specified by the `integrator_settings` parameter).
-
-         clear_numerical_solutions : bool, default = False
-             Boolean to determine whether to clear the raw numerical solution member variables
-             and to reset the state transition interface after propagation.
-
          integrate_on_creation : bool, default = True
              Boolean defining whether the propagation should be performed immediately (default), or at a later time
              (when calling the :func:`integrate_full_equations` or :func:`integrate_equations_of_motion_only` member function).
-
-         set_integrated_result : bool, default = True
-             Boolean to determine whether to automatically use the integrated results to set ephemerides for the
-             propagated bodies.
 
 
 
@@ -334,28 +307,13 @@ void expose_simulator_variational_bindings( py::module& m )
          Class for multi-arc variational equations propagation.
       )doc" )
             .def( py::init< const tudat::simulation_setup::SystemOfBodies&,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
-                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
                             const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                            const std::vector< double >,
-                            const bool,
-                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
-                            const bool,
-                            const bool,
-                            const bool,
                             const bool >( ),
                   py::arg( "bodies" ),
-                  py::arg( "integrator_settings" ),
                   py::arg( "propagator_settings" ),
                   py::arg( "estimated_parameters" ),
-                  py::arg( "propagation_start_times" ),
-                  py::arg( "integrate_equations_concurrently" ) = true,
-                  py::arg( "variational_only_integrator_settings" ) =
-                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
-                  py::arg( "clear_numerical_solutions" ) = true,
                   py::arg( "integrate_on_creation" ) = false,
-                  py::arg( "reset_multi_arc_dynamics_after_propagation" ) = true,
-                  py::arg( "set_dependent_variables_interface" ) = false,
                   R"doc(
          Class constructor.
          Constructor through which the user can create instances of this class.
@@ -370,32 +328,14 @@ void expose_simulator_variational_bindings( py::module& m )
          bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
-         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
-             Settings to create the numerical integrator that is to be used for the integration of the equations of motion.
-         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.MultiArcPropagatorSettings`
              Settings to create the propagator that is to be used for the propagation of the dynamics.
          estimated_parameters : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
              Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
              linked to the environment and acceleration settings of the simulation.
-         propagation_start_times : list[float]
-             List of start times for the separate arcs.
-         integrate_equations_concurrently : bool, default = True
-             Boolean defining whether equations of motion and variational equations are to be propagated concurrently
-             (if true) or sequentially (if false).
-         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`, default = []
-             Settings to create the numerical integrator that is to be used for integrating the variational equations only.
-             If none is given (default), the numerical integration settings are taken to be the same as the ones applied
-             in the integration of the equations of motion (specified by the ``integrator_settings`` parameter).
-         clear_numerical_solutions : bool, default = True
-             Boolean to determine whether to clear the raw numerical solution member variables
-             and to reset the state transition interface after propagation.
          integrate_on_creation : bool, default = False
              Boolean defining whether the propagation should be performed immediately (default), or at a later time
              (when calling the :func:`integrate_full_equations` or :func:`integrate_equations_of_motion_only` member function).
-         reset_multi_arc_dynamics_after_propagation : bool, default = True
-             Boolean defining whether to reset the multi-arc dynamics simulator state after each propagation.
-         set_dependent_variables_interface : bool, default = False
-             Boolean defining whether to set up the dependent variables interface after propagation.
      )doc" )
             .def( "integrate_equations_of_motion_only",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(

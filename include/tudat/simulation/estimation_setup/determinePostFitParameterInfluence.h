@@ -65,6 +65,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
         throw std::runtime_error(
                 "Error in determinePostfitParameterInfluence, only single-arc translational dynamics currently supported" );
     }
+    const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
+            translationalPropagatorSettings->getIntegratorSettings( );
 
     // Getlist of bodies for which the dynamics is to be fit
     std::vector< std::string > observedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
