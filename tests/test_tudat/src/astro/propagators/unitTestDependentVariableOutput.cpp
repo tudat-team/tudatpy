@@ -254,6 +254,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         accelerationModelMap,
                         bodiesToPropagate,
                         systemInitialState,
+                        simulationStartEpoch,
+                        integratorSettings,
                         std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
                         cowell,
                         dependentVariables );
@@ -668,6 +670,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     Eigen::VectorXd systemInitialState =
             convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+    double simulationStartEpoch = 0.0;
     double simulationEndEpoch = 10.0;
     const double fixedStepSize = 10.0;
     std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
@@ -702,9 +705,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
     dependentVariables.push_back( sphericalHarmonicAccelerationTermsNormDependentVariable( "Asterix", "Earth", singleTermToSave ) );
 
     addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
-
-    // Create numerical integrator.
-    double simulationStartEpoch = 0.0;
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
@@ -1703,6 +1703,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
         Eigen::VectorXd systemInitialState =
                 convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+        double simulationStartEpoch = 0.0;
         double simulationEndEpoch = 10.0;
         const double fixedStepSize = 10.0;
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
@@ -1739,9 +1740,6 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
         }
 
         addDepedentVariableSettings< double, double >( dependentVariables, propagatorSettings );
-
-        // Create numerical integrator.
-        double simulationStartEpoch = 0.0;
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );

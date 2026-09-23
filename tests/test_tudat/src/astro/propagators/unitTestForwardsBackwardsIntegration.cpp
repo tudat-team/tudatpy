@@ -149,7 +149,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                         accelerationModelMap,
                         bodiesToIntegrate,
                         systemInitialState,
-                        initialTime,
+                        initialEphemerisTime,
                         integratorSettings,
                         std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime + buffer ) );
 
@@ -178,7 +178,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                         accelerationModelMap,
                         bodiesToIntegrate,
                         systemInitialState,
-                        initialTime,
+                        finalEphemerisTime,
                         integratorSettings,
                         std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime - buffer ) );
 

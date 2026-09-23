@@ -1147,7 +1147,13 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
         std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        asterixInitialState,
+                        0.0,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings;
         if( test == 0 )
         {
