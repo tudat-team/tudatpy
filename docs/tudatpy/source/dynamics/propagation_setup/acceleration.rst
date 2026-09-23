@@ -38,11 +38,15 @@ Functions
 
    radiation_pressure
 
+   three_coefficient_radiation_pressure
+
    polyhedron_gravity
 
    ring_gravity
 
    relativistic_correction
+
+   relativistic_from_metric
 
    einstein_infeld_hofmann
 
@@ -82,6 +86,8 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure
 
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.three_coefficient_radiation_pressure
+
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.polyhedron_gravity
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.ring_gravity
@@ -89,6 +95,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.einstein_infeld_hofmann
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_from_metric
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.empirical
 
@@ -137,6 +145,8 @@ Classes
 
    AccelerationSettings
 
+   ThreeCoefficientRadiationPressureAccelerationSettings
+
    SphericalHarmonicAccelerationSettings
 
    MutualSphericalHarmonicAccelerationSettings
@@ -158,6 +168,9 @@ Classes
 
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.AccelerationSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.ThreeCoefficientRadiationPressureAccelerationSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.acceleration.SphericalHarmonicAccelerationSettings

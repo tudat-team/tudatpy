@@ -757,13 +757,75 @@ void expose_environment( py::module& m )
                     )doc" );
 
     // TLE fitting result
-    py::class_< te::TleFitResult >( m, "TleFitResult" )
-            .def_readonly( "fitted_tle", &te::TleFitResult::fittedTle_ )
-            .def_readonly( "position_residuals", &te::TleFitResult::positionResiduals_ )
-            .def_readonly( "position_rms", &te::TleFitResult::positionRms_ )
-            .def_readonly( "initial_position_rms", &te::TleFitResult::initialPositionRms_ )
-            .def_readonly( "number_of_iterations", &te::TleFitResult::numberOfIterations_ )
-            .def_readonly( "converged", &te::TleFitResult::converged_ );
+    py::class_< te::TleFitResult >( m,
+                                    "TleFitResult",
+                                    R"doc(
+
+Result and convergence diagnostics of a Cartesian-state-history-to-TLE fit.
+
+Instances of this class are returned by :func:`~tudatpy.dynamics.environment.fit_tle_to_cartesian_state_history`.
+
+                                    )doc" )
+            .def_readonly( "fitted_tle",
+                           &te::TleFitResult::fittedTle_,
+                           R"doc(
+
+**read-only**
+
+Full-precision fitted TLE, including serialized raw TLE lines.
+
+:type: Tle
+                           )doc" )
+            .def_readonly( "position_residuals",
+                           &te::TleFitResult::positionResiduals_,
+                           R"doc(
+
+**read-only**
+
+Position residual vectors, defined as input position minus fitted SGP4 position, in metres and ordered by input epoch.
+
+:type: list[numpy.ndarray]
+                           )doc" )
+            .def_readonly( "position_rms",
+                           &te::TleFitResult::positionRms_,
+                           R"doc(
+
+**read-only**
+
+Root-mean-square norm of the final position residuals, in metres.
+
+:type: float
+                           )doc" )
+            .def_readonly( "initial_position_rms",
+                           &te::TleFitResult::initialPositionRms_,
+                           R"doc(
+
+**read-only**
+
+Root-mean-square position residual of the supplied or generated initial TLE, in metres.
+
+:type: float
+                           )doc" )
+            .def_readonly( "number_of_iterations",
+                           &te::TleFitResult::numberOfIterations_,
+                           R"doc(
+
+**read-only**
+
+Number of Levenberg-Marquardt iterations performed.
+
+:type: int
+                           )doc" )
+            .def_readonly( "converged",
+                           &te::TleFitResult::converged_,
+                           R"doc(
+
+**read-only**
+
+Whether the final parameter update met the configured convergence tolerance.
+
+:type: bool
+                           )doc" );
 
     // Fit TLE to Cartesian state history
     // TLE fitting with default settings
@@ -773,7 +835,27 @@ void expose_environment( py::module& m )
                 return te::fitTleToCartesianStateHistory( cartesianStateHistory, frameOrientation, te::TleFitSettings( ) );
             },
             py::arg( "cartesian_state_history" ),
-            py::arg( "frame_orientation" ) );
+            py::arg( "frame_orientation" ),
+            R"doc(
+
+Fit a full-precision numerical TLE to an Earth-centred Cartesian state history using the default fit settings.
+
+The fit minimizes Cartesian position residuals with a damped Levenberg-Marquardt solve. It evaluates a full-precision
+SGP4 model using nonsingular equinoctial solve-for parameters and a central-difference Jacobian.
+
+Parameters
+----------
+cartesian_state_history : dict
+    Mapping from epoch to Cartesian state.
+frame_orientation : str
+    Either "J2000" or "ECLIPJ2000".
+
+Returns
+-------
+TleFitResult
+    The fitted TLE and residual diagnostics.
+
+            )doc" );
 
     // TLE fitting with explicit settings
     m.def( "fit_tle_to_cartesian_state_history",
@@ -782,24 +864,29 @@ void expose_environment( py::module& m )
            py::arg( "frame_orientation" ),
            py::arg( "settings" ),
            R"doc(
-    Fit a full-precision numerical TLE to an Earth-centred Cartesian
-    state history.
 
-    Parameters
-    ----------
-    cartesian_state_history : dict
-        Mapping from epoch to Cartesian state.
+Fit a full-precision numerical TLE to an Earth-centred Cartesian
+state history.
 
-    frame_orientation : str
-        Either "J2000" or "ECLIPJ2000".
+The fit minimizes Cartesian position residuals with a damped Levenberg-Marquardt solve. It evaluates a full-precision
+SGP4 model using nonsingular equinoctial solve-for parameters and a central-difference Jacobian.
 
-    settings : TleFitSettings, optional
-        Configuration settings for the nonlinear fit.
+Parameters
+----------
+cartesian_state_history : dict
+    Mapping from epoch to Cartesian state.
 
-    Returns
-    -------
-    TleFitResult
-        The fitted TLE and residual diagnostics.
+frame_orientation : str
+    Either "J2000" or "ECLIPJ2000".
+
+settings : TleFitSettings
+    Configuration settings for the nonlinear fit.
+
+Returns
+-------
+TleFitResult
+    The fitted TLE and residual diagnostics.
+
     )doc" );
     /*!
      **************   END EPHEMERIDES  ******************
