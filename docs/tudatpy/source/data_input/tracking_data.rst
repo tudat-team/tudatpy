@@ -9,7 +9,8 @@ tracking data into :class:`~tudatpy.data_input.tracking_data.TrackingData`
 objects, optionally with
 :class:`~tudatpy.data_input.tracking_data.TrackingSupplementaryData` objects
 containing auxiliary information such as station frequency ramps or camera
-settings. The tracking data can then be converted to an
+settings, as well as identifiers for passive radar reflectors. The tracking
+data can then be converted to an
 :class:`~tudatpy.estimation.observations.ObservationCollection` with
 :func:`~tudatpy.estimation.observations.create_observation_collection_from_tracking_data`.
 Supplementary data that updates bodies, ground stations, or related environment

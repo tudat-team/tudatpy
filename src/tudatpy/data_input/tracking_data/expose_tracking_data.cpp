@@ -772,12 +772,30 @@ void expose_tracking_data( py::module& m )
          :type: bool
       )doc" );
 
-    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >(
-            m,
-            "TrackingSupplementaryData",
-            R"doc(Container for tracking supplementary data. These objects store auxiliary information loaded from tracking data files and are applied to a system of bodies by :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.)doc" )
+    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >( m,
+                                                                                                       "TrackingSupplementaryData",
+                                                                                                       R"doc(
+         Container for tracking supplementary data.
+
+         These objects store auxiliary information loaded from tracking data
+         files and are applied to a system of bodies by
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body to which the data apply.
+         reference_point_name : str
+             Name of the reference point on the body, or an empty string for
+             body-level data.
+         is_passive_radar_reflector : bool, default False
+             Whether the body is a passive radar reflector.
+      )doc" )
             .def( py::init<>( ) )
-            .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "reference_point_name" ) )
+            .def( py::init< const std::string&, const std::string&, const bool >( ),
+                  py::arg( "body_name" ),
+                  py::arg( "reference_point_name" ),
+                  py::arg( "is_passive_radar_reflector" ) = false )
             .def_property( "body_name",
                            &tdat::TrackingSupplementaryData::getBodyName,
                            &tdat::TrackingSupplementaryData::setBodyName,
@@ -797,6 +815,17 @@ void expose_tracking_data( py::module& m )
          Reference point name.
 
          :type: str
+      )doc" )
+            .def_property_readonly( "is_passive_radar_reflector",
+                                    &tdat::TrackingSupplementaryData::isPassiveRadarReflector,
+                                    R"doc(
+         **read-only**
+
+         Whether the named body is a passive radar reflector. Applying this
+         supplementary data sets its turnaround ratio to one for every
+         frequency-band pair.
+
+         :type: bool
       )doc" )
             .def_property( "translational_state_supplementary_data",
                            &tdat::TrackingSupplementaryData::getTranslationalStateSupplementaryData,

@@ -726,6 +726,17 @@ void setTrackingSupplementaryDataInBodies( simulation_setup::SystemOfBodies& bod
         const std::pair< std::string, std::string > bodyReferencePoint =
                 std::make_pair( currentSupplementaryData.getBodyName( ), currentSupplementaryData.getReferencePointName( ) );
 
+        if( currentSupplementaryData.isPassiveRadarReflector( ) )
+        {
+            std::shared_ptr< simulation_setup::Body > body = bodies.at( currentSupplementaryData.getBodyName( ) );
+            if( body->getVehicleSystems( ) == nullptr )
+            {
+                body->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+            }
+            body->getVehicleSystems( )->setTransponderTurnaroundRatio(
+                    []( observation_models::FrequencyBands, observation_models::FrequencyBands ) { return 1.0; } );
+        }
+
         if( !currentSupplementaryData.getTranslationalStateSupplementaryData( ).getStateHistory( ).empty( ) )
         {
             translationalStateSupplementaryData[ bodyReferencePoint ].push_back(

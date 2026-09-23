@@ -26,6 +26,7 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     radar_data_to_tracking_data,
 )
 from tudatpy.dynamics import environment_setup
+from tudatpy.dynamics.environment_setup import ground_station
 from tudatpy.estimation.observations import set_tracking_supplementary_data_in_bodies
 
 _JPL_RESPONSE = {
@@ -374,10 +375,13 @@ def test_radar_data_converts_with_weights_and_link_ends():
     np.testing.assert_allclose(np.concatenate(tracking_data[0].get_observation_weights()), [1.0e-2])
     np.testing.assert_allclose(np.concatenate(tracking_data[1].get_observation_weights()), [1.0e2])
 
-    # Doppler conversion must produce frequency data for the transmitting station.
+    # Doppler conversion must identify both the transmitter and passive reflector.
     assert [(item.body_name, item.reference_point_name) for item in supplementary_data] == [
-        ("Earth", "251")
+        ("Earth", "251"),
+        ("433", ""),
     ]
+    assert not supplementary_data[0].is_passive_radar_reflector
+    assert supplementary_data[1].is_passive_radar_reflector
 
 
 def test_frequency_history_switches_between_tracks():
@@ -476,28 +480,34 @@ def test_batchmpc_mpc80_path_loads_space_astrometry_and_radar(monkeypatch, mpc_r
         RANGE_OBSERVABLE,
         DOPPLER_OBSERVABLE,
     }
-    assert {item.body_name for item in supplementary_data} == {"500", "Earth"}
+    assert {item.body_name for item in supplementary_data} == {"500", "Earth", "433"}
 
 
-def test_supplementary_data_creates_telescope_body(tmp_path):
-    """Apply parsed S/s state data without pre-creating the telescope body."""
-    # Parse a space-based observation without adding its observatory to the environment.
+def test_supplementary_data_creates_telescope_body_and_configures_reflector(
+    tmp_path, mpc_radar_pair
+):
+    """Apply space-telescope states and the passive-reflector identifier."""
+    # Parse space astrometry and Doppler radar data without preconfiguring either target.
     eros_observation = (
         "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
     )
     eros_parallax = (
         "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
     )
+    radar_lines = mpc_radar_pair(doppler_hz=-3.5, doppler_sigma_hz=0.1)
     observation_file = tmp_path / "observations.txt"
-    observation_file.write_text("\n".join([eros_observation, eros_parallax]))
+    observation_file.write_text("\n".join([eros_observation, eros_parallax, *radar_lines]))
     _, supplementary_data = read_80_column_data([str(observation_file)])
 
     spice.load_standard_kernels()
     body_settings = environment_setup.get_default_body_settings(["Earth"], "SSB", "J2000")
+    body_settings.get("Earth").ground_station_settings = ground_station.optical_telescope_stations()
+    body_settings.add_empty_settings("433")
     bodies = environment_setup.create_system_of_bodies(body_settings)
 
     set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
 
-    # The state-data application must create and configure observatory body 500.
+    # State data must create observatory 500, while the radar marker configures 433.
     assert bodies.does_body_exist("500")
     assert bodies.get("500").ephemeris is not None
+    assert bodies.get("433").system_models is not None

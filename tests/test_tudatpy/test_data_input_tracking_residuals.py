@@ -504,22 +504,6 @@ def _simulate_angular_position_residuals(observation_collection, bodies):
     return np.asarray(observation_collection.get_concatenated_residuals())
 
 
-def _set_reflector_turnaround_ratio(bodies, target_body):
-    """Configure a passive radar reflector for the observation model."""
-    body = bodies.get_body(target_body)
-    systems = body.system_models if body.system_models is not None else environment.VehicleSystems()
-    bands = [
-        ancillary_settings.FrequencyBands.s_band,
-        ancillary_settings.FrequencyBands.x_band,
-        ancillary_settings.FrequencyBands.ku_band,
-        ancillary_settings.FrequencyBands.ka_band,
-    ]
-    systems.set_transponder_turnaround_ratio(
-        {(uplink, downlink): 1.0 for uplink in bands for downlink in bands}
-    )
-    body.system_models = systems
-
-
 def _create_itokawa_radar_bodies(radar_table):
     """Create the environment needed to reproduce the selected Itokawa radar arc."""
     spice.load_standard_kernels()
@@ -556,9 +540,7 @@ def _create_itokawa_radar_bodies(radar_table):
         frame_orientation="J2000",
     )
 
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-    _set_reflector_turnaround_ratio(bodies, "101955")
-    return bodies
+    return environment_setup.create_system_of_bodies(body_settings)
 
 
 def _create_apophis_radar_bodies_from_fixture(case):
@@ -588,9 +570,7 @@ def _create_apophis_radar_bodies_from_fixture(case):
         frame_orientation=ephemeris_data["frame_orientation"],
     )
 
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-    _set_reflector_turnaround_ratio(bodies, target_body)
-    return bodies
+    return environment_setup.create_system_of_bodies(body_settings)
 
 
 def _load_apophis_figure2_radar_fixture_cases():

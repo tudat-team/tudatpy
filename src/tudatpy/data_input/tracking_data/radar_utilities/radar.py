@@ -268,7 +268,8 @@ def radar_data_to_tracking_data(
     -------
     tuple[list[TrackingData], list[TrackingSupplementaryData]]
         One TrackingData object per target, transmitter, receiver, observable and
-        frequency band, plus the transmitter-frequency histories used by Doppler.
+        frequency band, plus the transmitter-frequency histories and passive-
+        reflector identifiers used by Doppler.
 
     Notes
     -----
@@ -318,7 +319,13 @@ def radar_data_to_tracking_data(
         if band:
             data.add_string_vector_ancillary_setting("frequency bands", [band, band])
         tracking_data.append(data)
-    return tracking_data, _frequency_supplementary_data(table, station_body)
+    reflectors = [
+        TrackingSupplementaryData(str(target), "", is_passive_radar_reflector=True)
+        for target in table.loc[
+            table["observable_type"] == DOPPLER_OBSERVABLE, "target_body"
+        ].unique()
+    ]
+    return tracking_data, _frequency_supplementary_data(table, station_body) + reflectors
 
 
 def _frequency_supplementary_data(table: pd.DataFrame, station_body: str):
