@@ -95,7 +95,7 @@ void expose_observation_viability_settings_type( py::module& m )
              # Create ObservationViabilitySettings object
              # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
              min_elevation = np.deg2rad(15)
-             # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
+             # We apply these settings to every ground station on Earth using the following link_end_id: ["Earth", ""]
              viability_settings = viability.elevation_angle_viability(["Earth", ""], min_elevation)
 
              # Show that this is indeed an ObservationViabilitySettings object

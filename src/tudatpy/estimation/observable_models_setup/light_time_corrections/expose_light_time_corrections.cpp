@@ -136,7 +136,7 @@ Order corresponds to the values returned by `get_current_light_time_correction_c
              Link_Definition_Object = links.LinkDefinition(link_ends)
 
              # Case 1: perturbing body (Earth) involved in the observations
-             # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
+             # In this case, Earth is a receiver, so the body's state will be evaluated at the reception time.
              perturbing_body = ['Earth']
              doppler_observation_settings = light_time_corrections.first_order_relativistic_light_time_correction(perturbing_body)
 
