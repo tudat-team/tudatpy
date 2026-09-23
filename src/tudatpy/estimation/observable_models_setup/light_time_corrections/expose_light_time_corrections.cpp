@@ -582,8 +582,9 @@ first_order_delay_coefficient : float, default = 40.3
 
 Function for creating settings for NeQuick-2 path-integrated ionospheric light-time corrections.
 
-Computes the ionospheric delay by numerically integrating the NeQuick-2 electron density profile (ITU-R P.531)
-along the transmitter-receiver ray path using Gauss-Legendre quadrature. The delay is given by
+Computes the ionospheric delay by numerically integrating the NeQuick-2 electron density profile
+:cite:t:`iturP53115,nava2008` along the transmitter-receiver ray path using Gauss-Legendre quadrature. The delay is
+given by
 :math:`\Delta\tau = c_1 \cdot \text{STEC} / f^2 / c`, where STEC is the path-integrated electron content.
 
 Unlike the MSLM-based corrections (:func:`ionex_ionospheric_light_time_correction`,
@@ -597,7 +598,8 @@ Unlike the MSLM-based corrections (:func:`ionex_ionospheric_light_time_correctio
 When ``use_ionex_rescaling`` is True and an IONEX ionosphere model has been loaded on the body, the NeQuick-2
 F2-layer peak density (NmF2) is rescaled so that the NeQuick-2 vertical TEC column matches the IONEX VTEC at the
 ionospheric pierce point. This preserves the physical profile shape while anchoring the total electron content to
-the GNSS-derived IONEX measurement. When set to False, the model runs in free climatology mode using F10.7 only.
+the GNSS-derived IONEX measurement :cite:t:`hernandezPajares2009`. When set to False, the model runs in free climatology
+mode using F10.7 only.
 
 Parameters
 ----------
@@ -655,16 +657,6 @@ Examples
         use_ionex_rescaling=False
     )
 
-References
-----------
-- ITU-R Recommendation P.531-15 (2023). *Ionospheric propagation data and prediction methods
-  required for the design of satellite networks and systems.*
-- B. Nava, P. Coisson, and S.M. Radicella (2008). A new version of the NeQuick ionosphere
-  electron density model. *J. Atmos. Sol.-Terr. Phys.*, 70(15), 1856-1862.
-  `doi:10.1016/j.jastp.2008.01.015 <https://doi.org/10.1016/j.jastp.2008.01.015>`_
-- M. Hernandez-Pajares et al. (2009). The IGS VTEC maps: a reliable source of ionospheric
-  information since 1998. *J. Geodesy*, 83(3-4). `doi:10.1007/s00190-008-0266-1 <https://doi.org/10.1007/s00190-008-0266-1>`_
-
            )doc" );
 
     // VMF3 Tropospheric correction
@@ -684,7 +676,25 @@ References
            R"doc(
 Create VMF3o (optical) tropospheric light time correction settings.
 
-This uses VMF3 mapping with VMF3o-specific coefficient handling and wavelength-dependent scaling.
+This model applies VMF3o mapping coefficients and wavelength-dependent scaling to the hydrostatic and wet
+tropospheric delays. The required station troposphere data must be configured separately.
+
+Parameters
+----------
+body_with_atmosphere_name : str, default = "Earth"
+    Body carrying the atmosphere and ground station.
+use_gradient_correction : bool, default = True
+    Whether to include the horizontal tropospheric-gradient contribution.
+tropospheric_mapping_model : TroposphericMappingModel, default = vmf3
+    Mapping model used to convert zenith delays to slant delays.
+observation_wavelength_nm : float, default = 532.0
+    Positive observation wavelength in nanometres, used for the VMF3o optical scaling.
+
+Returns
+-------
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    configured for VMF3o optical tropospheric corrections.
            )doc" );
 
     m.def( "inverse_power_series_solar_corona_light_time_correction",

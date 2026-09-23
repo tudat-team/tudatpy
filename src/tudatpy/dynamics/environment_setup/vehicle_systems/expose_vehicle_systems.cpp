@@ -592,11 +592,10 @@ list[BodyPanelSettings]
             py::arg( "body_fixed_position" ) = Eigen::Vector3d::Zero( ),
             R"doc(
 
- Function for creating settings for a camera
+ Function for creating settings for a pinhole camera
 
- Function for creating settings for a camera, defining only its name and orientation.
+ Function for creating settings for a pinhole camera without any distortions added, defining only its name and orientation.
  Camera is fixed to the body and its boresight always points along the z-axis of its own frame.
- Represents a pinhole camera model without any distortions added.
  The orientation of the camera is defined by the Euler angles of the camera boresight (z-axis) with respect to the body-fixed frame, in a 3-2-3 rotation sequence.
  A zero twist angle will make the body-fixed frame x-axis aligned with the pixels u direction (positive horizontal direction) when RA and DEC are zero.
  The focal lengths, optical center, and body-fixed camera position can also be defined, but default to (1.0, 1.0), (0.0, 0.0), and (0.0, 0.0, 0.0), respectively.
