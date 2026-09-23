@@ -44,6 +44,8 @@ Functions
 
    relativistic_correction
 
+   relativistic_from_metric
+
    einstein_infeld_hofmann
 
    empirical
@@ -89,6 +91,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.einstein_infeld_hofmann
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction
+
+.. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.relativistic_from_metric
 
 .. autofunction:: tudatpy.dynamics.propagation_setup.acceleration.empirical
 
