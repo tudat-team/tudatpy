@@ -1371,6 +1371,8 @@ class Builder:
         with chdir(self.build_dir):
 
             build_command = ["cmake", "--build", ".", f"-j{self.args.j}"]
+            if platform == "win32":
+                build_command.extend(["--config", self.args.build_type])
             if self.args.verbose:
                 build_command.append("--verbose")
             outcome = subprocess.run(build_command)
