@@ -1351,12 +1351,18 @@ class Builder:
                             "CMake will attempt to find it automatically."
                         )
 
-                # Force MSVC cl.exe to match CI
+                # Force MSVC cl.exe to match CI, clear the linker flags: conda's
+                # compiler-rt activation script sets LDFLAGS to a clang-cl defaultlib
+                # flag that link.exe doesn't understand, and CMake takes
+                # CMAKE_*_LINKER_FLAGS from LDFLAGS regardless of the compiler
                 if platform == "win32":
                     cmake_command.extend(
                         [
                             "-DCMAKE_C_COMPILER=cl",
                             "-DCMAKE_CXX_COMPILER=cl",
+                            "-DCMAKE_EXE_LINKER_FLAGS=",
+                            "-DCMAKE_SHARED_LINKER_FLAGS=",
+                            "-DCMAKE_MODULE_LINKER_FLAGS=",
                         ]
                     )
 
