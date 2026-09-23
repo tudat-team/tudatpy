@@ -381,6 +381,33 @@ BOOST_AUTO_TEST_CASE( testSumPointingSigmaValidation )
     }
 }
 
+//! SPC SUM's four DISTORTION values are not sufficient to reconstruct its separate Owen
+//! distortion model. The converter must reject a non-zero row before it mutates the body system,
+//! rather than silently projecting with a zero-distortion camera.
+BOOST_AUTO_TEST_CASE( testSumNonZeroDistortionIsRejected )
+{
+    spice_interface::loadStandardSpiceKernels( );
+    input_output::sum_lmk::SumImageData image = makeSyntheticSumImage( "IMGDIST", Eigen::Vector3d::Constant( 1.0E-4 ) );
+    image.distortionCoefficients_( 2 ) = 1.0E-8;
+
+    SystemOfBodies bodies = createSyntheticSumLmkBodies( );
+    SumLmkObservationConversionSettings conversionSettings( "Target", "Spacecraft" );
+    try
+    {
+        createSumLmkObservationCollection< double, double >( { image }, makeSyntheticLandmarks( ), bodies, conversionSettings );
+        BOOST_FAIL( "Expected non-zero SUM DISTORTION validation to throw." );
+    }
+    catch( const std::runtime_error& exception )
+    {
+        const std::string message = exception.what( );
+        BOOST_CHECK( message.find( "DISTORTION" ) != std::string::npos );
+        BOOST_CHECK( message.find( "INIT_LITHOS" ) != std::string::npos );
+    }
+
+    BOOST_CHECK( bodies.at( "Target" )->getGroundStationMap( ).empty( ) );
+    BOOST_CHECK( bodies.at( "Spacecraft" )->getVehicleSystems( )->getCameraMap( ).empty( ) );
+}
+
 //! Missing LMK definitions must be reported in one aggregated diagnostic.
 BOOST_AUTO_TEST_CASE( testSumLmkMissingLandmarkValidation )
 {

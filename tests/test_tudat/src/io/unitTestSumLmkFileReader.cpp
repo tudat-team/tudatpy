@@ -172,7 +172,8 @@ BOOST_AUTO_TEST_CASE( testReadRealSumFile )
     // SIGMA_VSO km -> m.
     checkClose( image.spacecraftObjectSigma_( 0 ), 39.07025850, 1.0E-6 );
 
-    // DISTORTION parsed (zeros here), stored but unused in v1.
+    // DISTORTION is retained from the file. SUM/LMK conversion accepts the SPC-standard zero
+    // row and rejects non-zero rows, whose separate Owen model is not encoded in a SUM file.
     checkClose( image.distortionCoefficients_( 0 ), 0.0, 1.0E-12 );
 
     // Three landmark observations with exact pixel values; empty LIMB FITS section.

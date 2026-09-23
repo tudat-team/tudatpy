@@ -54,6 +54,9 @@ struct SumImageData {
     Eigen::Matrix3d cameraAxes_ = Eigen::Matrix3d::Constant( TUDAT_NAN );
     Eigen::Vector3d sunDirectionBodyFixed_ = Eigen::Vector3d::Constant( TUDAT_NAN );
     Eigen::Matrix< double, 2, 3 > kMatrix_ = Eigen::Matrix< double, 2, 3 >::Constant( TUDAT_NAN );
+    // Raw four-value DISTORTION row from the SUM file. SPC SUM files conventionally keep this
+    // zero; an actual Owen distortion model is supplied separately in INIT_LITHOS. The SUM/LMK
+    // observation converter therefore rejects non-zero values rather than silently ignoring them.
     Eigen::Vector4d distortionCoefficients_ = Eigen::Vector4d::Zero( );
     Eigen::Vector3d spacecraftObjectSigma_ = Eigen::Vector3d::Constant( TUDAT_NAN );
     Eigen::Vector3d pointingSigma_ = Eigen::Vector3d::Constant( TUDAT_NAN );

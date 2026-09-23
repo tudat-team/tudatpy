@@ -180,9 +180,32 @@ inline void validateSanitizedCameraNames( const std::vector< input_output::sum_l
     }
 }
 
+//! SUM's four-value DISTORTION row is not a complete camera-distortion model. In SPC, the row is
+//! conventionally zero and a non-zero Owen distortion model is defined separately in INIT_LITHOS.
+//! Rejecting non-zero values here avoids silently simulating a different camera from the one used
+//! to produce the SPC measurements.
+inline void validateSumImageDistortionCoefficients( const std::vector< input_output::sum_lmk::SumImageData >& sumImages )
+{
+    for( const input_output::sum_lmk::SumImageData& image : sumImages )
+    {
+        if( !image.distortionCoefficients_.array( ).isFinite( ).all( ) )
+        {
+            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ + "': DISTORTION coefficients must be finite." );
+        }
+        if( !image.distortionCoefficients_.isZero( 0.0 ) )
+        {
+            throw std::runtime_error( "Error when converting SUM image '" + image.imageId_ +
+                                      "': non-zero SUM DISTORTION coefficients are unsupported. SPC supplies a non-zero Owen distortion "
+                                      "model separately through INIT_LITHOS; it cannot be reconstructed from this SUM row." );
+        }
+    }
+}
+
 inline std::shared_ptr< system_models::PsfCameraProjectionModel > createSumCameraProjectionModel(
         const input_output::sum_lmk::SumImageData& image )
 {
+    // validateSumImageDistortionCoefficients has established that the SUM row is zero. The
+    // PsfCameraProjectionModel implements the SUM focal-length/principal-point/K-MATRIX mapping.
     return std::make_shared< system_models::PsfCameraProjectionModel >(
             image.focalLengthMm_,
             image.opticalCenter_,
@@ -490,6 +513,9 @@ SumLmkObservationConversionResult< ObservationScalarType, TimeType > createSumLm
     {
         detail::validateReferencedLandmarksHaveDefinitions( sumImagesToConvert, landmarks );
     }
+    // Do this before adding stations/cameras, so unsupported calibration input leaves the caller's
+    // environment unchanged.
+    detail::validateSumImageDistortionCoefficients( sumImagesToConvert );
 
     SumLmkObservationConversionResult< ObservationScalarType, TimeType > result;
     result.receiverBodyName_ = conversionSettings.receiverBodyName_;
