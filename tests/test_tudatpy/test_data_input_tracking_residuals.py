@@ -1,4 +1,5 @@
 import datetime
+import json
 from pathlib import Path
 from bisect import bisect_left, bisect_right
 from urllib.request import urlretrieve
@@ -17,11 +18,13 @@ from tudatpy.data_input.tracking_data.fdets import FdetDateFormat, read_fdets_da
 from tudatpy.data_input.tracking_data.ifms import read_ifms_data
 from tudatpy.data_input.tracking_data.jpl_radar import JPLRadarQuery
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
 from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
 from tudatpy.data_input.tracking_data.radar_utilities import (
     DOPPLER_OBSERVABLE,
     RANGE_OBSERVABLE,
+    radar_data_from_table,
     radar_data_to_tracking_data,
 )
 from tudatpy.data_input.tracking_data.radar_utilities.stations import (
@@ -56,6 +59,11 @@ from tudatpy.kernel.estimation.observations_setup import (
     observations_simulation_settings,
 )
 from tudatpy.data_input.environment_data import spice
+
+APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
+    Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
+)
+APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL = 6.0
 
 
 def _test_data_path() -> Path:
@@ -578,6 +586,65 @@ def _create_itokawa_radar_bodies(radar_table):
     bodies.get_body("101955").system_models = target_systems
     add_all_radar_ground_stations(bodies)
     return bodies
+
+
+def _create_apophis_radar_bodies_from_fixture(case):
+    """Create the radar environment from one frozen Apophis fixture case."""
+    spice.load_standard_kernels()
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth", "Moon"], "SSB", "J2000"
+    )
+    earth_settings = body_settings.get("Earth")
+    earth_settings.shape_settings = shape.oblate_spherical(
+        6378137.0,
+        1.0 / 298.257223563,
+    )
+    earth_settings.rotation_model_settings = rotation_model.gcrs_to_itrs(
+        rotation_model.iau_2006,
+        "J2000",
+    )
+    earth_settings.gravity_field_settings.associated_reference_frame = "ITRS"
+
+    target_body = case["designation"]
+    ephemeris_data = case["target_ephemeris"]
+    body_settings.add_empty_settings(target_body)
+    body_settings.get(target_body).ephemeris_settings = ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:7], dtype=float) for row in ephemeris_data["states"]},
+        frame_origin=ephemeris_data["frame_origin"],
+        frame_orientation=ephemeris_data["frame_orientation"],
+    )
+
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    target_systems = environment.VehicleSystems()
+    frequency_bands = [
+        ancillary_settings.FrequencyBands.s_band,
+        ancillary_settings.FrequencyBands.x_band,
+        ancillary_settings.FrequencyBands.ka_band,
+        ancillary_settings.FrequencyBands.ku_band,
+    ]
+    target_systems.set_transponder_turnaround_ratio({(band, band): 1.0 for band in frequency_bands})
+    bodies.get_body(target_body).system_models = target_systems
+    add_all_radar_ground_stations(bodies)
+    return bodies
+
+
+def _load_apophis_figure2_radar_fixture_cases():
+    with APOPHIS_FIGURE2_RADAR_FIXTURE_PATH.open() as fixture_file:
+        return json.load(fixture_file)["cases"]
+
+
+def _compute_apophis_fixture_radar_residual(case):
+    parsed_table = parse_80cols_data(case["mpc_80col_records"])
+    radar_table = radar_data_from_table(parsed_table)
+    tracking_data, supplementary_data = radar_data_to_tracking_data(radar_table)
+    bodies = _create_apophis_radar_bodies_from_fixture(case)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    observation_collection = create_observation_collection_from_tracking_data(
+        tracking_data,
+        bodies,
+    )
+    residual = _simulate_radar_residuals(observation_collection, bodies)[0]
+    return residual, float(radar_table["sigma"].iloc[0])
 
 
 def _itokawa_2005_jpl_radar_arc():
@@ -1179,11 +1246,38 @@ def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
     assert np.max(normalized_residuals) < 3.5
 
 
+def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
+    """Check Apophis Figure 2 radar residuals against frozen Horizons states."""
+    fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+    assert len(fixture_cases) == 50
+
+    for case in fixture_cases:
+        residual, sigma = _compute_apophis_fixture_radar_residual(case)
+        normalized_residual = residual / sigma
+        unit = "m" if case["jpl_radar_row"]["units"] == "us" else "Hz"
+        diagnostic = (
+            f"{case['epoch_utc']}  {case['jpl_radar_row']['units']:>2s}  "
+            f"station = {case['mpc_80col_records'][0][68:71]}->"
+            f"{case['mpc_80col_records'][1][68:71]}  "
+            f"residual = {residual:12.3f} {unit}  sigma = {sigma:10.3f} {unit}  "
+            f"residual/sigma = {normalized_residual:10.3f}"
+        )
+        assert abs(normalized_residual) < APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL, diagnostic
+
+
 @pytest.mark.remote_data
-def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond():
+@pytest.mark.parametrize(
+    ("target", "horizons_id"),
+    [
+        ("2003 BF91", "2003 BF91;"),
+        ("2003 BH91", "2003 BH91;"),
+        ("2020 KP11", "2020 KP11;"),
+    ],
+)
+def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizons_id):
     """Check MPC HST astrometry with spacecraft receiver-state supplementary data."""
     try:
-        batch = _hubble_space_astrometry_batch("2003 BF91", "250")
+        batch = _hubble_space_astrometry_batch(target, "250")
     except Exception as error:
         _skip_remote_data_error(error, "MPC Hubble astrometry")
 
@@ -1203,7 +1297,7 @@ def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond():
         add_star_catalog_corrections=False
     )
     try:
-        bodies = _create_hubble_space_astrometry_bodies(batch, "2003 BF91;", "250")
+        bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id, "250")
     except Exception as error:
         _skip_remote_data_error(error, "Horizons Hubble target ephemeris")
 

@@ -17,6 +17,7 @@ from tudatpy.data_input.tracking_data.radar_utilities import (
     empty_radar_table,
     radar_data_to_tracking_data,
     radar_frequency_band_string_from_hz,
+    validate_radar_data,
 )
 from tudatpy.data_input.tracking_data.radar_utilities.stations import (
     get_radar_station_geodetic_positions,
@@ -71,6 +72,14 @@ def test_empty_radar_table_uses_canonical_columns():
     assert table.empty
 
 
+def test_jpl_radar_query_rejects_non_object_response():
+    query = JPLRadarQuery("99942")
+    query._response_cache = "No radar data were found."
+
+    with pytest.raises(RuntimeError, match="unexpected response"):
+        query.to_radar_data()
+
+
 def test_get_available_radar_targets_returns_sorted_unique_designations(monkeypatch):
     monkeypatch.setattr(
         jpl_radar_backend,
@@ -107,6 +116,35 @@ def test_jpl_radar_query_returns_canonical_radar_data(monkeypatch):
     assert doppler_row["value"] == pytest.approx(8560.0e6 - 3.5)
     assert doppler_row["sigma"] == pytest.approx(0.1)
     assert doppler_row["transmitter_frequency_hz"] == pytest.approx(8560.0e6)
+
+
+def test_jpl_radar_query_rejects_unknown_measurement_units(monkeypatch):
+    response = _jpl_radar_response()
+    response["data"] = [response["data"][0].copy()]
+    response["data"][0][response["fields"].index("units")] = "km"
+    query = JPLRadarQuery("99942")
+    monkeypatch.setattr(query, "_fetch_json", lambda: response)
+
+    with pytest.raises(RuntimeError, match="Unsupported JPL radar measurement unit"):
+        query.to_radar_data(target_body="99942")
+
+
+def test_jpl_radar_query_can_use_mpc_station_compatibility_mode(monkeypatch):
+    query = JPLRadarQuery("99942")
+    monkeypatch.setattr(query, "_fetch_json", _jpl_radar_response)
+
+    table = query.to_radar_data(station_id_mode="mpc")
+
+    assert set(table["transmitter"]) == {"253"}
+    assert set(table["receiver"]) == {"253"}
+
+
+def test_radar_data_rejects_unsupported_columns():
+    table = empty_radar_table()
+    table["unexpected"] = pd.Series(dtype=float)
+
+    with pytest.raises(ValueError, match="unsupported columns"):
+        validate_radar_data(table)
 
 
 def test_radar_data_converts_to_tracking_and_supplementary_data():
@@ -151,6 +189,33 @@ def test_radar_station_settings_can_include_all_known_stations():
 
 def test_radar_frequency_band_boundary_uses_ku_at_12_ghz():
     assert radar_frequency_band_string_from_hz(12.0e9) == "Ku-band"
+
+
+def test_batchmpc_get_satellite_state_history():
+    batch = BatchMPC()
+    batch._table = pd.DataFrame(
+        {
+            "observatory": ["C51", "C51", "C51"],
+            "epoch_seconds_TDB": [0.0, 10.0, 20.0],
+            "spacecraft_position_x": [0.0, 10.0, 20.0],
+            "spacecraft_position_y": [10.0, 10.0, 10.0],
+            "spacecraft_position_z": [0.0, -10.0, -20.0],
+        }
+    )
+
+    state_history = batch.get_satellite_state_history("C51")
+    epochs = sorted(state_history)
+    states = np.array([state_history[epoch] for epoch in epochs])
+
+    assert epochs == [0.0, 10.0, 20.0]
+    np.testing.assert_allclose(
+        states[:, :3],
+        [[0.0, 10.0, 0.0], [10.0, 10.0, -10.0], [20.0, 10.0, -20.0]],
+    )
+    np.testing.assert_allclose(
+        states[:, 3:],
+        [[1.0, 0.0, -1.0], [1.0, 0.0, -1.0], [1.0, 0.0, -1.0]],
+    )
 
 
 def test_batchmpc_raw_mpc80_path_loads_space_astrometry_and_radar(monkeypatch):
