@@ -4,8 +4,9 @@ from astropy.time import Time
 from typing import Any, Union
 import math
 import numpy as np
-import datetime
+from datetime import datetime
 from tudatpy.constants import GRAVITATIONAL_CONSTANT
+from tudatpy.astro.time_representation import DateTime
 
 
 class SBDBquery:
@@ -117,27 +118,15 @@ class SBDBquery:
         If one or more parameter is unavailable a corresponding value of 0 is returned in the array
         """
         try:
-            A1 = (
-                (self.query["orbit"]["model_pars"]["A1"].value * u.au / u.day**2)
-                .to(u.m / u.s**2)
-                .value
-            )
+            A1 = (self.query["orbit"]["model_pars"]["A1"]).to(u.m / u.s**2).value
         except Exception as _:
             A1 = 0
         try:
-            A2 = (
-                (self.query["orbit"]["model_pars"]["A2"].value * u.au / u.day**2)
-                .to(u.m / u.s**2)
-                .value
-            )
+            A2 = (self.query["orbit"]["model_pars"]["A2"]).to(u.m / u.s**2).value
         except Exception as _:
             A2 = 0
         try:
-            A3 = (
-                (self.query["orbit"]["model_pars"]["A3"].value * u.au / u.day**2)
-                .to(u.m / u.s**2)
-                .value
-            )
+            A3 = (self.query["orbit"]["model_pars"]["A3"]).to(u.m / u.s**2).value
         except Exception as _:
             A3 = 0
         return np.array([A1, A2, A3])
@@ -146,30 +135,28 @@ class SBDBquery:
     def Dt(self):
         """If available, returns asymmetric cometary non-gravitational model Dt (see Yeomans and Chodas, 1989) of the small body in [seconds]"""
         try:
-            DT = self.query["orbit"]["model_pars"]["DT"].value
-            return (
-                (DT * u.day).to(u.s).value
-            )  # a positive Dt will need to evaluate the position at (t-Dt)
+            DT = (self.query["orbit"]["model_pars"]["DT"]).to(u.s).value
+            return DT  # a positive Dt will need to evaluate the position at (t-Dt)
         except Exception as _:
             raise ValueError(f"Asymmetry parameter DT is not available for object {self.name}")
 
     @property
     def first_obs(self):
-        """If available, returns date of the first observation used for the orbit estimation of the small body in [JD]"""
+        """If available, returns date of the first observation used for the orbit estimation of the small body in [seconds since J2000]"""
         try:
-            first_obs = [int(el) for el in self.query["orbit"]["first_obs"].split("-")]
-            observation_start = datetime.datetime(first_obs[0], first_obs[1], first_obs[2])
-            return Time(observation_start).jd
+            first_obs = self.query["orbit"]["first_obs"]
+            observation_start = datetime.strptime(first_obs, "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_start).to_epoch()
         except Exception as _:
             raise ValueError(f"Date of first observation is not available for object {self.name}")
 
     @property
     def last_obs(self):
-        """If available, returns date of the last observation used for the orbit estimation of the small body in [JD]"""
+        """If available, returns date of the last observation used for the orbit estimation of the small body in [seconds since J2000]"""
         try:
-            last_obs = [int(el) for el in self.query["orbit"]["last_obs"].split("-")]
-            observation_end = datetime.datetime(last_obs[0], last_obs[1], last_obs[2])
-            return Time(observation_end).jd
+            last_obs = self.query["orbit"]["last_obs"]
+            observation_end = datetime.strptime(last_obs, "%Y-%m-%d")
+            return DateTime.from_python_datetime(observation_end).to_epoch()
         except Exception as _:
             raise ValueError(f"Date of last observation is not available for object {self.name}")
 
@@ -177,16 +164,17 @@ class SBDBquery:
     def perihelion(self):
         """If available, returns perihelion of the small body in [m]"""
         try:
-            q = (self.query["orbit"]["elements"]["q"].value * u.au).to(u.m).value
+            q = (self.query["orbit"]["elements"]["q"]).to(u.m).value
             return q
         except Exception as _:
             raise ValueError(f"Perihelion distance is not available for object {self.name}")
 
     @property
     def time_perihelion(self):
-        """If available, returns time of perihelion of the small body in [JD]"""
+        """If available, returns time of perihelion of the small body in [seconds since J2000]"""
         try:
             tp = self.query["orbit"]["elements"]["tp"].value
+            tp = DateTime.from_julian_day(tp).to_epoch()
             return tp
         except Exception as _:
             raise ValueError(f"Perihelion time is not available for object {self.name}")
