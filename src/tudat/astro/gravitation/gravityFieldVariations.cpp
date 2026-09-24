@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -21,6 +23,38 @@ namespace tudat
 
 namespace gravitation
 {
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > GravityFieldVariations::calculateSphericalHarmonicsCorrectionsTimeDerivative( const double )
+{
+    if( !missingDerivativeWarningIssued_ )
+    {
+        std::cerr << "Warning: gravity-field variation at degrees " << minimumDegree_ << "-" << maximumDegree_ << " and orders "
+                  << minimumOrder_ << "-" << maximumOrder_
+                  << " does not implement coefficient time derivatives; zero rates are used for this variation." << std::endl;
+        missingDerivativeWarningIssued_ = true;
+    }
+    const Eigen::MatrixXd zeroRates = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
+    return std::make_pair( zeroRates, zeroRates );
+}
+
+void GravityFieldVariations::addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                                             Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                                             Eigen::MatrixXd& cosineCoefficientDerivatives )
+{
+    const std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficientDerivatives =
+            calculateSphericalHarmonicsCorrectionsTimeDerivative( time );
+    // The caller may request only the low-degree rates needed for the inertia tensor.
+    // Still evaluate every variation, then add the part within the destination matrices.
+    if( minimumDegree_ < sineCoefficientDerivatives.rows( ) && minimumOrder_ < sineCoefficientDerivatives.cols( ) )
+    {
+        const int degreeCount = std::min( numberOfDegrees_, static_cast< int >( sineCoefficientDerivatives.rows( ) ) - minimumDegree_ );
+        const int orderCount = std::min( numberOfOrders_, static_cast< int >( sineCoefficientDerivatives.cols( ) ) - minimumOrder_ );
+        sineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, degreeCount, orderCount ) +=
+                coefficientDerivatives.second.topLeftCorner( degreeCount, orderCount );
+        cosineCoefficientDerivatives.block( minimumDegree_, minimumOrder_, degreeCount, orderCount ) +=
+                coefficientDerivatives.first.topLeftCorner( degreeCount, orderCount );
+    }
+}
 
 //! Function to add sine and cosine corrections at given time to coefficient matrices.
 void PairInterpolationInterface::getCosineSinePair( const double time,
@@ -258,6 +292,16 @@ std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixX
 
     // Return list.
     return variationFunctions;
+}
+
+void GravityFieldVariationsSet::addSphericalHarmonicsCorrectionTimeDerivatives( const double time,
+                                                                                Eigen::MatrixXd& sineCoefficientDerivatives,
+                                                                                Eigen::MatrixXd& cosineCoefficientDerivatives )
+{
+    for( const std::shared_ptr< GravityFieldVariations >& variation : variationObjects_ )
+    {
+        variation->addSphericalHarmonicsCorrectionTimeDerivatives( time, sineCoefficientDerivatives, cosineCoefficientDerivatives );
+    }
 }
 
 //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation

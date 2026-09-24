@@ -10,11 +10,50 @@
  */
 
 #include "tudat/astro/gravitation/gravityFieldModel.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
 namespace gravitation
 {
+
+GravityFieldModel::GravityFieldModel( const double gravitationalParameter ): gravitationalParameter_( gravitationalParameter ) {}
+
+void GravityFieldModel::resetGravitationalParameter( const double gravitationalParameter )
+{
+    gravitationalParameter_ = gravitationalParameter;
+    notifyMassUpdate( );
+    notifyMassDistributionUpdate( );
+}
+
+void GravityFieldModel::setRigidBodyProperties( const std::shared_ptr< simulation_setup::RigidBodyProperties >& rigidBodyProperties )
+{
+    rigidBodyProperties_ = rigidBodyProperties;
+}
+
+std::shared_ptr< simulation_setup::RigidBodyProperties > GravityFieldModel::getRigidBodyProperties( ) const
+{
+    return rigidBodyProperties_.lock( );
+}
+
+void GravityFieldModel::notifyMassUpdate( )
+{
+    const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = rigidBodyProperties_.lock( );
+    if( rigidBodyProperties != nullptr )
+    {
+        rigidBodyProperties->synchronizeMassFromGravityField( );
+    }
+}
+
+void GravityFieldModel::notifyMassDistributionUpdate( )
+{
+    const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties = rigidBodyProperties_.lock( );
+    if( rigidBodyProperties != nullptr )
+    {
+        rigidBodyProperties->synchronizeMassDistributionFromGravityField( );
+    }
+    notifyLegacyMassDistributionUpdate( );
+}
 
 //! Set predefined central gravity field settings.
 std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
@@ -130,6 +169,20 @@ std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
             throw std::runtime_error( errorMessage );
     }
     return std::make_shared< GravityFieldModel >( gravitationalParameter );
+}
+
+// Deprecated Python constructor compatibility.
+void GravityFieldModel::setLegacyMassDistributionUpdateFunction( const std::function< void( ) >& updateFunction )
+{
+    legacyMassDistributionUpdateFunction_ = updateFunction;
+}
+
+void GravityFieldModel::notifyLegacyMassDistributionUpdate( )
+{
+    if( legacyMassDistributionUpdateFunction_ )
+    {
+        legacyMassDistributionUpdateFunction_( );
+    }
 }
 
 }  // namespace gravitation

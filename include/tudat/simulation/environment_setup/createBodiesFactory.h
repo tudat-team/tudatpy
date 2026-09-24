@@ -11,6 +11,8 @@
 #ifndef TUDAT_CREATEBODIESFACTORY_H
 #define TUDAT_CREATEBODIESFACTORY_H
 
+#include <cmath>
+
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
@@ -76,6 +78,9 @@ void setSimpleRotationSettingsFromSpice( const BodyListSettings& bodySettings, c
  */
 std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings );
+
+//! Resolve rigid-body settings, translating deprecated gravity-field inputs without changing the supplied settings.
+std::shared_ptr< RigidBodyPropertiesSettings > resolveRigidBodyPropertiesSettings( const std::shared_ptr< BodySettings >& bodySettings );
 
 //! Function to create a map of bodies objects.
 /*!
@@ -214,15 +219,15 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         }
     }
 
-    // Create gravity field model objects for each body (if required).
+    // Create rigid-body properties for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
+        const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodySettings =
+                resolveRigidBodyPropertiesSettings( orderedBodySettings.at( i ).second );
+        if( rigidBodySettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
-                    ->setMassProperties( createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
-                                                                    orderedBodySettings.at( i ).first,
-                                                                    bodyList ) );
+                    ->setMassProperties( createRigidBodyProperties( rigidBodySettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

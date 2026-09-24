@@ -398,8 +398,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame,
-                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
+                                associatedReferenceFrame );
                     }
                     else
                     {
@@ -416,8 +415,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                associatedReferenceFrame,
-                                sphericalHarmonicFieldSettings->getScaledMeanMomentOfInertia( ) );
+                                associatedReferenceFrame );
                     }
                 }
             }
@@ -438,8 +436,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             }
             else
             {
-                std::function< void( ) > inertiaTensorUpdateFunction;
-
                 std::string associatedReferenceFrame = polyhedronFieldSettings->getAssociatedReferenceFrame( );
                 if( associatedReferenceFrame == "" )
                 {
@@ -459,8 +455,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 gravityFieldModel = std::make_shared< PolyhedronGravityField >( polyhedronFieldSettings->getGravitationalParameter( ),
                                                                                 polyhedronFieldSettings->getVerticesCoordinates( ),
                                                                                 polyhedronFieldSettings->getVerticesDefiningEachFacet( ),
-                                                                                associatedReferenceFrame,
-                                                                                inertiaTensorUpdateFunction );
+                                                                                associatedReferenceFrame );
             }
             break;
         }
@@ -479,8 +474,6 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             }
             else
             {
-                std::function< void( ) > inertiaTensorUpdateFunction = std::function< void( ) >( );
-
                 std::string associatedReferenceFrame = ringFieldSettings->getAssociatedReferenceFrame( );
                 if( associatedReferenceFrame == "" )
                 {
@@ -500,8 +493,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 gravityFieldModel = std::make_shared< RingGravityField >( ringFieldSettings->getGravitationalParameter( ),
                                                                           ringFieldSettings->getRingRadius( ),
                                                                           ringFieldSettings->getEllipticIntegralSFromDAndB( ),
-                                                                          associatedReferenceFrame,
-                                                                          inertiaTensorUpdateFunction );
+                                                                          associatedReferenceFrame );
             }
 
             break;
@@ -598,11 +590,19 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
             break;
         }
         case from_gravity_field_rigid_body_properties: {
-            if( std::dynamic_pointer_cast< FromGravityFieldRigidBodyProperties >( bodies.at( body )->getMassProperties( ) ) == nullptr )
+            const std::shared_ptr< FromGravityFieldRigidBodyPropertiesSettings > fromGravityFieldSettings =
+                    std::dynamic_pointer_cast< FromGravityFieldRigidBodyPropertiesSettings >( massPropertiesSettings );
+            if( fromGravityFieldSettings == nullptr )
             {
-                throw std::runtime_error(
-                        "Error when creating from_gravity_field_rigid_body_properties, associated mass properties should already exist" );
+                throw std::runtime_error( "Error when creating gravity-derived rigid-body properties: settings type is incompatible." );
             }
+            if( bodies.at( body )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating gravity-derived rigid-body properties for " + body +
+                                          ": no gravity field exists." );
+            }
+            rigidBodyProperties = std::make_shared< FromGravityFieldRigidBodyProperties >(
+                    bodies.at( body )->getGravityFieldModel( ), fromGravityFieldSettings->getScaledMeanMomentOfInertia( ) );
             break;
         }
         case mass_dependent_rigid_body_properties: {

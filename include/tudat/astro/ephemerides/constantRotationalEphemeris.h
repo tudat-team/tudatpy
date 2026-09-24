@@ -107,8 +107,9 @@ public:
         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
 
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
+        // The stored angular velocity is body-fixed: Q_dot = -[omega_body x] Q.
         currentRotationToLocalFrameDerivative_ =
-                linear_algebra::getCrossProductMatrix( constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
+                -linear_algebra::getCrossProductMatrix( constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
     }
 
 private:

@@ -18,12 +18,14 @@
 #include <iomanip>
 
 #include <memory>
+#include <stdexcept>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/simulation/environment_setup/rigidBodyProperties.h"
 
 namespace tudat
 {
@@ -96,12 +98,25 @@ public:
     /*!
      * Constructor
      * \param angularVelocityFunction Function that returns body's body-fixed angular velocity vector
-     * \param inertiaTensorFunction Function that returns body's inertia tensor
+     * \param rigidBodyProperties Properties providing the body's inertia tensor and its time derivative
      */
     InertialTorqueModel( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
-                         const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):
-        TorqueModel( ), angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction )
-    {}
+                         const std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties ):
+        TorqueModel( ), angularVelocityFunction_( angularVelocityFunction ), rigidBodyProperties_( rigidBodyProperties )
+    {
+        if( rigidBodyProperties_ == nullptr )
+        {
+            throw std::runtime_error( "Error when creating inertial torque: rigid-body properties are missing." );
+        }
+        if( !rigidBodyProperties_->isInertiaTensorAvailable( ) )
+        {
+            throw std::runtime_error( "Error when creating inertial torque: inertia tensor is not available." );
+        }
+        if( !rigidBodyProperties_->isInertiaTensorDerivativeAvailable( ) )
+        {
+            throw std::runtime_error( "Error when creating inertial torque: inertia tensor derivative is not available." );
+        }
+    }
 
     //! Destructor
     ~InertialTorqueModel( ) {}
@@ -111,7 +126,7 @@ public:
      * Returns the inertial torque.
      * \return Inertial torque.
      */
-    Eigen::Vector3d getTorque( )
+    Eigen::Vector3d getTorque( ) override
     {
         return currentTorque_;
     }
@@ -124,11 +139,14 @@ public:
      * them to update the associated variables to their current state.
      * \param currentTime Time at which torque model is to be updated.
      */
-    virtual void updateMembers( const double currentTime )
+    void updateMembers( const double currentTime ) override
     {
         if( !( currentTime == currentTime_ ) )
         {
-            currentTorque_ = -angularVelocityFunction_( ).cross( inertiaTensorFunction_( ) * angularVelocityFunction_( ) );
+            const Eigen::Vector3d angularVelocity = angularVelocityFunction_( );
+            const Eigen::Matrix3d inertiaTensor = rigidBodyProperties_->getCurrentInertiaTensor( );
+            currentTorque_ = -angularVelocity.cross( inertiaTensor * angularVelocity ) -
+                    rigidBodyProperties_->getCurrentDerivativeInertiaTensor( ) * angularVelocity;
             currentTime_ = currentTime;
         }
     }
@@ -137,8 +155,8 @@ protected:
     //! Function that returns body's body-fixed angular velocity vector
     std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
-    //! Function that returns body's inertia tensor
-    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+    //! Properties providing the current inertia tensor and its time derivative
+    std::shared_ptr< simulation_setup::RigidBodyProperties > rigidBodyProperties_;
 
     //! Current torque, as computed by last call to updateMembers function
     Eigen::Vector3d currentTorque_;
