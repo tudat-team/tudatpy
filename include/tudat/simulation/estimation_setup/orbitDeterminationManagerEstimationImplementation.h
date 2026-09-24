@@ -132,7 +132,17 @@ OrbitDeterminationManager< ObservationScalarType, TimeType, Dummy >::estimatePar
                         "Error when saving state history for each estimation iteration: no propagation results exist "
                         "in observation-only estimation." );
             }
-            simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            // By default only the propagated dynamics (state history and dependent variables) are retained. The
+            // variational results dominate the memory footprint of a stored iteration -- the sensitivity matrix alone
+            // is 6N doubles per time step for N estimated parameters -- and are kept only when explicitly requested.
+            if( estimationInput->getSaveVariationalResultsForEachIteration( ) )
+            {
+                simulationResultsPerIteration.push_back( simulationResults->clone( ) );
+            }
+            else
+            {
+                simulationResultsPerIteration.push_back( simulationResults->cloneDynamicsOnly( ) );
+            }
         }
 
         // Normalise estimated parameters partials and inverse apriori covariance
