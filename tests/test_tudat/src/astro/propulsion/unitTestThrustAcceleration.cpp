@@ -2155,19 +2155,20 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             momentum_wheel_desaturation_acceleration, "Asterix", "Asterix" ) );
 
     // Create propagator/integrator settings
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodies,
                     accelerationModelMap,
                     bodiesToPropagate,
                     systemInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     cowell,
                     dependentVariables );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings = translationalPropagatorSettings;
-
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =

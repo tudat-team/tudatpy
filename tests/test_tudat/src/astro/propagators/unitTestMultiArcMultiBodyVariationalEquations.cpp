@@ -803,6 +803,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         }
         std::shared_ptr< MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
                 std::make_shared< MultiArcPropagatorSettings<> >( propagatorSettingsList );
+        multiArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( true );
 
         for( auto itr : multiArcCentralBodiesPerBody )
         {
