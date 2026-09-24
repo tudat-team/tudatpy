@@ -327,7 +327,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations );
-    estimationInput->defineEstimationSettings( true, true, saveDesignMatrix, true, true, true );
+    // Final argument retains the variational results per iteration, which are checked by the calling unit tests.
+    estimationInput->defineEstimationSettings( true, true, saveDesignMatrix, true, true, true, 1.0E8, true, true );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Perform estimation

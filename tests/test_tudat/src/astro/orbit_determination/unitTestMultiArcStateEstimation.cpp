@@ -259,8 +259,27 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
     std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > covarianceInput =
             std::make_shared< CovarianceAnalysisInput< ObservationScalarType, TimeType > >( observationsAndTimes );
 
+    // Retain the propagation results of each iteration, without the variational results (the default).
+    estimationInput->defineEstimationSettings( true, true, true, true, true, true );
+
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =
             orbitDeterminationManager.estimateParameters( estimationInput );
+
+    // Check that each retained iteration holds the multi-arc dynamics only: the state history of every arc is
+    // available, while the state transition and sensitivity matrices have been discarded.
+    BOOST_CHECK( estimationOutput->getSimulationResults( ).size( ) > 0 );
+    for( unsigned int i = 0; i < estimationOutput->getSimulationResults( ).size( ); i++ )
+    {
+        auto iterationResults =
+                std::dynamic_pointer_cast< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >(
+                        estimationOutput->getSimulationResults( ).at( i ) );
+        BOOST_REQUIRE( iterationResults != nullptr );
+        BOOST_CHECK_EQUAL( iterationResults->getSingleArcResults( ).size( ), integrationArcStartTimes.size( ) );
+        for( unsigned int j = 0; j < iterationResults->getSingleArcResults( ).size( ); j++ )
+        {
+            BOOST_CHECK( iterationResults->getSingleArcResults( ).at( j )->getEquationsOfMotionNumericalSolution( ).size( ) > 0 );
+        }
+    }
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > finalParameters =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
