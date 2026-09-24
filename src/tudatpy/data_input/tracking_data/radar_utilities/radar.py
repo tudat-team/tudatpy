@@ -322,7 +322,7 @@ def radar_data_to_tracking_data(
     reflectors = []
     for target in table.loc[table["observable_type"] == DOPPLER_OBSERVABLE, "target_body"].unique():
         reflector = TrackingSupplementaryData(str(target), "")
-        reflector.set_is_passive_radar_reflector(True)
+        reflector.is_passive_radar_reflector = True
         reflectors.append(reflector)
     return tracking_data, _frequency_supplementary_data(table, station_body) + reflectors
 

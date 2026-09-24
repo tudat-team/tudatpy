@@ -811,32 +811,15 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
-            .def_property_readonly( "is_passive_radar_reflector",
-                                    &tdat::TrackingSupplementaryData::isPassiveRadarReflector,
-                                    R"doc(
-         **read-only**
-
+            .def_property( "is_passive_radar_reflector",
+                           &tdat::TrackingSupplementaryData::isPassiveRadarReflector,
+                           &tdat::TrackingSupplementaryData::setIsPassiveRadarReflector,
+                           R"doc(
          Whether the named body is a passive radar reflector. Applying this
          supplementary data sets its turnaround ratio to one for every
          frequency-band pair.
 
          :type: bool
-      )doc" )
-            .def( "set_is_passive_radar_reflector",
-                  &tdat::TrackingSupplementaryData::setIsPassiveRadarReflector,
-                  py::arg( "is_passive_radar_reflector" ),
-                  R"doc(
-         Set whether the named body is a passive radar reflector.
-
-         Parameters
-         ----------
-         is_passive_radar_reflector : bool
-             Whether applying this supplementary data should set the body's
-             turnaround ratio to one for every frequency-band pair.
-
-         Returns
-         -------
-         None
       )doc" )
             .def_property( "translational_state_supplementary_data",
                            &tdat::TrackingSupplementaryData::getTranslationalStateSupplementaryData,
