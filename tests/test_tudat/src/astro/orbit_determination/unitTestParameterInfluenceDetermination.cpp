@@ -166,13 +166,19 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         basic_astrodynamics::AccelerationMap accelerationModelMap =
                 createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
-
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
-                simulationStartEpoch, 12.0 * 3600.0, CoefficientSets::rungeKuttaFehlberg78, 3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
+                12.0 * 3600.0, CoefficientSets::rungeKuttaFehlberg78, 3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
+        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        simulationStartEpoch,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell );
 
         // Create settings for parameter that is to be perturbed
         std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
@@ -181,7 +187,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
 
         // Generate fit for observations with J2 to model without J2
         std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput = determinePostfitParameterInfluence(
-                bodies, integratorSettings, propagatorSettings, perturbedParameterSettings, 6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
+                bodies, propagatorSettings, perturbedParameterSettings, 6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
 
         // Get pre- and postfit residuals with RMS
         Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
@@ -323,13 +329,19 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariable, 25.0E3, true );
 
-    // Create propagation settings.
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
-            centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings, cowell );
-
     // Create integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, 1.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
+
+    // Create propagation settings.
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                systemInitialState,
+                                                                                simulationStartEpoch,
+                                                                                integratorSettings,
+                                                                                terminationSettings,
+                                                                                cowell );
 
     // Create settings for parameter that is to be perturbed
     std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
@@ -337,8 +349,8 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
             2, 0, 2, 0, "Earth", spherical_harmonics_cosine_coefficient_block ) );
 
     // Generate fit for observations with J2 to model without J2
-    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput = determinePostfitParameterInfluence(
-            bodies, integratorSettings, propagatorSettings, perturbedParameterSettings, 1.0, { -earthC20 }, { 0 } );
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput =
+            determinePostfitParameterInfluence( bodies, propagatorSettings, perturbedParameterSettings, 1.0, { -earthC20 }, { 0 } );
 
     // Get pre- and postfit residuals with RMS
     Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );

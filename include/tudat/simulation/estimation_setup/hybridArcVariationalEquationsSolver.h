@@ -54,67 +54,6 @@ public:
         initializeHybridArcVariationalEquationsSolver( bodies, propagatorSettings, integrateEquationsOnCreation );
     }
 
-    //! Constructor
-    /*!
-     *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
-     *  \param bodies Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Settings for numerical integrator.
-     *  \param propagatorSettings Settings for propagator.
-     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
-     *  \param arcStartTimes Start times for separate arcs
-     *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
-     *  equations are to be propagated concurrently (if true) or sequentially (of false)
-     *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
-     *  (default true) after propagation and resetting of state transition interface.
-     *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
-     *  end of this contructor.
-     */
-    HybridArcVariationalEquationsSolver(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const std::vector< double > arcStartTimes,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false,
-            const bool setDependentVariablesInterface = false ):
-        HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                bodies,
-                validateDeprecatedHybridArcSettings< StateScalarType, TimeType >( integratorSettings,
-                                                                                  propagatorSettings,
-                                                                                  arcStartTimes,
-                                                                                  clearNumericalSolution,
-                                                                                  true,
-                                                                                  setDependentVariablesInterface ),
-                parametersToEstimate,
-                integrateEquationsOnCreation )
-    {}
-
-    HybridArcVariationalEquationsSolver(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const std::vector< double > arcStartTimes,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
-            const bool clearNumericalSolution = false,
-            const bool integrateEquationsOnCreation = false,
-            const bool setDependentVariablesInterface = false ):
-        HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                bodies,
-                validateDeprecatedHybridArcSettings< StateScalarType, TimeType >( singleArcIntegratorSettings,
-                                                                                  multiArcIntegratorSettings,
-                                                                                  propagatorSettings,
-                                                                                  arcStartTimes,
-                                                                                  clearNumericalSolution,
-                                                                                  true,
-                                                                                  setDependentVariablesInterface ),
-                parametersToEstimate,
-                integrateEquationsOnCreation )
-    {}
-
     void initializeHybridArcVariationalEquationsSolver( const simulation_setup::SystemOfBodies& bodies,
                                                         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
                                                         const bool integrateEquationsOnCreation )

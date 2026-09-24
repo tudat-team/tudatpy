@@ -76,17 +76,17 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
                     std::bind( &getDummyCustomState1, std::placeholders::_1, std::placeholders::_2 ),
                     initialCustomState,
+                    0.0,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
-    // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
-
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -112,18 +112,18 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStateSetInBodyDuringPropagation )
     };
 
     Eigen::VectorXd initialCustomState = ( Eigen::VectorXd( 1 ) << 500.0 ).finished( );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
                     customStateDerivative,
                     initialCustomState,
+                    0.0,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( 10.0 ),
                     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                    TUDAT_NAN,
+                    std::make_shared< SingleArcPropagatorProcessingSettings >( ),
                     "Vehicle" );
-
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
-
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     BOOST_CHECK_SMALL( maximumCustomStateError, 1.0E-14 );
     BOOST_CHECK_THROW( bodies.at( "Vehicle" )->getCustomState( ), exceptions::BodyDuringPropagationError );
@@ -152,16 +152,17 @@ BOOST_AUTO_TEST_CASE( testMultipleCustomStatesOfBodyNotSetInBody )
                     TUDAT_NAN,
                     "Vehicle" );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
             std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >{ firstCustomPropagatorSettings,
                                                                                      secondCustomPropagatorSettings },
+            integratorSettings,
+            0.0,
             std::make_shared< PropagationTimeTerminationSettings >( 1.0 ) );
-
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
 
     std::stringstream capturedErrorStream;
     std::streambuf* originalErrorStreamBuffer = std::cerr.rdbuf( capturedErrorStream.rdbuf( ) );
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
     std::cerr.rdbuf( originalErrorStreamBuffer );
 
     BOOST_CHECK( capturedErrorStream.str( ).find( "multiple custom states of this body are propagated" ) != std::string::npos );
@@ -175,17 +176,17 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
                     std::bind( &getDummyCustomState2, std::placeholders::_1, std::placeholders::_2 ),
                     initialCustomState,
+                    0.0,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
-    // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
-
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -207,17 +208,17 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 1.0 );
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
                     std::bind( &getDummyCustomState3, std::placeholders::_1, std::placeholders::_2 ),
                     initialCustomState,
+                    0.0,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
-    // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 1.0 );
-
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -238,17 +239,17 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.01 );
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
                     std::bind( &getDummyCustomState4, std::placeholders::_1, std::placeholders::_2 ),
                     initialCustomState,
+                    0.0,
+                    integratorSettings,
                     std::make_shared< PropagationTimeTerminationSettings >( 100.0 ) );
 
-    // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 0.01 );
-
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings, true );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -355,21 +356,19 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                     std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Create total propagator settings, depending on current case.
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings;
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
     propagatorSettingsList.push_back( massPropagatorSettings );
     propagatorSettingsList.push_back( customPropagatorSettings );
 
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, fixedStepSize );
     propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-            propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
-
-    std::shared_ptr< IntegratorSettings<> > integratorSettings =
-            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
+            propagatorSettingsList, integratorSettings, 0.0, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
 
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 

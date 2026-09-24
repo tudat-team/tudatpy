@@ -223,6 +223,7 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
 
     std::shared_ptr< PropagationTerminationSettings > terminationSettings =
             std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime );
+    const auto integratorSettings = std::make_shared< IntegratorSettings< double > >( rungeKutta4, integratorStep );
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
             std::make_shared< RotationalStatePropagatorSettings< double > >(
                     torqueModelMap, translationalBodiesToIntegrate, unitRotationState, terminationSettings );
@@ -239,8 +240,8 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
                                                                         cowell );
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList{ rotationalPropagatorSettings,
                                                                                                     translationalPropagatorSettings };
-    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsList, terminationSettings );
+    std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            propagatorSettingsList, integratorSettings, initialEphemerisTime, terminationSettings );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back(
@@ -269,7 +270,7 @@ PhobosRotationSetup createPhobosRotationSetup( const PhobosGravityModel gravityM
     return PhobosRotationSetup{ bodies,
                                 propagatorSettings,
                                 createParametersToEstimate( parameterNames, bodies ),
-                                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, integratorStep ),
+                                integratorSettings,
                                 accelerationModelMap,
                                 torqueModelMap,
                                 appliedInitialStateDifference };
@@ -303,8 +304,6 @@ struct InitialAccelerationPartialData {
 InitialAccelerationPartialData evaluateInitialAccelerationPartialData( const PhobosGravityModel gravityModel )
 {
     PhobosRotationSetup setup = createPhobosRotationSetup( gravityModel, 15.0 );
-    setup.propagatorSettings->resetInitialTime( setup.integratorSettings->initialTimeDeprecated_ );
-    setup.propagatorSettings->setIntegratorSettings( setup.integratorSettings );
     setup.propagatorSettings->getOutputSettings( )->setClearNumericalSolutions( false );
     setup.propagatorSettings->getOutputSettings( )->setIntegratedResult( false );
     setup.propagatorSettings->getOutputSettings( )->setIntegratedVariationalResult( false );
@@ -384,8 +383,9 @@ FullTwoBodyPropagationHistory executeFullTwoBodyPhobosVariationalHistory(
         setup.parametersToEstimate->resetParameterValues( parameterVector );
     }
 
+    setup.propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     SingleArcVariationalEquationsSolver< double, double > solver(
-            setup.bodies, setup.integratorSettings, setup.propagatorSettings, setup.parametersToEstimate, true, nullptr, false, false );
+            setup.bodies, setup.propagatorSettings, setup.parametersToEstimate, true, false );
     if( propagateVariationalEquations )
     {
         solver.integrateVariationalAndDynamicalEquations( setup.propagatorSettings->getInitialStates( ), true );

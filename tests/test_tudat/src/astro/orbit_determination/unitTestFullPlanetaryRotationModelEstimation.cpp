@@ -111,13 +111,19 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         Eigen::VectorXd initialState =
                 getInitialStateOfBody< double, double >( bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, initialEphemerisTime );
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                        centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalEphemerisTime );
-
         // Define integrator settings.
         std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, maximumTimeStep );
+                std::make_shared< IntegratorSettings< double > >( rungeKutta4, maximumTimeStep );
+
+        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        initialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
 
         // Define links in simulation.
         std::vector< LinkDefinition > linkEnds;
@@ -175,8 +181,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         printEstimatableParameterEntries( parametersToEstimate );
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager =
+                OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
         // Define initial parameter estimate.
         Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );

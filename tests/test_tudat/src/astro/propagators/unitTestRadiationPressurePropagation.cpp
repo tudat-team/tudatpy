@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testThreeCoefficientRadiationPressurePropagationAndDepende
 
     Eigen::Vector6d initialState;
     initialState << 4.2164E7, 2.0E5, -3.0E5, -20.0, 3074.0, 15.0;
-    const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, 300.0 );
+    const auto integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 300.0 );
 
     const auto singleAccelerationSettings = singleAccelerationDependentVariable( three_coefficient_radiation_pressure, "Vehicle", "Sun" );
     const auto totalAccelerationSettings = totalAccelerationDependentVariable( "Vehicle" );
@@ -304,8 +304,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
             AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
             // Define numerical integrator settings.
-            std::shared_ptr< IntegratorSettings<> > integratorSettings =
-                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 60.0 );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 60.0 );
 
             // Convert apollo state from Keplerian elements to Cartesian elements.
             Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );

@@ -18,7 +18,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup/thrustSettings.h>
 
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
@@ -46,30 +45,6 @@ namespace te = tudat::ephemerides;
 namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
-
-namespace tudat
-{
-namespace simulation_setup
-{
-
-inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated( const std::function< double( const double ) > massRateFunction )
-
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning(
-                "tudatpy.dynamics.propagation_setup.mass_rate."
-                "custom",
-                "tudatpy.dynamics.propagation_setup.mass_rate."
-                "custom_mass_rate" );
-        isWarningPrinted = true;
-    }
-
-    return customMassRate( massRateFunction );
-}
-}  // namespace simulation_setup
-}  // namespace tudat
 
 namespace tudatpy
 {
@@ -198,8 +173,6 @@ void expose_mass_rate_setup( py::module& m )
 
 
      )doc" );
-
-    m.def( "custom", &tss::customMassRateDeprecated, py::arg( "mass_rate_function" ) );
 
     m.def( "custom_mass_rate",
            &tss::customMassRate,

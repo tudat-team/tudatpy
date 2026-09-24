@@ -84,13 +84,10 @@ int main( )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies[ "Vehicle" ]->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Vehicle",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     bodies[ "Vehicle" ]->setEphemeris(
             std::make_shared< MultiArcEphemeris >( std::map< double, std::shared_ptr< Ephemeris > >( ), "Earth", "ECLIPJ2000" ) );
@@ -122,8 +119,7 @@ int main( )
     accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< EmpiricalAccelerationSettings >( ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false ) );
@@ -158,6 +154,11 @@ int main( )
     double arcDuration = 3.01 * 86400.0;
     double arcOverlap = 3600.0;
 
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
+                    30.0, CoefficientSets::rungeKuttaFehlberg78, 15.0, 15.0, 1.0, 1.0 );
+
     // Create propagator settings (including initial state taken from Kepler orbit) for each arc
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     std::vector< double > arcStartTimes;
@@ -170,24 +171,19 @@ int main( )
                 propagateKeplerOrbit( vehicleInitialKeplerianState, currentTime - initialEphemerisTime, earthGravitationalParameter ),
                 earthGravitationalParameter );
         propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, currentArcInitialState, currentTime + arcDuration + arcOverlap ) );
+                centralBodies,
+                accelerationModelMap,
+                bodiesToIntegrate,
+                currentArcInitialState,
+                currentTime,
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( currentTime + arcDuration + arcOverlap ) ) );
         currentTime += arcDuration;
     }
 
     // Create propagator settings
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< double > >( propagatorSettingsList );
-
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >( rungeKuttaVariableStepSize,
-                                                                                              double( initialEphemerisTime ),
-                                                                                              30.0,
-                                                                                              CoefficientSets::rungeKuttaFehlberg78,
-                                                                                              15.0,
-                                                                                              15.0,
-                                                                                              1.0,
-                                                                                              1.0 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             DEFINE LINK ENDS FOR OBSERVATIONS            //////////////////////////////////////
@@ -307,8 +303,8 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create orbit determination object (propagate orbit, create observation models)
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsMap, propagatorSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////          SIMULATE OBSERVATIONS                     ////////////////////////////////////////////
@@ -416,11 +412,10 @@ int main( )
                                                             initialParameterEstimate - truthParameters );
 
     // Define observation weights (constant per observable type)
-    std::map< observation_models::ObservableType, double > weightPerObservable;
-    weightPerObservable[ one_way_range ] = 1.0 / ( rangeNoise * rangeNoise );
-    weightPerObservable[ angular_position ] = 1.0 / ( angularPositionNoise * angularPositionNoise );
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( dopplerNoise * dopplerNoise );
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    podInput->getObservationCollection( )->setConstantWeight( 1.0 / ( rangeNoise * rangeNoise ), observationParser( one_way_range ) );
+    podInput->getObservationCollection( )->setConstantWeight( 1.0 / ( angularPositionNoise * angularPositionNoise ),
+                                                              observationParser( angular_position ) );
+    podInput->getObservationCollection( )->setConstantWeight( 1.0 / ( dopplerNoise * dopplerNoise ), observationParser( one_way_doppler ) );
     podInput->defineEstimationSettings( true, false, true, true, true );
 
     // Perform estimation

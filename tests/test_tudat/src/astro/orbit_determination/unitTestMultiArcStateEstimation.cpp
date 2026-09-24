@@ -436,7 +436,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
 
     // Define integrator settings.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, TimeType( initialEphemerisTime ), 30.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 30.0 );
 
     // Define propagator settings.
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > propagatorSettingsList;
@@ -447,10 +447,10 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
                 accelerationModelMap,
                 bodiesToIntegrate,
                 allBodiesPerArcInitialStates.at( i ),
-                integrationArcEndTimes.at( i ),
-                cowell,
-                std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-                60.0 ) );
+                integrationArcStartTimes.at( i ),
+                integratorSettings->clone( ),
+                std::make_shared< PropagationTimeTerminationSettings >( integrationArcEndTimes.at( i ) ),
+                cowell ) );
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList );
@@ -476,7 +476,7 @@ Eigen::VectorXd executeMultiBodyMultiArcParameterEstimation( )
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 

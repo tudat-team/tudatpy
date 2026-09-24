@@ -12,7 +12,6 @@
 set(electromagnetism_HEADERS
         "lorentzStaticMagneticForce.h"
         "lorentzStaticMagneticAcceleration.h"
-        "radiationPressureInterface.h"
         "basicElectroMagnetism.h"
         "radiationSourceModel.h"
         "luminosityModel.h"

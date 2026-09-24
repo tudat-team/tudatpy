@@ -1606,7 +1606,7 @@ class BatchMPC:
             if station_name not in bodies.get(station_body).ground_station_list:
                 # Add the ground station to the environment
                 environment_setup.add_ground_station(
-                    bodies.get_body(station_body), ground_station_settings
+                    bodies.get(station_body), ground_station_settings
                 )
 
         # get unique combinations of mpc bodies and observatories
@@ -1649,9 +1649,9 @@ class BatchMPC:
             ]
 
             # create a set of obs for this link
-            observation_set = observations.single_observation_set(
+            observation_set = observations.create_single_observation_set(
                 model_settings.angular_position_type,
-                link_definition,
+                link_definition.link_ends,
                 observation_angles,
                 observation_times,
                 links.receiver,

@@ -241,20 +241,22 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     // Create Propagator, Integrator objects
     std::shared_ptr< propagators::PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000. );
+    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.1 );
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
             std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                              accelerationsMap,
                                                                                              bodiesToPropagate,
                                                                                              systemInitialState,
+                                                                                             0.0,
+                                                                                             integratorSettings,
+
                                                                                              terminationSettings,
                                                                                              propagators::cowell,
                                                                                              dependentVariables );
-    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.0, 0.1 );
 
     // Create simulation object and propagate dynamics.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator(
-            bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings, true );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =

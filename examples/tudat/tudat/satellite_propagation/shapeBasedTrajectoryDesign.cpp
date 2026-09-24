@@ -68,13 +68,10 @@ SystemOfBodies getBetBodyMap( )
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-
-    // Create and set radiation pressure settings
-    bodies[ "Borzi" ]->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Borzi", bodies ) );
+    addRadiationPressureTargetModel(
+            bodies,
+            "Borzi",
+            cannonballRadiationPressureTargetModelSettings( referenceAreaRadiation, radiationPressureCoefficient, occultingBodies ) );
 
     setGlobalFrameBodyEphemerides( bodies, frameOrigin, frameOrientation );
 
@@ -229,7 +226,7 @@ int main( )
     // Define integrator settings.
     double stepSize = timeOfFlight / static_cast< double >( 8000.0 );
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, 0.0, stepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, stepSize );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
@@ -377,7 +374,7 @@ int main( )
     accelerationSettingsPerturbedProblem[ "Jupiter" ].push_back(
             std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationSettingsPerturbedProblem[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure ) );
 
     SelectedAccelerationMap accelerationMap;
 

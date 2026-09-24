@@ -209,7 +209,6 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
 
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             numerical_integrators::rungeKutta4Settings( timeStep );
-    integratorSettings->initialTimeDeprecated_ = startTime;
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( endTime );
 
@@ -319,7 +318,6 @@ BOOST_AUTO_TEST_CASE( test_tcb_to_tcg_conversion )
     createBaseMetric( solarSystemMetricSettings, bodies );
 
     auto directIntegratorSettings = numerical_integrators::rungeKutta4Settings( timeStep );
-    directIntegratorSettings->initialTimeDeprecated_ = startTime;
 
     auto directSettings = std::make_shared< propagators::DirectRelativisticTimePropagatorSettings< double, double > >(
             std::make_pair( centralBody, "" ), startTime, directIntegratorSettings, terminationSettings );

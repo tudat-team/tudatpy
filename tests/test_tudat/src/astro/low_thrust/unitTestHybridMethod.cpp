@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
     // Define integrator settings.
     double stepSize = ( timeOfFlight ) / static_cast< double >( 40000 );
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, 0.0, stepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings< double > >( numerical_integrators::rungeKutta4, stepSize );
 
     // Define optimisation algorithm.
     algorithm optimisationAlgorithm{ pagmo::de1220( ) };
@@ -242,7 +242,6 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
                         terminationSettings );
 
         integratorSettings->initialTimeStep_ = std::fabs( integratorSettings->initialTimeStep_ );
-        integratorSettings->initialTime_ = initialTime;
 
         // Create list of propagation settings.
         std::vector< std::shared_ptr< propagators::SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
@@ -252,14 +251,14 @@ BOOST_AUTO_TEST_CASE( test_hybrid_method_implementation )
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
         // Define propagator settings.
-        std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings =
+        std::shared_ptr< propagators::MultiTypePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< propagators::MultiTypePropagatorSettings< double > >(
-                        propagatorSettingsVector, terminationSettings, dependentVariablesToSave );
+                        propagatorSettingsVector, integratorSettings, initialTime, terminationSettings, dependentVariablesToSave );
 
         bodies[ bodyToPropagate ]->setConstantBodyMass( currentMass );
 
         // Perform propagation.
-        propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+        propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
         std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 

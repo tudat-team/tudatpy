@@ -127,8 +127,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
             createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies );
 
     // Define integrator settings.
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings = std::make_shared< IntegratorSettings< TimeType > >(
-            rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 900.0 );
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, 900.0 );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
@@ -136,7 +136,9 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
                     accelerationModelMap,
                     bodiesToIntegrate,
                     getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
-                    TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
+                    TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ),
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ) ),
                     cowell );
 
     // Define link ends.
@@ -181,7 +183,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
     // Define observation times.
     double observationTimeStep = 1000.0;

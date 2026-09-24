@@ -155,7 +155,7 @@ int main( )
 
     // Set integrator settings
     std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, initialTime, timeStepSize );
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, timeStepSize );
 
     // Create control classes
     // These are only included to show how a control system would need to be implemented, but they have no effect at all on the
