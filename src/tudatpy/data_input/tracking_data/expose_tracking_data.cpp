@@ -657,6 +657,33 @@ void expose_tracking_data( py::module& m )
          for the corresponding environment setup interface.
       )doc" )
             .def( py::init<>( ) )
+            .def( py::init< const std::map< double, Eigen::Vector6d >&,
+                            const std::string&,
+                            const bool,
+                            const std::string&,
+                            const std::string& >( ),
+                  py::arg( "state_history" ),
+                  py::arg( "frame_origin" ),
+                  py::arg( "is_velocity_defined" ),
+                  py::arg( "time_scale" ) = "TDB",
+                  py::arg( "frame_orientation" ) = "J2000",
+                  R"doc(
+         Create translational-state supplementary data from a tabulated state history.
+
+         Parameters
+         ----------
+         state_history : dict[float, numpy.ndarray]
+             Cartesian states (position and velocity) per epoch.
+         frame_origin : str
+             Origin of the frame in which the states are expressed.
+         is_velocity_defined : bool
+             Whether the velocity entries are valid. If False, velocities are
+             computed from positions by finite differences when the data are applied.
+         time_scale : str, default "TDB"
+             Time scale of the epochs ("TDB" or "UTC").
+         frame_orientation : str, default "J2000"
+             Orientation of the frame in which the states are expressed.
+      )doc" )
             .def_property_readonly( "state_history",
                                     &tdat::TranslationalStateSupplementaryData::getStateHistory,
                                     R"doc(
@@ -675,6 +702,15 @@ void expose_tracking_data( py::module& m )
 
          :type: str
       )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &tdat::TranslationalStateSupplementaryData::getFrameOrientation,
+                                    R"doc(
+         **read-only**
+
+         Orientation of the translational-state frame.
+
+         :type: str
+      )doc" )
             .def_property_readonly( "is_velocity_defined",
                                     &tdat::TranslationalStateSupplementaryData::isVelocityDefined,
                                     R"doc(
@@ -683,6 +719,15 @@ void expose_tracking_data( py::module& m )
          Boolean that defines whether velocity entries are defined, if not they are computed through finite differences when this object is processed to update the environment.
 
          :type: bool
+      )doc" )
+            .def_property_readonly( "time_scale",
+                                    &tdat::TranslationalStateSupplementaryData::getTimeScale,
+                                    R"doc(
+         **read-only**
+
+         Time scale of the tabulated state-history epochs.
+
+         :type: str
       )doc" );
 
     py::class_< tdat::RotationalStateSupplementaryData >( m, "RotationalStateSupplementaryData", R"doc(
@@ -727,10 +772,23 @@ void expose_tracking_data( py::module& m )
          :type: bool
       )doc" );
 
-    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >(
-            m,
-            "TrackingSupplementaryData",
-            R"doc(Container for tracking supplementary data. These objects store auxiliary information loaded from tracking data files and are applied to a system of bodies by :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.)doc" )
+    py::class_< tdat::TrackingSupplementaryData, std::shared_ptr< tdat::TrackingSupplementaryData > >( m,
+                                                                                                       "TrackingSupplementaryData",
+                                                                                                       R"doc(
+         Container for tracking supplementary data.
+
+         These objects store auxiliary information loaded from tracking data
+         files and are applied to a system of bodies by
+         :func:`~tudatpy.estimation.observations.set_tracking_supplementary_data_in_bodies`.
+
+         Parameters
+         ----------
+         body_name : str
+             Name of the body to which the data apply.
+         reference_point_name : str
+             Name of the reference point on the body, or an empty string for
+             body-level data.
+      )doc" )
             .def( py::init<>( ) )
             .def( py::init< const std::string&, const std::string& >( ), py::arg( "body_name" ), py::arg( "reference_point_name" ) )
             .def_property( "body_name",
@@ -752,6 +810,16 @@ void expose_tracking_data( py::module& m )
          Reference point name.
 
          :type: str
+      )doc" )
+            .def_property( "is_passive_radar_reflector",
+                           &tdat::TrackingSupplementaryData::isPassiveRadarReflector,
+                           &tdat::TrackingSupplementaryData::setIsPassiveRadarReflector,
+                           R"doc(
+         Whether the named body is a passive radar reflector. Applying this
+         supplementary data sets its turnaround ratio to one for every
+         frequency-band pair.
+
+         :type: bool
       )doc" )
             .def_property( "translational_state_supplementary_data",
                            &tdat::TrackingSupplementaryData::getTranslationalStateSupplementaryData,

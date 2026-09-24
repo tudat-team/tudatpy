@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 from tudatpy.data_input.tracking_data.mpc import BatchMPC
 from tudatpy.data_input.tracking_data.obs_80_cols import parsers, unpackers
 from tudatpy.data_input.tracking_data.optical_utilities import create_augmented_optical_table
@@ -154,6 +155,49 @@ def test_80cols_line_parser_logic():
     assert ids[2] == "134341"  # 'D4341' -> 134341 Unpacking
     assert ids[3] == "2025 FA22"  # Provisional Unpacking
 
+    # The sample's paired S/s records must also preserve the parallax type and
+    # attach the spacecraft position, converted from kilometres to metres.
+    eros_row = parsed_table[1]
+    assert int(eros_row["spacecraft_parallax_type"]) == 1
+    np.testing.assert_allclose(eros_row["spacecraft_position_x"], -198301940.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_y"], 198171039.0)
+    np.testing.assert_allclose(eros_row["spacecraft_position_z"], 56287985.0)
+
+
+def test_80cols_parser_splits_concatenated_satellite_records():
+    # Check that an astroquery-style concatenated S/s pair is split and joined
+    # into one optical observation with its spacecraft position.
+    combined_satellite_record = (
+        "00433         S2021 06 07.42640918 08 15.401-41 22 02.35         12.0 V      500"
+        "00433         s2021 06 07.4264091 -198301.940 +198171.039 +56287.9850   ~6oMXC57"
+    )
+
+    parsed_table = parse_80cols_data([combined_satellite_record])
+
+    # The parallax line must not become a second observation, and its position
+    # must be attached to the correctly unpacked Eros observation.
+    assert len(parsed_table) == 1
+    assert str(parsed_table["number"][0]) == "433"
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], -198301940.0)
+
+
+def test_80cols_parser_handles_satellite_parallax_spacing():
+    # Check that signs separated from the digits in MPC spacecraft coordinates
+    # are parsed correctly and that kilometre values are converted to metres.
+    line_hst_valid = (
+        "     T1S1222  S1995 10 19.53839 23 45 35.737+09 09 38.13                     250"
+    )
+    line_hst_parallax = (
+        "     T1S1222  s1995 10 19.53839 1 + 5530.3041 - 4255.1515 -  550.2319        250"
+    )
+
+    parsed_table = parse_80cols_data([line_hst_valid, line_hst_parallax])
+
+    # All three signed position components must retain their sign and scale.
+    np.testing.assert_allclose(parsed_table["spacecraft_position_x"][0], 5530304.1)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_y"][0], -4255151.5)
+    np.testing.assert_allclose(parsed_table["spacecraft_position_z"][0], -550231.9)
+
 
 def test_80cols_malformed_lines():
     """Tests that invalid line lengths or formats raise ValueError."""
@@ -271,6 +315,15 @@ def test_identify_object_types(row_data, expected_type, expected_name):
     result = identify_object(row)
     assert result["obj_type"] == expected_type
     assert result["unpacked_name"] == expected_name
+
+
+def test_survey_designation_is_unpacked():
+    """Route survey designations through the minor-planet unpacker."""
+    # Survey codes have a digit in position six but still use the minor-planet route.
+    row = pd.Series({"number": None, "provisional_designation": "T1S1222"})
+
+    # The packed survey code must be expanded to the canonical MPC designation.
+    assert parsers.identify_object(row)["unpacked_name"] == "1222 T-1"
 
 
 def test_identify_object_missing_ids():

@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import requests
-import os
 import pytest
 from tudatpy.data_input.environment_data import spice
 from tudatpy.dynamics.environment_setup import (

@@ -1,19 +1,39 @@
+import datetime
+import json
 from pathlib import Path
 from bisect import bisect_left, bisect_right
 from urllib.request import urlretrieve
 
 import numpy as np
+import pytest
 
 from tudatpy.data_input import resource_paths as data_paths
-from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.environment_data.horizons import HorizonsQuery
+from tudatpy.data_input.tracking_data import (
+    TrackingData,
+    TrackingSupplementaryData,
+    TranslationalStateSupplementaryData,
+)
 from tudatpy.data_input.tracking_data.fdets import FdetDateFormat, read_fdets_data
 from tudatpy.data_input.tracking_data.ifms import read_ifms_data
+from tudatpy.data_input.tracking_data.jpl_radar import JPLRadarQuery
+from tudatpy.data_input.tracking_data.mpc import BatchMPC
+from tudatpy.data_input.tracking_data.obs_80_cols.parsers import parse_80cols_data
+from tudatpy.data_input.tracking_data.optical_utilities import SPACECRAFT_POSITION_COLUMNS
 from tudatpy.data_input.tracking_data.odf import read_odf_data
 from tudatpy.data_input.tracking_data.psf import read_psf_data
+from tudatpy.data_input.tracking_data.radar_utilities import (
+    DOPPLER_OBSERVABLE,
+    RANGE_OBSERVABLE,
+    radar_data_from_table,
+    radar_data_to_tracking_data,
+)
 from tudatpy.data_input.tracking_data.tnf import read_tnf_data
+from tudatpy.astro import time_representation
 from tudatpy.estimation.observations import (
     create_observation_collection_from_tracking_data,
     create_compressed_doppler_collection,
+    compute_residuals_and_dependent_variables,
     simulate_observations,
     set_tracking_supplementary_data_in_bodies,
 )
@@ -37,6 +57,11 @@ from tudatpy.kernel.estimation.observations_setup import (
     observations_simulation_settings,
 )
 from tudatpy.data_input.environment_data import spice
+
+APOPHIS_FIGURE2_RADAR_FIXTURE_PATH = (
+    Path(__file__).resolve().parent / "data" / "mpc_radar_apophis_figure2_horizons_fixtures.json"
+)
+APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL = 6.0
 
 
 def _test_data_path() -> Path:
@@ -415,6 +440,213 @@ def _simulate_doppler_measured_frequency(observation_collection, bodies):
     return simulate_observations(observation_simulation_settings, observation_simulators, bodies)
 
 
+def _simulate_radar_residuals(observation_collection, bodies):
+    """Compute radar residuals using the same observable families loaded from the data."""
+    light_time_settings = [
+        light_time_corrections.first_order_relativistic_light_time_correction(["Sun"])
+    ]
+    observation_model_settings = []
+    for (
+        observable_type,
+        raw_link_ends_list,
+    ) in observation_collection.link_ends_per_observable_type.items():
+        for raw_link_ends in raw_link_ends_list:
+            link_definition = links.link_definition(raw_link_ends)
+            if observable_type == model_settings.n_way_range_type:
+                observation_model_settings.append(
+                    model_settings.n_way_range(
+                        link_definition,
+                        light_time_settings,
+                        bias_settings=None,
+                        time_scale_for_observable=time_representation.utc_scale,
+                    )
+                )
+            elif observable_type == model_settings.doppler_measured_frequency_type:
+                observation_model_settings.append(
+                    model_settings.doppler_measured_frequency(
+                        link_definition,
+                        light_time_settings,
+                        bias_settings=None,
+                    )
+                )
+
+    observation_simulators = observations_simulation_settings.create_observation_simulators(
+        observation_model_settings, bodies
+    )
+    compute_residuals_and_dependent_variables(
+        observation_collection,
+        observation_simulators,
+        bodies,
+    )
+    return np.asarray(observation_collection.get_concatenated_residuals())
+
+
+def _simulate_angular_position_residuals(observation_collection, bodies):
+    """Compute optical angular-position residuals for already-created observations."""
+    observation_model_settings = []
+    for raw_link_ends_list in observation_collection.link_ends_per_observable_type.values():
+        for raw_link_ends in raw_link_ends_list:
+            observation_model_settings.append(
+                model_settings.angular_position(
+                    links.link_definition(raw_link_ends),
+                    bias_settings=None,
+                )
+            )
+
+    observation_simulators = observations_simulation_settings.create_observation_simulators(
+        observation_model_settings, bodies
+    )
+    compute_residuals_and_dependent_variables(
+        observation_collection,
+        observation_simulators,
+        bodies,
+    )
+    return np.asarray(observation_collection.get_concatenated_residuals())
+
+
+def _create_itokawa_radar_bodies(radar_table):
+    """Create the environment needed to reproduce the selected Itokawa radar arc."""
+    spice.load_standard_kernels()
+    start_time = float(radar_table["epoch_seconds_UTC"].min()) - 10.0 * constants.JULIAN_DAY
+    end_time = float(radar_table["epoch_seconds_UTC"].max()) + 10.0 * constants.JULIAN_DAY
+
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth", "Moon"], "SSB", "J2000"
+    )
+    earth_settings = body_settings.get("Earth")
+    earth_settings.shape_settings = shape.oblate_spherical(
+        6378137.0,
+        1.0 / 298.257223563,
+    )
+    earth_settings.rotation_model_settings = rotation_model.gcrs_to_itrs(
+        rotation_model.iau_2006,
+        "J2000",
+    )
+    earth_settings.gravity_field_settings.associated_reference_frame = "ITRS"
+    earth_settings.ground_station_settings = ground_station.optical_telescope_stations()
+
+    body_settings.add_empty_settings("101955")
+    horizons_states = HorizonsQuery(
+        query_id="101955;",
+        location="500@10",
+        epoch_start=start_time,
+        epoch_end=end_time,
+        epoch_step="12h",
+        extended_query=True,
+    ).cartesian(frame_orientation="J2000")
+    body_settings.get("101955").ephemeris_settings = ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:], dtype=float) for row in horizons_states},
+        frame_origin="Sun",
+        frame_orientation="J2000",
+    )
+
+    return environment_setup.create_system_of_bodies(body_settings)
+
+
+def _create_apophis_radar_bodies_from_fixture(case):
+    """Create the radar environment from one frozen Apophis fixture case."""
+    spice.load_standard_kernels()
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth", "Moon"], "SSB", "J2000"
+    )
+    earth_settings = body_settings.get("Earth")
+    earth_settings.shape_settings = shape.oblate_spherical(
+        6378137.0,
+        1.0 / 298.257223563,
+    )
+    earth_settings.rotation_model_settings = rotation_model.gcrs_to_itrs(
+        rotation_model.iau_2006,
+        "J2000",
+    )
+    earth_settings.gravity_field_settings.associated_reference_frame = "ITRS"
+    earth_settings.ground_station_settings = ground_station.optical_telescope_stations()
+
+    target_body = case["designation"]
+    ephemeris_data = case["target_ephemeris"]
+    body_settings.add_empty_settings(target_body)
+    body_settings.get(target_body).ephemeris_settings = ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:7], dtype=float) for row in ephemeris_data["states"]},
+        frame_origin=ephemeris_data["frame_origin"],
+        frame_orientation=ephemeris_data["frame_orientation"],
+    )
+
+    return environment_setup.create_system_of_bodies(body_settings)
+
+
+def _load_apophis_figure2_radar_fixture_cases():
+    with APOPHIS_FIGURE2_RADAR_FIXTURE_PATH.open() as fixture_file:
+        return json.load(fixture_file)["cases"]
+
+
+def _compute_apophis_fixture_radar_residual(case):
+    parsed_table = parse_80cols_data(case["mpc_80col_records"])
+    radar_table = radar_data_from_table(parsed_table)
+    tracking_data, supplementary_data = radar_data_to_tracking_data(radar_table)
+    bodies = _create_apophis_radar_bodies_from_fixture(case)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    observation_collection = create_observation_collection_from_tracking_data(
+        tracking_data,
+        bodies,
+    )
+    residual = _simulate_radar_residuals(observation_collection, bodies)[0]
+    return residual, float(radar_table["sigma"].iloc[0])
+
+
+def _itokawa_2005_jpl_radar_arc():
+    """Return a compact JPL Itokawa radar arc with both range and Doppler data."""
+    return JPLRadarQuery("101955", timeout=60.0).to_radar_data(
+        target_body="101955",
+        epoch_start=datetime.datetime(2005, 1, 1),
+        epoch_end=datetime.datetime(2006, 1, 1),
+        target_point="C",
+    )
+
+
+def _hubble_space_astrometry_batch(target, observatory):
+    batch = BatchMPC()
+    batch.get_observations([target], use_mpc80_format=True)
+    batch.filter(
+        epoch_start=datetime.datetime(1990, 1, 1),
+        epoch_end=datetime.datetime(2026, 1, 1),
+        observatories=[observatory],
+    )
+    return batch
+
+
+def _create_hubble_space_astrometry_bodies(batch, horizons_id):
+    spice.load_standard_kernels()
+    start = float(batch.table["epoch_seconds_UTC"].min()) - constants.JULIAN_DAY
+    end = float(batch.table["epoch_seconds_UTC"].max()) + constants.JULIAN_DAY
+    target_body = batch.MPC_objects[0]
+    body_settings = environment_setup.get_default_body_settings(
+        ["Sun", "Earth"],
+        "SSB",
+        "J2000",
+    )
+    states = HorizonsQuery(
+        query_id=horizons_id,
+        location="500@SSB",
+        epoch_start=start,
+        epoch_end=end,
+        epoch_step="10m",
+        extended_query=True,
+    ).cartesian(frame_orientation="J2000")
+    body_settings.add_empty_settings(target_body)
+    body_settings.get(target_body).ephemeris_settings = ephemeris.tabulated(
+        {float(row[0]): np.asarray(row[1:7], dtype=float) for row in states},
+        frame_origin="SSB",
+        frame_orientation="J2000",
+    )
+    return environment_setup.create_system_of_bodies(body_settings)
+
+
+def _residual_slices(collection, residuals):
+    return {
+        observable: residuals[start : start + size]
+        for observable, (start, size) in collection.observable_type_start_index_and_size.items()
+    }
+
+
 def _estimate_voyager_velocity_from_jacobson_references(references, reference_index: int):
     lower_index = reference_index
     upper_index = reference_index
@@ -779,3 +1011,144 @@ def test_fdets_juice_short_arc_residual_scatter_is_millihertz_level():
     assert residuals.size == 120
     assert np.sqrt(np.mean(residual_scatter**2)) < 1.0e-2
     assert np.max(np.abs(residual_scatter)) < 2.5e-2
+
+
+def test_translational_state_supplementary_data_rejects_non_utc_tdb_epochs():
+    """Reject supplementary state epochs whose conversion is not explicitly supported."""
+    # Check that applying state histories rejects time scales other than the two
+    # explicitly supported input scales, UTC and TDB.
+    body_settings = environment_setup.BodyListSettings("SSB", "J2000")
+    body_settings.add_empty_settings("TestSpacecraft")
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+    # This supplementary path currently implements the two cases used by the
+    # data readers: ephemeris-ready TDB epochs and UTC-tagged source epochs.
+    translational_data = TranslationalStateSupplementaryData(
+        {0.0: np.zeros(6)},
+        "SSB",
+        True,
+        "TT",
+        "J2000",
+    )
+    supplementary_data = TrackingSupplementaryData("TestSpacecraft", "")
+    supplementary_data.translational_state_supplementary_data = translational_data
+
+    # The environment update must fail with the documented unsupported-scale error.
+    with pytest.raises(RuntimeError, match="only TDB and UTC time scales"):
+        set_tracking_supplementary_data_in_bodies(bodies, [supplementary_data])
+
+
+@pytest.mark.remote_data
+def test_jpl_itokawa_radar_residuals_are_nonzero_and_bounded():
+    """Check JPL Itokawa range and Doppler residuals over the 2005 arc."""
+    # Check the complete remote-data path from JPL radar rows through Tudat
+    # range and Doppler residual simulation, including source uncertainties.
+    radar_table = _itokawa_2005_jpl_radar_arc()
+    observation_counts = radar_table["observable_type"].value_counts()
+
+    # The selected arc must contain enough of both observables to test an arc,
+    # rather than an isolated measurement.
+    assert observation_counts[RANGE_OBSERVABLE] >= 10
+    assert observation_counts[DOPPLER_OBSERVABLE] >= 3
+
+    tracking_data, supplementary_data = radar_data_to_tracking_data(radar_table)
+    bodies = _create_itokawa_radar_bodies(radar_table)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    observed_observations = create_observation_collection_from_tracking_data(
+        tracking_data,
+        bodies,
+    )
+
+    residuals = _simulate_radar_residuals(observed_observations, bodies)
+    normalized_residuals = np.abs(residuals) * np.sqrt(
+        np.asarray(observed_observations.concatenated_weights)
+    )
+    by_type = _residual_slices(observed_observations, residuals)
+
+    # Every source row must yield one finite residual.
+    assert residuals.size == len(radar_table)
+    assert np.all(np.isfinite(residuals))
+
+    # Both observable models must produce non-trivial residuals.
+    assert np.any(np.abs(by_type[model_settings.n_way_range_type]) > 1.0e-6)
+    assert np.any(np.abs(by_type[model_settings.doppler_measured_frequency_type]) > 1.0e-9)
+
+    # The combined residuals must remain bounded relative to the JPL sigmas.
+    assert np.sqrt(np.mean(normalized_residuals**2)) < 3.0
+    assert np.max(normalized_residuals) < 3.5
+
+
+def test_mpc_apophis_figure2_radar_residuals_against_frozen_horizons_states():
+    """Check Apophis Figure 2 radar residuals against frozen Horizons states."""
+    # Check MPC radar parsing and observation modelling against a reproducible
+    # set of frozen target states spanning the published Apophis data arc.
+    fixture_cases = _load_apophis_figure2_radar_fixture_cases()
+
+    # The fixture must retain the complete 50-observation regression data set.
+    assert len(fixture_cases) == 50
+
+    for case in fixture_cases:
+        residual, sigma = _compute_apophis_fixture_radar_residual(case)
+        normalized_residual = residual / sigma
+        unit = "m" if case["jpl_radar_row"]["units"] == "us" else "Hz"
+        diagnostic = (
+            f"{case['epoch_utc']}  {case['jpl_radar_row']['units']:>2s}  "
+            f"station = {case['mpc_80col_records'][0][68:71]}->"
+            f"{case['mpc_80col_records'][1][68:71]}  "
+            f"residual = {residual:12.3f} {unit}  sigma = {sigma:10.3f} {unit}  "
+            f"residual/sigma = {normalized_residual:10.3f}"
+        )
+
+        # Each modelled measurement must stay within the documented sigma bound.
+        assert abs(normalized_residual) < APOPHIS_FIGURE2_MAX_NORMALIZED_RADAR_RESIDUAL, diagnostic
+
+
+@pytest.mark.remote_data
+@pytest.mark.parametrize(
+    ("target", "horizons_id"),
+    [
+        ("2003 BF91", "2003 BF91;"),
+        ("2003 BH91", "2003 BH91;"),
+        ("2020 KP11", "2020 KP11;"),
+    ],
+)
+def test_hubble_mpc_space_astrometry_residuals_are_sub_arcsecond(target, horizons_id):
+    """Check MPC HST astrometry with spacecraft receiver-state supplementary data."""
+    # Check that MPC S/s records place HST at its tabulated position and yield
+    # sub-arcsecond angular residuals for three independent target arcs.
+    batch = _hubble_space_astrometry_batch(target, "250")
+    first_epoch = batch.table["epoch_seconds_UTC"].min()
+    batch.filter(
+        epoch_start=first_epoch,
+        epoch_end=first_epoch + 3.0 * constants.JULIAN_DAY,
+    )
+
+    # The short arc must have enough observations and a complete receiver position.
+    assert len(batch.table) >= 3
+    assert batch.table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=None)
+
+    tracking_data, supplementary_data = batch.to_tracking_dataset(
+        add_star_catalog_corrections=False
+    )
+    bodies = _create_hubble_space_astrometry_bodies(batch, horizons_id)
+    set_tracking_supplementary_data_in_bodies(bodies, supplementary_data)
+    observed_observations = create_observation_collection_from_tracking_data(
+        tracking_data,
+        bodies,
+    )
+    residuals = (
+        _simulate_angular_position_residuals(observed_observations, bodies)
+        .reshape(2, -1, order="F")
+        .T
+    )
+    # RA residuals wrap by 2*pi when observed and computed RA straddle 0.
+    residuals[:, 0] = (residuals[:, 0] + np.pi) % (2.0 * np.pi) - np.pi
+    residuals_arcsec = residuals * 180.0 / np.pi * 3600.0
+
+    # Each observation must produce finite right-ascension and declination residuals.
+    assert residuals_arcsec.shape[1] == 2
+    assert np.all(np.isfinite(residuals_arcsec))
+
+    # Peak and RMS residuals must satisfy the sub-arcsecond accuracy limits.
+    assert np.max(np.abs(residuals_arcsec)) < 0.1
+    assert np.all(np.sqrt(np.mean(residuals_arcsec**2, axis=0)) < 0.05)

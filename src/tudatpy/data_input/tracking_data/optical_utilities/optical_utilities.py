@@ -14,7 +14,11 @@ import astropy.units as u
 import os
 import re
 from tudatpy.astro import time_representation
-from tudatpy.data_input.tracking_data import TrackingData
+from tudatpy.data_input.tracking_data import (
+    TrackingData,
+    TrackingSupplementaryData,
+    TranslationalStateSupplementaryData,
+)
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -57,6 +61,11 @@ DEFAULT_CATALOG_FLAGS = [
 ]
 
 REQUIRED_OPTICAL_COLUMNS = ["number", "epoch", "RA", "DEC", "observatory"]
+SPACECRAFT_POSITION_COLUMNS = [
+    "spacecraft_position_x",
+    "spacecraft_position_y",
+    "spacecraft_position_z",
+]
 ANCILLARY_STRING_COLUMNS = [
     "band",
     "phottype",
@@ -198,7 +207,54 @@ def create_augmented_optical_table(
     return augmented_table
 
 
-def _datetime_to_utc_seconds(epoch) -> float:
+def _spacecraft_observation_mask(table: pd.DataFrame) -> pd.Series:
+    """Identify optical rows that include a complete spacecraft position."""
+    if not set(SPACECRAFT_POSITION_COLUMNS).issubset(table.columns):
+        return pd.Series(False, index=table.index)
+    return table[SPACECRAFT_POSITION_COLUMNS].notna().all(axis=1)
+
+
+def _build_spacecraft_supplementary_data(table: pd.DataFrame) -> list[TrackingSupplementaryData]:
+    """Receiver-state supplementary data for space-based observations.
+
+    MPC parallax records give geocentric J2000 positions at the UTC observation
+    epochs; Tudat derives velocities by finite differences.
+    """
+    supplementary_data = []
+    for observatory, group in table.loc[_spacecraft_observation_mask(table)].groupby(
+        "observatory", sort=False
+    ):
+        positions = group.groupby("epoch_seconds_UTC")[SPACECRAFT_POSITION_COLUMNS].mean()
+        receiver_data = TrackingSupplementaryData(str(observatory), "")
+        receiver_data.translational_state_supplementary_data = TranslationalStateSupplementaryData(
+            state_history={
+                float(epoch): np.concatenate((position, np.zeros(3)))
+                for epoch, position in zip(positions.index, positions.to_numpy())
+            },
+            frame_origin="Earth",
+            is_velocity_defined=False,
+            time_scale="UTC",
+            frame_orientation="J2000",
+        )
+        supplementary_data.append(receiver_data)
+
+    return supplementary_data
+
+
+def datetime_to_utc_seconds(epoch) -> float:
+    """Convert an epoch to UTC seconds since J2000.
+
+    Parameters
+    ----------
+    epoch : float | DateTime | Time | datetime.datetime
+        Epoch as UTC seconds since J2000, a Tudat ``DateTime`` or ``Time``, or a
+        Python datetime interpreted as UTC.
+
+    Returns
+    -------
+    float
+        UTC seconds since J2000.
+    """
     if hasattr(epoch, "to_epoch"):
         return float(epoch.to_epoch())
     if hasattr(epoch, "to_float"):
@@ -249,12 +305,10 @@ def filter_augmented_optical_table(
     filtered = table.copy()
     if epoch_start is not None:
         filtered = filtered.loc[
-            filtered["epoch_seconds_UTC"] >= _datetime_to_utc_seconds(epoch_start)
+            filtered["epoch_seconds_UTC"] >= datetime_to_utc_seconds(epoch_start)
         ]
     if epoch_end is not None:
-        filtered = filtered.loc[
-            filtered["epoch_seconds_UTC"] <= _datetime_to_utc_seconds(epoch_end)
-        ]
+        filtered = filtered.loc[filtered["epoch_seconds_UTC"] <= datetime_to_utc_seconds(epoch_end)]
 
     if observatories is not None:
         included = {str(observatory).strip().zfill(3) for observatory in observatories}
@@ -322,13 +376,25 @@ def optical_table_to_tracking_data(
 
     target_names = _resolve_optical_target_names(table)
 
+    spacecraft_mask = _spacecraft_observation_mask(table)
+    table = table.assign(_is_spacecraft_observation=spacecraft_mask.to_numpy(dtype=bool))
+    supplementary_data = _build_spacecraft_supplementary_data(table)
+
     tracking_data_objects = []
-    for (target, observatory), group in table.groupby(["number", "observatory"]):
+    for (target, observatory, is_spacecraft), group in table.groupby(
+        ["number", "observatory", "_is_spacecraft_observation"]
+    ):
         observable_type, reference_link_end_type = "AngularPosition", "receiver"
 
+        # Ground astrometry uses an Earth ground-station receiver. Space-based
+        # astrometry uses the observatory code as the receiver body and attaches
+        # its translational state through TrackingSupplementaryData.
+        receiver_link_end = (
+            (str(observatory), "") if bool(is_spacecraft) else ("Earth", str(observatory))
+        )
         link_ends = [
             ((target_names[target], ""), "transmitter"),
-            (("Earth", str(observatory)), reference_link_end_type),
+            (receiver_link_end, reference_link_end_type),
         ]
         observations = [np.array([ra, dec]) for ra, dec in zip(group["RA"], group["DEC"])]
 
@@ -356,7 +422,7 @@ def optical_table_to_tracking_data(
 
         tracking_data_objects.append(tracking_data_object)
 
-    return tracking_data_objects, list()
+    return tracking_data_objects, supplementary_data
 
 
 def read_optical_data(
