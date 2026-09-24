@@ -29,7 +29,6 @@ target_include_directories(tudat_estimation_test_case_support SYSTEM PRIVATE
     "${Boost_INCLUDE_DIRS}"
     "${CSpice_INCLUDE_DIRS}"
     "${Sofa_INCLUDE_DIRS}"
-    "${TudatResources_INCLUDE_DIRS}"
 )
 
 target_link_libraries(tudat_estimation_test_case_support PUBLIC
